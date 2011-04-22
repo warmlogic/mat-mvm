@@ -146,42 +146,42 @@ end
 %% Convert the data to FieldTrip structs - excludes NS artifact trials
 
 % cfg_proc = [];
-% cfg_freq.method = 'mtmfft';
-% cfg_freq.output = 'fourier';
-% cfg_freq.foilim = [4 8];
-% cfg_freq.tapsmofrq = 5;
-% cfg_freq.keeptrials = 'yes';
-% cfg_freq.channel = {'e1','e53'};
-% cfg_freq.channelcmb = {'e1','e53'};
+% cfg_proc.method = 'mtmfft';
+% cfg_proc.output = 'fourier';
+% cfg_proc.foilim = [4 8];
+% cfg_proc.tapsmofrq = 5;
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.channel = {'e1','e53'};
+% cfg_proc.channelcmb = {'e1','e53'};
 
 cfg_proc = [];
-cfg_freq.method = 'mtmconvol';
-%cfg_freq.output = 'fourier';
-cfg_freq.output = 'powandcsd';
-cfg_freq.taper = 'dpss';
-cfg_freq.foi = 2:1:10;
-%cfg_freq.foi = 3:1:9;
-cfg_freq.t_ftimwin = 5./cfg_freq.foi;
-cfg_freq.tapsmofrq = 0.4*cfg_freq.foi;
-cfg_freq.toi = -0.5:0.05:1.5;
-%cfg_freq.pad = 'maxperlen';
-cfg_freq.keeptrials = 'yes';
-cfg_freq.keeptapers = 'no';
-cfg_freq.channel = {'e1','e53','e122'};
-cfg_freq.channelcmb = {'e1','e53';'e1','e122';'e53','e122'};
-%cfg_freq.channel = {'e1','e53'};
-%cfg_freq.channelcmb = {'e1','e53'};
+cfg_proc.method = 'mtmconvol';
+%cfg_proc.output = 'fourier';
+cfg_proc.output = 'powandcsd';
+cfg_proc.taper = 'dpss';
+cfg_proc.foi = 2:1:10;
+%cfg_proc.foi = 3:1:9;
+cfg_proc.t_ftimwin = 5./cfg_proc.foi;
+cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+cfg_proc.toi = -0.5:0.05:1.5;
+%cfg_proc.pad = 'maxperlen';
+cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptapers = 'no';
+cfg_proc.channel = {'e1','e53','e122'};
+cfg_proc.channelcmb = {'e1','e53';'e1','e122';'e53','e122'};
+%cfg_proc.channel = {'e1','e53'};
+%cfg_proc.channelcmb = {'e1','e53'};
 
 
 % cfg_proc = [];
-% cfg_freq.method = 'wltconvol';
-% cfg_freq.output = 'powandcsd';
-% cfg_freq.foi = 4:1:8;
-% cfg_freq.toi = -0.5:0.05:1.5;
+% cfg_proc.method = 'wltconvol';
+% cfg_proc.output = 'powandcsd';
+% cfg_proc.foi = 4:1:8;
+% cfg_proc.toi = -0.5:0.05:1.5;
 % cfg.width = 7;
-% cfg_freq.keeptrials = 'yes';
-% cfg_freq.channel = {'e1','e53'};
-% cfg_freq.channelcmb = {'e1','e53'};
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.channel = {'e1','e53'};
+% cfg_proc.channelcmb = {'e1','e53'};
 
 cfg_pp = [];
 
@@ -189,7 +189,7 @@ cfg_pp = [];
 %[data_freq,exp.eventValues] = create_ft_struct_parallel(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,dirs.saveDirName,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
 
 % % save the structs for loading in later
-% saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.foi(1),cfg_freq.foi(end),exp.prepost(1)*1000,exp.prepost(2)*1000));
+% saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.foi(1),cfg_proc.foi(end),exp.prepost(1)*1000,exp.prepost(2)*1000));
 % if ~exist(saveFile,'file')
 %   save(saveFile,'data_freq','cfg_proc');
 % end
@@ -201,22 +201,22 @@ cfg_pp = [];
 % timewin = .4;
 % freqwin = [4 8];
 % cfg_proc = [];
-% cfg_freq.output ='powandcsd';
-% cfg_freq.taper = 'dpss';
-% cfg_freq.channel = {'e1','e53'};
-% cfg_freq.channelcmb = {'e1','e53'};
-% cfg_freq.method          = 'mtmconvol';
-% cfg_freq.keeptrials = 'yes';
-% cfg_freq.keeptapers = 'no';
-% cfg_freq.foi             = (1/timewin):(1/timewin):freqwin(2); % Frequency axis
-% cfg_freq.foi             = cfg_freq.foi(cfg_freq.foi>=freqwin(1));
-% cfg_freq.t_ftimwin       = zeros(1,length(cfg_freq.foi));
-% cfg_freq.t_ftimwin(:)    = timewin; % Time resolution
-% cfg_freq.tapsmofrq       = zeros(1,length(cfg_freq.foi)); % Initialize to zero
-% cfg_freq.tapsmofrq(:)    = 1/timewin; % Set initial resolution to 1/timewin (i.e. 2.5 Hz) for all frequencis
-% cfg_freq.tapsmofrq(cfg_freq.foi>10*(1/timewin))    = 0.1*cfg_freq.foi(cfg_freq.foi>10*(1/timewin));
-% cfg_freq.tapsmofrq(cfg_freq.foi>50)                = 5;
-% cfg_freq.toi=(prestim+(timewin/2)):timestep:(poststim-(timewin/2)-1/exp.sampleRate); % Time axis
+% cfg_proc.output ='powandcsd';
+% cfg_proc.taper = 'dpss';
+% cfg_proc.channel = {'e1','e53'};
+% cfg_proc.channelcmb = {'e1','e53'};
+% cfg_proc.method          = 'mtmconvol';
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.keeptapers = 'no';
+% cfg_proc.foi             = (1/timewin):(1/timewin):freqwin(2); % Frequency axis
+% cfg_proc.foi             = cfg_proc.foi(cfg_proc.foi>=freqwin(1));
+% cfg_proc.t_ftimwin       = zeros(1,length(cfg_proc.foi));
+% cfg_proc.t_ftimwin(:)    = timewin; % Time resolution
+% cfg_proc.tapsmofrq       = zeros(1,length(cfg_proc.foi)); % Initialize to zero
+% cfg_proc.tapsmofrq(:)    = 1/timewin; % Set initial resolution to 1/timewin (i.e. 2.5 Hz) for all frequencis
+% cfg_proc.tapsmofrq(cfg_proc.foi>10*(1/timewin))    = 0.1*cfg_proc.foi(cfg_proc.foi>10*(1/timewin));
+% cfg_proc.tapsmofrq(cfg_proc.foi>50)                = 5;
+% cfg_proc.toi=(prestim+(timewin/2)):timestep:(poststim-(timewin/2)-1/exp.sampleRate); % Time axis
 
 
 %% Calculate the coherence

@@ -185,7 +185,7 @@ cfg_pp = [];
 %cfg_pp.lpfreq = 35;
 
 cfg_proc = [];
-cfg_tla.keeptrials = 'yes';
+cfg_proc.keeptrials = 'yes';
 
 % cfg_tlb = [];
 % cfg_tlb.baseline = [-0.2 0];

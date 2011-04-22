@@ -296,9 +296,9 @@ if ~exist('cfg_proc','var')
 end
 
 if ~exist('data_freq','var')
-  if strcmp(cfg_tla.keeptrials,'no')
+  if strcmp(cfg_proc.keeptrials,'no')
     savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
-  elseif strcmp(cfg_tla.keeptrials,'yes')
+  elseif strcmp(cfg_proc.keeptrials,'yes')
     savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
   end
   for sf = 1:length(savedFiles)

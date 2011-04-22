@@ -180,13 +180,13 @@ ana.ftFxn = 'ft_timelockanalysis';
 cfg_pp = [];
 
 cfg_proc = [];
-cfg_tla.keeptrials = 'no';
+cfg_proc.keeptrials = 'no';
 [data_tla,exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 % save the structs for loading in later
-if strcmp(cfg_tla.keeptrials,'no')
+if strcmp(cfg_proc.keeptrials,'no')
   saveFile = fullfile(dirs.saveDir,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-elseif strcmp(cfg_tla.keeptrials,'yes')
+elseif strcmp(cfg_proc.keeptrials,'yes')
   saveFile = fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
 end
 if ~exist(saveFile,'file')
@@ -250,9 +250,9 @@ if ~exist('cfg_proc','var')
 end
 
 if ~exist('data_tla','var')
-  if strcmp(cfg_tla.keeptrials,'no')
+  if strcmp(cfg_proc.keeptrials,'no')
     savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-  elseif strcmp(cfg_tla.keeptrials,'yes')
+  elseif strcmp(cfg_proc.keeptrials,'yes')
     savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
   end
   for sf = 1:length(savedFiles)

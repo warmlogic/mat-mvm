@@ -201,53 +201,53 @@ ana.ftFxn = 'ft_freqanalysis';
 cfg_pp = [];
 
 cfg_proc = [];
-cfg_freq.pad = 'maxperlen';
-cfg_freq.output = 'pow';
-cfg_freq.keeptrials = 'no';
+cfg_proc.pad = 'maxperlen';
+cfg_proc.output = 'pow';
+cfg_proc.keeptrials = 'no';
 
 % wavelet
-cfg_freq.method = 'wavelet';
-cfg_freq.width = 5;
-%cfg_freq.toi = -0.8:0.04:1.5;
-cfg_freq.toi = -0.3:0.04:1.0;
-% evenly spaced frequencies, but not as many as cfg_freq.foilim makes
+cfg_proc.method = 'wavelet';
+cfg_proc.width = 5;
+%cfg_proc.toi = -0.8:0.04:1.5;
+cfg_proc.toi = -0.3:0.04:1.0;
+% evenly spaced frequencies, but not as many as cfg_proc.foilim makes
 freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-%cfg_freq.foi = 3:freqstep:50;
-%cfg_freq.foi = 3:freqstep:9;
-cfg_freq.foi = 3:freqstep:100;
+%cfg_proc.foi = 3:freqstep:50;
+%cfg_proc.foi = 3:freqstep:9;
+cfg_proc.foi = 3:freqstep:100;
 
 % % multi-taper method with hanning taper
-% cfg_freq.method = 'mtmconvol';
-% %cfg_freq.taper = 'hanning';
-% cfg_freq.taper = 'dpss';
-% %cfg_freq.toi = -0.5:0.04:1.5;
-% cfg_freq.toi = -0.8:0.04:3.0;
+% cfg_proc.method = 'mtmconvol';
+% %cfg_proc.taper = 'hanning';
+% cfg_proc.taper = 'dpss';
+% %cfg_proc.toi = -0.5:0.04:1.5;
+% cfg_proc.toi = -0.8:0.04:3.0;
 % freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-% cfg_freq.foi = 3:freqstep:50;
-% %cfg_freq.foi = 3:freqstep:9;
-% cfg_freq.t_ftimwin = 4./cfg_freq.foi;
-% cfg_freq.tapsmofrq = 0.4*cfg_freq.foi;
+% cfg_proc.foi = 3:freqstep:50;
+% %cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.t_ftimwin = 4./cfg_proc.foi;
+% cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
 
 [data_freq,exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 % [data_freq,exper] = create_ft_struct_peer(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 % extra string in filename for identification
-if strcmp(cfg_freq.method,'wavelet')
-  files.save_str = sprintf('_w%d',cfg_freq.width);
-elseif strcmp(cfg_freq.method,'mtmconvol')
-  files.save_str = sprintf('_%s',cfg_freq.taper);
-elseif strcmp(cfg_freq.method,'mtmfft')
-  files.save_str = sprintf('_%s',cfg_freq.taper);
+if strcmp(cfg_proc.method,'wavelet')
+  files.save_str = sprintf('_w%d',cfg_proc.width);
+elseif strcmp(cfg_proc.method,'mtmconvol')
+  files.save_str = sprintf('_%s',cfg_proc.taper);
+elseif strcmp(cfg_proc.method,'mtmfft')
+  files.save_str = sprintf('_%s',cfg_proc.taper);
 else
   files.save_str = '';
 end
 
 % save the structs for loading in later
-if strcmp(cfg_freq.keeptrials,'no')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
-elseif strcmp(cfg_freq.keeptrials,'yes')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
+if strcmp(cfg_proc.keeptrials,'no')
+  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+elseif strcmp(cfg_proc.keeptrials,'yes')
+  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 end
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
@@ -293,7 +293,7 @@ end
 % [data_freq,exper,cfg_proc] = mm_ft_concatSubs_tfr(exper,dirs);
 
 %% save the analysis details
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
+saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'exper','ana','dirs','files','cfg_proc');
@@ -316,10 +316,10 @@ if ~exist('cfg_proc','var')
 end
 
 if ~exist('data_freq','var')
-  if strcmp(cfg_tla.keeptrials,'no')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000)));
-  elseif strcmp(cfg_tla.keeptrials,'yes')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000)));
+  if strcmp(cfg_proc.keeptrials,'no')
+    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
+  elseif strcmp(cfg_proc.keeptrials,'yes')
+    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
   end
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
@@ -400,10 +400,10 @@ for evVal = 1:length(exper.eventValues)
 end
 
 % % save the structs for loading in later
-% if strcmp(cfg_freq.keeptrials,'no')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_avg_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
-% elseif strcmp(cfg_freq.keeptrials,'yes')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
+% if strcmp(cfg_proc.keeptrials,'no')
+%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+% elseif strcmp(cfg_proc.keeptrials,'yes')
+%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 % end
 % if ~exist(saveFile,'file')
 %   fprintf('Saving %s...',saveFile);
@@ -462,7 +462,7 @@ if ~exist('cfg_proc','var')
   end
 end
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
+saveFile = fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'ga_freq');
@@ -473,7 +473,7 @@ end
 
 %% (re)save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
+saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'exper','ana','dirs','files','numEv');
@@ -512,7 +512,7 @@ if ~exist('cfg_proc','var')
 end
 
 if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000)));
+  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
   %savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
