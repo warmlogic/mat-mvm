@@ -147,22 +147,22 @@ ana.ftype = 'tla';
 % any preprocessing?
 cfg_pp = [];
 
-cfg_tla = [];
+cfg_proc = [];
 % do we want to keep the individual trials?
-cfg_tla.keeptrials = 'no';
+cfg_proc.keeptrials = 'no';
 
 % set the save directories; final argument is prefix of save directory
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_tla,dirs,files,ana.ftype);
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,ana.ftype);
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,cfg_tla,exper,dirs,files);
+[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 %% save the analysis details
 
 saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_tla');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc');
   fprintf('Done.\n');
 else
   error('Not saving! %s already exists.\n',saveFile);
