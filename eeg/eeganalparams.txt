@@ -1,0 +1,16 @@
+freqs (2^(1/8)).^(0:53)
+
+freqs_multitaper 2:100
+freqs_wavelet (2^(1/8)).^(8:56)
+
+
+width 6
+minimumtime 3
+
+bandwidth 1
+windowsize .3
+
+lead_rad 2
+
+
+
