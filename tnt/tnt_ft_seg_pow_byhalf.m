@@ -161,7 +161,7 @@ cfg_pp = [];
 
 exper.equateTrials = 1;
 
-cfg_freq = [];
+cfg_proc = [];
 cfg_freq.output = 'pow';
 cfg_freq.pad = 'maxperlen';
 cfg_freq.keeptrials = 'no';
@@ -186,10 +186,10 @@ cfg_freq.foi = 3:1:50;
 % cfg_freq.t_ftimwin = 5./cfg_freq.foi;
 % cfg_freq.tapsmofrq = 0.4*cfg_freq.foi;
 
-[data_freq,exper] = create_ft_struct('seg2ft','ft_freqanalysis',cfg_freq,cfg_pp,dirs,exper,files);
+[data_freq,exper] = create_ft_struct('seg2ft','ft_freqanalysis',cfg_proc,cfg_pp,dirs,exper,files);
 
-%[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_freq,cfg_pp,dirs.dataroot,dirs.saveDirName,exper.nsFileExt,exper.subjects,exper.sessions,exper.prepost,files.elecfile,exper.sampleRate,exper.eventValues,exper.eventValuesExtra);
-%[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_freq,cfg_pp,dirs,exper,files);
+%[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_proc,cfg_pp,dirs.dataroot,dirs.saveDirName,exper.nsFileExt,exper.subjects,exper.sessions,exper.prepost,files.elecfile,exper.sampleRate,exper.eventValues,exper.eventValuesExtra);
+%[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_proc,cfg_pp,dirs,exper,files);
 
 % save the structs for loading in later
 if strcmp(cfg_freq.keeptrials,'no')
@@ -199,7 +199,7 @@ elseif strcmp(cfg_freq.keeptrials,'yes')
 end
 if ~exist(saveFile,'file')
   fprintf('Saving %s\n',saveFile);
-  save(saveFile,'data_freq','cfg_freq');
+  save(saveFile,'data_freq','cfg_proc');
 end
 
 %% if already saved and not yet loaded, load the ft_freqanalysis files

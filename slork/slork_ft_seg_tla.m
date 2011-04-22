@@ -206,9 +206,9 @@ ana.ftFxn = 'ft_timelockanalysis';
 % any preprocessing?
 cfg_pp = [];
 
-cfg_tla = [];
+cfg_proc = [];
 cfg_tla.keeptrials = 'no';
-[data_tla,exper] = create_ft_struct(ana,cfg_pp,cfg_tla,exper,dirs,files);
+[data_tla,exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 % save the structs for loading in later
 if strcmp(cfg_tla.keeptrials,'no')
@@ -260,7 +260,7 @@ end
 saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_tla');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc');
   fprintf('Done.\n');
 else
   error('Not saving! %s already exists.\n',saveFile);
@@ -268,7 +268,7 @@ end
 
 %% if already saved and not yet loaded, load the ft_timelockanalysis files
 
-if ~exist('cfg_tla','var')
+if ~exist('cfg_proc','var')
   savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
   if length(savedFiles) == 1
     load(fullfile(dirs.saveDir,savedFiles.name));

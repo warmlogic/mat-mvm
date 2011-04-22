@@ -145,7 +145,7 @@ end
 
 %% Convert the data to FieldTrip structs - excludes NS artifact trials
 
-% cfg_freq = [];
+% cfg_proc = [];
 % cfg_freq.method = 'mtmfft';
 % cfg_freq.output = 'fourier';
 % cfg_freq.foilim = [4 8];
@@ -154,7 +154,7 @@ end
 % cfg_freq.channel = {'e1','e53'};
 % cfg_freq.channelcmb = {'e1','e53'};
 
-cfg_freq = [];
+cfg_proc = [];
 cfg_freq.method = 'mtmconvol';
 %cfg_freq.output = 'fourier';
 cfg_freq.output = 'powandcsd';
@@ -173,7 +173,7 @@ cfg_freq.channelcmb = {'e1','e53';'e1','e122';'e53','e122'};
 %cfg_freq.channelcmb = {'e1','e53'};
 
 
-% cfg_freq = [];
+% cfg_proc = [];
 % cfg_freq.method = 'wltconvol';
 % cfg_freq.output = 'powandcsd';
 % cfg_freq.foi = 4:1:8;
@@ -185,13 +185,13 @@ cfg_freq.channelcmb = {'e1','e53';'e1','e122';'e53','e122'};
 
 cfg_pp = [];
 
-[data_freq,exp.eventValues] = create_ft_struct(cfg_freq,'ft_freqanalysis',cfg_pp,dirs.dataroot,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
-%[data_freq,exp.eventValues] = create_ft_struct_parallel(cfg_freq,'ft_freqanalysis',cfg_pp,dirs.dataroot,dirs.saveDirName,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
+[data_freq,exp.eventValues] = create_ft_struct(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
+%[data_freq,exp.eventValues] = create_ft_struct_parallel(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,dirs.saveDirName,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
 
 % % save the structs for loading in later
 % saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.foi(1),cfg_freq.foi(end),exp.prepost(1)*1000,exp.prepost(2)*1000));
 % if ~exist(saveFile,'file')
-%   save(saveFile,'data_freq','cfg_freq');
+%   save(saveFile,'data_freq','cfg_proc');
 % end
 
 
@@ -200,7 +200,7 @@ cfg_pp = [];
 % timestep = 0.05;
 % timewin = .4;
 % freqwin = [4 8];
-% cfg_freq = [];
+% cfg_proc = [];
 % cfg_freq.output ='powandcsd';
 % cfg_freq.taper = 'dpss';
 % cfg_freq.channel = {'e1','e53'};

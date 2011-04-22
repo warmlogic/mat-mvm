@@ -158,7 +158,7 @@ cfg_pp.blcwindow  = [-0.2 0];
 cfg_pp.lpfilter = 'yes';
 cfg_pp.lpfreq = 35;
 
-cfg_tla = [];
+cfg_proc = [];
 cfg_tla.keeptrials = 'yes';
 
 % cfg_tlb = [];
@@ -192,19 +192,19 @@ for sub = 1:length(subjects)
           tpp_str = sprintf('data_%s_pp = ft_preprocessing(cfg_pp,data.data_preproc(ev));',eventVal);
           eval(tpp_str);
           
-          tla_str = sprintf('data_%s(sub) = ft_timelockanalysis(cfg_tla,data_%s_pp);',eventVal,eventVal);
+          tla_str = sprintf('data_%s(sub) = ft_timelockanalysis(cfg_proc,data_%s_pp);',eventVal,eventVal);
           eval(tla_str);
           
           %%%%%%%%
           
-          %tla_str = sprintf('data_%s_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(ev));',eventVal);
+          %tla_str = sprintf('data_%s_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(ev));',eventVal);
           %eval(tla_str);
           
           %tlb_str = sprintf('data_%s(sub) = ft_timelockbaseline(cfg_tlb,data_%s_raw);',eventVal,eventVal);
           %eval(tlb_str);
           
           % get the var back
-          %tla_str = sprintf('data_%s_var(sub) = ft_timelockanalysis(cfg_tla,data_%s(sub));',eventVal,eventVal);
+          %tla_str = sprintf('data_%s_var(sub) = ft_timelockanalysis(cfg_proc,data_%s(sub));',eventVal,eventVal);
           %eval(tla_str);
           
           %eval(sprintf('clear data_%s_raw',eventVal));

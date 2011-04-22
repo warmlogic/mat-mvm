@@ -172,7 +172,7 @@ ana.ftFxn = 'ft_freqanalysis';
 % any preprocessing?
 cfg_pp = [];
 
-cfg_freq = [];
+cfg_proc = [];
 cfg_freq.pad = 'maxperlen';
 cfg_freq.output = 'pow';
 cfg_freq.keeptrials = 'no';
@@ -200,9 +200,9 @@ cfg_freq.foi = 3:freqstep:100;
 % cfg_freq.t_ftimwin = 4./cfg_freq.foi;
 % cfg_freq.tapsmofrq = 0.4*cfg_freq.foi;
 
-[data_freq,exper] = create_ft_struct(ana,cfg_pp,cfg_freq,exper,dirs,files);
+[data_freq,exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
-% [data_freq,exper] = create_ft_struct_peer(ana,cfg_pp,cfg_freq,exper,dirs,files);
+% [data_freq,exper] = create_ft_struct_peer(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 % extra string in filename for identification
 if strcmp(cfg_freq.method,'wavelet')
@@ -260,13 +260,13 @@ end
 
 % fprintf('rsync -av matt@dream.colorado.edu:/data/projects/curranlab/%s/%s/*.mat %s/\n',dirs.dataDir,dirs.saveDirName,dirs.saveDir);
 
-% [data_freq,exper,cfg_freq] = mm_ft_concatSubs_tfr(exper,dirs);
+% [data_freq,exper,cfg_proc] = mm_ft_concatSubs_tfr(exper,dirs);
 
 %% save the analysis details
 saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_freq.output,cfg_freq.method,files.save_str,round(cfg_freq.foi(1)),round(cfg_freq.foi(end)),cfg_freq.toi(1)*1000,cfg_freq.toi(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_freq');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc');
   fprintf('Done.\n');
 else
   error('Not saving! %s already exists.\n',saveFile);
@@ -274,7 +274,7 @@ end
 
 %% if already saved and not yet loaded, load the ft_freqanalysis files
 
-if ~exist('cfg_freq','var')
+if ~exist('cfg_proc','var')
   savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
   if length(savedFiles) == 1
     load(fullfile(dirs.saveDir,savedFiles.name));
@@ -421,10 +421,10 @@ end
 
 %% save grand average file
 
-if ~exist('cfg_freq','var')
+if ~exist('cfg_proc','var')
   savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
   if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name),'cfg_freq');
+    load(fullfile(dirs.saveDir,savedFiles.name),'cfg_proc');
   elseif length(savedFiles) > 1
     error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
   elseif isempty(savedFiles)
@@ -470,7 +470,7 @@ end
 
 %% if already saved and not yet loaded, load the ft_freqgrandaverage files
 
-if ~exist('cfg_freq','var')
+if ~exist('cfg_proc','var')
   savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
   if length(savedFiles) == 1
     load(fullfile(dirs.saveDir,savedFiles.name));

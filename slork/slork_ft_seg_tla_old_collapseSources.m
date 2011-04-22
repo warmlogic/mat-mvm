@@ -186,7 +186,7 @@ cfg_pp = [];
 %cfg_pp.lpfilter = 'yes';
 %cfg_pp.lpfreq = 35;
 
-cfg_tla = [];
+cfg_proc = [];
 cfg_tla.keeptrials = 'yes';
 
 % cfg_tlb = [];
@@ -226,19 +226,19 @@ for sub = 1:length(subjects)
       eval(pp_str);
       
       % run ft_timelockanalysis
-      tla_str = sprintf('data_%s(sub) = ft_timelockanalysis(cfg_tla,data_%s_pp);',eventVal,eventVal);
+      tla_str = sprintf('data_%s(sub) = ft_timelockanalysis(cfg_proc,data_%s_pp);',eventVal,eventVal);
       eval(tla_str);
       
       %%%%%%%%
       
-      %tla_str = sprintf('data_%s_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(i));',eventVal);
+      %tla_str = sprintf('data_%s_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(i));',eventVal);
       %eval(tla_str);
       
       %tlb_str = sprintf('data_%s(sub) = ft_timelockbaseline(cfg_tlb,data_%s_raw);',eventVal,eventVal);
       %eval(tlb_str);
       
       % get the var back
-      %tla_str = sprintf('data_%s_var(sub) = ft_timelockanalysis(cfg_tla,data_%s(sub));',eventVal,eventVal);
+      %tla_str = sprintf('data_%s_var(sub) = ft_timelockanalysis(cfg_proc,data_%s(sub));',eventVal,eventVal);
       %eval(tla_str);
       
     else
@@ -277,7 +277,7 @@ for sub = 1:length(subjects)
     data_H_pp.trial = [];
   end
   if ~isempty(data_H_pp.trial)
-    data_H(sub) = ft_timelockanalysis(cfg_tla,data_H_pp);
+    data_H(sub) = ft_timelockanalysis(cfg_proc,data_H_pp);
   else
     data_H(sub).trial = [];
   end
@@ -292,7 +292,7 @@ for sub = 1:length(subjects)
     data_TH_pp.trial = [];
   end
   if ~isempty(data_TH_pp.trial)
-    data_TH(sub) = ft_timelockanalysis(cfg_tla,data_TH_pp);
+    data_TH(sub) = ft_timelockanalysis(cfg_proc,data_TH_pp);
   else
     data_TH(sub).trial = [];
   end
@@ -305,51 +305,51 @@ for sub = 1:length(subjects)
   
 %   % Just the 3 event categories
 %   if data.data_preproc(1).hdr.nTrials > 0
-%     data_CR_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(1));
+%     data_CR_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(1));
 %     data_CR(sub) = ft_timelockbaseline(cfg_tlb,data_CR_raw);
 %     % get the var field back
-%     %data_CR_var(sub) = ft_timelockanalysis(cfg_tla,data_CR(sub));
+%     %data_CR_var(sub) = ft_timelockanalysis(cfg_proc,data_CR(sub));
 %   else
 %     data_CR(sub).trial = [];
 %   end
 %   if data.data_preproc(2).hdr.nTrials > 0
-%     data_HSC_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(2));
+%     data_HSC_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(2));
 %     data_HSC(sub) = ft_timelockbaseline(cfg_tlb,data_HSC_raw);
 %     % get the var field back
-%     %data_HSC_var(sub) = ft_timelockanalysis(cfg_tla,data_HSC(sub));
+%     %data_HSC_var(sub) = ft_timelockanalysis(cfg_proc,data_HSC(sub));
 %   else
 %     data_HSC(sub).trial = [];
 %   end
 %   if data.data_preproc(3).hdr.nTrials > 0
-%     data_HSI_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(3));
+%     data_HSI_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(3));
 %     data_HSI(sub) = ft_timelockbaseline(cfg_tlb,data_HSI_raw);
 %     % get the var field back
-%     %data_HSI_var(sub) = ft_timelockanalysis(cfg_tla,data_HSI(sub));
+%     %data_HSI_var(sub) = ft_timelockanalysis(cfg_proc,data_HSI(sub));
 %   else
 %     data_HSI(sub).trial = [];
 %   end
 %   
 %   if data.data_preproc(4).hdr.nTrials > 0
-%     data_TCR_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(4));
+%     data_TCR_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(4));
 %     data_TCR(sub) = ft_timelockbaseline(cfg_tlb,data_TCR_raw);
 %     % get the var field back
-%     %data_TCR_var(sub) = ft_timelockanalysis(cfg_tla,data_TCR(sub));
+%     %data_TCR_var(sub) = ft_timelockanalysis(cfg_proc,data_TCR(sub));
 %   else
 %     data_TCR(sub).trial = [];
 %   end
 %   if data.data_preproc(5).hdr.nTrials > 0
-%     data_THSC_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(5));
+%     data_THSC_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(5));
 %     data_THSC(sub) = ft_timelockbaseline(cfg_tlb,data_THSC_raw);
 %     % get the var field back
-%     %data_THSC_var(sub) = ft_timelockanalysis(cfg_tla,data_THSC(sub));
+%     %data_THSC_var(sub) = ft_timelockanalysis(cfg_proc,data_THSC(sub));
 %   else
 %     data_THSC(sub).trial = [];
 %   end
 %   if data.data_preproc(6).hdr.nTrials > 0
-%     data_THSI_raw = ft_timelockanalysis(cfg_tla,data.data_preproc(6));
+%     data_THSI_raw = ft_timelockanalysis(cfg_proc,data.data_preproc(6));
 %     data_THSI(sub) = ft_timelockbaseline(cfg_tlb,data_THSI_raw);
 %     % get the var field back
-%     %data_THSI_var(sub) = ft_timelockanalysis(cfg_tla,data_THSI(sub));
+%     %data_THSI_var(sub) = ft_timelockanalysis(cfg_proc,data_THSI(sub));
 %   else
 %     data_THSI(sub).trial = [];
 %   end
