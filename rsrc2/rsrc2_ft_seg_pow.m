@@ -155,33 +155,46 @@ ana.artifactType = 'ns';
 cfg_pp = [];
 
 cfg_proc = [];
-cfg_proc.pad = 'maxperlen';
 cfg_proc.output = 'pow';
+cfg_proc.pad = 'maxperlen';
 cfg_proc.keeptrials = 'no';
+cfg_proc.keeptapers = 'no';
 
-% wavelet
-cfg_proc.method = 'wavelet';
-cfg_proc.width = 5;
-%cfg_proc.toi = -0.8:0.04:1.5;
-cfg_proc.toi = -0.3:0.04:1.0;
-% evenly spaced frequencies, but not as many as cfg_proc.foilim makes
-freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-%cfg_proc.foi = 3:freqstep:50;
-%cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foi = 3:freqstep:100;
-cfg_proc.foi = 3:freqstep:40;
-
-% % multi-taper method with hanning taper
-% cfg_proc.method = 'mtmconvol';
-% %cfg_proc.taper = 'hanning';
+% % MTM FFT
+% cfg_proc.method = 'mtmfft';
 % cfg_proc.taper = 'dpss';
-% %cfg_proc.toi = -0.5:0.04:1.5;
-% cfg_proc.toi = -0.8:0.04:3.0;
+% %cfg_proc.foilim = [3 50];
 % freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-% cfg_proc.foi = 3:freqstep:50;
+% %cfg_proc.foi = 3:freqstep:50;
+% cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.tapsmofrq = 5;
+% cfg_proc.toi = -0:0.04:1.0;
+
+% multi-taper method
+cfg_proc.method = 'mtmconvol';
+cfg_proc.taper = 'hanning';
+%cfg_proc.taper = 'dpss';
+%cfg_proc.toi = -0.8:0.04:3.0;
+cfg_proc.toi = -0.5:0.04:1.0;
+freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+cfg_proc.foi = 3:freqstep:40;
+%cfg_proc.foi = 3:freqstep:9;
+%cfg_proc.foi = 3:1:9;
+%cfg_proc.foi = 2:2:30;
+cfg_proc.t_ftimwin = 5./cfg_proc.foi;
+% tapsmofrq is not used for hanning taper; it is used for dpss
+%cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+
+% % wavelet
+% cfg_proc.method = 'wavelet';
+% cfg_proc.width = 5;
+% %cfg_proc.toi = -0.8:0.04:3.0;
+% cfg_proc.toi = -0.3:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% cfg_proc.foi = 3:freqstep:40;
 % %cfg_proc.foi = 3:freqstep:9;
-% cfg_proc.t_ftimwin = 4./cfg_proc.foi;
-% cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+% %cfg_proc.foilim = [3 9];
 
 % set the save directories; final argument is prefix of save directory
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
