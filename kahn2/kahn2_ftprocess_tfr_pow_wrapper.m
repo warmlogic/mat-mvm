@@ -89,7 +89,10 @@ exper.subjects = {
   'KAHN2 94';
   };
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {{'_1', '_2'}};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

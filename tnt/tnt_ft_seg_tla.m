@@ -14,7 +14,8 @@ exper.name = 'TNT';
 
 exper.sampleRate = 250;
 
-% pre- and post-stimulus times to read, in seconds (pre is negative)
+% pre- and post-stimulus times used to segment NS files, in seconds (pre is
+% negative)
 exper.prepost = [-1.0 1.7];
 
 % equate the number of trials across event values?
@@ -93,7 +94,10 @@ exper.subjects = {
   'TNT 54';
   };
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
@@ -138,9 +142,12 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 files.saveFigs = 1;
 files.figFileExt = 'png';
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
+
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
+ana.artifactType = 'ns';
+
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
 

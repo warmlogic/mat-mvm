@@ -28,12 +28,34 @@ function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 % could cut down on the number of trials if one event value had a low trial
 % count. Instead, the event values are combined and them randomly sampled
 % to create equal bin sizes.
+%
+% If there's an error when processing an event, an error file will be saved
+% (err_FTYPE_EVENT.mat) containing the MException object. Load this file
+% for more information about what went wrong. It's likely that error is
+% beacuse the raw file doesn't exist, resulting from either (1) the event
+% values being incorrect (Net Station can be tricky with its event names)
+% or (2) there were zero events after rejecting events due to artifacts.
 
 %% make sure some required fields are set
 
+% need a segmentation function
+if ~isfield(ana,'segFxn')
+  ana.segFxn = 'seg2ft';
+end
+
+% need a FieldTrip analysis function
+if ~isfield(ana,'ftFxn')
+  error('Need to set the FieldTrip analysis function (e.g., ''ft_timelockanalysis'' or ''ft_freqanalysis'')');
+end
+
 % need a file type
 if ~isfield(ana,'ftype')
-  error('Need to set a file type in ana.ftype to name the outputfile (e.g., ''tla'', ''pow'', ''powandcsd'', ''fourier'')');
+  error('Need to set a file type in ana.ftype to be part of the outputfile name (e.g., ''tla'', ''pow'', ''powandcsd'', ''fourier'')');
+end
+
+% need an artifact detection type ('ns', 'ft', or 'none')
+if ~isfield(ana,'artifactType')
+  ana.artifactType = 'none';
 end
 
 % make sure exper.sessions is a cell
@@ -167,7 +189,7 @@ for sub = 1:length(exper.subjects)
       % turn the NS segments into raw FT data; uses the NS bci metadata
       % file to reject artifact trials before returning good trials in
       % ft_raw
-      ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile);
+      ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile,ana.artifactType);
       
       if ~isempty(ft_raw.(eventVal).trial)
         % store the number of trials for this event value
@@ -458,6 +480,9 @@ if ana.usePeer
         cfg_peer{count}.inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
         cfg_peer{count}.outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
         
+        % TODO: what happens when the inputfile doesn't exist because of no
+        % trials or missing eventValues?
+        
         count = count + 1;
       end
     end
@@ -486,8 +511,10 @@ else
           fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
         catch ME
           disp(ME)
-          warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s',exper.subjects{sub},ses_str,eventVal);
-          save(fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal)),'ME');
+          warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},ses_str,eventVal);
+          errFile = fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
+          fprintf('Saving error information in %s.',errFile);
+          save(errFile,'ME');
         end
       end
     end

@@ -90,7 +90,10 @@ exper.subjects = {
   };
 % original SOSI019 was replaced because the first didn't finish
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters

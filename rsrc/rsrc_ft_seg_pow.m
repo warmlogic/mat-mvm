@@ -96,12 +96,13 @@ exper.subjects = {
   };
 %    'RSRC047'; % bad subject; falling asleep
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {'session_0'};
 
 %% set up parameters
-
-dirs.homeDir = getenv('HOME');
 
 % directory where the data to read is located
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
@@ -128,8 +129,7 @@ if ~exist(dirs.saveDir,'dir')
   mkdir(dirs.saveDir)
 end
 
-% Assumes we have chan locs file in ~/Documents/MATLAB/mat_mvm/eeg/
-%files.elecfile = fullfile(dirs.homeDir,'Documents/MATLAB/mat_mvm/eeg/GSN_HydroCel_129_short.sfp');
+% Use FT electrode locations file
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
@@ -174,6 +174,7 @@ end
 %% Convert the data to FieldTrip structs - excludes NS artifact trials
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
+ana.artifactType = 'ns';
 
 % any preprocessing?
 cfg_pp = [];

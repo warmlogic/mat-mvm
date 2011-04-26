@@ -65,7 +65,10 @@ exper.subjects = {
   'KAHN2 94';
   };
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {{'_1', '_2'}};
 
 %% set up parameters
@@ -99,7 +102,7 @@ else
   error('Data directory not found.');
 end
 
-% Use the FT chan locs file
+% Use FT electrode locations file
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
@@ -112,6 +115,7 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
+ana.artifactType = 'ns';
 
 % ana.otherFxn = {};
 % ana.otherFxn{1} = 'ft_resampledata';

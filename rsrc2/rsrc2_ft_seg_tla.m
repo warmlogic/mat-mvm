@@ -12,6 +12,20 @@ ana = struct;
 
 exper.name = 'RSRC2';
 
+exper.sampleRate = 250;
+
+% pre- and post-stimulus times used to segment NS files, in seconds (pre is
+% negative)
+exper.prepost = [-1.0 2.0];
+
+% equate the number of trials across event values?
+exper.equateTrials = 1;
+
+% type of NS file for FieldTrip to read; raw or sbin must be put in
+% dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
+exper.nsFileExt = 'egis';
+%exper.nsFileExt = 'raw';
+
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
 exper.eventValues = sort({'RCR','RHSC','RHSI'});
@@ -23,81 +37,51 @@ exper.eventValuesExtra.newValue = {{'RH'}};
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 0;
 
-% make sure eventValuesExtra exists because create_ft_struct uses it
-if ~isfield(exper,'eventValuesExtra')
-  exper.eventValuesExtra = {};
-  exper.eventValuesExtra.onlyKeepExtras = 0;
-end
-
-% equate the number of trials across event values?
-exper.equateTrials = 1;
-
-% pre- and post-stimulus times to read, in seconds (pre is negative)
-exper.prepost = [-1.0 2.0];
-
-exper.sampleRate = 250;
-
-% type of NS file for FieldTrip to read; raw or sbin must be put in
-% dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
-
-% name of the folder to save the FT data in
-if isempty(exper.eventValuesExtra)
-  evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
-elseif isempty(exper.eventValuesExtra) && ~isfield(exper.eventValuesExtra,'onlyKeepExtras')
-  evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
-elseif ~isempty(exper.eventValuesExtra) && isfield(exper.eventValuesExtra,'onlyKeepExtras') && exper.eventValuesExtra.onlyKeepExtras == 0
-  evStr = cat(2,exper.eventValues,cat(2,exper.eventValuesExtra.newValue{:}));
-  evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
-elseif ~isempty(exper.eventValuesExtra) && isfield(exper.eventValuesExtra,'onlyKeepExtras') && exper.eventValuesExtra.onlyKeepExtras == 1
-  evStr = cat(2,cat(2,exper.eventValuesExtra.newValue{:}));
-  evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
-end
-dirs.saveDirName = fullfile('ft_data',sprintf('tla_%seq%d',evStr,exper.equateTrials));
-
 exper.subjects = {
   'RSRC2001';
-  'RSRC2002';
-  'RSRC2003';
-  'RSRC2004';
-  'RSRC2005';
-  'RSRC2006';
-  'RSRC2007';
-  'RSRC2008';
-  'RSRC2009';
-  'RSRC2010';
-  'RSRC2011';
-  'RSRC2012';
-  'RSRC2014';
-  'RSRC2015';
-  'RSRC2016';
-  'RSRC2017';
-  'RSRC2018';
-  'RSRC2019';
-  'RSRC2020';
-  'RSRC2021';
-  'RSRC2022';
-  'RSRC2023';
-  'RSRC2024';
-  'RSRC2025';
-  'RSRC2026';
-  'RSRC2027';
-  'RSRC2028';
-  'RSRC2029';
-  'RSRC2030';
-  'RSRC2032';
-  'RSRC2033';
-  'RSRC2034';
-  'RSRC2041';
-  'RSRC2043';
-  'RSRC2047';
-  'RSRC2051';
+%   'RSRC2002';
+%   'RSRC2003';
+%   'RSRC2004';
+%   'RSRC2005';
+%   'RSRC2006';
+%   'RSRC2007';
+%   'RSRC2008';
+%   'RSRC2009';
+%   'RSRC2010';
+%   'RSRC2011';
+%   'RSRC2012';
+%   'RSRC2014';
+%   'RSRC2015';
+%   'RSRC2016';
+%   'RSRC2017';
+%   'RSRC2018';
+%   'RSRC2019';
+%   'RSRC2020';
+%   'RSRC2021';
+%   'RSRC2022';
+%   'RSRC2023';
+%   'RSRC2024';
+%   'RSRC2025';
+%   'RSRC2026';
+%   'RSRC2027';
+%   'RSRC2028';
+%   'RSRC2029';
+%   'RSRC2030';
+%   'RSRC2032';
+%   'RSRC2033';
+%   'RSRC2034';
+%   'RSRC2041';
+%   'RSRC2043';
+%   'RSRC2047';
+%   'RSRC2051';
   };
 %    'RSRC2013'; % fire alarm went off during blink period of final test block
 %    'RSRC2031'; % did not finish session
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
@@ -106,53 +90,43 @@ dirs.homeDir = getenv('HOME');
 
 % directory where the data to read is located
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
-%dirs.dataDir = sprintf('eeg/nspp/%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000);
+
+% if save directory is different from read directory, can set
+% dirs.saveDirStem; note that this currently needs to exist on
+% dirs.dataroot, which is chosen below (i.e., you can't currently read from
+% the server and save to your local computer)
+
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile('/data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
-% pick the right dirs.dataroot
+% pick the right dirs.dataroot; note the order of searching
 if exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
+  %runLocally = 1;
 elseif exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
+  %runLocally = 1;
+elseif exist(dirs.dreamDir,'dir')
+  dirs.dataroot = dirs.dreamDir;
+  %runLocally = 0;
 elseif exist(dirs.localDir,'dir')
   dirs.dataroot = dirs.localDir;
+  %runLocally = 1;
 else
   error('Data directory not found.');
 end
 
-% directory to save the data
-dirs.saveDir = fullfile(dirs.dataroot,dirs.saveDirName);
-if ~exist(dirs.saveDir,'dir')
-  mkdir(dirs.saveDir)
-end
-
-% Assumes we have chan locs file in ~/Documents/MATLAB/mat_mvm/eeg/
-files.elecfile = fullfile(dirs.homeDir,'Documents/MATLAB/mat_mvm/eeg/GSN_HydroCel_129_short.sfp');
-%files.elecfile = 'GSN-HydroCel-129.sfp';
+% Use the FT chan locs file
+files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options
-files.saveFigs = 0;
+files.saveFigs = 1;
 files.figFileExt = 'png';
-if strcmp(files.figFileExt,'eps')
-  files.figPrintFormat = '-depsc2';
-elseif strcmp(files.figFileExt,'pdf')
-  files.figPrintFormat = '-dpdf';
-elseif strcmp(files.figFileExt,'png')
-  files.figPrintFormat = '-dpng';
-elseif strcmp(files.figFileExt,'jpg')
-  files.figPrintFormat = '-djpg90';
-end
-
-% directory to save figures
-dirs.saveDirFigs = fullfile(dirs.saveDir,'figs');
-if ~exist(dirs.saveDirFigs,'dir')
-  mkdir(dirs.saveDirFigs)
-end
 
 % %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
@@ -172,30 +146,53 @@ end
 %   end
 % end
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
+
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
+%ana.artifactType = 'ns';
+ana.artifactType = 'none';
+
+% ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
+ana.ftype = 'tla';
 
 % any preprocessing?
 cfg_pp = [];
 
 cfg_proc = [];
+% do we want to keep the individual trials?
 cfg_proc.keeptrials = 'no';
-[data_tla,exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
-% save the structs for loading in later
-if strcmp(cfg_proc.keeptrials,'no')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-elseif strcmp(cfg_proc.keeptrials,'yes')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-end
+% set the save directories; final argument is prefix of save directory
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,ana.ftype);
+
+% create the raw and processed structs for each sub, ses, & event value
+[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+
+%% save the analysis details
+
+saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'data_tla');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc');
   fprintf('Done.\n');
 else
   error('Not saving! %s already exists.\n',saveFile);
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FieldTrip format creation ends here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FieldTrip analysis starts here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% load the analysis details
+
+adFile = '/Volumes/curranlab/Data/RSRC2/eeg/-1000_2000/ft_data/NT_TH_eq1/tla_-1000_2000_avg/analysisDetails.mat';
+[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
 

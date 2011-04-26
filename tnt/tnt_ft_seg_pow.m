@@ -93,7 +93,10 @@ exper.subjects = {
   'TNT 54';
   };
 
-% the exper.sessions that each subject ran
+% the sessions that each subject ran; multi-session support is not yet
+% implemented, but for now this cell must contain one string; this will
+% (probably/eventually) be the name of the directory containing the EEG
+% files
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
@@ -137,6 +140,7 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
+ana.artifactType = 'ns';
 
 % any preprocessing?
 cfg_pp = [];
