@@ -1,14 +1,21 @@
 function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 % CREATE_FT_STRUCT: Create a FieldTrip data structure from NS files
 %
-% This function expects to find an NS bci metadata file. This file denotes
-% the reject artifact trials. Use the File Export tool to export Metadata >
-% Segment Information; put it in a 'ns_bci' directory in dataroot
+%
+% The default function (set in ana.segFxn) that this function calls is
+% seg2ft. See 'help seg2ft' for more information.
 %
 % For multiple sessions, seg2ft will collapse across them if they're input
 % as {{'session_1','session_2'}}. If they're input as
 % {{'session_1'},{'session_2'}} then they will be kept separate.
 %
+% ana.artifactType    = the type of artifact info to use ('ns','ft', or
+%                       'none'). If 'ns', this function expects to find an
+%                       NS bci metadata file. This file denotes the reject
+%                       artifact trials. Use the File Export tool to export
+%                       Metadata > Segment Information; put it in a
+%                       'ns_bci' directory in dataroot/session.
+% ana.ftFxn           = the FieldTrip function used to process the data
 % ana.ftype           = added to the filenames output from ana.ftFxn
 % ana.usePeer         = use the peer toolbox (default: 0); see
 %                       http://fieldtrip.fcdonders.nl for more info on

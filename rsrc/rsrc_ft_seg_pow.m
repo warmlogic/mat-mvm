@@ -96,10 +96,12 @@ exper.subjects = {
   };
 %    'RSRC047'; % bad subject; falling asleep
 
-% the sessions that each subject ran; multi-session support is not yet
-% implemented, but for now this cell must contain one string; this will
-% (probably/eventually) be the name of the directory containing the EEG
-% files
+% The sessions that each subject ran; the strings in this cell are the
+% directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
+% directory and, if applicable, the ns_bci directory. They are not the
+% session directory names where the FieldTrip data is saved for each
+% subject because of the option to combine sessions. See 'help
+% create_ft_struct' for more information.
 exper.sessions = {'session_0'};
 
 %% set up parameters
@@ -493,19 +495,21 @@ exper.badBehSub = {'RSRC032';'RSRC040'};
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = exper.eventValues;
+cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_freq';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sessions)
-  for evVal = 1:length(exper.eventValues)
-    %tic
-    fprintf('Running ft_freqgrandaverage on %s...',exper.eventValues{evVal});
-    ga_freq.(exper.eventValues{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(exper.eventValues{evVal}){ses}));
-    fprintf('Done.\n');
-    %toc
+  for typ = 1:length(ana.eventValues)
+    for evVal = 1:length(ana.eventValues{typ})
+      %tic
+      fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
+      ga_freq.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      fprintf('Done.\n');
+      %toc
+    end
   end
 end
 

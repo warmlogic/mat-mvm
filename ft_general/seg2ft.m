@@ -1,5 +1,5 @@
 function [data] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
-%SEG2FT: take segmented Net Station data and put it in FieldTrip format
+%SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
 % [data] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
 %
@@ -30,16 +30,9 @@ function [data] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,e
 % is not yet implmented, so 'ft' will cause an error)
 %
 % If using eeglab data, no artifact detection is done and no bci file is
-% expected to exist. The directory structure is different and can be
+% expected to exist. Also, the directory structure is different and can be
 % gleaned by examining the code here, but right now it is only set up to
 % process Erika Nyhus's KAHN2 data.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Things to add
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% TODO: add support for session names in the EEG file path; currently it
-% ignores the session string for NS files
 %
 
 if ~strcmpi(artifactType,'ns') && ~strcmpi(artifactType,'ft') && ~strcmpi(artifactType,'none')
@@ -93,24 +86,25 @@ end
 nChan_elecfile = size(elec.label,1);
 
 for ses = 1:length(session)
-  ses_str = sprintf('ses%s',session{ses});
+  % set a ses_str so we can make sure it starts with a letter
+  ses_str = sprintf('ses_%s',session{ses});
   
   if strcmpi(nsFileExt,'sbin') || strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'egis')
     % make sure the EEG file exists
-    nsfile = dir(fullfile(dataroot,nsDir,[subject,'*.',nsFileExt]));
+    nsfile = dir(fullfile(dataroot,session{ses},nsDir,[subject,'*.',nsFileExt]));
     if isempty(nsfile)
       error('Cannot find %s*.%s file in %s',subject,nsFileExt,fullfile(dataroot,nsDir));
     elseif length(nsfile) > 1
       error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,nsDir));
     elseif length(nsfile) == 1
-      infile_ns = fullfile(dataroot,nsDir,nsfile.name);
+      infile_ns = fullfile(dataroot,session{ses},nsDir,nsfile.name);
     end
     
     if strcmpi(artifactType,'ns')
       % make sure the file with NS artifact info exists
-      summaryFile = dir(fullfile(dataroot,'ns_bci',[subject,'*.bci']));
+      summaryFile = dir(fullfile(dataroot,session{ses},'ns_bci',[subject,'*.bci']));
       if ~isempty(summaryFile)
-        summaryFile = fullfile(dataroot,'ns_bci',summaryFile.name);
+        summaryFile = fullfile(dataroot,session{ses},'ns_bci',summaryFile.name);
         
         fid = fopen(summaryFile,'r');
         % get the header
@@ -210,7 +204,7 @@ for ses = 1:length(session)
     fprintf('The available event values in %s are: %s\n',infile_ns,sprintf(repmat('''%s'' ',1,length(evVals)),evVals{:}));
     error('%s is not in the EEG file. You should redefine exper.eventValues.',cell2mat(eventValue));
   elseif ismember(eventValue,evVals)
-    fprintf('You can safely ignore the warning printed just above this.\n')
+    fprintf('You can safely ignore the warning about ''no trialfun was specified''.\n')
   end
   
   % set up for defining the trials based on file type
@@ -360,11 +354,11 @@ end
   
 % run ft_appenddata if we're combining multiple sessions
 if length(session) > 1
-  ses_str = sprintf('ses%s',session{1});
+  ses_str = sprintf('ses_%s',session{1});
   append_str = sprintf('append_data.%s',ses_str);
   
   for ses = 2:length(session)
-    ses_str = sprintf('ses%s',session{ses});
+    ses_str = sprintf('ses_%s',session{ses});
     append_str = cat(2,append_str,sprintf(',append_data.%s',ses_str));
   end
   

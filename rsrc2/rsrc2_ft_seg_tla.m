@@ -19,7 +19,7 @@ exper.sampleRate = 250;
 exper.prepost = [-1.0 2.0];
 
 % equate the number of trials across event values?
-exper.equateTrials = 1;
+exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
@@ -39,7 +39,7 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'RSRC2001';
-%   'RSRC2002';
+  'RSRC2002';
 %   'RSRC2003';
 %   'RSRC2004';
 %   'RSRC2005';
@@ -78,15 +78,15 @@ exper.subjects = {
 %    'RSRC2013'; % fire alarm went off during blink period of final test block
 %    'RSRC2031'; % did not finish session
 
-% the sessions that each subject ran; multi-session support is not yet
-% implemented, but for now this cell must contain one string; this will
-% (probably/eventually) be the name of the directory containing the EEG
-% files
+% The sessions that each subject ran; the strings in this cell are the
+% directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
+% directory and, if applicable, the ns_bci directory. They are not the
+% session directory names where the FieldTrip data is saved for each
+% subject because of the option to combine sessions. See 'help
+% create_ft_struct' for more information.
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
-
-dirs.homeDir = getenv('HOME');
 
 % directory where the data to read is located
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
@@ -150,8 +150,8 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
-%ana.artifactType = 'ns';
-ana.artifactType = 'none';
+ana.artifactType = 'ns';
+%ana.artifactType = 'none';
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
@@ -180,6 +180,21 @@ else
   error('Not saving! %s already exists.\n',saveFile);
 end
 
+%% let me know that it's done
+emailme = 1;
+if emailme
+  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
+  send_to = {'matt.mollison@gmail.com'};
+  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+  message = {...
+    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+    sprintf('%s',saveFile),...
+    };
+  %attachments = {'picture1.png'};
+  attachments = [];
+  send_mail(send_to,subject,message,attachments);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FieldTrip format creation ends here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,7 +206,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/RSRC2/eeg/-1000_2000/ft_data/NT_TH_eq1/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -222,189 +237,38 @@ if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
   ana.eventValues = {exper.eventValues};
 end
 
-%% save the analysis details
+%% load in the subject data
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% if already saved and not yet loaded, load the ft_timelockanalysis files
-
-if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
-  if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name));
-  elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
-  elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
-  end
-end
-
-if ~exist('data_tla','var')
-  if strcmp(cfg_proc.keeptrials,'no')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-  elseif strcmp(cfg_proc.keeptrials,'yes')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-  end
-  for sf = 1:length(savedFiles)
-    fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
-    fprintf('Done.\n');
-  end
-  % get all the exper.eventValues and exper.eventValuesExtra together; make sure the extra event values aren't in the list
-  if ~isempty(exper.eventValuesExtra)
-    if exper.eventValuesExtra.onlyKeepExtras
-      exper.eventValues = cat(2,exper.eventValuesExtra.newValue{:});
-    else
-      for nVal = 1:length(exper.eventValuesExtra.newValue)
-        if ~ismember(exper.eventValuesExtra.newValue{nVal},exper.eventValues)
-          exper.eventValues = cat(2,exper.eventValues,exper.eventValuesExtra.newValue{nVal});
-        else
-          fprintf('%s is already in the event value list!\n',exper.eventValuesExtra.newValue{nVal}{1});
-        end
-      end
-    end
-    exper.eventValues = sort(exper.eventValues);
-  end
-end
-
-%% Test plots to make sure data look ok
-
-% cfg_ft = [];
-% cfg_ft.showlabels = 'yes';
-% cfg_ft.interactive = 'yes';
-% cfg_ft.showoutline = 'yes';
-% cfg_ft.fontsize = 9;
-% cfg_ft.layout = ft_prepare_layout([],ana);
-% figure
-% ft_multiplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data);
-% 
-% cfg_ft = [];
-% cfg_ft.channel = {'E42'};
-% %cfg_ft.linewidth = 2;
-% cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--','-.'};
-% figure
-% ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
-% legend((exper.eventValues{1}),(exper.eventValues{2}),(exper.eventValues{3}),'Location','SouthEast');
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% cfg_ft = [];
-% cfg_ft.channel = {'all'};
-% cfg_ft.latency = [.5 .8];
-% data_topo = ft_timelockanalysis(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data);
-% cfg_ft = [];
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% cfg_ft.interactive = 'yes';
-% cfg_ft.colormap = 'jet';
-% %cfg_ft.colormap = 'hot';
-% cfg_ft.colorbar = 'yes';
-% cfg_ft.xlim = 'maxmin';
-% cfg_ft.layout = ft_prepare_layout([],data_tla);
-% figure
-% ft_topoplotER(cfg_ft,data_topo);
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% %% Remove the dof field. I'm not sure what degrees of freedom refers to, but the tutorial says to.
-% for evVal = 1:length(exper.eventValues)
-%   for sub = 1:length(exper.subjects)
-%     for ses = 1:length(exper.sessions)
-%       if isfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof')
-%         data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data = rmfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof');
-%       end
-%     end
-%   end
-% end
+[data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
 %% decide who to kick out based on trial counts
-
-numEv = struct;
-numEv.thresh = 20;
 
 % Subjects with bad behavior
 exper.badBehSub = {};
 
 % exclude subjects with low event counts
-[exper,numEv] = mm_threshSubs(exper,numEv,data_tla);
+[exper] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = exper.eventValues;
+cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_tla';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sessions)
-  for evVal = 1:length(exper.eventValues)
-    %tic
-    fprintf('Running ft_timelockgrandaverage on %s...',exper.eventValues{evVal});
-    ga_tla.(exper.eventValues{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(exper.eventValues{evVal}){ses}));
-    fprintf('Done.\n');
-    %toc
-  end
-end
-
-%% save grand average file
-
-saveFile = fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'ga_tla');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% (re)save the analysis details
-
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','numEv');
-else
-  fprintf('Appending to %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','numEv','-append');
-end
-fprintf('Done.\n');
-
-%% let me know that it's done
-emailme = 1;
-if emailme
-  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-  send_to = {'matt.mollison@gmail.com'};
-  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  message = {...
-    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
-    sprintf('%s',saveFile),...
-    };
-  %attachments = {'picture1.png'};
-  attachments = [];
-  send_mail(send_to,subject,message,attachments);
-end
-
-%% if already saved and not yet loaded, load the grand average file
-
-if ~exist('ga_tla','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-  for sf = 1:length(savedFiles)
-    fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
-    fprintf('Done.\n');
+  for typ = 1:length(ana.eventValues)
+    for evVal = 1:length(ana.eventValues{typ})
+      %tic
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{typ}{evVal});
+      ga_tla.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      fprintf('Done.\n');
+      %toc
+    end
   end
 end
 
@@ -453,6 +317,8 @@ cfg_plot.numCols = 5;
 cfg_plot.xlim = [-.2 1.0];
 cfg_plot.ylim = [-10 10];
 
+cfg_plot.zparam = 'avg';
+
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
@@ -464,7 +330,7 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_subjplotER(cfg_plot,ana,exper,numEv,data_tla);
+  mm_ft_subjplotER(cfg_plot,ana,exper,data_tla);
 end
 
 %% plot the conditions

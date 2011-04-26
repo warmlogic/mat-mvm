@@ -1,11 +1,37 @@
-function ana = mm_ft_channelgroups(ana)
+function ana = mm_ft_channelgroups(ana,elecGroupsExtra,elecGroupsStrExtra)
 %MM_FT_CHANNELGROUPS Set up channel groups
 %
-%   ana = mm_ft_channelgroups(ana)
+%   ana = mm_ft_channelgroups(ana,elecGroupsExtra,elecGroupsStrExtra)
+%
+%  Input:
+%    elecGroupsExtra    = Optional. Muse be a cell array containing cell
+%                         arrays of strings of electrode labels, even if
+%                         there is only one group.
+%                         e.g., {{'E1','E2'},{'E3','E4'}}.
+%
+%    elecGroupsStrExtra = Optional. Identification strings for the groups.
+%                         A cell array of strings, one for each group.
 %
 %  Output:
 %    adds the elecGroups and elecGroupsStr fields to the ana struct
 %
+% NB: See the function code to view the pre-defined electrode groups
+%
+
+if nargin == 3
+  if (isempty(elecGroupsExtra) && ~isempty(elecGroupsStrExtra)) || (~isempty(elecGroupsExtra) && isempty(elecGroupsStrExtra))
+    error('elecGroupsExtra and elecGroupsStrExtra both need to contain something.');
+  elseif ~isempty(elecGroupsExtra) && ~isempty(elecGroupsStrExtra)
+    if length(elecGroupsExtra) ~= length(elecGroupsStrExtra)
+    error('elecGroupsExtra and elecGroupsStrExtra must be the same length.');
+    end
+  end
+elseif nargin == 2
+  error('Cannot define elecGroupsExtra without elecGroupsStrExtra');
+elseif nargin == 1
+  elecGroupsExtra = {};
+  elecGroupsStrExtra = {};
+end
 
 ana.elecGroups = {...
   {'E32','E33','E38','E39','E43','E44','E128'},... % LAI
@@ -24,7 +50,7 @@ ana.elecGroups = {...
   {'E54','E61','E62','E67','E72','E77','E78','E79'},... % Posterior Superior
   {'E70','E71','E74','E75','E76','E82','E83'},... % Posterior Inferior
   {'E11'},... % Fz (frontocentral)
-  {'E129'},... % Cz (central)
+  {'Cz'},... % Cz (central)
   {'E75'},... % Oz - P1 effect (occipitocentral)
   {'E62'},... % Pz (posteriocentral)
   {'E64'},... % P9 - N1 effect? (left lateral)
@@ -32,6 +58,16 @@ ana.elecGroups = {...
   };
 
 ana.elecGroupsStr = {'LAI','RAI','LAS','RAS','LPS','RPS','LPI','RPI','LPS2','RPS2','FI','FS','C','PS','PI','Fz','Cz','Oz','Pz','P9','P10'};
+
+if ~isempty(elecGroupsExtra)
+  if sum(ismember(elecGroupsStrExtra,ana.elecGroupsStr)) > 0
+    repeats = elecGroupsStrExtra(ismember(elecGroupsStrExtra,ana.elecGroupsStr));
+    error('elecGroupsStrExtra group(s) %salready exists in the predefined elecGroupsStr field. Unfortunately you need to rename the offending electrode group.',sprintf(repmat('''%s'' ',1,sum(ismember(elecGroupsStrExtra,ana.elecGroupsStr))),repeats{:}));
+  end
+  
+  ana.elecGroups = cat(2,ana.elecGroups,elecGroupsExtra);
+  ana.elecGroupsStr = cat(2,ana.elecGroupsStr,elecGroupsStrExtra);
+end
 
 if sum(size(ana.elecGroups) ~= size(ana.elecGroupsStr)) ~= 0
   error('The number of groups in ana.elecGroups is not the same as in ana.elecGroupsStr.')

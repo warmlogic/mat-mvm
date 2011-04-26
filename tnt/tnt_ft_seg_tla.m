@@ -94,10 +94,12 @@ exper.subjects = {
   'TNT 54';
   };
 
-% the sessions that each subject ran; multi-session support is not yet
-% implemented, but for now this cell must contain one string; this will
-% (probably/eventually) be the name of the directory containing the EEG
-% files
+% The sessions that each subject ran; the strings in this cell are the
+% directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
+% directory and, if applicable, the ns_bci directory. They are not the
+% session directory names where the FieldTrip data is saved for each
+% subject because of the option to combine sessions. See 'help
+% create_ft_struct' for more information.
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
@@ -175,6 +177,21 @@ else
   error('Not saving! %s already exists.\n',saveFile);
 end
 
+%% let me know that it's done
+emailme = 1;
+if emailme
+  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
+  send_to = {'matt.mollison@gmail.com'};
+  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+  message = {...
+    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+    sprintf('%s',saveFile),...
+    };
+  %attachments = {'picture1.png'};
+  attachments = [];
+  send_mail(send_to,subject,message,attachments);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FieldTrip format creation ends here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -219,7 +236,7 @@ end
 
 %% load in the subject data
 
-[data_tla] = mm_ft_loadSubjectData(exper,dirs,'tla');
+[data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
 %% Test plots to make sure data look ok
 
@@ -283,7 +300,7 @@ exper.badBehSub = {};
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = exper.eventValues;
+cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_tla';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
@@ -301,48 +318,11 @@ for ses = 1:length(exper.sessions)
   end
 end
 
-%% save grand average file
-
-saveFile = fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'ga_tla');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% (re)save the analysis details
-
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','numEv');
-else
-  fprintf('Appending to %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','numEv','-append');
-end
-fprintf('Done.\n');
-
-%% let me know that it's done
-emailme = 1;
-if emailme
-  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-  send_to = {'matt.mollison@gmail.com'};
-  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  message = {...
-    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
-    sprintf('%s',saveFile),...
-    };
-  %attachments = {'picture1.png'};
-  attachments = [];
-  send_mail(send_to,subject,message,attachments);
-end
-
 %% plot the conditions - simple
 
 cfg_ft = [];
 cfg_ft.xlim = [-.3 1.7];
+cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -382,6 +362,8 @@ cfg_plot.numCols = 5;
 cfg_plot.xlim = [-.2 1.0];
 cfg_plot.ylim = [-10 10];
 
+cfg_plot.zparam = 'avg';
+
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
@@ -394,13 +376,14 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_subjplotER(cfg_plot,ana,exper,numEv,data_tla);
+  mm_ft_subjplotER(cfg_plot,ana,exper,data_tla);
 end
 
 %% plot the conditions
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.0];
+cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 

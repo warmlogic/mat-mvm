@@ -93,10 +93,12 @@ exper.subjects = {
   'TNT 54';
   };
 
-% the sessions that each subject ran; multi-session support is not yet
-% implemented, but for now this cell must contain one string; this will
-% (probably/eventually) be the name of the directory containing the EEG
-% files
+% The sessions that each subject ran; the strings in this cell are the
+% directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
+% directory and, if applicable, the ns_bci directory. They are not the
+% session directory names where the FieldTrip data is saved for each
+% subject because of the option to combine sessions. See 'help
+% create_ft_struct' for more information.
 exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
@@ -207,6 +209,30 @@ fprintf('Done.\n');
 %else
 %  error('Not saving! %s already exists.\n',saveFile);
 %end
+
+%% let me know that it's done
+emailme = 1;
+if emailme
+  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
+  send_to = {'matt.mollison@gmail.com'};
+  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+  message = {...
+    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+    sprintf('%s',saveFile),...
+    };
+  %attachments = {'picture1.png'};
+  attachments = [];
+  send_mail(send_to,subject,message,attachments);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FieldTrip format creation ends here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FieldTrip analysis starts here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% load the analysis details
 
@@ -337,78 +363,6 @@ for ses = 1:length(exper.sessions)
       fprintf('Done.\n');
       %toc
     end
-  end
-end
-
-%% save grand average file
-
-if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
-  if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name),'cfg_proc');
-  elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
-  elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
-  end
-end
-
-saveFile = fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'ga_freq');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% (re)save the analysis details
-
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
-else
-  fprintf('Appending to %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc','-append');
-end
-fprintf('Done.\n');
-
-%% let me know that it's done
-emailme = 1;
-if emailme
-  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-  send_to = {'matt.mollison@gmail.com'};
-  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  message = {...
-    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
-    sprintf('%s',saveFile),...
-    };
-  %attachments = {'picture1.png'};
-  attachments = {};
-  send_mail(send_to,subject,message,attachments);
-end
-
-%% if already saved and not yet loaded, load the ft_freqgrandaverage files
-
-if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
-  if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name));
-  elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
-  elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
-  end
-end
-
-if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
-  %savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
-  for sf = 1:length(savedFiles)
-    fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
-    fprintf('Done.\n');
   end
 end
 
