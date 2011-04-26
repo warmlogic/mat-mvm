@@ -108,7 +108,7 @@ files.elecfile = fullfile(dirs.homeDir,'Documents/MATLAB/mat_mvm/eeg/GSN_HydroCe
 %locsFormat = 'besa_sfp';
 %elec = ft_read_sens(files.elecfile,'fileformat',locsFormat);
 
-% figure printing options
+% figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
 files.figFileExt = 'eps';
 if strcmp(files.figFileExt,'eps')

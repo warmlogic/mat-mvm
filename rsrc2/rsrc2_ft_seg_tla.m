@@ -124,7 +124,7 @@ files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
-% figure printing options
+% figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
 files.figFileExt = 'png';
 

@@ -124,7 +124,7 @@ files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
-% figure printing options
+% figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
 files.figFileExt = 'png';
 
@@ -146,7 +146,7 @@ files.figFileExt = 'png';
 %   end
 % end
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
 ana.artifactType = 'ns';

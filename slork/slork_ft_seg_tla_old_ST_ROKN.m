@@ -89,7 +89,7 @@ elecfile = fullfile(homeDir,'eeg/GSN_HydroCel_129_short.sfp');
 locsFormat = 'besa_sfp';
 elec = read_sens(elecfile,'fileformat',locsFormat);
 
-% figure printing options
+% figure printing options - see mm_ft_setSaveDirs for other options
 saveFigs = 1;
 figFileExt = 'eps';
 if strcmp(figFileExt,'eps')
