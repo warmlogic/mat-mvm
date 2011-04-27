@@ -2,6 +2,40 @@ function mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs)
 %mm_ft_clusterplotTFR Plot (and save) significant clusters
 %   
 
+if ~isfield(cfg_ft,'avgoverfreq')
+  cfg_ft.avgoverfreq = 'no';
+end
+
+if isequal(cfg_ft.avgoverfreq,'yes')
+  cfg_ft.showlabels = 'yes';
+  if ~isfield(cfg_plot,'ftFxn')
+    cfg_plot.ftFxn = 'ft_multiplotTFR';
+  end
+end
+
+if isequal(cfg_ft.avgoverfreq,'no')
+  if ~isfield(cfg_ft,'showlabels')
+    cfg_ft.showlabels = 'yes';
+  end
+end
+
+if ~isfield(cfg_plot,'mask')
+  cfg_plot.mask = 'no';
+end
+
+if isequal(cfg_plot.mask,'yes')
+  if ~isfield(cfg_ft,'maskparameter')
+    cfg_ft.maskparameter = 'mask';
+  end
+  if ~isfield(cfg_ft,'maskstyle')
+    if files.saveFigs == 1
+      cfg_ft.maskstyle = 'saturation';
+    else
+      cfg_ft.maskstyle = 'opacity';
+    end
+  end
+end
+
 close all
 
 % p-val markers; default ['*','x','+','o','.'], p < [0.01 0.05 0.1 0.2 0.3]
@@ -11,6 +45,8 @@ cfg_ft.highlightcolorneg = [0 0.5 0];
 cfg_ft.elec = ana.elec;
 cfg_ft.contournum = 0;
 cfg_ft.emarker = '.';
+cfg_ft.xparam = 'time';
+cfg_ft.yparam = 'freq';
 cfg_ft.zparam = 'stat';
 if ~isfield(cfg_ft,'alpha')
   cfg_ft.alpha  = 0.05;
@@ -75,7 +111,22 @@ for cnd = 1:length(cfg_plot.conditions)
     
     if (~isempty(stat_clus.(vs_str).posclusters) && ~isempty(find(stat_clus.(vs_str).posclusters(1).prob < cfg_ft.alpha,1))) || (~isempty(stat_clus.(vs_str).negclusters) && ~isempty(find(stat_clus.(vs_str).negclusters(1).prob < cfg_ft.alpha,1)))
       fprintf('%s:\t***Found positive or negative clusters***\n',vs_str);
-      ft_clusterplot(cfg_ft,stat_clus.(vs_str));
+      
+      if isequal(cfg_ft.avgoverfreq,'yes')
+        ft_clusterplot(cfg_ft,stat_clus.(vs_str));
+      elseif isequal(cfg_ft.avgoverfreq,'no')
+        % save the fields
+        conditions_orig = cfg_plot.conditions;
+        eventValues_orig = ana.eventValues;
+        
+        % do the plot
+        cfg_plot.conditions = vs_str;
+        ana.eventValues = {{vs_str}};
+        mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
+        % put the fields back
+        cfg_plot.conditions = conditions_orig;
+        ana.eventValues = eventValues_orig;
+      end
       
       if files.saveFigs
         fignums = findobj('Type','figure');

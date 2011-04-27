@@ -243,7 +243,7 @@ end
 
 %% load the analysis details
 
-adFile = '';
+adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/pow_mtmconvol_hanning_pow_-500_980_3_40_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -280,24 +280,29 @@ end
 %% Test plots to make sure data look ok
 
 cfg_ft = [];
-cfg_ft.baseline = [-0.3 -0.1];
+cfg_ft.baseline = [-0.5 -0.1];
 cfg_ft.baselinetype = 'absolute';
-% if strcmp(cfg_ft.baselinetype,'absolute')
-%   cfg_ft.zlim = [-400 400];
-%   %cfg_ft.zlim = [-2 2];
-% elseif strcmp(cfg_ft.baselinetype,'relative')
-%   cfg_ft.zlim = [0 2.0];
-% end
+if strcmp(cfg_ft.baselinetype,'absolute') % data - mean
+  %cfg_ft.zlim = [-400 400];
+  cfg_ft.zlim = [-2 2];
+elseif strcmp(cfg_ft.baselinetype,'relative') % ratio (1 = no change)
+  cfg_ft.zlim = [0 2];
+elseif strcmp(cfg_ft.baselinetype,'relchange') % (data - mean) / mean
+  cfg_ft.zlim = [-1 1];
+end
 cfg_ft.zparam = 'powspctrm';
 %cfg_ft.ylim = [3 9];
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-figure
-ft_multiplotTFR(cfg_ft,data_freq.(exper.eventValues{1}).sub(1).ses(1).data);
-figure
-ft_multiplotTFR(cfg_ft,data_freq.(exper.eventValues{2}).sub(1).ses(1).data);
+sub=1;
+ses=1;
+for i = 1:2
+  figure
+  ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E124'};
@@ -319,37 +324,26 @@ ft_multiplotTFR(cfg_ft,data_freq.(exper.eventValues{2}).sub(1).ses(1).data);
 %% Change in freq relative to baseline using absolute power
 
 cfg_fb = [];
-cfg_fb.baseline = [-0.3 -0.1];
+%cfg_fb.baseline = [-0.3 -0.1];
+cfg_fb.baseline = [-0.5 -0.1];
 cfg_fb.baselinetype = 'absolute';
 
-data_freq_orig = data_freq;
+%data_freq_orig = data_freq;
 
-for evVal = 1:length(exper.eventValues)
-  for sub = 1:length(exper.subjects)
-    for ses = 1:length(exper.sessions)
-      fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},exper.eventValues{evVal});
-      data_freq.(exper.eventValues{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(exper.eventValues{evVal}).sub(sub).ses(ses).data);
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+      end
     end
   end
 end
 
-% % save the structs for loading in later
-% if strcmp(cfg_proc.keeptrials,'no')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-% elseif strcmp(cfg_proc.keeptrials,'yes')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-% end
-% if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'data_freq');
-%   fprintf('Done.\n');
-% else
-%   error('Not saving! %s already exists.',saveFile);
-% end
-
 % % find the time points without NaNs for a particular frequency
-% data_freq.(exper.eventValues{1}).sub(1).ses(1).data.time(~isnan(squeeze(data_freq.(exper.eventValues{1}).sub(1).ses(1).data.powspctrm(1,2,:))'))
-% ga_freq.(exper.eventValues{1}).time(~isnan(squeeze(ga_freq.(exper.eventValues{1}).powspctrm(1,1,2,:))'))
+% data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.time(~isnan(squeeze(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.powspctrm(1,2,:))'))
+% ga_freq.(ana.eventValues{1}{1}).time(~isnan(squeeze(ga_freqanaexper.eventValues{1}{1}).powspctrm(1,1,2,:))'))
 
 %% decide who to kick out based on trial counts
 
@@ -388,12 +382,12 @@ cfg_ft = [];
 %cfg_ft.baseline = [-0.3 -0.1];
 %cfg_ft.baselinetype = 'absolute';
 %if strcmp(cfg_ft.baselinetype,'absolute')
-%cfg_ft.xlim = [0 1];
+cfg_ft.xlim = [0 1];
 %cfg_ft.ylim = [3 50];
-%cfg_ft.ylim = [3 8];
-cfg_ft.ylim = [8 12];
-%cfg_ft.zlim = [-1 1];
-cfg_ft.zlim = [-100 100];
+cfg_ft.ylim = [3 8];
+%cfg_ft.ylim = [8 12];
+cfg_ft.zlim = [-2 2];
+%cfg_ft.zlim = [-100 100];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
 %  cfg_ft.zlim = [0 2.0];
 %end
@@ -426,7 +420,7 @@ cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
-cfg_ft.zlim = [-150 150];
+cfg_ft.zlim = [-2 2];
 cfg_ft.zparam = 'powspctrm';
 
 for r = 1:length(cfg_plot.rois)
@@ -541,11 +535,12 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_freq);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'FS'},{'FS'}};
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8];
+cfg_ana.frequencies = [4 8; 4 8];
 
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 cfg_ana.conditions = {'all'};
@@ -609,9 +604,13 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
+
+% debugging
+%cfg_ft.numrandomization = 100;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
@@ -619,7 +618,8 @@ cfg_ana.roi = 'all';
 cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
-cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+%cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+cfg_ana.frequencies = [3 40];
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
@@ -637,19 +637,27 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .05;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
+% % not averaging over frequencies - only works with ft_multiplotTFR
+% files.saveFigs = 0;
+% cfg_ft.avgoverfreq = 'no';
+% cfg_ft.interactive = 'yes';
+% cfg_plot.mask = 'yes';
+% %cfg_ft.maskstyle = 'saturation';
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
+
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
   for fr = 1:size(cfg_plot.frequencies,1)
     cfg_ft.frequency = cfg_plot.frequencies(fr,:);
     
-    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
+    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
   end
 end
 

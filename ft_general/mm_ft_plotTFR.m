@@ -34,7 +34,7 @@ if ~isfield(cfg_ft,'zparam')
 end
 
 if ~isfield(cfg_plot,'plotTitle')
-  cfg_ft.plotTitle = 0;
+  cfg_plot.plotTitle = 0;
 end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotTFR','');
@@ -165,6 +165,8 @@ if isfield(cfg_plot,'subplot')
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
+      %cfg_ft.marker = 'labels';
+      
       if isfield(cfg_ft,'markerfontsize')
         cfg_ft = rmfield(cfg_ft,'markerfontsize');
       end

@@ -2,7 +2,7 @@ function [conditions] = mm_ft_checkConditions(conditions,ana,condMethod)
 %MM_FT_CHECKCONDITIONS Makes sure the conditions are set correctly, and
 %make pairwise comparisons if desired
 %
-% [conditions] = mm_ft_checkConditions(conditions,ana,condMethod)
+% [conditions] = mm_ft_checkConditions(conditions,ana,condMethod,data)
 %
 % inputs:
 %   conditions = can be defined as one of three things:
