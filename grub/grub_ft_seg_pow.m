@@ -596,8 +596,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-%cfg_ft.avgoverfreq = 'yes';
-cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -613,8 +613,8 @@ cfg_ana.roi = 'all';
 cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
-%cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-cfg_ana.frequencies = [3 40];
+cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+%cfg_ana.frequencies = [3 40];
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
@@ -632,21 +632,21 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .05;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-% not averaging over frequencies - only works with ft_multiplotTFR
-files.saveFigs = 0;
-cfg_ft.avgoverfreq = 'no';
-cfg_ft.interactive = 'yes';
-cfg_plot.mask = 'yes';
-%cfg_ft.maskstyle = 'saturation';
-cfg_ft.maskalpha = 0.3;
-cfg_plot.ftFxn = 'ft_multiplotTFR';
+% % not averaging over frequencies - only works with ft_multiplotTFR
+% files.saveFigs = 0;
+% cfg_ft.avgoverfreq = 'no';
+% cfg_ft.interactive = 'yes';
+% cfg_plot.mask = 'yes';
+% %cfg_ft.maskstyle = 'saturation';
+% cfg_ft.maskalpha = 0.3;
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
