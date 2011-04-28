@@ -3,17 +3,14 @@ function mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs)
 %   
 
 if ~isfield(cfg_ft,'avgoverfreq')
-  cfg_ft.avgoverfreq = 'no';
+  cfg_ft.avgoverfreq = 'yes';
 end
 
-if isequal(cfg_ft.avgoverfreq,'yes')
+if isequal(cfg_ft.avgoverfreq,'no')
   cfg_ft.showlabels = 'yes';
   if ~isfield(cfg_plot,'ftFxn')
     cfg_plot.ftFxn = 'ft_multiplotTFR';
   end
-end
-
-if isequal(cfg_ft.avgoverfreq,'no')
   if ~isfield(cfg_ft,'showlabels')
     cfg_ft.showlabels = 'yes';
   end

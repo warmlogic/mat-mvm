@@ -41,16 +41,22 @@ cfg_ft.elec = ana.elec;
 % use the Monte Carlo Method to calculate the significance probability
 cfg_ft.method = 'montecarlo';
 cfg_ft.correctm = 'cluster';
-% alpha level of the sample-specific test statistic that will be used for
-% thresholding
-cfg_ft.clusteralpha = 0.05;
 % test statistic that will be evaluated under the permutation distribution
 cfg_ft.clusterstatistic = 'maxsum';
+% alpha level of the sample-specific test statistic that will be used for
+% thresholding
+if ~isfield(cfg_ft,'clusteralpha')
+  cfg_ft.clusteralpha = 0.05;
+end
 % minimum number of neighborhood channels that is required for a selected
 % sample to be included in the clustering algorithm (default = 0)
-cfg_ft.minnbchan = 2;
+if ~isfield(cfg_ft,'minnbchan')
+  cfg_ft.minnbchan = 2;
+end
 % alpha level of the permutation test
-cfg_ft.alpha = 0.025;
+if ~isfield(cfg_ft,'alpha')
+  cfg_ft.alpha = 0.025;
+end
 % number of draws from the permutation distribution
 if ~isfield(cfg_ft,'numrandomization')
   cfg_ft.numrandomization = 1000;

@@ -19,7 +19,7 @@ exper.sampleRate = 250;
 exper.prepost = [-1.0 2.0];
 
 % equate the number of trials across event values?
-exper.equateTrials = 0;
+exper.equateTrials = 1;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
@@ -33,9 +33,6 @@ exper.eventValues = sort({'RCR','RHSC','RHSI'});
 % combine some events into higher-level categories
 exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
 exper.eventValuesExtra.newValue = {{'RH'}};
-
-% keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'RSRC2001';
@@ -147,6 +144,7 @@ files.figFileExt = 'png';
 % end
 
 %% Convert the data to FieldTrip structs
+
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
 ana.artifactType = 'ns';
@@ -243,7 +241,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/pow_mtmconvol_hanning_pow_-500_980_3_40_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_40_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -351,7 +349,7 @@ end
 exper.badBehSub = {};
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper] = mm_threshSubs(exper,ana,20);
 
 %% get the grand average
 
@@ -384,7 +382,7 @@ cfg_ft = [];
 %if strcmp(cfg_ft.baselinetype,'absolute')
 cfg_ft.xlim = [0 1];
 %cfg_ft.ylim = [3 50];
-cfg_ft.ylim = [3 8];
+%cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
 cfg_ft.zlim = [-2 2];
 %cfg_ft.zlim = [-100 100];
@@ -395,10 +393,12 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-for evVal = 1:length(exper.eventValues)
-  figure
-  ft_multiplotTFR(cfg_ft,ga_freq.(exper.eventValues{evVal}));
-  set(gcf,'Name',sprintf('%s',exper.eventValues{evVal}))
+for typ = 1:length(ana.eventValues)
+  for evVal = 1:length(ana.eventValues{typ})
+    figure
+    ft_multiplotTFR(cfg_ft,ga_freq.(ana.eventValues{typ}{evVal}));
+    set(gcf,'Name',sprintf('%s',ana.eventValues{typ}{evVal}))
+  end
 end
 
 %% subplots of each subject's power spectrum
@@ -443,8 +443,8 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.ylim = [3 8]; % freq
 cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
-%cfg_ft.ylim = [28 50]; % freq
-cfg_ft.zlim = [-150 150]; % pow
+%cfg_ft.ylim = [28 40]; % freq
+cfg_ft.zlim = [-2 2]; % pow
 
 cfg_ft.zparam = 'powspctrm';
 
@@ -498,12 +498,12 @@ cfg_plot.conditions = {'all'};
 
 cfg_ft = [];
 %cfg_ft.xlim = [.5 .8]; % time
-%cfg_ft.ylim = [3 8]; % freq
-cfg_ft.ylim = [8 12]; % freq
+cfg_ft.ylim = [3 8]; % freq
+%cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.zparam = 'powspctrm';
-cfg_ft.zlim = [-100 100]; % pow
+cfg_ft.zlim = [-1 1]; % pow
 
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
@@ -557,8 +557,8 @@ cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 % line plot parameters
-%cfg_plot.ylims = [-1 1; -1 1; -1 1];
-cfg_plot.ylims = [-100 100; -100 100];
+cfg_plot.ylims = [-1 1; -1 1];
+%cfg_plot.ylims = [-100 100; -100 100];
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
@@ -584,7 +584,7 @@ cfg_ana.condByROI = {{'RCR','RH'},{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8; 8 12];
+cfg_ana.frequencies = [4 8; 4 8; 8 12];
 
 cfg_ana.IV_names = {'ROI','Condition'};
 
@@ -644,13 +644,14 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-% % not averaging over frequencies - only works with ft_multiplotTFR
-% files.saveFigs = 0;
-% cfg_ft.avgoverfreq = 'no';
-% cfg_ft.interactive = 'yes';
-% cfg_plot.mask = 'yes';
-% %cfg_ft.maskstyle = 'saturation';
-% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% not averaging over frequencies - only works with ft_multiplotTFR
+files.saveFigs = 0;
+cfg_ft.avgoverfreq = 'no';
+cfg_ft.interactive = 'yes';
+cfg_plot.mask = 'yes';
+%cfg_ft.maskstyle = 'saturation';
+cfg_ft.maskalpha = 0.3;
+cfg_plot.ftFxn = 'ft_multiplotTFR';
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
