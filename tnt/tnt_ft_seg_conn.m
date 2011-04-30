@@ -142,7 +142,7 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifactType = 'ns';
+ana.artifact.type = 'ns';
 
 ana.otherFxn = {};
 ana.otherFxn{1} = 'ft_scalpcurrentdensity';
@@ -160,6 +160,8 @@ ana.cfg_other{1}.ftype = 'scd';
 
 % any preprocessing?
 cfg_pp = [];
+% single precision to save space
+cfg_pp.precision = 'single';
 
 cfg_proc = [];
 cfg_proc.pad = 'maxperlen';

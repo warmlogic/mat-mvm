@@ -150,14 +150,16 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
-ana.artifactType = 'ns';
-%ana.artifactType = 'none';
+ana.artifact.type = 'ns';
+%ana.artifact.type = 'none';
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
 
 % any preprocessing?
 cfg_pp = [];
+% single precision to save space
+cfg_pp.precision = 'single';
 
 cfg_proc = [];
 % do we want to keep the individual trials?

@@ -9,7 +9,7 @@ function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 % as {{'session_1','session_2'}}. If they're input as
 % {{'session_1'},{'session_2'}} then they will be kept separate.
 %
-% ana.artifactType    = the type of artifact info to use ('ns','ft', or
+% ana.artifact.type   = the type of artifact info to use ('ns','ft', or
 %                       'none'). If 'ns', this function expects to find an
 %                       NS bci metadata file. This file denotes the reject
 %                       artifact trials. Use the File Export tool to export
@@ -61,8 +61,10 @@ if ~isfield(ana,'ftype')
 end
 
 % need an artifact detection type ('ns', 'ft', or 'none')
-if ~isfield(ana,'artifactType')
-  ana.artifactType = 'none';
+if ~isfield(ana,'artifact')
+  ana.artifact.type = 'none';
+elseif isfield(ana,'artifact') && ~isfield(ana.artifact,'type')
+  ana.artifact.type = 'none';
 end
 
 % make sure exper.sessions is a cell
@@ -196,7 +198,7 @@ for sub = 1:length(exper.subjects)
       % turn the NS segments into raw FT data; uses the NS bci metadata
       % file to reject artifact trials before returning good trials in
       % ft_raw
-      ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile,ana.artifactType);
+      ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile,ana.artifact.type);
       
       if ~isempty(ft_raw.(eventVal).trial)
         % store the number of trials for this event value

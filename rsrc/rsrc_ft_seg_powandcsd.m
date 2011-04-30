@@ -167,6 +167,9 @@ cfg_proc.toi = -0.5:0.05:1.5;
 %cfg_proc.pad = 'maxperlen';
 cfg_proc.keeptrials = 'yes';
 cfg_proc.keeptapers = 'no';
+
+% single precision to save space
+cfg_proc.precision = 'single';
 cfg_proc.channel = {'e1','e53','e122'};
 cfg_proc.channelcmb = {'e1','e53';'e1','e122';'e53','e122'};
 %cfg_proc.channel = {'e1','e53'};

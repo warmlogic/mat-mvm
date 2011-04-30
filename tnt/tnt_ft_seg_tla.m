@@ -57,41 +57,41 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'TNT 06';
-  'TNT 07';
-  'TNT 08';
-  'TNT 09';
-  'TNT 11';
-  'TNT 13';
-  'TNT 14';
-  'TNT 15';
-  'TNT 17';
-  'TNT 19';
-  'TNT 20';
-  'TNT 21';
-  'TNT 22';
-  'TNT 23';
-  'TNT 25';
-  'TNT 26';
-  'TNT 27';
-  'TNT 28';
-  'TNT 30';
-  'TNT 32';
-  'TNT 33';
-  'TNT 35';
-  'TNT 39';
-  'TNT 41';
-  'TNT 42';
-  'TNT 44';
-  'TNT 45';
-  'TNT 46';
-  'TNT 47';
-  'TNT 48';
-  'TNT 49';
-  'TNT 50';
-  'TNT 51';
-  'TNT 52';
-  'TNT 53';
-  'TNT 54';
+%   'TNT 07';
+%   'TNT 08';
+%   'TNT 09';
+%   'TNT 11';
+%   'TNT 13';
+%   'TNT 14';
+%   'TNT 15';
+%   'TNT 17';
+%   'TNT 19';
+%   'TNT 20';
+%   'TNT 21';
+%   'TNT 22';
+%   'TNT 23';
+%   'TNT 25';
+%   'TNT 26';
+%   'TNT 27';
+%   'TNT 28';
+%   'TNT 30';
+%   'TNT 32';
+%   'TNT 33';
+%   'TNT 35';
+%   'TNT 39';
+%   'TNT 41';
+%   'TNT 42';
+%   'TNT 44';
+%   'TNT 45';
+%   'TNT 46';
+%   'TNT 47';
+%   'TNT 48';
+%   'TNT 49';
+%   'TNT 50';
+%   'TNT 51';
+%   'TNT 52';
+%   'TNT 53';
+%   'TNT 54';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -100,7 +100,7 @@ exper.subjects = {
 % session directory names where the FieldTrip data is saved for each
 % subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {'session_0'};
+exper.sessions = {'ses1'};
 
 %% set up file and directory handling parameters
 
@@ -148,13 +148,15 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
-ana.artifactType = 'ns';
+ana.artifact.type = 'ft';
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
 
 % any preprocessing?
 cfg_pp = [];
+% single precision to save space
+cfg_pp.precision = 'single';
 
 cfg_proc = [];
 % do we want to keep the individual trials?

@@ -115,6 +115,8 @@ ana.ftFxn = 'ft_freqanalysis';
 
 % any preprocessing?
 cfg_pp = [];
+% single precision to save space
+cfg_pp.precision = 'single';
 
 cfg_proc = [];
 cfg_proc.output = 'pow';

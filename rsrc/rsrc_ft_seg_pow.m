@@ -176,10 +176,12 @@ end
 %% Convert the data to FieldTrip structs
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifactType = 'ns';
+ana.artifact.type = 'ns';
 
 % any preprocessing?
 cfg_pp = [];
+% single precision to save space
+cfg_pp.precision = 'single';
 
 cfg_proc = [];
 cfg_proc.pad = 'maxperlen';

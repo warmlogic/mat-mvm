@@ -99,7 +99,7 @@ exper.subjects = {
 % session directory names where the FieldTrip data is saved for each
 % subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {'session_0'};
+exper.sessions = {'ses1'};
 
 %% set up file and directory handling parameters
 
@@ -142,10 +142,12 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifactType = 'ns';
+ana.artifact.type = 'ns';
 
 % any preprocessing?
 cfg_pp = [];
+% single precision to save space
+cfg_pp.precision = 'single';
 
 cfg_proc = [];
 cfg_proc.output = 'pow';
