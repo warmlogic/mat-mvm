@@ -3,31 +3,58 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 %
 % [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
 %
-% The Net Station file should be exported as either EGIS (which has 129
-% channels, where the final channel [Cz] is the reference; extension:
-% 'egis') or NS Simple Binary (extension: 'raw' or 'sbin') calibrated,
-% including the reference channel. These options are in the File Export
-% tool. create_ft_struct, the function that calls seg2ft, expects EGIS
-% files to be stored in a 'ns_egis' directory at the level of dirs.dataDir.
-% If using raw files, they should be in 'ns_raw' instead.
+% Output:
+%   ft_raw = struct with one field for each event value
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SETUP:
+%
+% Export Net Station data as either EGIS (129 channels, where the final
+% channel [Cz] is the reference; extension: 'egis') or NS Simple Binary
+% (extension: 'raw' or 'sbin') calibrated, including the reference channel.
+% These options are in the File Export tool. create_ft_struct, the function
+% that calls seg2ft, expects EGIS files to be stored in a 'ns_egis'
+% directory at the level of dirs.dataDir. If using raw files, they should
+% be in 'ns_raw' instead.
 %
 % This function can deal with event values that have zero events. It is
 % probably better to check on your event count and exclude those subjects
 % with zero events for any of the event values you're trying to keep before
-% trying to run this script, but it will insert an empty event entry for
-% that eventValue, and the subjects should get excluded when using
-% mm_threshSubs.m.
+% trying to run this script. Nonetheless, it will insert an empty event
+% entry for an empty eventValue, and the subjects will be excluded when
+% using mm_threshSubs.m.
 %
-% If artifactType='ns', this function searches for a Net Station eye
-% artifact file. This is exported from Net Station using the File Export
-% tool. To set up the tool, export format is metadata and check the segment
-% information option (segment information is output with a .bci extension).
-% Run it on the file that was exported to egis/raw (i.e., the baseline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ARTIFACT INFORMATION:
+%
+% artifactType can be 'none', 'ns', 'ft_man', or 'ft_ica'; it can be one of
+% those strings or a cell array of multiple strings (e.g., {'ns','ft_man'}
+% to do both Net Station artifact rejection and FieldTrip manual
+% rejection). 'ft_ica' also includes manual rejection after assessing
+% components.
+%
+% 'ns' is processed first, then 'ft_man', then 'ft_ica'.  Subquent
+% processing will not include earlier rejected artifacts.  Note that any
+% FT artifact processing requires manual intervention, while NS artifact
+% processing does not.
+%
+% If 'ns', this function expects to find a Net Station segment information
+% file with a .bci extension; this contains artifact information. It is
+% exported from Net Station using the File Export tool. To set up the tool,
+% export format is metadata and check the segment information option. Run
+% the tool on the file that was exported to egis/raw (i.e., the baseline
 % correction file or the average rereference file). The bci files should be
-% stored in a 'ns_bci' directory at the same level as 'ns_egis' or 'ns_raw'.    
+% stored in a 'ns_bci' directory at the same level as 'ns_egis' or
+% 'ns_raw'.
 %
-% artifactType can also be 'none' or 'ft' (NB: FieldTrip artifact detection
-% is not yet implmented, so 'ft' will cause an error)
+% If 'ft_man', a visualization of all channels for each event will appear,
+% where each trial is shown one-by-one.
+%
+% If 'ft_ica', ICA will run on all trials across all event values.
+% Individual components can be rejected after this.
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EEGLAB DATA
 %
 % If using eeglab data, no artifact detection is done and no bci file is
 % expected to exist. Also, the directory structure is different and can be
@@ -35,9 +62,39 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % process Erika Nyhus's KAHN2 data.
 %
 
-if ~ismember(artifactType,{'ns','ft','none'})
-  error('artifactType was not set correctly (it was set to %s)',artifactType)
+%% set the artifact processing parameters
+
+if ischar(artifactType)
+  artifactType = {artifactType};
 end
+
+artifactOpts = {'none','ns','ft_man','ft_ica'};
+
+if any(~ismember(artifactType,artifactOpts))
+  error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(artifactType(~ismember(artifactType,artifactOpts))))
+end
+
+% set artifact defaults
+rejArt = 0;
+rejArt_ns = 0;
+rejArt_ft_man = 0;
+rejArt_ft_ica = 0;
+
+% figure out which artifact options we're using
+if ~ismember('none',artifactType)
+  rejArt = 1;
+end
+if ismember('ns',artifactType)
+  rejArt_ns = 1;
+end
+if ismember('ft_man',artifactType)
+  rejArt_ft_man = 1;
+end
+if ismember('ft_ica',artifactType)
+  rejArt_ft_ica = 1;
+end
+
+%% set up other parameters
 
 % make sure eventValue is set up correctly
 if ~iscell(eventValue)
@@ -84,6 +141,8 @@ else
   elec = ft_read_sens(elecfile,'fileformat',locsFormat);
 end
 nChan_elecfile = size(elec.label,1);
+
+%% for each session, read in the EEG file
 
 for ses = 1:length(session)
   % set ses_str to make sure it starts with a character, not a #, etc.
@@ -142,9 +201,7 @@ for ses = 1:length(session)
   % % debug
   % data = preprocessing(cfg);
   
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % Select events
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% Select events
   
   % % debug
   % cfg = [];
@@ -196,8 +253,9 @@ for ses = 1:length(session)
     return
   end
   
-  % check on NS artifacts
-  if strcmpi(artifactType,'ns')
+  %% check on NS artifacts
+  
+  if rejArt && rejArt_ns
     % make sure the file with NS artifact info exists
     summaryFile = dir(fullfile(dataroot,session{ses},'ns_bci',[subject,'*.bci']));
     if ~isempty(summaryFile)
@@ -241,16 +299,14 @@ for ses = 1:length(session)
     
     % remove the trials that have artifacts from the trl matrix
     cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
-  %elseif strcmpi(artifactType,'ft')
-  %  % get the trial definition
+  %elseif rejArt && rejArt_ft_auto
+  %  % get the trial definition for automated FT artifact rejection
   %  trl = cfg.trl;
-  elseif strcmpi(artifactType,'none')
+  elseif ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   end
   
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % Get the data and process it if necessary
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% Get the data and process it if necessary
   
   % get the actual data
   data = ft_preprocessing(cfg);
@@ -258,9 +314,7 @@ for ses = 1:length(session)
   % find out how many channels are in the data
   nChan_data = length(data.label);
   
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % Check on channel information
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% Check on channel information
   
   % check on whether we have the reference channel (we want to have it);
   % assuming that the last channel in the series is the reference channel
@@ -338,10 +392,11 @@ for ses = 1:length(session)
     error('Not sure what to do about rereferencing!');
   end
   
-  % run FieldTrip's artifact detection on the data
-  if strcmpi(artifactType,'ft')
-    %error('FieldTrip artifact detection has not yet been implemented. Set artifactType to ''ns'' or ''none''.');
-    
+%   %% run FieldTrip's automatic artifact detection on the data
+%   
+%   if rejArt && rejArt_ft_auto
+%     %error('FieldTrip artifact detection has not yet been implemented. Set artifactType to ''ns'' or ''none''.');
+%     
 %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     % look for jump artifacts
 %     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -439,12 +494,12 @@ for ses = 1:length(session)
 %     cfg.artfctdef.jump.artifact = artifact_jump;
 %     %cfg.artfctdef.muscle.artifact = artifact_muscle;
 %     cfg.artfctdef.eog.artifact =artifact_EOG;
-%     data_autoclean = ft_rejectartifact(cfg,data);
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % visual artifact inspection (manual)
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %
+%     data = ft_rejectartifact(cfg,data);
+%   end
+  
+  %% visual artifact inspection (manual)
+  
+  if rejArt && rejArt_ft_man
     % use cursor drag and click to mark artifacts;
     % use arrows to advance to next trial;
     % use the q key to quit the data browser
@@ -464,15 +519,19 @@ for ses = 1:length(session)
     
     % reject the artifacts (complete or parial rejection)
     cfg.artfctdef.reject = 'complete';
-    data_manual = ft_rejectartifact(cfg,data);
-    
-    % % HCGSN 129 Eye channels
-    % EOGV_upper = [25 8]; % left, right
-    % EOGV_lower = [127 126]; % left, right
-    % eog = {[25 127], [8 126]}; % left, right
-    % EOGH_left = 128;
-    % EOGH_right = 125;
+    data = ft_rejectartifact(cfg,data);
+  end
   
+  % % HCGSN 129 Eye channels
+  % EOGV_upper = [25 8]; % left, right
+  % EOGV_lower = [127 126]; % left, right
+  % eog = {[25 127], [8 126]}; % left, right
+  % EOGH_left = 128;
+  % EOGH_right = 125;
+  
+  %% ICA artifact detection
+  
+  if rejArt && rejArt_ft_ica
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ICA artifact detection
     %
@@ -482,7 +541,7 @@ for ses = 1:length(session)
     cfg = [];
     cfg.channel = 'all';
     
-    data_ic = ft_componentanalysis(cfg,data_manual);
+    data_ic = ft_componentanalysis(cfg,data);
     
     % % OLD METHOD - view the first 20 components
     % cfg = [];
@@ -531,15 +590,13 @@ for ses = 1:length(session)
     data = ft_rejectartifact(cfg,data_ic_cleaned);
   end
   
-  % if we're combining multiple sessions, add the data to the append struct
+  %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1
     append_data.(ses_str) = data;
   end
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Append sessions, if necessary
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Append sessions, if necessary
   
 % run ft_appenddata if we're combining multiple sessions
 if length(session) > 1
@@ -554,9 +611,7 @@ if length(session) > 1
   data = eval(sprintf('ft_appenddata([],%s);',append_str));
 end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Separate the event values
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Separate the event values
 
 % initialize the struct to return
 ft_raw = struct;

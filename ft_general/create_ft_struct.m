@@ -9,32 +9,49 @@ function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 % as {{'session_1','session_2'}}. If they're input as
 % {{'session_1'},{'session_2'}} then they will be kept separate.
 %
-% ana.artifact.type   = the type of artifact info to use ('ns','ft', or
-%                       'none'). If 'ns', this function expects to find an
-%                       NS bci metadata file. This file denotes the reject
-%                       artifact trials. Use the File Export tool to export
-%                       Metadata > Segment Information; put it in a
-%                       'ns_bci' directory in dataroot/session.
+% ana.artifact.type   = the type of artifact info to use: 'none', 'ns',
+%                       'ft_man', or 'ft_ica'. If 'ns', this function
+%                       expects to find an NS bci metadata file. This file
+%                       denotes the reject artifact trials. Use the File
+%                       Export tool to export Metadata > Segment
+%                       Information; put it in a 'ns_bci' directory in
+%                       dataroot/session. See SEG2FT for more information.
+%                       (default = 'none')
+%
 % ana.ftFxn           = the FieldTrip function used to process the data
+%                       (e.g., 'ft_timelockanalysis' or 'ft_freqanalysis')
 % ana.ftype           = added to the filenames output from ana.ftFxn
+%                       (e.g., 'tla' or 'pow')
 % ana.usePeer         = use the peer toolbox (default: 0); see
 %                       http://fieldtrip.fcdonders.nl for more info on
 %                       useing peer distributed computing
 %
+% ana.overwrite       = to prevent overwriting data. DO NOT USE YET, NOT
+%                       FULLY IMPLEMENTED. (TODO)
+%
 % This function will overwrite any raw or processed subject files without
-% warning
+% warning.
 %
-% NB: if exper.equateTrials == 1 and exper.eventValuesExtra.onlyKeepExtras
-% == 1, the trial counts of the unkept event values will not necessarily
-% add up to those of the kept event values; this is due to the way unkept
-% and kept event values are processed.
+% TODO: when running seg2ft, choice for processing all event values at once
+% or one at a time
 %
-% NB: if exper.equateTrials == 1 and event values are being combined to
-% form exper.eventValuesExtra.newValue, there will not necessarily be equal
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Notes on equating trial counts when also creating new event values:
+%
+% if exper.equateTrials==1 and exper.eventValuesExtra.onlyKeepExtras==1,
+% the trial counts of the unkept event values will not necessarily add up
+% to those of the kept event values; this is due to the way unkept and kept
+% event values are processed.
+%
+% if exper.equateTrials==1 and event values are being combined to form
+% exper.eventValuesExtra.newValue, there will not necessarily be equal
 % contibution from each exper.eventValue to the new values because this
 % could cut down on the number of trials if one event value had a low trial
 % count. Instead, the event values are combined and them randomly sampled
 % to create equal bin sizes.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% If an error occurs:
 %
 % If there's an error when processing an event, an error file will be saved
 % (err_FTYPE_EVENT.mat) containing the MException object. Load this file
@@ -42,8 +59,18 @@ function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 % beacuse the raw file doesn't exist, resulting from either (1) the event
 % values being incorrect (Net Station can be tricky with its event names)
 % or (2) there were zero events after rejecting events due to artifacts.
+%
+% See also: SEG2FT
 
 %% make sure some required fields are set
+
+% overwrite by default
+if ~isfield(ana,'overwrite')
+  ana.overwrite = 1;
+elseif isfield(ana,'overwrite') && ana.overwrite == 0
+  % TODO
+  error('Prevention of overwriting is not fully implemented. Set overwrite to 1.');
+end
 
 % need a segmentation function
 if ~isfield(ana,'segFxn')
@@ -52,19 +79,23 @@ end
 
 % need a FieldTrip analysis function
 if ~isfield(ana,'ftFxn')
-  error('Need to set the FieldTrip analysis function (e.g., ''ft_timelockanalysis'' or ''ft_freqanalysis'')');
+  error('Need to set the FieldTrip analysis function (e.g., ''ft_timelockanalysis'' or ''ft_freqanalysis'').');
 end
 
 % need a file type
 if ~isfield(ana,'ftype')
-  error('Need to set a file type in ana.ftype to be part of the outputfile name (e.g., ''tla'', ''pow'', ''powandcsd'', ''fourier'')');
+  error('Need to set a file type in ana.ftype to be part of the outputfile name (e.g., ''tla'', ''pow'', ''powandcsd'', ''fourier'').');
+elseif isfield(ana,'ftype') && strcmp(ana.ftype,'raw')
+  error('Cannot set ana.ftype to ''raw''.')
 end
 
-% need an artifact detection type ('ns', 'ft', or 'none')
+% need an artifact detection type ('none', or: 'ns', 'ft_man', 'ft_ica')
 if ~isfield(ana,'artifact')
-  ana.artifact.type = 'none';
+  ana.artifact.type = {'none'};
 elseif isfield(ana,'artifact') && ~isfield(ana.artifact,'type')
-  ana.artifact.type = 'none';
+  ana.artifact.type = {'none'};
+elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
+  ana.artifact.type = {ana.artifact.type};
 end
 
 % make sure exper.sessions is a cell
@@ -179,20 +210,68 @@ for sub = 1:length(exper.subjects)
       mkdir(saveFileDir);
     end
     
-    % initialize the data structure
-    %ft_raw = struct;
-    
     % if we're going to create new values out of the events...
     if ~isempty(exper.eventValuesExtra.newValue)
       % initialize the append_data structure
       append_data = struct;
     end
     
-    if ~strcmpi(exper.nsFileExt,'set')
-      fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},ses_str,sprintf(repmat(', ''%s''',1,length(exper.eventValues)),exper.eventValues{:}));
+    % if we don't want to overwrite any files...
+    if ~ana.overwrite
+      % see if any raw files already exist; run only the missing ones
+      rawFiles = dir(fullfile(saveFileDir,'data_raw_*.mat'));
+      if ~isempty(rawFiles)
+        rawEvents = cell(size(rawFiles))';
+        for rf = 1:length(rawFiles)
+          rawEvents{rf} = strrep(strrep(rawFiles(rf).name,'data_raw_',''),'.mat','');
+        end
+        
+        if ~exper.eventValuesExtra.onlyKeepExtras
+          if isempty(exper.eventValuesExtra.newValue)
+            eventValuesToProcess = exper.eventValues(~ismember(exper.eventValues,rawEvents));
+          elseif ~isempty(exper.eventValuesExtra.newValue)
+            eventValuesToProcess = eventValuesWithExtra(~ismember(eventValuesWithExtra,rawEvents));
+          end
+        elseif exper.eventValuesExtra.onlyKeepExtras && ~isempty(exper.eventValuesExtra.newValue)
+          eventValuesToProcess = exper.eventValuesExtra.toCombine(~ismember(cat(2,exper.eventValuesExtra.newValue{:}),rawEvents));
+          eventValuesToProcess = cat(2,eventValuesToProcess{:});
+        else
+          error('eventValuesToProcess was not set correctly.');
+        end
+      else
+        eventValuesToProcess = exper.eventValues;
+      end
+    else
+      eventValuesToProcess = exper.eventValues;
+    end
+    
+    if isempty(eventValuesToProcess)
+      fprintf('All event values already processed. Loading raw files.\n');
+      
+      ft_raw = struct;
+      
+      if ~ana.overwrite
+        % load in the ones we didn't process
+        if ~isempty(rawFiles)
+          for rf = 1:length(rawFiles)
+            ft_raw.(rawEvents{rf}) = load(fullfile(saveFileDir,sprintf('data_raw_%s.mat',rawEvents{rf})));
+          end
+        end
+      end
+    elseif ~strcmpi(exper.nsFileExt,'set') && ~isempty(eventValuesToProcess)
+      fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},ses_str,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues,exper.prepost,files.elecfile,ana.artifact.type);
+      ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,exper.prepost,files.elecfile,ana.artifact.type);
+      
+      if ~ana.overwrite
+        % load in the ones we didn't process
+        if ~isempty(rawFiles)
+          for rf = 1:length(rawFiles)
+            ft_raw.(rawEvents{rf}) = load(fullfile(saveFileDir,sprintf('data_raw_%s.mat',rawEvents{rf})));
+          end
+        end
+      end
       
       % if an extra value was defined store each of its sub-values in the
       % toCombine field for appending them together at a later point
@@ -207,32 +286,31 @@ for sub = 1:length(exper.subjects)
           end
         end
       end
-    elseif ~strcmp(exper.nsFileExt,'set')
+      
+    elseif strcmp(exper.nsFileExt,'set') && ~isempty(eventValuesToProcess)
+      % initialize the data structure
+      ft_raw = struct;
+      
+      if ~ana.overwrite
+        % load in the ones we didn't process
+        if ~isempty(rawFiles)
+          for rf = 1:length(rawFiles)
+            ft_raw.(rawEvents{rf}) = load(fullfile(saveFileDir,sprintf('data_raw_%s.mat',rawEvents{rf})));
+          end
+        end
+      end
+      
       % collect all the raw data
-      for evVal = 1:length(exper.eventValues)
+      for evVal = 1:length(eventValuesToProcess)
         % get the name of this event type
-        eventVal = exper.eventValues{evVal};
+        eventVal = eventValuesToProcess{evVal};
         
         fprintf('Creating FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
         
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
         % ft_raw
-        ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile,ana.artifact.type);
-        
-        if ~isempty(ft_raw.(eventVal).trial)
-          % store the number of trials for this event value
-          exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-          
-          fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
-        else
-          warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
-          if ~exist('emptyEvents','var')
-            emptyEvents = {eventVal};
-          elseif exist('emptyEvents','var')
-            emptyEvents = cat(2,emptyEvents,eventVal);
-          end
-        end
+        ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),exper.prepost,files.elecfile,ana.artifact.type);
         
         % if an extra value was defined and the current event is one of its
         % sub-values, store the current event in the toCombine field for
@@ -245,6 +323,25 @@ for sub = 1:length(exper.subjects)
           end
         end
       end % for evVal
+    end % if
+    
+    % check on any empty events
+    for evVal = 1:length(eventValuesToProcess)
+      % get the name of this event type
+      eventVal = eventValuesToProcess{evVal};
+      if ~isempty(ft_raw.(eventVal).trial)
+        % store the number of trials for this event value
+        exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
+        
+        fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+      else
+        warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+        if ~exist('emptyEvents','var')
+          emptyEvents = {eventVal};
+        elseif exist('emptyEvents','var')
+          emptyEvents = cat(2,emptyEvents,eventVal);
+        end
+      end
     end
     
     % if there were no trials for an eventValue and it is a sub-value of an
@@ -505,15 +602,24 @@ if ana.usePeer
         % get the name of this event type
         eventVal = exper.eventValues{evVal};
         
-        cfg_peer{count} = cfg_proc;
+        inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
+        outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
         
-        cfg_peer{count}.inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
-        cfg_peer{count}.outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
-        
-        % TODO: what happens when the inputfile doesn't exist because of no
-        % trials or missing eventValues?
-        
-        count = count + 1;
+        if (exist(outputfile,'file') && ana.overwrite) || ~exist(outputfile,'file')
+          if exist(inputfile,'file')
+            cfg_peer{count} = cfg_proc;
+            
+            cfg_peer{count}.inputfile = inputfile;
+            cfg_peer{count}.outputfile = outputfile;
+            
+            count = count + 1;
+            
+            % TODO: what happens when the inputfile doesn't exist because
+            % of no trials or missing eventValues?
+          end
+        elseif (exist(outputfile,'file') && ~ana.overwrite)
+          fprintf('%s already exists and ana.overwrite=0. Skipping processing of %s.\n',outputfile,eventVal);
+        end
       end
     end
   end
@@ -532,21 +638,32 @@ else
         % get the name of this event type
         eventVal = exper.eventValues{evVal};
         
-        cfg_proc.inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
-        cfg_proc.outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
+        inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
+        outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
         
-        fprintf('Running %s on %s, %s, %s...\n',ana.ftFxn,exper.subjects{sub},ses_str,eventVal);
-        try
-          feval(str2func(ana.ftFxn),cfg_proc);
-          fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
-        catch ME
-          disp(ME)
-          warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},ses_str,eventVal);
-          errFile = fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
-          fprintf('Saving error information in %s.',errFile);
-          save(errFile,'ME');
+        if (exist(outputfile,'file') && ana.overwrite) || ~exist(outputfile,'file')
+          if exist(inputfile,'file')
+            
+            cfg_proc.inputfile = inputfile;
+            cfg_proc.outputfile = outputfile;
+            
+            fprintf('Running %s on %s, %s, %s...\n',ana.ftFxn,exper.subjects{sub},ses_str,eventVal);
+            try
+              feval(str2func(ana.ftFxn),cfg_proc);
+              fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+            catch ME
+              disp(ME)
+              warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},ses_str,eventVal);
+              errFile = fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
+              fprintf('Saving error information in %s.',errFile);
+              save(errFile,'ME');
+            end % try
+            
+          end
+        elseif (exist(outputfile,'file') && ~ana.overwrite)
+          fprintf('%s already exists and ana.overwrite=0. Skipping processing of %s.\n',outputfile,eventVal);
         end
-      end
-    end
-  end
+      end % for evVal
+    end % ses
+  end % sub
 end
