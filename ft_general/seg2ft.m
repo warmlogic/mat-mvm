@@ -1,7 +1,7 @@
-function [data] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
+function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [data] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
+% [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
 %
 % The Net Station file should be exported as either EGIS (which has 129
 % channels, where the final channel [Cz] is the reference; extension:
@@ -43,9 +43,9 @@ end
 if ~iscell(eventValue)
   eventValue = {eventValue};
 end
-if length(eventValue) > 1
-  error('Expecting only one eventValue.');
-end
+% if length(eventValue) > 1
+%   error('Expecting only one eventValue.');
+% end
 
 if ~iscell(session)
   session = {session};
@@ -86,7 +86,7 @@ end
 nChan_elecfile = size(elec.label,1);
 
 for ses = 1:length(session)
-  % set a ses_str so we can make sure it starts with a letter
+  % set ses_str to make sure it starts with a character, not a #, etc.
   ses_str = sprintf('ses_%s',session{ses});
   
   if strcmpi(nsFileExt,'sbin') || strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'egis')
@@ -98,43 +98,6 @@ for ses = 1:length(session)
       error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,nsDir));
     elseif length(nsfile) == 1
       infile_ns = fullfile(dataroot,session{ses},nsDir,nsfile.name);
-    end
-    
-    if strcmpi(artifactType,'ns')
-      % make sure the file with NS artifact info exists
-      summaryFile = dir(fullfile(dataroot,session{ses},'ns_bci',[subject,'*.bci']));
-      if ~isempty(summaryFile)
-        summaryFile = fullfile(dataroot,session{ses},'ns_bci',summaryFile.name);
-        
-        fid = fopen(summaryFile,'r');
-        % get the header
-        fgetl(fid);
-        % get the next line
-        tline = fgetl(fid);
-        fclose(fid);
-        % get only the second half of the line
-        tline = tline(ceil(length(tline)/2):end);
-        % figure out how many channels are in the summary file
-        if ~isempty(strfind(tline,'129')) && length(strfind(tline,'129')) == 1
-          nChan_summary = 129;
-        elseif ~isempty(strfind(tline,'128')) && length(strfind(tline,'128')) == 1
-          nChan_summary = 128;
-        elseif ~isempty(strfind(tline,'257')) && length(strfind(tline,'257')) == 1
-          nChan_summary = 257;
-        elseif ~isempty(strfind(tline,'256')) && length(strfind(tline,'256')) == 1
-          nChan_summary = 256;
-        else
-          nChan_summary = nChan_elecfile;
-        end
-        
-        % read in the NS artifact file
-        format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan_summary*2]),'%s'];
-        fid = fopen(summaryFile,'r');
-        sesSummary = textscan(fid,format_str,'Headerlines',1,'delimiter','\t');
-        fclose(fid);
-      else
-        error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
-      end
     end
     
   elseif strcmpi(nsFileExt,'set')
@@ -235,10 +198,45 @@ for ses = 1:length(session)
   
   % check on NS artifacts
   if strcmpi(artifactType,'ns')
+    % make sure the file with NS artifact info exists
+    summaryFile = dir(fullfile(dataroot,session{ses},'ns_bci',[subject,'*.bci']));
+    if ~isempty(summaryFile)
+      summaryFile = fullfile(dataroot,session{ses},'ns_bci',summaryFile.name);
+      
+      fid = fopen(summaryFile,'r');
+      % get the header
+      fgetl(fid);
+      % get the next line
+      tline = fgetl(fid);
+      fclose(fid);
+      % get only the second half of the line
+      tline = tline(ceil(length(tline)/2):end);
+      % figure out how many channels are in the summary file
+      if ~isempty(strfind(tline,'129')) && length(strfind(tline,'129')) == 1
+        nChan_summary = 129;
+      elseif ~isempty(strfind(tline,'128')) && length(strfind(tline,'128')) == 1
+        nChan_summary = 128;
+      elseif ~isempty(strfind(tline,'257')) && length(strfind(tline,'257')) == 1
+        nChan_summary = 257;
+      elseif ~isempty(strfind(tline,'256')) && length(strfind(tline,'256')) == 1
+        nChan_summary = 256;
+      else
+        nChan_summary = nChan_elecfile;
+      end
+      
+      % read in the NS artifact file
+      format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan_summary*2]),'%s'];
+      fid = fopen(summaryFile,'r');
+      sesSummary = textscan(fid,format_str,'Headerlines',1,'delimiter','\t');
+      fclose(fid);
+    else
+      error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
+    end
+    
     % select only the good trials for this event
-    thisEv = find(strcmp(eventValue,sesSummary{1}));
-    badEv = strcmp('bad',sesSummary{4});
-    %goodEv = strcmp('good',sesSummary{4});
+    thisEv = find(ismember(sesSummary{1},eventValue));
+    badEv = strcmp(sesSummary{4},'bad');
+    %goodEv = strcmp(sesSummary{4},'good');
     %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
     
     % remove the trials that have artifacts from the trl matrix
@@ -302,7 +300,7 @@ for ses = 1:length(session)
       % capitalize the E for each electrode, or add it in if it's not there
       for c = 1:nChan_data
         if strcmp(data.label{c}(1),'e')
-          data.label{c}(1) = 'E';
+          data.label{c} = upper(data.label{c});
         elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
           data.label{c} = ['E' data.label{c}];
         end
@@ -312,7 +310,7 @@ for ses = 1:length(session)
       % it's not there
       for c = 1:nChan_data
         if strcmp(data.label{c}(1),'E')
-          data.label{c}(1) = 'e';
+          data.label{c} = lower(data.label{c});
         elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
           data.label{c} = ['e' data.label{c}];
         end
@@ -453,10 +451,10 @@ for ses = 1:length(session)
     
     fprintf('Processing %s...\n',cell2mat(eventValue));
     fprintf('\n\nManual artifact rejection:\n');
-    fprintf('Use cursor drag and click to mark artifacts.\n');
+    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
     fprintf('Use arrows to move to next trial.\n');
-    fprintf('Use the i key to identify channels in the data browser.\n');
-    fprintf('Use the q key to quit the data browser when finished.\n\n\n');
+    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
+    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
     
     cfg = [];
     cfg.continuous = 'no';
@@ -508,7 +506,7 @@ for ses = 1:length(session)
     fprintf('\n\nViewing the first %d components.\n',nComponents);
     fprintf('\nLook for patterns that are indicative of artifacts.\n');
     % prompt the user for the component numbers to reject
-    componentsToReject = input('\n\nType component numbers to reject (e.g., ''1, 4, 11''):\n\n','s');
+    componentsToReject = input('\n\nType component numbers to reject and press ''enter'', even if this line moves up due to browsing components (e.g., ''1, 4, 11''):\n\n','s');
     
     % reject the bad components
     cfg = [];
@@ -518,10 +516,10 @@ for ses = 1:length(session)
     % another manual search of the data for artifacts
     fprintf('Processing %s...\n',cell2mat(eventValue));
     fprintf('\n\nManual artifact rejection:\n');
-    fprintf('Use cursor drag and click to mark artifacts.\n');
+    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
     fprintf('Use arrows to move to next trial.\n');
-    fprintf('Use the i key to identify channels in the data browser.\n');
-    fprintf('Use the q key to quit the data browser when finished.\n\n\n');
+    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
+    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
     cfg = [];
     cfg.viewmode = 'butterfly';
     %cfg.viewmode = 'vertical';
@@ -554,4 +552,35 @@ if length(session) > 1
   end
   
   data = eval(sprintf('ft_appenddata([],%s);',append_str));
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Separate the event values
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% initialize the struct to return
+ft_raw = struct;
+
+if length(eventValue) > 1
+  for evVal = 1:length(eventValue)
+    
+    cfg = [];
+    trl = ft_findcfg(data.cfg,'trl');
+    cfg.trl = trl(trl(:,4) == evVal,1:3);
+    
+    if ~isempty(cfg.trl)
+      fprintf('Selecting %d trials for %s...\n',size(cfg.trl,1),eventValue{evVal});
+      ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg,data);
+      fprintf('Done.\n');
+    else
+      fprintf('No trials found for %s!\n',eventValue{evVal});
+      ft_raw.(eventValue{evVal}).trial = {};
+      %keyboard
+    end
+  end
+elseif length(eventValue) == 1
+  ft_raw.(eventValue) = data;
+end
+
+
 end

@@ -180,7 +180,7 @@ for sub = 1:length(exper.subjects)
     end
     
     % initialize the data structure
-    ft_raw = struct;
+    %ft_raw = struct;
     
     % if we're going to create new values out of the events...
     if ~isempty(exper.eventValuesExtra.newValue)
@@ -188,43 +188,64 @@ for sub = 1:length(exper.subjects)
       append_data = struct;
     end
     
-    % collect all the raw data
-    for evVal = 1:length(exper.eventValues)
-      % get the name of this event type
-      eventVal = exper.eventValues{evVal};
+    if ~strcmpi(exper.nsFileExt,'set')
+      fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},ses_str,sprintf(repmat(', ''%s''',1,length(exper.eventValues)),exper.eventValues{:}));
       
-      fprintf('Creating FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+      % collect all the raw data
+      ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues,exper.prepost,files.elecfile,ana.artifact.type);
       
-      % turn the NS segments into raw FT data; uses the NS bci metadata
-      % file to reject artifact trials before returning good trials in
-      % ft_raw
-      ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile,ana.artifact.type);
-      
-      if ~isempty(ft_raw.(eventVal).trial)
-        % store the number of trials for this event value
-        exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-        
-        fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
-      else
-        warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
-        if ~exist('emptyEvents','var')
-          emptyEvents = {eventVal};
-        elseif exist('emptyEvents','var')
-          emptyEvents = cat(2,emptyEvents,eventVal);
-        end
-      end
-      
-      % if an extra value was defined and the current event is one of its
-      % sub-values, store the current event in the toCombine field for
-      % appending the sub-values together at a later point
+      % if an extra value was defined store each of its sub-values in the
+      % toCombine field for appending them together at a later point
       if ~isempty(exper.eventValuesExtra.newValue)
-        for cVal = 1:length(exper.eventValuesExtra.toCombine)
-          if ismember(eventVal,cat(2,exper.eventValuesExtra.toCombine{cVal})) && ~isempty(ft_raw.(eventVal).trial)
-            append_data.(cell2mat(exper.eventValuesExtra.newValue{cVal})).(eventVal) = ft_raw.(eventVal);
+        % get the name of this event type
+        for evVal = 1:length(exper.eventValues)
+          eventVal = exper.eventValues{evVal};
+          for cVal = 1:length(exper.eventValuesExtra.toCombine)
+            if ismember(eventVal,cat(2,exper.eventValuesExtra.toCombine{cVal})) && ~isempty(ft_raw.(eventVal).trial)
+              append_data.(cell2mat(exper.eventValuesExtra.newValue{cVal})).(eventVal) = ft_raw.(eventVal);
+            end
           end
         end
       end
-    end % for evVal
+    elseif ~strcmp(exper.nsFileExt,'set')
+      % collect all the raw data
+      for evVal = 1:length(exper.eventValues)
+        % get the name of this event type
+        eventVal = exper.eventValues{evVal};
+        
+        fprintf('Creating FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+        
+        % turn the NS segments into raw FT data; uses the NS bci metadata
+        % file to reject artifact trials before returning good trials in
+        % ft_raw
+        ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},exper.eventValues(evVal),exper.prepost,files.elecfile,ana.artifact.type);
+        
+        if ~isempty(ft_raw.(eventVal).trial)
+          % store the number of trials for this event value
+          exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
+          
+          fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+        else
+          warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+          if ~exist('emptyEvents','var')
+            emptyEvents = {eventVal};
+          elseif exist('emptyEvents','var')
+            emptyEvents = cat(2,emptyEvents,eventVal);
+          end
+        end
+        
+        % if an extra value was defined and the current event is one of its
+        % sub-values, store the current event in the toCombine field for
+        % appending the sub-values together at a later point
+        if ~isempty(exper.eventValuesExtra.newValue)
+          for cVal = 1:length(exper.eventValuesExtra.toCombine)
+            if ismember(eventVal,cat(2,exper.eventValuesExtra.toCombine{cVal})) && ~isempty(ft_raw.(eventVal).trial)
+              append_data.(cell2mat(exper.eventValuesExtra.newValue{cVal})).(eventVal) = ft_raw.(eventVal);
+            end
+          end
+        end
+      end % for evVal
+    end
     
     % if there were no trials for an eventValue and it is a sub-value of an
     % extra value, remove that evVal from the toCombine field

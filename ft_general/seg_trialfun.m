@@ -1,6 +1,8 @@
 function trl = seg_trialfun(cfg)
 
-if ~iscell(cfg.trialdef.eventvalue)
+% convert single string into cell-array, otherwise intersection does not
+% work as intended
+if ischar(cfg.trialdef.eventvalue)
   cfg.trialdef.eventvalue = {cfg.trialdef.eventvalue};
 end
 
@@ -12,23 +14,19 @@ offsetSamp = round(-cfg.trialdef.prestim*hdr.Fs);
 % duration should be 1 sample less than the whole length of an event
 durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
 
-% convert single string into cell-array, otherwise intersection does not
-% work as intended
-if ischar(cfg.trialdef.eventvalue)
-  cfg.trialdef.eventvalue = {cfg.trialdef.eventvalue};
-end
 
 trl = [];
 
 for i = 1:length(event)
   if strcmp(event(i).type,cfg.trialdef.eventtype)
-    if ~isempty(intersect(event(i).value, cfg.trialdef.eventvalue))
-      %keyboard
-      %if strcmp(strrep(event(i).value,' ',''),cfg.trialdef.eventvalue)
+    %if ~isempty(intersect(event(i).value, cfg.trialdef.eventvalue))
+    %keyboard
+    %if strcmp(deblank(event(i).value),cfg.trialdef.eventvalue)
+    if ismember(deblank(event(i).value),cfg.trialdef.eventvalue)
       
       % get the type of event for the trialinfo field
       if length(cfg.trialdef.eventvalue) > 1
-        eventNumber = find(ismember(cfg.trialdef.eventvalue,event(i).value));
+        eventNumber = find(ismember(cfg.trialdef.eventvalue,deblank(event(i).value)));
       else
         eventNumber = [];
       end
