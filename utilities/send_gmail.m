@@ -10,7 +10,7 @@ function send_gmail(subject,mail_message,recipients,attachments)
 %
 % recipents:    A cell array of strings - Email addresses of recipients
 %               e.g., {'mail1@mail.com', 'mail2@mail.com'}.
-%               Default: {'matt.mollison@gmail.com'}
+%               Default: the hardcoded from email address
 %
 % attachments:  A cell array of strings - path to file to attach, one cell
 %                                         per attachment. Use [] for none.
@@ -21,28 +21,40 @@ function send_gmail(subject,mail_message,recipients,attachments)
 % The pcoded file takes precedence over the .m file. Be sure to remove your
 % password from the .m file after pcoding.
 %
-% Adapted from: http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-% and: http://www.mathworks.com/support/solutions/en/data/1-3PRRDV/
+% Adapted from:
+% http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
+% http://www.mathworks.com/support/solutions/en/data/1-3PRRDV/
 %
 % See also: SENDMAIL
 
+%% You must define these:
+address = 'matt.mollison@gmail.com'; % your Gmail address
+password = ''; % your Gmail password
+
+%% Send the email
+
+% make sure the password is set
+if isempty(password)
+  error('Modify %s to inlcude your password and save it encrpyted using ''pcode send_gmail''.',mfilename);
+end
+
+% set some defaults
 if nargin < 4
   attachments = [];
   if nargin < 3
-    recipients = {'matt.mollison@gmail.com'};
+    recipients = {address};
   end
 end    
 
-% Define these:
-address = 'matt.mollison@gmail.com'; %Your GMail email address
-password = ''; %Your GMail password
-
-if isempty(password)
-  error('Modify %s to inlcude your password and save it encrpyted to your MATLAB directory using ''pcode send_gmail''.',mfilename);
-  %password = input('\n\nType pass wd and press ''enter'': ','s');
+% make sure recipients is a cell
+if ischar(recipients)
+  recipients = {recipients};
 end
 
-% Don't touch unless you need to change the Email supplier (currently Gmail)
+% tell us who we're sending to
+fprintf('Sending mail to:%s...',sprintf(repmat(' ''%s''',1,length(recipients)),recipients{:}));
+
+% don't touch this unless you need to change the email supplier
 setpref('Internet','E_mail',address);
 setpref('Internet','SMTP_Server','smtp.gmail.com');
 setpref('Internet','SMTP_Username',address);
@@ -52,7 +64,9 @@ props.setProperty('mail.smtp.auth','true');
 props.setProperty('mail.smtp.socketFactory.class', 'javax.net.ssl.SSLSocketFactory');
 props.setProperty('mail.smtp.socketFactory.port','465');
 
-% Send the email
+% send the email
 sendmail(recipients,subject,mail_message,attachments);
+
+fprintf('Done.\n');
 
 end
