@@ -57,7 +57,7 @@ exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
 
 % combine some events into higher-level categories
 exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSC6'},{'HSI2','HSI6'},{'HSC2','HSI2','HSC6','HSI6'}};
-exper.eventValuesExtra.newValue = {{'RCR'},{'RHSI'},{'RHSI'},{'RH'}};
+exper.eventValuesExtra.newValue = {{'RCR'},{'RHSC'},{'RHSI'},{'RH'}};
 %exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
 %exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
 %exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
