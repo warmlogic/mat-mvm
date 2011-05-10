@@ -183,11 +183,11 @@ end
 emailme = 1;
 if emailme
   subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  message = {...
+  mail_message = {...
     sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
     sprintf('%s',saveFile),...
     };
-  send_gmail(subject,message);
+  send_gmail(subject,mail_message);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
