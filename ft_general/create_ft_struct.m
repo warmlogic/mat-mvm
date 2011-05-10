@@ -572,7 +572,7 @@ end % for exper.subjects
 if ~isempty(exper.eventValuesExtra.newValue) && ~exper.eventValuesExtra.onlyKeepExtras
   exper.eventValues = sort(eventValuesWithExtra);
 elseif ~isempty(exper.eventValuesExtra.newValue) && exper.eventValuesExtra.onlyKeepExtras
-  exper.eventValues = cat(2,exper.eventValuesExtra.newValue{:});
+  exper.eventValues = sort(cat(2,exper.eventValuesExtra.newValue{:}));
 end
 
 %% run the ft_*analysis function on the data, either using the peer toolbox or not
