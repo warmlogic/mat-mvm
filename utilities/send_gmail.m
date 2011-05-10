@@ -1,20 +1,25 @@
 function send_gmail(subject,mail_message,recipients,attachments)
 % SEND_GMAIL sends a mail message through Gmail
 %
-% function send_gmail(subject,mail_message,recipients,attachments)
+% send_gmail(subject,mail_message,recipients,attachments)
+%
 % input arguments:
 %
-% subject:      A string - subject of the mail
+% subject:      Subject of the mail. A string.
 %
-% mail_message: A cell array of strings - Message body. One cell per line.
+% mail_message: Message body. A string or cell array of strings. Printed as
+%               one line per cell.
+%               Default: ''
 %
-% recipents:    A cell array of strings - Email addresses of recipients
+% recipents:    Email addresses of recipients. A cell array of strings,
 %               e.g., {'mail1@mail.com', 'mail2@mail.com'}.
-%               Default: the hardcoded from email address
+%               Default: Your hardcoded 'from' email address.
 %
-% attachments:  A cell array of strings - path to file to attach, one cell
-%                                         per attachment. Use [] for none.
-%                                         Default: []
+% attachments:  Path to file to attach. A cell array of strings. One cell
+%               per attachment. Use [] for none.
+%               Default: []
+%
+% Only a subject is required if you want to send mail to yourself.
 %
 % NB: You must modify send_gmail.m to inlcude your email address and
 % password and then do an encrpyted save using pcode: 'pcode send_gmail'.
@@ -43,6 +48,9 @@ if nargin < 4
   attachments = [];
   if nargin < 3
     recipients = {address};
+    if nargin < 2
+      mail_message = '';
+    end
   end
 end    
 
