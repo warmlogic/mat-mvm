@@ -217,6 +217,48 @@ ana.ftype = cfg_proc.output;
 % create the raw and processed structs for each sub, ses, & event value
 [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
+
+%% save the analysis details
+
+% overwrite if it already exists
+saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
+%if ~exist(saveFile,'file')
+fprintf('Saving %s...',saveFile);
+save(saveFile,'exper','ana','dirs','files','cfg_proc');
+fprintf('Done.\n');
+%else
+%  error('Not saving! %s already exists.\n',saveFile);
+%end
+
+%% let me know that it's done
+emailme = 1;
+if emailme
+  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
+  send_to = {'matt.mollison@gmail.com'};
+  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+  message = {...
+    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+    sprintf('%s',saveFile),...
+    };
+  %attachments = {'picture1.png'};
+  attachments = [];
+  send_mail(send_to,subject,message,attachments);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FieldTrip format creation ends here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FieldTrip analysis starts here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% load the analysis details
+
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/-1000_200/ft_data/??_eq0/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/analysisDetails.mat';
+[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+
 %% set up channel groups
 
 % pre-defined in this function
@@ -236,8 +278,8 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 % list the values separated by types: 2Colors, 6Colors
-%ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
-ana.eventValues = {{'F','N','RO','RS'}};
+ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
+%ana.eventValues = {{'F','N','RO','RS'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -247,62 +289,10 @@ if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
   ana.eventValues = {exper.eventValues};
 end
 
-%% concatenate individual subject files
 
-% fprintf('rsync -av matt@dream.colorado.edu:/data/projects/curranlab/%s/%s/*.mat %s/\n',dirs.dataDir,dirs.saveDirName,dirs.saveDir);
+%% load some data
 
-% [data_freq,exper,cfg_proc] = mm_ft_concatSubs_tfr(exper,dirs);
-
-%% save the analysis details
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% if already saved and not yet loaded, load the ft_freqanalysis files
-
-if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
-  if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name));
-  elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
-  elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
-  end
-end
-
-if ~exist('data_freq','var')
-  if strcmp(cfg_proc.keeptrials,'no')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
-  elseif strcmp(cfg_proc.keeptrials,'yes')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
-  end
-  for sf = 1:length(savedFiles)
-    fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
-    fprintf('Done.\n');
-  end
-  % get all the exper.eventValues and exper.eventValuesExtra together; make sure the extra event values aren't in the list
-  if ~isempty(exper.eventValuesExtra)
-    if exper.eventValuesExtra.onlyKeepExtras
-      exper.eventValues = cat(2,exper.eventValuesExtra.newValue{:});
-    else
-      for nVal = 1:length(exper.eventValuesExtra.newValue)
-        if ~ismember(exper.eventValuesExtra.newValue{nVal},exper.eventValues)
-          exper.eventValues = cat(2,exper.eventValues,exper.eventValuesExtra.newValue{nVal});
-        else
-          fprintf('%s is already in the event value list!\n',exper.eventValuesExtra.newValue{nVal}{1});
-        end
-      end
-    end
-    exper.eventValues = sort(exper.eventValues);
-  end
-end
+[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
 %% Test plots to make sure data look ok
 
@@ -321,10 +311,13 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-figure
-ft_multiplotTFR(cfg_ft,data_freq.(exper.eventValues{1}).sub(1).ses(1).data);
-figure
-ft_multiplotTFR(cfg_ft,data_freq.(exper.eventValues{2}).sub(1).ses(1).data);
+sub=1;
+ses=1;
+for i = 1:2
+  figure
+  ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E124'};
@@ -349,30 +342,18 @@ cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
 cfg_fb.baselinetype = 'absolute';
 
-data_freq_orig = data_freq;
+%data_freq_orig = data_freq;
 
-for evVal = 1:length(exper.eventValues)
-  for sub = 1:length(exper.subjects)
-    for ses = 1:length(exper.sessions)
-      fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},exper.eventValues{evVal});
-      data_freq.(exper.eventValues{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(exper.eventValues{evVal}).sub(sub).ses(ses).data);
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+      end
     end
   end
 end
-
-% % save the structs for loading in later
-% if strcmp(cfg_proc.keeptrials,'no')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-% elseif strcmp(cfg_proc.keeptrials,'yes')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-% end
-% if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'data_freq');
-%   fprintf('Done.\n');
-% else
-%   error('Not saving! %s already exists.',saveFile);
-% end
 
 % % find the time points without NaNs for a particular frequency
 % data_freq.(exper.eventValues{1}).sub(1).ses(1).data.time(~isnan(squeeze(data_freq.(exper.eventValues{1}).sub(1).ses(1).data.powspctrm(1,2,:))'))
@@ -380,105 +361,32 @@ end
 
 %% decide who to kick out based on trial counts
 
-numEv = struct;
-numEv.thresh = 15;
-
 % Subjects with bad behavior
 exper.badBehSub = {};
 
 % exclude subjects with low event counts
-[exper,numEv] = mm_threshSubs(exper,ana,numEv,data_freq);
+[exper] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = exper.eventValues;
+cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_freq';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sessions)
-  for evVal = 1:length(exper.eventValues)
-    %tic
-    fprintf('Running ft_freqgrandaverage on %s...',exper.eventValues{evVal});
-    ga_freq.(exper.eventValues{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(exper.eventValues{evVal}){ses}));
-    fprintf('Done.\n');
-    %toc
-  end
-end
-
-%% save grand average file
-
-if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
-  if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name),'cfg_proc');
-  elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
-  elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
-  end
-end
-
-saveFile = fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'ga_freq');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% (re)save the analysis details
-
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','numEv');
-else
-  fprintf('Appending to %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','numEv','-append');
-end
-fprintf('Done.\n');
-
-%% let me know that it's done
-emailme = 1;
-if emailme
-  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-  send_to = {'matt.mollison@gmail.com'};
-  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  message = {...
-    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
-    sprintf('%s',saveFile),...
-    };
-  %attachments = {'picture1.png'};
-  attachments = [];
-  send_mail(send_to,subject,message,attachments);
-end
-
-%% if already saved and not yet loaded, load the ft_freqgrandaverage files
-
-if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
-  if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name));
-  elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
-  elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
-  end
-end
-
-if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
-  %savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
-  for sf = 1:length(savedFiles)
-    fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
-    fprintf('Done.\n');
+  for typ = 1:length(ana.eventValues)
+    for evVal = 1:length(ana.eventValues{typ})
+      %tic
+      fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
+      ga_freq.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      fprintf('Done.\n');
+      %toc
+    end
   end
 end
 
