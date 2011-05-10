@@ -404,16 +404,12 @@ fprintf('Done.\n');
 %% let me know that it's done
 emailme = 1;
 if emailme
-  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-  send_to = {'matt.mollison@gmail.com'};
   subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
   message = {...
     sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
     sprintf('%s',saveFile),...
     };
-  %attachments = {'picture1.png'};
-  attachments = [];
-  send_mail(send_to,subject,message,attachments);
+  send_gmail(subject,message);
 end
 
 %% if already saved and not yet loaded, load the grand average file
@@ -754,15 +750,11 @@ end
 %% let me know that it's done
 emailme = 1;
 if emailme
-  % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
-  send_to = {'matt.mollison@gmail.com'};
   subject = sprintf('Done with %s tla:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
   message = {...
     sprintf('Done with %s tla:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
     };
-  %attachments = {'picture1.png'};
-  attachments = [];
-  send_mail(send_to,subject,message,attachments);
+  send_gmail(subject,message);
 end
 
 %% correlations
