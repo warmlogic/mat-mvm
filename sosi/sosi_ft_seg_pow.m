@@ -133,7 +133,7 @@ files.figFileExt = 'png';
 %   end
 % end
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';

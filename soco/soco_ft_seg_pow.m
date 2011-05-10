@@ -12,53 +12,33 @@ ana = struct;
 
 exper.name = 'SOCO';
 
-% types of events to find in the NS file; these must be the same as the
-% events in the NS files
-%exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
-exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
-
-% combine some events into higher-level categories
-%exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
-%exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
-exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
-exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
-
-% keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
-
-% make sure eventValuesExtra exists because create_ft_struct uses it
-if ~isfield(exper,'eventValuesExtra')
-  exper.eventValuesExtra = {};
-  exper.eventValuesExtra.onlyKeepExtras = 0;
-end
-
-% equate the number of trials across event values?
-exper.equateTrials = 1;
-exper.eventValuesExtra.equateExtrasSeparately = 1;
+exper.sampleRate = 250;
 
 % pre- and post-stimulus times to read, in seconds (pre is negative)
 exper.prepost = [-1.0 2.0];
 
-exper.sampleRate = 250;
+% equate the number of trials across event values?
+exper.equateTrials = 0;
+%exper.eventValuesExtra.equateExtrasSeparately = 1;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
 exper.nsFileExt = 'egis';
 %exper.nsFileExt = 'raw';
 
-% name of the folder to save the FT data in
-if isempty(exper.eventValuesExtra)
-  evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
-elseif isempty(exper.eventValuesExtra) && ~isfield(exper.eventValuesExtra,'onlyKeepExtras')
-  evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
-elseif ~isempty(exper.eventValuesExtra) && isfield(exper.eventValuesExtra,'onlyKeepExtras') && exper.eventValuesExtra.onlyKeepExtras == 0
-  evStr = cat(2,exper.eventValues,cat(2,exper.eventValuesExtra.newValue{:}));
-  evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
-elseif ~isempty(exper.eventValuesExtra) && isfield(exper.eventValuesExtra,'onlyKeepExtras') && exper.eventValuesExtra.onlyKeepExtras == 1
-  evStr = cat(2,cat(2,exper.eventValuesExtra.newValue{:}));
-  evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
-end
-dirs.saveDirName = fullfile('ft_data',sprintf('pow_%seq%d',evStr,exper.equateTrials));
+% types of events to find in the NS file; these must be the same as the
+% events in the NS files
+exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
+%exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
+
+% combine some events into higher-level categories
+exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
+exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
+%exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
+%exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+
+% keep only the combined (extra) events and throw out the original events?
+exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'SOCO001';
@@ -104,59 +84,42 @@ exper.sessions = {'session_0'};
 
 %% set up file and directory handling parameters
 
-dirs.homeDir = getenv('HOME');
-
 % directory where the data to read is located
-%dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
-dirs.subDir = 'RK';
-dirs.dataDir = fullfile('eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+%dirs.subDir = 'RK';
+%dirs.dataDir = fullfile('eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile('/data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
 % pick the right dirs.dataroot
 if exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
+  %runLocally = 1;
 elseif exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
+  %runLocally = 1;
+elseif exist(dirs.dreamDir,'dir')
+  dirs.dataroot = dirs.dreamDir;
+  %runLocally = 0;
 elseif exist(dirs.localDir,'dir')
   dirs.dataroot = dirs.localDir;
+  %runLocally = 1;
 else
   error('Data directory not found.');
 end
 
-% directory to save the data
-dirs.saveDir = fullfile(dirs.dataroot,dirs.saveDirName);
-if ~exist(dirs.saveDir,'dir')
-  mkdir(dirs.saveDir)
-end
-
-% Assumes we have chan locs file in ~/Documents/MATLAB/mat_mvm/eeg/; use
-% "short" because the Fiduciary points in the FT locs screws up some plots
-files.elecfile = fullfile(dirs.homeDir,'Documents/MATLAB/mat_mvm/eeg/GSN_HydroCel_129_short.sfp');
-%files.elecfile = 'GSN-HydroCel-129.sfp';
+% Use the FT chan locs file
+files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
-files.saveFigs = 0;
+files.saveFigs = 1;
 files.figFileExt = 'png';
-if strcmp(files.figFileExt,'eps')
-  files.figPrintFormat = '-depsc2';
-elseif strcmp(files.figFileExt,'pdf')
-  files.figPrintFormat = '-dpdf';
-elseif strcmp(files.figFileExt,'png')
-  files.figPrintFormat = '-dpng';
-elseif strcmp(files.figFileExt,'jpg')
-  files.figPrintFormat = '-djpg90';
-end
-
-% directory to save figures
-dirs.saveDirFigs = fullfile(dirs.saveDir,'figs');
-if ~exist(dirs.saveDirFigs,'dir')
-  mkdir(dirs.saveDirFigs)
-end
 
 % %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
@@ -192,9 +155,11 @@ end
 %   end
 % end
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
+
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
+ana.artifactType = 'ns';
 
 % any preprocessing?
 cfg_pp = [];
@@ -202,61 +167,55 @@ cfg_pp = [];
 cfg_pp.precision = 'single';
 
 cfg_proc = [];
-cfg_proc.pad = 'maxperlen';
 cfg_proc.output = 'pow';
+cfg_proc.pad = 'maxperlen';
 cfg_proc.keeptrials = 'no';
+cfg_proc.keeptapers = 'no';
 
-% wavelet
-cfg_proc.method = 'wavelet';
-cfg_proc.width = 5;
-%cfg_proc.toi = -0.8:0.04:1.5;
-cfg_proc.toi = -0.3:0.04:1.0;
-% evenly spaced frequencies, but not as many as cfg_proc.foilim makes
-freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-%cfg_proc.foi = 3:freqstep:50;
-%cfg_proc.foi = 3:freqstep:9;
-cfg_proc.foi = 3:freqstep:40;
-
-% % multi-taper method with hanning taper
-% cfg_proc.method = 'mtmconvol';
-% %cfg_proc.taper = 'hanning';
+% % MTM FFT
+% cfg_proc.method = 'mtmfft';
 % cfg_proc.taper = 'dpss';
-% %cfg_proc.toi = -0.5:0.04:1.5;
-% cfg_proc.toi = -0.8:0.04:3.0;
+% %cfg_proc.foilim = [3 50];
 % freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-% cfg_proc.foi = 3:freqstep:50;
-% %cfg_proc.foi = 3:freqstep:9;
-% cfg_proc.t_ftimwin = 4./cfg_proc.foi;
-% cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+% %cfg_proc.foi = 3:freqstep:50;
+% cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.tapsmofrq = 5;
+% cfg_proc.toi = -0:0.04:1.0;
 
-[data_freq,exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+% multi-taper method
+cfg_proc.method = 'mtmconvol';
+cfg_proc.taper = 'hanning';
+%cfg_proc.taper = 'dpss';
+%cfg_proc.toi = -0.8:0.04:3.0;
+cfg_proc.toi = -0.5:0.04:1.0;
+freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+cfg_proc.foi = 2:freqstep:40;
+%cfg_proc.foi = 3:freqstep:9;
+%cfg_proc.foi = 3:1:9;
+%cfg_proc.foi = 2:2:30;
+cfg_proc.t_ftimwin = 4./cfg_proc.foi;
+% tapsmofrq is not used for hanning taper; it is used for dpss
+%cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
 
-% [data_freq,exper] = create_ft_struct_peer(ana,cfg_pp,cfg_proc,exper,dirs,files);
+% % wavelet
+% cfg_proc.method = 'wavelet';
+% cfg_proc.width = 5;
+% %cfg_proc.toi = -0.8:0.04:3.0;
+% cfg_proc.toi = -0.3:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% %cfg_proc.foi = 3:freqstep:50;
+% cfg_proc.foi = 3:freqstep:9;
+% %cfg_proc.foilim = [3 9];
 
-% extra string in filename for identification
-if strcmp(cfg_proc.method,'wavelet')
-  files.save_str = sprintf('_w%d',cfg_proc.width);
-elseif strcmp(cfg_proc.method,'mtmconvol')
-  files.save_str = sprintf('_%s',cfg_proc.taper);
-elseif strcmp(cfg_proc.method,'mtmfft')
-  files.save_str = sprintf('_%s',cfg_proc.taper);
-else
-  files.save_str = '';
-end
+% set the save directories; final argument is prefix of save directory
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
 
-% save the structs for loading in later
-if strcmp(cfg_proc.keeptrials,'no')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-elseif strcmp(cfg_proc.keeptrials,'yes')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
-end
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'data_freq');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.',saveFile);
-end
+% ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
+ana.ftype = cfg_proc.output;
+
+% create the raw and processed structs for each sub, ses, & event value
+[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
 
 %% set up channel groups
 
