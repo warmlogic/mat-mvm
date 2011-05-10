@@ -152,9 +152,9 @@ for ses = 1:length(session)
     % make sure the EEG file exists
     nsfile = dir(fullfile(dataroot,session{ses},nsDir,[subject,'*.',nsFileExt]));
     if isempty(nsfile)
-      error('Cannot find %s*.%s file in %s',subject,nsFileExt,fullfile(dataroot,nsDir));
+      error('Cannot find %s*.%s file in %s',subject,nsFileExt,fullfile(dataroot,session{ses},nsDir));
     elseif length(nsfile) > 1
-      error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,nsDir));
+      error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,session{ses},nsDir));
     elseif length(nsfile) == 1
       infile_ns = fullfile(dataroot,session{ses},nsDir,nsfile.name);
     end
