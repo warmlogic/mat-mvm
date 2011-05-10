@@ -16,8 +16,8 @@ function send_gmail(subject,mail_message,recipients,attachments)
 %               Default: Your hardcoded 'from' email address.
 %
 % attachments:  Path to file to attach. A cell array of strings. One cell
-%               per attachment. Use [] for none.
-%               Default: []
+%               per attachment. Use {} for none.
+%               Default: {}
 %
 % Only a subject is required if you want to send mail to yourself.
 %
@@ -45,7 +45,7 @@ end
 
 % set some defaults
 if nargin < 4
-  attachments = [];
+  attachments = {};
   if nargin < 3
     recipients = {address};
     if nargin < 2
