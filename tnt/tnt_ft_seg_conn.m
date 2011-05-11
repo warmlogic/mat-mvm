@@ -231,10 +231,10 @@ ana.ftype = cfg_proc.output;
 %% save the analysis details
 
 % overwrite if it already exists
-saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
+saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
 %if ~exist(saveFile,'file')
 fprintf('Saving %s...',saveFile);
-save(saveFile,'exper','ana','dirs','files','cfg_proc');
+save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 fprintf('Done.\n');
 %else
 %  error('Not saving! %s already exists.\n',saveFile);
@@ -272,8 +272,8 @@ for sub = 1:length(exper.subjects)
     end
     for evVal = 1:length(exper.eventValues)
       
-      cfg_ft.inputfile = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',ana.ftype,exper.eventValues{evVal}));
-      cfg_ft.outputfile = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
+      cfg_ft.inputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',ana.ftype,exper.eventValues{evVal}));
+      cfg_ft.outputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
       
       if ~exist(cfg_ft.outputfile,'file')
         fprintf('Processing %s, %s, %s...\n',exper.subjects{sub},ses_str,exper.eventValues{evVal});

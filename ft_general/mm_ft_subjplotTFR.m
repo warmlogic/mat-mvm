@@ -1,6 +1,7 @@
 function mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data)
 %MM_FT_SUBPLOTTFR make a subplot of the individual subject data
-%   
+%
+% mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data)
 
 % FIXME: implement support for multiple sessions
 ses = 1;
@@ -68,12 +69,13 @@ end
 for typ = 1:length(cfg_plot.conditions)
   for evVal = 1:length(cfg_plot.conditions{typ})
     figure
+    count = 1;
     for sub = 1:length(exper.subjects)
       if cfg_plot.excludeBadSub == 1 && exper.badSub(sub,ses)
         fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
         continue
       else
-        subplot(cfg_plot.numRows,cfg_plot.numCols,sub);
+        subplot(cfg_plot.numRows,cfg_plot.numCols,count);
         
         if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_ft.zparam)
           ft_singleplotTFR(cfg_ft,data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data);
@@ -85,11 +87,12 @@ for typ = 1:length(cfg_plot.conditions)
         else
           title(sprintf('%s;%s',exper.subjects{sub},num2str(exper.nTrials.(cfg_plot.conditions{typ}{evVal})(sub))));
         end
+        count = count + 1;
       end
     end
     
     % give some info
-    subplot(cfg_plot.numRows,cfg_plot.numCols,length(exper.subjects) + 1);
+    subplot(cfg_plot.numRows,cfg_plot.numCols,count);
     ycoord = 1.0;
     if ~isempty(cfg_plot.types{typ})
       text(0.5,ycoord,sprintf('%s',cfg_plot.types{typ}),'color','k');

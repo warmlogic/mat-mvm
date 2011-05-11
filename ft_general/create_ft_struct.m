@@ -1,6 +1,7 @@
-function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
-% CREATE_FT_STRUCT: Create a FieldTrip data structure from NS files
+function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
+%CREATE_FT_STRUCT: Create a FieldTrip data structure from NS files
 %
+% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 %
 % The default function (set in ana.segFxn) that this function calls is
 % seg2ft. See 'help seg2ft' for more information.
@@ -18,25 +19,19 @@ function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 %                       dataroot/session. See SEG2FT for more information.
 %                       (default = 'none')
 %
-% ana.ftFxn           = the FieldTrip function used to process the data
-%                       (e.g., 'ft_timelockanalysis' or 'ft_freqanalysis')
-% ana.ftype           = added to the filenames output from ana.ftFxn
-%                       (e.g., 'tla' or 'pow')
-% ana.usePeer         = use the peer toolbox (default: 0); see
-%                       http://fieldtrip.fcdonders.nl for more info on
-%                       useing peer distributed computing
+% ana.overwrite.raw   = to prevent overwriting of raw data. Binary.
+%                       Default: 1
+%                       DO NOT USE YET, NOT FULLY IMPLEMENTED. (TODO)
 %
-% ana.overwrite       = to prevent overwriting data. DO NOT USE YET, NOT
-%                       FULLY IMPLEMENTED. (TODO)
-%
-% This function will overwrite any raw or processed subject files without
-% warning.
-%
-% TODO: when running seg2ft, choice for processing all event values at once
-% or one at a time
+% TODO: when running SEG2FT, choice for processing all event values at once
+% or one at a time (mostly useful for manual artifact rejection)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Notes on equating trial counts when also creating new event values:
+% Notes on equating trial counts when also creating new extra event values:
+%
+% exper.eventValuesExtra.equateExtrasSeparately = equate extras based on
+% their own minimum event number so you can still have bigger numbers with
+% the normal events
 %
 % if exper.equateTrials==1 and exper.eventValuesExtra.onlyKeepExtras==1,
 % the trial counts of the unkept event values will not necessarily add up
@@ -51,42 +46,31 @@ function [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files)
 % to create equal bin sizes.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% If an error occurs:
 %
-% If there's an error when processing an event, an error file will be saved
-% (err_FTYPE_EVENT.mat) containing the MException object. Load this file
-% for more information about what went wrong. It's likely that error is
-% beacuse the raw file doesn't exist, resulting from either (1) the event
-% values being incorrect (Net Station can be tricky with its event names)
-% or (2) there were zero events after rejecting events due to artifacts.
+% See also: SEG2FT, PROCESS_FT_DATA
 %
-% See also: SEG2FT
 
 %% make sure some required fields are set
 
 % overwrite by default
 if ~isfield(ana,'overwrite')
-  ana.overwrite = 1;
-elseif isfield(ana,'overwrite') && ana.overwrite == 0
+  ana.overwrite.raw = 1;
+  ana.overwrite.proc = 1;
+elseif isfield(ana,'overwrite') && (ana.overwrite.raw == 0 || ana.overwrite.proc == 0)
   % TODO
-  error('Prevention of overwriting is not fully implemented. Set overwrite to 1.');
+  error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
+elseif isfield(ana,'overwrite') && (ana.overwrite.raw == 1 || ana.overwrite.proc == 0)
+  error('It does not make sense to overwrite the raw files but not the processed files.');
+end
+
+% make sure exper.sessions is a cell
+if ~iscell(exper.sessions)
+  exper.sessions = {exper.sessions};
 end
 
 % need a segmentation function
 if ~isfield(ana,'segFxn')
   ana.segFxn = 'seg2ft';
-end
-
-% need a FieldTrip analysis function
-if ~isfield(ana,'ftFxn')
-  error('Need to set the FieldTrip analysis function (e.g., ''ft_timelockanalysis'' or ''ft_freqanalysis'').');
-end
-
-% need a file type
-if ~isfield(ana,'ftype')
-  error('Need to set a file type in ana.ftype to be part of the outputfile name (e.g., ''tla'', ''pow'', ''powandcsd'', ''fourier'').');
-elseif isfield(ana,'ftype') && strcmp(ana.ftype,'raw')
-  error('Cannot set ana.ftype to ''raw''.')
 end
 
 % need an artifact detection type ('none', or: 'ns', 'ft_man', 'ft_ica')
@@ -96,11 +80,6 @@ elseif isfield(ana,'artifact') && ~isfield(ana.artifact,'type')
   ana.artifact.type = {'none'};
 elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
   ana.artifact.type = {ana.artifact.type};
-end
-
-% make sure exper.sessions is a cell
-if ~iscell(exper.sessions)
-  exper.sessions = {exper.sessions};
 end
 
 % check on any extra events
@@ -129,11 +108,6 @@ end
 if exper.eventValuesExtra.equateExtrasSeparately == 1 && exper.equateTrials == 0
   warning([mfilename,':equateExtrasSeparately'],'Cannot equate the extra event values separately if trials are not being equated in the first place. Setting equateExtrasSeparately=0\n');
   exper.eventValuesExtra.equateExtrasSeparately = 0;
-end
-
-% don't run the peer toolbox by default
-if ~isfield(ana,'usePeer')
-  ana.usePeer = 0;
 end
 
 % check on the other functions
@@ -178,7 +152,7 @@ else
   end
 end
 
-%% Store the data in FieldTrip format
+%% Store the raw data in FieldTrip format
 
 fprintf('Converting NetStation to FieldTrip...\n');
 
@@ -198,6 +172,7 @@ end
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     
+    % turn the session name into a string for easier printing
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
       ses_str = sprintf(repmat('%s ',1,length(exper.sessions{ses})),exper.sessions{ses}{:});
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
@@ -205,9 +180,9 @@ for sub = 1:length(exper.subjects)
     end
     
     % set the location to save the data and make sure it exists
-    saveFileDir = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses));
-    if ~exist(saveFileDir,'dir')
-      mkdir(saveFileDir);
+    saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sprintf('ses%d',ses));
+    if ~exist(saveDirRawFile,'dir')
+      mkdir(saveDirRawFile);
     end
     
     % if we're going to create new values out of the events...
@@ -217,9 +192,9 @@ for sub = 1:length(exper.subjects)
     end
     
     % if we don't want to overwrite any files...
-    if ~ana.overwrite
+    if ~ana.overwrite.raw
       % see if any raw files already exist; run only the missing ones
-      rawFiles = dir(fullfile(saveFileDir,'data_raw_*.mat'));
+      rawFiles = dir(fullfile(saveDirRawFile,'data_raw_*.mat'));
       if ~isempty(rawFiles)
         rawEvents = cell(size(rawFiles))';
         for rf = 1:length(rawFiles)
@@ -250,11 +225,11 @@ for sub = 1:length(exper.subjects)
       
       ft_raw = struct;
       
-      if ~ana.overwrite
+      if ~ana.overwrite.raw
         % load in the ones we didn't process
         if ~isempty(rawFiles)
           for rf = 1:length(rawFiles)
-            ft_raw.(rawEvents{rf}) = load(fullfile(saveFileDir,sprintf('data_raw_%s.mat',rawEvents{rf})));
+            ft_raw.(rawEvents{rf}) = load(fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',rawEvents{rf})));
           end
         end
       end
@@ -264,11 +239,11 @@ for sub = 1:length(exper.subjects)
       % collect all the raw data
       ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,exper.prepost,files.elecfile,ana.artifact.type);
       
-      if ~ana.overwrite
+      if ~ana.overwrite.raw
         % load in the ones we didn't process
         if ~isempty(rawFiles)
           for rf = 1:length(rawFiles)
-            ft_raw.(rawEvents{rf}) = load(fullfile(saveFileDir,sprintf('data_raw_%s.mat',rawEvents{rf})));
+            ft_raw.(rawEvents{rf}) = load(fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',rawEvents{rf})));
           end
         end
       end
@@ -291,11 +266,11 @@ for sub = 1:length(exper.subjects)
       % initialize the data structure
       ft_raw = struct;
       
-      if ~ana.overwrite
+      if ~ana.overwrite.raw
         % load in the ones we didn't process
         if ~isempty(rawFiles)
           for rf = 1:length(rawFiles)
-            ft_raw.(rawEvents{rf}) = load(fullfile(saveFileDir,sprintf('data_raw_%s.mat',rawEvents{rf})));
+            ft_raw.(rawEvents{rf}) = load(fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',rawEvents{rf})));
           end
         end
       end
@@ -407,7 +382,7 @@ for sub = 1:length(exper.subjects)
           
           % set outputfile so the raw data is saved; especially useful for
           % implementing analyses with the peer toolbox
-          cfg_pp.outputfile = fullfile(saveFileDir,sprintf('data_raw_%s.mat',eventVal));
+          cfg_pp.outputfile = fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',eventVal));
           
           % do any preprocessing
           fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},ses_str,eventVal);
@@ -422,7 +397,7 @@ for sub = 1:length(exper.subjects)
               cfg = ana.cfg_other{i};
               % set the file to be read (data_suffix should be [] on 1st
               % time through)
-              cfg.inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
+              cfg.inputfile = fullfile(saveDirRawFile,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
               % run the function
               ft_raw.(eventVal) = feval(str2func(ana.otherFxn{i}),cfg);
               
@@ -431,7 +406,7 @@ for sub = 1:length(exper.subjects)
               
               cfg = [];
               % set the file to save
-              cfg.outputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
+              cfg.outputfile = fullfile(saveDirRawFile,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
               % preprocess it again
               ft_raw.(eventVal) = ft_preprocessing(cfg,ft_raw.(eventVal));
               fprintf('Done with %s.\n',ana.otherFxn{i});
@@ -519,7 +494,7 @@ for sub = 1:length(exper.subjects)
           
           % set outputfile so the raw data is saved; especially useful for
           % implementing analyses with the peer toolbox
-          cfg_pp.outputfile = fullfile(saveFileDir,sprintf('data_raw_%s.mat',eventVal));
+          cfg_pp.outputfile = fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',eventVal));
           
           % do any preprocessing
           fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},ses_str,eventVal);
@@ -534,7 +509,7 @@ for sub = 1:length(exper.subjects)
               cfg = ana.cfg_other{i};
               % set the file to be read (data_suffix should be [] on 1st
               % time through)
-              cfg.inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
+              cfg.inputfile = fullfile(saveDirRawFile,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
               % run the function
               ft_raw.(eventVal) = feval(str2func(ana.otherFxn{i}),cfg);
               
@@ -543,7 +518,7 @@ for sub = 1:length(exper.subjects)
               
               cfg = [];
               % set the file to save
-              cfg.outputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
+              cfg.outputfile = fullfile(saveDirRawFile,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
               % preprocess it again
               ft_raw.(eventVal) = ft_preprocessing(cfg,ft_raw.(eventVal));
               fprintf('Done with %s.\n',ana.otherFxn{i});
@@ -575,95 +550,4 @@ elseif ~isempty(exper.eventValuesExtra.newValue) && exper.eventValuesExtra.onlyK
   exper.eventValues = sort(cat(2,exper.eventValuesExtra.newValue{:}));
 end
 
-%% run the ft_*analysis function on the data, either using the peer toolbox or not
-
-% make sure data_suffix is set up for loading inputfile
-data_suffix = [];
-if isfield(ana,'otherFxn')
-  for i = 1:length(ana.otherFxn)
-    cfg = ana.cfg_other{i};
-    data_suffix = cat(2,data_suffix,sprintf('_%s',cfg.ftype));
-  end
-end
-
-% if using the peer toolbox, set up the cfg first, then run
-if ana.usePeer
-  % initialize to store the cfgs
-  cfg_peer = cell(1,length(exper.subjects)*length(exper.sessions)*length(exper.eventValues));
-  % initialize a counter for indexing the cfgs
-  count = 1;
-  
-  for sub = 1:length(exper.subjects)
-    for ses = 1:length(exper.sessions)
-      
-      saveFileDir = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses));
-      
-      for evVal = 1:length(exper.eventValues)
-        % get the name of this event type
-        eventVal = exper.eventValues{evVal};
-        
-        inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
-        outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
-        
-        if (exist(outputfile,'file') && ana.overwrite) || ~exist(outputfile,'file')
-          if exist(inputfile,'file')
-            cfg_peer{count} = cfg_proc;
-            
-            cfg_peer{count}.inputfile = inputfile;
-            cfg_peer{count}.outputfile = outputfile;
-            
-            count = count + 1;
-            
-            % TODO: what happens when the inputfile doesn't exist because
-            % of no trials or missing eventValues?
-          end
-        elseif (exist(outputfile,'file') && ~ana.overwrite)
-          fprintf('%s already exists and ana.overwrite=0. Skipping processing of %s.\n',outputfile,eventVal);
-        end
-      end
-    end
-  end
-  
-  % run the analysis using the peer toolbox
-  peercellfun(str2func(ana.ftFxn),cfg_peer);
-  
-else
-  % run the analysis script once for each sub, ses, evVal
-  for sub = 1:length(exper.subjects)
-    for ses = 1:length(exper.sessions)
-      
-      saveFileDir = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses));
-      
-      for evVal = 1:length(exper.eventValues)
-        % get the name of this event type
-        eventVal = exper.eventValues{evVal};
-        
-        inputfile = fullfile(saveFileDir,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
-        outputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
-        
-        if (exist(outputfile,'file') && ana.overwrite) || ~exist(outputfile,'file')
-          if exist(inputfile,'file')
-            
-            cfg_proc.inputfile = inputfile;
-            cfg_proc.outputfile = outputfile;
-            
-            fprintf('Running %s on %s, %s, %s...\n',ana.ftFxn,exper.subjects{sub},ses_str,eventVal);
-            try
-              feval(str2func(ana.ftFxn),cfg_proc);
-              fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
-            catch ME
-              disp(ME)
-              warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},ses_str,eventVal);
-              errFile = fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
-              fprintf('Saving error information in %s.',errFile);
-              save(errFile,'ME');
-            end % try
-            
-          end
-        elseif (exist(outputfile,'file') && ~ana.overwrite)
-          fprintf('%s already exists and ana.overwrite=0. Skipping processing of %s.\n',outputfile,eventVal);
-        end
-      end % for evVal
-    end % ses
-  end % sub
 end

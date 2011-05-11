@@ -198,10 +198,10 @@ ana.ftype = cfg_proc.output;
 %% save the analysis details
 
 % overwrite if it already exists
-saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
+saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
 %if ~exist(saveFile,'file')
 fprintf('Saving %s...',saveFile);
-save(saveFile,'exper','ana','dirs','files','cfg_proc');
+save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 fprintf('Done.\n');
 %else
 %  error('Not saving! %s already exists.\n',saveFile);
@@ -229,7 +229,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/-1000_200/ft_data/??_eq0/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -269,8 +269,8 @@ cfg_ft = [];
 cfg_ft.baseline = [-0.3 -0.1];
 cfg_ft.baselinetype = 'absolute';
 if strcmp(cfg_ft.baselinetype,'absolute')
-  cfg_ft.zlim = [-400 400];
-  %cfg_ft.zlim = [-2 2];
+  %cfg_ft.zlim = [-400 400];
+  cfg_ft.zlim = [-2 2];
 elseif strcmp(cfg_ft.baselinetype,'relative')
   cfg_ft.zlim = [0 2.0];
 end
@@ -282,7 +282,7 @@ cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub=1;
 ses=1;
-for i = 1:2
+for i = 1:4
   figure
   ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   title(ana.eventValues{1}{i});
@@ -370,7 +370,7 @@ cfg_ft = [];
 cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
 %cfg_ft.zlim = [-1 1];
-cfg_ft.zlim = [-100 100];
+cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
 %  cfg_ft.zlim = [0 2.0];
 %end
@@ -378,10 +378,12 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-for evVal = 1:length(exper.eventValues)
-  figure
-  ft_multiplotTFR(cfg_ft,ga_freq.(exper.eventValues{evVal}));
-  set(gcf,'Name',sprintf('%s',exper.eventValues{evVal}))
+for typ = 1:length(ana.eventValues)
+  for evVal = 1:length(ana.eventValues{typ})
+    figure
+    ft_multiplotTFR(cfg_ft,ga_freq.(ana.eventValues{typ}{evVal}));
+    set(gcf,'Name',sprintf('%s',ana.eventValues{typ}{evVal}))
+  end
 end
 
 %% subplots of each subject's power spectrum
@@ -399,18 +401,19 @@ cfg_plot.numCols = 5;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
-cfg_ft.zlim = [-150 150];
+cfg_ft.zlim = [-2 2];
 cfg_ft.zparam = 'powspctrm';
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,numEv,data_freq);
+  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_freq);
 end
 
 %% make some GA plots
@@ -427,7 +430,8 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
-cfg_ft.zlim = [-150 150]; % pow
+%cfg_ft.zlim = [-100 100]; % pow
+cfg_ft.zlim = [-1 1]; % pow
 
 cfg_ft.zparam = 'powspctrm';
 
@@ -443,7 +447,8 @@ cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
 
 %%%%%%%%%%%%%%%
 % Type of plot
@@ -451,18 +456,18 @@ cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
 
 %cfg_plot.ftFxn = 'ft_singleplotTFR';
 
-cfg_plot.ftFxn = 'ft_topoplotTFR';
-%cfg_ft.marker = 'on';
-cfg_ft.marker = 'labels';
-cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
-%cfg_ft.xlim = [0.5 0.8]; % time
-cfg_plot.subplot = 1;
-cfg_ft.xlim = [0 1.0]; % time
+% cfg_plot.ftFxn = 'ft_topoplotTFR';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% cfg_ft.comment = 'no';
+% %cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_plot.subplot = 1;
+% cfg_ft.xlim = [0 1.0]; % time
 
-% cfg_plot.ftFxn = 'ft_multiplotTFR';
-% cfg_ft.showlabels = 'yes';
-% cfg_ft.comment = '';
+cfg_plot.ftFxn = 'ft_multiplotTFR';
+cfg_ft.showlabels = 'yes';
+cfg_ft.comment = '';
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -486,7 +491,7 @@ cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.zparam = 'powspctrm';
-cfg_ft.zlim = [-100 100]; % pow
+cfg_ft.zlim = [-1 1]; % pow
 
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
@@ -518,15 +523,14 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_freq);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_ana.rois = {{'FS'},{'PS'}};
+cfg_ana.rois = {{'PS'},{'FS'},{'LPS','RPS'},{'PS'},{'PS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.latencies = [0.2 0.4; 0.6 1.0; 0.5 0.8; 0.5 1.0; 0.5 1.0];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8];
+cfg_ana.frequencies = [3 8; 3 8; 3 8; 3 8; 8 12];
 
-%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
-cfg_ana.conditions = {'all'};
+cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+%cfg_ana.conditions = {'all'};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -540,8 +544,8 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-%cfg_plot.ylims = [-1 1; -1 1; -1 1];
-cfg_plot.ylims = [-100 100; -100 100];
+cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
+%cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
@@ -588,15 +592,23 @@ cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
 cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
+
+% debugging
+%cfg_ft.numrandomization = 100;
+
+cfg_ft.numrandomization = 500;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
 %cfg_ana.conditions = {'all'};
 cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
-cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+%cfg_ana.frequencies = [2 40];
+cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+%cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
@@ -614,28 +626,39 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .05;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
+% % not averaging over frequencies - only works with ft_multiplotTFR
+% files.saveFigs = 0;
+% cfg_ft.avgoverfreq = 'no';
+% cfg_ft.interactive = 'yes';
+% cfg_plot.mask = 'yes';
+% %cfg_ft.maskstyle = 'saturation';
+% %cfg_ft.maskalpha = 0.3;
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% % http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
+% % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
+
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
   for fr = 1:size(cfg_plot.frequencies,1)
     cfg_ft.frequency = cfg_plot.frequencies(fr,:);
     
-    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
+    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
   end
 end
 
 %% let me know that it's done
 emailme = 1;
 if emailme
-  subject = sprintf('Done with %s pow:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+  subject = sprintf('Done with %s cluster pow:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
   mail_message = {...
-    sprintf('Done with %s pow:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+    sprintf('Done with %s cluster pow:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
     };
   send_gmail(subject,mail_message);
 end

@@ -126,10 +126,10 @@ ana.ftype = 'tla';
 %% if already saved and not yet loaded, load the ft_timelockanalysis files
 
 if ~exist('data_tla','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end
@@ -347,7 +347,7 @@ ga_tla.elec = data_tla.elec;
 
 %% save
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
 if ~exist(saveFile,'file')
   save(saveFile,'ga_tla');
 end
@@ -355,10 +355,10 @@ end
 %% if already saved and not yet loaded, load the ft_timelockgrandaverage files
 
 if ~exist('ga_tla','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end
@@ -898,8 +898,8 @@ for pa = 1:length(ana.pa_evVal)
   end
 end
 
-% save(fullfile(dirs.saveDir,'stat_clus.mat'),'stat_clus');
-% load(fullfile(dirs.saveDir,'stat_clus.mat'));
+% save(fullfile(dirs.saveDirProc,'stat_clus.mat'),'stat_clus');
+% load(fullfile(dirs.saveDirProc,'stat_clus.mat'));
 
 % % run the nonparametric cluster statistics
 % stat_clus.(sprintf('%svs%svs%s',cfg_ana.cond{1},cfg_ana.cond{2},cfg_ana.cond{3})) = ft_timelockstatistics(cfg_ft,ga_tla.(cfg_ana.cond{1}),ga_tla.(cfg_ana.cond{2}),ga_tla.(cfg_ana.cond{3}));

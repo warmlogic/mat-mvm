@@ -34,7 +34,7 @@ end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
 % set the directory to load the file from
-dirs.saveDirClusStat = fullfile(dirs.saveDir,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
 
 for cnd = 1:length(cfg_plot.conditions)
   % set the number of conditions that we're testing

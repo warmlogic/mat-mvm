@@ -5,19 +5,20 @@ function soco_ftprocess_tfr_pow_wrapper(whichStages)
 %
 % To run on a local computer, type the command in MATLAB
 %
-% There is only one stage:
-%  stage1 = call wrapper that calls create_ft_struct (which calls seg2ft,
-%  which calls ft_freqanalysis) and saves one file per subject
+% There are two stages:
+%  stage1 = call wrapper that calls create_ft_struct (which calls seg2ft),
+%  saves the raw files
+%  stage2 = calls ft_freqanalysis and saves the processed files
 %
 % Input:
-%  whichStages: the stage number(s) to run (default = 1)
+%  whichStages: the stage number(s) to run (default = 1:2)
 %
 % Output:
 %  time-frequency data
 
 % check/handle arguments
 error(nargchk(0,1,nargin))
-STAGES = 1;
+STAGES = 1:2;
 if nargin == 1
   STAGES = whichStages;
 end
@@ -217,8 +218,10 @@ ana.ftype = cfg_proc.output;
 %% set up for running stages and specifics for Dream
 
 % name(s) of the functions for different stages of processing
-stageFun = {@stage1};
-timeOut  = {2}; % in HOURS
+%stageFun = {@stage1};
+%timeOut  = {2}; % in HOURS
+stageFun = {@stage1,@stage2};
+timeOut  = {2,2}; % in HOURS
 
 if runLocally == 0
   % need to export DISPLAY to an offscreen buffer for MATLAB DCS graphics
@@ -234,15 +237,19 @@ end
 
 %capture diary and time statistics
 thisRun = [exper.name,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
-diary(fullfile(dirs.saveDir,[thisRun '.log']));
+diary(fullfile(dirs.saveDirProc,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
 for i = STAGES
   tS = tic;
   fprintf('STAGE%d START TIME: %s\n',i, datestr(now,13));
   
-  % execute the processing stage
-  stageFun{1}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{1});
+  % execute the processing stages
+  if i == 1
+    stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
+  elseif i == 2
+    stageFun{i}(ana,cfg_proc,exper,dirs,runLocally,timeOut{i});
+  end
   
   fprintf('STAGE%d END TIME: %s\n',i, datestr(now,13));
   fprintf('%.3f -- elapsed time STAGE%d (seconds)\n', toc(tS), i);
@@ -277,22 +284,22 @@ if runLocally == 0
     % Dream: create one task for each subject
     exper.subjects = allSubjects(i);
     
-    inArg = {ana,cfg_pp,cfg_proc,exper,dirs,files};
+    inArg = {ana,cfg_pp,exper,dirs,files};
     
     % save the exper struct (output 1) so we can use it later
     createTask(job,@create_ft_struct,1,inArg);
   end
   
-  runJob(job,timeOut,fullfile(dirs.saveDir,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
+  runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
   
   % get the trial counts together across subjects, sessions, and events
   [exper] = mm_ft_concatTrialCounts_cluster(job,exper,allSubjects);
 
   % save the analysis details; overwrite if it already exists
-  saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
   %if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
   %else
   %  error('Not saving! %s already exists.\n',saveFile);
@@ -307,24 +314,78 @@ else
   % create a log of the command window output
   thisRun = [exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
   % turn the diary on
-  diary(fullfile(dirs.saveDir,[thisRun,'.log']));
+  diary(fullfile(dirs.saveDirProc,[thisRun,'.log']));
   
   % use the peer toolbox
   %ana.usePeer = 1;
   ana.usePeer = 0;
   
   % Local: run all the subjects
-  [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+  [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
   
   % save the analysis details; overwrite if it already exists
-  saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
   %if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
   %else
   %  error('Not saving! %s already exists.\n',saveFile);
   %end
+  
+  % turn the diary off
+  diary off
+end
+
+function stage2(ana,cfg_proc,exper,dirs,runLocally,timeOut)
+% stage2: process the input files with FieldTrip based on the analysis
+% parameters
+
+%% Process the data
+if runLocally == 0
+  %% Dream: create one task for each subject (i.e., submit one to each node)
+  
+  % start a new job
+  job = newJob(dirs);
+  
+  adFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
+  [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+  
+  % save the original subjects array so we can set exper to have single
+  % subjects, one for each task created
+  allSubjects = exper.subjects;
+  
+  for i = 1:length(allSubjects)
+    fprintf('Processing %s...\n',allSubjects{i});
+    
+    % Dream: create one task for each subject
+    exper.subjects = allSubjects(i);
+    
+    inArg = {ana,cfg_proc,exper,dirs};
+    
+    % save the exper struct (output 1) so we can use it later
+    createTask(job,@process_ft_data,0,inArg);
+  end
+  
+  runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage2_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
+  
+  % final step: destroy the job because this doesn't happen in runJob
+  destroy(job);
+  
+else
+  %% run the function locally
+  
+  % create a log of the command window output
+  thisRun = [exper.name,'_stage2_',datestr(now,'ddmmmyyyy-HHMMSS')];
+  % turn the diary on
+  diary(fullfile(dirs.saveDirProc,[thisRun,'.log']));
+  
+  % use the peer toolbox
+  %ana.usePeer = 1;
+  ana.usePeer = 0;
+  
+  % Local: run all the subjects
+  process_ft_data(ana,cfg_proc,exper,dirs);
   
   % turn the diary off
   diary off

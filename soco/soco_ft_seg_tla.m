@@ -45,34 +45,34 @@ exper.eventValuesExtra.equateExtrasSeparately = 0;
 exper.subjects = {
   'SOCO001';
   'SOCO002';
-  'SOCO003';
-  'SOCO004';
-  'SOCO005';
-  'SOCO006';
-  'SOCO007';
-  'SOCO008';
-  'SOCO009';
-  'SOCO010';
-  'SOCO011';
-  'SOCO012';
-  'SOCO013';
-  'SOCO014';
-  'SOCO015';
-  'SOCO016';
-  'SOCO017';
-  'SOCO018';
-  'SOCO019';
-  'SOCO020';
-  'SOCO021';
-  'SOCO022';
-  'SOCO023';
-  'SOCO024';
-  'SOCO025';
-  'SOCO026';
-  'SOCO027';
-  'SOCO028';
-  'SOCO029';
-  'SOCO030';
+%   'SOCO003';
+%   'SOCO004';
+%   'SOCO005';
+%   'SOCO006';
+%   'SOCO007';
+%   'SOCO008';
+%   'SOCO009';
+%   'SOCO010';
+%   'SOCO011';
+%   'SOCO012';
+%   'SOCO013';
+%   'SOCO014';
+%   'SOCO015';
+%   'SOCO016';
+%   'SOCO017';
+%   'SOCO018';
+%   'SOCO019';
+%   'SOCO020';
+%   'SOCO021';
+%   'SOCO022';
+%   'SOCO023';
+%   'SOCO024';
+%   'SOCO025';
+%   'SOCO026';
+%   'SOCO027';
+%   'SOCO028';
+%   'SOCO029';
+%   'SOCO030';
   };
 % SOCO002 ended early by 6(?) trials because of fire alarm
 
@@ -89,7 +89,7 @@ exper.sessions = {'session_0'};
 % directory where the data to read is located
 %dirs.subDir = 'RK';
 dirs.subDir = '';
-dirs.dataDir = fullfile('eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
@@ -149,8 +149,11 @@ files.figFileExt = 'png';
 %   end
 % end
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
+
 ana.segFxn = 'seg2ft';
+ana.artifact.type = 'ns';
+
 ana.ftFxn = 'ft_timelockanalysis';
 ana.ftype = 'tla';
 
@@ -165,32 +168,21 @@ cfg_proc.keeptrials = 'no';
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
-
-% % save the structs for loading in later
-% if strcmp(cfg_proc.keeptrials,'no')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-% elseif strcmp(cfg_proc.keeptrials,'yes')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-% end
-% if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'data_tla');
-%   fprintf('Done.\n');
-% else
-%   error('Not saving! %s already exists.\n',saveFile);
-% end
+% create the raw and processed structs for each sub, ses, & event value
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
+% overwrite if it already exists
+saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
+%if ~exist(saveFile,'file')
+fprintf('Saving %s...',saveFile);
+save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+fprintf('Done.\n');
+%else
+%  error('Not saving! %s already exists.\n',saveFile);
+%end
 
 %% load the data
 
@@ -233,25 +225,25 @@ end
 % %% if already saved and not yet loaded, load the ft_timelockanalysis files
 % 
 % if ~exist('cfg_proc','var')
-%   savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
+%   savedFiles = dir(fullfile(dirs.saveDirProc,'analysisDetails*.mat'));
 %   if length(savedFiles) == 1
-%     load(fullfile(dirs.saveDir,savedFiles.name));
+%     load(fullfile(dirs.saveDirProc,savedFiles.name));
 %   elseif length(savedFiles) > 1
-%     error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
+%     error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDirProc)
 %   elseif isempty(savedFiles)
-%     error('analysisDetails*.mat not found in %s!',dirs.saveDir)
+%     error('analysisDetails*.mat not found in %s!',dirs.saveDirProc)
 %   end
 % end
 % 
 % if ~exist('data_tla','var')
 %   if strcmp(cfg_proc.keeptrials,'no')
-%     savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
+%     savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
 %   elseif strcmp(cfg_proc.keeptrials,'yes')
-%     savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
+%     savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
 %   end
 %   for sf = 1:length(savedFiles)
 %     fprintf('Loading %s...',savedFiles(sf).name);
-%     load(fullfile(dirs.saveDir,savedFiles(sf).name));
+%     load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
 %     fprintf('Done.\n');
 %   end
 %   % get all the exper.eventValues and exper.eventValuesExtra together; make sure the extra event values aren't in the list
@@ -380,7 +372,7 @@ end
 
 %% save grand average file
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'ga_tla');
@@ -391,10 +383,10 @@ end
 
 %% (re)save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 else
   fprintf('Appending to %s...',saveFile);
   save(saveFile,'exper','ana','dirs','files','cfg_proc','-append');
@@ -415,10 +407,10 @@ end
 %% if already saved and not yet loaded, load the grand average file
 
 if ~exist('ga_tla','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end

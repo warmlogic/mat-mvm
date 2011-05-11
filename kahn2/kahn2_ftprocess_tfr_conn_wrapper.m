@@ -246,7 +246,7 @@ end
 %capture diary and time statistics
 thisRun = [exper.name,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
 %thisRun = [exper.name,'_overview_',datestr(now,7) datestr(now,3) datestr(now,10)];
-diary(fullfile(dirs.saveDir,[thisRun '.log']));
+diary(fullfile(dirs.saveDirProc,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
 for i = STAGES
@@ -254,7 +254,7 @@ for i = STAGES
   fprintf('STAGE%d START TIME: %s\n',i, datestr(now,13));
   
   % execute the processing stage
-  stageFun{1}(ana,exper,dirs,runLocally,timeOut{1});
+  stageFun{i}(ana,exper,dirs,runLocally,timeOut{i});
   
   fprintf('STAGE%d END TIME: %s\n',i, datestr(now,13));
   fprintf('%.3f -- elapsed time STAGE%d (seconds)\n', toc(tS), i);
@@ -299,8 +299,8 @@ if runLocally == 0
     for ses = 1:length(exper.sessions)
       for evVal = 1:length(exper.eventValues)
         
-        cfg_ft.inputfile = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',ana.ftype,exper.eventValues{evVal}));
-        cfg_ft.outputfile = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
+        cfg_ft.inputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',ana.ftype,exper.eventValues{evVal}));
+        cfg_ft.outputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
         
         %if ~exist(cfg_ft.outputfile,'file')
         %fprintf('Processing %s, %s, %s...\n',exper.subjects{sub},exper.sessions{ses},exper.eventValues{evVal});
@@ -317,7 +317,7 @@ if runLocally == 0
     end
   end
 
-  runJob(job, timeOut, fullfile(dirs.saveDir,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
+  runJob(job, timeOut, fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
   
   % final step: destroy the job because this doesn't happen in runJob
   destroy(job);
@@ -328,7 +328,7 @@ else
   % create a log of the command window output
   thisRun = [exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
   % turn the diary on
-  diary(fullfile(dirs.saveDir,[thisRun,'.log']));
+  diary(fullfile(dirs.saveDirProc,[thisRun,'.log']));
   
   % use the peer toolbox
   %ana.usePeer = 1;
@@ -358,8 +358,8 @@ else
     for ses = 1:length(exper.sessions)
       for evVal = 1:length(exper.eventValues)
         
-        cfg_ft.inputfile = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',ana.ftype,exper.eventValues{evVal}));
-        cfg_ft.outputfile = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
+        cfg_ft.inputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',ana.ftype,exper.eventValues{evVal}));
+        cfg_ft.outputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
         
         %if ~exist(cfg_ft.outputfile,'file')
         %  fprintf('Processing %s, %s, %s...\n',exper.subjects{sub},exper.sessions{ses},exper.eventValues{evVal});

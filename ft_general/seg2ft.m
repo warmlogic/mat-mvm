@@ -61,6 +61,10 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % gleaned by examining the code here, but right now it is only set up to
 % process Erika Nyhus's KAHN2 data.
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% See also: create_ft_struct
+%
 
 %% set the artifact processing parameters
 

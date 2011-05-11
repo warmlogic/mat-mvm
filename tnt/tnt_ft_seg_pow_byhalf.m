@@ -114,9 +114,9 @@ else
 end
 
 % directory to save the data
-dirs.saveDir = fullfile(dirs.dataroot,dirs.saveDirName);
-if ~exist(dirs.saveDir,'dir')
-  mkdir(dirs.saveDir)
+dirs.saveDirProc = fullfile(dirs.dataroot,dirs.saveDirName);
+if ~exist(dirs.saveDirProc,'dir')
+  mkdir(dirs.saveDirProc)
 end
 
 % Assumes we have chan locs file in ~/Documents/MATLAB/mat_mvm/eeg/
@@ -138,7 +138,7 @@ elseif strcmp(files.figFileExt,'jpg')
 end
 
 % directory to save figures
-dirs.saveDirFigs = fullfile(dirs.saveDir,'figs');
+dirs.saveDirFigs = fullfile(dirs.saveDirProc,'figs');
 if ~exist(dirs.saveDirFigs,'dir')
   mkdir(dirs.saveDirFigs)
 end
@@ -198,9 +198,9 @@ cfg_proc.foi = 3:1:50;
 
 % save the structs for loading in later
 if strcmp(cfg_proc.keeptrials,'no')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s_avg_eq%d_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,exper.equateTrials,cfg_proc.foi(1),cfg_proc.foi(end),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_%s_avg_eq%d_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,exper.equateTrials,cfg_proc.foi(1),cfg_proc.foi(end),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 elseif strcmp(cfg_proc.keeptrials,'yes')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s_eq%d_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,exper.equateTrials,cfg_proc.foi(1),cfg_proc.foi(end),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_%s_eq%d_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,exper.equateTrials,cfg_proc.foi(1),cfg_proc.foi(end),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 end
 if ~exist(saveFile,'file')
   fprintf('Saving %s\n',saveFile);
@@ -210,10 +210,10 @@ end
 %% if already saved and not yet loaded, load the ft_freqanalysis files
 
 if ~exist('data_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s_avg_eq%d_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,exper.equateTrials,cfg_proc.foi(1),cfg_proc.foi(end),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_%s_%s_avg_eq%d_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,exper.equateTrials,cfg_proc.foi(1),cfg_proc.foi(end),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
   % get all the exper.eventValues and exper.eventValuesExtra together; make sure the extra event values aren't in the list
@@ -409,7 +409,7 @@ ga_freq.elec = data_freq.elec;
 
 %% save grand average file
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_freq_%d_%d_%d_%d.mat',round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('ga_freq_%d_%d_%d_%d.mat',round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'ga_freq');
@@ -418,7 +418,7 @@ end
 
 %% save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_freq_%d_%d_%d_%d.mat',round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails_freq_%d_%d_%d_%d.mat',round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'exper','ana','dirs','files','numEv');
@@ -428,11 +428,11 @@ end
 %% if already saved and not yet loaded, load the ft_freqgrandaverage files
 
 if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_%d_%d_%d_%d.mat',ga_freq.(exper.eventValues{1}).freq(1),ga_freq.(exper.eventValues{1}).freq(end),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000)));
-  %savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_freq_%d_%d_%d_%d.mat',ga_freq.(exper.eventValues{1}).freq(1),ga_freq.(exper.eventValues{1}).freq(end),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000)));
+  %savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_freq_*.mat')));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end
@@ -777,11 +777,11 @@ for fr = 1:size(cfg_ana.frequencies,1)
     
     [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,ga_freq,dirs);
     
-    %save(fullfile(dirs.saveDir,sprintf('freq_stat_clus_%d_%d_%d_%d.mat',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000)),'stat_clus');
+    %save(fullfile(dirs.saveDirProc,sprintf('freq_stat_clus_%d_%d_%d_%d.mat',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000)),'stat_clus');
   end
 end
 
-%load(fullfile(dirs.saveDir,sprintf('freq_stat_clus_%d_%d_%d_%d.mat',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000)));
+%load(fullfile(dirs.saveDirProc,sprintf('freq_stat_clus_%d_%d_%d_%d.mat',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000)));
 
 % % run the nonparametric cluster statistics
 % stat_clus.(sprintf('%svs%svs%s',cfg_ana.cond{1},cfg_ana.cond{2},cfg_ana.cond{3})) = ft_freqstatistics(cfg_ft,ga_tla.(cfg_ana.cond{1}),ga_tla.(cfg_ana.cond{2}),ga_tla.(cfg_ana.cond{3}));
@@ -799,7 +799,7 @@ for fr = 1:size(cfg_ana.frequencies,1)
   for lat = 1:size(cfg_ana.latencies,1)
     cfg_ft.latency = cfg_ana.latencies(lat,:);
     
-    savedfile = fullfile(dirs.saveDir,sprintf('freq_stat_clus_%d_%d_%d_%d.mat',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+    savedfile = fullfile(dirs.saveDirProc,sprintf('freq_stat_clus_%d_%d_%d_%d.mat',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
     if exist(savedfile,'file')
       fprintf('%d--%d Hz, %d--%d s\n',cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000);
       load(savedfile);

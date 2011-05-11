@@ -126,9 +126,9 @@ else
 end
 
 % directory to save the data
-dirs.saveDir = fullfile(dirs.dataroot,dirs.saveDirName);
-if ~exist(dirs.saveDir,'dir')
-  mkdir(dirs.saveDir)
+dirs.saveDirProc = fullfile(dirs.dataroot,dirs.saveDirName);
+if ~exist(dirs.saveDirProc,'dir')
+  mkdir(dirs.saveDirProc)
 end
 
 % Use FT electrode locations file
@@ -150,7 +150,7 @@ elseif strcmp(files.figFileExt,'jpg')
 end
 
 % directory to save figures
-dirs.saveDirFigs = fullfile(dirs.saveDir,'figs');
+dirs.saveDirFigs = fullfile(dirs.saveDirProc,'figs');
 if ~exist(dirs.saveDirFigs,'dir')
   mkdir(dirs.saveDirFigs)
 end
@@ -228,9 +228,9 @@ end
 
 % save the structs for loading in later
 if strcmp(cfg_proc.keeptrials,'no')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 elseif strcmp(cfg_proc.keeptrials,'yes')
-  saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 end
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
@@ -269,7 +269,7 @@ end
 
 %% concatenate individual subject files
 
-% fprintf('rsync -av matt@dream.colorado.edu:/data/projects/curranlab/%s/%s/*.mat %s/\n',dirs.dataDir,dirs.saveDirName,dirs.saveDir);
+% fprintf('rsync -av matt@dream.colorado.edu:/data/projects/curranlab/%s/%s/*.mat %s/\n',dirs.dataDir,dirs.saveDirName,dirs.saveDirProc);
 
 % [data_freq,exper,cfg_proc] = mm_ft_concatSubs_tfr(exper,dirs);
 
@@ -278,10 +278,10 @@ end
 % RSRC021 has a screwy channel 117; power in baseline period is really high
 
 %% save the analysis details
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
 else
   error('Not saving! %s already exists.\n',saveFile);
@@ -290,25 +290,25 @@ end
 %% if already saved and not yet loaded, load the ft_freqanalysis files
 
 if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
+  savedFiles = dir(fullfile(dirs.saveDirProc,'analysisDetails*.mat'));
   if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name));
+    load(fullfile(dirs.saveDirProc,savedFiles.name));
   elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
+    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDirProc)
   elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
+    error('analysisDetails*.mat not found in %s!',dirs.saveDirProc)
   end
 end
 
 if ~exist('data_freq','var')
   if strcmp(cfg_proc.keeptrials,'no')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
+    savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_%s_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
   elseif strcmp(cfg_proc.keeptrials,'yes')
-    savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
+    savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
   end
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
   % get all the exper.eventValues and exper.eventValuesExtra together; make sure the extra event values aren't in the list
@@ -468,9 +468,9 @@ end
 
 % % save the structs for loading in later
 % if strcmp(cfg_proc.keeptrials,'no')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+%   saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_blc_%s%s_avg_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 % elseif strcmp(cfg_proc.keeptrials,'yes')
-%   saveFile = fullfile(dirs.saveDir,sprintf('data_%s_blc_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+%   saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_blc_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 % end
 % if ~exist(saveFile,'file')
 %   fprintf('Saving %s...',saveFile);
@@ -518,17 +518,17 @@ end
 %% save grand average file
 
 if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
+  savedFiles = dir(fullfile(dirs.saveDirProc,'analysisDetails*.mat'));
   if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name),'cfg_proc');
+    load(fullfile(dirs.saveDirProc,savedFiles.name),'cfg_proc');
   elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
+    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDirProc)
   elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
+    error('analysisDetails*.mat not found in %s!',dirs.saveDirProc)
   end
 end
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(ga_freq.(exper.eventValues{1}).freq(1)),round(ga_freq.(exper.eventValues{1}).freq(end)),ga_freq.(exper.eventValues{1}).time(1)*1000,ga_freq.(exper.eventValues{1}).time(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
   save(saveFile,'ga_freq');
@@ -539,10 +539,10 @@ end
 
 %% (re)save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000));
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 else
   fprintf('Appending to %s...',saveFile);
   save(saveFile,'exper','ana','dirs','files','cfg_proc','-append');
@@ -563,22 +563,22 @@ end
 %% if already saved and not yet loaded, load the ft_freqgrandaverage files
 
 if ~exist('cfg_proc','var')
-  savedFiles = dir(fullfile(dirs.saveDir,'analysisDetails*.mat'));
+  savedFiles = dir(fullfile(dirs.saveDirProc,'analysisDetails*.mat'));
   if length(savedFiles) == 1
-    load(fullfile(dirs.saveDir,savedFiles.name));
+    load(fullfile(dirs.saveDirProc,savedFiles.name));
   elseif length(savedFiles) > 1
-    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDir)
+    error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDirProc)
   elseif isempty(savedFiles)
-    error('analysisDetails*.mat not found in %s!',dirs.saveDir)
+    error('analysisDetails*.mat not found in %s!',dirs.saveDirProc)
   end
 end
 
 if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
-  %savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_%s_%s%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.method,files.save_str,round(cfg_proc.foi(1)),round(cfg_proc.foi(end)),cfg_proc.toi(1)*1000,cfg_proc.toi(end)*1000)));
+  %savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_freq_*.mat')));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end

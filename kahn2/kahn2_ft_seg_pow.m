@@ -171,10 +171,10 @@ ana.ftype = cfg_proc.output;
 %% save the analysis details
 
 % overwrite if it already exists
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
 %if ~exist(saveFile,'file')
 fprintf('Saving %s...',saveFile);
-save(saveFile,'exper','ana','dirs','files','cfg_proc');
+save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 fprintf('Done.\n');
 %else
 %  error('Not saving! %s already exists.\n',saveFile);
@@ -277,14 +277,14 @@ end
 
 %% save grand average file
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_freq_%d_%d_%d_%d.mat',ga_freq.(exp.eventValues{1}).freq(1),ga_freq.(exp.eventValues{1}).freq(end),ga_freq.(exp.eventValues{1}).time(1)*1000,ga_freq.(exp.eventValues{1}).time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('ga_freq_%d_%d_%d_%d.mat',ga_freq.(exp.eventValues{1}).freq(1),ga_freq.(exp.eventValues{1}).freq(end),ga_freq.(exp.eventValues{1}).time(1)*1000,ga_freq.(exp.eventValues{1}).time(end)*1000));
 if ~exist(saveFile,'file')
   save(saveFile,'ga_freq');
 end
 
 %% save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_freq_%d_%d_%d_%d.mat',ga_freq.(exp.eventValues{1}).freq(1),ga_freq.(exp.eventValues{1}).freq(end),ga_freq.(exp.eventValues{1}).time(1)*1000,ga_freq.(exp.eventValues{1}).time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails_freq_%d_%d_%d_%d.mat',ga_freq.(exp.eventValues{1}).freq(1),ga_freq.(exp.eventValues{1}).freq(end),ga_freq.(exp.eventValues{1}).time(1)*1000,ga_freq.(exp.eventValues{1}).time(end)*1000));
 if ~exist(saveFile,'file')
   save(saveFile,'exp','dirs','files','numEv');
 end
@@ -292,10 +292,10 @@ end
 %% if already saved and not yet loaded, load the ft_freqgrandaverage files
 
 if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_freq_*.mat')));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end

@@ -200,7 +200,7 @@ end
 
 %capture diary and time statistics
 thisRun = [exper.name,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
-diary(fullfile(dirs.saveDir,[thisRun '.log']));
+diary(fullfile(dirs.saveDirProc,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
 for i = STAGES
@@ -208,7 +208,7 @@ for i = STAGES
   fprintf('STAGE%d START TIME: %s\n',i, datestr(now,13));
   
   % execute the processing stage
-  stageFun{1}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{1});
+  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   
   fprintf('STAGE%d END TIME: %s\n',i, datestr(now,13));
   fprintf('%.3f -- elapsed time STAGE%d (seconds)\n', toc(tS), i);
@@ -249,16 +249,16 @@ if runLocally == 0
     createTask(job,@create_ft_struct,1,inArg);
   end
   
-  runJob(job,timeOut,fullfile(dirs.saveDir,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
+  runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
   
   % get the trial counts together across subjects, sessions, and events
   [exper] = mm_ft_concatTrialCounts_cluster(job,exper,allSubjects);
 
   % save the analysis details; overwrite if it already exists
-  saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
   %if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
   %else
   %  error('Not saving! %s already exists.\n',saveFile);
@@ -273,7 +273,7 @@ else
   % create a log of the command window output
   thisRun = [exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
   % turn the diary on
-  diary(fullfile(dirs.saveDir,[thisRun,'.log']));
+  diary(fullfile(dirs.saveDirProc,[thisRun,'.log']));
   
   % use the peer toolbox
   %ana.usePeer = 1;
@@ -283,10 +283,10 @@ else
   [exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
   
   % save the analysis details; overwrite if it already exists
-  saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails.mat'));
+  saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
   %if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
   %else
   %  error('Not saving! %s already exists.\n',saveFile);

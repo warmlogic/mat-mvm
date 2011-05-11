@@ -170,10 +170,10 @@ cfg_proc.keeptrials = 'no';
 
 %% save the analysis details
 
-saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
+saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
 if ~exist(saveFile,'file')
   fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc');
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
 else
   error('Not saving! %s already exists.\n',saveFile);

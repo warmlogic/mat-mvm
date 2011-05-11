@@ -4,7 +4,7 @@
 
 % if strcmp(dirs.dataroot,dirs.serverLocalDir)
 %   dirs.dataroot = strrep(dirs.dataroot,'RAID/','');
-%   dirs.saveDir = strrep(dirs.saveDir,'RAID/','');
+%   dirs.saveDirProc = strrep(dirs.saveDirProc,'RAID/','');
 %   dirs.saveDirFigs = strrep(dirs.saveDirFigs,'RAID/','');
 % end
 
@@ -201,10 +201,10 @@ ana.ftype = cfg_proc.output;
 %% save the analysis details
 
 % overwrite if it already exists
-saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
+saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
 %if ~exist(saveFile,'file')
 fprintf('Saving %s...',saveFile);
-save(saveFile,'exper','ana','dirs','files','cfg_proc');
+save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 fprintf('Done.\n');
 %else
 %  error('Not saving! %s already exists.\n',saveFile);
@@ -637,14 +637,16 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-% % not averaging over frequencies - only works with ft_multiplotTFR
-% files.saveFigs = 0;
-% cfg_ft.avgoverfreq = 'no';
-% cfg_ft.interactive = 'yes';
-% cfg_plot.mask = 'yes';
-% %cfg_ft.maskstyle = 'saturation';
-% cfg_ft.maskalpha = 0.3;
-% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% not averaging over frequencies - only works with ft_multiplotTFR
+files.saveFigs = 0;
+cfg_ft.avgoverfreq = 'no';
+cfg_ft.interactive = 'yes';
+cfg_plot.mask = 'yes';
+%cfg_ft.maskstyle = 'saturation';
+cfg_ft.maskalpha = 0.3;
+cfg_plot.ftFxn = 'ft_multiplotTFR';
+% http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
+% http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);

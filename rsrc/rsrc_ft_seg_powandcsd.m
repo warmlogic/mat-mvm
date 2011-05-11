@@ -98,9 +98,9 @@ else
 end
 
 % directory to save the data
-dirs.saveDir = fullfile(dirs.dataroot,dirs.saveDirName);
-if ~exist(dirs.saveDir,'dir')
-  mkdir(dirs.saveDir)
+dirs.saveDirProc = fullfile(dirs.dataroot,dirs.saveDirName);
+if ~exist(dirs.saveDirProc,'dir')
+  mkdir(dirs.saveDirProc)
 end
 
 % Assumes we have chan locs file in ~/Documents/MATLAB/mat_mvm/eeg/
@@ -120,7 +120,7 @@ elseif strcmp(files.figFileExt,'png')
 end
 
 % directory to save figures
-dirs.saveDirFigs = fullfile(dirs.saveDir,'figs');
+dirs.saveDirFigs = fullfile(dirs.saveDirProc,'figs');
 if ~exist(dirs.saveDirFigs,'dir')
   mkdir(dirs.saveDirFigs)
 end
@@ -192,7 +192,7 @@ cfg_pp = [];
 %[data_freq,exp.eventValues] = create_ft_struct_parallel(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,dirs.saveDirName,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
 
 % % save the structs for loading in later
-% saveFile = fullfile(dirs.saveDir,sprintf('data_%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.foi(1),cfg_proc.foi(end),exp.prepost(1)*1000,exp.prepost(2)*1000));
+% saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.foi(1),cfg_proc.foi(end),exp.prepost(1)*1000,exp.prepost(2)*1000));
 % if ~exist(saveFile,'file')
 %   save(saveFile,'data_freq','cfg_proc');
 % end
@@ -484,10 +484,10 @@ title('RHSC');
 %% if already saved and not yet loaded, load the ft_freqanalysis files
 
 if ~exist('data_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('data_freq_%d_%d.mat',exp.prepost(1)*1000,exp.prepost(2)*1000)));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_freq_%d_%d.mat',exp.prepost(1)*1000,exp.prepost(2)*1000)));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end
@@ -647,14 +647,14 @@ ga_freq.elec = data_freq.elec;
 
 %% save grand average file
 
-saveFile = fullfile(dirs.saveDir,sprintf('ga_freq_%d_%d_%d_%d.mat',ga_freq.RCR.freq(1),ga_freq.RCR.freq(end),ga_freq.RCR.time(1)*1000,ga_freq.RCR.time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('ga_freq_%d_%d_%d_%d.mat',ga_freq.RCR.freq(1),ga_freq.RCR.freq(end),ga_freq.RCR.time(1)*1000,ga_freq.RCR.time(end)*1000));
 if ~exist(saveFile,'file')
   save(saveFile,'ga_freq');
 end
 
 %% save the analysis details
 
-saveFile = fullfile(dirs.saveDir,sprintf('analysisDetails_freq_%d_%d_%d_%d.mat',ga_freq.RCR.freq(1),ga_freq.RCR.freq(end),ga_freq.RCR.time(1)*1000,ga_freq.RCR.time(end)*1000));
+saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails_freq_%d_%d_%d_%d.mat',ga_freq.RCR.freq(1),ga_freq.RCR.freq(end),ga_freq.RCR.time(1)*1000,ga_freq.RCR.time(end)*1000));
 if ~exist(saveFile,'file')
   save(saveFile,'exp','dirs','files','numEv');
 end
@@ -662,10 +662,10 @@ end
 %% if already saved and not yet loaded, load the ft_freqgrandaverage files
 
 if ~exist('ga_freq','var')
-  savedFiles = dir(fullfile(dirs.saveDir,sprintf('ga_freq_*.mat')));
+  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_freq_*.mat')));
   for sf = 1:length(savedFiles)
     fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDir,savedFiles(sf).name));
+    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
     fprintf('Done.\n');
   end
 end
@@ -1629,8 +1629,8 @@ stat_clus.RHSCvsRCR = ft_freqstatistics(cfg_ft,ga_freq.RHSC,ga_freq.RCR);
 stat_clus.RHSIvsRCR = ft_freqstatistics(cfg_ft,ga_freq.RHSI,ga_freq.RCR);
 stat_clus.RHvsRCR = ft_freqstatistics(cfg_ft,ga_freq.RH,ga_freq.RCR);
 
-% save(fullfile(dirs.saveDir,'stat_clus.mat'),'stat_clus.RHSCvsRHSI','stat_clus.RHSCvsRCR','stat_clus.RHSCvsRCR','stat_clus.RHvsRCR');
-% load(fullfile(dirs.saveDir,'stat_clus.mat'));
+% save(fullfile(dirs.saveDirProc,'stat_clus.mat'),'stat_clus.RHSCvsRHSI','stat_clus.RHSCvsRCR','stat_clus.RHSCvsRCR','stat_clus.RHvsRCR');
+% load(fullfile(dirs.saveDirProc,'stat_clus.mat'));
 
 % % run the nonparametric cluster statistics
 % stat.RHSCvsRHSIvsRCR = ft_freqstatistics(cfg_ft,ga_freq.RHSC,ga_freq.RHSI,ga_freq.RCR);

@@ -116,7 +116,7 @@ end
 %capture diary and time statistics
 thisRun = [exper.name,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
 %thisRun = [exper.name,'_overview_',datestr(now,7) datestr(now,3) datestr(now,10)];
-diary(fullfile(dirs.saveDir,[thisRun '.log']));
+diary(fullfile(dirs.dataDir,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
 for i = STAGES
@@ -124,7 +124,7 @@ for i = STAGES
   fprintf('STAGE%d START TIME: %s\n',i, datestr(now,13));
   
   % execute the processing stage
-  stageFun{1}(exper, dirs, runLocally, timeOut{1});
+  stageFun{i}(exper, dirs, runLocally, timeOut{i});
   
   fprintf('STAGE%d END TIME: %s\n',i, datestr(now,13));
   fprintf('%.3f -- elapsed time STAGE%d (seconds)\n', toc(tS), i);

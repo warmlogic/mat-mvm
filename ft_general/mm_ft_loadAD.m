@@ -92,7 +92,7 @@ if do_the_replace
   fprintf('Replacing %s with %s...',old_dataroot,new_dataroot);
   
   % replace the old directories with the new
-  dirs.saveDir = strrep(dirs.saveDir,old_dataroot,new_dataroot);
+  dirs.saveDirProc = strrep(dirs.saveDirProc,old_dataroot,new_dataroot);
   dirs.saveDirFigs = strrep(dirs.saveDirFigs,old_dataroot,new_dataroot);
   % setting the new dataroot must go last
   dirs.dataroot = new_dataroot;

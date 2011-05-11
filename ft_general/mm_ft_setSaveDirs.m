@@ -104,21 +104,26 @@ else
 end
 
 % set the save directory
-dirs.saveDir = fullfile(dirs.dataroot,dirs.saveDirStem,'ft_data',evStrDir,infoDir);
-%dirs.saveDir = fullfile(dirs.dataroot,'ft_data',evStrDir,infoDir);
+dirs.saveDirRaw = fullfile(dirs.dataroot,dirs.saveDirStem,'ft_data',evStrDir,'ft_raw');
+dirs.saveDirProc = fullfile(dirs.dataroot,dirs.saveDirStem,'ft_data',evStrDir,infoDir);
 
 % denote that these data will be averaged
 if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'no')
-  dirs.saveDir = [dirs.saveDir,'_avg'];
+  dirs.saveDirProc = [dirs.saveDirProc,'_avg'];
 end
 
-% directory in which to save the data
-if ~exist(dirs.saveDir,'dir')
-  mkdir(dirs.saveDir)
+% directory in which to save the raw data
+if ~exist(dirs.saveDirRaw,'dir')
+  mkdir(dirs.saveDirRaw)
+end
+
+% directory in which to save the processed data
+if ~exist(dirs.saveDirProc,'dir')
+  mkdir(dirs.saveDirProc)
 end
 
 % directory in which to save figures
-dirs.saveDirFigs = fullfile(dirs.saveDir,'figs');
+dirs.saveDirFigs = fullfile(dirs.saveDirProc,'figs');
 if ~exist(dirs.saveDirFigs,'dir')
   mkdir(dirs.saveDirFigs)
 end

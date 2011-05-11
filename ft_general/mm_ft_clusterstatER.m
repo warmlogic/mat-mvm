@@ -80,7 +80,7 @@ end
 cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
 
 % set the saving directory
-dirs.saveDirClusStat = fullfile(dirs.saveDir,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
 if ~exist(dirs.saveDirClusStat,'dir')
   mkdir(dirs.saveDirClusStat)
 end

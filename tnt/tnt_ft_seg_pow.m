@@ -203,10 +203,10 @@ ana.ftype = cfg_proc.output;
 %% save the analysis details
 
 % overwrite if it already exists
-saveFile = fullfile(dirs.saveDir,'analysisDetails.mat');
+saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
 %if ~exist(saveFile,'file')
 fprintf('Saving %s...',saveFile);
-save(saveFile,'exper','ana','dirs','files','cfg_proc');
+save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 fprintf('Done.\n');
 %else
 %  error('Not saving! %s already exists.\n',saveFile);
@@ -555,8 +555,8 @@ cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 % line plot parameters
-%cfg_plot.ylims = [-1 1; -1 1; -1 1];
-cfg_plot.ylims = [-100 100; -100 100; -100 100; -100 100; -100 100];
+%cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
+cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
@@ -620,7 +620,7 @@ cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'THR','THF'},{'NTR','NTF'},{'THR','NTR'},{'THF','NTF'}};
 %cfg_ana.conditions = {{'TH1','TH2'},{'NT1','NT2'},{'TH1','NT1'},{'TH2','NT2'}};
 
-cfg_ana.frequencies = [3 8];
+cfg_ana.frequencies = [3 40];
 %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
@@ -639,12 +639,23 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .05;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
+
+% not averaging over frequencies - only works with ft_multiplotTFR
+files.saveFigs = 0;
+cfg_ft.avgoverfreq = 'no';
+cfg_ft.interactive = 'yes';
+cfg_plot.mask = 'yes';
+%cfg_ft.maskstyle = 'saturation';
+cfg_ft.maskalpha = 0.3;
+cfg_plot.ftFxn = 'ft_multiplotTFR';
+% http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
+% http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
@@ -654,24 +665,6 @@ for lat = 1:size(cfg_plot.latencies,1)
     mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
   end
 end
-
-%% plot the cluster statistics when not averaged over frequency
-
-% http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
-
-% http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
-
-load('/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/NT_TH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/tfr_stat_clus_0_1000/tfr_stat_clus_NTvsTH_3_8_0_1000.mat');
-
-cfg_ft = [];
-cfg_ft.alpha = .1;
-cfg_ft.xparam = 'time';
-cfg_ft.yparam = 'freq';
-cfg_ft.zparam = 'stat';
-cfg_ft.maskparameter = 'mask';
-cfg_ft.elec = ana.elec;
-
-ft_multiplotTFR(cfg_ft,stat_clus.NTvsTH);
 
 %% Make contrast plots (with culster stat info) - old function
 

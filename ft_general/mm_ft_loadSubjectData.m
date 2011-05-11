@@ -33,7 +33,7 @@ end
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    saveFileDir = fullfile(dirs.saveDir,exper.subjects{sub},sprintf('ses%d',ses));
+    saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses));
     for typ = 1:length(eventValues)
       for evVal = 1:length(eventValues{typ})
         
