@@ -31,16 +31,17 @@ if ~isfield(dirs,'saveDirStem')
 end
 
 %% name of the folder to save the FT data in; get all the event names
+
 if ~isfield(exper,'eventValuesExtra')
   evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
 else
   if ~isfield(exper.eventValuesExtra,'newValue')
     evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
   elseif isfield(exper.eventValuesExtra,'newValue') && (isfield(exper.eventValuesExtra,'onlyKeepExtras') && exper.eventValuesExtra.onlyKeepExtras == 1)
-    evStr = cat(2,cat(2,exper.eventValuesExtra.newValue{:}));
+    evStr = sort(cat(2,exper.eventValuesExtra.newValue{:}));
     evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
   elseif isfield(exper.eventValuesExtra,'newValue') && (~isfield(exper.eventValuesExtra,'onlyKeepExtras') || (isfield(exper.eventValuesExtra,'onlyKeepExtras') && exper.eventValuesExtra.onlyKeepExtras == 0))
-    evStr = cat(2,exper.eventValues,cat(2,exper.eventValuesExtra.newValue{:}));
+    evStr = sort(cat(2,exper.eventValues,cat(2,exper.eventValuesExtra.newValue{:})));
     evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
   end
 end
@@ -51,6 +52,7 @@ evStr = evStr(1:end-1);
 evStrDir = sprintf('%s_eq%d',evStr,exper.equateTrials);
 
 %% set the directory name, dependent upon the analysis type
+
 if strcmp(ana.ftFxn,'ft_timelockanalysis')
   if isempty(prefix)
     prefix = 'tla';

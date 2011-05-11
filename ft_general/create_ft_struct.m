@@ -63,6 +63,11 @@ elseif isfield(ana,'overwrite') && (ana.overwrite.raw == 1 || ana.overwrite.proc
   error('It does not make sense to overwrite the raw files but not the processed files.');
 end
 
+% make sure event values are sorted
+if ~issorted(exper.eventValues)
+  exper.eventValues = sort(exper.eventValues);
+end
+
 % make sure exper.sessions is a cell
 if ~iscell(exper.sessions)
   exper.sessions = {exper.sessions};
@@ -88,6 +93,13 @@ if ~isfield(exper,'eventValuesExtra')
 end
 if ~isfield(exper.eventValuesExtra,'newValue')
   exper.eventValuesExtra.newValue = {};
+elseif isfield(exper.eventValuesExtra,'newValue') && ~isempty(exper.eventValuesExtra.newValue) && ~iscell(exper.eventValuesExtra.newValue{1})
+  exper.eventValuesExtra.newValue = {exper.eventValuesExtra.newValue};
+end
+if ~isfield(exper.eventValuesExtra,'toCombine')
+  exper.eventValuesExtra.toCombine = {};
+elseif isfield(exper.eventValuesExtra,'toCombine') && ~isempty(exper.eventValuesExtra.toCombine) && ~iscell(exper.eventValuesExtra.toCombine{1})
+  exper.eventValuesExtra.toCombine = {exper.eventValuesExtra.toCombine};
 end
 if ~isfield(exper.eventValuesExtra,'onlyKeepExtras')
   exper.eventValuesExtra.onlyKeepExtras = 0;
