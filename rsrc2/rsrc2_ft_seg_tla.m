@@ -149,10 +149,10 @@ files.figFileExt = 'png';
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
-ana.ftFxn = 'ft_timelockanalysis';
 ana.artifact.type = 'ns';
 %ana.artifact.type = 'none';
 
+ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
 
@@ -169,7 +169,8 @@ cfg_proc.keeptrials = 'no';
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,ana.ftype);
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
@@ -204,7 +205,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups

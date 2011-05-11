@@ -39,7 +39,7 @@ function process_ft_data(ana,cfg_proc,exper,dirs)
 % overwrite by default
 if ~isfield(ana,'overwrite')
   ana.overwrite.proc = 1;
-elseif isfield(ana,'overwrite') && ana.overwrite.proc == 0
+elseif isfield(ana,'overwrite') && isfield(ana.overwrite,'proc') && ana.overwrite.proc == 0
   % TODO
   error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
 end

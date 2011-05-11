@@ -86,7 +86,7 @@ exper.sessions = {'session_0'};
 %dirs.subDir = 'RK';
 %dirs.subDir = 'SCSI';
 dirs.subDir = '';
-dirs.dataDir = fullfile('eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
@@ -130,10 +130,18 @@ files.figFileExt = 'png';
 %   end
 % end
 
-%% Convert the data to FieldTrip structs - excludes NS artifact trials
+%% Convert the data to FieldTrip structs
+
+% raw data
 ana.segFxn = 'seg2ft';
+ana.artifact.type = 'ns';
+ana.overwrite.raw = 1;
+
+% process the data
 ana.ftFxn = 'ft_timelockanalysis';
+% ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
+ana.overwrite.proc = 1;
 
 % any preprocessing?
 cfg_pp = [];
@@ -146,21 +154,9 @@ cfg_proc.keeptrials = 'no';
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
-
-% % save the structs for loading in later
-% if strcmp(cfg_proc.keeptrials,'no')
-%   saveFile = fullfile(dirs.saveDirProc,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-% elseif strcmp(cfg_proc.keeptrials,'yes')
-%   saveFile = fullfile(dirs.saveDirProc,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-% end
-% if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'data_tla');
-%   fprintf('Done.\n');
-% else
-%   error('Not saving! %s already exists.\n',saveFile);
-% end
+% create the raw and processed structs for each sub, ses, & event value
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
@@ -173,11 +169,21 @@ else
   error('Not saving! %s already exists.\n',saveFile);
 end
 
-%% load the data
+%% let me know that it's done
+emailme = 1;
+if emailme
+  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+  mail_message = {...
+    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+    sprintf('%s',saveFile),...
+    };
+  send_gmail(subject,mail_message);
+end
 
-%[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(filename,1);
+%% load the analysis details
 
-[data_tla] = mm_ft_loadSubjectData(exper,dirs,'tla');
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
 
@@ -209,46 +215,9 @@ if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
   ana.eventValues = {exper.eventValues};
 end
 
-% %% if already saved and not yet loaded, load the ft_timelockanalysis files
-% 
-% if ~exist('cfg_proc','var')
-%   savedFiles = dir(fullfile(dirs.saveDirProc,'analysisDetails*.mat'));
-%   if length(savedFiles) == 1
-%     load(fullfile(dirs.saveDirProc,savedFiles.name));
-%   elseif length(savedFiles) > 1
-%     error('Multiple analysisDetails*.mat files found in %s!',dirs.saveDirProc)
-%   elseif isempty(savedFiles)
-%     error('analysisDetails*.mat not found in %s!',dirs.saveDirProc)
-%   end
-% end
-% 
-% if ~exist('data_tla','var')
-%   if strcmp(cfg_proc.keeptrials,'no')
-%     savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_tla_avg_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-%   elseif strcmp(cfg_proc.keeptrials,'yes')
-%     savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('data_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-%   end
-%   for sf = 1:length(savedFiles)
-%     fprintf('Loading %s...',savedFiles(sf).name);
-%     load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
-%     fprintf('Done.\n');
-%   end
-%   % get all the exper.eventValues and exper.eventValuesExtra together; make sure the extra event values aren't in the list
-%   if ~isempty(exper.eventValuesExtra.newValue)
-%     if exper.eventValuesExtra.onlyKeepExtras
-%       exper.eventValues = cat(2,exper.eventValuesExtra.newValue{:});
-%     else
-%       for nVal = 1:length(exper.eventValuesExtra.newValue)
-%         if ~ismember(exper.eventValuesExtra.newValue{nVal},exper.eventValues)
-%           exper.eventValues = cat(2,exper.eventValues,exper.eventValuesExtra.newValue{nVal});
-%         else
-%           fprintf('%s is already in the event value list!\n',exper.eventValuesExtra.newValue{nVal}{1});
-%         end
-%       end
-%     end
-%     exper.eventValues = sort(exper.eventValues);
-%   end
-% end
+%% load in the subject data
+
+[data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
 %% Test plots to make sure data look ok
 
@@ -314,78 +283,32 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 
 %% decide who to kick out based on trial counts
 
-exper.nTrials.thresh = 15;
-
 % Subjects with bad behavior
 exper.badBehSub = {'SOSI011','SOSI030'};
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,dirs);
+[exper] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = exper.eventValues;
+cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_tla';
-cfg_ana.excludeBadSub = 1;
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sessions)
-  for evVal = 1:length(ana.eventValues{1})
-    %tic
-    fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{1}{evVal});
-    ga_tla.(ana.eventValues{1}{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{1}{evVal}){ses}));
-    fprintf('Done.\n');
-    %toc
-  end
-end
-
-%% save grand average file
-
-saveFile = fullfile(dirs.saveDirProc,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'ga_tla');
-  fprintf('Done.\n');
-else
-  error('Not saving! %s already exists.\n',saveFile);
-end
-
-%% (re)save the analysis details
-
-saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
-if ~exist(saveFile,'file')
-  fprintf('Saving %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-else
-  fprintf('Appending to %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc','-append');
-end
-fprintf('Done.\n');
-
-%% let me know that it's done
-emailme = 1;
-if emailme
-  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  mail_message = {...
-    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
-    sprintf('%s',saveFile),...
-    };
-  send_gmail(subject,mail_message);
-end
-
-%% if already saved and not yet loaded, load the grand average file
-
-if ~exist('ga_tla','var')
-  savedFiles = dir(fullfile(dirs.saveDirProc,sprintf('ga_tla_%d_%d.mat',exper.prepost(1)*1000,exper.prepost(2)*1000)));
-  for sf = 1:length(savedFiles)
-    fprintf('Loading %s...',savedFiles(sf).name);
-    load(fullfile(dirs.saveDirProc,savedFiles(sf).name));
-    fprintf('Done.\n');
+  for typ = 1:length(ana.eventValues)
+    for evVal = 1:length(ana.eventValues{typ})
+      %tic
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{typ}{evVal});
+      ga_tla.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      fprintf('Done.\n');
+      %toc
+    end
   end
 end
 

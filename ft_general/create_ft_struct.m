@@ -55,12 +55,9 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % overwrite by default
 if ~isfield(ana,'overwrite')
   ana.overwrite.raw = 1;
-  ana.overwrite.proc = 1;
-elseif isfield(ana,'overwrite') && (ana.overwrite.raw == 0 || ana.overwrite.proc == 0)
+elseif isfield(ana,'overwrite') && isfield(ana.overwrite,'raw') && ana.overwrite.raw == 0
   % TODO
   error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
-elseif isfield(ana,'overwrite') && (ana.overwrite.raw == 1 || ana.overwrite.proc == 0)
-  error('It does not make sense to overwrite the raw files but not the processed files.');
 end
 
 % make sure event values are sorted
