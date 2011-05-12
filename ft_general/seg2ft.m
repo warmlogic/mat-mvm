@@ -508,7 +508,7 @@ for ses = 1:length(session)
     % use arrows to advance to next trial;
     % use the q key to quit the data browser
     
-    fprintf('Processing %s...\n',cell2mat(eventValue));
+    fprintf('Processing %s...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
     fprintf('\n\nManual artifact rejection:\n');
     fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
     fprintf('Use arrows to move to next trial.\n');
@@ -565,7 +565,7 @@ for ses = 1:length(session)
     cfg.layout = elecfile;
     ft_databrowser(cfg,data_ic);
     
-    fprintf('Processing %s...\n',cell2mat(eventValue));
+    fprintf('Processing %s...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
     fprintf('\n\nViewing the first %d components.\n',nComponents);
     fprintf('\nLook for patterns that are indicative of artifacts.\n');
     % prompt the user for the component numbers to reject
@@ -577,7 +577,7 @@ for ses = 1:length(session)
     data_ic_cleaned = ft_rejectcomponent(cfg,data_ic);
     
     % another manual search of the data for artifacts
-    fprintf('Processing %s...\n',cell2mat(eventValue));
+    fprintf('Processing %s...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
     fprintf('\n\nManual artifact rejection:\n');
     fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
     fprintf('Use arrows to move to next trial.\n');

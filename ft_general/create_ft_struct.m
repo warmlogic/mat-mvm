@@ -55,6 +55,8 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % overwrite by default
 if ~isfield(ana,'overwrite')
   ana.overwrite.raw = 1;
+elseif isfield(ana,'overwrite') && ~isfield(ana.overwrite,'raw')
+  ana.overwrite.raw = 1;
 elseif isfield(ana,'overwrite') && isfield(ana.overwrite,'raw') && ana.overwrite.raw == 0
   % TODO
   error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
@@ -76,9 +78,7 @@ if ~isfield(ana,'segFxn')
 end
 
 % need an artifact detection type ('none', or: 'ns', 'ft_man', 'ft_ica')
-if ~isfield(ana,'artifact')
-  ana.artifact.type = {'none'};
-elseif isfield(ana,'artifact') && ~isfield(ana.artifact,'type')
+if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
 elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
   ana.artifact.type = {ana.artifact.type};

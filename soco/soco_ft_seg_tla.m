@@ -43,7 +43,7 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SOCO001';
+%   'SOCO001';
   'SOCO002';
 %   'SOCO003';
 %   'SOCO004';
@@ -153,7 +153,8 @@ files.figFileExt = 'png';
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = 'ns';
+%ana.artifact.type = {'ns'};
+ana.artifact.type = {'ns','ft_ica'};
 ana.overwrite.raw = 1;
 
 % process the data
