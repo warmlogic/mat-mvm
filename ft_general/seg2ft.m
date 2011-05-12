@@ -66,7 +66,7 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% See also: create_ft_struct
+% See also: CREATE_FT_STRUCT, MM_FT_ARTIFACT, PROCESS_FT_DATA
 %
 
 %% set the artifact processing parameters

@@ -19,7 +19,8 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 %                     dataroot/session. See SEG2FT for more information.
 %                     (default = 'none')
 %
-% ana.overwrite.raw = to prevent overwriting of raw data. Binary.
+% ana.overwrite.raw = prevent overwriting of raw data, and load in existing
+%                     raw data (any otherFxns will be run). Binary.
 %                     Default: 1
 %                     DO NOT USE YET, NOT FULLY IMPLEMENTED. (TODO)
 %
@@ -47,7 +48,7 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% See also: SEG2FT, PROCESS_FT_DATA
+% See also: SEG2FT, PROCESS_FT_DATA, MM_FT_ARTIFACT
 %
 
 %% make sure some required fields are set
