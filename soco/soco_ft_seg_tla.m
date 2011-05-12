@@ -153,8 +153,8 @@ files.figFileExt = 'png';
 
 % raw data
 ana.segFxn = 'seg2ft';
-%ana.artifact.type = {'ns'};
-ana.artifact.type = {'ns','ft_ica'};
+%ana.artifact.type = {'ns_auto'};
+ana.artifact.type = {'ns_auto','ft_man'};
 ana.overwrite.raw = 1;
 
 % process the data

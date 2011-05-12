@@ -142,7 +142,7 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = 'ns';
+ana.artifact.type = 'ns_auto';
 
 ana.otherFxn = {};
 ana.otherFxn{1} = 'ft_scalpcurrentdensity';

@@ -10,18 +10,18 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % as {{'session_1','session_2'}}. If they're input as
 % {{'session_1'},{'session_2'}} then they will be kept separate.
 %
-% ana.artifact.type   = the type of artifact info to use: 'none', 'ns',
-%                       'ft_man', or 'ft_ica'. If 'ns', this function
-%                       expects to find an NS bci metadata file. This file
-%                       denotes the reject artifact trials. Use the File
-%                       Export tool to export Metadata > Segment
-%                       Information; put it in a 'ns_bci' directory in
-%                       dataroot/session. See SEG2FT for more information.
-%                       (default = 'none')
+% ana.artifact.type = the type of artifact info to use: 'none', 'ns_auto',
+%                     'ns_man', 'ft_man', or 'ft_ica'. If ns_auto/man,
+%                     SEG2FT expects to find an NS bci metadata file.
+%                     This file denotes the reject artifact trials. Use the
+%                     File Export tool to export Metadata > Segment
+%                     Information; put it in a 'ns_bci' directory in
+%                     dataroot/session. See SEG2FT for more information.
+%                     (default = 'none')
 %
-% ana.overwrite.raw   = to prevent overwriting of raw data. Binary.
-%                       Default: 1
-%                       DO NOT USE YET, NOT FULLY IMPLEMENTED. (TODO)
+% ana.overwrite.raw = to prevent overwriting of raw data. Binary.
+%                     Default: 1
+%                     DO NOT USE YET, NOT FULLY IMPLEMENTED. (TODO)
 %
 % TODO: when running SEG2FT, choice for processing all event values at once
 % or one at a time (mostly useful for manual artifact rejection)
@@ -77,7 +77,7 @@ if ~isfield(ana,'segFxn')
   ana.segFxn = 'seg2ft';
 end
 
-% need an artifact detection type ('none', or: 'ns', 'ft_man', 'ft_ica')
+% need an artifact detection type ('none', or: 'ns_auto', 'ns_man', 'ft_man', 'ft_ica')
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
 elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)

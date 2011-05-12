@@ -160,7 +160,7 @@ files.figFileExt = 'png';
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
-ana.artifactType = 'ns';
+ana.artifactType = 'ns_auto';
 
 ana.ftFxn = 'ft_freqanalysis';
 

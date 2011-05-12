@@ -176,7 +176,7 @@ end
 %% Convert the data to FieldTrip structs - excludes NS artifact trials
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
-ana.artifact.type = 'ns';
+ana.artifact.type = 'ns_auto';
 
 % any preprocessing?
 cfg_pp = [];

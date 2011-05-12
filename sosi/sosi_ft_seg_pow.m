@@ -137,7 +137,7 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifactType = 'ns';
+ana.artifactType = 'ns_auto';
 
 % any preprocessing?
 cfg_pp = [];

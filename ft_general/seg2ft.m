@@ -27,18 +27,19 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ARTIFACT INFORMATION:
 %
-% artifactType can be 'none', 'ns', 'ft_man', or 'ft_ica'; it can be one of
-% those strings or a cell array of multiple strings (e.g., {'ns','ft_man'}
-% to do both Net Station artifact rejection and FieldTrip manual
-% rejection). 'ft_ica' also includes manual rejection after assessing
-% components.
+% artifactType can be 'none', 'ns_auto', 'ns_man', 'ft_man', or 'ft_ica';
+% it can be one of those strings or a cell array of multiple strings (e.g.,
+% {'ns_auto','ft_man'} to do both Net Station artifact rejection and
+% FieldTrip manual ("visual") rejection). 'ft_ica' also includes manual
+% rejection after assessing components.
 %
-% 'ns' is processed first, then 'ft_man', then 'ft_ica'.  Subquent
-% processing will not include earlier rejected artifacts.  Note that any
-% FT artifact processing requires manual intervention, while NS artifact
-% processing does not.
+% 'ns_auto' and 'ns_man' is processed first, then 'ft_man', then 'ft_ica'.
+% Subquent processing will not include earlier rejected artifacts.  Note
+% that any FT artifact processing requires manual intervention (as does
+% 'ns_man'), while 'ns_auto' artifact processing does not. 'ft_man' has the
+% option to repair individual channels (for all trials)
 %
-% If 'ns', this function expects to find a Net Station segment information
+% If using NS art, this function expects to find a Net Station segment info
 % file with a .bci extension; this contains artifact information. It is
 % exported from Net Station using the File Export tool. To set up the tool,
 % export format is metadata and check the segment information option. Run
@@ -51,7 +52,9 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % where each trial is shown one-by-one.
 %
 % If 'ft_ica', ICA will run on all trials across all event values.
-% Individual components can be rejected after this.
+% Individual components can be rejected after this.  Finally, a
+% visualization of all channels for each event will appear, where each
+% trial is shown one-by-one.
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % EEGLAB DATA
@@ -72,33 +75,20 @@ if ischar(artifactType)
   artifactType = {artifactType};
 end
 
-artifactOpts = {'none','ns','ft_man','ft_ica'};
+artifactOpts = {'none','ns_auto','ns_man','ft_man','ft_ica'};
 
 if any(~ismember(artifactType,artifactOpts))
   error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(artifactType(~ismember(artifactType,artifactOpts))))
 end
 
 % set artifact defaults
-rejArt = 0;
-rejArt_ns = 0;
-rejArt_ft_man = 0;
-rejArt_ft_ica = 0;
-
-% figure out which artifact options we're using
-if ~ismember('none',artifactType)
+if any(ismember(artifactType,artifactOpts)) && ~ismember('none',artifactType)
   rejArt = 1;
-end
-if ismember('ns',artifactType)
-  rejArt_ns = 1;
-end
-if ismember('ft_man',artifactType)
-  rejArt_ft_man = 1;
-end
-if ismember('ft_ica',artifactType)
-  rejArt_ft_ica = 1;
+else
+  rejArt = 0;
 end
 
-%% set up other parameters
+%% set up some processing parameters
 
 % make sure eventValue is set up correctly
 if ~iscell(eventValue)
@@ -149,18 +139,20 @@ nChan_elecfile = size(elec.label,1);
 %% for each session, read in the EEG file
 
 for ses = 1:length(session)
+  sesName = session{ses};
+  
   % set ses_str to make sure it starts with a character, not a #, etc.
-  ses_str = sprintf('ses_%s',session{ses});
+  ses_str = sprintf('ses_%s',sesName);
   
   if strcmpi(nsFileExt,'sbin') || strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'egis')
     % make sure the EEG file exists
-    nsfile = dir(fullfile(dataroot,session{ses},nsDir,[subject,'*.',nsFileExt]));
+    nsfile = dir(fullfile(dataroot,sesName,nsDir,[subject,'*.',nsFileExt]));
     if isempty(nsfile)
-      error('Cannot find %s*.%s file in %s',subject,nsFileExt,fullfile(dataroot,session{ses},nsDir));
+      error('Cannot find %s*.%s file in %s',subject,nsFileExt,fullfile(dataroot,sesName,nsDir));
     elseif length(nsfile) > 1
-      error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,session{ses},nsDir));
+      error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,sesName,nsDir));
     elseif length(nsfile) == 1
-      infile_ns = fullfile(dataroot,session{ses},nsDir,nsfile.name);
+      infile_ns = fullfile(dataroot,sesName,nsDir,nsfile.name);
     end
     
   elseif strcmpi(nsFileExt,'set')
@@ -174,11 +166,11 @@ for ses = 1:length(session)
       clean_str = '';
     end
     
-    nsfile = dir(fullfile(dataroot,nsDir,[subject,sprintf('%s%s%s.',session{ses},cell2mat(eventValue),clean_str),nsFileExt]));
+    nsfile = dir(fullfile(dataroot,nsDir,[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),nsFileExt]));
     if isempty(nsfile)
-      error('Cannot find %s file in %s',[subject,sprintf('%s%s%s.',session{ses},cell2mat(eventValue),clean_str),nsFileExt],fullfile(dataroot,nsDir));
+      error('Cannot find %s file in %s',[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),nsFileExt],fullfile(dataroot,nsDir));
     elseif length(nsfile) > 1
-      error('More than one %s file found in %s',[subject,sprintf('%s%s%s.',session{ses},cell2mat(eventValue),clean_str),nsFileExt],fullfile(dataroot,nsDir));
+      error('More than one %s file found in %s',[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),nsFileExt],fullfile(dataroot,nsDir));
     elseif length(nsfile) == 1
       infile_ns = fullfile(dataroot,nsDir,nsfile.name);
     end
@@ -257,59 +249,6 @@ for ses = 1:length(session)
     return
   end
   
-  %% check on NS artifacts
-  
-  if rejArt && rejArt_ns
-    % make sure the file with NS artifact info exists
-    summaryFile = dir(fullfile(dataroot,session{ses},'ns_bci',[subject,'*.bci']));
-    if ~isempty(summaryFile)
-      summaryFile = fullfile(dataroot,session{ses},'ns_bci',summaryFile.name);
-      
-      fid = fopen(summaryFile,'r');
-      % get the header
-      fgetl(fid);
-      % get the next line
-      tline = fgetl(fid);
-      fclose(fid);
-      % get only the second half of the line
-      tline = tline(ceil(length(tline)/2):end);
-      % figure out how many channels are in the summary file
-      if ~isempty(strfind(tline,'129')) && length(strfind(tline,'129')) == 1
-        nChan_summary = 129;
-      elseif ~isempty(strfind(tline,'128')) && length(strfind(tline,'128')) == 1
-        nChan_summary = 128;
-      elseif ~isempty(strfind(tline,'257')) && length(strfind(tline,'257')) == 1
-        nChan_summary = 257;
-      elseif ~isempty(strfind(tline,'256')) && length(strfind(tline,'256')) == 1
-        nChan_summary = 256;
-      else
-        nChan_summary = nChan_elecfile;
-      end
-      
-      % read in the NS artifact file
-      format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan_summary*2]),'%s'];
-      fid = fopen(summaryFile,'r');
-      sesSummary = textscan(fid,format_str,'Headerlines',1,'delimiter','\t');
-      fclose(fid);
-    else
-      error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
-    end
-    
-    % select only the good trials for this event
-    thisEv = find(ismember(sesSummary{1},eventValue));
-    badEv = strcmp(sesSummary{4},'bad');
-    %goodEv = strcmp(sesSummary{4},'good');
-    %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
-    
-    % remove the trials that have artifacts from the trl matrix
-    cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
-  %elseif rejArt && rejArt_ft_auto
-  %  % get the trial definition for automated FT artifact rejection
-  %  trl = cfg.trl;
-  elseif ~rejArt
-    fprintf('Not performing any artifact rejection.\n');
-  end
-  
   %% Get the data and process it if necessary
   
   % get the actual data
@@ -336,7 +275,7 @@ for ses = 1:length(session)
     error('This dataset is not rereferenced. Go back and rereference in Net Station before running this script!');
   elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3) && var(data.trial{1}(nChan_data,:)) ~= 0
     % has full number of channels and is already rereferenced (final channel is not flat)
-    fprintf('Channels are already rereferenced.\n');
+    fprintf('Channels are already (average) rereferenced, as they should be.\n');
     
     % depending on whether the channel string was capitalized or lowercase
     % in the electrode template, make the data elec label match. This is
@@ -349,7 +288,6 @@ for ses = 1:length(session)
     elseif strcmp(elec.label{ceil(nChan_data/2)}(1),'e')
       isCapital = 0;
     else
-      %error('There is no ''E'' or ''e'' at the start of the electrode number!')
       warning([mfilename,':electrodeCapitalization'],'There is no ''E'' or ''e'' at the start of the electrode number! Going with uppercase.')
       isCapital = 1;
     end
@@ -396,203 +334,14 @@ for ses = 1:length(session)
     error('Not sure what to do about rereferencing!');
   end
   
-%   %% run FieldTrip's automatic artifact detection on the data
-%   
-%   if rejArt && rejArt_ft_auto
-%     %error('FieldTrip artifact detection has not yet been implemented. Set artifactType to ''ns'' or ''none''.');
-%     
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % look for jump artifacts
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     
-%     cfg = [];
-%     cfg.trl = trl;
-%     cfg.padding = 0;
-%     cfg.continuous = 'no';
-%     
-%     % cutoff and padding
-%     % select a set of channels on which to run the artifact detection
-%     cfg.artfctdef.zvalue.channel= 'all';
-%     cfg.artfctdef.zvalue.cutoff= 30;
-%     cfg.artfctdef.zvalue.trlpadding= 0.5*cfg.padding;
-%     cfg.artfctdef.zvalue.artpadding= 0.5*cfg.padding;
-%     cfg.artfctdef.zvalue.fltpadding= 0;
-%     
-%     % algorithmic parameters
-%     cfg.artfctdef.zvalue.cumulative= 'yes';
-%     cfg.artfctdef.zvalue.medianfilter= 'yes';
-%     cfg.artfctdef.zvalue.medianfiltord= 9;
-%     cfg.artfctdef.zvalue.absdiff= 'yes';
-%     
-%     % feedback (artifact viewer)
-%     cfg.artfctdef.zvalue.feedback= 'yes';
-%     
-%     [cfg,artifact_jump] = ft_artifact_zvalue(cfg,data);
-%     
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % look for muscle artifacts
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     
-%     cfg = [];
-%     cfg.trl = trl;
-%     cfg.padding = 0;
-%     cfg.continuous = 'no';
-%     
-%     % cutoff and padding
-%     % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
-%     cfg.artfctdef.zvalue.channel = 'all';
-%     cfg.artfctdef.zvalue.cutoff      = 4;
-%     cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
-%     cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
-%     cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
-%     
-%     % algorithmic parameters
-%     cfg.artfctdef.zvalue.bpfilter    = 'yes';
-%     cfg.artfctdef.zvalue.bpfreq      = [110 124];
-%     cfg.artfctdef.zvalue.bpfiltord   = 9;
-%     cfg.artfctdef.zvalue.bpfilttype  = 'but';
-%     cfg.artfctdef.zvalue.hilbert     = 'yes';
-%     cfg.artfctdef.zvalue.boxcar      = 0.2;
-%     
-%     % feedback
-%     cfg.artfctdef.zvalue.feedback = 'yes';
-%     
-%     [cfg,artifact_muscle] = ft_artifact_zvalue(cfg,data);
-%     
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % look for EOG artifacts
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     
-%     cfg = [];
-%     cfg.trl = trl;
-%     cfg.padding = 0;
-%     cfg.continuous = 'no';
-%     
-%     % cutoff and padding
-%     % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
-%     cfg.artfctdef.zvalue.channel = 'all';
-%     cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
-%     cfg.artfctdef.zvalue.cutoff      = 6;
-%     cfg.artfctdef.zvalue.trlpadding  = 0.5*cfg.padding;
-%     cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
-%     cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
-%     
-%     % algorithmic parameters
-%     cfg.artfctdef.zvalue.bpfilter   = 'yes';
-%     cfg.artfctdef.zvalue.bpfilttype = 'but';
-%     cfg.artfctdef.zvalue.bpfreq     = [1 15];
-%     cfg.artfctdef.zvalue.bpfiltord  = 4;
-%     cfg.artfctdef.zvalue.hilbert    = 'yes';
-%     
-%     % feedback
-%     cfg.artfctdef.zvalue.feedback = 'yes';
-%     
-%     [cfg,artifact_EOG] = ft_artifact_zvalue(cfg,data);
-%     
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     % reject the automatically defined artifacts
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     
-%     cfg=[];
-%     cfg.artfctdef.reject = 'complete'; % this rejects complete trials, use 'partial' if you want to do partial artifact rejection
-%     cfg.artfctdef.jump.artifact = artifact_jump;
-%     %cfg.artfctdef.muscle.artifact = artifact_muscle;
-%     cfg.artfctdef.eog.artifact =artifact_EOG;
-%     data = ft_rejectartifact(cfg,data);
-%   end
+  %% artifact rejection
   
-  %% visual artifact inspection (manual)
-  
-  if rejArt && rejArt_ft_man
-    % use cursor drag and click to mark artifacts;
-    % use arrows to advance to next trial;
-    % use the q key to quit the data browser
-    
-    fprintf('Processing %s...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
-    fprintf('\n\nManual artifact rejection:\n');
-    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-    fprintf('Use arrows to move to next trial.\n');
-    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
-    
-    cfg = [];
-    cfg.continuous = 'no';
-    cfg.viewmode = 'butterfly';
-    %cfg.viewmode = 'vertical';
-    cfg = ft_databrowser(cfg,data);
-    
-    % reject the artifacts (complete or parial rejection)
-    cfg.artfctdef.reject = 'complete';
-    data = ft_rejectartifact(cfg,data);
+  if ~rejArt
+    fprintf('Not performing any artifact rejection.\n');
+  else
+    data = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,data);
   end
   
-  % % HCGSN 129 Eye channels
-  % EOGV_upper = [25 8]; % left, right
-  % EOGV_lower = [127 126]; % left, right
-  % eog = {[25 127], [8 126]}; % left, right
-  % EOGH_left = 128;
-  % EOGH_right = 125;
-  
-  %% ICA artifact detection
-  
-  if rejArt && rejArt_ft_ica
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % ICA artifact detection
-    %
-    % look for eye blink, heart beat, and other artifacts
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    cfg = [];
-    cfg.channel = 'all';
-    
-    data_ic = ft_componentanalysis(cfg,data);
-    
-    % % OLD METHOD - view the first 20 components
-    % cfg = [];
-    % cfg.component = 1:20;       % specify the component(s) that should be plotted
-    % cfg.layout = elecfile; % specify the layout file that should be used for plotting
-    % cfg.comment = 'no';
-    % ft_topoplotIC(cfg,data_ic);
-
-    % view the first 20 components (aka channels)
-    nComponents = 20;
-    cfg = [];
-    cfg.viewmode = 'component';
-    %cfg.continuous = 'no';
-    cfg.continuous = 'yes';
-    cfg.blocksize = 10;
-    cfg.channels = 1:nComponents;
-    cfg.layout = elecfile;
-    ft_databrowser(cfg,data_ic);
-    
-    fprintf('Processing %s...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
-    fprintf('\n\nViewing the first %d components.\n',nComponents);
-    fprintf('\nLook for patterns that are indicative of artifacts.\n');
-    % prompt the user for the component numbers to reject
-    componentsToReject = input('\n\nType component numbers to reject and press ''enter'', even if this line moves up due to browsing components (e.g., ''1, 4, 11''):\n\n','s');
-    
-    % reject the bad components
-    cfg = [];
-    cfg.component = str2num(componentsToReject);
-    data_ic_cleaned = ft_rejectcomponent(cfg,data_ic);
-    
-    % another manual search of the data for artifacts
-    fprintf('Processing %s...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
-    fprintf('\n\nManual artifact rejection:\n');
-    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-    fprintf('Use arrows to move to next trial.\n');
-    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
-    cfg = [];
-    cfg.viewmode = 'butterfly';
-    %cfg.viewmode = 'vertical';
-    cfg.continuous = 'no';
-    cfg = ft_databrowser(cfg,data_ic_cleaned);
-    
-    % and reject
-    cfg.artfctdef.remove = 'complete';
-    data = ft_rejectartifact(cfg,data_ic_cleaned);
-  end
   
   %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1
@@ -640,6 +389,5 @@ if length(eventValue) > 1
 elseif length(eventValue) == 1
   ft_raw.(eventValue) = data;
 end
-
 
 end
