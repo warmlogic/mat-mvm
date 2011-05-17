@@ -344,7 +344,7 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    data = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,data);
+    data = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,elecfile,data);
   end
   
   

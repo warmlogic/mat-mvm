@@ -1,4 +1,4 @@
-function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,data)
+function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
 % [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,data)
 %
