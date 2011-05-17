@@ -37,6 +37,9 @@ elseif isfield(cfg_ana,'roi')
 end
 
 cfg_ft.elec = ana.elec;
+if strcmp(cfg_ft.avgoverchan,'no')
+  cfg_ft.neighbours = ft_neighbourselection(cfg_ft);
+end
 
 % use the Monte Carlo Method to calculate the significance probability
 cfg_ft.method = 'montecarlo';

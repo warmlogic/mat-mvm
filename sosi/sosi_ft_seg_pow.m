@@ -38,35 +38,35 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'SOSI001';
-  'SOSI002';
-  'SOSI003';
-  'SOSI004';
-  'SOSI005';
-  'SOSI006';
-  'SOSI007';
-  'SOSI008';
-  'SOSI009';
-  'SOSI010';
-  'SOSI011';
-  'SOSI012';
-  'SOSI013';
-  'SOSI014';
-  'SOSI015';
-  'SOSI016';
-  'SOSI017';
-  'SOSI018';
-  'SOSI020';
-  'SOSI019';
-  'SOSI021';
-  'SOSI022';
-  'SOSI023';
-  'SOSI024';
-  'SOSI025';
-  'SOSI026';
-  'SOSI027';
-  'SOSI028';
-  'SOSI029';
-  'SOSI030';
+%   'SOSI002';
+%   'SOSI003';
+%   'SOSI004';
+%   'SOSI005';
+%   'SOSI006';
+%   'SOSI007';
+%   'SOSI008';
+%   'SOSI009';
+%   'SOSI010';
+%   'SOSI011';
+%   'SOSI012';
+%   'SOSI013';
+%   'SOSI014';
+%   'SOSI015';
+%   'SOSI016';
+%   'SOSI017';
+%   'SOSI018';
+%   'SOSI020';
+%   'SOSI019';
+%   'SOSI021';
+%   'SOSI022';
+%   'SOSI023';
+%   'SOSI024';
+%   'SOSI025';
+%   'SOSI026';
+%   'SOSI027';
+%   'SOSI028';
+%   'SOSI029';
+%   'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -81,7 +81,8 @@ exper.sessions = {'session_0'};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
-dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+%dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+dirs.dataDir = fullfile(exper.name,'eeg','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
 
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
@@ -137,13 +138,45 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifactType = 'ns_auto';
+ana.artifact.type = {'ns_auto','ns_man','ft_ica'};
+
+ana.otherFxn = {};
+ana.cfg_other = [];
+ana.otherFxn{1} = 'ft_preprocessing';
+ana.cfg_other{1}.demean = 'yes';
+ana.cfg_other{1}.baselinewindow = [-.2 0];
+ana.cfg_other{1}.ftype = 'demean';
+ana.otherFxn{2} = 'ft_preprocessing';
+ana.cfg_other{2}.detrend = 'yes';
+ana.cfg_other{2}.ftype = 'detrend';
+ana.otherFxn{3} = 'ft_preprocessing';
+ana.cfg_other{3}.dftfilter = 'yes';
+ana.cfg_other{3}.dftfreq = [60 120 180];
+ana.cfg_other{3}.ftype = 'dft';
+% ana.otherFxn{4} = 'ft_preprocessing';
+% ana.cfg_other{4}.bsfilter = 'yes';
+% ana.cfg_other{4}.bsfreq = [59 61; 119 121; 179 181];
+% ana.cfg_other{4}.ftype = 'bs';
+% ana.otherFxn{5} = 'ft_preprocessing';
+% ana.cfg_other{5}.lpfilter = 'yes';
+% ana.cfg_other{5}.lpfreq = [35];
+% ana.cfg_other{5}.ftype = 'lp';
 
 % any preprocessing?
 cfg_pp = [];
 % single precision to save space
 cfg_pp.precision = 'single';
-
+% cfg_pp.demean = 'yes';
+% cfg_pp.baselinewindow = [-.2 0];
+% cfg_pp.detrend = 'yes';
+% cfg_pp.dftfilter = 'yes';
+% cfg_pp.dftfreq = [60 120 180];
+% % cfg_pp.bsfilter = 'yes';
+% % cfg_pp.bsfreq = [59 61; 119 121; 179 181];
+% % cfg_pp.bsfreq = [58 62; 118 122; 178 182];
+% % cfg_pp.lpfilter = 'yes';
+% % cfg_pp.lpfreq = [35];
+    
 cfg_proc = [];
 cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
@@ -167,8 +200,8 @@ cfg_proc.taper = 'hanning';
 %cfg_proc.toi = -0.8:0.04:3.0;
 cfg_proc.toi = -0.5:0.04:1.0;
 freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-cfg_proc.foi = 2:freqstep:40;
-%cfg_proc.foi = 3:freqstep:9;
+%cfg_proc.foi = 2:freqstep:40;
+cfg_proc.foi = 3:freqstep:9;
 %cfg_proc.foi = 3:1:9;
 %cfg_proc.foi = 2:2:30;
 cfg_proc.t_ftimwin = 4./cfg_proc.foi;
@@ -193,7 +226,8 @@ cfg_proc.t_ftimwin = 4./cfg_proc.foi;
 ana.ftype = cfg_proc.output;
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
@@ -606,9 +640,12 @@ cfg_ana.roi = 'all';
 %cfg_ana.conditions = {'all'};
 cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
-%cfg_ana.frequencies = [2 40];
-cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-%cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+if strcmp(cfg_ft.avgoverfreq,'no')
+  cfg_ana.frequencies = [2 40];
+else
+  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+end
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
@@ -633,16 +670,19 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-% % not averaging over frequencies - only works with ft_multiplotTFR
-% files.saveFigs = 0;
-% cfg_ft.avgoverfreq = 'no';
-% cfg_ft.interactive = 'yes';
-% cfg_plot.mask = 'yes';
-% %cfg_ft.maskstyle = 'saturation';
-% %cfg_ft.maskalpha = 0.3;
-% cfg_plot.ftFxn = 'ft_multiplotTFR';
-% % http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
-% % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
+cfg_ft.avgoverfreq = 'no';
+
+if strcmp(cfg_ft.avgoverfreq,'no')
+  % not averaging over frequencies - only works with ft_multiplotTFR
+  files.saveFigs = 0;
+  cfg_ft.interactive = 'yes';
+  cfg_plot.mask = 'yes';
+  %cfg_ft.maskstyle = 'saturation';
+  cfg_ft.maskalpha = 0.3;
+  cfg_plot.ftFxn = 'ft_multiplotTFR';
+  % http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
+  % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
+end
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);

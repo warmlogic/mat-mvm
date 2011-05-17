@@ -22,7 +22,7 @@ cfg_ft.computestat = 'yes';
 cfg_ft.computecritval = 'yes';
 cfg_ft.computeprob = 'yes';
 if ~isfield(cfg_ft,'tail')
-  cfg_ft.tail = 0; % -1, 0, or 1, left, two-sided, or right
+  cfg_ft.tail = 0; % -1=left, 0=both, 1=right
 end
 if ~isfield(cfg_ft,'alpha')
   cfg_ft.alpha = 0.05;

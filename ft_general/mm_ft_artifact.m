@@ -18,7 +18,7 @@ function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactTyp
 % set artifact defaults
 rejArt_ns_auto = 0;
 rejArt_ns_man = 0;
-% rejArt_ft_auto = 0;
+rejArt_ft_auto = 0;
 rejArt_ft_man = 0;
 rejArt_ft_ica = 0;
 
@@ -29,14 +29,19 @@ end
 if ismember('ns_man',artifactType)
   rejArt_ns_man = 1;
 end
-% if ismember('ft_auto',artifactType)
-%   rejArt_ft_auto = 1;
-% end
+if ismember('ft_auto',artifactType)
+  rejArt_ft_auto = 1;
+end
 if ismember('ft_man',artifactType)
   rejArt_ft_man = 1;
 end
 if ismember('ft_ica',artifactType)
   rejArt_ft_ica = 1;
+end
+
+if rejArt_ns_man == 1 && rejArt_ns_auto == 0
+  fprintf('To manually inspect NS''s artifacts (''ns_man''), you must also use ''ns_auto''; turning on ''ns_auto''.');
+  rejArt_ns_auto = 1;
 end
 
 %% check on NS artifacts
@@ -104,6 +109,28 @@ if rejArt_ns_auto
     fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
     
     cfg = ft_databrowser(cfg,data);
+    
+    % see if there were any channels to repair first
+    rejArt_repair = [];
+    while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+      rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+    end
+    
+    if rejArt_repair
+      channelsToRepair = [];
+      while ~iscell(channelsToRepair)
+        channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+      end
+      
+      if ~isempty(channelsToRepair)
+        data.elec = elec;
+        
+        cfg = [];
+        cfg.badchannel = channelsToRepair;
+        
+        data = ft_channelrepair(cfg,data);
+      end
+    end
   else
     fprintf('Automatically rejecting NS artifacts for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   end
@@ -135,15 +162,15 @@ if rejArt_ft_man
   cfg = ft_databrowser(cfg,data);
   
   % see if there were any channels to repair first
-  rejArt_ft_repair = [];
-  while isempty(rejArt_ft_repair) || (rejArt_ft_repair ~= 0 && rejArt_ft_repair ~= 1)
-    rejArt_ft_repair = input('\n\nWere there channels to repair? (0 or 1):\n\n');
+  rejArt_repair = [];
+  while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+    rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
   end
   
-  if rejArt_ft_repair
+  if rejArt_repair
     channelsToRepair = [];
     while ~iscell(channelsToRepair)
-      channelsToRepair = input('\n\nType channel labels to repair and press ''enter'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, enter {}.\n\n');
+      channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
     end
     
     if ~isempty(channelsToRepair)
@@ -196,7 +223,7 @@ if rejArt_ft_ica
   fprintf('\n\nViewing the first %d components.\n',nComponents);
   fprintf('\nLook for patterns that are indicative of artifacts.\n');
   % prompt the user for the component numbers to reject
-  componentsToReject = input('\n\nType component numbers to reject and press ''enter'', even if this line moves up due to browsing components (e.g., ''1, 4, 11''):\n\n','s');
+  componentsToReject = input('\n\nType component numbers to reject (on a single line) and press ''return'', even if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n','s');
   
   % reject the bad components
   if ~isempty(componentsToReject)
@@ -225,76 +252,42 @@ if rejArt_ft_ica
   data = ft_rejectartifact(cfg,data_ic_cleaned);
 end
 
-% %% run FieldTrip's automatic artifact detection on the data
-% 
-% if rejArt_ft_auto
-%   % get the trial definition for automated FT artifact rejection
-%   trl = ft_findcfg(data.cfg,'trl');
-%   
+%% run FieldTrip's automatic artifact detection on the data
+
+if rejArt_ft_auto
+  % get the trial definition for automated FT artifact rejection
+  trl = ft_findcfg(data.cfg,'trl');
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % look for jump artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.trl = trl;
+  cfg.padding = 0;
+  cfg.continuous = 'no';
+  
+  % cutoff and padding
+  % select a set of channels on which to run the artifact detection
+  cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.cutoff = 30;
+  cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.fltpadding = 0;
+  
+  % algorithmic parameters
+  cfg.artfctdef.zvalue.cumulative = 'yes';
+  cfg.artfctdef.zvalue.medianfilter = 'yes';
+  cfg.artfctdef.zvalue.medianfiltord = 9;
+  cfg.artfctdef.zvalue.absdiff = 'yes';
+  
+  % feedback (artifact viewer)
+  cfg.artfctdef.zvalue.feedback = 'yes';
+  
+  [cfg,artifact_jump] = ft_artifact_zvalue(cfg,data);
+  
 %   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   % look for jump artifacts
-%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   
-%   cfg = [];
-%   cfg.trl = trl;
-%   cfg.padding = 0;
-%   cfg.continuous = 'no';
-%   
-%   % cutoff and padding
-%   % select a set of channels on which to run the artifact detection
-%   cfg.artfctdef.zvalue.channel = 'all';
-%   cfg.artfctdef.zvalue.cutoff = 30;
-%   cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-%   cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
-%   cfg.artfctdef.zvalue.fltpadding = 0;
-%   
-%   % algorithmic parameters
-%   cfg.artfctdef.zvalue.cumulative = 'yes';
-%   cfg.artfctdef.zvalue.medianfilter = 'yes';
-%   cfg.artfctdef.zvalue.medianfiltord = 9;
-%   cfg.artfctdef.zvalue.absdiff = 'yes';
-%   
-%   % feedback (artifact viewer)
-%   cfg.artfctdef.zvalue.feedback = 'yes';
-%   
-%   [cfg,artifact_jump] = ft_artifact_zvalue(cfg,data);
-%   
-% %   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %   % look for muscle artifacts
-% %   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %   
-% %   cfg = [];
-% %   cfg.trl = trl;
-% %   cfg.padding = 0;
-% %   cfg.continuous = 'no';
-% %   
-% %   % cutoff and padding
-% %   % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
-% %   cfg.artfctdef.zvalue.channel = 'all';
-% %   cfg.artfctdef.zvalue.cutoff      = 4;
-% %   cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
-% %   cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
-% %   cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
-% %   
-% %   % algorithmic parameters
-% %   cfg.artfctdef.zvalue.bpfilter    = 'yes';
-% %   if data.fsample/2 < 140
-% %     cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
-% %   else
-% %     cfg.artfctdef.zvalue.bpfreq      = [110 140];
-% %   end
-% %   cfg.artfctdef.zvalue.bpfiltord   = 9;
-% %   cfg.artfctdef.zvalue.bpfilttype  = 'but';
-% %   cfg.artfctdef.zvalue.hilbert     = 'yes';
-% %   cfg.artfctdef.zvalue.boxcar      = 0.2;
-% %   
-% %   % feedback
-% %   cfg.artfctdef.zvalue.feedback = 'yes';
-% %   
-% %   [cfg,artifact_muscle] = ft_artifact_zvalue(cfg,data);
-%   
-%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   % look for EOG artifacts
+%   % look for muscle artifacts - doesn't work
 %   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   
 %   cfg = [];
@@ -304,35 +297,69 @@ end
 %   
 %   % cutoff and padding
 %   % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
-%   %cfg.artfctdef.zvalue.channel = 'all';
-%   cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
-%   cfg.artfctdef.zvalue.cutoff      = 6;
-%   cfg.artfctdef.zvalue.trlpadding  = 0.5*cfg.padding;
-%   cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
+%   cfg.artfctdef.zvalue.channel = 'all';
+%   cfg.artfctdef.zvalue.cutoff      = 4;
+%   cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
 %   cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
+%   cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
 %   
 %   % algorithmic parameters
-%   cfg.artfctdef.zvalue.bpfilter   = 'yes';
-%   cfg.artfctdef.zvalue.bpfilttype = 'but';
-%   cfg.artfctdef.zvalue.bpfreq     = [1 15];
-%   cfg.artfctdef.zvalue.bpfiltord  = 4;
-%   cfg.artfctdef.zvalue.hilbert    = 'yes';
+%   cfg.artfctdef.zvalue.bpfilter    = 'yes';
+%   if data.fsample/2 < 140
+%     cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
+%   else
+%     cfg.artfctdef.zvalue.bpfreq      = [110 140];
+%   end
+%   cfg.artfctdef.zvalue.bpfiltord   = 9;
+%   cfg.artfctdef.zvalue.bpfilttype  = 'but';
+%   cfg.artfctdef.zvalue.hilbert     = 'yes';
+%   cfg.artfctdef.zvalue.boxcar      = 0.2;
 %   
 %   % feedback
 %   cfg.artfctdef.zvalue.feedback = 'yes';
 %   
-%   [cfg,artifact_EOG] = ft_artifact_zvalue(cfg,data);
-%   
-%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   % reject the automatically defined artifacts
-%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   
-%   cfg = [];
-%   cfg.artfctdef.reject = 'complete'; % this rejects complete trials, use 'partial' if you want to do partial artifact rejection
-%   cfg.artfctdef.jump.artifact = artifact_jump;
-%   %cfg.artfctdef.muscle.artifact = artifact_muscle;
-%   cfg.artfctdef.eog.artifact = artifact_EOG;
-%   data = ft_rejectartifact(cfg,data);
-% end
+%   [cfg,artifact_muscle] = ft_artifact_zvalue(cfg,data);
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % look for EOG artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.trl = trl;
+  cfg.padding = 0;
+  cfg.continuous = 'no';
+  
+  % cutoff and padding
+  % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
+  %cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
+  cfg.artfctdef.zvalue.cutoff      = 6;
+  cfg.artfctdef.zvalue.trlpadding  = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
+  cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
+  
+  % algorithmic parameters
+  cfg.artfctdef.zvalue.bpfilter   = 'yes';
+  cfg.artfctdef.zvalue.bpfilttype = 'but';
+  cfg.artfctdef.zvalue.bpfreq     = [1 15];
+  cfg.artfctdef.zvalue.bpfiltord  = 4;
+  cfg.artfctdef.zvalue.hilbert    = 'yes';
+  
+  % feedback
+  cfg.artfctdef.zvalue.feedback = 'yes';
+  
+  [cfg,artifact_EOG] = ft_artifact_zvalue(cfg,data);
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % reject the automatically defined artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.artfctdef.reject = 'complete'; % this rejects complete trials, use 'partial' if you want to do partial artifact rejection
+  cfg.artfctdef.jump.artifact = artifact_jump;
+  %cfg.artfctdef.muscle.artifact = artifact_muscle;
+  cfg.artfctdef.eog.artifact = artifact_EOG;
+  data = ft_rejectartifact(cfg,data);
+end
 
 end

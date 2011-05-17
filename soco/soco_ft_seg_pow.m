@@ -160,7 +160,7 @@ files.figFileExt = 'png';
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
-ana.artifactType = 'ns_auto';
+ana.artifact.type = {'ns_auto'};
 
 ana.ftFxn = 'ft_freqanalysis';
 
@@ -255,7 +255,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -311,7 +311,7 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub=1;
+sub=2;
 ses=1;
 for i = 1:4
   figure
@@ -364,7 +364,7 @@ end
 % Subjects with bad behavior
 %exper.badBehSub = {};
 % noisy channels
-exper.badBehSub = {'SOCO002','SOCO006','SOCO010','SOCO019','SOCO020','SOCO022','SOCO023','SOCO026','SOCO029'};
+exper.badBehSub = {'SOCO002','SOCO004','SOCO006','SOCO010','SOCO019','SOCO020','SOCO022','SOCO023','SOCO026','SOCO027','SOCO029'};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -690,15 +690,15 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'yes';
-%cfg_ft.avgoverfreq = 'no';
+%cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
-% debugging
-%cfg_ft.numrandomization = 100;
-
 cfg_ft.numrandomization = 500;
+
+% debugging
+%cfg_ft.numrandomization = 10;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
@@ -709,9 +709,12 @@ cfg_ana.conditions = {'all_within_types'};
 %   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
 %   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
 
-%cfg_ana.frequencies = [3 40];
-cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-%cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+if strcmp(cfg_ft.avgoverfreq,'no')
+  cfg_ana.frequencies = [2 40];
+else
+  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+end
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
@@ -736,16 +739,19 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-% % not averaging over frequencies - only works with ft_multiplotTFR
-% files.saveFigs = 0;
-% cfg_ft.avgoverfreq = 'no';
-% cfg_ft.interactive = 'yes';
-% cfg_plot.mask = 'yes';
-% %cfg_ft.maskstyle = 'saturation';
-% %cfg_ft.maskalpha = 0.3;
-% cfg_plot.ftFxn = 'ft_multiplotTFR';
-% % http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
-% % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
+cfg_ft.avgoverfreq = 'no';
+
+if strcmp(cfg_ft.avgoverfreq,'no')
+  % not averaging over frequencies - only works with ft_multiplotTFR
+  files.saveFigs = 0;
+  cfg_ft.interactive = 'yes';
+  cfg_plot.mask = 'yes';
+  %cfg_ft.maskstyle = 'saturation';
+  cfg_ft.maskalpha = 0.3;
+  cfg_plot.ftFxn = 'ft_multiplotTFR';
+  % http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
+  % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
+end
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);

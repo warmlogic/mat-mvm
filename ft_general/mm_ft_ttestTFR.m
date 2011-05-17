@@ -22,7 +22,7 @@ cfg_ft.computestat = 'yes';
 cfg_ft.computecritval = 'yes';
 cfg_ft.computeprob = 'yes';
 if ~isfield(cfg_ft,'tail')
-  cfg_ft.tail = 0; % -1, 0, or 1, left, two-sided, or right
+  cfg_ft.tail = 0; % -1=left, 0=both, 1=right
 end
 if ~isfield(cfg_ft,'alpha')
   cfg_ft.alpha = 0.05;
@@ -174,6 +174,9 @@ else
   tabchar = '';
 end
 
+% print averages
+ses = 1;
+
 % ga
 fprintf('GA%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
 gaStr = sprintf('GA%s',sprintf(tabchar));
@@ -189,16 +192,20 @@ fprintf('%s\n',gaStr);
 % sub avg
 fprintf('Subject%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
 for sub = 1:length(cfg_ana.goodSub)
-  subStr = exper.subjects{sub};
-  for evVal = 1:length(allConds)
-    if length(allConds{evVal}) > 7
-      tabchar_ev = '\t';
-    else
-      tabchar_ev = '';
+  if exper.badSub(sub,ses)
+    continue
+  else
+    subStr = exper.subjects{sub};
+    for evVal = 1:length(allConds)
+      if length(allConds{evVal}) > 7
+        tabchar_ev = '\t';
+      else
+        tabchar_ev = '';
+      end
+      subStr = cat(2,subStr,sprintf('\t%.2f%s',cfg_ana.values.(allConds{evVal})(sub),sprintf(tabchar_ev)));
     end
-    subStr = cat(2,subStr,sprintf('\t%.2f%s',cfg_ana.values.(allConds{evVal})(sub),sprintf(tabchar_ev)));
+    fprintf('%s\n',subStr);
   end
-  fprintf('%s\n',subStr);
 end
 
 % run the t-tests

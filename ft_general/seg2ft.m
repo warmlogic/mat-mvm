@@ -31,13 +31,17 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % it can be one of those strings or a cell array of multiple strings (e.g.,
 % {'ns_auto','ft_man'} to do both Net Station artifact rejection and
 % FieldTrip manual ("visual") rejection). 'ft_ica' also includes manual
-% rejection after assessing components.
+% rejection after manually assessing components.
 %
-% 'ns_auto' and 'ns_man' is processed first, then 'ft_man', then 'ft_ica'.
+% 'ns_auto' and 'ns_man' are processed first, then 'ft_man', then 'ft_ica'.
 % Subquent processing will not include earlier rejected artifacts.  Note
 % that any FT artifact processing requires manual intervention (as does
-% 'ns_man'), while 'ns_auto' artifact processing does not. 'ft_man' has the
-% option to repair individual channels (for all trials)
+% 'ns_man'), while 'ns_auto' artifact processing does not. 'ns_man' is for
+% inspecting the artifacts that NS identified. After inspection, both
+% 'ns_man' and 'ft_man' give the option to repair individual channels (for
+% all trials) using FT_CHANNELREPAIR, so be sure to keep track of any
+% channels that you want to repair (i.e., instead of rejecting them as
+% artifacts).
 %
 % If using NS art, this function expects to find a Net Station segment info
 % file with a .bci extension; this contains artifact information. It is
@@ -66,7 +70,8 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% See also: CREATE_FT_STRUCT, MM_FT_ARTIFACT, PROCESS_FT_DATA
+% See also: CREATE_FT_STRUCT, MM_FT_ARTIFACT, PROCESS_FT_DATA,
+% FT_CHANNELREPAIR
 %
 
 %% set the artifact processing parameters
@@ -75,7 +80,7 @@ if ischar(artifactType)
   artifactType = {artifactType};
 end
 
-artifactOpts = {'none','ns_auto','ns_man','ft_man','ft_ica'};
+artifactOpts = {'none','ns_auto','ns_man','ft_auto','ft_man','ft_ica'};
 
 if any(~ismember(artifactType,artifactOpts))
   error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(artifactType(~ismember(artifactType,artifactOpts))))

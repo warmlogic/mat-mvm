@@ -118,6 +118,7 @@ for cnd = 1:length(cfg_plot.conditions)
         
         % do the plot
         cfg_plot.conditions = vs_str;
+        cfg_plot.condMethod = 'check';
         ana.eventValues = {{vs_str}};
         mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
         % put the fields back
