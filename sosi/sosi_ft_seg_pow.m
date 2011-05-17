@@ -38,35 +38,35 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'SOSI001';
-%   'SOSI002';
-%   'SOSI003';
-%   'SOSI004';
-%   'SOSI005';
-%   'SOSI006';
-%   'SOSI007';
-%   'SOSI008';
-%   'SOSI009';
-%   'SOSI010';
-%   'SOSI011';
-%   'SOSI012';
-%   'SOSI013';
-%   'SOSI014';
-%   'SOSI015';
-%   'SOSI016';
-%   'SOSI017';
-%   'SOSI018';
-%   'SOSI020';
-%   'SOSI019';
-%   'SOSI021';
-%   'SOSI022';
-%   'SOSI023';
-%   'SOSI024';
-%   'SOSI025';
-%   'SOSI026';
-%   'SOSI027';
-%   'SOSI028';
-%   'SOSI029';
-%   'SOSI030';
+  'SOSI002';
+  'SOSI003';
+  'SOSI004';
+  'SOSI005';
+  'SOSI006';
+  'SOSI007';
+  'SOSI008';
+  'SOSI009';
+  'SOSI010';
+  'SOSI011';
+  'SOSI012';
+  'SOSI013';
+  'SOSI014';
+  'SOSI015';
+  'SOSI016';
+  'SOSI017';
+  'SOSI018';
+  'SOSI020';
+  'SOSI019';
+  'SOSI021';
+  'SOSI022';
+  'SOSI023';
+  'SOSI024';
+  'SOSI025';
+  'SOSI026';
+  'SOSI027';
+  'SOSI028';
+  'SOSI029';
+  'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -81,8 +81,8 @@ exper.sessions = {'session_0'};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
-%dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
-dirs.dataDir = fullfile(exper.name,'eeg','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+%dirs.dataDir = fullfile(exper.name,'eeg','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
 
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
@@ -138,29 +138,30 @@ files.figFileExt = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = {'ns_auto','ns_man','ft_ica'};
+ana.artifact.type = {'ns_auto'};
+%ana.artifact.type = {'ns_auto','ns_man','ft_ica'};
 
-ana.otherFxn = {};
-ana.cfg_other = [];
-ana.otherFxn{1} = 'ft_preprocessing';
-ana.cfg_other{1}.demean = 'yes';
-ana.cfg_other{1}.baselinewindow = [-.2 0];
-ana.cfg_other{1}.ftype = 'demean';
-ana.otherFxn{2} = 'ft_preprocessing';
-ana.cfg_other{2}.detrend = 'yes';
-ana.cfg_other{2}.ftype = 'detrend';
-ana.otherFxn{3} = 'ft_preprocessing';
-ana.cfg_other{3}.dftfilter = 'yes';
-ana.cfg_other{3}.dftfreq = [60 120 180];
-ana.cfg_other{3}.ftype = 'dft';
-% ana.otherFxn{4} = 'ft_preprocessing';
-% ana.cfg_other{4}.bsfilter = 'yes';
-% ana.cfg_other{4}.bsfreq = [59 61; 119 121; 179 181];
-% ana.cfg_other{4}.ftype = 'bs';
-% ana.otherFxn{5} = 'ft_preprocessing';
-% ana.cfg_other{5}.lpfilter = 'yes';
-% ana.cfg_other{5}.lpfreq = [35];
-% ana.cfg_other{5}.ftype = 'lp';
+% ana.otherFxn = {};
+% ana.cfg_other = [];
+% ana.otherFxn{1} = 'ft_preprocessing';
+% ana.cfg_other{1}.demean = 'yes';
+% ana.cfg_other{1}.baselinewindow = [-.2 0];
+% ana.cfg_other{1}.ftype = 'demean';
+% ana.otherFxn{2} = 'ft_preprocessing';
+% ana.cfg_other{2}.detrend = 'yes';
+% ana.cfg_other{2}.ftype = 'detrend';
+% ana.otherFxn{3} = 'ft_preprocessing';
+% ana.cfg_other{3}.dftfilter = 'yes';
+% ana.cfg_other{3}.dftfreq = [60 120 180];
+% ana.cfg_other{3}.ftype = 'dft';
+% % ana.otherFxn{4} = 'ft_preprocessing';
+% % ana.cfg_other{4}.bsfilter = 'yes';
+% % ana.cfg_other{4}.bsfreq = [59 61; 119 121; 179 181];
+% % ana.cfg_other{4}.ftype = 'bs';
+% % ana.otherFxn{5} = 'ft_preprocessing';
+% % ana.cfg_other{5}.lpfilter = 'yes';
+% % ana.cfg_other{5}.lpfreq = [35];
+% % ana.cfg_other{5}.ftype = 'lp';
 
 % any preprocessing?
 cfg_pp = [];
@@ -200,8 +201,8 @@ cfg_proc.taper = 'hanning';
 %cfg_proc.toi = -0.8:0.04:3.0;
 cfg_proc.toi = -0.5:0.04:1.0;
 freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-%cfg_proc.foi = 2:freqstep:40;
-cfg_proc.foi = 3:freqstep:9;
+cfg_proc.foi = 2:freqstep:40;
+%cfg_proc.foi = 3:freqstep:9;
 %cfg_proc.foi = 3:1:9;
 %cfg_proc.foi = 2:2:30;
 cfg_proc.t_ftimwin = 4./cfg_proc.foi;
@@ -625,8 +626,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'yes';
-%cfg_ft.avgoverfreq = 'no';
+%cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
