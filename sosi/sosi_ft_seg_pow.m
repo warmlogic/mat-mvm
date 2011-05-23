@@ -626,8 +626,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-%cfg_ft.avgoverfreq = 'yes';
-cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -635,6 +635,8 @@ cfg_ft.parameter = 'powspctrm';
 %cfg_ft.numrandomization = 100;
 
 cfg_ft.numrandomization = 500;
+cfg_ft.clusteralpha = .05;
+cfg_ft.alpha = .025;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
@@ -664,6 +666,7 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
+%cfg_ft.alpha = .025;
 cfg_ft.alpha = .05;
 
 cfg_plot = [];
@@ -671,7 +674,7 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR

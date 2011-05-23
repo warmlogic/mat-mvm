@@ -311,7 +311,7 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub=2;
+sub=1;
 ses=1;
 for i = 1:4
   figure
@@ -362,9 +362,9 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-%exper.badBehSub = {};
+exper.badBehSub = {};
 % noisy channels
-exper.badBehSub = {'SOCO002','SOCO004','SOCO006','SOCO010','SOCO019','SOCO020','SOCO022','SOCO023','SOCO026','SOCO027','SOCO029'};
+%exper.badBehSub = {'SOCO002','SOCO004','SOCO006','SOCO010','SOCO019','SOCO020','SOCO022','SOCO023','SOCO026','SOCO027','SOCO029'};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
