@@ -32,8 +32,8 @@ exper.eventValues = sort({'RCR','RHSC','RHSI'});
 %exper.eventValues = sort({'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
-%exper.eventValuesExtra.newValue = {{'RH'}};
-%exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+exper.eventValuesExtra.newValue = {{'RH'}};
+exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 %exper.eventValuesExtra.onlyKeepExtras = 0;
@@ -90,15 +90,22 @@ dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile('/data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
 % pick the right dirs.dataroot
 if exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
+  %runLocally = 1;
 elseif exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
+  %runLocally = 1;
+elseif exist(dirs.dreamDir,'dir')
+  dirs.dataroot = dirs.dreamDir;
+  %runLocally = 0;
 elseif exist(dirs.localDir,'dir')
   dirs.dataroot = dirs.localDir;
+  %runLocally = 1;
 else
   error('Data directory not found.');
 end
@@ -134,7 +141,7 @@ files.figFileExt = 'png';
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = 'ns_auto';
+ana.artifact.type = {'ns_auto'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -182,7 +189,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -509,7 +516,7 @@ for r = 1:length(cfg_ana.rois)
   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
 end
 
-%% 2-way ANOVA: Hemisphere x Condition: FN400
+%% 2-way ANOVA: Hemisphere x Condition
 
 cfg_ana = [];
 cfg_ana.alpha = 0.05;
@@ -550,6 +557,7 @@ end
 
 cfg_ft = [];
 cfg_ft.avgovertime = 'no';
+cfg_ft.avgoverchan = 'no';
 
 cfg_ft.parameter = 'avg';
 

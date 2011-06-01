@@ -43,36 +43,36 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-%   'SOCO001';
+  'SOCO001';
   'SOCO002';
-%   'SOCO003';
-%   'SOCO004';
-%   'SOCO005';
-%   'SOCO006';
-%   'SOCO007';
-%   'SOCO008';
-%   'SOCO009';
-%   'SOCO010';
-%   'SOCO011';
-%   'SOCO012';
-%   'SOCO013';
-%   'SOCO014';
-%   'SOCO015';
-%   'SOCO016';
-%   'SOCO017';
-%   'SOCO018';
-%   'SOCO019';
-%   'SOCO020';
-%   'SOCO021';
-%   'SOCO022';
-%   'SOCO023';
-%   'SOCO024';
-%   'SOCO025';
-%   'SOCO026';
-%   'SOCO027';
-%   'SOCO028';
-%   'SOCO029';
-%   'SOCO030';
+  'SOCO003';
+  'SOCO004';
+  'SOCO005';
+  'SOCO006';
+  'SOCO007';
+  'SOCO008';
+  'SOCO009';
+  'SOCO010';
+  'SOCO011';
+  'SOCO012';
+  'SOCO013';
+  'SOCO014';
+  'SOCO015';
+  'SOCO016';
+  'SOCO017';
+  'SOCO018';
+  'SOCO019';
+  'SOCO020';
+  'SOCO021';
+  'SOCO022';
+  'SOCO023';
+  'SOCO024';
+  'SOCO025';
+  'SOCO026';
+  'SOCO027';
+  'SOCO028';
+  'SOCO029';
+  'SOCO030';
   };
 % SOCO002 ended early by 6(?) trials because of fire alarm
 
@@ -93,15 +93,22 @@ dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile('/data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
 % pick the right dirs.dataroot
 if exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
+  %runLocally = 1;
 elseif exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
+  %runLocally = 1;
+elseif exist(dirs.dreamDir,'dir')
+  dirs.dataroot = dirs.dreamDir;
+  %runLocally = 0;
 elseif exist(dirs.localDir,'dir')
   dirs.dataroot = dirs.localDir;
+  %runLocally = 1;
 else
   error('Data directory not found.');
 end
@@ -154,7 +161,7 @@ files.figFileExt = 'png';
 % raw data
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'ns_auto'};
-ana.artifact.type = {'ns_auto','ft_man'};
+ana.artifact.type = {'ns_auto'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -203,7 +210,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -575,7 +582,7 @@ for r = 1:length(cfg_ana.rois)
   mm_ft_rmaov33ER(cfg_ana,exper,ana,data_tla);
 end
 
-%% 2-way ANOVA: Hemisphere x Condition
+%% 2-way ANOVA: Hemisphere x Condition - separate colors
 
 cfg_ana = [];
 cfg_ana.alpha = 0.05;
@@ -616,10 +623,48 @@ for r = 1:length(cfg_ana.rois)
   mm_ft_rmaov2ER(cfg_ana,exper,ana,data_tla);
 end
 
+%% 2-way ANOVA: Hemisphere x Condition
+
+cfg_ana = [];
+cfg_ana.alpha = 0.05;
+cfg_ana.showtable = 1;
+cfg_ana.printTable_tex = 1;
+
+% IV1: define which regions to average across for the test
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% IV2: define the conditions tested for each set of ROIs
+%cfg_ana.condByROI = {{'RH','RCR'},{'RCR','RHSC','RHSI'}};
+%cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
+cfg_ana.condByROI = {exper.eventValues,exper.eventValues};
+
+% define the times that correspond to each set of ROIs
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+% cfg_ana.condCommonByROI = {...
+%   {'CR','HSC','HSI'},...
+%   {'CR','HSC','HSI'}};
+cfg_ana.condCommonByROI = {...
+  exper.eventValues,...
+  exper.eventValues};
+
+cfg_ana.IV_names = {'ROI','Condition'};
+
+cfg_ana.parameter = 'avg';
+
+for r = 1:length(cfg_ana.rois)
+  cfg_ana.roi = cfg_ana.rois{r};
+  cfg_ana.conditions = cfg_ana.condByROI{r};
+  cfg_ana.latency = cfg_ana.latencies(r,:);
+  cfg_ana.condCommon = cfg_ana.condCommonByROI{r};
+  
+  mm_ft_rmaov2ER(cfg_ana,exper,ana,data_tla);
+end
+
 %% cluster statistics
 
 cfg_ft = [];
 cfg_ft.avgovertime = 'no';
+cfg_ft.avgoverchan = 'no';
 
 cfg_ft.parameter = 'avg';
 

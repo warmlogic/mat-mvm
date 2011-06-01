@@ -36,6 +36,16 @@ end
 %   end
 % end
 
+if ~isfield(cfg_ft,'avgoverchan')
+  cfg_ft.avgoverchan = 'no';
+end
+if ~isfield(cfg_ft,'avgovertime')
+  cfg_ft.avgovertime = 'no';
+end
+if ~isfield(cfg_ft,'avgoverfreq')
+  cfg_ft.avgoverfreq = 'no';
+end
+
 cfg_ft.elec = ana.elec;
 if strcmp(cfg_ft.avgoverchan,'no')
   cfg_ft.neighbours = ft_neighbourselection(cfg_ft);
