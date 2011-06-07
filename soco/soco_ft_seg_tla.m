@@ -485,10 +485,12 @@ cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
-cfg_ft.xlim = [0.3 0.5]; % time
-cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.5 0.8]; % time
-% cfg_plot.roi = {'LPS','RPS'};
+
+% cfg_plot.roi = {'LAS','RAS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
+cfg_plot.roi = {'LPS','RPS'};
+cfg_ft.xlim = [0.5 0.8]; % time
+
 %cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.subplot = 1;
@@ -509,9 +511,11 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
 cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
@@ -527,8 +531,9 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
-cfg_plot.ylims = [-4 -1; 1 4];
+cfg_plot.line_plots = 1;
+%cfg_plot.ylims = [-4 -1; 1 4];
+cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 
 for r = 1:length(cfg_ana.rois)

@@ -117,7 +117,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figFileExt = 'png';
+%files.figFileExt = 'png';
+files.figFileExt = 'eps';
 
 % %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
@@ -457,10 +458,12 @@ cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
-cfg_ft.xlim = [0.3 0.5]; % time
+
 cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.5 0.8]; % time
+cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.roi = {'LPS','RPS'};
+% cfg_ft.xlim = [0.5 0.8]; % time
+
 %cfg_plot.subplot = 1;
 %cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
@@ -482,10 +485,12 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 %cfg_ana.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
@@ -502,8 +507,9 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
-cfg_plot.ylims = [-4 -1; 2 5];
+cfg_plot.line_plots = 1;
+%cfg_plot.ylims = [-4 -1; 2.5 5.5];
+cfg_plot.ylims = [-4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
 
 for r = 1:length(cfg_ana.rois)
@@ -565,8 +571,8 @@ cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.latencies = [0 1.0; 1.0 2.0];
 
-%cfg_ana.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
-cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {'all'};
+cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);

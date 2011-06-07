@@ -137,9 +137,9 @@ for typ = 1:length(cfg_plot.conditions)
   end
   if files.saveFigs
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tla_erp_ga_%s_%s%d_%d%s.%s',cfg_plot.types{typ},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tla_erp_ga_%s_%s%s%d_%d%s.%s',cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg.conditions)),cfg.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,files.figFileExt);
     else
-      cfg_plot.figfilename = sprintf('tla_erp_ga_%s%d_%d%s.%s',cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tla_erp_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg.conditions)),cfg.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,files.figFileExt);
     end
     dirs.saveDirFigsERP = fullfile(dirs.saveDirFigs,'tla_erp');
     if ~exist(dirs.saveDirFigsERP,'dir')
