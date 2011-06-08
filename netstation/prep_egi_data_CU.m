@@ -58,6 +58,7 @@ for i=1:length(rawfile)
   % get the EEG sync pulse file
   %d = dir(fullfile(norerefdir, [basename '.DIN*']));
   d = dir(fullfile(norerefdir, [basename '.D255']));
+  %d = dir(fullfile(norerefdir, [basename '.D136']));
   eeg_file{i} = fullfile(norerefdir, d(1).name);
 end
 

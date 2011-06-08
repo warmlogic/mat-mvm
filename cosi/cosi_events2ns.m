@@ -9,6 +9,8 @@ function cosi_events2ns(dataroot,subject,session)
 % expects a CR
 %
 
+overwrite_nsevents = 1;
+
 % dataroot = '/Users/matt/data/COSI/eeg/behavioral';
 % subject = 'COSI001';
 % session = 'session_0';
@@ -49,7 +51,8 @@ else
   fprintf('Using info from %s\n',fullfile(eegdir,rawfile_name));
 end
 % get the samplerate
-[samplerate,nBytes,dataformat,gain] = GetRateAndFormat(fullfile(eegdir,'eeg.noreref'));
+[samplerate] = GetRateAndFormat(fullfile(eegdir,'eeg.noreref'));
+%[samplerate,nBytes,dataformat,gain] = GetRateAndFormat(fullfile(eegdir,'eeg.noreref'));
 
 % make sure it's 250, otherwise throw an error because we're not
 % reading params.txt correctly
@@ -59,7 +62,6 @@ end
 
 % set the name of the file that we will import back into netstation
 netstation_events = fullfile(eventsDir,sprintf('%s.evt',ns_filename));
-overwrite_nsevents = 1;
 if overwrite_nsevents == 1
   if exist(netstation_events,'file')
     fprintf('%s already exists! Overwriting this file!\n',netstation_events);
@@ -106,10 +108,13 @@ for i = 1:length(events)
   % item info
   ncolStr = 'ncol'; % number of colors
   typeStr = 'type'; % type of response (STUDY_RESP, SOURCE_RESP, etc.)
+  condStr = 'cond'; % condition (color or side)
   itemStr = 'item'; % item name
+  srpsStr = 'srps'; % serial position
   scolStr = 'scol'; % study color
   lcolStr = 'lcol'; % lure color
-  srpsStr = 'srps'; % serial position
+  xcrdStr = 'xcrd'; % x-coordinate during study
+  ycrdStr = 'ycrd'; % y-coordinate during study
   % recognition response (implicit)
   rec_targStr = 'rtrg'; % recognition target? 1 or 0
   rcorStr = 'rcor'; % was it correct?
@@ -126,7 +131,7 @@ for i = 1:length(events)
   %artiStr = 'arti'; % did eeg_toolbox find an artifact?
   
   % session info
-  subject = num2str(str2num(events(i).subject(end-2:end)));
+  subject = num2str(str2double(events(i).subject(end-2:end)));
   session = num2str(events(i).session);
   % list num
   list = num2str(events(i).list);
@@ -135,10 +140,13 @@ for i = 1:length(events)
   % item info
   ncol = num2str(events(i).numColors);
   type = events(i).type;
+  cond = events(i).cond;
   item = events(i).item;
+  serpos = num2str(events(i).serialpos);
   scol = events(i).study_color;
   lcol = events(i).lure_color;
-  serpos = num2str(events(i).serialpos);
+  xcrd = num2str(events(i).study_loc_x);
+  ycrd = num2str(events(i).study_loc_y);
   
   % study and lure colors
   if isempty(scol)
@@ -241,8 +249,8 @@ for i = 1:length(events)
   
   %cellLabels = {subStr,sesStr,listStr,trialStr,ncolStr,typeStr,itemStr,poolStr,pcorStr,scolStr,lcolStr,srpsStr,rec_targStr,scndStr,sturStr,strtStr,src_targStr,srcrStr,srrtStr,scorStr,rknrStr,rkrtStr,rcorStr,artiStr};
   %cellData = {subject,session,list,trial,ncol,type,item,pool,pool_correct,scol,lcol,serpos,rec_isTarg,study_cond,study_resp,study_rt,src_isTarg,src_resp,src_rt,src_correct,rkn_resp,rkn_rt,rkn_correct,artifactMS};
-  cellLabels = {subStr,sesStr,listStr,trialStr,ncolStr,typeStr,itemStr,scolStr,lcolStr,srpsStr,rec_targStr,rcorStr,src_targStr,srcrStr,srrtStr,scorStr,rknrStr,rkrtStr,rkncStr};
-  cellData = {subject,session,list,trial,ncol,type,item,scol,lcol,serpos,rec_isTarg,rec_correct,src_isTarg,src_resp,src_rt,src_correct,rkn_resp,rkn_rt,rkn_correct};
+  cellLabels = {subStr,sesStr,listStr,trialStr,ncolStr,typeStr,condStr,itemStr,srpsStr,scolStr,lcolStr,xcrdStr,ycrdStr,rec_targStr,rcorStr,src_targStr,srcrStr,srrtStr,scorStr,rknrStr,rkrtStr,rkncStr};
+  cellData = {subject,session,list,trial,ncol,type,cond,item,serpos,scol,lcol,xcrd,ycrd,rec_isTarg,rec_correct,src_isTarg,src_resp,src_rt,src_correct,rkn_resp,rkn_rt,rkn_correct};
   
   % print the event info
   for c = 1:length(eventInfo)
