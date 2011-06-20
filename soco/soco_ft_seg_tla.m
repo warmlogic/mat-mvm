@@ -414,19 +414,19 @@ end
 %% plot the conditions
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1.0];
+cfg_ft.xlim = [-0.2 1.5];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 
 %cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6; -1 6];
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
 % vertical solid lines to plot
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 0;
+cfg_plot.plotLegend = 1;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 0;
+cfg_plot.plotTitle = 1;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -458,7 +458,7 @@ for r = 1:length(cfg_plot.rois)
     cfg_plot.legendloc = cfg_plot.legendlocs{r};
   end
   
-  mm_ft_plotER(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
+  mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
 end
 
 %% plot the contrasts

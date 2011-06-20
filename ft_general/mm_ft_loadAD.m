@@ -41,7 +41,7 @@ elseif ~isnumeric(replace_dataroot)
 end
 
 % load in analysisDetails.mat: exper, ana, dirs, files, cfg_proc
-load(filename);
+load(filename,'exper','ana','dirs','files','cfg_proc');
 
 % add in the electrode information, if necessary
 if ~isfield(ana,'elec')
@@ -72,7 +72,7 @@ if isnumeric(replace_dataroot) && replace_dataroot == 1
   end
   
   if strcmp(dirs.dataroot,new_dataroot)
-    fprintf('dirs.dataroot and the dataroot for this location are the same, nothing will be changed.\n');
+    fprintf('dirs.dataroot and the dataroot for this location are the same (%s), nothing will be changed.\n',dirs.dataroot);
     do_the_replace = 0;
   end
 elseif iscell(replace_dataroot)

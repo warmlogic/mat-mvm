@@ -7,8 +7,8 @@ function mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
 %   cfg_ft: parameters passed into the FT plotting function
 %
 %   cfg_plot.ftFxn      = FieldTrip plotting function to use. Supported
-%                         functions: ft_singleplotER, ft_topoplotER, and
-%                         ft_multiplotER
+%                         functions: ft_singleplotTFR, ft_topoplotTFR, and
+%                         ft_multiplotTFR
 %   cfg_plot.conditions = Cell array containing cells of pairwise
 %                         comparisons; Can be used for comparing a subset
 %                         of events within a type.
@@ -22,7 +22,7 @@ function mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
 %                         can be a range of time values, otherwise 50ms
 %                         steps between min and max. ft_topoplotER only.
 %   cfg_plot.numCols    = If subplot == 1, the number of columns to plot
-%   files.saveFigs     = 1 or 0. Whether to save the figures.
+%   files.saveFigs      = 1 or 0. Whether to save the figures.
 %
 %   data                = output from ft_freqgrandaverage
 %

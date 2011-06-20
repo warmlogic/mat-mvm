@@ -390,7 +390,7 @@ end
 %% plot the conditions
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1.0];
+cfg_ft.xlim = [-0.2 1.5];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
@@ -401,9 +401,9 @@ cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6; -1 6];
 % vertical solid lines to plot
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
 
-cfg_plot.plotLegend = 0;
+cfg_plot.plotLegend = 1;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 0;
+cfg_plot.plotTitle = 1;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -432,13 +432,13 @@ for r = 1:length(cfg_plot.rois)
     cfg_plot.legendloc = cfg_plot.legendlocs{r};
   end
   
-  mm_ft_plotER(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
+  mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
 end
 
 %% plot the contrasts
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1]; % time
+cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.zparam = 'avg';
 cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
@@ -451,6 +451,7 @@ cfg_plot.plotTitle = 0;
 %cfg_plot.conditions = {{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
 %cfg_plot.conditions = {'all'};
 cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_plot.conditions = {{'RHSC','RCR'}}; % {'RH','RCR'},
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
@@ -459,8 +460,8 @@ cfg_ft.marker = 'on';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
 
-cfg_plot.roi = {'LAS','RAS'};
-cfg_ft.xlim = [0.3 0.5]; % time
+%cfg_plot.roi = {'LAS','RAS'};
+%cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
 
@@ -469,10 +470,10 @@ cfg_ft.xlim = [0.3 0.5]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 
-% cfg_plot.ftFxn = 'ft_multiplotER';
-% cfg_ft.showlabels = 'yes';
-% cfg_ft.comment = '';
-% cfg_ft.ylim = [-1 1]; % volt
+cfg_plot.ftFxn = 'ft_multiplotER';
+cfg_ft.showlabels = 'yes';
+cfg_ft.comment = '';
+cfg_ft.ylim = [-1 1]; % volt
 
 % cfg_plot.ftFxn = 'ft_singleplotER';
 % cfg_plot.roi = {'LPS'};
@@ -480,6 +481,74 @@ cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_ft.ylim = [-2 2]; % volt
 
 mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
+
+%% make some GA plots
+
+cfg_ft = [];
+cfg_ft.colorbar = 'yes';
+cfg_ft.interactive = 'yes';
+cfg_ft.showlabels = 'yes';
+%cfg_ft.xlim = 'maxmin'; % time
+%cfg_ft.ylim = 'maxmin'; % freq
+% cfg_ft.zlim = 'maxmin'; % pow
+cfg_ft.xlim = [-0.2 1.5]; % time
+%cfg_ft.ylim = [-5 5]; % voltage in multiplot
+cfg_ft.ylim = 'maxmin'; % voltage in multiplot
+%cfg_ft.zlim = [-5 5]; % voltage in topoplot
+
+cfg_ft.zparam = 'avg';
+
+cfg_plot = [];
+cfg_plot.plotTitle = 1;
+
+%cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'FS'},{'PS'}};
+%cfg_plot.rois = {'E71'};
+cfg_plot.rois = {'all'};
+
+cfg_plot.is_ga = 1;
+% outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% for each event type; each event type cell holds strings for its
+% conditions
+%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+
+%%%%%%%%%%%%%%%
+% Type of plot
+%%%%%%%%%%%%%%%
+
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'RAS'}};
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 1;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+
+% cfg_plot.ftFxn = 'ft_topoplotER';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% cfg_ft.comment = 'no';
+% %cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_plot.subplot = 1;
+% cfg_ft.xlim = [1.0 1.5]; % time
+
+cfg_plot.ftFxn = 'ft_multiplotER';
+cfg_ft.showlabels = 'yes';
+cfg_ft.comment = '';
+
+for r = 1:length(cfg_plot.rois)
+  cfg_plot.roi = cfg_plot.rois{r};
+  cfg_plot.conditions = cfg_plot.condByROI{r};
+  
+  if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
+    cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+    if cfg_plot.plotLegend
+      cfg_plot.legendloc = cfg_plot.legendlocs{r};
+    end
+  end
+  
+  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
+end
 
 %% descriptive statistics: ttest
 
@@ -497,6 +566,11 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.conditions = {'all'};
 cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 
+% late right frontal old/new
+cfg_ana.conditions = {{'RHSC','RCR'}};
+cfg_ana.rois = {{'RAS'}};
+cfg_ana.latencies = [1.2 1.4];
+
 % set parameters for the statistical test
 cfg_ft = [];
 cfg_ft.avgovertime = 'yes';
@@ -507,7 +581,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
