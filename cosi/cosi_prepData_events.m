@@ -36,15 +36,15 @@ saveDir = dataroot;
 if nargin == 0
   subjects = {
     'COSI001';
-%     'COSI002';
-%     'COSI003';
-%     'COSI004';
-%     'COSI005';
-%     'COSI006';
-%     'COSI007';
-%     'COSI008';
-%     'COSI009';
-%     'COSI010';
+    'COSI002';
+    'COSI003';
+    'COSI004';
+    'COSI005';
+    'COSI006';
+    'COSI007';
+    'COSI008';
+    'COSI009';
+    'COSI010';
 %     'COSI011';
 %     'COSI012';
 %     'COSI013';
@@ -83,7 +83,7 @@ if nargin == 0
   prep_eeg = 1;
 end
 
-sessions = {'session_0'};
+sessions = {'session_0','session_1'};
 
 %matlabpool open
 
@@ -100,6 +100,13 @@ for sub = 1:length(subjects)
 %         error('no subject listing found for this session');
 %       end
       subSesBadChan = [];
+      
+      rawFile = dir(fullfile(saveDir,subjects{sub},sessions{ses},'eeg','*.raw'));
+      if isempty(rawFile)
+        fprintf('Did not find %s raw file. Moving on.\n',subjects{sub})
+        continue
+      end
+      
     end
     
     % set the subject events directory

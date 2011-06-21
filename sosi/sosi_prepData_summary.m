@@ -1,5 +1,5 @@
 function sosi_prepData_summary(rejectArt,saveFiles,dataroot)
-% function sosi_prepData_summary(dataroot)
+% function sosi_prepData_summary(rejectArt,saveFiles,dataroot)
 %
 % Save column-formatted data as a csv file
 %

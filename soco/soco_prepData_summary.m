@@ -1,5 +1,5 @@
 function soco_prepData_summary(rejectArt,saveFiles,dataroot)
-% function soco_prepData_summary(dataroot)
+% function soco_prepData_summary(rejectArt,saveFiles,dataroot)
 %
 % Save column-formatted data as a csv file
 %
