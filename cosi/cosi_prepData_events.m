@@ -101,7 +101,7 @@ for sub = 1:length(subjects)
       
       rawFile = dir(fullfile(saveDir,subjects{sub},sessions{ses},'eeg','*.raw'));
       if isempty(rawFile)
-        fprintf('Did not find %s raw file. Moving on.\n',subjects{sub})
+        fprintf('Did not find %s %s raw file. Moving on.\n',subjects{sub},sessions{ses})
         continue
       end
       
