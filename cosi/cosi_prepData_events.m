@@ -82,7 +82,6 @@ if nargin == 0
 end
 
 sessions = {'session_0','session_1'};
-%sessions = {'session_1'};
 
 %matlabpool open
 
