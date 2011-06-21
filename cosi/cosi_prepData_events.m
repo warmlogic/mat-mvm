@@ -27,9 +27,7 @@ if exist(serverDir,'dir')
 elseif exist(serverLocalDir,'dir')
   dataroot = serverLocalDir;
 else
-  %uname = getenv('USER');
-  uroot = getenv('HOME');
-  dataroot = fullfile(uroot,'data/COSI/eeg/behavioral');
+  dataroot = fullfile(getenv('HOME'),'data/COSI/eeg/behavioral');
 end
 saveDir = dataroot;
 
@@ -84,6 +82,7 @@ if nargin == 0
 end
 
 sessions = {'session_0','session_1'};
+%sessions = {'session_1'};
 
 %matlabpool open
 
