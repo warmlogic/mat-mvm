@@ -85,7 +85,7 @@ for i = 1:length(log)
   
   % set the list number and test type
   if strcmp('TRIAL',logdata{3}{i}) % TRIAL = listNum
-    listNum = str2num(logdata{4}{i});
+    listNum = str2double(logdata{4}{i});
     numColor = numColors{listNum};
     % if we're starting a new list, set trialNum to zero
     trialNum = 0;
