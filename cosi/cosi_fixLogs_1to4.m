@@ -16,12 +16,8 @@
 expName = 'COSI';
 
 % both sessions
-%subjects = {'COSI001'};
-%sessions = {'session_0','session_1'};
-
-% session_0 only
-subjects = {'COSI002','COSI003','COSI004'};
-sessions = {'session_0'};
+subjects = {'COSI001','COSI002','COSI003','COSI004'};
+sessions = {'session_0','session_1'};
 
 numCols = 12;
 
