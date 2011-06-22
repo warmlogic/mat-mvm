@@ -198,7 +198,8 @@ cfg_proc.t_ftimwin = 4./cfg_proc.foi;
 ana.ftype = cfg_proc.output;
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 

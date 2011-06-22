@@ -199,8 +199,8 @@ end
 % 
 % for sub = 1:length(exper.subjects)
 %   for ses = 1:length(exper.sessions)
-%     overwriteEvFile = 1;
-%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteEvFile);
+%     overwriteArtFields = 1;
+%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
 %   end
 % end
 

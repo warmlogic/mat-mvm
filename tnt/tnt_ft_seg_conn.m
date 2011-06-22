@@ -99,7 +99,7 @@ exper.subjects = {
 % session directory names where the FieldTrip data is saved for each
 % subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {'session_0'};
+exper.sessions = {'ses1'};
 
 %% set up file and directory handling parameters
 
@@ -149,6 +149,7 @@ ana.otherFxn{1} = 'ft_scalpcurrentdensity';
 ana.cfg_other = [];
 ana.cfg_other{1}.elecfile = files.elecfile;
 ana.cfg_other{1}.method = 'spline';
+% % set the type to go in the file name
 ana.cfg_other{1}.ftype = 'scd';
 
 % ana.otherFxn{1} = 'ft_resampledata';
@@ -175,7 +176,7 @@ cfg_proc.keeptrials = 'yes';
 cfg_proc.keeptapers = 'yes';
 
 %cfg_proc.output = 'powandcsd';
-% % channelcmb is set up as {'channel','cohref'} pairs
+% % channelcmb is set up as {'channel','refchan'} pairs
 %cfg_proc.channelcmb = {'E11','E62';'E11','E52';'E11','E92';'E11','E45';'E11','E108'}; % Fz, Pz; Fz, P3/P4; Fz, T7/T8
 % % cfg_proc.channelcmb = {'E3','E60';'E3','E62'};
 % % cfg_proc.channelcmb = {'E3','E60';'E3','E62';'E11','E60';'E11','E62'};
@@ -226,7 +227,8 @@ cfg_proc.t_ftimwin = 4./cfg_proc.foi;
 ana.ftype = cfg_proc.output;
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
@@ -290,7 +292,7 @@ end
 
 adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NT_TH_eq1/conn_scd_mtmconvol_hanning_fourier_-500_980_3_9/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,{'/data/projects/curranlab','/Volumes/curranlab/Data/TNT'});
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,{'/data/projects/curranlab','/Volumes/curranlab/Data/TNT'});
 
 %% set up channel groups
 
@@ -379,8 +381,8 @@ cfg_ft.zparam = 'powspctrm';
 %cfg_ft.baseline = [-0.3 -0.1];
 %cfg_ft.baselinetype = 'absolute';
 
-cfg_ft.cohrefchannel = {'E11'};
-%cfg_ft.cohrefchannel = {'E3'};
+cfg_ft.refchannel = {'E11'};
+%cfg_ft.refchannel = {'E3'};
 
 % cfg_ft.xlim = 'maxmin'; % time
 % cfg_ft.ylim = 'maxmin'; % freq
@@ -405,7 +407,7 @@ end
 % cfg_ft.xparam = 'freq';
 % cfg_ft.zparam = 'cohspctrm';
 % %cfg_ft.xlim = [3 50];
-% cfg_ft.cohrefchannel = 'E11';
+% cfg_ft.refchannel = 'E11';
 % cfg_ft.channel = 'E62';
 % figure
 % ft_singleplotER(cfg_ft,data_conn.(exper.eventValues{1}).sub(1).ses(1).data);
@@ -415,7 +417,7 @@ cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
 %cfg_ft.zparam = 'cohspctrm';
 cfg_ft.zparam = 'plvspctrm';
-cfg_ft.cohrefchannel = {'E3'};
+cfg_ft.refchannel = {'E3'};
 cfg_ft.channel = 'all';
 cfg_ft.xlim = [0.5 0.8]; % time
 cfg_ft.ylim = [3 8]; % freq
@@ -436,7 +438,7 @@ cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
 %cfg_ft.zparam = 'cohspctrm';
 cfg_ft.zparam = 'plvspctrm';
-cfg_ft.cohrefchannel = {'E3'};
+cfg_ft.refchannel = {'E3'};
 cfg_ft.channel = 'all';
 cfg_ft.xlim = [0.5 0.8]; % time
 cfg_ft.ylim = [3 8]; % freq
@@ -468,7 +470,7 @@ cfg_ft.yparam = 'freq';
 cfg_ft.zparam = 'cohspctrm';
 %cfg_ft.zparam = 'plvspctrm';
 %cfg_ft.zparam = 'powspctrm';
-cfg_ft.cohrefchannel = 'E3';
+cfg_ft.refchannel = 'E3';
 
 cfg_ft.interactive = 'yes';
 cfg_ft.showlabels = 'yes';
@@ -600,17 +602,17 @@ cfg_plot.plotTitle = 1;
 
 % % ft_singleplotTFR
 % cfg_plot.rois = {{'E62'},{'E52'}};
-% cfg_plot.cohrefchans = {'E11'};
+% cfg_plot.refchans = {'E11'};
 
 % % ft_topoplotTFR
-cfg_plot.cohrefchans = {'E1'; 'E6'; 'E9'; 'E11'; 'E15'; 'E22'; 'E24'; 'E29'; 'E32'; 'E33'; 'E34'; 'E37'; 'E41'; 'E43'; 'E45'; 'E51'; 'E52'; 'E53'; 'E55'; 'E62'; 'E64'; 'E66'; 'E69'; 'E72'; 'E75'; 'E81'; 'E84'; 'E86'; 'E87'; 'E89'; 'E92'; 'E95'; 'E97'; 'E103'; 'E108'; 'E111'; 'E116'; 'E120'; 'E122'; 'E124'};
+cfg_plot.refchans = {'E1'; 'E6'; 'E9'; 'E11'; 'E15'; 'E22'; 'E24'; 'E29'; 'E32'; 'E33'; 'E34'; 'E37'; 'E41'; 'E43'; 'E45'; 'E51'; 'E52'; 'E53'; 'E55'; 'E62'; 'E64'; 'E66'; 'E69'; 'E72'; 'E75'; 'E81'; 'E84'; 'E86'; 'E87'; 'E89'; 'E92'; 'E95'; 'E97'; 'E103'; 'E108'; 'E111'; 'E116'; 'E120'; 'E122'; 'E124'};
 cfg_plot.rois = {{'all'}};
 
 cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({{exper.eventValues}},size(cfg_plot.cohrefchans));
+cfg_plot.condByROI = repmat({{exper.eventValues}},size(cfg_plot.refchans));
 %cfg_plot.condByROI = repmat({{exper.eventValues}},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'B','NT','TH'}},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'NTF','NTR','THF','THR'}},size(cfg_plot.rois));
@@ -633,8 +635,8 @@ cfg_ft.xlim = [0.5 0.8]; % time
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.comment = '';
 
-for c = 1:length(cfg_plot.cohrefchans)
-  cfg_ft.cohrefchannel = cfg_plot.cohrefchans{c};
+for c = 1:length(cfg_plot.refchans)
+  cfg_ft.refchannel = cfg_plot.refchans{c};
   cfg_plot.conditions = cfg_plot.condByROI{c};
   for r = 1:length(cfg_plot.rois)
     cfg_plot.roi = cfg_plot.rois{r};
@@ -655,7 +657,7 @@ end
 % 
 % %cfg_plot.rois = {{'E11 - E62'},{'E11 - E52'}};
 % cfg_plot.rois = {{'E62'},{'E52'}};
-% cfg_ft.cohrefchannel = {'E11'};
+% cfg_ft.refchannel = {'E11'};
 % cfg_plot.ylims = repmat([0 1],size(cfg_plot.rois));
 % % vertical solid lines to plot
 % cfg_plot.plotLegend = 1;
@@ -702,7 +704,7 @@ cfg_ana.frequencies = [3 8];
 %cfg_ana.conditions = {{'TH','NT'}};
 cfg_ana.conditions = {{'all'}};
 
-% coherence analysis need this format: {'channel - cohrefchannel'}
+% coherence analysis need this format: {'channel - refchannel'}
 cfg_ana.rois = {{'E11 - E62'}};
 %cfg_ana.rois = {{'E11 - E52'}};
 %cfg_ana.rois = {{'E11 - E92'}};
@@ -710,11 +712,11 @@ cfg_ana.rois = {{'E11 - E62'}};
 %cfg_ana.rois = {{'E11 - E108'}};
 
 % only data with plvspctrm can use this
-%cfg_ana.cohrefchannel = {'E62'};
-%cfg_ana.cohrefchannel = {'E52'};
-%cfg_ana.cohrefchannel = {'E92'};
-%cfg_ana.cohrefchannel = {'E45'};
-%cfg_ana.cohrefchannel = {'E108'};
+%cfg_ana.refchannel = {'E62'};
+%cfg_ana.refchannel = {'E52'};
+%cfg_ana.refchannel = {'E92'};
+%cfg_ana.refchannel = {'E45'};
+%cfg_ana.refchannel = {'E108'};
 
 % set parameters for the statistical test
 cfg_ft = [];

@@ -1,9 +1,9 @@
-function [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(filename,replace_dataroot)
+function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(filename,replace_dataroot)
 %MM_FT_LOADAD Load in the analysis details. Modify the file location if
 %necessary (e.g., loading files on a different computer than the processing
 %occurred).
 %
-% [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(filename,replace_dataroot)
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(filename,replace_dataroot)
 %
 % filename         = full path to analysisDetails.mat
 % replace_dataroot = replace the dataroot stored in analysisDetails.mat
@@ -41,7 +41,7 @@ elseif ~isnumeric(replace_dataroot)
 end
 
 % load in analysisDetails.mat: exper, ana, dirs, files, cfg_proc
-load(filename,'exper','ana','dirs','files','cfg_proc');
+load(filename,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 
 % add in the electrode information, if necessary
 if ~isfield(ana,'elec')
@@ -90,6 +90,12 @@ end
 % do the replacement
 if do_the_replace
   fprintf('Replacing %s with %s...',old_dataroot,new_dataroot);
+  
+  % backwards compatibility
+  if ~isfield(dirs,'saveDirProc') && isfield(dirs,'saveDir')
+    dirs.saveDirProc = dirs.saveDir;
+    dirs = rmfield(dirs,'saveDir');
+  end
   
   % replace the old directories with the new
   dirs.saveDirProc = strrep(dirs.saveDirProc,old_dataroot,new_dataroot);

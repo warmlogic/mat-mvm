@@ -117,26 +117,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-%files.figFileExt = 'png';
-files.figFileExt = 'eps';
-
-% %% add NS's artifact information to the event structure
-% nsEvFilters.eventValues = exper.eventValues;
-% % RCR
-% nsEvFilters.RCR.type = 'TEST_LURE';
-% nsEvFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % RHSC
-% nsEvFilters.RHSC.type = 'TEST_TARGET';
-% nsEvFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % RHSI
-% nsEvFilters.RHSI.type = 'TEST_TARGET';
-% nsEvFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% 
-% for sub = 1:length(exper.subjects)
-%   for ses = 1:length(exper.sessions)
-%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,0);
-%   end
-% end
+files.figFileExt = 'png';
+%files.figFileExt = 'eps';
 
 %% Convert the data to FieldTrip structs
 
@@ -187,6 +169,24 @@ if emailme
     };
   send_gmail(subject,mail_message);
 end
+
+% %% add NS's artifact information to the event structure
+% nsEvFilters.eventValues = exper.eventValues;
+% % RCR
+% nsEvFilters.RCR.type = 'TEST_LURE';
+% nsEvFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% % RHSC
+% nsEvFilters.RHSC.type = 'TEST_TARGET';
+% nsEvFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% % RHSI
+% nsEvFilters.RHSI.type = 'TEST_TARGET';
+% nsEvFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+% 
+% for sub = 1:length(exper.subjects)
+%   for ses = 1:length(exper.sessions)
+%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,0);
+%   end
+% end
 
 %% load the analysis details
 
