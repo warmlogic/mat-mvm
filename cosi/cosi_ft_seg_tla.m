@@ -50,29 +50,29 @@ exper.subjects = {
   'COSI005';
   'COSI006';
   'COSI007';
-  'COSI008';
-  'COSI009';
-  'COSI010';
-%   'COSI011';
-%   'COSI012';
-%   'COSI013';
-%   'COSI014';
-%   'COSI015';
-%   'COSI016';
-%   'COSI017';
-%   'COSI018';
-%   'COSI019';
-%   'COSI020';
-%   'COSI021';
-%   'COSI022';
-%   'COSI023';
-%   'COSI024';
-%   'COSI025';
-%   'COSI026';
-%   'COSI027';
-%   'COSI028';
-%   'COSI029';
-%   'COSI030';
+%   'COSI008';
+%   'COSI009';
+%   'COSI010';
+% %   'COSI011';
+% %   'COSI012';
+% %   'COSI013';
+% %   'COSI014';
+% %   'COSI015';
+% %   'COSI016';
+% %   'COSI017';
+% %   'COSI018';
+% %   'COSI019';
+% %   'COSI020';
+% %   'COSI021';
+% %   'COSI022';
+% %   'COSI023';
+% %   'COSI024';
+% %   'COSI025';
+% %   'COSI026';
+% %   'COSI027';
+% %   'COSI028';
+% %   'COSI029';
+% %   'COSI030';
   };
 % COSI009 blinked a lot (> 90%); did not do second session?
 
@@ -211,7 +211,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = 'Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -232,10 +232,10 @@ ana = mm_ft_channelgroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-% list the values separated by types: 2Colors, 6Colors
-%ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
+% list the values separated by types: Color, Side
+ana.eventValues = {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
-ana.eventValues = {exper.eventValues};
+%ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 
 % make sure ana.eventValues is set properly

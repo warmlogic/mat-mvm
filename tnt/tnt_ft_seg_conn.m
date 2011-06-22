@@ -27,70 +27,70 @@ exper.nsFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-%exper.eventValues = sort({'B1of2','B2of2','NT1of2For','NT1of2Rec','NT2of2For','NT2of2Rec','T1of2For','T1of2Rec','T2of2For','T2of2Rec'});
+exper.eventValues = sort({'B1of2','B2of2','NT1of2For','NT1of2Rec','NT2of2For','NT2of2Rec','T1of2For','T1of2Rec','T2of2For','T2of2Rec'});
 %exper.eventValues = sort({'NT1of2For','NT1of2Rec','NT2of2For','NT2of2Rec','T1of2For','T1of2Rec','T2of2For','T2of2Rec'});
-exper.eventValues = sort({'NT2of2Rec','T2of2Rec'});
+%exper.eventValues = sort({'NT2of2Rec','T2of2Rec'});
 
-% % combine some events into higher-level categories
-% exper.eventValuesExtra.toCombine = {...
-% %   {'B1of2','B2of2'},...
-%   {'NT1of2For','NT2of2For','NT1of2Rec','NT2of2Rec'},...
-%   {'T1of2For','T2of2For','T1of2Rec','T2of2Rec'}...
-% %   {'NT1of2For','NT1of2Rec'},{'NT2of2For','NT2of2Rec'}...
-% %   {'T1of2For','T1of2Rec'},{'T2of2For','T2of2Rec'}...
-% %   {'NT1of2For','NT2of2For'},{'NT1of2Rec','NT2of2Rec'}...
-% %   {'T1of2For','T2of2For'},{'T1of2Rec','T2of2Rec'}...
-%   };
-% exper.eventValuesExtra.newValue = {...
-% %   {'B'},...
-%   {'NT'},...
-%   {'TH'}...
-% %   {'NT1'},{'NT2'}...
-% %   {'TH1'},{'TH2'}...
-% %   {'NTF'},{'NTR'}...
-% %   {'THF'},{'THR'}...
-%   };
-% 
-% % keep only the combined (extra) events and throw out the original events?
-% exper.eventValuesExtra.onlyKeepExtras = 1;
+% combine some events into higher-level categories
+exper.eventValuesExtra.toCombine = {...
+  {'B1of2','B2of2'},...
+  {'NT1of2For','NT2of2For','NT1of2Rec','NT2of2Rec'},...
+  {'T1of2For','T2of2For','T1of2Rec','T2of2Rec'}...
+%   {'NT1of2For','NT1of2Rec'},{'NT2of2For','NT2of2Rec'}...
+%   {'T1of2For','T1of2Rec'},{'T2of2For','T2of2Rec'}...
+%   {'NT1of2For','NT2of2For'},{'NT1of2Rec','NT2of2Rec'}...
+%   {'T1of2For','T2of2For'},{'T1of2Rec','T2of2Rec'}...
+  };
+exper.eventValuesExtra.newValue = {...
+  {'B'},...
+  {'NT'},...
+  {'TH'}...
+%   {'NT1'},{'NT2'}...
+%   {'TH1'},{'TH2'}...
+%   {'NTF'},{'NTR'}...
+%   {'THF'},{'THR'}...
+  };
+
+% keep only the combined (extra) events and throw out the original events?
+exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'TNT 06';
   'TNT 07';
-%   'TNT 08';
-%   'TNT 09';
-%   'TNT 11';
-%   'TNT 13';
-%   'TNT 14';
-%   'TNT 15';
-%   'TNT 17';
-%   'TNT 19';
-%   'TNT 20';
-%   'TNT 21';
-%   'TNT 22';
-%   'TNT 23';
-%   'TNT 25';
-%   'TNT 26';
-%   'TNT 27';
-%   'TNT 28';
-%   'TNT 30';
-%   'TNT 32';
-%   'TNT 33';
-%   'TNT 35';
-%   'TNT 39';
-%   'TNT 41';
-%   'TNT 42';
-%   'TNT 44';
-%   'TNT 45';
-%   'TNT 46';
-%   'TNT 47';
-%   'TNT 48';
-%   'TNT 49';
-%   'TNT 50';
-%   'TNT 51';
-%   'TNT 52';
-%   'TNT 53';
-%   'TNT 54';
+  'TNT 08';
+  'TNT 09';
+  'TNT 11';
+  'TNT 13';
+  'TNT 14';
+  'TNT 15';
+  'TNT 17';
+  'TNT 19';
+  'TNT 20';
+  'TNT 21';
+  'TNT 22';
+  'TNT 23';
+  'TNT 25';
+  'TNT 26';
+  'TNT 27';
+  'TNT 28';
+  'TNT 30';
+  'TNT 32';
+  'TNT 33';
+  'TNT 35';
+  'TNT 39';
+  'TNT 41';
+  'TNT 42';
+  'TNT 44';
+  'TNT 45';
+  'TNT 46';
+  'TNT 47';
+  'TNT 48';
+  'TNT 49';
+  'TNT 50';
+  'TNT 51';
+  'TNT 52';
+  'TNT 53';
+  'TNT 54';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -144,20 +144,22 @@ ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
 ana.artifact.type = 'ns_auto';
 
-ana.otherFxn = {};
-ana.otherFxn{1} = 'ft_scalpcurrentdensity';
-ana.cfg_other = [];
-ana.cfg_other{1}.elecfile = files.elecfile;
-ana.cfg_other{1}.method = 'spline';
-% % set the type to go in the file name
-ana.cfg_other{1}.ftype = 'scd';
+% % otherFxn - other processing; must be numbered sequentially in {index}
+% ana.otherFxn = {};
 
-% ana.otherFxn{1} = 'ft_resampledata';
+% ana.otherFxn{1} = 'ft_scalpcurrentdensity';
+% ana.cfg_other = [];
+% ana.cfg_other{1}.elecfile = files.elecfile;
+% ana.cfg_other{1}.method = 'spline';
+% % % set the type to go in the file name
+% ana.cfg_other{1}.ftype = 'scd';
+
+% ana.otherFxn{2} = 'ft_resampledata';
 % ana.cfg_other = [];
 % % set the type to go in the file name
-% ana.cfg_other{1}.ftype = 'resamp';
-% ana.cfg_other{1}.resamplefs = 100;
-% ana.cfg_other{1}.detrend = 'no';
+% ana.cfg_other{2}.ftype = 'resamp';
+% ana.cfg_other{2}.resamplefs = 100;
+% ana.cfg_other{2}.detrend = 'no';
 
 % any preprocessing?
 cfg_pp = [];
@@ -224,6 +226,7 @@ cfg_proc.t_ftimwin = 4./cfg_proc.foi;
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'conn');
 
+% set ftype to name the output file
 ana.ftype = cfg_proc.output;
 
 % create the raw and processed structs for each sub, ses, & event value
@@ -293,7 +296,8 @@ end
 
 adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NT_TH_eq1/conn_scd_mtmconvol_hanning_fourier_-500_980_3_9/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,{'/data/projects/curranlab','/Volumes/curranlab/Data/TNT'});
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,0);
+%[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,{'/data/projects/curranlab','/Volumes/curranlab/Data/TNT'});
 
 %% set up channel groups
 
@@ -335,7 +339,7 @@ end
 % cohspctrm data, and I'd rather just stick with the non-special case
 
 %orig_field = 'plvspctrm';
-orig_field = 'cohspctrm';
+orig_field = 'wplispctrm';
 %new_field = 'cohspctrm';
 new_field = 'powspctrm';
 if isfield(data_conn.(exper.eventValues{1}).sub(1).ses(1).data,orig_field)

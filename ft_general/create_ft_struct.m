@@ -7,8 +7,8 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % seg2ft. See 'help seg2ft' for more information.
 %
 % For multiple sessions, seg2ft will collapse across them if they're input
-% as {{'session_1','session_2'}}. If they're input as
-% {{'session_1'},{'session_2'}} then they will be kept separate.
+% as {{'ses1','ses2'}}. If they're input as {{'ses1'},{'ses2'}} then they
+% will be kept separate.
 %
 % ana.artifact.type = the type of artifact info to use: 'none', 'ns_auto',
 %                     'ns_man', 'ft_man', or 'ft_ica'. If ns_auto/man,
@@ -184,7 +184,10 @@ for sub = 1:length(exper.subjects)
     
     % turn the session name into a string for easier printing
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+      % ses_str = exper.sessions{ses}{1};
       ses_str = sprintf(repmat('%s ',1,length(exper.sessions{ses})),exper.sessions{ses}{:});
+      % % remove the trailing underscore
+      % ses_str = ses_str(1:end-1);
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
       ses_str = exper.sessions{ses};
     end

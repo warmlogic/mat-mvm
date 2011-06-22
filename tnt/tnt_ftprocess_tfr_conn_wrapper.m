@@ -16,7 +16,7 @@ function tnt_ftprocess_tfr_conn_wrapper(whichStages)
 %  time-frequency data
 
 % add eeg_directories to the path
-add_eeg_path
+%add_eeg_path
 
 % check/handle arguments
 error(nargchk(0,1,nargin))
@@ -27,12 +27,13 @@ end
 
 runLocally = 0;
 
+% load analysisDetails instead of using specifications below
 if runLocally == 0
   adFile = '/data/projects/curranlab/TNT_matt/eeg/-1000_1700/ft_data/B_NT_TH_eq1/conn_scd_mtmconvol_hanning_fourier_-500_980_3_9/analysisDetails.mat';
-  [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 elseif runLocally == 1
   adFile = '/Volumes/curranlab/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NT_TH_eq1/conn_scd_mtmconvol_hanning_fourier_-500_980_3_9/analysisDetails.mat';
-  [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 end
 
 % % initialize the analysis structs
@@ -489,99 +490,99 @@ catch ME
     'Unable to write log file with task output...');
 end
 
-function add_eeg_path
-
-%% add specific toolboxes to the path - you could instead put this in ~/Documents/MATLAB/startup.m
-
-%% initialize
-homeDir = getenv('HOME');
-
-myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
-
-%% set up eegToolbox path
-eegToolboxDir = dir(fullfile(myMatlabDir,'eegToolbox*'));
-if ~isempty(eegToolboxDir)
-  eegToolboxDir = fullfile(myMatlabDir,eegToolboxDir.name);
-  % add top folder and all subfolders
-  addpath(genpath(eegToolboxDir));
-end
-
-%% set up eeglab path
-eeglabDir = dir(fullfile(myMatlabDir,'eeglab*'));
-if ~isempty(eeglabDir)
-  eeglabDir = fullfile(myMatlabDir,eeglabDir.name);
-  % add top folder and all subfolders
-  addpath(genpath(eeglabDir));
-
-  % remove eeglab's external directory if it was added
-  eeglabExtDir = fullfile(eeglabDir,'external');
-  if ~isempty(eeglabExtDir)
-    rmpath(genpath(eeglabExtDir));
-  end
-  
-  % % remove eeglab's fieldtrip directory if it was added
-  % eeglabFtDir = dir(fullfile(eeglabDir,'external','fieldtrip*'));
-  % if ~isempty(eeglabFtDir)
-  %   eeglabFtDir = fullfile(myMatlabDir,eeglabFtDir.name);
-  %   rmpath(genpath(eeglabFtDir));
-  % end
-end
-
-%% set up fieldtrip path
-ftDir = dir(fullfile(myMatlabDir,'fieldtrip*'));
-if ~isempty(ftDir)
-  ftDir = fullfile(myMatlabDir,ftDir.name);
-  % add only the top folder
-  addpath(ftDir);
-  % run ft_defaults to add the subdirectories that FT needs
-  ft_defaults
-  
-  % add the peer directory
-  addpath(fullfile(ftDir,'peer'));
-  
-  % add the SPM directory
-  %addpath(fullfile(ftDir,'external','spm8'));
-  
-  % % remove fieldtrip's external directory
-  % ftExtDir = fullfile(ftDir,'external');
-  % if ~isempty(ftExtDir)
-  %   rmpath(genpath(ftExtDir));
-  % end
-  
-  % remove fieldtrip's eeglab directory if it was added
-  ftEeglabDir = dir(fullfile(ftDir,'external','eeglab*'));
-  if ~isempty(ftEeglabDir)
-    ftEeglabDir = fullfile(myMatlabDir,ftEeglabDir.name);
-    rmpath(genpath(ftEeglabDir));
-  end
-end
-
-%% set up EP_Toolkit path
-epDir = dir(fullfile(myMatlabDir,'EP_Toolkit*'));
-if ~isempty(epDir)
-  epDir = fullfile(myMatlabDir,epDir.name);
-  % add top folder and all subfolders
-  addpath(genpath(epDir));
-end
-
-%% add my other analysis scripts/files
-addpath(genpath(fullfile(myMatlabDir,'recogmodel_mvm')));
-
-%% add my experiment, fieldtrip, and RM ANOVA scripts
-addpath(genpath(fullfile(myMatlabDir,'mat_mvm')));
-
-%% put the ~/Documents/MATLAB folder at the top of the path
-addpath(myMatlabDir);
-
-%% remove CVS and .svn directories from path
-entries = regexp(path, ['[^',pathsep,']*',pathsep], 'match');
-for i = 1:length(entries)
-  entry = char(entries{i});
-  if ~isempty(strfind(entry, '.svn'))
-    rmpath(entry);
-  end
-  if ~isempty(strfind(entry, 'CVS'))
-    rmpath(entry);
-  end
-end
-
+% function add_eeg_path
+% 
+% %% add specific toolboxes to the path - you could instead put this in ~/Documents/MATLAB/startup.m
+% 
+% %% initialize
+% homeDir = getenv('HOME');
+% 
+% myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
+% 
+% %% set up eegToolbox path
+% eegToolboxDir = dir(fullfile(myMatlabDir,'eegToolbox*'));
+% if ~isempty(eegToolboxDir)
+%   eegToolboxDir = fullfile(myMatlabDir,eegToolboxDir.name);
+%   % add top folder and all subfolders
+%   addpath(genpath(eegToolboxDir));
+% end
+% 
+% %% set up eeglab path
+% eeglabDir = dir(fullfile(myMatlabDir,'eeglab*'));
+% if ~isempty(eeglabDir)
+%   eeglabDir = fullfile(myMatlabDir,eeglabDir.name);
+%   % add top folder and all subfolders
+%   addpath(genpath(eeglabDir));
+% 
+%   % remove eeglab's external directory if it was added
+%   eeglabExtDir = fullfile(eeglabDir,'external');
+%   if ~isempty(eeglabExtDir)
+%     rmpath(genpath(eeglabExtDir));
+%   end
+%   
+%   % % remove eeglab's fieldtrip directory if it was added
+%   % eeglabFtDir = dir(fullfile(eeglabDir,'external','fieldtrip*'));
+%   % if ~isempty(eeglabFtDir)
+%   %   eeglabFtDir = fullfile(myMatlabDir,eeglabFtDir.name);
+%   %   rmpath(genpath(eeglabFtDir));
+%   % end
+% end
+% 
+% %% set up fieldtrip path
+% ftDir = dir(fullfile(myMatlabDir,'fieldtrip*'));
+% if ~isempty(ftDir)
+%   ftDir = fullfile(myMatlabDir,ftDir.name);
+%   % add only the top folder
+%   addpath(ftDir);
+%   % run ft_defaults to add the subdirectories that FT needs
+%   ft_defaults
+%   
+%   % add the peer directory
+%   addpath(fullfile(ftDir,'peer'));
+%   
+%   % add the SPM directory
+%   %addpath(fullfile(ftDir,'external','spm8'));
+%   
+%   % % remove fieldtrip's external directory
+%   % ftExtDir = fullfile(ftDir,'external');
+%   % if ~isempty(ftExtDir)
+%   %   rmpath(genpath(ftExtDir));
+%   % end
+%   
+%   % remove fieldtrip's eeglab directory if it was added
+%   ftEeglabDir = dir(fullfile(ftDir,'external','eeglab*'));
+%   if ~isempty(ftEeglabDir)
+%     ftEeglabDir = fullfile(myMatlabDir,ftEeglabDir.name);
+%     rmpath(genpath(ftEeglabDir));
+%   end
+% end
+% 
+% %% set up EP_Toolkit path
+% epDir = dir(fullfile(myMatlabDir,'EP_Toolkit*'));
+% if ~isempty(epDir)
+%   epDir = fullfile(myMatlabDir,epDir.name);
+%   % add top folder and all subfolders
+%   addpath(genpath(epDir));
+% end
+% 
+% %% add my other analysis scripts/files
+% addpath(genpath(fullfile(myMatlabDir,'recogmodel_mvm')));
+% 
+% %% add my experiment, fieldtrip, and RM ANOVA scripts
+% addpath(genpath(fullfile(myMatlabDir,'mat_mvm')));
+% 
+% %% put the ~/Documents/MATLAB folder at the top of the path
+% addpath(myMatlabDir);
+% 
+% %% remove CVS and .svn directories from path
+% entries = regexp(path, ['[^',pathsep,']*',pathsep], 'match');
+% for i = 1:length(entries)
+%   entry = char(entries{i});
+%   if ~isempty(strfind(entry, '.svn'))
+%     rmpath(entry);
+%   end
+%   if ~isempty(strfind(entry, 'CVS'))
+%     rmpath(entry);
+%   end
+% end
+% 
