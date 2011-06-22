@@ -1,11 +1,12 @@
-function events = cosi_createEvents(dataroot,subject,session)
-% function events = cosi_createEvents(dataroot,subject,session)
+function events = cosi_createEvents(dataroot,subject,session,nsFile)
+% function events = cosi_createEvents(dataroot,subject,session,nsFile)
 %
 % create event struct for COSI
 %
 % struct fields:
 %   subject
 %   session
+%   nsFile (only if processing EEG)
 %   mstime
 %   msoffset
 %   list
@@ -46,6 +47,10 @@ function events = cosi_createEvents(dataroot,subject,session)
 %subject = 'COSI001';
 %session = 'session_0';
 
+if nargin < 4
+  nsFile = '';
+end
+
 sesDir = fullfile(dataroot,subject,session);
 
 logfile = fullfile(sesDir,'session.log');
@@ -57,7 +62,11 @@ fclose(fid);
 %[l1 l2 l3 l4 l5 l6 l7 l8] = textread(logfile,'%d%d%s%s%s%s%s%s','delimiter','\t','emptyvalue',NaN);
 
 sesNum = str2double(strrep(session,'session_',''));
-log = struct('subject',subject,'session',sesNum,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3});
+if isempty(nsFile)
+  log = struct('subject',subject,'session',sesNum,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3});
+else
+  log = struct('subject',subject,'session',sesNum,'nsFile',nsFile,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3});
+end
 
 % constants
 numLists = 4;
@@ -384,4 +393,8 @@ for i = 1:length(events)
 end
 
 % put fields in an orderly manner
-events = orderfields(events,{'subject','session','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct'});
+if isempty(nsFile)
+  events = orderfields(events,{'subject','session','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct'});
+else
+  events = orderfields(events,{'subject','session','nsFile','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct'});
+end

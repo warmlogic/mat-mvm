@@ -3,7 +3,7 @@ function cosi_prepData_summary(rejectArt,saveFiles,dataroot)
 %
 % Save column-formatted data as a csv file
 %
-% Looks for each subject's events.mat and saves 3 summary files in dataroot
+% Looks for each subject's events.mat and saves summary file(s) in dataroot
 %
 
 expName = 'COSI';
@@ -193,11 +193,11 @@ for s = 1:length(subsets)
       if strcmp(subsets{s},'_color')
         % get only the size study events
         fprintf('Color\n');
-        subSesEv = filterStruct(events,'numColors == 6');
+        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',{'color'});
       elseif strcmp(subsets{s},'_side')
         % get only the life study events
         fprintf('Side\n');
-        subSesEv = filterStruct(events,'numColors == 2');
+        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',{'side'});
       else
         fprintf('All\n');
         subSesEv = events;
