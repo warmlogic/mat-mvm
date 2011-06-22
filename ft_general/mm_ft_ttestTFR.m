@@ -162,6 +162,50 @@ for evVal = 1:length(allConds)
   cfg_ana.sem.(ev) = std(cfg_ana.values.(ev))/sqrt(length(cfg_ana.values.(ev)));
 end % evVal
 
+% run the t-tests
+for cnd = 1:length(cfg_ana.conditions)
+  % set the number of conditions that we're testing
+  cfg_ana.numConds = size(cfg_ana.conditions{cnd},2);
+  
+  if cfg_ana.numConds > 2
+    error('mm_ft_ttestTFR:numCondsGT2','Trying to compare %s, but this is a t-test and thus can only compare 2 conditions.\n',vs_str);
+  end
+  
+  % get the strings of all the subjects in the conditions we're testing
+  cfg = [];
+  cfg.conditions = cfg_ana.conditions{cnd};
+  cfg.data_str = 'data';
+  cfg.is_ga = 0;
+  cfg.excludeBadSub = cfg_ana.excludeBadSub;
+  ana_str = mm_ft_catSubStr(cfg,exper);
+  
+  ses = 1;
+  vs_str = sprintf('%s%s',cfg_ana.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_ana.numConds-1),cfg_ana.conditions{cnd}{2:end}));
+  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){ses});
+  for i = 2:cfg_ana.numConds
+    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){ses}));
+  end
+  
+  % make the design matrix
+  cfg_ft.design = zeros(2,cfg_ana.numSub*cfg_ana.numConds);
+  % set the unit and independent variables
+  cfg_ft.uvar = 1; % the 1st row in cfg_ft.design contains the units of observation (subject number)
+  cfg_ft.ivar = 2; % the 2nd row in cfg_ft.design contains the independent variable (data/condition)
+  for i = 1:cfg_ana.numSub
+    for j = 1:cfg_ana.numConds
+      subIndex = i + ((j - 1)*cfg_ana.numSub);
+      cfg_ft.design(1,subIndex) = i; % UO/DV (subject #s)
+      cfg_ft.design(2,subIndex) = j; % IV (condition #s)
+    end
+  end
+  
+  cfg_ana.(vs_str) = eval(sprintf('ft_freqstatistics(cfg_ft,%s);',subj_str));
+  
+  % % matlab dependent samples ttest
+  % cfg_ana.(vs_str).diff = cfg_ana.values.(cfg_ana.conditions{cnd}{1}) - cfg_ana.values.(cfg_ana.conditions{cnd}{2});
+  % [h,p,ci,stats] = ttest(cfg_ana.(vs_str).diff,0,cfg_ft.alpha,'both'); % H0: mean = 0
+end
+
 fprintf('\n-------------------------------------\n');
 fprintf('ROI: %s; Times: %.3f--%.3f s; Freq: %.1f--%.1f Hz\n',strrep(cfg_plot.chan_str,'_',' '),cfg_ft.latency(1),cfg_ft.latency(2),cfg_ft.frequency(1),cfg_ft.frequency(2));
 fprintf('-------------------------------------\n\n');
@@ -207,50 +251,7 @@ for sub = 1:length(cfg_ana.goodSub)
     fprintf('%s\n',subStr);
   end
 end
-
-% run the t-tests
-for cnd = 1:length(cfg_ana.conditions)
-  % set the number of conditions that we're testing
-  cfg_ana.numConds = size(cfg_ana.conditions{cnd},2);
-  
-  if cfg_ana.numConds > 2
-    error('mm_ft_ttestTFR:numCondsGT2','Trying to compare %s, but this is a t-test and thus can only compare 2 conditions.\n',vs_str);
-  end
-  
-  % get the strings of all the subjects in the conditions we're testing
-  cfg = [];
-  cfg.conditions = cfg_ana.conditions{cnd};
-  cfg.data_str = 'data';
-  cfg.is_ga = 0;
-  cfg.excludeBadSub = cfg_ana.excludeBadSub;
-  ana_str = mm_ft_catSubStr(cfg,exper);
-  
-  ses = 1;
-  vs_str = sprintf('%s%s',cfg_ana.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_ana.numConds-1),cfg_ana.conditions{cnd}{2:end}));
-  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){ses});
-  for i = 2:cfg_ana.numConds
-    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){ses}));
-  end
-  
-  % make the design matrix
-  cfg_ft.design = zeros(2,cfg_ana.numSub*cfg_ana.numConds);
-  % set the unit and independent variables
-  cfg_ft.uvar = 1; % the 1st row in cfg_ft.design contains the units of observation (subject number)
-  cfg_ft.ivar = 2; % the 2nd row in cfg_ft.design contains the independent variable (data/condition)
-  for i = 1:cfg_ana.numSub
-    for j = 1:cfg_ana.numConds
-      subIndex = i + ((j - 1)*cfg_ana.numSub);
-      cfg_ft.design(1,subIndex) = i; % UO/DV (subject #s)
-      cfg_ft.design(2,subIndex) = j; % IV (condition #s)
-    end
-  end
-  
-  cfg_ana.(vs_str) = eval(sprintf('ft_freqstatistics(cfg_ft,%s);',subj_str));
-  
-  % % matlab dependent samples ttest
-  % cfg_ana.(vs_str).diff = cfg_ana.values.(cfg_ana.conditions{cnd}{1}) - cfg_ana.values.(cfg_ana.conditions{cnd}{2});
-  % [h,p,ci,stats] = ttest(cfg_ana.(vs_str).diff,0,cfg_ft.alpha,'both'); % H0: mean = 0
-end
+fprintf('\n');
 
 % print out the results
 for cnd = 1:length(cfg_ana.conditions)

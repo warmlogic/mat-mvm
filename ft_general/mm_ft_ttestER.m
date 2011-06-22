@@ -122,45 +122,6 @@ for evVal = 1:length(allConds)
   cfg_ana.sem.(ev) = std(cfg_ana.values.(ev))/sqrt(length(cfg_ana.values.(ev)));
 end % evVal
 
-fprintf('\n-------------------------------------\n');
-fprintf('ROI: %s; Times: %.3f--%.3f s\n',strrep(cfg_plot.chan_str,'_',' '),cfg_ft.latency(1),cfg_ft.latency(2));
-fprintf('-------------------------------------\n\n');
-
-% print GA and sub avg voltages
-cfg_ana.goodSub = exper.subjects(~exper.badSub);
-if length(exper.subjects{1}) > 7
-  tabchar = '\t';
-else
-  tabchar = '';
-end
-
-% ga
-fprintf('GA%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
-gaStr = sprintf('GA%s',sprintf(tabchar));
-for evVal = 1:length(allConds)
-  if length(allConds{evVal}) > 7
-    tabchar_ev = '\t';
-  else
-    tabchar_ev = '';
-  end
-  gaStr = cat(2,gaStr,sprintf('\t%.2f%s',mean(cfg_ana.values.(allConds{evVal})),sprintf(tabchar_ev)));
-end
-fprintf('%s\n',gaStr);
-% sub avg
-fprintf('Subject%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
-for sub = 1:length(cfg_ana.goodSub)
-  subStr = exper.subjects{sub};
-  for evVal = 1:length(allConds)
-    if length(allConds{evVal}) > 7
-      tabchar_ev = '\t';
-    else
-      tabchar_ev = '';
-    end
-    subStr = cat(2,subStr,sprintf('\t%.2f%s',cfg_ana.values.(allConds{evVal})(sub),sprintf(tabchar_ev)));
-  end
-  fprintf('%s\n',subStr);
-end
-
 % run the t-tests
 for cnd = 1:length(cfg_ana.conditions)
   % set the number of conditions that we're testing
@@ -204,6 +165,46 @@ for cnd = 1:length(cfg_ana.conditions)
   % cfg_ana.(vs_str).diff = cfg_ana.values.(cfg_ana.conditions{cnd}{1}) - cfg_ana.values.(cfg_ana.conditions{cnd}{2});
   % [h,p,ci,stats] = ttest(cfg_ana.(vs_str).diff,0,cfg_ft.alpha,'both'); % H0: mean = 0
 end
+
+fprintf('\n-------------------------------------\n');
+fprintf('ROI: %s; Times: %.3f--%.3f s\n',strrep(cfg_plot.chan_str,'_',' '),cfg_ft.latency(1),cfg_ft.latency(2));
+fprintf('-------------------------------------\n\n');
+
+% print GA and sub avg voltages
+cfg_ana.goodSub = exper.subjects(~exper.badSub);
+if length(exper.subjects{1}) > 7
+  tabchar = '\t';
+else
+  tabchar = '';
+end
+
+% ga
+fprintf('GA%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
+gaStr = sprintf('GA%s',sprintf(tabchar));
+for evVal = 1:length(allConds)
+  if length(allConds{evVal}) > 7
+    tabchar_ev = '\t';
+  else
+    tabchar_ev = '';
+  end
+  gaStr = cat(2,gaStr,sprintf('\t%.2f%s',mean(cfg_ana.values.(allConds{evVal})),sprintf(tabchar_ev)));
+end
+fprintf('%s\n',gaStr);
+% sub avg
+fprintf('Subject%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
+for sub = 1:length(cfg_ana.goodSub)
+  subStr = exper.subjects{sub};
+  for evVal = 1:length(allConds)
+    if length(allConds{evVal}) > 7
+      tabchar_ev = '\t';
+    else
+      tabchar_ev = '';
+    end
+    subStr = cat(2,subStr,sprintf('\t%.2f%s',cfg_ana.values.(allConds{evVal})(sub),sprintf(tabchar_ev)));
+  end
+  fprintf('%s\n',subStr);
+end
+fprintf('\n');
 
 % print out the results
 for cnd = 1:length(cfg_ana.conditions)
