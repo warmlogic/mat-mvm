@@ -211,7 +211,7 @@ end
 
 %% load the analysis details
 
-adFile = 'Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -259,7 +259,13 @@ cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
 figure
-ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
+sub=1;
+ses=1;
+for i = 1:2
+  figure
+  ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E20'};
@@ -315,7 +321,9 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+exper.badBehSub = {'COSI002'};
+%exper.badBehSub = {};
+% COSI002 is noisy
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -364,14 +372,14 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.condByTypeByROI = {...
 %   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
 %   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
-cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.legendloc = cfg_plot.legendlocs{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
-  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  %cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
 end
@@ -447,12 +455,14 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.typesByROI = repmat({{'C2','C6'}},size(cfg_plot.condByTypeByROI));
 
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+
+cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
-  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  %cfg_plot.conditions = cfg_plot.condByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
   if cfg_plot.plotLegend
@@ -519,8 +529,8 @@ cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-%cfg_ana.conditions = {{'all_within_types'}};
+%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_ana.conditions = {{'all_within_types'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -532,7 +542,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 1 4];
 cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
