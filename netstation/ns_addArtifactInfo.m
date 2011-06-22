@@ -10,14 +10,15 @@ function [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,nsEvFilte
 % using the export metadata NS function. 'segment information' exports the
 % bci file.
 %
-% dataroot is: /Volumes/data/experiment/eeg/processing/time/ (or something
-% like that, whatever contains ns_bci)
+% dataroot is: /Volumes/data/experiment/eeg/processingType/time/ (I use
+% something like that; anything else can be used, it just needs to contain
+% the session folders)
 %
 % assumes events are stored in
 % /Volumes/data/experiment/eeg/behavioral/subject/session/events/events.mat
 % (gets automatically created from dataroot)
 %
-% assumes bci files are stored in dataroot/ns_bci/
+% assumes bci files are stored in dataroot/session/ns_bci/
 %
 % TODO: Can I also bring the more-detailed information into FT?  Maybe
 % create an event struct with events sorted alphabetically by category (and
@@ -38,38 +39,45 @@ format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan*2]),'%s'];
 % subject = 'COSI001';
 % session = 'session_0';
 
-% assuming events are stored in
+% assuming behavioral events are stored in
 % eperiment/eeg/behavioral/subject/session/events/events.mat
 behroot = fullfile(dataroot(1:strfind(dataroot,'eeg')+2),'behavioral');
+
+% assumes bci files are stored in dataroot/session/ns_bci
+bcipath = fullfile(dataroot,session,'ns_bci');
 
 % load in the newest PyEPL events
 eventsDir = fullfile(behroot,subject,session,'events');
 fprintf('Loading events for %s, %s...\n',subject,session);
-events = loadEvents(fullfile(eventsDir,'events.mat'));
-fprintf('Done.\n');
+if exist(fullfile(eventsDir,'events.mat'),'file')
+  events = loadEvents(fullfile(eventsDir,'events.mat'));
+  fprintf('Done.\n');
+else
+  fprintf('events.mat for %s %s does not exist. Moving on.\n',subject,session);
+  return
+end
 
 fprintf('Getting NS artifact info for %s, %s...\n',subject,session);
 
 % define the metadata NS export file with the session summary
-summaryFile = dir(fullfile(dataroot,'ns_bci',[subject,'*.bci']));
+summaryFile = dir(fullfile(bcipath,[subject,'*.bci']));
 
 % make sure we got only one bci file
 if length(summaryFile) > 1
   if isfield(events,'nsFile')
-    summaryFile = dir(fullfile(dataroot,'ns_bci',[events(1).nsFile,'.bci']));
+    summaryFile = dir(fullfile(bcipath,[events(1).nsFile,'.bci']));
   else
-    error('More than one bci file, and no nsFile field to denote which to choose: %s',fullfile(dataroot,'ns_bci',[subject,'*.bci']));
+    error('More than one bci file, and no nsFile field to denote which to choose: %s',fullfile(bcipath,[subject,'*.bci']));
   end
 end
 
 if ~isempty(summaryFile)
-  summaryFile = fullfile(dataroot,'ns_bci',summaryFile.name);
   % read in session summary file
-  fid = fopen(summaryFile,'r');
+  fid = fopen(fullfile(bcipath,summaryFile.name),'r');
   sesSummary = textscan(fid,format_str,'Headerlines',1,'delimiter','\t');
   fclose(fid);
 else
-  warning([mfilename,':no_bci_file'],'MISSING FILE: %s',fullfile(dataroot,'ns_bci',[subject,'*.bci']));
+  warning([mfilename,':no_bci_file'],'MISSING FILE: %s',fullfile(bcipath,[subject,'*.bci']));
   return
 end
 

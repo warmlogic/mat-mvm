@@ -29,40 +29,17 @@ if nargin < 3
   end
 end
 
-% % behavioral
-% subjects = {
-%   'COSI001';
-%   'COSI002';
-%   'COSI003';
-%   'COSI004';
-%   'COSI005';
-%   'COSI006';
-%   'COSI007';
-%   'COSI008';
-%   'COSI009';
-%   'COSI010';
-%   'COSI011';
-%   'COSI012';
-%   'COSI013';
-%   'COSI014';
-%   'COSI015';
-%   'COSI016';
-%   'COSI017';
-%   'COSI018';
-%   'COSI020';
-%   };
-
 subjects = {
-%   'COSI001';
-%   'COSI002';
-%   'COSI003';
-%   'COSI004';
-%   'COSI005';
-%   'COSI006';
-%   'COSI007';
-%   'COSI008';
+  'COSI001';
+  'COSI002';
+  'COSI003';
+  'COSI004';
+  'COSI005';
+  'COSI006';
+  'COSI007';
+  'COSI008';
   'COSI009';
-%   'COSI010';
+  'COSI010';
 % %   'COSI011';
 % %   'COSI012';
 % %   'COSI013';
@@ -86,8 +63,8 @@ subjects = {
   };
 % original COSI019 was replaced because the first didn't finish
 
-sessions = {'session_0'};
-% sessions = {'session_0','session_1'};
+% sessions = {'session_0'};
+sessions = {'session_0','session_1'};
 
 %% Set up the headers
 if rejectArt == 0
@@ -175,7 +152,12 @@ for s = 1:length(subsets)
       fprintf('%s...\n',sessions{ses});
       % set the subject events directory
       eventsDir_sub = fullfile(dataroot,subjects{sub},sessions{ses},'events');
-      events = loadEvents(fullfile(eventsDir_sub,'events.mat'));
+      if exist(fullfile(eventsDir_sub,'events.mat'),'file')
+        events = loadEvents(fullfile(eventsDir_sub,'events.mat'));
+      else
+        fprintf('events.mat for %s %s does not exist. Moving on.\n',subjects{sub},sessions{ses});
+        continue
+      end
       
       % include events with defined study color name and that was tested
       events = filterStruct(events,'src_correct ~= -1');
@@ -624,9 +606,9 @@ for s = 1:length(subsets)
         %% RAW NUMBERS
         
         % TEST ITEMS: get all the targets (old study items presented at test)
-        rec_targEv = filterStruct(subSesEv,'rec_isTarg == 1 & ismember(type,varargin{1})',{'TARG_PRES'});
+        rec_targEv = filterStruct(subSesEv,'rec_isTarg == 1 & ismember(type,varargin{1})',{'TEST_TARGET'});
         % get all the lures (new test items)
-        rec_lureEv = filterStruct(subSesEv,'rec_isTarg == 0 & ismember(type,varargin{1})',{'LURE_PRES'});
+        rec_lureEv = filterStruct(subSesEv,'rec_isTarg == 0 & ismember(type,varargin{1})',{'TEST_LURE'});
         
         % all source reponses (targets and lures) are conditionalized on
         % getting a recognition hit
@@ -731,8 +713,25 @@ for s = 1:length(subsets)
         rec_h_srcInc_rs_r = length(rec_h_srcInc_rs) / length(rec_targEv);
         rec_h_srcInc_ro_r = length(rec_h_srcInc_ro) / length(rec_targEv);
         rec_h_srcInc_k_r = length(rec_h_srcInc_k) / length(rec_targEv);
+        rec_h_rs_r = rec_h_rs / length(rec_targEv);
+        rec_h_ro_r = rec_h_ro / length(rec_targEv);
+        rec_h_k_r = rec_h_k / length(rec_targEv);
+%         rec_m_sure_r = length(rec_m_sure) / length(rec_targEv);
+%         rec_m_maybe_r = length(rec_m_maybe) / length(rec_targEv);
         rec_cr_sure_r = length(rec_cr_sure) / length(rec_lureEv);
         rec_cr_maybe_r = length(rec_cr_maybe) / length(rec_lureEv);
+%         rec_fa_rs_r = length(rec_fa_rs) / length(rec_lureEv);
+%         rec_fa_ro_r = length(rec_fa_ro) / length(rec_lureEv);
+%         rec_fa_k_r = length(rec_fa_k) / length(rec_lureEv);
+        
+%         rec_h_srcCor_rs_r = length(rec_h_srcCor_rs) / length(rec_targEv);
+%         rec_h_srcCor_ro_r = length(rec_h_srcCor_ro) / length(rec_targEv);
+%         rec_h_srcCor_k_r = length(rec_h_srcCor_k) / length(rec_targEv);
+%         rec_h_srcInc_rs_r = length(rec_h_srcInc_rs) / length(rec_targEv);
+%         rec_h_srcInc_ro_r = length(rec_h_srcInc_ro) / length(rec_targEv);
+%         rec_h_srcInc_k_r = length(rec_h_srcInc_k) / length(rec_targEv);
+%         rec_cr_sure_r = length(rec_cr_sure) / length(rec_lureEv);
+%         rec_cr_maybe_r = length(rec_cr_maybe) / length(rec_lureEv);
         
         %% fix for when rates are 1 or 0 (Macmillan and Creelman, 1991)
         %
@@ -906,14 +905,14 @@ for s = 1:length(subsets)
         % count the artifacts
         
         % get all the targets (old study items presented at test)
-        rec_targEv_art = filterStruct(subSesEv_all,'nsArt == 1 & rec_isTarg == 1 & rec_correct == 1 & ismember(type,varargin{1})',{'TARG_PRES'});
+        rec_targEv_art = filterStruct(subSesEv_all,'nsArt == 1 & rec_isTarg == 1 & rec_correct == 1 & ismember(type,varargin{1})',{'TEST_TARGET'});
         % get all the lures (new test items)
-        rec_lureEv_art = filterStruct(subSesEv_all,'nsArt == 1 & rec_isTarg == 0 & rec_correct == 1 & ismember(type,varargin{1})',{'LURE_PRES'});
+        rec_lureEv_art = filterStruct(subSesEv_all,'nsArt == 1 & rec_isTarg == 0 & rec_correct == 1 & ismember(type,varargin{1})',{'TEST_LURE'});
         
         % get all the targets (old study items presented at test)
-        rec_targEv_all = filterStruct(subSesEv_all,'rec_isTarg == 1 & rec_correct == 1 & ismember(type,varargin{1})',{'TARG_PRES'});
+        rec_targEv_all = filterStruct(subSesEv_all,'rec_isTarg == 1 & rec_correct == 1 & ismember(type,varargin{1})',{'TEST_TARGET'});
         % get all the lures (new test items)
-        rec_lureEv_all = filterStruct(subSesEv_all,'rec_isTarg == 0 & rec_correct == 1 & ismember(type,varargin{1})',{'LURE_PRES'});
+        rec_lureEv_all = filterStruct(subSesEv_all,'rec_isTarg == 0 & rec_correct == 1 & ismember(type,varargin{1})',{'TEST_LURE'});
         
         numArt = length(rec_targEv_art) + length(rec_lureEv_art);
         
@@ -958,24 +957,25 @@ for s = 1:length(subsets)
           rec_h_srcCor_rs_rt,rec_h_srcCor_ro_rt,rec_h_srcCor_k_rt,rec_h_srcInc_rs_rt,rec_h_srcInc_ro_rt,rec_h_srcInc_k_rt,rec_cr_sure_rt,rec_cr_maybe_rt,... % rt by confidence
           ];
       end
-    end % ses
-    
-    if saveFiles == 1
-      % print sub and ses
-      fprintf(outfile,'%s,%d',subjects{sub},ses-1);
-      % format for tableData and print
-      tableDataStr = repmat(',%.4f',1,length(tableData));
-      fprintf(outfile,tableDataStr,tableData);
-      %for tabData = 1:length(tableData)
-      %  fprintf(outfile,'%d\t',tableData(tabData));
-      %end
-      if rejectArt == 1
-        artStr = sprintf(',%d,%d,%.4f',numArt,numEv,(numArt / numEv));
-        fprintf(outfile,'%s\n',artStr);
-      else
-        fprintf(outfile,'\n');
+      
+      if saveFiles == 1
+        % print sub and ses
+        fprintf(outfile,'%s,%d',subjects{sub},ses-1);
+        % format for tableData and print
+        tableDataStr = repmat(',%.4f',1,length(tableData));
+        fprintf(outfile,tableDataStr,tableData);
+        %for tabData = 1:length(tableData)
+        %  fprintf(outfile,'%d\t',tableData(tabData));
+        %end
+        if rejectArt == 1
+          artStr = sprintf(',%d,%d,%.4f',numArt,numEv,(numArt / numEv));
+          fprintf(outfile,'%s\n',artStr);
+        else
+          fprintf(outfile,'\n');
+        end
       end
-    end
+      
+    end % ses
     
   end % sub
   

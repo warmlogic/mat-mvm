@@ -247,7 +247,8 @@ fprintf('Done.\n');
 % input is individual subject data with powandcsd
 
 cfg_ft = [];
-cfg_ft.method = 'coh';
+cfg_ft.method = 'wpli';
+%cfg_ft.method = 'coh';
 %cfg_ft.method = 'plv';
 %cfg_ft.channelcmb = {'E11','E62';'E11','E52';'E11','E92';'E11','E45';'E11','E108'}; % Fz, Pz; Fz, P3/P4; Fz, T7/T8
 %cfg_ft.channelcmb = {'E3','E60';'E3','E62'};
@@ -323,7 +324,9 @@ end
 
 %% load some data
 
-[data_conn] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'coh');
+[data_conn] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'wpli');
+
+%[data_conn] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'coh');
 
 %[data_conn] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'plv');
 
@@ -416,8 +419,9 @@ cfg_ft = [];
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
 %cfg_ft.zparam = 'cohspctrm';
-cfg_ft.zparam = 'plvspctrm';
-cfg_ft.refchannel = {'E3'};
+%cfg_ft.zparam = 'plvspctrm';
+cfg_ft.zparam = 'powspctrm';
+cfg_ft.refchannel = {'E6'};
 cfg_ft.channel = 'all';
 cfg_ft.xlim = [0.5 0.8]; % time
 cfg_ft.ylim = [3 8]; % freq
@@ -470,7 +474,7 @@ cfg_ft.yparam = 'freq';
 cfg_ft.zparam = 'cohspctrm';
 %cfg_ft.zparam = 'plvspctrm';
 %cfg_ft.zparam = 'powspctrm';
-cfg_ft.refchannel = 'E3';
+cfg_ft.refchannel = 'E6';
 
 cfg_ft.interactive = 'yes';
 cfg_ft.showlabels = 'yes';
@@ -481,8 +485,8 @@ cfg_ft.ylim = [3 8]; % freq
 cfg_ft.zlim = [0 1]; % pow
 
 cfg_plot = [];
-%cfg_plot.conditions = {{'NT','TH'}};
-cfg_plot.conditions = {{'NT2of2Rec'}};
+cfg_plot.conditions = {{'NT','TH'}};
+%cfg_plot.conditions = {{'NT2of2Rec'}};
 cfg_plot.plotTitle = 1;
 cfg_plot.ftFxn = 'ft_topoplotTFR';
 cfg_plot.subplot = 1;
@@ -580,6 +584,8 @@ end
 fprintf('Done.\n');
 
 %% make some GA plots
+
+files.saveFigs = 0;
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';

@@ -8,12 +8,12 @@ function process_ft_data(ana,cfg_proc,exper,dirs)
 %                       (e.g., 'ft_timelockanalysis' or 'ft_freqanalysis')
 % ana.ftype           = added to the filenames output from ana.ftFxn
 %                       (e.g., 'tla' or 'pow')
-% ana.usePeer         = use the peer toolbox (default: 0); see
-%                       http://fieldtrip.fcdonders.nl for more info on
-%                       useing peer distributed computing
+% ana.usePeer         = use the peer toolbox (binary; default: 0); see
+%                       http://www.ru.nl/neuroimaging/fieldtrip/ for more
+%                       info on useing peer distributed computing
 %
-% ana.overwrite.proc  = to prevent overwriting of processed data. Binary.
-%                       Default: 1
+% ana.overwrite.proc  = to prevent overwriting of processed data. (binary;
+%                       default: 1)
 %                       DO NOT USE YET, NOT FULLY IMPLEMENTED. (TODO)
 %
 % This function will overwrite any raw or processed subject files without

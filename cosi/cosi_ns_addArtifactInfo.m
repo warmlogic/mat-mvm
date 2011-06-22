@@ -4,15 +4,15 @@ overwriteArtFields = 0;
 
 exper.subjects = {
   'COSI001';
-%   'COSI002';
-%   'COSI003';
-%   'COSI004';
-%   'COSI005';
-%   'COSI006';
-%   'COSI007';
-%   'COSI008';
-%   'COSI009';
-%   'COSI010';
+  'COSI002';
+  'COSI003';
+  'COSI004';
+  'COSI005';
+  'COSI006';
+  'COSI007';
+  'COSI008';
+  'COSI009';
+  'COSI010';
 %   'COSI011';
 %   'COSI012';
 %   'COSI013';
@@ -39,7 +39,7 @@ exper.sessions = {'session_0','session_1'};
 
 exper.eventValues = {'CCR','CHSC','CHSI','SCR','SHSC','SHSI'};
 
-dirs.dataroot = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000';
+dirs.dataroot = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000';
 
 % add NS's artifact information to the event structure
 nsEvFilters = [];
