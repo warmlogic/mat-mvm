@@ -99,12 +99,15 @@ for sub = 1:length(subjects)
 %       end
       subSesBadChan = [];
       
-      rawFile = dir(fullfile(saveDir,subjects{sub},sessions{ses},'eeg','*.raw'));
-      if isempty(rawFile)
-        fprintf('Did not find %s %s raw file. Moving on.\n',subjects{sub},sessions{ses})
+      nsFile = dir(fullfile(saveDir,subjects{sub},sessions{ses},'eeg','*.raw'));
+      if isempty(nsFile)
+        fprintf('Did not find %s raw NS file. Moving on.\n',subjects{sub})
         continue
+      else
+        [~,nsFile] = fileparts(nsFile.name);
       end
-      
+    else
+      nsFile = '';
     end
     
     % set the subject events directory
@@ -124,7 +127,7 @@ for sub = 1:length(subjects)
       %if ~lockFile(eventsOutfile_sub)
       fprintf('Creating events...\n');
       % create the events
-      events = cosi_createEvents(dataroot,subjects{sub},sessions{ses});
+      events = cosi_createEvents(dataroot,subjects{sub},sessions{ses},nsFile);
       fprintf('Saving %s...\n',eventsOutfile_sub);
       % save each subject's events
       saveEvents(events,eventsOutfile_sub);
@@ -138,18 +141,6 @@ for sub = 1:length(subjects)
       fprintf('Prepping EEG data...\n');
       % get this subject's session dir
       sesDir = fullfile(dataroot,subjects{sub},sessions{ses});
-%       % this is where the RAW file is currently stored
-%       oldEEGDir = fullfile(sesDir,'eeg');
-%       % this is where we want to move the EEG data to
-%       newEEGRoot = fullfile(dataroot,subjects{sub},sessions{ses});
-%       newEEGDir = fullfile(newEEGRoot,'eeg');
-%       if exist(newEEGDir,'dir')
-%         sprintf('%s already exists, skipping!\n',newEEGDir);
-%         continue
-%       else
-%         mkdir(newEEGRoot);
-%       end
-      
       subEegDir = fullfile(sesDir,'eeg','eeg.noreref');
       pfile = dir(fullfile(subEegDir,[subjects{sub},'*params.txt']));
       
@@ -166,37 +157,9 @@ for sub = 1:length(subjects)
       % export the events for netstation; saves to the session's events dir
       cosi_events2ns(dataroot,subjects{sub},sessions{ses});
       
-%       % change the location of EEG files
-%       if ~exist(newEEGDir,'dir')
-%         % do the actual move
-%         unix(sprintf('mv %s %s',oldEEGDir,newEEGRoot));
-%         % resave the events
-%         events = loadEvents(fullfile(sesDir,'events/events.mat'),{oldEEGDir,newEEGDir});
-%         saveEvents(events,fullfile(sesDir,'events/events.mat'));
-%       else
-%         error('Error: %s already exists, not moving any directories!\n',newEEGDir);
-%       end
-
     end % prep_eeg
   end % ses
   fprintf('Done.\n');
 end % sub
 
 %matlabpool close
-
-% if do_accuracy
-%   if ~exist(fullfile(dataroot,'resp_distrib_head.csv'),'file')
-%     fid = fopen(fullfile(dataroot,'resp_distrib_head.csv'),'w');
-%     for i = 1:size(headerlines,1)
-%       fprintf(fid,'%s',headerlines{i,1});
-%       for j = 2:size(headerlines,2)
-%         fprintf(fid,',%s',headerlines{i,j});
-%       end
-%       fprintf(fid,'\n');
-%     end
-%     fclose(fid);
-%   end
-%   %xlswrite(fullfile(dataroot,'resp_distrib_head.xls'),headerlines);
-%   
-%   csvwrite(fullfile(dataroot,'resp_distrib.csv'),resp_data);
-% end
