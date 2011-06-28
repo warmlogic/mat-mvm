@@ -3,22 +3,27 @@ function ns_fixEvtOrder(numCols,dataroot)
 %
 % ns_fixEvtOrder(numCols,dataroot)
 %
+% Inputs:
+%
+%  numCols:     the number of columns in each original .evt file
+%
+%  dataroot:    the location of the original .evt files; also where the new
+%               .evt files are saved (default: pwd)
+%
 % no inputs necessary. processes all .evt files in the current working dir
 % by default. otherwise, specify where the .evt files are located.
 %
-% numCols is the number of columns in each original .evt file
+% This script sorts NetStation evt files (exported from any segmented file
+% using the Event Export tool) by category and then orders the events by
+% occurrence time. This is useful for when NS incorrectly labels the time
+% in evt file created from the seg file such that the onset time refers to
+% the event's occurence in the continuous session file. Instead, the onset
+% time should refer to the event's location in the segmented file, where
+% the events are separate in time but are contiguous in the file. This
+% script corrects the onset time to the latter situation sorted first by
+% category (alphabetically) and then by onset time.
 %
-% This script sorts a NetStation evt file (exported from a segmented file)
-% by category and then orders the events by occurrence time. This is useful
-% for when NS incorrectly labels the time in evt file created from the seg
-% file such that the onset time refers to the event's occurence in the
-% continuous session file. Instead, the onset time should refer to the
-% event's location in the segmented file, where the events are separate in
-% time but are contiguous in the file. This script corrects the onset time
-% to the latter situation sorted first by category (alphabetically) and
-% then by onset time.
-%
-% To create the evt file that this script reads in, make an Event Export
+% To create the evt file(s) that this script reads in, make an Event Export
 % tool in NS; check the "Export Category Name" box and set Time Mode to
 % either Relative or Epoch Time. It does not matter whether you sort by
 % category or by onset. Of course, you also need to choose the event types
@@ -28,10 +33,12 @@ function ns_fixEvtOrder(numCols,dataroot)
 %
 % The new evt file can be used to markup a nsf file created from the sbin
 % or egis file created by EP_Toolkit (this is my only reason for creating
-% this script).
+% this script). Use the Markup From File tool in NS; note that the nsf and
+% evt files must have the filenames.
 %
-% In this script the user must set:
-%  1) the number of columns in the original evt file
+% In this script the user must set (or hard code):
+%  1) the number of columns in the original evt files (must be the same for
+%     all input files)
 %  2) where the original evt files (created from the seg files) are located
 %     (default is the current directory)
 %  3) the column numbers in the evt file for Category and Onset
@@ -40,22 +47,22 @@ function ns_fixEvtOrder(numCols,dataroot)
 %  5) the extension for the new evt file
 %
 %  NB:
-%  1 and 2 can be set in the function arguments
-%  3, 4, and 5 are hardcoded in the script
+%  1 and 2 can be set in the function arguments;
+%  3, 4, and 5 are hardcoded in the script.
 %
+
+% By Matt Mollison (2010-2011), matt.mollison@gmail.com
 
 %% To be set by the user
 
-% 1) where the evt files are located
 if nargin < 2
+  % 1) where the evt files are located
   dataroot = pwd;
   if nargin < 1
-    %numCols = 55;
+    % 2) the number of columns in the original evt file
     numCols = 43;
   end
 end
-
-% 2) the number of columns in the original evt file
 
 % 3) the columns for Onset and Category
 cols.onset = 5;

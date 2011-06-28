@@ -345,7 +345,7 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.0];
+cfg_ft.xlim = [-.2 1.5];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
@@ -424,9 +424,9 @@ cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
 % vertical solid lines to plot
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
+cfg_plot.plotLegend = 0;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 1;
+cfg_plot.plotTitle = 0;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -596,23 +596,33 @@ cfg_ana.printTable_tex = 1;
 
 % IV1: define which regions to average across for the test
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
+% % IV2: define the conditions tested for each set of ROIs
+% cfg_ana.condByROI = {...
+%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+% 
+% % For each ROI, what's common among the conditions in each type
+% cfg_ana.condCommonByROI = {...
+%   {'CR','H','HSC','HSI'},...
+%   {'CR','HSC','HSI'}};
+% 
+% % abbreviations for the condition types
+% cfg_ana.typesByROI = {...
+%   {'C2','C6'},...
+%   {'C2','C6'}};
+
 % IV2: define the conditions tested for each set of ROIs
-cfg_ana.condByROI = {...
-  {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-  {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
-
-% For each ROI, what's common among the conditions in each type
+%cfg_ana.condByROI = {{'RCR','RH'},{'RCR','RHSC','RHSI'}};
+cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
+% for the one-way ANOVAs
 cfg_ana.condCommonByROI = {...
-  {'CR','H','HSC','HSI'},...
+  %{'CR','H'},...
+  {'CR','HSC','HSI'},...
   {'CR','HSC','HSI'}};
-
-% abbreviations for the condition types
-cfg_ana.typesByROI = {...
-  {'C2','C6'},...
-  {'C2','C6'}};
 
 cfg_ana.IV_names = {'ROI','Condition'};
 
@@ -623,7 +633,7 @@ for r = 1:length(cfg_ana.rois)
   cfg_ana.latency = cfg_ana.latencies(r,:);
   cfg_ana.conditions = cfg_ana.condByROI{r};
   cfg_ana.condCommon = cfg_ana.condCommonByROI{r};
-  cfg_ana.types = cfg_ana.typesByROI{r};
+  %cfg_ana.types = cfg_ana.typesByROI{r};
   
   mm_ft_rmaov2ER(cfg_ana,exper,ana,data_tla);
 end

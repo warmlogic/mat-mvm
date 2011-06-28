@@ -323,7 +323,7 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.0];
+cfg_ft.xlim = [-.2 1.5];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
@@ -401,9 +401,9 @@ cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6; -1 6];
 % vertical solid lines to plot
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
 
-cfg_plot.plotLegend = 1;
+cfg_plot.plotLegend = 0;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 1;
+cfg_plot.plotTitle = 0;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -556,6 +556,7 @@ cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'LAS','RAS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8];
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
@@ -565,11 +566,12 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
 %cfg_ana.conditions = {'all'};
 cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_ana.conditions = {{'RH','RCR'}}; % {'RH','RCR'},
 
-% late right frontal old/new
-cfg_ana.conditions = {{'RHSC','RCR'}};
-cfg_ana.rois = {{'RAS'}};
-cfg_ana.latencies = [1.2 1.4];
+% % late right frontal old/new
+% cfg_ana.conditions = {{'RHSC','RCR'}};
+% cfg_ana.rois = {{'RAS'}};
+% cfg_ana.latencies = [1.2 1.4];
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -605,20 +607,23 @@ cfg_ana.printTable_tex = 1;
 
 % IV1: define which regions to average across for the test
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% IV2: define the conditions tested for each set of ROIs
-%cfg_ana.condByROI = {{'RH','RCR'},{'RCR','RHSC','RHSI'}};
-%cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
-cfg_ana.condByROI = {exper.eventValues,exper.eventValues};
 
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-% cfg_ana.condCommonByROI = {...
-%   {'CR','HSC','HSI'},...
-%   {'CR','HSC','HSI'}};
+% IV2: define the conditions tested for each set of ROIs
+%cfg_ana.condByROI = {{'RCR','RH'},{'RCR','RHSC','RHSI'}};
+cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
+%cfg_ana.condByROI = {exper.eventValues,exper.eventValues};
+
+% for the one-way ANOVAs
 cfg_ana.condCommonByROI = {...
-  exper.eventValues,...
-  exper.eventValues};
+  %{'CR','H'},...
+  {'CR','HSC','HSI'},...
+  {'CR','HSC','HSI'}};
+% cfg_ana.condCommonByROI = {...
+%   exper.eventValues,...
+%   exper.eventValues};
 
 cfg_ana.IV_names = {'ROI','Condition'};
 
