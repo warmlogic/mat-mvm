@@ -449,7 +449,7 @@ cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
-cfg_plot.plotTitle = 1;
+cfg_plot.plotTitle = 0;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -462,7 +462,7 @@ cfg_plot.ftFxn = 'ft_singleplotER';
 cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
+cfg_plot.plotLegend = 0;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
 % cfg_plot.ftFxn = 'ft_topoplotER';
@@ -507,6 +507,9 @@ end
 
 %% plot the contrasts
 
+cfg_plot = [];
+cfg_plot.plotTitle = 0;
+
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.zparam = 'avg';
@@ -514,14 +517,11 @@ cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';
 
-cfg_plot = [];
-cfg_plot.plotTitle = 0;
-
 % comparisons to make
 %cfg_plot.conditions = {{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
 %cfg_plot.conditions = {'all'};
+%cfg_plot.conditions = {{'RHSC','RCR'}}; % {'RH','RCR'},
 cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-cfg_plot.conditions = {{'RHSC','RCR'}}; % {'RH','RCR'},
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
@@ -530,8 +530,8 @@ cfg_ft.marker = 'on';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
 
-%cfg_plot.roi = {'LAS','RAS'};
-%cfg_ft.xlim = [0.3 0.5]; % time
+cfg_plot.roi = {'LAS','RAS'};
+cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
 
@@ -540,10 +540,10 @@ cfg_ft.comment = 'no';
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 
-cfg_plot.ftFxn = 'ft_multiplotER';
-cfg_ft.showlabels = 'yes';
-cfg_ft.comment = '';
-cfg_ft.ylim = [-1 1]; % volt
+% cfg_plot.ftFxn = 'ft_multiplotER';
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.comment = '';
+% cfg_ft.ylim = [-1 1]; % volt
 
 % cfg_plot.ftFxn = 'ft_singleplotER';
 % cfg_plot.roi = {'LPS'};
@@ -558,7 +558,7 @@ cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
-cfg_ana.rois = {{'LAS','RAS'}};
+%cfg_ana.rois = {{'LAS','RAS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8];
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
@@ -568,7 +568,7 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
 %cfg_ana.conditions = {'all'};
 cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-cfg_ana.conditions = {{'RH','RCR'}}; % {'RH','RCR'},
+%cfg_ana.conditions = {{'RH','RCR'}}; % {'RH','RCR'},
 
 % % late right frontal old/new
 % cfg_ana.conditions = {{'RHSC','RCR'}};
@@ -585,7 +585,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
+cfg_plot.line_plots = 1;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
