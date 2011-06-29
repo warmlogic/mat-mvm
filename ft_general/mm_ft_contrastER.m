@@ -229,9 +229,9 @@ for typ = 1:length(cfg_plot.conditions)
   
   if files.saveFigs
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tla_cont%s_ga_%s_%s_%s%d_%d%s%s.%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.title_str,cfg_plot.colorbar_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tla_cont%s_ga_%s_%s_%s%d_%d%s%s.%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
     else
-      cfg_plot.figfilename = sprintf('tla_cont%s_ga_%s_%s%d_%d%s%s.%s',cfg_plot.type,vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.title_str,cfg_plot.colorbar_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tla_cont%s_ga_%s_%s%d_%d%s%s.%s',cfg_plot.type,vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
     end
     
     dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,['tla_cont',cfg_plot.type]);

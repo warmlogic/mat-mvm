@@ -227,13 +227,16 @@ for typ = 1:length(cfg_plot.conditions)
     %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
     title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
     publishfig(gca,0);
+    cfg_plot.title_str = '_title';
+  else
+    cfg_plot.title_str = '';
   end
   
   if files.saveFigs
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s_%s%d_%d_%d_%d%s.%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s_%s%d_%d_%d_%d%s%s.%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
     else
-      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s%d_%d_%d_%d%s.%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s%d_%d_%d_%d%s%s.%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
     end
     
     dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,['tfr_cont',cfg_plot.type]);
