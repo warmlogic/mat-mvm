@@ -81,7 +81,7 @@ for cnd = 1:length(cfg_plot.conditions)
     fprintf('Loading %s\n',savedFile);
     load(savedFile);
   else
-    fprintf('No stat_clus file found for %s. Going to next comparison.\n',vs_str);
+    warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
     continue
   end
   

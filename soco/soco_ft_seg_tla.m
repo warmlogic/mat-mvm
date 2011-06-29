@@ -349,7 +349,7 @@ cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-5 2; -2 5];
+cfg_plot.ylims = [-4.5 2.5; -2 5];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -384,7 +384,7 @@ cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_plot.roi = {'LPS'};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
-cfg_plot.xlim = [-.2 1.0];
+cfg_plot.xlim = [-.2 1.5];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
 
@@ -555,10 +555,10 @@ cfg_ft.marker = 'on';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
 
-% cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.3 0.5]; % time
-cfg_plot.roi = {'LPS','RPS'};
-cfg_ft.xlim = [0.5 0.8]; % time
+cfg_plot.roi = {'LAS','RAS'};
+cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_plot.roi = {'LPS','RPS'};
+% cfg_ft.xlim = [0.5 0.8]; % time
 
 %cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
