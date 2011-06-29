@@ -30,8 +30,19 @@ if ~isfield(dirs,'saveDirStem')
   dirs.saveDirStem = dirs.dataDir;
 end
 
-%% name of the folder to save the FT data in; get all the event names
+if ~isfield(exper,'equateTrials')
+  exper.equateTrials = 0;
+end
 
+if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
+  ana.artifact.type = {'none'};
+elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
+  ana.artifact.type = {ana.artifact.type};
+end
+
+%% name of the folder to save the FT data in
+
+% get all the event names
 if ~isfield(exper,'eventValuesExtra')
   evStr = sprintf(repmat('%s_',1,length(exper.eventValues)),exper.eventValues{:});
 else
@@ -45,11 +56,22 @@ else
     evStr = sprintf(repmat('%s_',1,length(evStr)),evStr{:});
   end
 end
-% remove the underscore
+% remove the trailing underscore
 evStr = evStr(1:end-1);
 
+% denote the artifact type
+if length(ana.artifact.type) > 1
+  artStr = ana.artifact.type{1};
+  for i = 2:length(ana.artifact.type)
+    artStr = cat(2,artStr,'_',ana.artifact.type{i});
+  end
+else
+  artStr = ana.artifact.type{1};
+end
+artStr = cat(2,'art_',artStr);
+
 % denote whether the trial counts are being equated
-evStrDir = sprintf('%s_eq%d',evStr,exper.equateTrials);
+evStrDir = sprintf('%s_eq%d_%s',evStr,exper.equateTrials,artStr);
 
 %% set the directory name, dependent upon the analysis type
 

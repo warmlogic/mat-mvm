@@ -33,7 +33,17 @@ end
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses));
+    % turn the session name into a string for easier printing
+    if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+      ses_str = exper.sessions{ses}{1};
+      for i = 2:length(exper.sessions{ses})
+        ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+      end
+    elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
+      ses_str = exper.sessions{ses};
+    end
+
+    saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},ses_str);
     for typ = 1:length(eventValues)
       for evVal = 1:length(eventValues{typ})
         

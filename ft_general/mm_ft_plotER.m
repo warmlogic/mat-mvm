@@ -20,7 +20,8 @@ function mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
 %   cfg_plot.plotTitle  = 1 or 0. Whether to plot the title.
 %   cfg_plot.subplot    = 1 or 0. Whether to make a subplot. cfg_ft.xlim
 %                         can be a range of time values, otherwise 50ms
-%                         steps between min and max. ft_topoplotER only.
+%                         steps between min and max. Used with
+%                         ft_topoplotER only.
 %   cfg_plot.numCols    = If subplot == 1, the number of columns to plot
 %   files.saveFigs      = 1 or 0. Whether to save the figures.
 %
@@ -56,10 +57,17 @@ if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
     cfg_ft.linestyle = {'-','--','-.','-','--','-.','-'};
   end
 end
+if ~isfield(cfg_plot,'excludeBadSub')
+  cfg_plot.excludeBadSub = 1;
+end
 
 if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
   % need a layout if doing a topo or multi plot
-  cfg_ft.layout = ft_prepare_layout([],ana);
+  if isfield(ana,'elec')
+    cfg_ft.layout = ft_prepare_layout([],ana);
+  else
+    error('''ana'' struct must have ''elec'' field');
+  end
   
   if ~isfield(cfg_plot,'roi')
     % use all channels in a topo or multi plot
@@ -167,7 +175,7 @@ if isfield(cfg_plot,'subplot')
     if ~strcmp(cfg_plot.type,'topo')
       fprintf('Subplot only works with topoplot! Changing to non-subplot.\n');
       cfg_plot.subplot = 0;
-    else
+    elseif strcmp(cfg_plot.type,'topo')
       if length(cfg_ft.xlim) > 2
         % predefined time windows
         cfg_plot.timeS = cfg_ft.xlim;
@@ -185,7 +193,9 @@ if isfield(cfg_plot,'subplot')
       cfg_plot.numRows = ceil((length(cfg_plot.timeS)-1)/cfg_plot.numCols);
       
       % a few settings to make the graphs viewable
-      cfg_ft.comment = 'xlim';
+      if ~isfield(cfg_ft,'comment')
+        cfg_ft.comment = 'xlim';
+      end
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
@@ -251,6 +261,9 @@ for typ = 1:length(cfg_plot.conditions)
         timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
         voltmin = min(min(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
         voltmax = max(max(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
+      else
+        voltmin = cfg_ft.ylim(1);
+        voltmax = cfg_ft.ylim(2);
       end
       
       plot([cfg_ft.xlim(1) cfg_ft.xlim(2)],[0 0],'k--'); % horizontal
@@ -302,11 +315,11 @@ for typ = 1:length(cfg_plot.conditions)
     else
       cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s.%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg.conditions)),cfg.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,files.figFileExt);
     end
-    dirs.saveDirFigsERP = fullfile(dirs.saveDirFigs,'tla_erp');
-    if ~exist(dirs.saveDirFigsERP,'dir')
-      mkdir(dirs.saveDirFigsERP)
+    dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
+    if ~exist(dirs.saveDirFigsER,'dir')
+      mkdir(dirs.saveDirFigsER)
     end
-    print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsERP,cfg_plot.figfilename));
+    print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
   end
 end
 

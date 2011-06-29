@@ -1,6 +1,7 @@
 function mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,data)
 %MM_FT_PLOTERP make (and save) ERP plots
 %
+% WARNING: This is an old function! You should use MM_FT_PLOTER instead.
 %
 % See also: MM_FT_PLOTER
 

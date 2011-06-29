@@ -41,7 +41,11 @@ cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotTFR','');
 
 if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
   % need a layout if doing a topo or multi plot
-  cfg_ft.layout = ft_prepare_layout([],ana);
+  if isfield(ana,'elec')
+    cfg_ft.layout = ft_prepare_layout([],ana);
+  else
+    error('''ana'' struct must have ''elec'' field');
+  end
   
   if ~isfield(cfg_plot,'roi')
     % use all channels in a topo or multi plot
@@ -143,7 +147,7 @@ if isfield(cfg_plot,'subplot')
     if ~strcmp(cfg_plot.type,'topo')
       fprintf('Subplot only works with topoplot! Changing to non-subplot.\n');
       cfg_plot.subplot = 0;
-    else
+    elseif strcmp(cfg_plot.type,'topo')
       if length(cfg_ft.xlim) > 2
         % predefined time windows
         cfg_plot.timeS = cfg_ft.xlim;
@@ -161,7 +165,9 @@ if isfield(cfg_plot,'subplot')
       cfg_plot.numRows = ceil((length(cfg_plot.timeS)-1)/cfg_plot.numCols);
       
       % a few settings to make the graphs viewable
-      cfg_ft.comment = 'xlim';
+      if ~isfield(cfg_ft,'comment')
+        cfg_ft.comment = 'xlim';
+      end
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';

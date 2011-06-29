@@ -89,8 +89,18 @@ if ana.usePeer
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
       
-      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sprintf('ses%d',ses));
-      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses));
+      % turn the session name into a string for easier printing
+      if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+        ses_str = exper.sessions{ses}{1};
+        for i = 2:length(exper.sessions{ses})
+          ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+        end
+      elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
+        ses_str = exper.sessions{ses};
+      end
+      
+      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},ses_str);
+      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},ses_str);
       
       if ~exist(saveDirProcFile,'dir')
         mkdir(saveDirProcFile);
@@ -132,13 +142,16 @@ else
       
       % turn the session name into a string for easier printing
       if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-        ses_str = sprintf(repmat('%s ',1,length(exper.sessions{ses})),exper.sessions{ses}{:});
+        ses_str = exper.sessions{ses}{1};
+        for i = 2:length(exper.sessions{ses})
+          ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+        end
       elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
         ses_str = exper.sessions{ses};
       end
       
-      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sprintf('ses%d',ses));
-      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses));
+      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},ses_str);
+      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},ses_str);
       
       if ~exist(saveDirProcFile,'dir')
         mkdir(saveDirProcFile);

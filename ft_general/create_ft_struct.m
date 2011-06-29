@@ -4,9 +4,9 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 %
 % The default function (set in ana.segFxn) that this function calls is
-% seg2ft. See 'help seg2ft' for more information.
+% SEG2FT. See 'HELP SEG2FT' for more information.
 %
-% For multiple sessions, seg2ft will collapse across them if they're input
+% For multiple sessions, SEG2FT will collapse across them if they're input
 % as {{'ses1','ses2'}}. If they're input as {{'ses1'},{'ses2'}} then they
 % will be kept separate.
 %
@@ -184,16 +184,16 @@ for sub = 1:length(exper.subjects)
     
     % turn the session name into a string for easier printing
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-      % ses_str = exper.sessions{ses}{1};
-      ses_str = sprintf(repmat('%s ',1,length(exper.sessions{ses})),exper.sessions{ses}{:});
-      % % remove the trailing underscore
-      % ses_str = ses_str(1:end-1);
+      ses_str = exper.sessions{ses}{1};
+      for i = 2:length(exper.sessions{ses})
+        ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+      end
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
       ses_str = exper.sessions{ses};
     end
     
     % set the location to save the data and make sure it exists
-    saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sprintf('ses%d',ses));
+    saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},ses_str);
     if ~exist(saveDirRawFile,'dir')
       mkdir(saveDirRawFile);
     end
