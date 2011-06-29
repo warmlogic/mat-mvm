@@ -146,8 +146,8 @@ nChan_elecfile = size(elec.label,1);
 for ses = 1:length(session)
   sesName = session{ses};
   
-  % set ses_str to make sure it starts with a character, not a #, etc.
-  ses_str = sprintf('ses_%s',sesName);
+  % set sesStr to make sure it starts with a character, not a #, etc.
+  sesStr = sprintf('ses_%s',sesName);
   
   if strcmpi(nsFileExt,'sbin') || strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'egis')
     % make sure the EEG file exists
@@ -350,7 +350,7 @@ for ses = 1:length(session)
   
   %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1
-    append_data.(ses_str) = data;
+    append_data.(sesStr) = data;
   end
 end
 
@@ -358,12 +358,12 @@ end
   
 % run ft_appenddata if we're combining multiple sessions
 if length(session) > 1
-  ses_str = sprintf('ses_%s',session{1});
-  append_str = sprintf('append_data.%s',ses_str);
+  sesStr = sprintf('ses_%s',session{1});
+  append_str = sprintf('append_data.%s',sesStr);
   
   for ses = 2:length(session)
-    ses_str = sprintf('ses_%s',session{ses});
-    append_str = cat(2,append_str,sprintf(',append_data.%s',ses_str));
+    sesStr = sprintf('ses_%s',session{ses});
+    append_str = cat(2,append_str,sprintf(',append_data.%s',sesStr));
   end
   
   data = eval(sprintf('ft_appenddata([],%s);',append_str));

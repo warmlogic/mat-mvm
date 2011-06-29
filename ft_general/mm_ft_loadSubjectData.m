@@ -35,15 +35,15 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     % turn the session name into a string for easier printing
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-      ses_str = exper.sessions{ses}{1};
+      sesStr = exper.sessions{ses}{1};
       for i = 2:length(exper.sessions{ses})
-        ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+        sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
       end
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
-      ses_str = exper.sessions{ses};
+      sesStr = exper.sessions{ses};
     end
 
-    saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},ses_str);
+    saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
     for typ = 1:length(eventValues)
       for evVal = 1:length(eventValues{typ})
         
@@ -65,7 +65,7 @@ for sub = 1:length(exper.subjects)
           % data.(eventValues{typ}{evVal}).sub(sub).ses(ses) = load(inputfile);
           fprintf('Done.\n');
         else
-          fprintf('NOT FOUND: %s\n',inputfile);
+          warning([mfilename,':noFileFound'],'NOT FOUND: %s\n',inputfile);
           fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n');
           data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg.trl = [];
         end % if

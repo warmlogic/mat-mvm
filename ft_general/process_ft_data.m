@@ -91,16 +91,16 @@ if ana.usePeer
       
       % turn the session name into a string for easier printing
       if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-        ses_str = exper.sessions{ses}{1};
+        sesStr = exper.sessions{ses}{1};
         for i = 2:length(exper.sessions{ses})
-          ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+          sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
         end
       elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
-        ses_str = exper.sessions{ses};
+        sesStr = exper.sessions{ses};
       end
       
-      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},ses_str);
-      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},ses_str);
+      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
+      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
       
       if ~exist(saveDirProcFile,'dir')
         mkdir(saveDirProcFile);
@@ -142,16 +142,16 @@ else
       
       % turn the session name into a string for easier printing
       if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-        ses_str = exper.sessions{ses}{1};
+        sesStr = exper.sessions{ses}{1};
         for i = 2:length(exper.sessions{ses})
-          ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+          sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
         end
       elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
-        ses_str = exper.sessions{ses};
+        sesStr = exper.sessions{ses};
       end
       
-      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},ses_str);
-      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},ses_str);
+      saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
+      saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
       
       if ~exist(saveDirProcFile,'dir')
         mkdir(saveDirProcFile);
@@ -170,13 +170,13 @@ else
             cfg_proc.inputfile = inputfile;
             cfg_proc.outputfile = outputfile;
             
-            fprintf('Running %s on %s, %s, %s...\n',ana.ftFxn,exper.subjects{sub},ses_str,eventVal);
+            fprintf('Running %s on %s, %s, %s...\n',ana.ftFxn,exper.subjects{sub},sesStr,eventVal);
             try
               feval(str2func(ana.ftFxn),cfg_proc);
-              fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+              fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
             catch ME
               disp(ME)
-              warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},ses_str,eventVal);
+              warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},sesStr,eventVal);
               errFile = fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
               fprintf('Saving error information in %s.',errFile);
               save(errFile,'ME');

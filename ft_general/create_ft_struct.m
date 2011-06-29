@@ -184,16 +184,16 @@ for sub = 1:length(exper.subjects)
     
     % turn the session name into a string for easier printing
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-      ses_str = exper.sessions{ses}{1};
+      sesStr = exper.sessions{ses}{1};
       for i = 2:length(exper.sessions{ses})
-        ses_str = cat(2,ses_str,'_',exper.sessions{ses}{i});
+        sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
       end
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
-      ses_str = exper.sessions{ses};
+      sesStr = exper.sessions{ses};
     end
     
     % set the location to save the data and make sure it exists
-    saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},ses_str);
+    saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
     if ~exist(saveDirRawFile,'dir')
       mkdir(saveDirRawFile);
     end
@@ -247,7 +247,7 @@ for sub = 1:length(exper.subjects)
         end
       end
     elseif ~strcmpi(exper.nsFileExt,'set') && ~isempty(eventValuesToProcess)
-      fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},ses_str,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
+      fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
       ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,exper.prepost,files.elecfile,ana.artifact.type);
@@ -293,7 +293,7 @@ for sub = 1:length(exper.subjects)
         % get the name of this event type
         eventVal = eventValuesToProcess{evVal};
         
-        fprintf('Creating FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+        fprintf('Creating FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
         
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
@@ -321,9 +321,9 @@ for sub = 1:length(exper.subjects)
         % store the number of trials for this event value
         exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
         
-        fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+        fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
       else
-        warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+        warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
         if ~exist('emptyEvents','var')
           emptyEvents = {eventVal};
         elseif exist('emptyEvents','var')
@@ -376,7 +376,7 @@ for sub = 1:length(exper.subjects)
           % select a random subset
           if exper.equateTrials
             cfg_eq = [];
-            fprintf('Randomly selecting %d events (out of %d) for %s, %s, %s.\n',minNumEv,size(ft_raw.(eventVal).trial,2),exper.subjects{sub},ses_str,eventVal);
+            fprintf('Randomly selecting %d events (out of %d) for %s, %s, %s.\n',minNumEv,size(ft_raw.(eventVal).trial,2),exper.subjects{sub},sesStr,eventVal);
             % do a random permutation of all of this eventVal's trial numbers
             cfg_eq.evNums = randperm(size(ft_raw.(eventVal).trial,2));
             % select only the number of events that we need
@@ -398,9 +398,9 @@ for sub = 1:length(exper.subjects)
           cfg_pp.outputfile = fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',eventVal));
           
           % do any preprocessing
-          fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},ses_str,eventVal);
+          fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},sesStr,eventVal);
           ft_preprocessing(cfg_pp,ft_raw.(eventVal));
-          fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+          fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
           
           % any other functions to run? (e.g., ft_resampledata)
           data_suffix = [];
@@ -426,7 +426,7 @@ for sub = 1:length(exper.subjects)
             end
           end
         else
-          fprintf('No good trials found for %s, %s, %s!\n',exper.subjects{sub},ses_str,eventVal);
+          fprintf('No good trials found for %s, %s, %s!\n',exper.subjects{sub},sesStr,eventVal);
         end % if there were trials
       end % for exper.eventValues
     end % if ~exper.eventValuesExtra.onlyKeepExtras
@@ -451,7 +451,7 @@ for sub = 1:length(exper.subjects)
           end
           % append the data
           ft_raw.(eventVal) = eval(sprintf('ft_appenddata([],%s);',append_str));
-          fprintf('Created appended FT struct: %s, %s, %s (from %s).\n',exper.subjects{sub},ses_str,eventVal,append_vals);
+          fprintf('Created appended FT struct: %s, %s, %s (from %s).\n',exper.subjects{sub},sesStr,eventVal,append_vals);
         elseif length(evValToCombine) == 1
           fprintf('Only one event value (%s) was specified to create %s. Not running ft_append_data, setting %s=%s.\n',evValToCombine{1},eventVal,eventVal,evValToCombine{1});
           ft_raw.(eventVal) = ft_raw.(evValToCombine{1});
@@ -488,7 +488,7 @@ for sub = 1:length(exper.subjects)
           % select a random subset
           if exper.equateTrials
             cfg_eq = [];
-            fprintf('Randomly selecting %d events (out of %d) for %s, %s, %s.\n',minNumEv,size(ft_raw.(eventVal).trial,2),exper.subjects{sub},ses_str,eventVal);
+            fprintf('Randomly selecting %d events (out of %d) for %s, %s, %s.\n',minNumEv,size(ft_raw.(eventVal).trial,2),exper.subjects{sub},sesStr,eventVal);
             % do a random permutation of all of this eventVal's trial numbers
             cfg_eq.evNums = randperm(size(ft_raw.(eventVal).trial,2));
             % select only the number of events that we need
@@ -510,9 +510,9 @@ for sub = 1:length(exper.subjects)
           cfg_pp.outputfile = fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',eventVal));
           
           % do any preprocessing
-          fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},ses_str,eventVal);
+          fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},sesStr,eventVal);
           ft_preprocessing(cfg_pp,ft_raw.(eventVal));
-          fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},ses_str,eventVal);
+          fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
           
           % any other functions to run? (e.g., ft_resampledata)
           data_suffix = [];
@@ -538,7 +538,7 @@ for sub = 1:length(exper.subjects)
             end
           end
         else
-          fprintf('No good trials found for %s, %s, %s!\n',exper.subjects{sub},ses_str,eventVal);
+          fprintf('No good trials found for %s, %s, %s!\n',exper.subjects{sub},sesStr,eventVal);
         end % if there were trials
       end % for cVal
     end % if ~isempty(exper.eventValuesExtra.newValue)
