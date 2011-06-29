@@ -78,9 +78,9 @@ exper.subjects = {
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
-% directory and, if applicable, the ns_bci directory. They are not the
-% session directory names where the FieldTrip data is saved for each
-% subject because of the option to combine sessions. See 'help
+% directory and, if applicable, the ns_bci directory. They are not
+% necessarily the session directory names where the FieldTrip data is saved
+% for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
 exper.sessions = {'session_0'};
 
@@ -209,7 +209,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -257,7 +257,7 @@ cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
 figure
-ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
+ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{2}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{3}).sub(1).ses(1).data);
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E20'};

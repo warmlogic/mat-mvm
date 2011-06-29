@@ -95,9 +95,9 @@ exper.subjects = {
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
-% directory and, if applicable, the ns_bci directory. They are not the
-% session directory names where the FieldTrip data is saved for each
-% subject because of the option to combine sessions. See 'help
+% directory and, if applicable, the ns_bci directory. They are not
+% necessarily the session directory names where the FieldTrip data is saved
+% for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
 exper.sessions = {'ses1'};
 
@@ -272,9 +272,9 @@ cfg_ft.channelcmb = nchoosek(chans_to_pair,2);
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-      ses_str = sprintf(repmat('%s ',1,length(exper.sessions{ses})),exper.sessions{ses}{:});
+      sesStr = sprintf(repmat('%s ',1,length(exper.sessions{ses})),exper.sessions{ses}{:});
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
-      ses_str = exper.sessions{ses};
+      sesStr = exper.sessions{ses};
     end
     for evVal = 1:length(exper.eventValues)
       
@@ -282,7 +282,7 @@ for sub = 1:length(exper.subjects)
       cfg_ft.outputfile = fullfile(dirs.saveDirProc,exper.subjects{sub},sprintf('ses%d',ses),sprintf('data_%s_%s.mat',cfg_ft.method,exper.eventValues{evVal}));
       
       if ~exist(cfg_ft.outputfile,'file')
-        fprintf('Processing %s, %s, %s...\n',exper.subjects{sub},ses_str,exper.eventValues{evVal});
+        fprintf('Processing %s, %s, %s...\n',exper.subjects{sub},sesStr,exper.eventValues{evVal});
         ft_connectivityanalysis(cfg_ft);
         fprintf('Done.\n');
       else

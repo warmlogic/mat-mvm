@@ -70,9 +70,9 @@ exper.subjects = {
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
-% directory and, if applicable, the ns_bci directory. They are not the
-% session directory names where the FieldTrip data is saved for each
-% subject because of the option to combine sessions. See 'help
+% directory and, if applicable, the ns_bci directory. They are not
+% necessarily the session directory names where the FieldTrip data is saved
+% for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
 exper.sessions = {'session_0'};
 
