@@ -175,7 +175,9 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -197,9 +199,10 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 % list the values separated by types: 2Colors, 6Colors
-%ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
+ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
-ana.eventValues = {exper.eventValues};
+
+%ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 
 % make sure ana.eventValues is set properly
@@ -279,7 +282,9 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_t
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+%exper.badBehSub = {};
+% these guys have weird voltages, just playing around with excluding them
+exper.badBehSub = {'SOCO012','SOCO024'};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -343,7 +348,8 @@ end
 %% subplots of each subject's ERPs
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'RAS'},{'LPS'}};
 %cfg_plot.roi = {'E124'};
 %cfg_plot.roi = {'RAS'};
 %cfg_plot.roi = {'LPS','RPS'};
@@ -440,7 +446,7 @@ cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
-cfg_plot.plotTitle = 0;
+cfg_plot.plotTitle = 1;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -449,21 +455,25 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 0;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 0;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% cfg_ft.comment = 'no';
-% %cfg_ft.xlim = [0.5 0.8]; % time
-% cfg_plot.subplot = 1;
-% cfg_ft.xlim = [1.0 1.5]; % time
+cfg_plot.ftFxn = 'ft_topoplotER';
+cfg_plot.ylims = [-4 4];
+%cfg_plot.ylims = 'maxmin';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+%cfg_ft.comment = 'no';
+%cfg_ft.xlim = [0.5 0.8]; % time
+cfg_plot.subplot = 0;
+%cfg_plot.rois = {{'RAS'}};
+cfg_plot.rois = {'all'};
+cfg_ft.xlim = [1.1 1.9]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -479,11 +489,27 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWes
 % for each event type; each event type cell holds strings for its
 % conditions
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+
+% outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% for each event type; each event type cell holds strings for its
+% conditions
+cfg_plot.condByTypeByROI = repmat({{{'HSC2','HSI2','CR2'},{'HSC6','HSI6','CR6'}}},size(cfg_plot.rois));
+% cfg_plot.condByTypeByROI = {...
+%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
+%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
+%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
+%   };
+cfg_plot.typesByROI = repmat({{'C2','C6'}},size(cfg_plot.condByTypeByROI));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
+  %cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  cfg_plot.types = cfg_plot.typesByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   
   if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
@@ -502,17 +528,16 @@ cfg_plot = [];
 cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1]; % time
 cfg_ft.zparam = 'avg';
-cfg_ft.interactive = 'no';
+cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';
 
 %cfg_plot.conditions = {{'all_within_types'}};
 %cfg_plot.conditions = {{'all_across_types'}};
 %cfg_plot.condMethod = 'pairwise';
-%cfg_plot.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
+%cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
@@ -525,17 +550,21 @@ cfg_plot.roi = {'LAS','RAS'};
 cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
+cfg_plot.roi = {'RAS'};
+cfg_ft.xlim = [1.1 1.9]; % time
 
 %cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.subplot = 1;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
+% cfg_ft.xlim = [-0.2 1.5]; % time
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.comment = '';
 % cfg_ft.ylim = [-1 1]; % volt
 
 % cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_ft.xlim = [-0.2 1.5]; % time
 % cfg_plot.roi = {'LPS'};
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.ylim = [-1 1]; % volt
@@ -546,14 +575,14 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
-%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'},{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'}};
+%cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
-%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-%cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
+%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 %cfg_ana.conditions = {{'all_within_types'}};
 
 % set parameters for the statistical test
@@ -567,9 +596,9 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 1;
-%cfg_plot.ylims = [-4 -1; 1 4];
-cfg_plot.ylims = [-4 -1; 1 4; 1 4];
-%cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
+cfg_plot.ylims = [-4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
+%cfg_plot.ylims = [-4 -1; 1 4; 1 4];
+cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
