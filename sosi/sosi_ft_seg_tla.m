@@ -170,24 +170,6 @@ if emailme
   send_gmail(subject,mail_message);
 end
 
-% %% add NS's artifact information to the event structure
-% nsEvFilters.eventValues = exper.eventValues;
-% % RCR
-% nsEvFilters.RCR.type = 'TEST_LURE';
-% nsEvFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % RHSC
-% nsEvFilters.RHSC.type = 'TEST_TARGET';
-% nsEvFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % RHSI
-% nsEvFilters.RHSI.type = 'TEST_TARGET';
-% nsEvFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% 
-% for sub = 1:length(exper.subjects)
-%   for ses = 1:length(exper.sessions)
-%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,0);
-%   end
-% end
-
 %% load the analysis details
 
 adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';

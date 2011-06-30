@@ -122,40 +122,6 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 files.saveFigs = 1;
 files.figFileExt = 'png';
 
-% %% add NS's artifact information to the event structure
-% nsEvFilters.eventValues = exper.eventValues;
-% % CR2
-% nsEvFilters.CR2.type = 'LURE_PRES';
-% nsEvFilters.CR2.testType = 'side';
-% nsEvFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % HSC2
-% nsEvFilters.HSC2.type = 'TARG_PRES';
-% nsEvFilters.HSC2.testType = 'side';
-% nsEvFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % HSI2
-% nsEvFilters.HSI2.type = 'TARG_PRES';
-% nsEvFilters.HSI2.testType = 'side';
-% nsEvFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% % CR6
-% nsEvFilters.CR6.type = 'LURE_PRES';
-% nsEvFilters.CR6.testType = 'task';
-% nsEvFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % HSC6
-% nsEvFilters.HSC6.type = 'TARG_PRES';
-% nsEvFilters.HSC6.testType = 'task';
-% nsEvFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % HSI6
-% nsEvFilters.HSI6.type = 'TARG_PRES';
-% nsEvFilters.HSI6.testType = 'task';
-% nsEvFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% 
-% for sub = 1:length(exper.subjects)
-%   for ses = 1:length(exper.sessions)
-%     overwriteArtFields = 1;
-%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
-%   end
-% end
-
 %% Convert the data to FieldTrip structs
 
 % raw data
