@@ -72,7 +72,7 @@ if isnumeric(replace_dataroot) && replace_dataroot == 1
   end
   
   if strcmp(dirs.dataroot,new_dataroot)
-    fprintf('dirs.dataroot and the dataroot for this location are the same (%s), nothing will be changed.\n',dirs.dataroot);
+    fprintf('Saved dirs.dataroot and dataroot for this location are the same (%s), nothing will be changed.\n',dirs.dataroot);
     do_the_replace = 0;
   end
 elseif iscell(replace_dataroot)
@@ -89,7 +89,7 @@ end
 
 % do the replacement
 if do_the_replace
-  fprintf('Replacing %s with %s...',old_dataroot,new_dataroot);
+  fprintf('Replacing saved dirs.dataroot (%s) with dataroot for this location (%s)...',old_dataroot,new_dataroot);
   
   % backwards compatibility
   if ~isfield(dirs,'saveDirProc') && isfield(dirs,'saveDir')
