@@ -146,7 +146,9 @@ if isfield(cfg_plot,'subplot')
       cfg_plot.numRows = ceil((length(cfg_plot.timeS)-1)/cfg_plot.numCols);
       
       % a few settings to make the graphs viewable
-      cfg_ft.comment = 'xlim';
+      if ~isfield(cfg_ft,'comment')
+        cfg_ft.comment = 'xlim';
+      end
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
@@ -167,12 +169,6 @@ if isfield(cfg_ft,'ylim')
   end
 else
   cfg_ft.ylim = [min(data.(cfg_plot.conditions{1}{1}).freq) max(data.(cfg_plot.conditions{1}{1}).freq)];
-end
-
-if strcmp(cfg_ft.colorbar,'yes')
-  cfg_plot.colorbar_str = '_cb';
-else
-  cfg_plot.colorbar_str = '';
 end
 
 % initialize for storing the contrast topoplots
@@ -212,16 +208,17 @@ for typ = 1:length(cfg_plot.conditions)
     set(gcf,'Name',sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)))
   end
   
-  if strcmp(cfg_ft.zparam,'powspctrm')
-    if strcmp(cfg_ft.colorbar,'yes')
-      h = colorbar;
-      set(get(h,'YLabel'),'string','Power');
-    end
-  elseif strcmp(cfg_ft.zparam,'cohspctrm')
-    if strcmp(cfg_ft.colorbar,'yes')
-      h = colorbar;
-      set(get(h,'YLabel'),'string','Coherence');
-    end
+  if strcmp(cfg_ft.colorbar,'yes')
+    cfg_plot.colorbar_str = '_cb';
+    h = colorbar;
+    set(get(h,'YLabel'),'string',cfg_ft.zparam);
+  else
+    cfg_plot.colorbar_str = '';
+  end
+  if cfg_plot.subplot
+    cfg_plot.subplot_str = '_subplot';
+  else
+    cfg_plot.subplot_str = '';
   end
   if cfg_plot.plotTitle
     %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
@@ -234,9 +231,9 @@ for typ = 1:length(cfg_plot.conditions)
   
   if files.saveFigs
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s_%s%d_%d_%d_%d%s%s.%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
     else
-      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s%d_%d_%d_%d%s%s.%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
+      cfg_plot.figfilename = sprintf('tfr_cont%s_ga_%s_%s%d_%d_%d_%d%s%s%s.%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
     end
     
     dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,['tfr_cont',cfg_plot.type]);

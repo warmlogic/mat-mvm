@@ -171,8 +171,6 @@ if isfield(cfg_plot,'subplot')
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
-      %cfg_ft.marker = 'labels';
-      
       if isfield(cfg_ft,'markerfontsize')
         cfg_ft = rmfield(cfg_ft,'markerfontsize');
       end
@@ -225,6 +223,16 @@ for typ = 1:length(cfg_plot.conditions)
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     end
     
+    if strcmp(cfg_ft.colorbar,'yes')
+      cfg_plot.colorbar_str = '_cb';
+    else
+      cfg_plot.colorbar_str = '';
+    end
+    if cfg_plot.subplot
+      cfg_plot.subplot_str = '_subplot';
+    else
+      cfg_plot.subplot_str = '';
+    end
     if cfg_plot.plotTitle
       %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.condNames{1},cfg_plot.condNames{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
       title(sprintf('%s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
@@ -234,17 +242,11 @@ for typ = 1:length(cfg_plot.conditions)
       cfg_plot.title_str = '';
     end
     
-    if strcmp(cfg_ft.colorbar,'yes')
-      cfg_plot.colorbar_str = '_cb';
-    else
-      cfg_plot.colorbar_str = '';
-    end
-    
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
-        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s.%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
       else
-        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s%d_%d_%d_%d%s%s.%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.title_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s%d_%d_%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
       end
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg_plot.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')

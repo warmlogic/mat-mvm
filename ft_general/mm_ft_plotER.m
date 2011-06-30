@@ -199,8 +199,6 @@ if isfield(cfg_plot,'subplot')
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
-      %cfg_ft.marker = 'labels';
-      
       if isfield(cfg_ft,'markerfontsize')
         cfg_ft = rmfield(cfg_ft,'markerfontsize');
       end
@@ -214,6 +212,11 @@ end
 % each entry in cfg_plot.conditions is a cell containing this type of event
 for typ = 1:length(cfg_plot.conditions)
   if strcmp(cfg_plot.type,'topo')
+    if ~isfield(cfg_ft,'zlim') && isfield(cfg_ft,'ylim')
+      cfg_ft.zlim = cfg_ft.ylim;
+      cfg_ft = rmfield(cfg_ft,'ylim');
+    end
+    
     for evVal = 1:length(cfg_plot.conditions{typ})
       figure
       
@@ -238,9 +241,40 @@ for typ = 1:length(cfg_plot.conditions)
         if cfg_plot.plotTitle
           title(sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
         end
-      end
+        
+        publishfig(gca,~cfg_plot.plotTitle);
+        
+      end % subplot
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
-    end
+      if cfg_plot.plotLegend
+        cfg_plot.legend_str = '_legend';
+      else
+        cfg_plot.legend_str = '';
+      end
+      if cfg_plot.subplot
+        cfg_plot.subplot_str = '_subplot';
+      else
+        cfg_plot.subplot_str = '';
+      end
+      if cfg_plot.plotTitle
+        cfg_plot.title_str = '_title';
+      else
+        cfg_plot.title_str = '';
+      end
+      
+      if files.saveFigs
+        if ~isempty(cfg_plot.types{typ})
+          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s_%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+        else
+          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+        end
+        dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
+        if ~exist(dirs.saveDirFigsER,'dir')
+          mkdir(dirs.saveDirFigsER)
+        end
+        print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
+      end
+    end % for evVal
     
   elseif strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
     
@@ -257,7 +291,7 @@ for typ = 1:length(cfg_plot.conditions)
       eval(sprintf('ft_singleplotER(cfg_ft,%s);',ana_str));
       hold on
       
-      if ischar(cfg_ft.ylim)
+      if ischar(cfg_ft.ylim) && strcmp(cfg_ft.ylim,'maxmin')
         timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
         voltmin = min(min(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
         voltmax = max(max(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
@@ -301,31 +335,36 @@ for typ = 1:length(cfg_plot.conditions)
     if ~cfg_plot.subplot
       publishfig(gca,~cfg_plot.plotTitle);
     end
-  end
-  
-  if cfg_plot.plotLegend
-    cfg_plot.legend_str = '_legend';
-  else
-    cfg_plot.legend_str = '';
-  end
-  if cfg_plot.plotTitle
-    cfg_plot.title_str = '_title';
-  else
-    cfg_plot.title_str = '';
-  end
-
-  if files.saveFigs
-    if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s.%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg.conditions)),cfg.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.title_str,files.figFileExt);
+    
+    if cfg_plot.plotLegend
+      cfg_plot.legend_str = '_legend';
     else
-      cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s.%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg.conditions)),cfg.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.title_str,files.figFileExt);
+      cfg_plot.legend_str = '';
     end
-    dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
-    if ~exist(dirs.saveDirFigsER,'dir')
-      mkdir(dirs.saveDirFigsER)
+    if cfg_plot.subplot
+      cfg_plot.subplot_str = '_subplot';
+    else
+      cfg_plot.subplot_str = '';
     end
-    print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
-  end
+    if cfg_plot.plotTitle
+      cfg_plot.title_str = '_title';
+    else
+      cfg_plot.title_str = '';
+    end
+    
+    if files.saveFigs
+      if ~isempty(cfg_plot.types{typ})
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions)),cfg_plot.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+      else
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s.%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions)),cfg_plot.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+      end
+      dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
+      if ~exist(dirs.saveDirFigsER,'dir')
+        mkdir(dirs.saveDirFigsER)
+      end
+      print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
+    end
+  end % topo/single/multi
 end
 
 end
