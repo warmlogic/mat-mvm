@@ -48,7 +48,11 @@ if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
     cfg_ft.fontsize = 9;
   end
   if ~isfield(cfg_ft,'linewidth')
-    cfg_ft.linewidth = 2;
+    if strcmp(cfg_plot.type,'single')
+      cfg_ft.linewidth = 2;
+    elseif strcmp(cfg_plot.type,'multi')
+      cfg_ft.linewidth = 1;
+    end
   end
   if ~isfield(cfg_ft,'graphcolor')
     cfg_ft.graphcolor = 'rbkgcmy';
@@ -212,9 +216,10 @@ end
 % each entry in cfg_plot.conditions is a cell containing this type of event
 for typ = 1:length(cfg_plot.conditions)
   if strcmp(cfg_plot.type,'topo')
+    % ft_topoplotER requires zlim, not ylim
     if ~isfield(cfg_ft,'zlim') && isfield(cfg_ft,'ylim')
       cfg_ft.zlim = cfg_ft.ylim;
-      cfg_ft = rmfield(cfg_ft,'ylim');
+      %cfg_ft = rmfield(cfg_ft,'ylim');
     end
     
     for evVal = 1:length(cfg_plot.conditions{typ})
@@ -330,7 +335,12 @@ for typ = 1:length(cfg_plot.conditions)
     end
     
     if cfg_plot.plotTitle
-      title(strrep(cfg_plot.chan_str,'_',' '));
+      if strcmp(cfg_plot.roi,'all')
+        title(sprintf('%s %.1f--%.1f s',sprintf(repmat('%s,',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+      else
+        title(sprintf('%s %s, %.1f--%.1f s',sprintf(repmat('%s,',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+      end
+      %title(strrep(cfg_plot.chan_str,'_',' '));
     end
     if ~cfg_plot.subplot
       publishfig(gca,~cfg_plot.plotTitle);
@@ -354,9 +364,9 @@ for typ = 1:length(cfg_plot.conditions)
     
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
-        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions)),cfg_plot.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
       else
-        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s.%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions)),cfg_plot.conditions{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s.%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
       end
       dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
       if ~exist(dirs.saveDirFigsER,'dir')
