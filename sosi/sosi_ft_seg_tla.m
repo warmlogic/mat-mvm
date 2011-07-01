@@ -27,13 +27,13 @@ exper.nsFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'RCR','RHSC','RHSI'});
-%exper.eventValues = sort({'F','N','RO','RS'});
+%exper.eventValues = sort({'RCR','RHSC','RHSI'});
+exper.eventValues = sort({'F','N','RO','RS'});
 %exper.eventValues = sort({'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
-exper.eventValuesExtra.newValue = {{'RH'}};
-exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+%exper.eventValuesExtra.newValue = {{'RH'}};
+%exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 %exper.eventValuesExtra.onlyKeepExtras = 0;
@@ -83,9 +83,9 @@ exper.sessions = {'session_0'};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
-%dirs.subDir = 'RK';
+dirs.subDir = 'RK';
 %dirs.subDir = 'SCSI';
-dirs.subDir = '';
+%dirs.subDir = '';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
@@ -309,7 +309,8 @@ cfg_ft.xlim = [-.2 1.5];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'RAS'},{'LPS'}};
 cfg_plot.ylims = [-5 2; -1 6];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
@@ -444,7 +445,7 @@ cfg_plot.ftFxn = 'ft_singleplotER';
 cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 0;
+cfg_plot.plotLegend = 1;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
 % cfg_plot.ftFxn = 'ft_topoplotER';
@@ -469,8 +470,8 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWes
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -548,8 +549,8 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
-%cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 %cfg_ana.conditions = {{'RH','RCR'}}; % {'RH','RCR'},
 
 % % late right frontal old/new
