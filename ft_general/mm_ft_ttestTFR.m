@@ -235,10 +235,14 @@ end
 fprintf('%s\n',gaStr);
 % sub avg
 fprintf('Subject%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
-for sub = 1:length(cfg_ana.goodSub)
+goodSubInd = 0;
+for sub = 1:length(exper.subjects)
+  ses = 1;
+  %for ses = 1:length(exper.sessions)
   if exper.badSub(sub,ses)
     continue
   else
+    goodSubInd = goodSubInd + 1;
     subStr = exper.subjects{sub};
     for evVal = 1:length(allConds)
       if length(allConds{evVal}) > 7
@@ -246,10 +250,11 @@ for sub = 1:length(cfg_ana.goodSub)
       else
         tabchar_ev = '';
       end
-      subStr = cat(2,subStr,sprintf('\t%.2f%s',cfg_ana.values.(allConds{evVal})(sub),sprintf(tabchar_ev)));
+      subStr = cat(2,subStr,sprintf('\t%.2f%s',cfg_ana.values.(allConds{evVal})(goodSubInd),sprintf(tabchar_ev)));
     end
     fprintf('%s\n',subStr);
   end
+  %end
 end
 fprintf('\n');
 

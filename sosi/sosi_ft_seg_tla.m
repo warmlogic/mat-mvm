@@ -28,8 +28,8 @@ exper.nsFileExt = 'egis';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
 %exper.eventValues = sort({'RCR','RHSC','RHSI'});
-exper.eventValues = sort({'F','N','RO','RS'});
-%exper.eventValues = sort({'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'});
+%exper.eventValues = sort({'F','N','RO','RS'});
+exper.eventValues = sort({'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
 %exper.eventValuesExtra.newValue = {{'RH'}};
@@ -83,8 +83,8 @@ exper.sessions = {'session_0'};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
-dirs.subDir = 'RK';
-%dirs.subDir = 'SCSI';
+%dirs.subDir = 'RK';
+dirs.subDir = 'RKSCSI';
 %dirs.subDir = '';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
@@ -172,7 +172,9 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -193,9 +195,9 @@ ana = mm_ft_channelgroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
+%ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC'}};
+ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -274,7 +276,10 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {'SOSI011','SOSI030'};
+%exper.badBehSub = {'SOSI011','SOSI030'};
+exper.badBehSub = {'SOSI001','SOSI011','SOSI030'};
+
+% 11 and 30 had no F responses; 1 has weird voltages
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -305,7 +310,7 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.5];
+cfg_ft.xlim = [-.2 2.0];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
@@ -341,7 +346,8 @@ end
 %% subplots of each subject's ERPs
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'RAS'},{'LPS'}};
 %cfg_plot.rois = {{'Cz'}};
 %cfg_plot.roi = {'E124'};
 %cfg_plot.roi = {'RAS'};
@@ -540,12 +546,20 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
-%cfg_ana.rois = {{'LAS','RAS'}};
+cfg_ana.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+%cfg_ana.rois = {{'LAS'},{'RAS'}};
 % define the times that correspond to each set of ROIs
-%cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+% % LF O/N
+% cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
+% cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
+
+% LPN
+cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
+cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
 %cfg_ana.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
@@ -568,9 +582,9 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
-cfg_plot.ylims = [-4 -1; 2.5 5.5; 2.5 5.5];
+cfg_plot.ylims = [-4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
 
 for r = 1:length(cfg_ana.rois)
