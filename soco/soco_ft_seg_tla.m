@@ -179,10 +179,10 @@ end
 
 %% load the analysis details
 
-%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
@@ -205,13 +205,13 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 % list the values separated by types: 2Colors, 6Colors
-ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
+%ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 
-%ana.eventValues = {exper.eventValues};
+ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -323,7 +323,7 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.5];
+cfg_ft.xlim = [-.2 2.0];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
@@ -450,7 +450,7 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.xlim = 'maxmin'; % time
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
-cfg_ft.xlim = [-0.2 1.5]; % time
+cfg_ft.xlim = [-0.2 2.0]; % time
 
 cfg_ft.zparam = 'avg';
 
@@ -464,25 +464,29 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 1;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-4 4];
-% %cfg_plot.ylims = 'maxmin';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% %cfg_ft.comment = 'no';
-% %cfg_ft.xlim = [0.5 0.8]; % time
-% cfg_plot.subplot = 0;
-% %cfg_plot.rois = {{'RAS'}};
-% cfg_plot.rois = {'all'};
-% cfg_ft.xlim = [1.1 1.9]; % time
+cfg_plot.ftFxn = 'ft_topoplotER';
+cfg_plot.ylims = [-6 6];
+%cfg_plot.ylims = 'maxmin';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+%cfg_ft.comment = 'no';
+cfg_plot.rois = {'all'};
+cfg_ft.xlim = [0 1.2]; % time
+cfg_plot.subplot = 1;
+%cfg_plot.rois = {{'RAS'}};
+%cfg_ft.xlim = [0.3 0.5]; % time
+%cfg_plot.rois = {{'LPS'}};
+%cfg_ft.xlim = [0.5 0.8]; % time
+%cfg_plot.rois = {{'LPS'}};
+%cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -545,26 +549,30 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.conditions = {{'all_within_types'}};
 %cfg_plot.conditions = {{'all_across_types'}};
 %cfg_plot.condMethod = 'pairwise';
-cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
+%cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
 %cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_plot.conditions = {{'RHSC','RHSI'}};
+
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
+%cfg_ft.comment = 'no';
 
-cfg_plot.roi = {'LAS','RAS'};
-cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_plot.roi = {'LAS','RAS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
-cfg_plot.roi = {'RAS'};
-cfg_ft.xlim = [1.1 1.9]; % time
+%cfg_plot.roi = {'RAS'};
+%cfg_ft.xlim = [1.1 1.9]; % time
+cfg_ft.xlim = [0 1.5]; % time
+cfg_plot.roi = {'all'};
 
 %cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
-%cfg_plot.subplot = 1;
+cfg_plot.subplot = 1;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.xlim = [-0.2 1.5]; % time
@@ -594,9 +602,9 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
 % cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
 
-% % LPN
-% cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
-% cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
+% LPN
+cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
+cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
 
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};

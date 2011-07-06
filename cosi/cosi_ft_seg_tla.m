@@ -53,16 +53,16 @@ exper.subjects = {
 %   'COSI008';
 %   'COSI009';
 %   'COSI010';
-% %   'COSI011';
-% %   'COSI012';
-% %   'COSI013';
-% %   'COSI014';
-% %   'COSI015';
-% %   'COSI016';
-% %   'COSI017';
-% %   'COSI018';
-% %   'COSI019';
-% %   'COSI020';
+  'COSI011';
+  'COSI012';
+  'COSI013';
+  'COSI014';
+  'COSI015';
+%   'COSI016';
+  'COSI017';
+  'COSI018';
+%   'COSI019';
+  'COSI020';
 % %   'COSI021';
 % %   'COSI022';
 % %   'COSI023';
@@ -354,11 +354,12 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.0];
+cfg_ft.xlim = [-.2 2.0];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'RAS'},{'LPS'}};
 cfg_plot.ylims = [-5 2; -2 5];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 

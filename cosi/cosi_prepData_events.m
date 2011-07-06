@@ -43,14 +43,14 @@ if nargin == 0
 %     'COSI008';
 %     'COSI009';
 %     'COSI010';
-    'COSI011';
-    'COSI012';
-    'COSI013';
-    'COSI014';
-    'COSI015';
-    'COSI016';
+%     'COSI011';
+%     'COSI012';
+%     'COSI013';
+%     'COSI014';
+%     'COSI015';
+%     'COSI016';
 %     'COSI017';
-    'COSI018';
+%     'COSI018';
 %     'COSI019';
 %     'COSI020';
 %     'COSI021';
@@ -82,6 +82,7 @@ if nargin == 0
 end
 
 sessions = {'session_0','session_1'};
+%sessions = {'session_1'};
 
 %matlabpool open
 

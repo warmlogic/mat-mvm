@@ -196,8 +196,9 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 %ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'}};
-ana.eventValues = {{'FSC','FSI','N','RSSC'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC','ROSI'}};
+ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -433,7 +434,7 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.xlim = 'maxmin'; % time
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
-cfg_ft.xlim = [-0.2 1.5]; % time
+cfg_ft.xlim = [-0.2 2.0]; % time
 
 cfg_ft.zparam = 'avg';
 
@@ -455,13 +456,20 @@ cfg_plot.plotLegend = 1;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
 % cfg_plot.ftFxn = 'ft_topoplotER';
+% cfg_plot.ylims = [-6 6];
+% %cfg_plot.ylims = 'maxmin';
 % %cfg_ft.marker = 'on';
 % cfg_ft.marker = 'labels';
 % cfg_ft.markerfontsize = 9;
-% cfg_ft.comment = 'no';
-% %cfg_ft.xlim = [0.5 0.8]; % time
-% cfg_plot.subplot = 1;
-% cfg_ft.xlim = [1.0 1.5]; % time
+% %cfg_ft.comment = 'no';
+% %cfg_plot.rois = {'all'};
+% cfg_plot.subplot = 0;
+% %cfg_plot.rois = {{'RAS'}};
+% %cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_plot.rois = {{'LPS'}};
+% cfg_ft.xlim = [0.5 0.8]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -553,13 +561,13 @@ cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-% % LF O/N
-% cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
-% cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
+% LF O/N
+cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
+cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
 
-% LPN
-cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
+% % LPN
+% cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
 %cfg_ana.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
