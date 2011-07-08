@@ -32,30 +32,40 @@ if iscell(cfg.conditions) && iscell(cfg.conditions{1})
   cfg.conditions = cat(2,cfg.conditions{:});
 end
 
-if ~isfield(cfg,'excludeBadSub')
-  cfg.excludeBadSub = 1;
-end
-
 if nargin < 2
   if ~cfg.is_ga
-    error('Need to include exper struct if using individual subject data.');
+    error('You must include the exper struct if using individual subject data.');
   end
 end
 
 if ~cfg.is_ga
+  % exclude the bad subjects by default
+  if ~isfield(cfg,'excludeBadSub')
+    cfg.excludeBadSub = 1;
+  end
+end
+
+if ~cfg.is_ga
+  % if we have individual subject data...
+  
+  % initialize to see if we've added the first subject
   firstOneDone = 0;
   
+  % go through subjects, add strings for the ones we want
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
       if exper.badSub(sub,ses)
         if cfg.excludeBadSub
+          % skip this subject if they're bad
           fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
           continue
         else
+          % keep them in if they're bad
           fprintf('Including bad subject: %s\n',exper.subjects{sub});
         end
       else
         if ~firstOneDone
+          % add the first subject; the string is formatetted differently
           for evVal = 1:length(cfg.conditions)
             ana_str.(cfg.conditions{evVal}){ses} = sprintf('%s.%s.sub(%d).ses(%d).data',cfg.data_str,cfg.conditions{evVal},sub,ses);
           end
@@ -69,6 +79,7 @@ if ~cfg.is_ga
     end
   end
 else
+  % if we have grand average data, then we just need the event value names
   ana_str = sprintf('%s.%s',cfg.data_str,cfg.conditions{1});
   if length(cfg.conditions) > 1
     for evVal = 2:length(cfg.conditions)
