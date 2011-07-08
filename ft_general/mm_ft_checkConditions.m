@@ -76,6 +76,7 @@ if strcmp(condMethod,'check') && length(conditions{1}) == 1 && (strcmp(condition
 end
 
 if ~strcmp(condMethod,'check')
+  % if we need to create the condition cells
   if strcmp(condMethod,'single')
     if length(ana.eventValues) == 1 && strcmp(conditions{1},'all')
       conditions = ana.eventValues;
@@ -138,12 +139,14 @@ if ~strcmp(condMethod,'check')
     end
   end
 else
+  % if we just need to check on the conditions that we've already made
   for i = 1:length(conditions)
     if size(conditions{i},1) > 1 && size(conditions{i},2) > 1
       error('mm_ft_checkConditions:cfgConditionsFieldLengthGT1','conditions was not defined properly; dim 2 length is greater than 1.');
     end
     % make sure the specified conditions are in ana.eventValues
-    if sum(~ismember(conditions{i},cat(2,ana.eventValues{:})))
+    %if sum(~ismember(conditions{i},cat(2,ana.eventValues{:})))
+    if sum(~ismember(cellflat(conditions{i}),cellflat(ana.eventValues))) ~= 0
       condNames = sprintf(repmat('%s ',1,length(conditions{i})),conditions{i}{:});
       anaEvValueNames = sprintf(repmat('%s ',1,length(ana.eventValues{:})),ana.eventValues{:}{:});
       error('mm_ft_checkConditions:cfgConditionsNotIn_ana_eventValues','conditions %snot found in ana.eventValues: %s',condNames,anaEvValueNames);

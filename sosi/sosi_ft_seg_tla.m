@@ -172,9 +172,9 @@ end
 
 %% load the analysis details
 
-%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -195,9 +195,9 @@ ana = mm_ft_channelgroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-%ana.eventValues = {exper.eventValues};
+ana.eventValues = {exper.eventValues};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC','ROSI'}};
-ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 
 % make sure ana.eventValues is set properly
@@ -278,7 +278,7 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 
 % Subjects with bad behavior
 %exper.badBehSub = {'SOSI011','SOSI030'};
-exper.badBehSub = {'SOSI001','SOSI011','SOSI030'};
+exper.badBehSub = {'SOSI001','SOSI011','SOSI030','SOSI005','SOSI007','SOSI024'};
 
 % 11 and 30 had no F responses; 1 has weird voltages
 
@@ -561,9 +561,9 @@ cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-% LF O/N
-cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
-cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
+% % LF O/N
+% cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
+% cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
 
 % % LPN
 % cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
@@ -657,8 +657,8 @@ cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.latencies = [0 1.0; 1.0 2.0];
 
-%cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -710,12 +710,13 @@ cfg_ana.dpTypesByROI = {...
 % for each event type; each event type cell holds two cells, one for each
 % d' type; each d' cell contains strings for its conditions
 cfg_ana.condByROI = {...
-  {{'RCR','RH'},{'RHSC','RHSI'}}...
-  {{'RCR','RH'},{'RHSC','RHSI'}}};
+  {{{'RCR','RH'},{'RHSC','RHSI'}}}...
+  {{{'RCR','RH'},{'RHSC','RHSI'}}}...
+  };
 
 % C2 d' values
-cfg_ana.d_item =  abs([]);
-cfg_ana.d_source =  abs([]);
+cfg_ana.d_item =  abs([2.4097 1.0515 1.96 1.3415 0.8847 1.2262 0.185 1.9627 1.9172 1.2042 2.4869 0.9108 1.0307 1.7126 1.5148 0.9685 0.8161 2.01 1.4023 1.1812 1.1075 1.158 2.297 0.4566 1.4412 1.5941 1.4036 1.7561 1.5984 1.2559]);
+cfg_ana.d_source =  abs([2.6106 1.2027 1.4935 1.6098 1.3775 1.0969 -0.0091 1.8163 2.6303 1.1994 2.3238 1.3773 1.6098 1.558 1.6074 0.8615 1.5947 2.5703 1.1201 1.1413 1.4435 0.8991 2.1249 1.0527 1.6722 1.5655 2.2779 2.1516 1.6759 1.6462]);
 
 cfg_ana.parameter = 'avg';
 

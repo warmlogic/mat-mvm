@@ -180,9 +180,9 @@ end
 %% load the analysis details
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
@@ -208,10 +208,10 @@ ana = mm_ft_channelgroups(ana);
 %ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 
-ana.eventValues = {exper.eventValues};
+%ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
+ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -295,7 +295,7 @@ exper.badBehSub = {};
 %exper.badBehSub = {'SOCO012','SOCO024'};
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper] = mm_threshSubs(exper,ana,16);
 
 %% get the grand average
 
@@ -784,8 +784,8 @@ cfg_ana.latencies = [0 1.0; 1.0 2.0];
 %   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
 %   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
 %   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-%cfg_ana.conditions = {'all_within_types'};
-cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+cfg_ana.conditions = {'all_within_types'};
+%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -795,7 +795,7 @@ end
 
 %% plot the cluster statistics
 
-files.saveFigs = 1;
+%files.saveFigs = 1;
 
 cfg_ft = [];
 cfg_ft.alpha = .1;
