@@ -208,10 +208,11 @@ ana = mm_ft_channelgroups(ana);
 %ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 
-%ana.eventValues = {exper.eventValues};
+ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
-ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
+ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -551,7 +552,8 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.condMethod = 'pairwise';
 %cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
 %cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-cfg_plot.conditions = {{'RHSC','RHSI'}};
+%cfg_plot.conditions = {{'RHSC','RHSI'}};
+cfg_plot.conditions = {{'FSC','RSSI'}};
 
 
 cfg_plot.ftFxn = 'ft_topoplotER';
@@ -567,12 +569,12 @@ cfg_ft.markerfontsize = 9;
 % cfg_ft.xlim = [0.5 0.8]; % time
 %cfg_plot.roi = {'RAS'};
 %cfg_ft.xlim = [1.1 1.9]; % time
-cfg_ft.xlim = [0 1.5]; % time
-cfg_plot.roi = {'all'};
+% cfg_ft.xlim = [0 1.5]; % time
+% cfg_plot.roi = {'all'};
 
-%cfg_ft.xlim = [0 1.0]; % time
-%cfg_ft.xlim = (0:0.05:1.0); % time
 cfg_plot.subplot = 1;
+cfg_ft.xlim = [0 1.0]; % time
+%cfg_ft.xlim = (0:0.05:1.0); % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.xlim = [-0.2 1.5]; % time

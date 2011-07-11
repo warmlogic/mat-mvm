@@ -138,7 +138,11 @@ for typ = 1:length(cfg_ana.conditions)
       else
         cfg_plot.figfilename = sprintf('tla_corr_ga_%s_%s%s%d_%d.%s',cfg_ana.dpTypes{dp},sprintf(repmat('%s_',1,length(cfg_ana.conditions{typ}{dp})),cfg_ana.conditions{typ}{dp}{:}),sprintf(repmat('%s_',1,length(cfg_ana.roi)),cfg_ana.roi{:}),cfg_ana.latency(1)*1000,cfg_ana.latency(2)*1000,files.figFileExt);
       end
-      print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
+      dirs.saveDirFigsCorr = fullfile(dirs.saveDirFigs,'tla_corr');
+      if ~exist(dirs.saveDirFigsCorr,'dir')
+        mkdir(dirs.saveDirFigsCorr)
+      end
+      print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,dirs.saveDirFigsCorr,cfg_plot.figfilename));
     end
   end % dp
 end % typ

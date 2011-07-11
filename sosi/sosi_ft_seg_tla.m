@@ -172,9 +172,9 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -199,6 +199,8 @@ ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
+%ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -277,8 +279,8 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-%exper.badBehSub = {'SOSI011','SOSI030'};
-exper.badBehSub = {'SOSI001','SOSI011','SOSI030','SOSI005','SOSI007','SOSI024'};
+exper.badBehSub = {'SOSI011','SOSI030'};
+%exper.badBehSub = {'SOSI001','SOSI011','SOSI030','SOSI005','SOSI007','SOSI024'};
 
 % 11 and 30 had no F responses; 1 has weird voltages
 
@@ -318,6 +320,7 @@ cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'RAS'},{'LPS'}};
 cfg_plot.ylims = [-5 2; -1 6];
+%cfg_plot.rois = {{'FS'},{'FI'}};
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -508,32 +511,32 @@ cfg_plot = [];
 cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1.5]; % time
+%cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.zparam = 'avg';
 cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';
 
 % comparisons to make
-%cfg_plot.conditions = {{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
 %cfg_plot.conditions = {'all'};
+cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
 %cfg_plot.conditions = {{'RHSC','RCR'}}; % {'RH','RCR'},
-cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+%cfg_plot.conditions = {{'FSC','RSSI'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
+% cfg_ft.comment = 'no';
 
-cfg_plot.roi = {'LAS','RAS'};
-cfg_ft.xlim = [0.3 0.5]; % time
-% cfg_plot.roi = {'LPS','RPS'};
-% cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_plot.roi = {'LAS','RAS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
+% % cfg_plot.roi = {'LPS','RPS'};
+% % cfg_ft.xlim = [0.5 0.8]; % time
 
-%cfg_plot.subplot = 1;
-%cfg_ft.xlim = [0 1.0]; % time
+cfg_plot.subplot = 1;
+cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 

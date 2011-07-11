@@ -152,6 +152,7 @@ if isfield(cfg_plot,'subplot')
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
+      cfg_ft.fontsize = 10;
       if isfield(cfg_ft,'markerfontsize')
         cfg_ft = rmfield(cfg_ft,'markerfontsize');
       end
