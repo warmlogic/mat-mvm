@@ -58,23 +58,56 @@ elseif exist(dirs.localDir,'dir')
 else
   error('Data directory not found.');
 end
-dirs.dataroot = fullfile(dirs.dataroot,exper.name,'eeg/nspp/-1000_2000');
+dirs.dataroot = fullfile(dirs.dataroot,exper.name,'eeg/eppp/-1000_2000');
 
-% add NS's artifact information to the event structure
-nsEvFilters = [];
-nsEvFilters.eventValues = exper.eventValues;
+%% add NS's artifact information to the event structure
+
+evFilters = [];
+evFilters.eventValues = exper.eventValues;
 % RCR
-nsEvFilters.RCR.type = 'TEST_LURE';
-nsEvFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.RCR.type = 'TEST_LURE';
+evFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
 % RHSC
-nsEvFilters.RHSC.type = 'TEST_TARGET';
-nsEvFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.RHSC.type = 'TEST_TARGET';
+evFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
 % RHSI
-nsEvFilters.RHSI.type = 'TEST_TARGET';
-nsEvFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.RHSI.type = 'TEST_TARGET';
+evFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,overwriteArtFields);
+  end
+end
+
+%% reject some other events for behavioral reasons (e.g., RT)
+% see eeg_toolbox's filterStruct.m for more info
+
+badFilters = [];
+badFilters.eventValues = exper.eventValues;
+badFilters.expr = 'src_rt > 1500 | rkn_rt > 1500';
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,'nsCategory');
+  end
+end
+
+%% re-add NS's artifact information to the event structure
+
+evFilters = [];
+evFilters.eventValues = exper.eventValues;
+% RCR
+evFilters.RCR.type = 'TEST_LURE';
+evFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% RHSC
+evFilters.RHSC.type = 'TEST_TARGET';
+evFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% RHSI
+evFilters.RHSI.type = 'TEST_TARGET';
+evFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,1);
   end
 end

@@ -1,24 +1,24 @@
-function [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,nsEvFilters,overwriteArtFields)
-%NS_ADDARTIFACTINFO Add NS artifact information to a PyEPL event structure
+function [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters,overwriteArtFields)
+%NS_ADDARTIFACTINFO: Add NS artifact information to a PyEPL event structure
 %for doing behavioral analyses on the artifact-free subset of events
 %
-% [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,nsEvFilters,overwriteArtFields)
+% [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters,overwriteArtFields)
 %
 % Expects rereferenced data with 129 channels (in the bci file)
 %
-% create the bci file from the pare average rereferenced files (step 7)
-% using the export metadata NS function. 'segment information' exports the
-% bci file.
+% You must first create the bci file from the pare average rereferenced
+% files using the export metadata NS function. 'segment information'
+% exports the bci file.
 %
-% dataroot is: /Volumes/data/experiment/eeg/processingType/time/ (I use
+% dataroot is: /path/to/experiment/eeg/processingType/time/ (I use
 % something like that; anything else can be used, it just needs to contain
 % the session folders)
 %
-% assumes events are stored in
-% /Volumes/data/experiment/eeg/behavioral/subject/session/events/events.mat
-% (gets automatically created from dataroot)
+% This function assumes bci files are stored in: dataroot/session/ns_bci/
 %
-% assumes bci files are stored in dataroot/session/ns_bci/
+% This function assumes that subject events are stored in:
+% /path/to/experiment/eeg/behavioral/subject/session/events/events.mat
+% (gets automatically created from dataroot)
 %
 % TODO: Can I also bring the more-detailed information into FT?  Maybe
 % create an event struct with events sorted alphabetically by category (and
@@ -32,15 +32,14 @@ end
 
 nChan = 129;
 format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan*2]),'%s'];
-%format_str = ['%s%s%s%s',repmat('%s',[1,nChan*2]),'%s'];
 
 % % debug
 % dataroot = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000';
 % subject = 'COSI001';
 % session = 'session_0';
 
-% assuming behavioral events are stored in
-% eperiment/eeg/behavioral/subject/session/events/events.mat
+% assuming behavioral events are stored in:
+% experiment/eeg/behavioral/subject/session/events/events.mat
 behroot = fullfile(dataroot(1:strfind(dataroot,'eeg')+2),'behavioral');
 
 % assumes bci files are stored in dataroot/session/ns_bci
@@ -62,7 +61,7 @@ fprintf('Getting NS artifact info for %s, %s...\n',subject,session);
 % define the metadata NS export file with the session summary
 summaryFile = dir(fullfile(bcipath,[subject,'*.bci']));
 
-% make sure we got only one bci file
+% make sure we found only one bci file (e.g., multiple sessions)
 if length(summaryFile) > 1
   if isfield(events,'nsFile')
     summaryFile = dir(fullfile(bcipath,[events(1).nsFile,'.bci']));
@@ -96,7 +95,7 @@ for ev = 1:length(artEv_ns)
 end
 
 % make it so the event value cell array is easier to access
-eventValues = nsEvFilters.eventValues;
+eventValues = evFilters.eventValues;
 
 % determine whether there are extra fields are so we can include them in
 % filtering; this relies on the assumption that there are always fields for
@@ -108,9 +107,9 @@ eventValues = nsEvFilters.eventValues;
 % and side, and the field in events.mat is 'cond', the extraFilter field
 % name is cond and its value is 'color' for one condition, and cond='side'
 % for the other.
-fn = fieldnames(nsEvFilters.(eventValues{1}));
-if sum(~ismember(fieldnames(nsEvFilters.(eventValues{1})),'filters') & ~ismember(fieldnames(nsEvFilters.(eventValues{1})),'type')) > 0
-  extraFilters = fn(~ismember(fieldnames(nsEvFilters.(eventValues{1})),'filters') & ~ismember(fieldnames(nsEvFilters.(eventValues{1})),'type'));
+fn = fieldnames(evFilters.(eventValues{1}));
+if sum(~ismember(fieldnames(evFilters.(eventValues{1})),'filters') & ~ismember(fieldnames(evFilters.(eventValues{1})),'type')) > 0
+  extraFilters = fn(~ismember(fieldnames(evFilters.(eventValues{1})),'filters') & ~ismember(fieldnames(evFilters.(eventValues{1})),'type'));
 else
   extraFilters = [];
 end
@@ -127,7 +126,7 @@ if isfield(events,'nsArt')
     return
   elseif overwriteArtFields == 1
     fprintf('Removing NS artifact information from this struct; will overwriteArtFields them with current information.\n');
-    events = rmfield(events,{'nsArt','nsBadChan','nsBadReason'});
+    events = rmfield(events,{'nsArt','nsBadChan','nsBadReason','nsCategory'});
   end
 else
   fprintf('No NS artifact information exists. Adding it.\n');
@@ -145,22 +144,22 @@ for i = 1:length(events)
   for evVal = 1:length(eventValues)
     % start the string to evaluate using the type field, because that will
     % always be there
-    evValStr = sprintf('strcmp(''%s'',''%s'')',events(i).type,nsEvFilters.(eventValues{evVal}).type);
+    evValStr = sprintf('strcmp(''%s'',''%s'')',events(i).type,evFilters.(eventValues{evVal}).type);
     % add any extra fields if necessary
     if ~isempty(extraFilters)
       for ef = 1:size(extraFilters,1)
-        evValStr = sprintf('%s && strcmp(''%s'',''%s'')',evValStr,events(i).(extraFilters{ef}),nsEvFilters.(eventValues{evVal}).(extraFilters{ef}));
+        evValStr = sprintf('%s && strcmp(''%s'',''%s'')',evValStr,events(i).(extraFilters{ef}),evFilters.(eventValues{evVal}).(extraFilters{ef}));
       end
     end
     
     % see if it matches this eventValue (and any extra fields)
     if eval(evValStr)
       % construct the filter requirements statement
-      filtStr = sprintf('events(i).%s',nsEvFilters.(eventValues{evVal}).filters{1});
+      filtStr = sprintf('events(i).%s',evFilters.(eventValues{evVal}).filters{1});
       % continue constructing
-      if length(nsEvFilters.(eventValues{evVal}).filters) > 1
-        for filt = 2:length(nsEvFilters.(eventValues{evVal}).filters)
-          filtStr = cat(2,filtStr,sprintf(' && events(i).%s',nsEvFilters.(eventValues{evVal}).filters{filt}));
+      if length(evFilters.(eventValues{evVal}).filters) > 1
+        for filt = 2:length(evFilters.(eventValues{evVal}).filters)
+          filtStr = cat(2,filtStr,sprintf(' && events(i).%s',evFilters.(eventValues{evVal}).filters{filt}));
         end
       end
       % then see if it matches the filter requirements
@@ -180,6 +179,10 @@ for i = 1:length(events)
           events(i).nsBadChan = [];
           events(i).nsBadReason = '';
         end
+        
+        % add the NS Category
+        events(i).nsCategory = eventValues{evVal};
+        
       end % if matches filter requirements
     end % if matches event type
   end % for each event type
@@ -190,6 +193,7 @@ for i = 1:length(events)
     events(i).nsArt = -1;
     events(i).nsBadChan = [];
     events(i).nsBadReason = '';
+    events(i).nsCategory = '';
   end
 end
 
@@ -204,12 +208,12 @@ end
 goodEv = {};
 for evVal = 1:length(eventValues)
   % construct the filter
-  filtStr = [sprintf('nsArt == 0 & ismember(type,varargin{1})'),sprintf(repmat(' & %s',1,length(nsEvFilters.(eventValues{evVal}).filters)),nsEvFilters.(eventValues{evVal}).filters{:})];
-  varargStr = sprintf('{''%s''}',nsEvFilters.(eventValues{evVal}).type);
+  filtStr = [sprintf('nsArt == 0 & ismember(type,varargin{1})'),sprintf(repmat(' & %s',1,length(evFilters.(eventValues{evVal}).filters)),evFilters.(eventValues{evVal}).filters{:})];
+  varargStr = sprintf('{''%s''}',evFilters.(eventValues{evVal}).type);
   if ~isempty(extraFilters)
     for ef = 1:size(extraFilters,1)
       filtStr = sprintf('%s & ismember(%s,varargin{%d})',filtStr,extraFilters{ef},ef+1);
-      varargStr = sprintf('%s,{''%s''}',varargStr,nsEvFilters.(eventValues{evVal}).(extraFilters{ef}));
+      varargStr = sprintf('%s,{''%s''}',varargStr,evFilters.(eventValues{evVal}).(extraFilters{ef}));
     end
   end
   % filter the struct so we only get good events
@@ -226,7 +230,7 @@ if ~isempty(oldEv)
     backupfile = [fullfile(eventsDir,oldEv(oe).name),'.old'];
     fprintf('Making backup: copying %s to %s\n',fullfile(eventsDir,oldEv(oe).name),backupfile);
     
-    unix(sprintf('cp %s %s',fullfile(eventsDir,oldEv(oe).name),backupfile));
+    unix(sprintf('cp ''%s'' ''%s''',fullfile(eventsDir,oldEv(oe).name),backupfile));
     
     %saveEvents(events,backupfile);
   end
@@ -237,7 +241,9 @@ end
 fprintf('Saving events with NS artifact information...\n');
 saveEvents(events,fullfile(eventsDir,'events.mat'));
 fprintf('Done.\n');
-% save the good events
-fprintf('Saving only good events...\n');
-saveEvents(goodEv,fullfile(eventsDir,'events_good.mat'));
+
+% % save the good events
+% fprintf('Saving only good events...\n');
+% saveEvents(goodEv,fullfile(eventsDir,'events_good.mat'));
+
 fprintf('Done.\n');

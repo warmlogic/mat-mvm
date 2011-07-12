@@ -61,36 +61,36 @@ end
 dirs.dataroot = fullfile(dirs.dataroot,exper.name,'eeg/nspp/-1000_2000');
 
 % add NS's artifact information to the event structure
-nsEvFilters = [];
-nsEvFilters.eventValues = exper.eventValues;
+evFilters = [];
+evFilters.eventValues = exper.eventValues;
 % CR2 (2 colors)
-nsEvFilters.CR2.type = 'LURE_PRES';
-nsEvFilters.CR2.testType = 'side';
-nsEvFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CR2.type = 'LURE_PRES';
+evFilters.CR2.testType = 'side';
+evFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
 % HSC2 (2 colors)
-nsEvFilters.HSC2.type = 'TARG_PRES';
-nsEvFilters.HSC2.testType = 'side';
-nsEvFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.HSC2.type = 'TARG_PRES';
+evFilters.HSC2.testType = 'side';
+evFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
 % HSI2 (2 colors)
-nsEvFilters.HSI2.type = 'TARG_PRES';
-nsEvFilters.HSI2.testType = 'side';
-nsEvFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.HSI2.type = 'TARG_PRES';
+evFilters.HSI2.testType = 'side';
+evFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 
 % CR6 (6 colors)
-nsEvFilters.CR6.type = 'LURE_PRES';
-nsEvFilters.CR6.testType = 'task';
-nsEvFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CR6.type = 'LURE_PRES';
+evFilters.CR6.testType = 'task';
+evFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
 % HSC6 (6 colors)
-nsEvFilters.HSC6.type = 'TARG_PRES';
-nsEvFilters.HSC6.testType = 'task';
-nsEvFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.HSC6.type = 'TARG_PRES';
+evFilters.HSC6.testType = 'task';
+evFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
 % HSI6 (6 colors)
-nsEvFilters.HSI6.type = 'TARG_PRES';
-nsEvFilters.HSI6.testType = 'task';
-nsEvFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.HSI6.type = 'TARG_PRES';
+evFilters.HSI6.testType = 'task';
+evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,overwriteArtFields);
   end
 end
