@@ -213,7 +213,13 @@ for evVal = 1:length(eventValues)
   if ~isempty(extraFilters)
     for ef = 1:size(extraFilters,1)
       filtStr = sprintf('%s & ismember(%s,varargin{%d})',filtStr,extraFilters{ef},ef+1);
-      varargStr = sprintf('%s,{''%s''}',varargStr,evFilters.(eventValues{evVal}).(extraFilters{ef}));
+      if ischar(evFilters.(eventValues{evVal}).(extraFilters{ef}))
+        varargStr = sprintf('%s,{''%s''}',varargStr,evFilters.(eventValues{evVal}).(extraFilters{ef}));
+      elseif isnumeric(evFilters.(eventValues{evVal}).(extraFilters{ef}))
+        error('The extraFilter %s (set to %s) is numeric. You must add it to the regular filter list.',extraFilters{ef},num2str(evFilters.(eventValues{evVal}).(extraFilters{ef})));
+      else
+        error('Do not know what to do with input for this extraFilter.');
+      end
     end
   end
   % filter the struct so we only get good events
@@ -246,4 +252,4 @@ fprintf('Done.\n');
 % fprintf('Saving only good events...\n');
 % saveEvents(goodEv,fullfile(eventsDir,'events_good.mat'));
 
-fprintf('Done.\n');
+fprintf('Artifact addition complete.\n');

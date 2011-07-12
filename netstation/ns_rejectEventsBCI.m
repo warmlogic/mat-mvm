@@ -124,7 +124,9 @@ for i = 1:length(ind)
     end
   end
 end
-fprintf('%d bad events added based on this criteria: %s\n(%d would have already been bad)\n',sum(ind),badFilters.expr,alreadyBadCounter);
+fprintf('%d bad events marked based on these criteria: %s\n',sum(ind),badFilters.expr);
+fprintf('%d would have already been bad due to artifacts.\n',alreadyBadCounter);
+fprintf('kept %d out of %d events.\n',sum(~ind),length(ind));
 
 % start the new bci file
 bcifilenew = fullfile(bcipath,sprintf('%s',summaryFile.name));
@@ -151,5 +153,6 @@ for i = 1:length(sesSummary{1})
 end % sesSummary
 
 fclose(outfile);
+fprintf('Saved new bci file, rejecting events based on these criteria: %s\n',badFilters.expr);
 
 end

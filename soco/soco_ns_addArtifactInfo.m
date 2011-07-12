@@ -58,36 +58,30 @@ elseif exist(dirs.localDir,'dir')
 else
   error('Data directory not found.');
 end
-dirs.dataroot = fullfile(dirs.dataroot,exper.name,'eeg/nspp/-1000_2000');
+dirs.dataroot = fullfile(dirs.dataroot,exper.name,'eeg/eppp/-1000_2000');
 
 %% add NS's artifact information to the event structure
 evFilters = [];
 evFilters.eventValues = exper.eventValues;
 % CR2 (2 colors)
 evFilters.CR2.type = 'LURE_PRES';
-evFilters.CR2.testType = 'side';
-evFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1', 'numColors == 2'};
 % HSC2 (2 colors)
 evFilters.HSC2.type = 'TARG_PRES';
-evFilters.HSC2.testType = 'side';
-evFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1', 'numColors == 2'};
 % HSI2 (2 colors)
 evFilters.HSI2.type = 'TARG_PRES';
-evFilters.HSI2.testType = 'side';
-evFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0', 'numColors == 2'};
 
 % CR6 (6 colors)
 evFilters.CR6.type = 'LURE_PRES';
-evFilters.CR6.testType = 'task';
-evFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1', 'numColors == 6'};
 % HSC6 (6 colors)
 evFilters.HSC6.type = 'TARG_PRES';
-evFilters.HSC6.testType = 'task';
-evFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1', 'numColors == 6'};
 % HSI6 (6 colors)
 evFilters.HSI6.type = 'TARG_PRES';
-evFilters.HSI6.testType = 'task';
-evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0', 'numColors == 6'};
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
@@ -112,29 +106,23 @@ evFilters = [];
 evFilters.eventValues = exper.eventValues;
 % CR2 (2 colors)
 evFilters.CR2.type = 'LURE_PRES';
-evFilters.CR2.testType = 'side';
-evFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1', 'numColors == 2'};
 % HSC2 (2 colors)
 evFilters.HSC2.type = 'TARG_PRES';
-evFilters.HSC2.testType = 'side';
-evFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1', 'numColors == 2'};
 % HSI2 (2 colors)
 evFilters.HSI2.type = 'TARG_PRES';
-evFilters.HSI2.testType = 'side';
-evFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0', 'numColors == 2'};
 
 % CR6 (6 colors)
 evFilters.CR6.type = 'LURE_PRES';
-evFilters.CR6.testType = 'task';
-evFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1', 'numColors == 6'};
 % HSC6 (6 colors)
 evFilters.HSC6.type = 'TARG_PRES';
-evFilters.HSC6.testType = 'task';
-evFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1', 'numColors == 6'};
 % HSI6 (6 colors)
 evFilters.HSI6.type = 'TARG_PRES';
-evFilters.HSI6.testType = 'task';
-evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0', 'numColors == 6'};
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)

@@ -27,17 +27,17 @@ exper.nsFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-%exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
-exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
+exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
+%exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
 %exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','N2','N6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
 
 % combine some events into higher-level categories
 %exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
 %exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
-%exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-%exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
-exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
-exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
+exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
+% exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
+% exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 %exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'N2','N6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
 %exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
 
@@ -90,9 +90,9 @@ exper.sessions = {'session_0'};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
+dirs.subDir = '';
 %dirs.subDir = 'RKSCSI';
-dirs.subDir = 'RK';
-%dirs.subDir = '';
+%dirs.subDir = 'RK';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
@@ -212,7 +212,7 @@ ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
-ana.eventValues = {{'FSC','RSSI'}};
+%ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
