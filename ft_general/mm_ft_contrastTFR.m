@@ -53,6 +53,9 @@ if (strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo'))
       % not allowed
       cfg_ft = rmfield(cfg_ft,'showlabels');
     end
+    if ~isfield(cfg_ft,'fontsize')
+      cfg_ft.fontsize = 10;
+    end
     if isfield(cfg_ft,'markerfontsize')
       cfg_ft.markerfontsize = 9;
     end
@@ -189,6 +192,23 @@ for typ = 1:length(cfg_plot.conditions)
   cont_plot.(vs_str) = data.(cfg_plot.conditions{typ}{1});
   cont_plot.(vs_str).(cfg_ft.zparam) = data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam) - data.(cfg_plot.conditions{typ}{2}).(cfg_ft.zparam);
   
+  % zparam
+  if isfield(cfg_ft,'zlim')
+    if strcmp(cfg_ft.zlim,'maxmin')
+      usedMaxmin = 1;
+      timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+      freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+      cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2))];
+    else
+      usedMaxmin = 0;
+    end
+  else
+    usedMaxmin = 1;
+    timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+    freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+    cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2))];
+  end
+  
   % make a plot
   figure
   if cfg_plot.subplot
@@ -242,6 +262,11 @@ for typ = 1:length(cfg_plot.conditions)
       mkdir(dirs.saveDirFigsTopo)
     end
     print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename));
+  end
+  
+  % put maxmin back in
+  if usedMaxmin
+    cfg_ft.zlim = 'maxmin';
   end
 end
 
