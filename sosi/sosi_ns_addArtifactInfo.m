@@ -85,7 +85,7 @@ end
 
 badFilters = [];
 badFilters.eventValues = exper.eventValues;
-badFilters.expr = 'src_rt > 1500 | rkn_rt > 1500';
+badFilters.expr = 'src_rt > 2000 | rkn_rt > 2000';
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,'nsCategory');
