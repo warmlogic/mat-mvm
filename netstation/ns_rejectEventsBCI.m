@@ -110,6 +110,11 @@ end
 alreadyBadCounter = 0;
 sesSummary{4}(ind) = {'bad'};
 for i = 1:length(ind)
+  % also check that the events and the bci entries are in the right order
+  if ~strcmp(sesSummary{1}(i),events(i).nsCategory)
+    error('The events are not in the same order as the bci file. Something is really wrong.');
+  end
+  
   if ind(i) == 1
     if strcmp(sesSummary{nCols}(i),'No Faults')
       sesSummary{nCols}(i) = {'manual'};
