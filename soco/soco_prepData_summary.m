@@ -87,6 +87,8 @@ subjects = {
 
 sessions = {'session_0'};
 
+rejectManual = 1;
+
 %% Set up the headers
 if rejectArt == 0
   tableHeader = {'sub','ses',... % subject info
@@ -191,8 +193,10 @@ for s = 1:length(subsets)
 %         fprintf('%s: %d\n',color_names{i},numcolev);
 %       end
       
-      if exist('otherFilter','var') && ~isempty(otherFilter)
-        events = filterStruct(events,otherFilter);
+      if rejectManual == 1
+        %events = filterStruct(events,otherFilter);
+        manualArt = {'manual','badc,manual','eyem,manual','eyeb,manual','eyem,eyeb,manual'};
+        events = filterStruct(events,'~ismember(nsBadReason,varargin{1})',manualArt);
       end
       
       if rejectArt == 1

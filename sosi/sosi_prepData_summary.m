@@ -88,7 +88,8 @@ subjects = {
 
 sessions = {'session_0'};
 
-otherFilter = 'src_rt > 4000 | rkn_rt > 4000';
+%otherFilter = 'src_rt > 4000 | rkn_rt > 4000';
+rejectManual = 1;
 
 %% Set up the headers
 if rejectArt == 0
@@ -181,8 +182,10 @@ for s = 1:length(subsets)
       % include events with defined study color name and that was tested
       events = filterStruct(events,'src_correct ~= -1');
       
-      if exist('otherFilter','var') && ~isempty(otherFilter)
-        events = filterStruct(events,otherFilter);
+      if rejectManual == 1
+        %events = filterStruct(events,otherFilter);
+        manualArt = {'manual','badc,manual','eyem,manual','eyeb,manual','eyem,eyeb,manual'};
+        events = filterStruct(events,'~ismember(nsBadReason,varargin{1})',manualArt);
       end
       
       if rejectArt == 1
