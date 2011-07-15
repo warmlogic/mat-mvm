@@ -14,10 +14,10 @@ function cosi_prepData_events(subjects,prep_eeg)
 %     /Users/username/data/COSI/subject/session/events
 %
 % Assumptions
-%   Each subject only ran one session (session_0)
+%   Each subject only ran two sessions (session_0, session_1)
 %
 %   The behavioral data is located in:
-%     /Users/username/data/COSI/subject/session
+%     /Volumes/curranlab/Data/COSI/eeg/behavioral/subject/session
 %
 
 serverDir = '/Volumes/curranlab/Data/COSI/eeg/behavioral';
@@ -51,13 +51,13 @@ if nargin == 0
 %     'COSI016';
 %     'COSI017';
 %     'COSI018';
-%     'COSI019';
-%     'COSI020';
-%     'COSI021';
-%     'COSI022';
-%     'COSI023';
-%     'COSI024';
-%     'COSI025';
+    'COSI019';
+    'COSI020';
+    'COSI021';
+    'COSI022';
+    'COSI023';
+    'COSI024';
+    'COSI025';
 %     'COSI026';
 %     'COSI027';
 %     'COSI028';

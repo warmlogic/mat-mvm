@@ -1,6 +1,6 @@
 % soco_ns_addArtifactInfo
 
-overwriteArtFields = 0;
+overwriteArtFields = 1;
 
 exper.name = 'SOCO';
 

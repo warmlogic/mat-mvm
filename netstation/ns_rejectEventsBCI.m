@@ -1,7 +1,7 @@
-function ns_rejectEventsBCI(dataroot,subject,session,nChan,badFilters,sortField)
+function ns_rejectEventsBCI(dataroot,subject,session,badFilters,nChan,sortField)
 %NS_REJECTEVENTSBCI: Reject events by writing out a new bci file
 %
-% ns_rejectEventsBCI(dataroot,subject,session,nChan,badFilters,sortField)
+% ns_rejectEventsBCI(dataroot,subject,session,badFilters,nChan,sortField)
 %
 % badFilters.expr     = expression for the events to reject
 % badFilters.varargin = optional args to be used in the expr
