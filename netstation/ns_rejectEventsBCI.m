@@ -1,10 +1,12 @@
-function ns_rejectEventsBCI(dataroot,subject,session,badFilters,sortField)
+function ns_rejectEventsBCI(dataroot,subject,session,nChan,badFilters,sortField)
 %NS_REJECTEVENTSBCI: Reject events by writing out a new bci file
 %
-% ns_rejectEventsBCI(dataroot,subject,session,badFilters,sortField)
+% ns_rejectEventsBCI(dataroot,subject,session,nChan,badFilters,sortField)
 %
-% badFilters.expr     = the events to reject
+% badFilters.expr     = expression for the events to reject
 % badFilters.varargin = optional args to be used in the expr
+% nChan               = the number of channels used in this recording
+%                       (default: 129)
 % sortField           = the field name by which to sort the events; this
 %                       needs to be the same as the NS categories in the
 %                       bci file; ns_addArtifactInfo will add this field,
@@ -20,17 +22,19 @@ function ns_rejectEventsBCI(dataroot,subject,session,badFilters,sortField)
 % NB: This does not modify the events.mat file! You need to re-reun
 % NS_ADDARTIFACTINFO to do that.
 %
-% See also: NS_ADDARTIFACTINFO
+% See also: NS_ADDARTIFACTINFO, FILTERSTRUCT
 
-if nargin < 5
+if nargin < 6
   sortField = 'nsCategory';
+  if nargin < 5
+    nChan = 129;
+  end
 end
 
 if ~isfield(badFilters,'varargin')
   badFilters.varargin = {};
 end
 
-nChan = 129;
 % read everything in as strings so it's easier to write it back out
 format_str = ['%s%s%s%s',repmat('%s',[1,nChan*2]),'%s'];
 %format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan*2]),'%s'];

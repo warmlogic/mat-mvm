@@ -180,9 +180,9 @@ end
 %% load the analysis details
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
@@ -292,8 +292,8 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_t
 
 % Subjects with bad behavior
 exper.badBehSub = {};
-% these guys have weird voltages, just playing around with excluding them
-%exper.badBehSub = {'SOCO012','SOCO024'};
+% huge response bias to say "new": 18, 26
+exper.badBehSub = {'SOCO018','SOCO026'};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,16);
@@ -329,9 +329,9 @@ cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'RAS'},{'LPS'}};
-cfg_plot.ylims = [-4.5 2.5; -2 5];
-cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+cfg_plot.rois = {{'RAS'},{'FS'},{'LPS'}};
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -2 5];
+cfg_plot.legendlocs = {'SouthEast','SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -551,9 +551,9 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.conditions = {{'all_across_types'}};
 %cfg_plot.condMethod = 'pairwise';
 %cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
-%cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
 %cfg_plot.conditions = {{'RHSC','RHSI'}};
-cfg_plot.conditions = {{'FSC','RSSI'}};
+%cfg_plot.conditions = {{'FSC','RSSI'}};
 
 
 cfg_plot.ftFxn = 'ft_topoplotER';
@@ -595,18 +595,18 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'},{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
 % cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
 
-% LPN
-cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
+% % LPN
+% cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
 
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
@@ -627,7 +627,7 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-cfg_plot.ylims = [-4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
+cfg_plot.ylims = [-4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 

@@ -191,6 +191,10 @@ for s = 1:length(subsets)
 %         fprintf('%s: %d\n',color_names{i},numcolev);
 %       end
       
+      if exist('otherFilter','var') && ~isempty(otherFilter)
+        events = filterStruct(events,otherFilter);
+      end
+      
       if rejectArt == 1
         % remove artifacts
         subSesEv_all = events;

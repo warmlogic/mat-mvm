@@ -319,11 +319,18 @@ cfg_ft.xlim = [-.2 2.0];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
+cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-5 2; -5 2; -1 6; -1 6];
+cfg_plot.legendlocs = {'SouthEast','SouthEast','NorthWest','NorthWest'};
+
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'RAS'},{'LPS'}};
-cfg_plot.ylims = [-5 2; -1 6];
+%cfg_plot.rois = {{'RAS'},{'LPS'}};
+%cfg_plot.ylims = [-5 2; -1 6];
+%cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+
 %cfg_plot.rois = {{'FS'},{'FI'}};
-cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+%cfg_plot.ylims = [-5 2; -5 2];
+%cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -353,7 +360,7 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'RAS'},{'LPS'}};
+cfg_plot.rois = {{'FS'},{'LPS'}};
 %cfg_plot.rois = {{'Cz'}};
 %cfg_plot.roi = {'E124'};
 %cfg_plot.roi = {'RAS'};
@@ -453,28 +460,28 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 1;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-6 6];
-% %cfg_plot.ylims = 'maxmin';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% %cfg_ft.comment = 'no';
-% %cfg_plot.rois = {'all'};
-% cfg_plot.subplot = 0;
-% %cfg_plot.rois = {{'RAS'}};
-% %cfg_ft.xlim = [0.3 0.5]; % time
+cfg_plot.ftFxn = 'ft_topoplotER';
+cfg_plot.ylims = [-6 6];
+%cfg_plot.ylims = 'maxmin';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+%cfg_ft.comment = 'no';
+%cfg_plot.rois = {'all'};
+cfg_plot.subplot = 0;
+cfg_plot.rois = {{'FS'}};
+cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.rois = {{'LPS'}};
 % cfg_ft.xlim = [0.5 0.8]; % time
-% %cfg_plot.rois = {{'LPS'}};
-% %cfg_ft.xlim = [1.0 1.5]; % time
+%cfg_plot.rois = {{'LPS'}};
+%cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -526,19 +533,21 @@ cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'
 %cfg_plot.conditions = {{'FSC','RSSI'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_ft.zlim = [-1 1]; % volt
+%cfg_ft.zlim = [-1.5 1.5]; % volt
+cfg_ft.zlim = 'maxmin'; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 % cfg_ft.comment = 'no';
 
 % cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.3 0.5]; % time
+cfg_plot.roi = {'FS'};
+cfg_ft.xlim = [0.3 0.5]; % time
 % % cfg_plot.roi = {'LPS','RPS'};
 % % cfg_ft.xlim = [0.5 0.8]; % time
 
 cfg_plot.subplot = 1;
-cfg_ft.xlim = [0 1.0]; % time
+% cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 
@@ -559,10 +568,10 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'FS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_ana.rois = {{'LAS'},{'RAS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
@@ -597,7 +606,7 @@ cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
-cfg_plot.ylims = [-4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
+cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
 
 for r = 1:length(cfg_ana.rois)

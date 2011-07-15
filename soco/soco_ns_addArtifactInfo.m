@@ -85,7 +85,7 @@ evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct ==
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,overwriteArtFields);
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,129,overwriteArtFields);
   end
 end
 
@@ -94,10 +94,10 @@ end
 
 badFilters = [];
 badFilters.eventValues = exper.eventValues;
-badFilters.expr = 'src_rt > 2000 | rkn_rt > 2000';
+badFilters.expr = 'src_rt > 4000 | rkn_rt > 4000';
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,'nsCategory');
+    ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,129,'nsCategory');
   end
 end
 
@@ -126,6 +126,6 @@ evFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct ==
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,1);
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,129,1);
   end
 end

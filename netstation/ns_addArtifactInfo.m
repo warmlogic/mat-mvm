@@ -1,10 +1,17 @@
-function [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters,overwriteArtFields)
+function [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters,nChan,overwriteArtFields)
 %NS_ADDARTIFACTINFO: Add NS artifact information to a PyEPL event structure
 %for doing behavioral analyses on the artifact-free subset of events
 %
-% [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters,overwriteArtFields)
+% [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters,nChan,overwriteArtFields)
 %
-% Expects rereferenced data with 129 channels (in the bci file)
+% Input:
+% nChan               = the number of channels used in this recording
+%                       (default: 129)
+%
+% TODO: Documentation incomplete
+%
+%
+% Expects rereferenced data with nChan channels (in the bci file)
 %
 % You must first create the bci file from the pare average rereferenced
 % files using the export metadata NS function. 'segment information'
@@ -26,11 +33,13 @@ function [events,goodEv] = ns_addArtifactInfo(dataroot,subject,session,evFilters
 %
 % See inline code for some better explanations of what this function does
 
-if nargin < 5
+if nargin < 6
   overwriteArtFields = 0;
+  if nargin < 5
+    nChan = 129;
+  end
 end
 
-nChan = 129;
 format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan*2]),'%s'];
 
 % % debug

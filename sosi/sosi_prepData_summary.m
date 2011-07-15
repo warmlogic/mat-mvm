@@ -88,6 +88,8 @@ subjects = {
 
 sessions = {'session_0'};
 
+otherFilter = 'src_rt > 4000 | rkn_rt > 4000';
+
 %% Set up the headers
 if rejectArt == 0
   tableHeader = {'sub','ses',... % subject info
@@ -179,6 +181,10 @@ for s = 1:length(subsets)
       % include events with defined study color name and that was tested
       events = filterStruct(events,'src_correct ~= -1');
       
+      if exist('otherFilter','var') && ~isempty(otherFilter)
+        events = filterStruct(events,otherFilter);
+      end
+      
       if rejectArt == 1
         % remove artifacts
         subSesEv_all = events;
@@ -188,19 +194,9 @@ for s = 1:length(subsets)
       % get only the events for this session
       %subSesEv = filterStruct(events,'ismember(subject,varargin{1}) & ismember(session,varargin{2})',subs_str{sub},sess(ses));
       
-      % get only the events for this subset
-      if strcmp(subsets{s},'_6colors')
-        % get only the size study events
-        fprintf('6 Colors\n');
-        subSesEv = filterStruct(events,'numColors == 6');
-      elseif strcmp(subsets{s},'_2colors')
-        % get only the life study events
-        fprintf('2 Colors\n');
-        subSesEv = filterStruct(events,'numColors == 2');
-      else
-        fprintf('All\n');
-        subSesEv = events;
-      end
+      % get only the events for this session
+      fprintf('All\n');
+      subSesEv = events;
       
       if rejectArt == 0
         %% RAW NUMBERS
