@@ -58,21 +58,21 @@ exper.subjects = {
   'COSI013';
   'COSI014';
   'COSI015';
-%   'COSI016';
+  'COSI016';
   'COSI017';
   'COSI018';
-%   'COSI019';
+  'COSI019';
   'COSI020';
-% %   'COSI021';
-% %   'COSI022';
-% %   'COSI023';
-% %   'COSI024';
-% %   'COSI025';
-% %   'COSI026';
-% %   'COSI027';
-% %   'COSI028';
-% %   'COSI029';
-% %   'COSI030';
+%   'COSI021';
+  'COSI022';
+  'COSI023';
+  'COSI024';
+  'COSI025';
+  'COSI026';
+%   'COSI027';
+%   'COSI028';
+%   'COSI029';
+%   'COSI030';
   };
 % COSI009 blinked a lot (> 90%); did not do second session?
 
@@ -321,8 +321,8 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {'COSI002'};
 %exper.badBehSub = {};
+exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
 % COSI002 is noisy
 
 % exclude subjects with low event counts
@@ -354,14 +354,14 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 2.0];
+cfg_ft.xlim = [-.2 1.0];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_plot.rois = {{'RAS'},{'LPS'}};
-cfg_plot.ylims = [-5 2; -2 5];
-cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+cfg_plot.ylims = [-5 2; -5 2; -5 2; -2 5; -2 5];
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -389,14 +389,15 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'RAS'},{'LPS'}};
-%cfg_plot.roi = {'E124'};
-%cfg_plot.roi = {'RAS'};
-%cfg_plot.roi = {'LPS','RPS'};
-%cfg_plot.roi = {'LPS'};
+%cfg_plot.rois = {{'LAS'},{'LPS'}};
+cfg_plot.rois = {{'E69'}};
+%cfg_plot.rois = {'RAS'};
+%cfg_plot.rois = {'LPS','RPS'};
+%cfg_plot.rois = {'LPS'};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
-cfg_plot.xlim = [-.2 1.0];
+%cfg_plot.xlim = [-.2 1.0];
+cfg_plot.xlim = [0 0.4];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
 
@@ -420,6 +421,23 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_subjplotER(cfg_plot,ana,exper,data_tla);
+end
+
+%% individual headplots
+
+cfg_ft = [];
+cfg_ft.showlabels = 'yes';
+cfg_ft.interactive = 'yes';
+cfg_ft.showoutline = 'yes';
+cfg_ft.xlim = [0 0.2];
+cfg_ft.fontsize = 9;
+cfg_ft.layout = ft_prepare_layout([],ana);
+sub=3;
+ses=1;
+for i = 3
+  figure
+  ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
 end
 
 %% plot the conditions
@@ -525,10 +543,10 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'LAS','RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
@@ -546,7 +564,7 @@ cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 1 4];
-cfg_plot.ylims = [-4 -1; 1 4; 1 4];
+cfg_plot.ylims = [-4 -1; -4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 
 for r = 1:length(cfg_ana.rois)

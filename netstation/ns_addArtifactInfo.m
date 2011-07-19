@@ -135,7 +135,10 @@ if isfield(events,'nsArt')
     return
   elseif overwriteArtFields == 1
     fprintf('Removing NS artifact information from this struct; will overwriteArtFields them with current information.\n');
-    events = rmfield(events,{'nsArt','nsBadChan','nsBadReason','nsCategory'});
+    events = rmfield(events,{'nsArt','nsBadChan','nsBadReason'});
+    if isfield(events,'nsCategory')
+      events = rmfield(events,'nsCategory');
+    end
   end
 else
   fprintf('No NS artifact information exists. Adding it.\n');

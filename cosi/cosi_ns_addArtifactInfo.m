@@ -1,17 +1,17 @@
 % cosi_ns_addArtifactInfo
 
-overwriteArtFields = 0;
+overwriteArtFields = 1;
 
 exper.name = 'COSI';
 
 exper.subjects = {
-%   'COSI001';
-%   'COSI002';
-%   'COSI003';
-%   'COSI004';
-%   'COSI005';
-%   'COSI006';
-%   'COSI007';
+  'COSI001';
+  'COSI002';
+  'COSI003';
+  'COSI004';
+  'COSI005';
+  'COSI006';
+  'COSI007';
 %   'COSI008';
 %   'COSI009';
 %   'COSI010';
@@ -21,16 +21,16 @@ exper.subjects = {
   'COSI014';
   'COSI015';
   'COSI016';
-%   'COSI017';
+  'COSI017';
   'COSI018';
-%   'COSI020';
-%   'COSI019';
+  'COSI020';
+  'COSI019';
 %   'COSI021';
-%   'COSI022';
-%   'COSI023';
-%   'COSI024';
-%   'COSI025';
-%   'COSI026';
+  'COSI022';
+  'COSI023';
+  'COSI024';
+  'COSI025';
+  'COSI026';
 %   'COSI027';
 %   'COSI028';
 %   'COSI029';
@@ -59,37 +59,86 @@ else
 end
 dirs.dataroot = fullfile(dirs.dataroot,exper.name,'eeg/nspp/-1000_2000');
 
-% add NS's artifact information to the event structure
-nsEvFilters = [];
-nsEvFilters.eventValues = exper.eventValues;
+%% add NS's artifact information to the event structure
+
+evFilters = [];
+evFilters.eventValues = exper.eventValues;
 % CCR (color)
-nsEvFilters.CCR.type = 'TEST_LURE';
-nsEvFilters.CCR.cond = 'color';
-nsEvFilters.CCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.CCR.type = 'TEST_LURE';
+evFilters.CCR.cond = 'color';
+evFilters.CCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
 % CHSC (color)
-nsEvFilters.CHSC.type = 'TEST_TARGET';
-nsEvFilters.CHSC.cond = 'color';
-nsEvFilters.CHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.CHSC.type = 'TEST_TARGET';
+evFilters.CHSC.cond = 'color';
+evFilters.CHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
 % CHSI (color)
-nsEvFilters.CHSI.type = 'TEST_TARGET';
-nsEvFilters.CHSI.cond = 'color';
-nsEvFilters.CHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.CHSI.type = 'TEST_TARGET';
+evFilters.CHSI.cond = 'color';
+evFilters.CHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 
 % SCR (side)
-nsEvFilters.SCR.type = 'TEST_LURE';
-nsEvFilters.SCR.cond = 'side';
-nsEvFilters.SCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+evFilters.SCR.type = 'TEST_LURE';
+evFilters.SCR.cond = 'side';
+evFilters.SCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
 % SHSC (side)
-nsEvFilters.SHSC.type = 'TEST_TARGET';
-nsEvFilters.SHSC.cond = 'side';
-nsEvFilters.SHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+evFilters.SHSC.type = 'TEST_TARGET';
+evFilters.SHSC.cond = 'side';
+evFilters.SHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
 % SHSI (side)
-nsEvFilters.SHSI.type = 'TEST_TARGET';
-nsEvFilters.SHSI.cond = 'side';
-nsEvFilters.SHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+evFilters.SHSI.type = 'TEST_TARGET';
+evFilters.SHSI.cond = 'side';
+evFilters.SHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,129,overwriteArtFields);
+  end
+end
+
+%% reject some other events for behavioral reasons (e.g., RT)
+% see eeg_toolbox's filterStruct.m for more info
+
+badFilters = [];
+badFilters.eventValues = exper.eventValues;
+badFilters.expr = 'src_rt > 4000 | rkn_rt > 4000';
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,129,'nsCategory');
+  end
+end
+
+%% add NS's artifact information to the event structure
+
+evFilters = [];
+evFilters.eventValues = exper.eventValues;
+% CCR (color)
+evFilters.CCR.type = 'TEST_LURE';
+evFilters.CCR.cond = 'color';
+evFilters.CCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% CHSC (color)
+evFilters.CHSC.type = 'TEST_TARGET';
+evFilters.CHSC.cond = 'color';
+evFilters.CHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% CHSI (color)
+evFilters.CHSI.type = 'TEST_TARGET';
+evFilters.CHSI.cond = 'color';
+evFilters.CHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+
+% SCR (side)
+evFilters.SCR.type = 'TEST_LURE';
+evFilters.SCR.cond = 'side';
+evFilters.SCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% SHSC (side)
+evFilters.SHSC.type = 'TEST_TARGET';
+evFilters.SHSC.cond = 'side';
+evFilters.SHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% SHSI (side)
+evFilters.SHSI.type = 'TEST_TARGET';
+evFilters.SHSI.cond = 'side';
+evFilters.SHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,129,1);
   end
 end

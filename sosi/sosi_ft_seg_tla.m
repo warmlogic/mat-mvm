@@ -196,6 +196,7 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 ana.eventValues = {exper.eventValues};
+%ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
@@ -319,9 +320,9 @@ cfg_ft.xlim = [-.2 2.0];
 cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-5 2; -5 2; -1 6; -1 6];
-cfg_plot.legendlocs = {'SouthEast','SouthEast','NorthWest','NorthWest'};
+cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6];
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_plot.rois = {{'RAS'},{'LPS'}};
@@ -446,6 +447,7 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.xlim = 'maxmin'; % time
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
+%cfg_ft.xlim = [-0.2 1.0]; % time
 cfg_ft.xlim = [-0.2 2.0]; % time
 
 cfg_ft.zparam = 'avg';
@@ -460,28 +462,28 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-% cfg_plot.ftFxn = 'ft_singleplotER';
-% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
-% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-% cfg_plot.plotLegend = 1;
-% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+cfg_plot.ftFxn = 'ft_singleplotER';
+cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
+cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+cfg_plot.plotLegend = 0;
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
-cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_plot.ylims = [-6 6];
-%cfg_plot.ylims = 'maxmin';
-%cfg_ft.marker = 'on';
-cfg_ft.marker = 'labels';
-cfg_ft.markerfontsize = 9;
-%cfg_ft.comment = 'no';
-%cfg_plot.rois = {'all'};
-cfg_plot.subplot = 0;
-cfg_plot.rois = {{'FS'}};
-cfg_ft.xlim = [0.3 0.5]; % time
-% cfg_plot.rois = {{'LPS'}};
-% cfg_ft.xlim = [0.5 0.8]; % time
-%cfg_plot.rois = {{'LPS'}};
-%cfg_ft.xlim = [1.0 1.5]; % time
+% cfg_plot.ftFxn = 'ft_topoplotER';
+% cfg_plot.ylims = [-6 6];
+% %cfg_plot.ylims = 'maxmin';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% %cfg_ft.comment = 'no';
+% %cfg_plot.rois = {'all'};
+% cfg_plot.subplot = 0;
+% cfg_plot.rois = {{'FS'}};
+% cfg_ft.xlim = [0.3 0.5]; % time
+% % cfg_plot.rois = {{'LPS'}};
+% % cfg_ft.xlim = [0.5 0.8]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -533,20 +535,22 @@ cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'
 %cfg_plot.conditions = {{'FSC','RSSI'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
+%cfg_ft.zlim = 'maxmin'; % volt
 %cfg_ft.zlim = [-1.5 1.5]; % volt
-cfg_ft.zlim = 'maxmin'; % volt
+cfg_ft.zlim = [-1.0 1.0]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
-% cfg_ft.comment = 'no';
+cfg_ft.comment = 'no';
 
 % cfg_plot.roi = {'LAS','RAS'};
-cfg_plot.roi = {'FS'};
+cfg_plot.roi = {'LAS'};
+%cfg_plot.roi = {'FS'};
 cfg_ft.xlim = [0.3 0.5]; % time
 % % cfg_plot.roi = {'LPS','RPS'};
 % % cfg_ft.xlim = [0.5 0.8]; % time
 
-cfg_plot.subplot = 1;
+%cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
@@ -604,10 +608,10 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
+cfg_plot.line_plots = 1;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
-%cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
+cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};

@@ -209,6 +209,7 @@ ana = mm_ft_channelgroups(ana);
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 
 ana.eventValues = {exper.eventValues};
+%ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
@@ -329,9 +330,9 @@ cfg_ft.zparam = 'avg';
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'RAS'},{'FS'},{'LPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -2 5];
-cfg_plot.legendlocs = {'SouthEast','SouthEast','NorthWest'};
+cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -451,6 +452,8 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.xlim = 'maxmin'; % time
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
+%cfg_ft.xlim = [-0.2 1.0]; % time
+%cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.xlim = [-0.2 2.0]; % time
 
 cfg_ft.zparam = 'avg';
@@ -465,29 +468,29 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-% cfg_plot.ftFxn = 'ft_singleplotER';
-% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
-% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-% cfg_plot.plotLegend = 1;
-% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+cfg_plot.ftFxn = 'ft_singleplotER';
+cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
+cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+cfg_plot.plotLegend = 0;
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
-cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_plot.ylims = [-6 6];
-%cfg_plot.ylims = 'maxmin';
-%cfg_ft.marker = 'on';
-cfg_ft.marker = 'labels';
-cfg_ft.markerfontsize = 9;
-%cfg_ft.comment = 'no';
-cfg_plot.rois = {'all'};
-cfg_ft.xlim = [0 1.2]; % time
-cfg_plot.subplot = 1;
-%cfg_plot.rois = {{'RAS'}};
-%cfg_ft.xlim = [0.3 0.5]; % time
-%cfg_plot.rois = {{'LPS'}};
-%cfg_ft.xlim = [0.5 0.8]; % time
-%cfg_plot.rois = {{'LPS'}};
-%cfg_ft.xlim = [1.0 1.5]; % time
+% cfg_plot.ftFxn = 'ft_topoplotER';
+% cfg_plot.ylims = [-6 6];
+% %cfg_plot.ylims = 'maxmin';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% %cfg_ft.comment = 'no';
+% % cfg_plot.rois = {'all'};
+% % cfg_ft.xlim = [0 1.2]; % time
+% % cfg_plot.subplot = 1;
+% cfg_plot.rois = {{'LAS'}};
+% cfg_ft.xlim = [0.3 0.5]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [0.5 0.8]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -563,8 +566,9 @@ cfg_ft.marker = 'on';
 cfg_ft.markerfontsize = 9;
 %cfg_ft.comment = 'no';
 
-% cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.3 0.5]; % time
+%cfg_plot.roi = {'LAS','RAS'};
+cfg_plot.roi = {'LAS'};
+cfg_ft.xlim = [0.3 0.5]; % time
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
 %cfg_plot.roi = {'RAS'};
@@ -572,9 +576,9 @@ cfg_ft.markerfontsize = 9;
 % cfg_ft.xlim = [0 1.5]; % time
 % cfg_plot.roi = {'all'};
 
-cfg_plot.subplot = 1;
-cfg_ft.xlim = [0 1.0]; % time
-%cfg_ft.xlim = (0:0.05:1.0); % time
+% cfg_plot.subplot = 1;
+% cfg_ft.xlim = [0 1.0]; % time
+% %cfg_ft.xlim = (0:0.05:1.0); % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.xlim = [-0.2 1.5]; % time
