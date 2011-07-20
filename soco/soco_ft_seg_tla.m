@@ -296,6 +296,20 @@ exper.badBehSub = {};
 % huge response bias to say "new": 18, 26
 exper.badBehSub = {'SOCO018','SOCO026'};
 
+
+exper.p1n1_good = {'SOCO005','SOCO006','SOCO008','SOCO010','SOCO011','SOCO013','SOCO015','SOCO022','SOCO024','SOCO027','SOCO030'};
+exper.p1n1_ok = {'SOCO001','SOCO003','SOCO004','SOCO007','SOCO012','SOCO014','SOCO016','SOCO021','SOCO023','SOCO029'};
+exper.p1n1_bad = {'SOCO002','SOCO009','SOCO017','SOCO018','SOCO019','SOCO020','SOCO025','SOCO026','SOCO028'};
+
+% plot good
+exper.badBehSub = unique(cat(2,exper.p1n1_ok,exper.p1n1_bad));
+
+% plot ok
+%exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_bad));
+
+% plot bad
+%exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
+
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,16);
 
@@ -337,6 +351,11 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWes
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
+cfg_ft.xlim = [-.2 1.0];
+cfg_plot.rois = {{'E83'}};
+cfg_plot.ylims = [-10 10];
+cfg_plot.legendlocs = {'NorthEast'};
+
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
@@ -354,6 +373,7 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
+  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
 %% subplots of each subject's ERPs
@@ -361,15 +381,15 @@ end
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'RAS'},{'LPS'}};
-%cfg_plot.roi = {'E124'};
-%cfg_plot.roi = {'RAS'};
-%cfg_plot.roi = {'LPS','RPS'};
-%cfg_plot.roi = {'LPS'};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
-cfg_plot.xlim = [-.2 1.5];
+cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
+
+cfg_plot.rois = {{'E83'}};
+cfg_plot.xlim = [-0.2 1.0];
+cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its

@@ -321,8 +321,9 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-%exper.badBehSub = {};
-exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
+exper.badBehSub = {};
+%exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
+%exper.badBehSub = {'COSI001','COSI003','COSI005','COSI012','COSI013','COSI014','COSI016','COSI017','COSI018','COSI019','COSI020'};
 % COSI002 is noisy
 
 % exclude subjects with low event counts
@@ -366,6 +367,11 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWes
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
+% cfg_ft.xlim = [-.2 1.0];
+% cfg_plot.rois = {{'E83'}};
+% cfg_plot.ylims = [-10 10];
+% cfg_plot.legendlocs = {'NorthEast'};
+
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
@@ -383,6 +389,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
+  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
 %% subplots of each subject's ERPs
@@ -390,16 +397,16 @@ end
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_plot.rois = {{'LAS'},{'LPS'}};
-cfg_plot.rois = {{'E69'}};
-%cfg_plot.rois = {'RAS'};
-%cfg_plot.rois = {'LPS','RPS'};
-%cfg_plot.rois = {'LPS'};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
-%cfg_plot.xlim = [-.2 1.0];
-cfg_plot.xlim = [0 0.4];
+cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
+
+cfg_plot.rois = {{'E83'}};
+%cfg_plot.xlim = [-0.2 1.0];
+cfg_plot.xlim = [0 0.3];
+cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its

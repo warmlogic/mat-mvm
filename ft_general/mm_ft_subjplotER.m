@@ -53,21 +53,21 @@ if ~isfield(cfg_plot,'roi')
 elseif isfield(cfg_plot,'roi')
   if ismember(cfg_plot.roi,ana.elecGroupsStr)
     % if it's in the predefined ROIs, get the channel numbers
-    cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_plot.roi)});
+    cfg_plot.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_plot.roi)});
     % find the channel indices for averaging
-    cfg_plot.chansel = ismember(lab,cfg_ft.channel);
+    cfg_plot.chansel = ismember(lab,cfg_plot.channel);
   else
     % otherwise it should be the channel number(s) or 'all'
     if ~iscell(cfg_plot.roi)
       cfg_plot.roi = {cfg_plot.roi};
     end
-    cfg_ft.channel = cfg_plot.roi;
+    cfg_plot.channel = cfg_plot.roi;
     
     % find the channel indices for averaging
-    if strcmp(cfg_ft.channel,'all')
-      cfg_plot.chansel = ismember(lab,ft_channelselection(cfg_ft.channel,lab));
+    if strcmp(cfg_plot.channel,'all')
+      cfg_plot.chansel = ismember(lab,ft_channelselection(cfg_plot.channel,lab));
     else
-      cfg_plot.chansel = ismember(lab,cfg_ft.channel);
+      cfg_plot.chansel = ismember(lab,cfg_plot.channel);
     end
   end
 end
@@ -94,13 +94,16 @@ for typ = 1:length(cfg_plot.conditions)
       continue
     else
       subplot(cfg_plot.numRows,cfg_plot.numCols,sub);
+      plot([cfg_plot.xlim(1) cfg_plot.xlim(2)],[0 0],'k--'); % horizontal
+      hold on
+      plot([0 0],[cfg_plot.ylim(1) cfg_plot.ylim(2)],'k--'); % vertical
+      
       evStr = [];
       % go through each event value for this type
       for evVal = 1:length(cfg_plot.conditions{typ})
         evStr = cat(2,evStr,sprintf(' %s:%d',strrep(cfg_plot.conditions{typ}{evVal},'_',''),exper.nTrials.(cfg_plot.conditions{typ}{evVal})(sub)));
         if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_plot.zparam)
           plot(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.time,mean(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.(cfg_plot.zparam)(cfg_plot.chansel,:),1),cfg_plot.colors(evVal));
-          hold on
         end
       end
       

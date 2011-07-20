@@ -285,6 +285,19 @@ exper.badBehSub = {'SOSI011','SOSI030','SOSI005','SOSI007'}; % ,'SOSI003','SOSI0
 
 % 11 and 30 had no F responses; 1 has weird voltages
 
+% exper.p1n1_good = {'SOSI001','SOSI006','SOSI007','SOSI008','SOSI010','SOSI012','SOSI013','SOSI017','SOSI021','SOSI023','SOSI025','SOSI030'};
+% exper.p1n1_ok = {'SOSI002','SOSI004','SOSI016','SOSI019','SOSI024','SOSI026','SOSI028','SOSI029'};
+% exper.p1n1_bad = {'SOSI003','SOSI005','SOSI009','SOSI011','SOSI014','SOSI015','SOSI018','SOSI020','SOSI022','SOSI027'};
+
+% plot good
+%exper.badBehSub = unique(cat(2,exper.p1n1_ok,exper.p1n1_bad));
+
+% plot ok
+%exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_bad));
+
+% plot bad
+%exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
+
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
 
@@ -336,6 +349,11 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWes
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
+% cfg_ft.xlim = [-.2 1.0];
+% cfg_plot.rois = {{'E83'}};
+% cfg_plot.ylims = [-10 10];
+% cfg_plot.legendlocs = {'NorthEast'};
+
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
@@ -355,6 +373,7 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
+  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
 %% subplots of each subject's ERPs
@@ -363,15 +382,15 @@ cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'FS'},{'LPS'}};
 %cfg_plot.rois = {{'Cz'}};
-%cfg_plot.roi = {'E124'};
-%cfg_plot.roi = {'RAS'};
-%cfg_plot.roi = {'LPS','RPS'};
-%cfg_plot.roi = {'LPS'};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
-cfg_plot.xlim = [-.2 1.0];
+cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
+
+cfg_plot.rois = {{'E83'}};
+cfg_plot.xlim = [-0.2 1.0];
+cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
