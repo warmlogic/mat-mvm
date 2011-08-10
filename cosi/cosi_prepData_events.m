@@ -48,7 +48,7 @@ if nargin == 0
 %     'COSI013';
 %     'COSI014';
 %     'COSI015';
-    'COSI016';
+%     'COSI016';
 %     'COSI017';
 %     'COSI018';
 %     'COSI019';
@@ -58,13 +58,13 @@ if nargin == 0
 %     'COSI023';
 %     'COSI024';
 %     'COSI025';
-    'COSI026';
-%     'COSI027';
-%     'COSI028';
-%     'COSI029';
-%     'COSI030';
+%     'COSI026';
+    'COSI027';
+    'COSI028';
+    'COSI029';
+    'COSI030';
+    'COSI031';
     };
-%       'COSI031';
 %       'COSI032';
 %       'COSI033';
 %       'COSI034';

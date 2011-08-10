@@ -69,10 +69,11 @@ exper.subjects = {
   'COSI024';
   'COSI025';
   'COSI026';
-%   'COSI027';
-%   'COSI028';
-%   'COSI029';
-%   'COSI030';
+  'COSI027';
+  'COSI028';
+  'COSI029';
+  'COSI030';
+  'COSI031';
   };
 % COSI009 blinked a lot (> 90%); did not do second session?
 
@@ -82,7 +83,10 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {{'session_0','session_1'}};
+
+%exper.sessions = {'session_0'};
+exper.sessions = {'session_1'};
+%exper.sessions = {{'session_0','session_1'}};
 
 %% set up file and directory handling parameters
 
@@ -325,6 +329,7 @@ exper.badBehSub = {};
 %exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
 %exper.badBehSub = {'COSI001','COSI003','COSI005','COSI012','COSI013','COSI014','COSI016','COSI017','COSI018','COSI019','COSI020'};
 % COSI002 is noisy
+exper.badBehSub = {'COSI002','COSI018','COSI018','COSI022','COSI027'};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -396,17 +401,19 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_plot.rois = {{'LAS'},{'LPS'}};
+cfg_plot.rois = {{'LAS'},{'LPS'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
 
-cfg_plot.rois = {{'E83'}};
-%cfg_plot.xlim = [-0.2 1.0];
-cfg_plot.xlim = [0 0.3];
-cfg_plot.ylim = [-10 10];
+% %cfg_plot.rois = {{'E70'}}; % left
+% %cfg_plot.rois = {{'E75'}}; % center
+% cfg_plot.rois = {{'E83'}}; % right
+% %cfg_plot.xlim = [-0.2 1.0];
+% cfg_plot.xlim = [0 0.3];
+% cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
