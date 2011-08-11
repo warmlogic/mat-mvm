@@ -37,8 +37,8 @@ exper.prepost = [-1 2];
 exper.baseline_ms = [-200 0];
 
 % Type of input file
-%exper.inputFileExt = 'egis';
-exper.inputFileExt = 'raw';
+exper.inputFileExt = 'egis';
+%exper.inputFileExt = 'raw';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POSSIBLY MODIFY THIS STUFF
@@ -50,7 +50,7 @@ timeOut  = {2}; % in HOURS
 
 % Location of the data files (dataroot)
 if strcmp(exper.inputFileExt,'egis') || strcmp(exper.inputFileExt,'raw')
-  dirs.dataDir = sprintf('eeg/eppp_nobackup/%d_%d/2_ns_%s',exper.prepost(1)*1000,exper.prepost(2)*1000,exper.inputFileExt);
+  dirs.dataDir = sprintf('eeg/eppp/%d_%d/2_ns_%s',exper.prepost(1)*1000,exper.prepost(2)*1000,exper.inputFileExt);
 else
   error('Filetype %s is unknown.',exper.inputFileExt);
 end
