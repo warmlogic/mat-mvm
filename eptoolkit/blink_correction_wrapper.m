@@ -48,7 +48,7 @@ exper.inputFileExt = 'egis';
 stageFun = {@stage1};
 timeOut  = {2}; % in HOURS
 
-% Location of the data files (dataroot)
+% Location of the data files (dataroot)s
 if strcmp(exper.inputFileExt,'egis') || strcmp(exper.inputFileExt,'raw')
   dirs.dataDir = sprintf('eeg/eppp/%d_%d/2_ns_%s',exper.prepost(1)*1000,exper.prepost(2)*1000,exper.inputFileExt);
 else
@@ -116,7 +116,7 @@ end
 %capture diary and time statistics
 thisRun = [exper.name,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
 %thisRun = [exper.name,'_overview_',datestr(now,7) datestr(now,3) datestr(now,10)];
-diary(fullfile(dirs.dataDir,[thisRun '.log']));
+diary(fullfile(dirs.dataroot,dirs.dataDir,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
 for i = STAGES
