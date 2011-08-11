@@ -85,8 +85,8 @@ exper.subjects = {
 % create_ft_struct' for more information.
 
 %exper.sessions = {'session_0'};
-exper.sessions = {'session_1'};
-%exper.sessions = {{'session_0','session_1'}};
+%exper.sessions = {'session_1'};
+exper.sessions = {{'session_0','session_1'}};
 
 %% set up file and directory handling parameters
 
@@ -166,7 +166,7 @@ files.figFileExt = 'png';
 % raw data
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'ns_auto'};
-ana.artifact.type = {'ns_auto'};
+ana.artifact.type = {'ns_auto','ft_ica'};
 ana.overwrite.raw = 1;
 
 % process the data
