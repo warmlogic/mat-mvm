@@ -230,26 +230,28 @@ if rejArt_ft_ica
     cfg = [];
     cfg.component = str2num(componentsToReject);
     data_ic_cleaned = ft_rejectcomponent(cfg,data_ic);
+    
+    % another manual search of the data for artifacts
+    cfg = [];
+    cfg.viewmode = 'butterfly';
+    %cfg.viewmode = 'vertical';
+    cfg.continuous = 'no';
+    
+    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+    fprintf('\n\nManual artifact rejection:\n');
+    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
+    fprintf('Use arrows to move to next trial.\n');
+    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
+    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
+    
+    cfg = ft_databrowser(cfg,data_ic_cleaned);
+    
+    % and reject
+    cfg.artfctdef.remove = 'complete';
+    data = ft_rejectartifact(cfg,data_ic_cleaned);
+  else
+    data = data_ic;
   end
-  
-  % another manual search of the data for artifacts
-  cfg = [];
-  cfg.viewmode = 'butterfly';
-  %cfg.viewmode = 'vertical';
-  cfg.continuous = 'no';
-  
-  fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  fprintf('\n\nManual artifact rejection:\n');
-  fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-  fprintf('Use arrows to move to next trial.\n');
-  fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-  fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
-  
-  cfg = ft_databrowser(cfg,data_ic_cleaned);
-  
-  % and reject
-  cfg.artfctdef.remove = 'complete';
-  data = ft_rejectartifact(cfg,data_ic_cleaned);
 end
 
 %% run FieldTrip's automatic artifact detection on the data
