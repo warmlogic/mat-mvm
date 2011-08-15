@@ -39,6 +39,7 @@ exper.baseline_ms = [-200 0];
 % Type of input file
 exper.inputFileExt = 'egis';
 %exper.inputFileExt = 'raw';
+%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POSSIBLY MODIFY THIS STUFF
