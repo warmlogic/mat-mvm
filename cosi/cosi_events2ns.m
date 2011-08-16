@@ -213,36 +213,39 @@ for i = 1:length(events)
   % NOTE: code is limited to 4 characters
   switch events(i).type
     
-   case 'STUDY_BUFFER'
-    code = 'sbuf';
-    label = 'study_buff';
-    
-   case 'STUDY_TARGET'
-    code = 'strg';
-    label = 'study_targ';
-    
-   case 'STUDY_RESP'
-    code = 'rstu';
-    
-   case 'LURE_PRES'
-    code = 'tlur';
-    label = 'test_lure';
-    
-   case 'TARG_PRES'
-    code = 'ttrg';
-    label = 'test_targ';
-    
-   case 'SOURCE_RESP'
-    code = 'rsrc';
-    label = 'resp_src';
-    
-   case 'RK_RESP'
-    code = 'rrk_';
-    label = 'resp_rk';
-    
-   case 'NEW_RESP'
-    code = 'rnew';
-    label = 'resp_new';
+    case 'STUDY_BUFFER'
+      code = 'sbuf';
+      label = 'study_buff';
+      
+    case 'STUDY_TARGET'
+      code = 'strg';
+      label = 'study_targ';
+      
+    case 'STUDY_RESP'
+      code = 'rstu';
+      
+    case 'TEST_LURE'
+      code = 'tlur';
+      label = 'test_lure';
+      
+    case 'TEST_TARGET'
+      code = 'ttrg';
+      label = 'test_targ';
+      
+    case 'SOURCE_RESP'
+      code = 'rsrc';
+      label = 'resp_src';
+      
+    case 'RK_RESP'
+      code = 'rrk_';
+      label = 'resp_rk';
+      
+    case 'NEW_RESP'
+      code = 'rnew';
+      label = 'resp_new';
+      
+    otherwise
+      error('Event type ''%s'' was not defined.',events(i).type);
   end
   
   eventInfo = {code,label,stimEvStr,trackStr,timeStr,durStr};

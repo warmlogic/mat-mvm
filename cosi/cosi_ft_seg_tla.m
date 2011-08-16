@@ -74,8 +74,12 @@ exper.subjects = {
   'COSI029';
   'COSI030';
   'COSI031';
+  'COSI032';
+  'COSI033';
+  'COSI034';
+  'COSI035';
   };
-% COSI009 blinked a lot (> 90%); did not do second session?
+% COSI009 blinked a lot (> 90%); did not do second session
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw

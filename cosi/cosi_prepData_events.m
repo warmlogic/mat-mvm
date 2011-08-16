@@ -33,42 +33,42 @@ saveDir = dataroot;
 
 if nargin == 0
   subjects = {
-%     'COSI001';
-%     'COSI002';
-%     'COSI003';
-%     'COSI004';
-%     'COSI005';
-%     'COSI006';
-%     'COSI007';
+    'COSI001';
+    'COSI002';
+    'COSI003';
+    'COSI004';
+    'COSI005';
+    'COSI006';
+    'COSI007';
 %     'COSI008';
 %     'COSI009';
 %     'COSI010';
-%     'COSI011';
-%     'COSI012';
-%     'COSI013';
-%     'COSI014';
-%     'COSI015';
-%     'COSI016';
-%     'COSI017';
-%     'COSI018';
-%     'COSI019';
-%     'COSI020';
+    'COSI011';
+    'COSI012';
+    'COSI013';
+    'COSI014';
+    'COSI015';
+    'COSI016';
+    'COSI017';
+    'COSI018';
+    'COSI019';
+    'COSI020';
 %     'COSI021';
-%     'COSI022';
-%     'COSI023';
-%     'COSI024';
-%     'COSI025';
-%     'COSI026';
+    'COSI022';
+    'COSI023';
+    'COSI024';
+    'COSI025';
+    'COSI026';
     'COSI027';
     'COSI028';
     'COSI029';
     'COSI030';
     'COSI031';
+    'COSI032';
+    'COSI033';
+    'COSI034';
+    'COSI035';
     };
-%       'COSI032';
-%       'COSI033';
-%       'COSI034';
-%       'COSI035';
 %       'COSI036';
 %       'COSI037';
 %       'COSI038';
@@ -84,7 +84,7 @@ end
 sessions = {'session_0','session_1'};
 %sessions = {'session_1'};
 
-%matlabpool open
+% matlabpool open
 
 for sub = 1:length(subjects)
   fprintf('Getting data for %s...',subjects{sub});
@@ -98,7 +98,7 @@ for sub = 1:length(subjects)
 %       if isempty(sesStruct)
 %         error('no subject listing found for this session');
 %       end
-      subSesBadChan = [];
+      %subSesBadChan = [];
       
       nsFile = dir(fullfile(saveDir,subjects{sub},sessions{ses},'eeg','*.raw'));
       if isempty(nsFile)
@@ -150,7 +150,7 @@ for sub = 1:length(subjects)
         % cd to the session directory since prep_egi_data needs to be there
         cd(sesDir);
         % align the behavioral and EEG data
-        prep_egi_data_CU(subjects{sub},sesDir,{fullfile(sesDir,'events/events.mat')},subSesBadChan,'mstime','HCGSN');
+        prep_egi_data_CU(subjects{sub},sesDir,{fullfile(sesDir,'events/events.mat')},[],'mstime','HCGSN');
         % go back to the previous working directory
         cd(curDir);
       end
@@ -163,4 +163,4 @@ for sub = 1:length(subjects)
   fprintf('Done.\n');
 end % sub
 
-%matlabpool close
+% matlabpool close
