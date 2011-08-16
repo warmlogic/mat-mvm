@@ -12,9 +12,13 @@ function blink_correction_wrapper(whichStages)
 %  whichStages: the stage number(s) to run (default = 1)
 %
 % Output:
-%  egis files need to have type/creator changed to EGIS/NETs
+%  Currently outputs to ep_mat format for doing analyses in EP Toolkit
 %
-%  raw files, need to have type/creator changed to eGLY/NETs
+%  If you use another format:
+%
+%    egis files need to have type/creator changed to EGIS/NETs
+%
+%    raw files, need to have type/creator changed to eGLY/NETs
 %
 
 % check/handle arguments
@@ -161,47 +165,49 @@ exper.blinkFile = '';
 if strcmp(exper.inputFileExt,'egis')
   % EGIS format
   exper.inputFormat = 'egi_egis';
-  exper.outputFormat = 'egi_egis';
-  %exper.outputFormat = 'ep_mat';
+  %exper.outputFormat = 'egi_egis';
+  exper.outputFormat = 'ep_mat';
 elseif strcmp(exper.inputFileExt,'raw')
   % RAW format
   exper.inputFormat = 'egi_sbin';
-  exper.outputFormat = 'egi_sbin';
-  %exper.outputFormat = 'ep_mat';
+  %exper.outputFormat = 'egi_sbin';
+  exper.outputFormat = 'ep_mat';
 end
 
 exper.type = 'single_trial';
 exper.montage = 'Hydrocel-128-1';
 exper.ced = 'GSN-Hydrocel-129.ced';
+exper.refChan = 129;
 
 %% set up input arguments
 inArg = {'files',exper.inputFile,...
   'inputFormat',exper.inputFormat,...
   'outputFormat',exper.outputFormat,...
+  'baseline',exper.baseline_samp,...
+  'timePoints',[],... % default: []. don't drop any timepoints
   'template','bothTemplate',...
   'sacctemplate','none',...
   'blinkFile',exper.blinkFile,...
-  'baseline',exper.baseline_samp,...
-  'channelMode','none',... % bad channel correction: 'replace' to interpolate channels declared bad
-  'trialMode','none',... % movement correction: 'fix' to fix bad trial data; 'none' to do nothing
-  'movefacs',20,...
-  'saturation',[-Inf Inf],...
-  'window',80,...
-  'minmax',100,...
-  'badnum',10,...
-  'neighbors',6,...
-  'maxneighbor',30,...
-  'badchan',0.4,...
-  'blink',0.9,...
-  'badtrials',20,... % default 20
+  'saturation',[-Inf Inf],... % default: [-Inf Inf]
+  'window',80,... % default: 80 ms
+  'minmax',100,... % bad chan min max (default: 100 uV)
+  'badnum',10,... % percent bad chan exceeded to declare bad trial (default: 10)
+  'neighbors',6,... % default: 6
+  'maxneighbor',30,... % default: 30 uV
+  'badchan',0.4,... % minimum predictability from neighbors (default: 0.4)
+  'blink',0.9,... % threshold correlation with blink template, 0 to 1 (default: .9)
+  'trialminmax',100,... % bad trial voltage diff; default 100 uV
+  'detrend',0,... % not recommended (default: 0)
+  'badtrials',20,... % default 20%
+  'channelMode','replace',... % bad channel correction: 'replace' interpolates bad channels; 'none' to do nothing
+  'trialMode','fix',... % movement correction: 'fix' to fix bad trial data; 'none' to do nothing
+  'noadjacent',1,... % 1 to not allow adjacent bad channels (trial or subject declared bad) (default: 1)
   'chunkSize',exper.memChunkSize,...
   'minTrialsPerCell',15,...
-  'noadjacent',0,... % 1 to not allow adjacent bad channels (trial or subject declared bad)
-  'trialminmax',100,... % default 100
-  'textPrefs',exper.textPrefs_struct,...
+  'movefacs',20,...
   'noFigure',0,...
-  'reference',129,... % channel 129 is Cz, implicitly present
-  'detrend',0,... % not recommended
+  'reference',exper.refChan,... % channel 129 is Cz, implicitly present
+  'textPrefs',exper.textPrefs_struct,...
   'type',exper.type,...
   'montage',exper.montage,...
   'ced',exper.ced,...
