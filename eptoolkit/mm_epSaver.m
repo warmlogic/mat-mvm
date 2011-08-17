@@ -35,7 +35,7 @@ if strcmp(inputFormat,'egi_egis')
 elseif strcmp(inputFormat,'egi_sbin')
   inputFileExt = 'raw';
 elseif strcmp(inputFormat,'ep_mat')
-  inputFileExt = 'mat';
+  inputFileExt = 'ept';
 else
   error('Input filetype %s is unknown.',inputFormat);
 end
@@ -84,7 +84,7 @@ if strcmp(outputFormat,'egi_egis')
 elseif strcmp(outputFormat,'egi_sbin')
   outputFileExt = 'raw';
 elseif strcmp(outputFormat,'ep_mat')
-  outputFileExt = 'mat';
+  outputFileExt = 'ept';
 else
   error('Output filetype %s is unknown.',outputFormat);
 end
@@ -104,7 +104,7 @@ for i = 1:length(fileList)
   [~,fileName,fileExt] = fileparts(fileList(i).name);
   
   inArgs = {
-    'file',[fileName,'.',fileExt],...
+    'file',[fileName,fileExt],...
     'format',inputFormat,...
     };
   
