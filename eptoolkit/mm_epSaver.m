@@ -112,13 +112,23 @@ for i = 1:length(fileList)
   cd(fullfile(dirs.dataroot,dirs.dataDir));
   
   % read in the file
+  fprintf('Reading %s...\n',fullfile(dirs.dataroot,dirs.dataDir,[fileName,inputFileExt]));
   [EPdata] = ep_readData(inArgs);
+  fprintf('Done.\n');
   
   % cd to the output directory
   cd(dirs.outputDir);
   
-  % write out the file
-  ep_writeData(EPdata,fileName,outputFormat);
+  if ~exist(fullfile(dirs.outputDir,[fileName,outputFileExt]),'file')
+    % write out the file
+    fprintf('Saving %s...\n',fullfile(dirs.dataroot,dirs.outputDir,[fileName,outputFileExt]));
+    ep_writeData(EPdata,fileName,outputFormat);
+    fprintf('Done.\n');
+  else
+    error('%s already exists.',fullfile(dirs.outputDir,[fileName,outputFileExt]));
+    %fprintf('%s already exists. Moving on.\n',fullfile(dirs.outputDir,[fileName,outputFileExt]));
+    %continue
+  end
   
 end
 
