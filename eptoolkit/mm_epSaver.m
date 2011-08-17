@@ -101,7 +101,7 @@ dirs.currDir = pwd;
 % go through the file list, read it in and save it out
 for i = 1:length(fileList)
   % get the file name
-  [~,fileName,fileExt] = fileparts(fileList(i).name);
+  [filePath,fileName,fileExt] = fileparts(fileList(i).name);
   
   inArgs = {
     'file',[fileName,fileExt],...
