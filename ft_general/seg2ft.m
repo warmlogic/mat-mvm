@@ -385,11 +385,12 @@ if length(eventValue) > 1
   for evVal = 1:length(eventValue)
     
     cfg = [];
-    trl = ft_findcfg(data.cfg,'trl');
-    cfg.trl = trl(trl(:,4) == evVal,1:3);
+    % select the correct trials for this event value
+    cfg.trials = data.trialinfo == evVal;
     
-    if ~isempty(cfg.trl)
-      fprintf('Selecting %d trials for %s...\n',size(cfg.trl,1),eventValue{evVal});
+    if sum(cfg.trials) > 0
+      fprintf('Selecting %d trials for %s...\n',sum(cfg.trials),eventValue{evVal});
+      % get the data for only this event value
       ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg,data);
       fprintf('Done.\n');
     else

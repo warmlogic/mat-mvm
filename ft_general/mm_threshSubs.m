@@ -107,10 +107,10 @@ exper.badSub = logical(exper.badSub);
 % print a summary
 fprintf('\nNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',sum(~exper.badSub),exper.nTrials.thresh);
 for evVal = 1:length(events)
-  exper.nTrials.meanTrials = mean(exper.nTrials.(events{evVal})(~exper.badSub));
-  exper.nTrials.sem = std(exper.nTrials.(events{evVal})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
-  exper.nTrials.sd = std(exper.nTrials.(events{evVal})(~exper.badSub),0,1);
-  fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',events{evVal},exper.nTrials.meanTrials,exper.nTrials.sem,exper.nTrials.sd);
+  meanTrials = mean(exper.nTrials.(events{evVal})(~exper.badSub));
+  semTrials = std(exper.nTrials.(events{evVal})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
+  stdTrials = std(exper.nTrials.(events{evVal})(~exper.badSub),0,1);
+  fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',events{evVal},meanTrials,semTrials,stdTrials);
 end
 
 end
