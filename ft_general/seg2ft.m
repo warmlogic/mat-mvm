@@ -274,67 +274,74 @@ for ses = 1:length(session)
     % one less channel because we're checking to see if the reference
     % channel is missing
     error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
-  elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3) && var(data.trial{1}(nChan_data,:)) == 0
-    % var=0 means that the final (reference) electrode is flat and this
-    % data set has not been (average) rereferenced
-    error('This dataset is not rereferenced. Go back and rereference in Net Station before running this script!');
-  elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3) && var(data.trial{1}(nChan_data,:)) ~= 0
-    % has full number of channels and is already rereferenced (final channel is not flat)
-    fprintf('Channels are already (average) rereferenced, as they should be.\n');
+  elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3)
     
-    % depending on whether the channel string was capitalized or lowercase
-    % in the electrode template, make the data elec label match. This is
-    % actually important for how FieldTrip deals with electrode numbers.
-    %
-    % TODO: We now always want to use capital letters, so this should
-    % probably be changed.
-    if strcmp(elec.label{ceil(nChan_data/2)}(1),'E')
-      isCapital = 1;
-    elseif strcmp(elec.label{ceil(nChan_data/2)}(1),'e')
-      isCapital = 0;
+    % grab data from all of the trials
+    trialData = cat(3,data.trial{:});
+    % check the variance across time for the reference channel
+    if sum(var(trialData(nChan_data,:,:),0,2) ~= 0) == 0
+      % var=0 means that the final (reference) electrode is flat and this
+      % data set has not been (average) rereferenced
+      error('This dataset is not rereferenced. Go back and rereference in Net Station before running this script!');
     else
-      warning([mfilename,':electrodeCapitalization'],'There is no ''E'' or ''e'' at the start of the electrode number! Going with uppercase.')
-      isCapital = 1;
-    end
-    
-    if isCapital
-      % capitalize the E for each electrode, or add it in if it's not there
-      for c = 1:nChan_data
-        if strcmp(data.label{c}(1),'e')
-          data.label{c} = upper(data.label{c});
-        elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
-          data.label{c} = ['E' data.label{c}];
-        end
+      
+      % has full number of channels and is already rereferenced (ref channel
+      % is not flat); check multiple trials
+      fprintf('Channels are already (average) rereferenced, as they should be.\n');
+      
+      % depending on whether the channel string was capitalized or lowercase
+      % in the electrode template, make the data elec label match. This is
+      % actually important for how FieldTrip deals with electrode numbers.
+      %
+      % TODO: We now always want to use capital letters, so this should
+      % probably be changed.
+      if strcmp(elec.label{ceil(nChan_data/2)}(1),'E')
+        isCapital = 1;
+      elseif strcmp(elec.label{ceil(nChan_data/2)}(1),'e')
+        isCapital = 0;
+      else
+        warning([mfilename,':electrodeCapitalization'],'There is no ''E'' or ''e'' at the start of the electrode number! Going with uppercase.')
+        isCapital = 1;
       end
-    elseif ~isCapital
-      % make sure the e for each electrode is lowercase, or add it in if
-      % it's not there
-      for c = 1:nChan_data
-        if strcmp(data.label{c}(1),'E')
-          data.label{c} = lower(data.label{c});
-        elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
-          data.label{c} = ['e' data.label{c}];
-        end
-      end
-    end
-    
-    % set the last channel name to 'Cz' if that's what was set in
-    % elec.label (e.g., instead of 'E129')
-    if strcmp(elec.label{end},'Cz')
+      
       if isCapital
-        lastChanStr = sprintf('E%d',nChan_data);
+        % capitalize the E for each electrode, or add it in if it's not there
+        for c = 1:nChan_data
+          if strcmp(data.label{c}(1),'e')
+            data.label{c} = upper(data.label{c});
+          elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
+            data.label{c} = ['E' data.label{c}];
+          end
+        end
       elseif ~isCapital
-        lastChanStr = sprintf('e%d',nChan_data);
+        % make sure the e for each electrode is lowercase, or add it in if
+        % it's not there
+        for c = 1:nChan_data
+          if strcmp(data.label{c}(1),'E')
+            data.label{c} = lower(data.label{c});
+          elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
+            data.label{c} = ['e' data.label{c}];
+          end
+        end
       end
-      %lastChanStr = 'Cz';
-      chanindx = find(strcmpi(data.label,lastChanStr));
-      if ~isempty(chanindx)
-        % set the label for the reference channel
-        %data.label{chanindx} = elec.label{chanindx};
-        data.label{chanindx} = elec.label{end};
+      
+      % set the last channel name to 'Cz' if that's what was set in
+      % elec.label (e.g., instead of 'E129')
+      if strcmp(elec.label{end},'Cz')
+        if isCapital
+          lastChanStr = sprintf('E%d',nChan_data);
+        elseif ~isCapital
+          lastChanStr = sprintf('e%d',nChan_data);
+        end
+        %lastChanStr = 'Cz';
+        chanindx = find(strcmpi(data.label,lastChanStr));
+        if ~isempty(chanindx)
+          % set the label for the reference channel
+          %data.label{chanindx} = elec.label{chanindx};
+          data.label{chanindx} = elec.label{end};
+        end
       end
     end
-    
   else
     error('Not sure what to do about rereferencing!');
   end
