@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+%exper.nsFileExt = 'egis';
+exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -97,8 +97,8 @@ exper.sessions = {{'session_0','session_1'}};
 % directory where the data to read is located
 %dirs.subDir = 'RK';
 dirs.subDir = '';
-%dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
-dirs.dataDir = fullfile(exper.name,'eeg','nspp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+%dirs.dataDir = fullfile(exper.name,'eeg','nspp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
@@ -170,7 +170,7 @@ files.figFileExt = 'png';
 % raw data
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'ns_auto'};
-ana.artifact.type = {'ns_auto','ft_ica'};
+ana.artifact.type = {'ns_auto'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -219,7 +219,8 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -333,7 +334,7 @@ exper.badBehSub = {};
 %exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
 %exper.badBehSub = {'COSI001','COSI003','COSI005','COSI012','COSI013','COSI014','COSI016','COSI017','COSI018','COSI019','COSI020'};
 % COSI002 is noisy
-exper.badBehSub = {'COSI002','COSI018','COSI018','COSI022','COSI027'};
+exper.badBehSub = {'COSI002','COSI027','COSI034','COSI035','COSI013','COSI017'};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -412,12 +413,12 @@ cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
 
-% %cfg_plot.rois = {{'E70'}}; % left
-% %cfg_plot.rois = {{'E75'}}; % center
-% cfg_plot.rois = {{'E83'}}; % right
-% %cfg_plot.xlim = [-0.2 1.0];
-% cfg_plot.xlim = [0 0.3];
-% cfg_plot.ylim = [-10 10];
+%cfg_plot.rois = {{'E70'}}; % left
+%cfg_plot.rois = {{'E75'}}; % center
+cfg_plot.rois = {{'E83'}}; % right
+%cfg_plot.xlim = [-0.2 1.0];
+cfg_plot.xlim = [0 0.3];
+cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
