@@ -5,8 +5,8 @@ function mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,data)
 %
 % See also: MM_FT_PLOTER
 
-if ~isfield(cfg_ft,'zparam')
-  error('Must define cfg_ft.zparam (e.g., ''avg'')');
+if ~isfield(cfg_ft,'parameter')
+  error('Must define cfg_ft.parameter (e.g., ''avg'')');
 end
 if ~isfield(cfg_ft,'fontsize')
   cfg_ft.fontsize = 9;

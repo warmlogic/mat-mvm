@@ -133,30 +133,30 @@ files.figFileExt = 'png';
 
 % %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
-% % CR2
-% nsEvFilters.CR2.type = 'LURE_PRES';
-% nsEvFilters.CR2.testType = 'side';
-% nsEvFilters.CR2.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % HSC2
-% nsEvFilters.HSC2.type = 'TARG_PRES';
-% nsEvFilters.HSC2.testType = 'side';
-% nsEvFilters.HSC2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % HSI2
-% nsEvFilters.HSI2.type = 'TARG_PRES';
-% nsEvFilters.HSI2.testType = 'side';
-% nsEvFilters.HSI2.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% % CR6
-% nsEvFilters.CR6.type = 'LURE_PRES';
-% nsEvFilters.CR6.testType = 'task';
-% nsEvFilters.CR6.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % HSC6
-% nsEvFilters.HSC6.type = 'TARG_PRES';
-% nsEvFilters.HSC6.testType = 'task';
-% nsEvFilters.HSC6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % HSI6
-% nsEvFilters.HSI6.type = 'TARG_PRES';
-% nsEvFilters.HSI6.testType = 'task';
-% nsEvFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+% % CCR
+% nsEvFilters.CCR.type = 'LURE_PRES';
+% nsEvFilters.CCR.testType = 'side';
+% nsEvFilters.CCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% % CHSC
+% nsEvFilters.CHSC.type = 'TARG_PRES';
+% nsEvFilters.CHSC.testType = 'side';
+% nsEvFilters.CHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% % CHSI
+% nsEvFilters.CHSI.type = 'TARG_PRES';
+% nsEvFilters.CHSI.testType = 'side';
+% nsEvFilters.CHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+% % SCR
+% nsEvFilters.SCR.type = 'LURE_PRES';
+% nsEvFilters.SCR.testType = 'task';
+% nsEvFilters.SCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% % SHSC
+% nsEvFilters.SHSC.type = 'TARG_PRES';
+% nsEvFilters.SHSC.testType = 'task';
+% nsEvFilters.SHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% % SHSI
+% nsEvFilters.SHSI.type = 'TARG_PRES';
+% nsEvFilters.SHSI.testType = 'task';
+% nsEvFilters.SHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 % 
 % for sub = 1:length(exper.subjects)
 %   for ses = 1:length(exper.sessions)
@@ -334,6 +334,7 @@ exper.badBehSub = {};
 %exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
 %exper.badBehSub = {'COSI001','COSI003','COSI005','COSI012','COSI013','COSI014','COSI016','COSI017','COSI018','COSI019','COSI020'};
 % COSI002 is noisy
+%exper.badBehSub = {'COSI002','COSI027','COSI034','COSI035','COSI013','COSI017','COSI006','COSI018','COSI022'};
 exper.badBehSub = {'COSI002','COSI027','COSI034','COSI035','COSI013','COSI017'};
 
 % exclude subjects with low event counts
@@ -366,7 +367,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-.2 1.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
@@ -387,8 +388,8 @@ cfg_plot.excludeBadSub = 1;
 % conditions
 
 % cfg_plot.condByTypeByROI = {...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+%   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+%   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
 cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
@@ -411,26 +412,26 @@ cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
-cfg_plot.zparam = 'avg';
+cfg_plot.parameter = 'avg';
 
-%cfg_plot.rois = {{'E70'}}; % left
-%cfg_plot.rois = {{'E75'}}; % center
-cfg_plot.rois = {{'E83'}}; % right
-%cfg_plot.xlim = [-0.2 1.0];
-cfg_plot.xlim = [0 0.3];
-cfg_plot.ylim = [-10 10];
+% %cfg_plot.rois = {{'E70'}}; % left
+% %cfg_plot.rois = {{'E75'}}; % center
+% cfg_plot.rois = {{'E83'}}; % right
+% %cfg_plot.xlim = [-0.2 1.0];
+% cfg_plot.xlim = [0 0.3];
+% cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
 
 % cfg_plot.condByTypeByROI = {...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+%   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+%   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
 % % abbreviations for the condition types
 % cfg_plot.typesByROI = {...
-%   {'C2','C6'},...
-%   {'C2','C6'}};
+%   {'Color','Side'},...
+%   {'Color','Side'}};
 
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
@@ -463,7 +464,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.5];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
@@ -484,14 +485,14 @@ cfg_plot.excludeBadSub = 1;
 % conditions
 
 % cfg_plot.condByTypeByROI = {...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
+%   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+%   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+%   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+%   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}...
+%   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}...
+%   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}...
 %   };
-% cfg_plot.typesByROI = repmat({{'C2','C6'}},size(cfg_plot.condByTypeByROI));
+% cfg_plot.typesByROI = repmat({{'Color','Side'}},size(cfg_plot.condByTypeByROI));
 
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
@@ -518,7 +519,7 @@ cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1]; % time
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';
@@ -526,24 +527,23 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.conditions = {{'all_within_types'}};
 %cfg_plot.conditions = {{'all_across_types'}};
 %cfg_plot.condMethod = 'pairwise';
-%cfg_plot.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_plot.conditions = {{'CHSC','CCR'},{'CHSI','CCR'},{'CHSC','CHSI'},{'SHSC','SCR'},{'SHSI','SCR'},{'SHSC','SHSI'}}; % {'CH','CCR'},{'SH','SCR'},
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
 
-% cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.3 0.5]; % time
-cfg_plot.roi = {'LPS','RPS'};
-cfg_ft.xlim = [0.5 0.8]; % time
+% % cfg_plot.roi = {'LAS','RAS'};
+% % cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_plot.roi = {'LPS','RPS'};
+% cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_ft.comment = 'no';
 
-%cfg_ft.xlim = [0 1.0]; % time
+cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
-%cfg_plot.subplot = 1;
+cfg_plot.subplot = 1;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -567,7 +567,7 @@ cfg_ana.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-%cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
+%cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 cfg_ana.conditions = {{'all_within_types'}};
 
@@ -584,7 +584,7 @@ cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 1 4];
 cfg_plot.ylims = [-4 -1; -4 -1; 1 4; 1 4];
-%cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
+%cfg_plot.plot_order = {'CCR','CH','CHSC','CHSI','SCR','SH','SHSC','SHSI'};
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
@@ -608,15 +608,15 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % IV2: abbreviations for the condition types
 cfg_ana.typesByROI = {...
-  {'C2','C6'},...
-  {'C2','C6'}};
+  {'Color','Side'},...
+  {'Color','Side'}};
 
 % IV3: outermost cell holds one cell for each ROI; each ROI cell holds one
 % cell for each event type; each event type cell holds strings for its
 % conditions
 cfg_ana.condByTypeByROI = {...
-  {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-  {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+  {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+  {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
 
 % For each ROI, what's common among the conditions in each type
 cfg_ana.condCommonByROI = {...
@@ -651,8 +651,8 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % IV2: define the conditions tested for each set of ROIs
 cfg_ana.condByROI = {...
-  {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-  {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+  {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+  {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
 
 % For each ROI, what's common among the conditions in each type
 cfg_ana.condCommonByROI = {...
@@ -661,8 +661,8 @@ cfg_ana.condCommonByROI = {...
 
 % abbreviations for the condition types
 cfg_ana.typesByROI = {...
-  {'C2','C6'},...
-  {'C2','C6'}};
+  {'Color','Side'},...
+  {'Color','Side'}};
 
 cfg_ana.IV_names = {'ROI','Condition'};
 
@@ -728,11 +728,12 @@ cfg_ana.roi = 'all';
 cfg_ana.latencies = [0 1.0; 1.0 2.0];
 
 % cfg_ana.conditions = {...
-%   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
-%   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
-%   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
+%   {'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},...
+%   {'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'},...
+%   {'CCR','SCR'},{'CH','SH'},{'CHSC','SHSC'},{'CHSI','SHSI'}};
 %cfg_ana.conditions = {'all_within_types'};
-cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+cfg_ana.conditions = {{'CHSC','CCR'},{'CHSI','CCR'},{'CHSC','CHSI'},...
+  {'SHSC','SCR'},{'SHSI','SCR'},{'SHSC','SHSI'}}; % {'CH','CCR'},{'SH','SCR'},
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -784,18 +785,18 @@ cfg_ana.dpTypesByROI = {...
 % for each event type; each event type cell holds two cells, one for each
 % d' type; each d' cell contains strings for its conditions
 cfg_ana.condByROI = {...
-  {{{'CR2','H2'},{'HSC2','HSI2'}}, {{'CR6','H6'},{'HSC6','HSI6'}}}...
-  {{{'CR2','H2'},{'HSC2','HSI2'}}, {{'CR6','H6'},{'HSC6','HSI6'}}}};
+  {{{'CCR','CH'},{'CHSC','CHSI'}}, {{'SCR','SH'},{'SHSC','SHSI'}}}...
+  {{{'CCR','CH'},{'CHSC','CHSI'}}, {{'SCR','SH'},{'SHSC','SHSI'}}}};
 
 % abbreviations for the condition types
 cfg_ana.typesByROI = {...
-  {'C2','C6'},...
-  {'C2','C6'}};
+  {'Color','Side'},...
+  {'Color','Side'}};
 
-% C2 d' values
+% Color d' values
 cfg_ana.(cfg_ana.typesByROI{1}{1}).d_item =  abs([]);
 cfg_ana.(cfg_ana.typesByROI{1}{1}).d_source =  abs([]);
-% C6 d' values
+% Side d' values
 cfg_ana.(cfg_ana.typesByROI{1}{2}).d_item =  abs([]);
 cfg_ana.(cfg_ana.typesByROI{1}{2}).d_source =  abs([]);
 

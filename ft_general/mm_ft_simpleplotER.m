@@ -2,8 +2,8 @@ function mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,data)
 %MM_FT_SIMPLEPLOTER Simple plot of ERP data
 %   
 
-if ~isfield(cfg_ft,'zparam')
-  error('Must define cfg_ft.zparam for ft_singleplotER');
+if ~isfield(cfg_ft,'parameter')
+  error('Must define cfg_ft.parameter for ft_singleplotER');
 end
 if ~isfield(cfg_ft,'fontsize')
   cfg_ft.fontsize = 9;

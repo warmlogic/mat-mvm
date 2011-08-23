@@ -284,7 +284,9 @@ F2 = MSS/MSEA; %within-subjects F-statistic
 P1 = 1 - fcdf(F1,v1,v3);    
 P2 = 1 - fcdf(F2,v2,v3);   
 
-eta2 = SSA/(SSA+SSEA)*100;
+eta2 = SSA/SST;
+
+etap2 = SSA/(SSA+SSEA)*100;
 
 if P1 >= alpha;
     ds1 ='NS';
@@ -415,7 +417,8 @@ if showtable
   disp('that subjects differ from one another thus making a significance test of "subjects" superfluous.');
   disp('However, for all the interested people we are given it anyway].');
   disp('  ');
-  fprintf('The percentage of the variability in the DV associated with the IV (partial eta^2) is% 3.2f\n', eta2);
+  fprintf('eta^2 is% 0.5f\n', eta2);
+  fprintf('The percentage of the variability in the DV associated with the IV (partial eta^2) is% 3.2f\n', etap2);
   disp('(After the effects of individual differences have been removed).');
   
   %% print a LaTeX table

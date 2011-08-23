@@ -296,19 +296,18 @@ exper.badBehSub = {};
 % huge response bias to say "new": 18, 26
 exper.badBehSub = {'SOCO018','SOCO026'};
 
-
-exper.p1n1_good = {'SOCO005','SOCO006','SOCO008','SOCO010','SOCO011','SOCO013','SOCO015','SOCO022','SOCO024','SOCO027','SOCO030'};
-exper.p1n1_ok = {'SOCO001','SOCO003','SOCO004','SOCO007','SOCO012','SOCO014','SOCO016','SOCO021','SOCO023','SOCO029'};
-exper.p1n1_bad = {'SOCO002','SOCO009','SOCO017','SOCO018','SOCO019','SOCO020','SOCO025','SOCO026','SOCO028'};
-
-% plot good
-exper.badBehSub = unique(cat(2,exper.p1n1_ok,exper.p1n1_bad));
-
-% plot ok
-%exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_bad));
-
-% plot bad
-%exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
+% exper.p1n1_good = {'SOCO005','SOCO006','SOCO008','SOCO010','SOCO011','SOCO013','SOCO015','SOCO022','SOCO024','SOCO027','SOCO030'};
+% exper.p1n1_ok = {'SOCO001','SOCO003','SOCO004','SOCO007','SOCO012','SOCO014','SOCO016','SOCO021','SOCO023','SOCO029'};
+% exper.p1n1_bad = {'SOCO002','SOCO009','SOCO017','SOCO018','SOCO019','SOCO020','SOCO025','SOCO026','SOCO028'};
+% 
+% % plot good
+% exper.badBehSub = unique(cat(2,exper.p1n1_ok,exper.p1n1_bad));
+% 
+% % plot ok
+% exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_bad));
+% 
+% % plot bad
+% exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,16);

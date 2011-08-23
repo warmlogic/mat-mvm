@@ -7,8 +7,8 @@ ses = 1;
 
 vertTextLoc = 0.18;
 
-if ~isfield(cfg_plot,'zparam')
-  cfg_plot.zparam = 'avg';
+if ~isfield(cfg_plot,'parameter')
+  cfg_plot.parameter = 'avg';
 end
 
 % make sure some fields are set
@@ -102,8 +102,8 @@ for typ = 1:length(cfg_plot.conditions)
       % go through each event value for this type
       for evVal = 1:length(cfg_plot.conditions{typ})
         evStr = cat(2,evStr,sprintf(' %s:%d',strrep(cfg_plot.conditions{typ}{evVal},'_',''),exper.nTrials.(cfg_plot.conditions{typ}{evVal})(sub)));
-        if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_plot.zparam)
-          plot(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.time,mean(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.(cfg_plot.zparam)(cfg_plot.chansel,:),1),cfg_plot.colors(evVal));
+        if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_plot.parameter)
+          plot(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.time,mean(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.(cfg_plot.parameter)(cfg_plot.chansel,:),1),cfg_plot.colors(evVal));
         end
       end
       

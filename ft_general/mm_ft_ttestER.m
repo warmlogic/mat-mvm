@@ -224,7 +224,13 @@ for cnd = 1:length(cfg_ana.conditions)
   
   ev1 = cfg_ana.conditions{cnd}{1};
   ev2 = cfg_ana.conditions{cnd}{2};
-  fprintf('%s (M=%.3f; SEM=%.3f) vs %s (M=%.3f; SEM=%.3f):\tt(%d)=%.4f, p=%.10f',cfg_ana.conditions{cnd}{1},mean(cfg_ana.values.(ev1),1),cfg_ana.sem.(ev1),cfg_ana.conditions{cnd}{2},mean(cfg_ana.values.(ev2),1),cfg_ana.sem.(ev2),cfg_ana.(vs_str).df,cfg_ana.(vs_str).stat,cfg_ana.(vs_str).prob);
+  
+  std_pooled = sqrt((((length(cfg_ana.values.(ev1)) - 1) * (std(cfg_ana.values.(ev1),0)^2)) + ...
+    ((length(cfg_ana.values.(ev2)) - 1) * (std(cfg_ana.values.(ev2),0)^2))) / ...
+    (length(cfg_ana.values.(ev1)) - 1 + length(cfg_ana.values.(ev2)) - 1));
+  cohens_d = (mean(cfg_ana.values.(ev1),1) - mean(cfg_ana.values.(ev2),1)) / std_pooled;
+  
+  fprintf('%s (M=%.3f; SEM=%.3f)\tvs %s (M=%.3f; SEM=%.3f):\tt(%d)=%.4f, p=%.10f (d=%.3f)',cfg_ana.conditions{cnd}{1},mean(cfg_ana.values.(ev1),1),cfg_ana.sem.(ev1),cfg_ana.conditions{cnd}{2},mean(cfg_ana.values.(ev2),1),cfg_ana.sem.(ev2),cfg_ana.(vs_str).df,cfg_ana.(vs_str).stat,cfg_ana.(vs_str).prob,cohens_d);
   if cfg_ana.(vs_str).prob < cfg_ft.alpha
     fprintf(' *');
   end

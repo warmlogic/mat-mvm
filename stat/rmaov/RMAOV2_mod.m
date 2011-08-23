@@ -336,8 +336,13 @@ P2 = 1 - fcdf(F2,v3,v4);
 P3 = 1 - fcdf(F3,v5,v6);
 P4 = 1 - fcdf(F4,v7,v8);
 
-eta21 = SSA/(SSA+SSEA)*100;
-eta22 = SSB/(SSB+SSEB)*100;
+% eta^2
+eta21 = SSA/SSTO;
+eta22 = SSB/SSTO;
+
+% partial eta^2
+etap21 = SSA/(SSA+SSEA)*100;
+etap22 = SSB/(SSB+SSEB)*100;
 
 if P1 >= alpha;
     ds1 ='NS';
@@ -483,10 +488,12 @@ if showtable
   fprintf('that subjects differ from one another thus making a significance test of "subjects" superfluous.\n');
   fprintf('However, for all the interested people we are given it anyway].\n\n');
   
-  fprintf('The percentage of the variability in the DV associated with IV1 (partial eta^2) is %3.2f\n', eta21);
+  fprintf('eta^2 = %0.5f\n', eta21);
+  fprintf('The percentage of the variability in the DV associated with IV1 (partial eta^2) is %3.2f\n', etap21);
   fprintf('(after the effects of individual differences have been removed).\n\n');
   
-  fprintf('The percentage of the variability in the DV associated with IV2 (partial eta^2) is %3.2f\n', eta22);
+  fprintf('eta^2 = %0.5f\n', eta22);
+  fprintf('The percentage of the variability in the DV associated with IV2 (partial eta^2) is %3.2f\n', etap22);
   fprintf('(after the effects of individual differences have been removed).\n\n');
   
   %% print a table for use in a LaTeX doc
