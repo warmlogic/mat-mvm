@@ -61,6 +61,10 @@ subjects = {
   'COSI029';
   'COSI030';
   'COSI031';
+  'COSI032';
+  'COSI033';
+  'COSI034';
+  'COSI035';
   };
 % original COSI019 was replaced because the first didn't finish
 
