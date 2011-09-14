@@ -280,10 +280,13 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
+%exper.badBehSub = {};
 %exper.badBehSub = {'SOSI011','SOSI030'};
-exper.badBehSub = {'SOSI011','SOSI030','SOSI005','SOSI007'}; % ,'SOSI003','SOSI024'
+exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % ,'SOSI003','SOSI024'
 
-% 11 and 30 had no F responses; 1 has weird voltages
+% 7 had poor accuracy (and 003, 005, 024?)
+
+% 011 and 030 had no F responses; 001 has weird voltages
 
 % exper.p1n1_good = {'SOSI001','SOSI006','SOSI007','SOSI008','SOSI010','SOSI012','SOSI013','SOSI017','SOSI021','SOSI023','SOSI025','SOSI030'};
 % exper.p1n1_ok = {'SOSI002','SOSI004','SOSI016','SOSI019','SOSI024','SOSI026','SOSI028','SOSI029'};
@@ -330,7 +333,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-.2 2.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
@@ -388,9 +391,10 @@ cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
 
-cfg_plot.rois = {{'E83'}};
-cfg_plot.xlim = [-0.2 1.0];
-cfg_plot.ylim = [-10 10];
+% cfg_plot.rois = {{'E83'}};
+% cfg_plot.xlim = [-0.2 1.0];
+% cfg_plot.xlim = [0 0.5];
+% cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its

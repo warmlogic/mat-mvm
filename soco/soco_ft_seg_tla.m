@@ -292,7 +292,7 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_t
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+%exper.badBehSub = {};
 % huge response bias to say "new": 18, 26
 exper.badBehSub = {'SOCO018','SOCO026'};
 
@@ -339,7 +339,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-.2 2.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -350,10 +350,10 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWes
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-cfg_ft.xlim = [-.2 1.0];
-cfg_plot.rois = {{'E83'}};
-cfg_plot.ylims = [-10 10];
-cfg_plot.legendlocs = {'NorthEast'};
+% cfg_ft.xlim = [-.2 1.0];
+% cfg_plot.rois = {{'E83'}};
+% cfg_plot.ylims = [-10 10];
+% cfg_plot.legendlocs = {'NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -618,10 +618,10 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'},{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -650,7 +650,7 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-cfg_plot.ylims = [-4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
+cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 

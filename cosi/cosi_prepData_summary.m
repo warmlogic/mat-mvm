@@ -1,5 +1,5 @@
-function cosi_prepData_summary(rejectArt,saveFiles,dataroot)
-% function cosi_prepData_summary(rejectArt,saveFiles,dataroot)
+function cosi_prepData_summary(rejectArt,saveFiles,averageSes,dataroot)
+% function cosi_prepData_summary(rejectArt,saveFiles,averageSes,dataroot)
 %
 % Save column-formatted data as a csv file
 %
@@ -10,7 +10,7 @@ expName = 'COSI';
 
 subsets = {'_color','_side'};
 
-if nargin < 3
+if nargin < 4
   serverDir = fullfile('/Volumes/curranlab/Data',expName,'eeg/behavioral');
   serverLocalDir = fullfile('/Volumes/RAID/curranlab/Data',expName,'eeg/behavioral');
   if exist(serverDir,'dir')
@@ -21,10 +21,13 @@ if nargin < 3
     uroot = getenv('HOME');
     dataroot = fullfile(uroot,'data',expName,'eeg/behavioral');
   end
-  if nargin < 2
-    saveFiles = 1;
-    if nargin < 1
-      rejectArt = 0;
+  if nargin < 3
+    averageSes = 0;
+    if nargin < 2
+      saveFiles = 1;
+      if nargin < 1
+        rejectArt = 0;
+      end
     end
   end
 end
@@ -37,9 +40,9 @@ subjects = {
   'COSI005';
   'COSI006';
   'COSI007';
-%   'COSI008';
-%   'COSI009';
-%   'COSI010';
+  %   'COSI008';
+  %   'COSI009';
+  %   'COSI010';
   'COSI011';
   'COSI012';
   'COSI013';
@@ -50,7 +53,7 @@ subjects = {
   'COSI018';
   'COSI020';
   'COSI019';
-%   'COSI021';
+  %   'COSI021';
   'COSI022';
   'COSI023';
   'COSI024';
@@ -122,11 +125,15 @@ end
 for s = 1:length(subsets)
   if saveFiles == 1
     % include artifacts in event count
-    if rejectArt == 1
-      eventsTable = fullfile(dataroot,[expName,'_summary',subsets{s},'_rejArt.csv']);
-    else
-      eventsTable = fullfile(dataroot,[expName,'_summary',subsets{s},'.csv']);
+    eventsTable = fullfile(dataroot,[expName,'_summary',subsets{s}]);
+    if averageSes == 1
+      eventsTable = sprintf('%s_avgSes',eventsTable);
     end
+    if rejectArt == 1
+      eventsTable = sprintf('%s_rejArt',eventsTable);
+    end
+    eventsTable = sprintf('%s.csv',eventsTable);
+    
     if ~exist(eventsTable,'file')
       outfile = fopen(eventsTable,'wt');
       if isempty(subsets{s})
@@ -146,6 +153,150 @@ for s = 1:length(subsets)
     end
   else
     fprintf('saveFiles = 0, not writing out any files\n')
+  end
+  
+  %% initialize
+  numEv = struct;
+  rates = struct;
+  rates_wir = struct;
+  rt = struct;
+  acc = struct;
+  
+  % number of events
+  numEv.rec_targEv = nan(length(subjects),length(sessions));
+  numEv.rec_lureEv = nan(length(subjects),length(sessions));
+  numEv.src_targEv = nan(length(subjects),length(sessions));
+  numEv.src_lureEv = nan(length(subjects),length(sessions));
+  % raw numbers for accuracy
+  numEv.rec_h = nan(length(subjects),length(sessions));
+  numEv.rec_cr = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    numEv.rec_m = nan(length(subjects),length(sessions));
+    numEv.rec_fa = nan(length(subjects),length(sessions));
+  end
+  numEv.src_h = nan(length(subjects),length(sessions));
+  numEv.src_cr = nan(length(subjects),length(sessions));
+  numEv.src_m = nan(length(subjects),length(sessions));
+  numEv.src_fa = nan(length(subjects),length(sessions));
+  % raw numbers for recognition hits
+  numEv.rec_h_srcCor = nan(length(subjects),length(sessions));
+  numEv.rec_h_srcInc = nan(length(subjects),length(sessions));
+  % raw numbers by confidence
+  numEv.rec_h_srcCor_rs = nan(length(subjects),length(sessions));
+  numEv.rec_h_srcCor_ro = nan(length(subjects),length(sessions));
+  numEv.rec_h_srcCor_k = nan(length(subjects),length(sessions));
+  numEv.rec_h_srcInc_rs = nan(length(subjects),length(sessions));
+  numEv.rec_h_srcInc_ro = nan(length(subjects),length(sessions));
+  numEv.rec_h_srcInc_k = nan(length(subjects),length(sessions));
+  numEv.rec_m_sure = nan(length(subjects),length(sessions));
+  numEv.rec_m_maybe = nan(length(subjects),length(sessions));
+  numEv.rec_cr_sure = nan(length(subjects),length(sessions));
+  numEv.rec_cr_maybe = nan(length(subjects),length(sessions));
+  numEv.rec_fa_rs = nan(length(subjects),length(sessions));
+  numEv.rec_fa_ro = nan(length(subjects),length(sessions));
+  numEv.rec_fa_k = nan(length(subjects),length(sessions));
+  
+  % rates
+  rates.rec_h = nan(length(subjects),length(sessions));
+  rates.rec_cr = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    rates.rec_m = nan(length(subjects),length(sessions));
+    rates.rec_fa = nan(length(subjects),length(sessions));
+  end
+  rates.src_h = nan(length(subjects),length(sessions));
+  rates.src_m = nan(length(subjects),length(sessions));
+  rates.src_cr = nan(length(subjects),length(sessions));
+  rates.src_fa = nan(length(subjects),length(sessions));
+  rates.rec_h_srcCor = nan(length(subjects),length(sessions));
+  rates.rec_h_srcInc = nan(length(subjects),length(sessions));
+  % rates by confidence
+  rates.rec_h_srcCor_rs = nan(length(subjects),length(sessions));
+  rates.rec_h_srcCor_ro = nan(length(subjects),length(sessions));
+  rates.rec_h_srcCor_k = nan(length(subjects),length(sessions));
+  rates.rec_h_srcInc_rs = nan(length(subjects),length(sessions));
+  rates.rec_h_srcInc_ro = nan(length(subjects),length(sessions));
+  rates.rec_h_srcInc_k = nan(length(subjects),length(sessions));
+  rates.rec_h_rs = nan(length(subjects),length(sessions));
+  rates.rec_h_ro = nan(length(subjects),length(sessions));
+  rates.rec_h_k = nan(length(subjects),length(sessions));
+  rates.rec_cr_sure = nan(length(subjects),length(sessions));
+  rates.rec_cr_maybe = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    rates.rec_m_sure = nan(length(subjects),length(sessions));
+    rates.rec_m_maybe = nan(length(subjects),length(sessions));
+    rates.rec_fa_rs = nan(length(subjects),length(sessions));
+    rates.rec_fa_ro = nan(length(subjects),length(sessions));
+    rates.rec_fa_k = nan(length(subjects),length(sessions));
+  end
+  % Independent Remember--Know Familiarity rates
+  rates.irk_Fam = nan(length(subjects),length(sessions));
+  %I think this is wrong
+  rates.irk_correct_Fam = nan(length(subjects),length(sessions));
+  rates.irk_incorrect_Fam = nan(length(subjects),length(sessions));
+  
+  % accuracy
+  if rejectArt == 0
+    acc.item_dp = nan(length(subjects),length(sessions));
+  end
+  acc.source_dp = nan(length(subjects),length(sessions));
+  % response bias (criterion) from Macmillan & Creelman p. 29
+  if rejectArt == 0
+    acc.item_c = nan(length(subjects),length(sessions));
+  end
+  acc.source_c = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    % From Mecklinger et al. (2007) and Corwin (1994)
+    %
+    % discrimination index
+    acc.Pr = nan(length(subjects),length(sessions));
+    % response bias index
+    acc.Br = nan(length(subjects),length(sessions));
+  end
+  
+  % within-response rates
+  rates_wir.rec_h_srcCor_rs = nan(length(subjects),length(sessions));
+  rates_wir.rec_h_srcCor_ro = nan(length(subjects),length(sessions));
+  rates_wir.rec_h_srcCor_k = nan(length(subjects),length(sessions));
+  rates_wir.rec_h_srcInc_rs = nan(length(subjects),length(sessions));
+  rates_wir.rec_h_srcInc_ro = nan(length(subjects),length(sessions));
+  rates_wir.rec_h_srcInc_k = nan(length(subjects),length(sessions));
+  rates_wir.rec_cr_sure = nan(length(subjects),length(sessions));
+  rates_wir.rec_cr_maybe = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    rates_wir.rec_m_sure = nan(length(subjects),length(sessions));
+    rates_wir.rec_m_maybe = nan(length(subjects),length(sessions));
+    rates_wir.rec_fa_rs = nan(length(subjects),length(sessions));
+    rates_wir.rec_fa_ro = nan(length(subjects),length(sessions));
+    rates_wir.rec_fa_k = nan(length(subjects),length(sessions));
+  end
+  
+  % reaction times
+  rt.rec_h = nan(length(subjects),length(sessions));
+  rt.rec_cr = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    rt.rec_m = nan(length(subjects),length(sessions));
+    rt.rec_fa = nan(length(subjects),length(sessions));
+  end
+  rt.src_h = nan(length(subjects),length(sessions));
+  rt.src_m = nan(length(subjects),length(sessions));
+  rt.src_cr = nan(length(subjects),length(sessions));
+  rt.src_fa = nan(length(subjects),length(sessions));
+  rt.rec_h_srcCor = nan(length(subjects),length(sessions));
+  rt.rec_h_srcInc = nan(length(subjects),length(sessions));
+  rt.rec_h_srcCor_rs = nan(length(subjects),length(sessions));
+  rt.rec_h_srcCor_ro = nan(length(subjects),length(sessions));
+  rt.rec_h_srcCor_k = nan(length(subjects),length(sessions));
+  rt.rec_h_srcInc_rs = nan(length(subjects),length(sessions));
+  rt.rec_h_srcInc_ro = nan(length(subjects),length(sessions));
+  rt.rec_h_srcInc_k = nan(length(subjects),length(sessions));
+  rt.rec_cr_sure = nan(length(subjects),length(sessions));
+  rt.rec_cr_maybe = nan(length(subjects),length(sessions));
+  if rejectArt == 0
+    rt.rec_m_sure = nan(length(subjects),length(sessions));
+    rt.rec_m_maybe = nan(length(subjects),length(sessions));
+    rt.rec_fa_rs = nan(length(subjects),length(sessions));
+    rt.rec_fa_ro = nan(length(subjects),length(sessions));
+    rt.rec_fa_k = nan(length(subjects),length(sessions));
   end
   
   %% for each subject
@@ -190,719 +341,453 @@ for s = 1:length(subsets)
         subSesEv = events;
       end
       
+      %% RAW NUMBERS
+      
+      % When analyzing counts/rates when rejecting artifacts:
+      %
+      % Don't currently have all event information if using rejectArt; only have
+      % info for recognition hits and correct rejections. Source hits, CR,
+      % missed, and FAs are ok because they come from recognition hits. This is
+      % because we're not segmenting misses and false alarms in NS.
+      
+      %         % get all the study events (excluding buffers)
+      %         studyEv = filterStruct(subSesEv,'ismember(type,varargin{1})',{'STUDY_TARGET'});
+      %
+      %         study_rh = filterStruct(studyEv,'rec_correct == 1');
+      %         study_rm = filterStruct(studyEv,'rec_correct == 0');
+      %
+      %         study_rh_srcCor = filterStruct(study_rh,'src_correct == 1');
+      %         study_rh_srcInc = filterStruct(study_rh,'src_correct == 0');
+      
+      % get all the targets (old study items presented at test)
+      rec_targEv = filterStruct(subSesEv,'rec_isTarg == 1 & ismember(type,varargin{1})',{'TEST_TARGET'});
+      % get all the lures (new test items)
+      rec_lureEv = filterStruct(subSesEv,'rec_isTarg == 0 & ismember(type,varargin{1})',{'TEST_LURE'});
+      
+      % all source reponses (targets and lures) are conditionalized on
+      % getting a recognition hit
+      %
+      % source targets (for Hs and Ms) and lures (for CRs and FAs) come
+      % from the source coding of target items, as explained in
+      % cosi_createEvents.m
+      src_targEv = filterStruct(rec_targEv,'src_isTarg == 1 & rec_correct == 1');
+      src_lureEv = filterStruct(rec_targEv,'src_isTarg == 0 & rec_correct == 1');
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % TEST-PRESENTATION EVENTS %
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
+      % recognition events only
+      rec_h = filterStruct(rec_targEv,'rec_correct == 1');
+      rec_cr = filterStruct(rec_lureEv,'rec_correct == 1');
       if rejectArt == 0
-        %% RAW NUMBERS
-        
-%         % get all the study events (excluding buffers)
-%         studyEv = filterStruct(subSesEv,'ismember(type,varargin{1})',{'STUDY_TARGET'});
-%         
-%         study_rh = filterStruct(studyEv,'rec_correct == 1');
-%         study_rm = filterStruct(studyEv,'rec_correct == 0');
-%         
-%         study_rh_srcCor = filterStruct(study_rh,'src_correct == 1');
-%         study_rh_srcInc = filterStruct(study_rh,'src_correct == 0');
-        
-        % get all the targets (old study items presented at test)
-        rec_targEv = filterStruct(subSesEv,'rec_isTarg == 1 & ismember(type,varargin{1})',{'TEST_TARGET'});
-        % get all the lures (new test items)
-        rec_lureEv = filterStruct(subSesEv,'rec_isTarg == 0 & ismember(type,varargin{1})',{'TEST_LURE'});
-        
-        % all source reponses (targets and lures) are conditionalized on
-        % getting a recognition hit
-        %
-        % source targets (for Hs and Ms) and lures (for CRs and FAs) come
-        % from the source coding of target items, as explained in
-        % sosi_createEvents.m
-        src_targEv = filterStruct(rec_targEv,'src_isTarg == 1 & rec_correct == 1');
-        src_lureEv = filterStruct(rec_targEv,'src_isTarg == 0 & rec_correct == 1');
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % TEST-PRESENTATION EVENTS %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        % recognition events only
-        rec_h = filterStruct(rec_targEv,'rec_correct == 1');
         rec_m = filterStruct(rec_targEv,'rec_correct == 0');
-        rec_cr = filterStruct(rec_lureEv,'rec_correct == 1');
         rec_fa = filterStruct(rec_lureEv,'rec_correct == 0');
-        
-        % source events only
-        src_h = filterStruct(src_targEv,'src_correct == 1');
-        src_m = filterStruct(src_targEv,'src_correct == 0');
-        % source CRs and FAs come from the source coding of target items, as
-        % explained in sosi_createEvents.m
-        src_cr = filterStruct(src_lureEv,'src_correct == 1');
-        src_fa = filterStruct(src_lureEv,'src_correct == 0');
-        
-        % recognition hit - old items called "old"
-        %
-        % collapsed across source hits and CRs
-        rec_h_srcCor = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
-        rec_h_srcCor_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-        rec_h_srcCor_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-        rec_h_srcCor_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'KNOW'});
-        % collapsed across source misses and FAs
-        rec_h_srcInc = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
-        rec_h_srcInc_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-        rec_h_srcInc_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-        rec_h_srcInc_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
-        
-        % recognition numbers collapsed across source accuracy
-        rec_h_rs = length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs);
-        rec_h_ro = length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro);
-        rec_h_k = length(rec_h_srcCor_k) + length(rec_h_srcInc_k);
-        
+      end
+      
+      % source events only
+      src_h = filterStruct(src_targEv,'src_correct == 1');
+      src_m = filterStruct(src_targEv,'src_correct == 0');
+      % source CRs and FAs come from the source coding of target items, as
+      % explained in sosi_createEvents.m
+      src_cr = filterStruct(src_lureEv,'src_correct == 1');
+      src_fa = filterStruct(src_lureEv,'src_correct == 0');
+      
+      % recognition hit - old items called "old"
+      %
+      % collapsed across source hits and CRs
+      rec_h_srcCor = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
+      rec_h_srcCor_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
+      rec_h_srcCor_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
+      rec_h_srcCor_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'KNOW'});
+      % collapsed across source misses and FAs
+      rec_h_srcInc = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
+      rec_h_srcInc_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
+      rec_h_srcInc_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
+      rec_h_srcInc_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
+      
+      % recognition numbers collapsed across source accuracy
+      numEv.rec_h_rs(sub,ses) = length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs);
+      numEv.rec_h_ro(sub,ses) = length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro);
+      numEv.rec_h_k(sub,ses) = length(rec_h_srcCor_k) + length(rec_h_srcInc_k);
+      
+      % recognition correct rejection - new items called "new"
+      rec_cr_sure = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'SURE'});
+      rec_cr_maybe = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
+      
+      if rejectArt == 0
         % recognition miss - old items called "new"
         rec_m_sure = filterStruct(rec_m,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'SURE'});
         rec_m_maybe = filterStruct(rec_m,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
-        
-        % recognition correct rejection - new items called "new"
-        rec_cr_sure = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'SURE'});
-        rec_cr_maybe = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
         
         % recognition false alarm - new items called "old"
         rec_fa_rs = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
         rec_fa_ro = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
         rec_fa_k = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
-        
-        %% RATES
-        
-        % accuracy rates
-        rec_hr = length(rec_h) / length(rec_targEv);
-        rec_mr = length(rec_m) / length(rec_targEv);
-        rec_crr = length(rec_cr) / length(rec_lureEv);
-        rec_far = length(rec_fa) / length(rec_lureEv);
-        src_hr = length(src_h) / length(src_targEv);
-        src_mr = length(src_m) / length(src_targEv);
-        src_crr = length(src_cr) / length(src_lureEv);
-        src_far = length(src_fa) / length(src_lureEv);
-        
-        % correct for rates = 1 or 0
-        %
-        % rec
-        if rec_hr == 1
-          rec_hr = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_hr == 0
-          rec_hr = 1/(2*length(rec_targEv));
+      end
+      
+      %% RATES
+      
+      % accuracy rates
+      %
+      % TODO: for some reason I wasn't calculating rates.rec_h and
+      % rates.rec_cr when rejecting artifacts. Not sure why.
+      rates.rec_h(sub,ses) = length(rec_h) / length(rec_targEv);
+      rates.rec_cr(sub,ses) = length(rec_cr) / length(rec_lureEv);
+      if rejectArt == 0
+        rates.rec_m(sub,ses) = length(rec_m) / length(rec_targEv);
+        rates.rec_fa(sub,ses) = length(rec_fa) / length(rec_lureEv);
+      end
+      rates.src_h(sub,ses) = length(src_h) / length(src_targEv);
+      rates.src_m(sub,ses) = length(src_m) / length(src_targEv);
+      rates.src_cr(sub,ses) = length(src_cr) / length(src_lureEv);
+      rates.src_fa(sub,ses) = length(src_fa) / length(src_lureEv);
+      
+      % correct for rates = 1 or 0
+      %
+      % rec
+      if rates.rec_h(sub,ses) == 1
+        rates.rec_h(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h(sub,ses) == 0
+        rates.rec_h(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      if rates.rec_cr(sub,ses) == 1
+        rates.rec_cr(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+      elseif rates.rec_cr(sub,ses) == 0
+        rates.rec_cr(sub,ses) = 1/(2*length(rec_lureEv));
+      end
+      if rejectArt == 0
+        if rates.rec_m(sub,ses) == 1
+          rates.rec_m(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+        elseif rates.rec_m(sub,ses) == 0
+          rates.rec_m(sub,ses) = 1/(2*length(rec_targEv));
         end
-        if rec_mr == 1
-          rec_mr = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_mr == 0
-          rec_mr = 1/(2*length(rec_targEv));
+        if rates.rec_fa(sub,ses) == 1
+          rates.rec_fa(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+        elseif rates.rec_fa(sub,ses) == 0
+          rates.rec_fa(sub,ses) = 1/(2*length(rec_lureEv));
         end
-        if rec_crr == 1
-          rec_crr = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_crr == 0
-          rec_crr = 1/(2*length(rec_lureEv));
-        end
-        if rec_far == 1
-          rec_far = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_far == 0
-          rec_far = 1/(2*length(rec_lureEv));
-        end
-        % src
-        if src_hr == 1
-          src_hr = 1 - (1/(2*length(src_targEv)));
-        elseif src_hr == 0
-          src_hr = 1/(2*length(src_targEv));
-        end
-        if src_mr == 1
-          src_mr = 1 - (1/(2*length(src_targEv)));
-        elseif src_mr == 0
-          src_mr = 1/(2*length(src_targEv));
-        end
-        if src_crr == 1
-          src_crr = 1 - (1/(2*length(src_lureEv)));
-        elseif src_crr == 0
-          src_crr = 1/(2*length(src_lureEv));
-        end
-        if src_far == 1
-          src_far = 1 - (1/(2*length(src_lureEv)));
-        elseif src_far == 0
-          src_far = 1/(2*length(src_lureEv));
-        end
-
-        % d primes
-        item_dp = norminv(rec_hr,0,1) - norminv(rec_far,0,1);
-        source_dp = norminv(src_hr,0,1) - norminv(src_far,0,1);
-        
-        % response bias (criterion) from Macmillan & Creelman p. 29
-        item_c = -0.5 * (norminv(rec_hr,0,1) + norminv(rec_far,0,1));
-        source_c = -0.5 * (norminv(src_hr,0,1) + norminv(src_far,0,1));
-        
+      end
+      % src
+      if rates.src_h(sub,ses) == 1
+        rates.src_h(sub,ses) = 1 - (1/(2*length(src_targEv)));
+      elseif rates.src_h(sub,ses) == 0
+        rates.src_h(sub,ses) = 1/(2*length(src_targEv));
+      end
+      if rates.src_m(sub,ses) == 1
+        rates.src_m(sub,ses) = 1 - (1/(2*length(src_targEv)));
+      elseif rates.src_m(sub,ses) == 0
+        rates.src_m(sub,ses) = 1/(2*length(src_targEv));
+      end
+      if rates.src_cr(sub,ses) == 1
+        rates.src_cr(sub,ses) = 1 - (1/(2*length(src_lureEv)));
+      elseif rates.src_cr(sub,ses) == 0
+        rates.src_cr(sub,ses) = 1/(2*length(src_lureEv));
+      end
+      if rates.src_fa(sub,ses) == 1
+        rates.src_fa(sub,ses) = 1 - (1/(2*length(src_lureEv)));
+      elseif rates.src_fa(sub,ses) == 0
+        rates.src_fa(sub,ses) = 1/(2*length(src_lureEv));
+      end
+      
+      % d primes
+      if rejectArt == 0
+        acc.item_dp(sub,ses) = norminv(rates.rec_h(sub,ses),0,1) - norminv(rates.rec_fa(sub,ses),0,1);
+      end
+      acc.source_dp(sub,ses) = norminv(rates.src_h(sub,ses),0,1) - norminv(rates.src_fa(sub,ses),0,1);
+      
+      % response bias (criterion) from Macmillan & Creelman p. 29
+      if rejectArt == 0
+        acc.item_c(sub,ses) = -0.5 * (norminv(rates.rec_h(sub,ses),0,1) + norminv(rates.rec_fa(sub,ses),0,1));
+      end
+      acc.source_c(sub,ses) = -0.5 * (norminv(rates.src_h(sub,ses),0,1) + norminv(rates.src_fa(sub,ses),0,1));
+      
+      if rejectArt == 0
         % From Mecklinger et al. (2007) and Corwin (1994)
         %
         % discrimination index
-        Pr = rec_hr - rec_far;
+        acc.Pr(sub,ses) = rates.rec_h(sub,ses) - rates.rec_fa(sub,ses);
         % response bias index
-        Br = rec_far / (1 - Pr);
-        
-        % accuracy rates for recognition hits
-        rec_h_srcCor_r = length(rec_h_srcCor) / length(rec_h);
-        rec_h_srcInc_r = length(rec_h_srcInc) / length(rec_h);
-        
-        % rates by confidence
-        rec_h_srcCor_rs_r = length(rec_h_srcCor_rs) / length(rec_targEv);
-        rec_h_srcCor_ro_r = length(rec_h_srcCor_ro) / length(rec_targEv);
-        rec_h_srcCor_k_r = length(rec_h_srcCor_k) / length(rec_targEv);
-        rec_h_srcInc_rs_r = length(rec_h_srcInc_rs) / length(rec_targEv);
-        rec_h_srcInc_ro_r = length(rec_h_srcInc_ro) / length(rec_targEv);
-        rec_h_srcInc_k_r = length(rec_h_srcInc_k) / length(rec_targEv);
-        rec_h_rs_r = rec_h_rs / length(rec_targEv);
-        rec_h_ro_r = rec_h_ro / length(rec_targEv);
-        rec_h_k_r = rec_h_k / length(rec_targEv);
-        rec_m_sure_r = length(rec_m_sure) / length(rec_targEv);
-        rec_m_maybe_r = length(rec_m_maybe) / length(rec_targEv);
-        rec_cr_sure_r = length(rec_cr_sure) / length(rec_lureEv);
-        rec_cr_maybe_r = length(rec_cr_maybe) / length(rec_lureEv);
-        rec_fa_rs_r = length(rec_fa_rs) / length(rec_lureEv);
-        rec_fa_ro_r = length(rec_fa_ro) / length(rec_lureEv);
-        rec_fa_k_r = length(rec_fa_k) / length(rec_lureEv);
-        
-        %% fix for when rates are 1 or 0 (Macmillan and Creelman, 1991)
-        %
-        % srcCor
-        if rec_h_srcCor_rs_r == 1
-          rec_h_srcCor_rs_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcCor_rs_r == 0
-          rec_h_srcCor_rs_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcCor_ro_r == 1
-          rec_h_srcCor_ro_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcCor_ro_r == 0
-          rec_h_srcCor_ro_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcCor_k_r == 1
-          rec_h_srcCor_k_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcCor_k_r == 0
-          rec_h_srcCor_k_r = 1/(2*length(rec_targEv));
-        end
-        % srcInc
-        if rec_h_srcInc_rs_r == 1
-          rec_h_srcInc_rs_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcInc_rs_r == 0
-          rec_h_srcInc_rs_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcInc_ro_r == 1
-          rec_h_srcInc_ro_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcInc_ro_r == 0
-          rec_h_srcInc_ro_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcInc_k_r == 1
-          rec_h_srcInc_k_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcInc_k_r == 0
-          rec_h_srcInc_k_r = 1/(2*length(rec_targEv));
-        end
+        acc.Br(sub,ses) = rates.rec_fa(sub,ses) / (1 - acc.Pr(sub,ses));
+      end
+      
+      % accuracy rates for recognition hits
+      rates.rec_h_srcCor(sub,ses) = length(rec_h_srcCor) / length(rec_h);
+      rates.rec_h_srcInc(sub,ses) = length(rec_h_srcInc) / length(rec_h);
+      
+      % rates by confidence
+      rates.rec_h_srcCor_rs(sub,ses) = length(rec_h_srcCor_rs) / length(rec_targEv);
+      rates.rec_h_srcCor_ro(sub,ses) = length(rec_h_srcCor_ro) / length(rec_targEv);
+      rates.rec_h_srcCor_k(sub,ses) = length(rec_h_srcCor_k) / length(rec_targEv);
+      rates.rec_h_srcInc_rs(sub,ses) = length(rec_h_srcInc_rs) / length(rec_targEv);
+      rates.rec_h_srcInc_ro(sub,ses) = length(rec_h_srcInc_ro) / length(rec_targEv);
+      rates.rec_h_srcInc_k(sub,ses) = length(rec_h_srcInc_k) / length(rec_targEv);
+      rates.rec_h_rs(sub,ses) = numEv.rec_h_rs(sub,ses) / length(rec_targEv);
+      rates.rec_h_ro(sub,ses) = numEv.rec_h_ro(sub,ses) / length(rec_targEv);
+      rates.rec_h_k(sub,ses) = numEv.rec_h_k(sub,ses) / length(rec_targEv);
+      rates.rec_cr_sure(sub,ses) = length(rec_cr_sure) / length(rec_lureEv);
+      rates.rec_cr_maybe(sub,ses) = length(rec_cr_maybe) / length(rec_lureEv);
+      if rejectArt == 0
+        rates.rec_m_sure(sub,ses) = length(rec_m_sure) / length(rec_targEv);
+        rates.rec_m_maybe(sub,ses) = length(rec_m_maybe) / length(rec_targEv);
+        rates.rec_fa_rs(sub,ses) = length(rec_fa_rs) / length(rec_lureEv);
+        rates.rec_fa_ro(sub,ses) = length(rec_fa_ro) / length(rec_lureEv);
+        rates.rec_fa_k(sub,ses) = length(rec_fa_k) / length(rec_lureEv);
+      end
+      
+      %% fix for when rates are 1 or 0 (Macmillan and Creelman, 1991)
+      %
+      % srcCor
+      if rates.rec_h_srcCor_rs(sub,ses) == 1
+        rates.rec_h_srcCor_rs(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h_srcCor_rs(sub,ses) == 0
+        rates.rec_h_srcCor_rs(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      if rates.rec_h_srcCor_ro(sub,ses) == 1
+        rates.rec_h_srcCor_ro(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h_srcCor_ro(sub,ses) == 0
+        rates.rec_h_srcCor_ro(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      if rates.rec_h_srcCor_k(sub,ses) == 1
+        rates.rec_h_srcCor_k(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h_srcCor_k(sub,ses) == 0
+        rates.rec_h_srcCor_k(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      % srcInc
+      if rates.rec_h_srcInc_rs(sub,ses) == 1
+        rates.rec_h_srcInc_rs(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h_srcInc_rs(sub,ses) == 0
+        rates.rec_h_srcInc_rs(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      if rates.rec_h_srcInc_ro(sub,ses) == 1
+        rates.rec_h_srcInc_ro(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h_srcInc_ro(sub,ses) == 0
+        rates.rec_h_srcInc_ro(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      if rates.rec_h_srcInc_k(sub,ses) == 1
+        rates.rec_h_srcInc_k(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      elseif rates.rec_h_srcInc_k(sub,ses) == 0
+        rates.rec_h_srcInc_k(sub,ses) = 1/(2*length(rec_targEv));
+      end
+      % cr
+      if rates.rec_cr_sure(sub,ses) == 1
+        rates.rec_cr_sure(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+      elseif rates.rec_cr_sure(sub,ses) == 0
+        rates.rec_cr_sure(sub,ses) = 1/(2*length(rec_lureEv));
+      end
+      if rates.rec_cr_maybe(sub,ses) == 1
+        rates.rec_cr_maybe(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+      elseif rates.rec_cr_maybe(sub,ses) == 0
+        rates.rec_cr_maybe(sub,ses) = 1/(2*length(rec_lureEv));
+      end
+      if rejectArt == 0
         % miss
-        if rec_m_sure_r == 1
-          rec_m_sure_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_m_sure_r == 0
-          rec_m_sure_r = 1/(2*length(rec_targEv));
+        if rates.rec_m_sure(sub,ses) == 1
+          rates.rec_m_sure(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+        elseif rates.rec_m_sure(sub,ses) == 0
+          rates.rec_m_sure(sub,ses) = 1/(2*length(rec_targEv));
         end
-        if rec_m_maybe_r == 1
-          rec_m_maybe_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_m_maybe_r == 0
-          rec_m_maybe_r = 1/(2*length(rec_targEv));
-        end
-        % cr
-        if rec_cr_sure_r == 1
-          rec_cr_sure_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_cr_sure_r == 0
-          rec_cr_sure_r = 1/(2*length(rec_lureEv));
-        end
-        if rec_cr_maybe_r == 1
-          rec_cr_maybe_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_cr_maybe_r == 0
-          rec_cr_maybe_r = 1/(2*length(rec_lureEv));
+        if rates.rec_m_maybe(sub,ses) == 1
+          rates.rec_m_maybe(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+        elseif rates.rec_m_maybe(sub,ses) == 0
+          rates.rec_m_maybe(sub,ses) = 1/(2*length(rec_targEv));
         end
         % fa
-        if rec_fa_rs_r == 1
-          rec_fa_rs_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_fa_rs_r == 0
-          rec_fa_rs_r = 1/(2*length(rec_lureEv));
+        if rates.rec_fa_rs(sub,ses) == 1
+          rates.rec_fa_rs(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+        elseif rates.rec_fa_rs(sub,ses) == 0
+          rates.rec_fa_rs(sub,ses) = 1/(2*length(rec_lureEv));
         end
-        if rec_fa_ro_r == 1
-          rec_fa_ro_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_fa_ro_r == 0
-          rec_fa_ro_r = 1/(2*length(rec_lureEv));
+        if rates.rec_fa_ro(sub,ses) == 1
+          rates.rec_fa_ro(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+        elseif rates.rec_fa_ro(sub,ses) == 0
+          rates.rec_fa_ro(sub,ses) = 1/(2*length(rec_lureEv));
         end
-        if rec_fa_k_r == 1
-          rec_fa_k_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_fa_k_r == 0
-          rec_fa_k_r = 1/(2*length(rec_lureEv));
+        if rates.rec_fa_k(sub,ses) == 1
+          rates.rec_fa_k(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+        elseif rates.rec_fa_k(sub,ses) == 0
+          rates.rec_fa_k(sub,ses) = 1/(2*length(rec_lureEv));
         end
-        
-        %% Independent Remember--Know Familiarity rate
-        irk_Fam = rec_h_k_r / (1 - (rec_h_rs_r + rec_h_ro_r));
-        
-        %% Independent Remember--Know Familiarity rates - I think this is wrong
-        irk_correct_Fam = rec_h_srcCor_k_r / (1 - (rec_h_srcCor_rs_r + rec_h_srcCor_ro_r));
-        irk_incorrect_Fam = rec_h_srcInc_k_r / (1 - (rec_h_srcInc_rs_r + rec_h_srcInc_ro_r));
-        
-        % Independent Remember--Know Recollect Other rates
-        %irk_correct_RcO = rec_h_srcCor_ro_r / (1 - (rec_h_srcCor_rs_r));
-        %irk_incorrect_RcO = rec_h_srcInc_ro_r / (1 - (rec_h_srcInc_rs_r));
-
-        %% within-response rates
-        %
-        % rs
-        if isempty(rec_h_srcCor_rs)
-          rec_h_srcCor_rs_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcCor_rs_wir = length(rec_h_srcCor_rs) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs));
-        end
-        if rec_h_srcCor_rs_wir == 1
-          rec_h_srcCor_rs_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        if isempty(rec_h_srcInc_rs)
-          rec_h_srcInc_rs_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcInc_rs_wir = length(rec_h_srcInc_rs) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs));
-        end
-        if rec_h_srcInc_rs_wir == 1
-          rec_h_srcInc_rs_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        % ro
-        if isempty(rec_h_srcCor_ro)
-          rec_h_srcCor_ro_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcCor_ro_wir = length(rec_h_srcCor_ro) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro));
-        end
-        if rec_h_srcCor_ro_wir == 1
-          rec_h_srcCor_ro_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        if isempty(rec_h_srcInc_ro)
-          rec_h_srcInc_ro_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcInc_ro_wir = length(rec_h_srcInc_ro) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro));
-        end
-        if rec_h_srcInc_ro_wir == 1
-          rec_h_srcInc_ro_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        % k
-        if isempty(rec_h_srcCor_k)
-          rec_h_srcCor_k_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcCor_k_wir = length(rec_h_srcCor_k) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k));
-        end
-        if rec_h_srcCor_k_wir == 1
-          rec_h_srcCor_k_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        if isempty(rec_h_srcInc_k)
-          rec_h_srcInc_k_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcInc_k_wir = length(rec_h_srcInc_k) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k));
-        end
-        if rec_h_srcInc_k_wir == 1
-          rec_h_srcInc_k_wir = 1 - (1/(2*length(rec_targEv)));
-        end
+      end
+      
+      %% Independent Remember--Know Familiarity rate
+      rates.irk_Fam(sub,ses) = rates.rec_h_k(sub,ses) / (1 - (rates.rec_h_rs(sub,ses) + rates.rec_h_ro(sub,ses)));
+      
+      %% Independent Remember--Know Familiarity rates - I think this is wrong
+      rates.irk_correct_Fam(sub,ses) = rates.rec_h_srcCor_k(sub,ses) / (1 - (rates.rec_h_srcCor_rs(sub,ses) + rates.rec_h_srcCor_ro(sub,ses)));
+      rates.irk_incorrect_Fam(sub,ses) = rates.rec_h_srcInc_k(sub,ses) / (1 - (rates.rec_h_srcInc_rs(sub,ses) + rates.rec_h_srcInc_ro(sub,ses)));
+      
+      % Independent Remember--Know Recollect Other rates
+      %irk_correct_RcO(sub,ses) = rates.rec_h_srcCor_ro(sub,ses) / (1 - (rates.rec_h_srcCor_rs(sub,ses)));
+      %irk_incorrect_RcO(sub,ses) = rates.rec_h_srcInc_ro(sub,ses) / (1 - (rates.rec_h_srcInc_rs(sub,ses)));
+      
+      %% within-response rates
+      %
+      % rs
+      if isempty(rec_h_srcCor_rs)
+        rates_wir.rec_h_srcCor_rs(sub,ses) = 1/(2*length(rec_targEv));
+      else
+        rates_wir.rec_h_srcCor_rs(sub,ses) = length(rec_h_srcCor_rs) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs));
+      end
+      if rates_wir.rec_h_srcCor_rs(sub,ses) == 1
+        rates_wir.rec_h_srcCor_rs(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      end
+      if isempty(rec_h_srcInc_rs)
+        rates_wir.rec_h_srcInc_rs(sub,ses) = 1/(2*length(rec_targEv));
+      else
+        rates_wir.rec_h_srcInc_rs(sub,ses) = length(rec_h_srcInc_rs) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs));
+      end
+      if rates_wir.rec_h_srcInc_rs(sub,ses) == 1
+        rates_wir.rec_h_srcInc_rs(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      end
+      % ro
+      if isempty(rec_h_srcCor_ro)
+        rates_wir.rec_h_srcCor_ro(sub,ses) = 1/(2*length(rec_targEv));
+      else
+        rates_wir.rec_h_srcCor_ro(sub,ses) = length(rec_h_srcCor_ro) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro));
+      end
+      if rates_wir.rec_h_srcCor_ro(sub,ses) == 1
+        rates_wir.rec_h_srcCor_ro(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      end
+      if isempty(rec_h_srcInc_ro)
+        rates_wir.rec_h_srcInc_ro(sub,ses) = 1/(2*length(rec_targEv));
+      else
+        rates_wir.rec_h_srcInc_ro(sub,ses) = length(rec_h_srcInc_ro) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro));
+      end
+      if rates_wir.rec_h_srcInc_ro(sub,ses) == 1
+        rates_wir.rec_h_srcInc_ro(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      end
+      % k
+      if isempty(rec_h_srcCor_k)
+        rates_wir.rec_h_srcCor_k(sub,ses) = 1/(2*length(rec_targEv));
+      else
+        rates_wir.rec_h_srcCor_k(sub,ses) = length(rec_h_srcCor_k) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k));
+      end
+      if rates_wir.rec_h_srcCor_k(sub,ses) == 1
+        rates_wir.rec_h_srcCor_k(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      end
+      if isempty(rec_h_srcInc_k)
+        rates_wir.rec_h_srcInc_k(sub,ses) = 1/(2*length(rec_targEv));
+      else
+        rates_wir.rec_h_srcInc_k(sub,ses) = length(rec_h_srcInc_k) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k));
+      end
+      if rates_wir.rec_h_srcInc_k(sub,ses) == 1
+        rates_wir.rec_h_srcInc_k(sub,ses) = 1 - (1/(2*length(rec_targEv)));
+      end
+      % cr
+      if isempty(rec_cr_sure)
+        rates_wir.rec_cr_sure(sub,ses) = 1/(2*length(rec_lureEv));
+      else
+        rates_wir.rec_cr_sure(sub,ses) = length(rec_cr_sure) / (length(rec_cr_sure) + length(rec_cr_maybe));
+      end
+      if rates_wir.rec_cr_sure(sub,ses) == 1
+        rates_wir.rec_cr_sure(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+      end
+      if isempty(rec_cr_maybe)
+        rates_wir.rec_cr_maybe(sub,ses) = 1/(2*length(rec_lureEv));
+      else
+        rates_wir.rec_cr_maybe(sub,ses) = length(rec_cr_maybe) / (length(rec_cr_sure) + length(rec_cr_maybe));
+      end
+      if rates_wir.rec_cr_maybe(sub,ses) == 1
+        rates_wir.rec_cr_maybe(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
+      end
+      if rejectArt == 0
         % miss
         if isempty(rec_m_sure)
-          rec_m_sure_wir = 1/(2*length(rec_targEv));
+          rates_wir.rec_m_sure(sub,ses) = 1/(2*length(rec_targEv));
         else
-          rec_m_sure_wir = length(rec_m_sure) / (length(rec_m_sure) + length(rec_m_maybe));
+          rates_wir.rec_m_sure(sub,ses) = length(rec_m_sure) / (length(rec_m_sure) + length(rec_m_maybe));
         end
-        if rec_m_sure_wir == 1
-          rec_m_sure_wir = 1 - (1/(2*length(rec_targEv)));
+        if rates_wir.rec_m_sure(sub,ses) == 1
+          rates_wir.rec_m_sure(sub,ses) = 1 - (1/(2*length(rec_targEv)));
         end
         if isempty(rec_m_maybe)
-          rec_m_maybe_wir = 1/(2*length(rec_targEv));
+          rates_wir.rec_m_maybe(sub,ses) = 1/(2*length(rec_targEv));
         else
-          rec_m_maybe_wir = length(rec_m_maybe) / (length(rec_m_sure) + length(rec_m_maybe));
+          rates_wir.rec_m_maybe(sub,ses) = length(rec_m_maybe) / (length(rec_m_sure) + length(rec_m_maybe));
         end
-        if rec_m_maybe_wir == 1
-          rec_m_maybe_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        % cr
-        if isempty(rec_cr_sure)
-          rec_cr_sure_wir = 1/(2*length(rec_lureEv));
-        else
-          rec_cr_sure_wir = length(rec_cr_sure) / (length(rec_cr_sure) + length(rec_cr_maybe));
-        end
-        if rec_cr_sure_wir == 1
-          rec_cr_sure_wir = 1 - (1/(2*length(rec_lureEv)));
-        end
-        if isempty(rec_cr_maybe)
-          rec_cr_maybe_wir = 1/(2*length(rec_lureEv));
-        else
-          rec_cr_maybe_wir = length(rec_cr_maybe) / (length(rec_cr_sure) + length(rec_cr_maybe));
-        end
-        if rec_cr_maybe_wir == 1
-          rec_cr_maybe_wir = 1 - (1/(2*length(rec_lureEv)));
+        if rates_wir.rec_m_maybe(sub,ses) == 1
+          rates_wir.rec_m_maybe(sub,ses) = 1 - (1/(2*length(rec_targEv)));
         end
         % fa
         if isempty(rec_fa_rs)
-          rec_fa_rs_wir = 1/(2*length(rec_lureEv));
+          rates_wir.rec_fa_rs(sub,ses) = 1/(2*length(rec_lureEv));
         else
-          rec_fa_rs_wir = length(rec_fa_rs) / (length(rec_fa_rs) + length(rec_fa_ro) + length(rec_fa_k));
+          rates_wir.rec_fa_rs(sub,ses) = length(rec_fa_rs) / (length(rec_fa_rs) + length(rec_fa_ro) + length(rec_fa_k));
         end
-        if rec_fa_rs_wir == 1
-          rec_fa_rs_wir = 1 - (1/(2*length(rec_lureEv)));
+        if rates_wir.rec_fa_rs(sub,ses) == 1
+          rates_wir.rec_fa_rs(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
         end
         if isempty(rec_fa_ro)
-          rec_fa_ro_wir = 1/(2*length(rec_lureEv));
+          rates_wir.rec_fa_ro(sub,ses) = 1/(2*length(rec_lureEv));
         else
-          rec_fa_ro_wir = length(rec_fa_ro) / (length(rec_fa_rs) + length(rec_fa_ro) + length(rec_fa_k));
+          rates_wir.rec_fa_ro(sub,ses) = length(rec_fa_ro) / (length(rec_fa_rs) + length(rec_fa_ro) + length(rec_fa_k));
         end
-        if rec_fa_ro_wir == 1
-          rec_fa_ro_wir = 1 - (1/(2*length(rec_lureEv)));
+        if rates_wir.rec_fa_ro(sub,ses) == 1
+          rates_wir.rec_fa_ro(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
         end
         if isempty(rec_fa_k)
-          rec_fa_k_wir = 1/(2*length(rec_lureEv));
+          rates_wir.rec_fa_k(sub,ses) = 1/(2*length(rec_lureEv));
         else
-          rec_fa_k_wir = length(rec_fa_k) / (length(rec_fa_rs) + length(rec_fa_ro) + length(rec_fa_k));
+          rates_wir.rec_fa_k(sub,ses) = length(rec_fa_k) / (length(rec_fa_rs) + length(rec_fa_ro) + length(rec_fa_k));
         end
-        if rec_fa_k_wir == 1
-          rec_fa_k_wir = 1 - (1/(2*length(rec_lureEv)));
+        if rates_wir.rec_fa_k(sub,ses) == 1
+          rates_wir.rec_fa_k(sub,ses) = 1 - (1/(2*length(rec_lureEv)));
         end
-        
-        %% REACTION TIMES
-        
-        % test items
-        rec_h_rt = mean(getStructField(rec_h,'src_rt'));
-        rec_m_rt = mean(getStructField(rec_m,'src_rt'));
-        rec_cr_rt = mean(getStructField(rec_cr,'src_rt'));
-        rec_fa_rt = mean(getStructField(rec_fa,'src_rt'));
-        
-        src_h_rt = mean(getStructField(src_h,'src_rt'));
-        src_m_rt = mean(getStructField(src_m,'src_rt'));
-        src_cr_rt = mean(getStructField(src_cr,'src_rt'));
-        src_fa_rt = mean(getStructField(src_fa,'src_rt'));
-        
-        rec_h_srcCor_rt = mean(getStructField(rec_h_srcCor,'src_rt'));
-        rec_h_srcInc_rt = mean(getStructField(rec_h_srcInc,'src_rt'));
-        
-        rec_h_srcCor_rs_rt = mean(getStructField(rec_h_srcCor_rs,'src_rt'));
-        rec_h_srcCor_ro_rt = mean(getStructField(rec_h_srcCor_ro,'src_rt'));
-        rec_h_srcCor_k_rt = mean(getStructField(rec_h_srcCor_k,'src_rt'));
-        rec_h_srcInc_rs_rt = mean(getStructField(rec_h_srcInc_rs,'src_rt'));
-        rec_h_srcInc_ro_rt = mean(getStructField(rec_h_srcInc_ro,'src_rt'));
-        rec_h_srcInc_k_rt = mean(getStructField(rec_h_srcInc_k,'src_rt'));
-        
-        rec_m_sure_rt = mean(getStructField(rec_m_sure,'src_rt'));
-        rec_m_maybe_rt = mean(getStructField(rec_m_maybe,'src_rt'));
-        rec_cr_sure_rt = mean(getStructField(rec_cr_sure,'src_rt'));
-        rec_cr_maybe_rt = mean(getStructField(rec_cr_maybe,'src_rt'));
-        rec_fa_rs_rt = mean(getStructField(rec_fa_rs,'src_rt'));
-        rec_fa_ro_rt = mean(getStructField(rec_fa_ro,'src_rt'));
-        rec_fa_k_rt = mean(getStructField(rec_fa_k,'src_rt'));
-        
-        %% print some info
-        fprintf('\n\tRecognition accuracy info:\n');
-        fprintf('\tHits: %.4f\n',rec_hr);
-        fprintf('\tMisses: %.4f\n',rec_mr);
-        fprintf('\tCorrect rejections: %.4f\n',rec_crr);
-        fprintf('\tFalse alarms: %.4f\n',rec_far);
-        
-        fprintf('\n\tSource accuracy info:\n');
-        fprintf('\tHits: %.4f\n',src_hr);
-        fprintf('\tMisses: %.4f\n',src_mr);
-        fprintf('\tCorrect rejections: %.4f\n',src_crr);
-        fprintf('\tFalse alarms: %.4f\n\n',src_far);
-        
-      elseif rejectArt == 1
-        %% Counts/rates rejecting artifacts
-        
-        % Don't currently have all event information if using rejectArt; only have
-        % info for recognition hits and correct rejections. Source hits, CR,
-        % missed, and FAs are ok because they come from recognition hits. This is
-        % because we're not segmenting misses and false alarms in NS.
-        
-        %% RAW NUMBERS
-        
-        % TEST ITEMS: get all the targets (old study items presented at test)
-        rec_targEv = filterStruct(subSesEv,'rec_isTarg == 1 & ismember(type,varargin{1})',{'TEST_TARGET'});
-        % get all the lures (new test items)
-        rec_lureEv = filterStruct(subSesEv,'rec_isTarg == 0 & ismember(type,varargin{1})',{'TEST_LURE'});
-        
-        % all source reponses (targets and lures) are conditionalized on
-        % getting a recognition hit
-        %
-        % source targets (for Hs and Ms) and lures (for CRs and FAs) come
-        % from the source coding of target items, as explained in
-        % sosi_createEvents.m
-        src_targEv = filterStruct(rec_targEv,'src_isTarg == 1 & rec_correct == 1');
-        src_lureEv = filterStruct(rec_targEv,'src_isTarg == 0 & rec_correct == 1');
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % TEST-PRESENTATION EVENTS %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        % recognition events only
-        rec_h = filterStruct(rec_targEv,'rec_correct == 1');
-        rec_cr = filterStruct(rec_lureEv,'rec_correct == 1');
-        
-        % source events only
-        src_h = filterStruct(src_targEv,'src_correct == 1');
-        src_m = filterStruct(src_targEv,'src_correct == 0');
-        % source CRs and FAs come from the source coding of target items, as
-        % explained in sosi_createEvents.m
-        src_cr = filterStruct(src_lureEv,'src_correct == 1');
-        src_fa = filterStruct(src_lureEv,'src_correct == 0');
-        
-        % recognition hit - old items called "old"
-        %
-        % collapsed across source hits and CRs
-        rec_h_srcCor = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
-        rec_h_srcCor_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-        rec_h_srcCor_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-        rec_h_srcCor_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'KNOW'});
-        % collapsed across source misses and FAs
-        rec_h_srcInc = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
-        rec_h_srcInc_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-        rec_h_srcInc_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-        rec_h_srcInc_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
-        
-        % recognition correct rejection - new items called "new"
-        rec_cr_sure = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'SURE'});
-        rec_cr_maybe = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
-        
-        % recognition numbers collapsed across source accuracy
-        rec_h_rs = length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs);
-        rec_h_ro = length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro);
-        rec_h_k = length(rec_h_srcCor_k) + length(rec_h_srcInc_k);
-        
-        %% RATES
-        
-        % accuracy rates
-        src_hr = length(src_h)/length(src_targEv);
-        src_mr = length(src_m)/length(src_targEv);
-        src_crr = length(src_cr)/length(src_lureEv);
-        src_far = length(src_fa)/length(src_lureEv);
-        
-        % correct for rates = 1 or 0
-        %
-        % src
-        if src_hr == 1
-          src_hr = 1 - (1/(2*length(src_targEv)));
-        elseif src_hr == 0
-          src_hr = 1/(2*length(src_targEv));
-        end
-        if src_mr == 1
-          src_mr = 1 - (1/(2*length(src_targEv)));
-        elseif src_mr == 0
-          src_mr = 1/(2*length(src_targEv));
-        end
-        if src_crr == 1
-          src_crr = 1 - (1/(2*length(src_lureEv)));
-        elseif src_crr == 0
-          src_crr = 1/(2*length(src_lureEv));
-        end
-        if src_far == 1
-          src_far = 1 - (1/(2*length(src_lureEv)));
-        elseif src_far == 0
-          src_far = 1/(2*length(src_lureEv));
-        end
-        
-        % d primes
-        source_dp = norminv(src_hr,0,1) - norminv(src_far,0,1);
-        
-        % response bias (criterion) from Macmillan & Creelman p. 29
-        source_c = -0.5 * (norminv(src_hr,0,1) + norminv(src_far,0,1));
-        
-        % From Mecklinger et al. (2007) and Corwin (1994)
-        %
-        % discrimination index
-        %Pr = rec_hr - rec_far;
-        % response bias index
-        %Br = rec_far / (1 - Pr);
-        
-        % accuracy rates for recognition hits
-        rec_h_srcCor_r = length(rec_h_srcCor)/length(rec_h);
-        rec_h_srcInc_r = length(rec_h_srcInc)/length(rec_h);
-        
-        % rates by confidence
-        rec_h_srcCor_rs_r = length(rec_h_srcCor_rs) / length(rec_targEv);
-        rec_h_srcCor_ro_r = length(rec_h_srcCor_ro) / length(rec_targEv);
-        rec_h_srcCor_k_r = length(rec_h_srcCor_k) / length(rec_targEv);
-        rec_h_srcInc_rs_r = length(rec_h_srcInc_rs) / length(rec_targEv);
-        rec_h_srcInc_ro_r = length(rec_h_srcInc_ro) / length(rec_targEv);
-        rec_h_srcInc_k_r = length(rec_h_srcInc_k) / length(rec_targEv);
-        rec_h_rs_r = rec_h_rs / length(rec_targEv);
-        rec_h_ro_r = rec_h_ro / length(rec_targEv);
-        rec_h_k_r = rec_h_k / length(rec_targEv);
-%         rec_m_sure_r = length(rec_m_sure) / length(rec_targEv);
-%         rec_m_maybe_r = length(rec_m_maybe) / length(rec_targEv);
-        rec_cr_sure_r = length(rec_cr_sure) / length(rec_lureEv);
-        rec_cr_maybe_r = length(rec_cr_maybe) / length(rec_lureEv);
-%         rec_fa_rs_r = length(rec_fa_rs) / length(rec_lureEv);
-%         rec_fa_ro_r = length(rec_fa_ro) / length(rec_lureEv);
-%         rec_fa_k_r = length(rec_fa_k) / length(rec_lureEv);
-        
-%         rec_h_srcCor_rs_r = length(rec_h_srcCor_rs) / length(rec_targEv);
-%         rec_h_srcCor_ro_r = length(rec_h_srcCor_ro) / length(rec_targEv);
-%         rec_h_srcCor_k_r = length(rec_h_srcCor_k) / length(rec_targEv);
-%         rec_h_srcInc_rs_r = length(rec_h_srcInc_rs) / length(rec_targEv);
-%         rec_h_srcInc_ro_r = length(rec_h_srcInc_ro) / length(rec_targEv);
-%         rec_h_srcInc_k_r = length(rec_h_srcInc_k) / length(rec_targEv);
-%         rec_cr_sure_r = length(rec_cr_sure) / length(rec_lureEv);
-%         rec_cr_maybe_r = length(rec_cr_maybe) / length(rec_lureEv);
-        
-        %% fix for when rates are 1 or 0 (Macmillan and Creelman, 1991)
-        %
-        % srcCor
-        if rec_h_srcCor_rs_r == 1
-          rec_h_srcCor_rs_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcCor_rs_r == 0
-          rec_h_srcCor_rs_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcCor_ro_r == 1
-          rec_h_srcCor_ro_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcCor_ro_r == 0
-          rec_h_srcCor_ro_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcCor_k_r == 1
-          rec_h_srcCor_k_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcCor_k_r == 0
-          rec_h_srcCor_k_r = 1/(2*length(rec_targEv));
-        end
-        % srcInc
-        if rec_h_srcInc_rs_r == 1
-          rec_h_srcInc_rs_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcInc_rs_r == 0
-          rec_h_srcInc_rs_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcInc_ro_r == 1
-          rec_h_srcInc_ro_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcInc_ro_r == 0
-          rec_h_srcInc_ro_r = 1/(2*length(rec_targEv));
-        end
-        if rec_h_srcInc_k_r == 1
-          rec_h_srcInc_k_r = 1 - (1/(2*length(rec_targEv)));
-        elseif rec_h_srcInc_k_r == 0
-          rec_h_srcInc_k_r = 1/(2*length(rec_targEv));
-        end
-        % cr
-        if rec_cr_sure_r == 1
-          rec_cr_sure_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_cr_sure_r == 0
-          rec_cr_sure_r = 1/(2*length(rec_lureEv));
-        end
-        if rec_cr_maybe_r == 1
-          rec_cr_maybe_r = 1 - (1/(2*length(rec_lureEv)));
-        elseif rec_cr_maybe_r == 0
-          rec_cr_maybe_r = 1/(2*length(rec_lureEv));
-        end
-        
-        %% Independent Remember--Know Familiarity rate
-        irk_Fam = rec_h_k_r / (1 - (rec_h_rs_r + rec_h_ro_r));
-        
-        %% Independent Remember--Know Familiarity rates - I think this is wrong
-        irk_correct_Fam = rec_h_srcCor_k_r / (1 - (rec_h_srcCor_rs_r + rec_h_srcCor_ro_r));
-        irk_incorrect_Fam = rec_h_srcInc_k_r / (1 - (rec_h_srcInc_rs_r + rec_h_srcInc_ro_r));
-        
-        % Independent Remember--Know Recollect Other rates
-        %irk_correct_RcO = rec_h_srcCor_ro_r / (1 - (rec_h_srcCor_rs_r));
-        %irk_incorrect_RcO = rec_h_srcInc_ro_r / (1 - (rec_h_srcInc_rs_r));
-
-        %% within-response rates
-        %
-        % rs
-        if isempty(rec_h_srcCor_rs)
-          rec_h_srcCor_rs_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcCor_rs_wir = length(rec_h_srcCor_rs) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs));
-        end
-        if rec_h_srcCor_rs_wir == 1
-          rec_h_srcCor_rs_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        if isempty(rec_h_srcInc_rs)
-          rec_h_srcInc_rs_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcInc_rs_wir = length(rec_h_srcInc_rs) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs));
-        end
-        if rec_h_srcInc_rs_wir == 1
-          rec_h_srcInc_rs_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        % ro
-        if isempty(rec_h_srcCor_ro)
-          rec_h_srcCor_ro_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcCor_ro_wir = length(rec_h_srcCor_ro) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro));
-        end
-        if rec_h_srcCor_ro_wir == 1
-          rec_h_srcCor_ro_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        if isempty(rec_h_srcInc_ro)
-          rec_h_srcInc_ro_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcInc_ro_wir = length(rec_h_srcInc_ro) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro));
-        end
-        if rec_h_srcInc_ro_wir == 1
-          rec_h_srcInc_ro_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        % k
-        if isempty(rec_h_srcCor_k)
-          rec_h_srcCor_k_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcCor_k_wir = length(rec_h_srcCor_k) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k));
-        end
-        if rec_h_srcCor_k_wir == 1
-          rec_h_srcCor_k_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        if isempty(rec_h_srcInc_k)
-          rec_h_srcInc_k_wir = 1/(2*length(rec_targEv));
-        else
-          rec_h_srcInc_k_wir = length(rec_h_srcInc_k) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k));
-        end
-        if rec_h_srcInc_k_wir == 1
-          rec_h_srcInc_k_wir = 1 - (1/(2*length(rec_targEv)));
-        end
-        % cr
-        if isempty(rec_cr_sure)
-          rec_cr_sure_wir = 1/(2*length(rec_lureEv));
-        else
-          rec_cr_sure_wir = length(rec_cr_sure) / (length(rec_cr_sure) + length(rec_cr_maybe));
-        end
-        if rec_cr_sure_wir == 1
-          rec_cr_sure_wir = 1 - (1/(2*length(rec_lureEv)));
-        end
-        if isempty(rec_cr_maybe)
-          rec_cr_maybe_wir = 1/(2*length(rec_lureEv));
-        else
-          rec_cr_maybe_wir = length(rec_cr_maybe) / (length(rec_cr_sure) + length(rec_cr_maybe));
-        end
-        if rec_cr_maybe_wir == 1
-          rec_cr_maybe_wir = 1 - (1/(2*length(rec_lureEv)));
-        end
-        
-        %% REACTION TIMES
-        
-        % test items
-        rec_h_rt = mean(getStructField(rec_h,'src_rt'));
-        rec_cr_rt = mean(getStructField(rec_cr,'src_rt'));
-        
-        src_h_rt = mean(getStructField(src_h,'src_rt'));
-        src_m_rt = mean(getStructField(src_m,'src_rt'));
-        src_cr_rt = mean(getStructField(src_cr,'src_rt'));
-        src_fa_rt = mean(getStructField(src_fa,'src_rt'));
-        
-        rec_h_srcCor_rt = mean(getStructField(rec_h_srcCor,'src_rt'));
-        rec_h_srcInc_rt = mean(getStructField(rec_h_srcInc,'src_rt'));
-        
-        rec_h_srcCor_rs_rt = mean(getStructField(rec_h_srcCor_rs,'src_rt'));
-        rec_h_srcCor_ro_rt = mean(getStructField(rec_h_srcCor_ro,'src_rt'));
-        rec_h_srcCor_k_rt = mean(getStructField(rec_h_srcCor_k,'src_rt'));
-        rec_h_srcInc_rs_rt = mean(getStructField(rec_h_srcInc_rs,'src_rt'));
-        rec_h_srcInc_ro_rt = mean(getStructField(rec_h_srcInc_ro,'src_rt'));
-        rec_h_srcInc_k_rt = mean(getStructField(rec_h_srcInc_k,'src_rt'));
-        
-        rec_cr_sure_rt = mean(getStructField(rec_cr_sure,'src_rt'));
-        rec_cr_maybe_rt = mean(getStructField(rec_cr_maybe,'src_rt'));
-        
-        %% print some info
-        %fprintf('\n\tRecognition accuracy info:\n');
-        %fprintf('\tHits: %.4f\n',rec_hr);
-        %fprintf('\tMisses: %.4f\n',rec_mr);
-        %fprintf('\tCorrect rejections: %.4f\n',rec_crr);
-        %fprintf('\tFalse alarms: %.4f\n',rec_far);
-        
-        fprintf('\n\tSource accuracy info:\n');
-        fprintf('\tHits: %.4f\n',src_hr);
-        fprintf('\tMisses: %.4f\n',src_mr);
-        fprintf('\tCorrect rejections: %.4f\n',src_crr);
-        fprintf('\tFalse alarms: %.4f\n\n',src_far);
       end
+      
+      %% REACTION TIMES
+      
+      % test items
+      rt.rec_h(sub,ses) = mean(getStructField(rec_h,'src_rt'));
+      rt.rec_cr(sub,ses) = mean(getStructField(rec_cr,'src_rt'));
+      if rejectArt == 0
+        rt.rec_m(sub,ses) = mean(getStructField(rec_m,'src_rt'));
+        rt.rec_fa(sub,ses) = mean(getStructField(rec_fa,'src_rt'));
+      end
+      
+      rt.src_h(sub,ses) = mean(getStructField(src_h,'src_rt'));
+      rt.src_m(sub,ses) = mean(getStructField(src_m,'src_rt'));
+      rt.src_cr(sub,ses) = mean(getStructField(src_cr,'src_rt'));
+      rt.src_fa(sub,ses) = mean(getStructField(src_fa,'src_rt'));
+      
+      rt.rec_h_srcCor(sub,ses) = mean(getStructField(rec_h_srcCor,'src_rt'));
+      rt.rec_h_srcInc(sub,ses) = mean(getStructField(rec_h_srcInc,'src_rt'));
+      
+      rt.rec_h_srcCor_rs(sub,ses) = mean(getStructField(rec_h_srcCor_rs,'src_rt'));
+      rt.rec_h_srcCor_ro(sub,ses) = mean(getStructField(rec_h_srcCor_ro,'src_rt'));
+      rt.rec_h_srcCor_k(sub,ses) = mean(getStructField(rec_h_srcCor_k,'src_rt'));
+      rt.rec_h_srcInc_rs(sub,ses) = mean(getStructField(rec_h_srcInc_rs,'src_rt'));
+      rt.rec_h_srcInc_ro(sub,ses) = mean(getStructField(rec_h_srcInc_ro,'src_rt'));
+      rt.rec_h_srcInc_k(sub,ses) = mean(getStructField(rec_h_srcInc_k,'src_rt'));
+      
+      rt.rec_cr_sure(sub,ses) = mean(getStructField(rec_cr_sure,'src_rt'));
+      rt.rec_cr_maybe(sub,ses) = mean(getStructField(rec_cr_maybe,'src_rt'));
+      if rejectArt == 0
+        rt.rec_m_sure(sub,ses) = mean(getStructField(rec_m_sure,'src_rt'));
+        rt.rec_m_maybe(sub,ses) = mean(getStructField(rec_m_maybe,'src_rt'));
+        rt.rec_fa_rs(sub,ses) = mean(getStructField(rec_fa_rs,'src_rt'));
+        rt.rec_fa_ro(sub,ses) = mean(getStructField(rec_fa_ro,'src_rt'));
+        rt.rec_fa_k(sub,ses) = mean(getStructField(rec_fa_k,'src_rt'));
+      end
+      
+      %% print some info
+      fprintf('\n\tRecognition accuracy info:\n');
+      fprintf('\tHits: %.4f\n',rates.rec_h(sub,ses));
+      if rejectArt == 0
+        fprintf('\tMisses: %.4f\n',rates.rec_m(sub,ses));
+      end
+      fprintf('\tCorrect rejections: %.4f\n',rates.rec_cr(sub,ses));
+      if rejectArt == 0
+        fprintf('\tFalse alarms: %.4f\n',rates.rec_fa(sub,ses));
+      end
+      
+      fprintf('\n\tSource accuracy info:\n');
+      fprintf('\tHits: %.4f\n',rates.src_h(sub,ses));
+      fprintf('\tMisses: %.4f\n',rates.src_m(sub,ses));
+      fprintf('\tCorrect rejections: %.4f\n',rates.src_cr(sub,ses));
+      fprintf('\tFalse alarms: %.4f\n\n',rates.src_fa(sub,ses));
+      
       
       % ===================================================================
       
@@ -919,53 +804,128 @@ for s = 1:length(subsets)
         % get all the lures (new test items)
         rec_lureEv_all = filterStruct(subSesEv_all,'rec_isTarg == 0 & rec_correct == 1 & ismember(type,varargin{1})',{'TEST_LURE'});
         
-        numArt = length(rec_targEv_art) + length(rec_lureEv_art);
+        numEv.art(sub,ses) = length(rec_targEv_art) + length(rec_lureEv_art);
         
-        numEv = length(rec_targEv_all) + length(rec_lureEv_all);
+        numEv.total(sub,ses) = length(rec_targEv_all) + length(rec_lureEv_all);
       end
       
+      % raw numbers of targs, lures
+      numEv.rec_targEv(sub,ses) = length(rec_targEv);
+      numEv.rec_lureEv(sub,ses) = length(rec_lureEv);
+      numEv.src_targEv(sub,ses) = length(src_targEv);
+      numEv.src_lureEv(sub,ses) = length(src_lureEv);
+      % raw numbers for accuracy
+      numEv.rec_h(sub,ses) = length(rec_h);
+      numEv.rec_cr(sub,ses) = length(rec_cr);
+      if rejectArt == 0
+        numEv.rec_m(sub,ses) = length(rec_m);
+        numEv.rec_fa(sub,ses) = length(rec_fa);
+      end
+      numEv.src_h(sub,ses) = length(src_h);
+      numEv.src_cr(sub,ses) = length(src_cr);
+      numEv.src_m(sub,ses) = length(src_m);
+      numEv.src_fa(sub,ses) = length(src_fa);
+      % raw numbers for recognition hits
+      numEv.rec_h_srcCor(sub,ses) = length(rec_h_srcCor);
+      numEv.rec_h_srcInc(sub,ses) = length(rec_h_srcInc);
+      % raw numbers by confidence
+      numEv.rec_h_srcCor_rs(sub,ses) = length(rec_h_srcCor_rs);
+      numEv.rec_h_srcCor_ro(sub,ses) = length(rec_h_srcCor_ro);
+      numEv.rec_h_srcCor_k(sub,ses) = length(rec_h_srcCor_k);
+      numEv.rec_h_srcInc_rs(sub,ses) = length(rec_h_srcInc_rs);
+      numEv.rec_h_srcInc_ro(sub,ses) = length(rec_h_srcInc_ro);
+      numEv.rec_h_srcInc_k(sub,ses) = length(rec_h_srcInc_k);
+      numEv.rec_m_sure(sub,ses) = length(rec_m_sure);
+      numEv.rec_m_maybe(sub,ses) = length(rec_m_maybe);
+      numEv.rec_cr_sure(sub,ses) = length(rec_cr_sure);
+      numEv.rec_cr_maybe(sub,ses) = length(rec_cr_maybe);
+      numEv.rec_fa_rs(sub,ses) = length(rec_fa_rs);
+      numEv.rec_fa_ro(sub,ses) = length(rec_fa_ro);
+      numEv.rec_fa_k(sub,ses) = length(rec_fa_k);
+      
+    end % ses
+  end % sub
+  
+  if averageSes == 1
+    
+    numEvFN = fieldnames(numEv);
+    ratesFN = fieldnames(rates);
+    rates_wirFN = fieldnames(rates_wir);
+    accFN = fieldnames(acc);
+    rtFN = fieldnames(rt);
+    
+    % sum or average across sessions
+    for f = 1:length(numEvFN)
+      numEv.(numEvFN{f}) = sum(numEv.(numEvFN{f}),2);
+    end
+    for f = 1:length(ratesFN)
+      rates.(ratesFN{f}) = mean(rates.(ratesFN{f}),2);
+    end
+    for f = 1:length(rates_wirFN)
+      rates_wir.(rates_wirFN{f}) = mean(rates_wir.(rates_wirFN{f}),2);
+    end
+    for f = 1:length(accFN)
+      acc.(accFN{f}) = mean(acc.(accFN{f}),2);
+    end
+    for f = 1:length(rtFN)
+      rt.(rtFN{f}) = mean(rt.(rtFN{f}),2);
+    end
+  end
+  
+  for sub = 1:length(subjects)
+    for ses = 1:size(numEv.rec_targEv,2)
       if rejectArt == 0
         tableData = [...
-          length(rec_targEv),length(rec_lureEv),length(src_targEv),length(src_lureEv),... % raw numbers of targs, lures
-          item_dp,source_dp,item_c,source_c,... % accuracy
-          length(rec_h),length(rec_m),length(rec_cr),length(rec_fa),length(src_h),length(src_m),length(src_cr),length(src_fa),... % raw numbers for accuracy
-          rec_hr,rec_mr,rec_crr,rec_far,src_hr,src_mr,src_crr,src_far,... % accuracy rates
-          length(rec_h_srcCor),length(rec_h_srcInc),... % raw numbers for recognition hits
-          rec_h_srcCor_r,rec_h_srcInc_r,... % accuracy rates for recognition hits
-          rec_h_rs,rec_h_ro,rec_h_k,... % raw numbers for recognition hit response collapsed across source accuracy
-          length(rec_h_srcCor_rs),length(rec_h_srcCor_ro),length(rec_h_srcCor_k),length(rec_h_srcInc_rs),length(rec_h_srcInc_ro),length(rec_h_srcInc_k),length(rec_m_sure),length(rec_m_maybe),length(rec_cr_sure),length(rec_cr_maybe),length(rec_fa_rs),length(rec_fa_ro),length(rec_fa_k),... % raw numbers by confidence
-          rec_h_srcCor_rs_r,rec_h_srcCor_ro_r,rec_h_srcCor_k_r,rec_h_srcInc_rs_r,rec_h_srcInc_ro_r,rec_h_srcInc_k_r,rec_m_sure_r,rec_m_maybe_r,rec_cr_sure_r,rec_cr_maybe_r,rec_fa_rs_r,rec_fa_ro_r,rec_fa_k_r,... % rates by confidence
-          irk_Fam,irk_correct_Fam,irk_incorrect_Fam,... % Independent Remember--Know Familiarity rates
-          rec_h_srcCor_rs_wir,rec_h_srcInc_rs_wir,rec_h_srcCor_ro_wir,rec_h_srcInc_ro_wir,rec_h_srcCor_k_wir,rec_h_srcInc_k_wir,rec_m_sure_wir,rec_m_maybe_wir,rec_cr_sure_wir,rec_cr_maybe_wir,rec_fa_rs_wir,rec_fa_ro_wir,rec_fa_k_wir,... % within-response rates
-          rec_h_rt,rec_m_rt,rec_cr_rt,rec_fa_rt,... % rec reaction times
-          src_h_rt,src_m_rt,src_cr_rt,src_fa_rt,... % src reaction times
-          rec_h_srcCor_rt,rec_h_srcInc_rt,... % recognition hits reaction times
-          rec_h_srcCor_rs_rt,rec_h_srcCor_ro_rt,rec_h_srcCor_k_rt,rec_h_srcInc_rs_rt,rec_h_srcInc_ro_rt,rec_h_srcInc_k_rt,rec_m_sure_rt,rec_m_maybe_rt,rec_cr_sure_rt,rec_cr_maybe_rt,rec_fa_rs_rt,rec_fa_ro_rt,rec_fa_k_rt,... % rt by confidence
-          Pr,Br,... % more accuracy
+          numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
+          acc.item_dp(sub,ses),acc.source_dp(sub,ses),acc.item_c(sub,ses),acc.source_c(sub,ses),... % accuracy
+          numEv.rec_h(sub,ses),numEv.rec_m(sub,ses),numEv.rec_cr(sub,ses),numEv.rec_fa(sub,ses),numEv.src_h(sub,ses),numEv.src_m(sub,ses),numEv.src_cr(sub,ses),numEv.src_fa(sub,ses),... % raw numbers for accuracy
+          rates.rec_h(sub,ses),rates.rec_m(sub,ses),rates.rec_cr(sub,ses),rates.rec_fa(sub,ses),rates.src_h(sub,ses),rates.src_m(sub,ses),rates.src_cr(sub,ses),rates.src_fa(sub,ses),... % accuracy rates
+          numEv.rec_h_srcCor(sub,ses),numEv.rec_h_srcInc(sub,ses),... % raw numbers for recognition hits
+          rates.rec_h_srcCor(sub,ses),rates.rec_h_srcInc(sub,ses),... % accuracy rates for recognition hits
+          numEv.rec_h_rs(sub,ses),numEv.rec_h_ro(sub,ses),numEv.rec_h_k(sub,ses),... % raw numbers for recognition hit response collapsed across source accuracy
+          numEv.rec_h_srcCor_rs(sub,ses),numEv.rec_h_srcCor_ro(sub,ses),numEv.rec_h_srcCor_k(sub,ses),numEv.rec_h_srcInc_rs(sub,ses),numEv.rec_h_srcInc_ro(sub,ses),numEv.rec_h_srcInc_k(sub,ses),numEv.rec_m_sure(sub,ses),numEv.rec_m_maybe(sub,ses),numEv.rec_cr_sure(sub,ses),numEv.rec_cr_maybe(sub,ses),numEv.rec_fa_rs(sub,ses),numEv.rec_fa_ro(sub,ses),numEv.rec_fa_k(sub,ses),... % raw numbers by confidence
+          rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_m_sure(sub,ses),rates.rec_m_maybe(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),rates.rec_fa_rs(sub,ses),rates.rec_fa_ro(sub,ses),rates.rec_fa_k(sub,ses),... % rates by confidence
+          rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
+          rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_m_sure(sub,ses),rates_wir.rec_m_maybe(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses),rates_wir.rec_fa_rs(sub,ses),rates_wir.rec_fa_ro(sub,ses),rates_wir.rec_fa_k(sub,ses),... % within-response rates
+          rt.rec_h(sub,ses),rt.rec_m(sub,ses),rt.rec_cr(sub,ses),rt.rec_fa(sub,ses),... % rec reaction times
+          rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
+          rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
+          rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_m_sure(sub,ses),rt.rec_m_maybe(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),rt.rec_fa_rs(sub,ses),rt.rec_fa_ro(sub,ses),rt.rec_fa_k(sub,ses),... % rt by confidence
+          acc.Pr(sub,ses),acc.Br(sub,ses),... % more accuracy
           ];
       elseif rejectArt == 1
         tableData = [...
-          length(rec_targEv),length(rec_lureEv),length(src_targEv),length(src_lureEv),... % raw numbers of targs, lures
-          source_dp,source_c,... % accuracy
-          length(rec_h),length(rec_cr),length(src_h),length(src_m),length(src_cr),length(src_fa),... % raw numbers for accuracy
-          src_hr,src_mr,src_crr,src_far,... % accuracy rates
-          length(rec_h_srcCor),length(rec_h_srcInc),... % raw numbers for recognition hits
-          rec_h_srcCor_r,rec_h_srcInc_r,... % accuracy rates for recognition hits
-          rec_h_rs,rec_h_ro,rec_h_k,... % raw numbers for recognition hit response collapsed across source accuracy
-          length(rec_h_srcCor_rs),length(rec_h_srcCor_ro),length(rec_h_srcCor_k),length(rec_h_srcInc_rs),length(rec_h_srcInc_ro),length(rec_h_srcInc_k),length(rec_cr_sure),length(rec_cr_maybe),... % raw numbers by confidence
-          rec_h_srcCor_rs_r,rec_h_srcCor_ro_r,rec_h_srcCor_k_r,rec_h_srcInc_rs_r,rec_h_srcInc_ro_r,rec_h_srcInc_k_r,rec_cr_sure_r,rec_cr_maybe_r,... % rates by confidence
-          irk_Fam,irk_correct_Fam,irk_incorrect_Fam,... % Independent Remember--Know Familiarity rates
-          rec_h_srcCor_rs_wir,rec_h_srcInc_rs_wir,rec_h_srcCor_ro_wir,rec_h_srcInc_ro_wir,rec_h_srcCor_k_wir,rec_h_srcInc_k_wir,rec_cr_sure_wir,rec_cr_maybe_wir,... % within-response rates
-          rec_h_rt,rec_cr_rt,... % rec reaction times
-          src_h_rt,src_m_rt,src_cr_rt,src_fa_rt,... % src reaction times
-          rec_h_srcCor_rt,rec_h_srcInc_rt,... % recognition hits reaction times
-          rec_h_srcCor_rs_rt,rec_h_srcCor_ro_rt,rec_h_srcCor_k_rt,rec_h_srcInc_rs_rt,rec_h_srcInc_ro_rt,rec_h_srcInc_k_rt,rec_cr_sure_rt,rec_cr_maybe_rt,... % rt by confidence
+          numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
+          acc.source_dp(sub,ses),acc.source_c(sub,ses),... % accuracy
+          numEv.rec_h(sub,ses),numEv.rec_cr(sub,ses),numEv.src_h(sub,ses),numEv.src_m(sub,ses),numEv.src_cr(sub,ses),numEv.src_fa(sub,ses),... % raw numbers for accuracy
+          rates.src_h(sub,ses),rates.src_m(sub,ses),rates.src_cr(sub,ses),rates.src_fa(sub,ses),... % accuracy rates
+          numEv.rec_h_srcCor(sub,ses),numEv.rec_h_srcInc(sub,ses),... % raw numbers for recognition hits
+          rates.rec_h_srcCor(sub,ses),rates.rec_h_srcInc(sub,ses),... % accuracy rates for recognition hits
+          numEv.rec_h_rs(sub,ses),numEv.rec_h_ro(sub,ses),numEv.rec_h_k(sub,ses),... % raw numbers for recognition hit response collapsed across source accuracy
+          numEv.rec_h_srcCor_rs(sub,ses),numEv.rec_h_srcCor_ro(sub,ses),numEv.rec_h_srcCor_k(sub,ses),numEv.rec_h_srcInc_rs(sub,ses),numEv.rec_h_srcInc_ro(sub,ses),numEv.rec_h_srcInc_k(sub,ses),numEv.rec_cr_sure(sub,ses),numEv.rec_cr_maybe(sub,ses),... % raw numbers by confidence
+          rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),... % rates by confidence
+          rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
+          rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses)... % within-response rates
+          rt.rec_h(sub,ses),rt.rec_cr(sub,ses),... % rec reaction times
+          rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
+          rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
+          rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),... % rt by confidence
           ];
       end
       
       if saveFiles == 1
         % print sub and ses
-        fprintf(outfile,'%s,%d',subjects{sub},ses-1);
+        if averageSes == 1
+          allSes = sessions{1}(end);
+          if length(sessions) > 1
+            for i = 2:length(sessions)
+              allSes = cat(2,sprintf('%s_%s',allSes,sessions{i}(end)));
+            end
+          end
+          fprintf(outfile,'%s,%s',subjects{sub},allSes);
+        else
+          fprintf(outfile,'%s,%d',subjects{sub},ses-1);
+        end
         % format for tableData and print
         tableDataStr = repmat(',%.4f',1,length(tableData));
         fprintf(outfile,tableDataStr,tableData);
@@ -973,7 +933,7 @@ for s = 1:length(subsets)
         %  fprintf(outfile,'%d\t',tableData(tabData));
         %end
         if rejectArt == 1
-          artStr = sprintf(',%d,%d,%.4f',numArt,numEv,(numArt / numEv));
+          artStr = sprintf(',%d,%d,%.4f',numEv.art(sub,ses),numEv.total(sub,ses),(numEv.art(sub,ses) / numEv.total(sub,ses)));
           fprintf(outfile,'%s\n',artStr);
         else
           fprintf(outfile,'\n');
@@ -981,8 +941,8 @@ for s = 1:length(subsets)
       end
       
     end % ses
-    
   end % sub
+  
   
   if saveFiles == 1
     fprintf('Saving %s...',eventsTable);
