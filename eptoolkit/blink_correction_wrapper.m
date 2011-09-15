@@ -31,7 +31,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% MODIFY THIS STUFF
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-exper.name = 'COSI';
+
+exper.name = 'SOSI';
+%exper.name = 'SOCO';
+%exper.name = 'COSI';
 
 % sampling rate of the EEG data
 exper.sampleRate = 250;

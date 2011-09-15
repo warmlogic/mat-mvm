@@ -333,9 +333,19 @@ end
 exper.badBehSub = {};
 %exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
 %exper.badBehSub = {'COSI001','COSI003','COSI005','COSI012','COSI013','COSI014','COSI016','COSI017','COSI018','COSI019','COSI020'};
-% COSI002 is noisy
+
 %exper.badBehSub = {'COSI002','COSI027','COSI034','COSI035','COSI013','COSI017','COSI006','COSI018','COSI022'};
-exper.badBehSub = {'COSI002','COSI027','COSI034','COSI035','COSI013','COSI017'};
+exper.badBehSub = {'COSI031','COSI002','COSI027','COSI034','COSI035','COSI013','COSI017'};
+
+% COSI031 had too many false alarms (too many "old" responses)
+
+% noisy subjects
+%
+% COSI002,
+
+% weird/nonexistent P1/N1 complex
+%
+% COSI?
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
