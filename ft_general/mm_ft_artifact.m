@@ -15,36 +15,49 @@ function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactTyp
 
 %% set the artifact processing parameters
 
-% set artifact defaults
-rejArt_ns_auto = 0;
-rejArt_ns_man = 0;
-rejArt_ft_auto = 0;
-rejArt_ft_man = 0;
-rejArt_ft_ica = 0;
-
 % figure out which artifact options we're using
 if ismember('ns_auto',artifactType)
   rejArt_ns_auto = 1;
+else
+  rejArt_ns_auto = 0;
 end
-if ismember('ns_man',artifactType)
-  rejArt_ns_man = 1;
+if ismember('zeroVar',artifactType)
+  rejArt_zeroVar = 1;
+else
+  rejArt_zeroVar = 0;
+end
+if ismember('prerej_manual',artifactType)
+  rejArt_prerej_manual = 1;
+else
+  rejArt_prerej_manual = 0;
 end
 if ismember('ft_auto',artifactType)
   rejArt_ft_auto = 1;
+else
+  rejArt_ft_auto = 0;
 end
-if ismember('ft_man',artifactType)
-  rejArt_ft_man = 1;
+if ismember('ft_manual',artifactType)
+  rejArt_ft_manual = 1;
+else
+  rejArt_ft_manual = 0;
 end
 if ismember('ft_ica',artifactType)
   rejArt_ft_ica = 1;
+else
+  rejArt_ft_ica = 0;
 end
 
-if rejArt_ns_man == 1 && rejArt_ns_auto == 0
-  fprintf('To manually inspect NS''s artifacts (''ns_man''), you must also use ''ns_auto''; turning on ''ns_auto''.');
-  rejArt_ns_auto = 1;
+% if rejArt_ns_auto == 1 && rejArt_zeroVar == 1
+%   error('Cannot reject both NS artifacts (''ns_auto'') and trials with zero variance (''zeroVar''). Choose one or the other.')
+% end
+
+if rejArt_prerej_manual == 1 && rejArt_ns_auto == 0 && rejArt_zeroVar == 0
+  error('To manually inspect prerejected artifacts (''prerej_manual''), you must also use either ''ns_auto'' or ''zeroVar''.');
 end
 
-%% check on NS artifacts
+%% check on NS and zero variance artifacts; and manual inspection option
+
+foundArt = 0;
 
 if rejArt_ns_auto
   % make sure the file with NS artifact info exists
@@ -91,69 +104,63 @@ if rejArt_ns_auto
   % old method: remove trials with artifacts from the trl matrix
   %cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
   
-  cfg = [];
-  % mark the trials that have artifacts as such
-  cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv(min(thisEv):max(thisEv))),:);
-  
-  % if we want to inspect manually
-  if rejArt_ns_man
-    cfg.continuous = 'no';
-    cfg.viewmode = 'butterfly';
-    %cfg.viewmode = 'vertical';
-    
-    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-    fprintf('\n\nManual artifact rejection (NS artifacts are marked):\n');
-    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-    fprintf('Use arrows to move to next trial.\n');
-    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
-    
-    cfg = ft_databrowser(cfg,data);
-    
-    % see if there were any channels to repair first
-    rejArt_repair = [];
-    while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-      rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+  if ~isempty(find(badEv,1))
+    foundArt = 1;
+    fprintf('Automatically rejecting %d NS artifacts for%s.\n',sum(badEv),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+    cfg = [];
+    % mark the trials that have artifacts as such; select the entire sample
+    % range for the bad events
+    cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv(min(thisEv):max(thisEv))),:);
+  else
+    fprintf('No NS artifacts found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+  end
+end
+
+% if we want to reject the trials with zero variance in their voltage
+if rejArt_zeroVar
+  badEv = zeros(size(data.trial'));
+  for i = 1:size(data.trial,2)
+    % variance across time on all the channels averaged together
+    if var(mean(data.trial{i},1),0,2) == 0
+      badEv(i) = 1;
     end
+  end
+  
+  if ~isempty(find(badEv,1))
+    foundArt = 1;
+    fprintf('Automatically rejecting %d trials with zero variance for%s.\n',sum(badEv),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
     
-    if rejArt_repair
-      channelsToRepair = [];
-      while ~iscell(channelsToRepair)
-        channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
-      end
-      
-      if ~isempty(channelsToRepair)
-        data.elec = elec;
-        
-        cfg = [];
-        cfg.badchannel = channelsToRepair;
-        
-        data = ft_channelrepair(cfg,data);
+    if ~exist('cfg','var')
+      cfg = [];
+      cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv),:);
+    else
+      if rejArt_ns_auto && foundArt
+        % if running both ns_auto and zeroVar
+        if isfield(cfg,'artfctdef')
+          if isfield(cfg.artfctdef,'visual')
+            if isfield(cfg.artfctdef.visual,'artifact')
+              if ~isempty(cfg.artfctdef.visual.artifact)
+                cfg.artfctdef.visual.artifact = unique(cat(1,cfg.artfctdef.visual.artifact,data.sampleinfo(logical(badEv),:)),'rows');
+              end
+            end
+          end
+        end
       end
     end
   else
-    fprintf('Automatically rejecting NS artifacts for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+    fprintf('No zero variance trials found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   end
-  
-  % reject the artifacts (complete or parial rejection)
-  cfg.artfctdef.reject = 'complete';
-  data = ft_rejectartifact(cfg,data);
 end
 
-%% visual artifact inspection (manual)
-
-if rejArt_ft_man
-  % use cursor drag and click to mark artifacts;
-  % use arrows to advance to next trial;
-  % use the q key to quit the data browser
-  
-  cfg = [];
+% if we want to inspect manually
+if (rejArt_ns_auto || rejArt_zeroVar) && rejArt_prerej_manual
+  foundArt = 1;
   cfg.continuous = 'no';
   cfg.viewmode = 'butterfly';
   %cfg.viewmode = 'vertical';
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  fprintf('\n\nManual artifact rejection:\n');
+  fprintf('\n\nManual artifact rejection (NS artifacts are marked):\n');
   fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
   fprintf('Use arrows to move to next trial.\n');
   fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
@@ -176,10 +183,60 @@ if rejArt_ft_man
     if ~isempty(channelsToRepair)
       data.elec = elec;
       
-      cfg = [];
-      cfg.badchannel = channelsToRepair;
+      cfg_repair = [];
+      cfg_repair.badchannel = channelsToRepair;
       
-      data = ft_channelrepair(cfg,data);
+      data = ft_channelrepair(cfg_repair,data);
+    end
+  end
+end
+
+% do the actual rejection of artifact trials (complete or parial rejection)
+if (rejArt_ns_auto || rejArt_zeroVar) && foundArt
+  cfg.artfctdef.reject = 'complete';
+  data = ft_rejectartifact(cfg,data);
+end
+
+%% visual artifact inspection (manual)
+
+if rejArt_ft_manual
+  % use cursor drag and click to mark artifacts;
+  % use arrows to advance to next trial;
+  % use the q key to quit the data browser
+  
+  cfg = [];
+  cfg.continuous = 'no';
+  cfg.viewmode = 'butterfly';
+  %cfg.viewmode = 'vertical';
+  
+  fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+  fprintf('\n\nManual artifact rejection:\n');
+  fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
+  fprintf('Use arrows to move to next trial.\n');
+  fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
+  fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
+  
+  cfg = ft_databrowser(cfg_browser,data);
+  
+  % see if there were any channels to repair first
+  rejArt_repair = [];
+  while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+    rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+  end
+  
+  if rejArt_repair
+    channelsToRepair = [];
+    while ~iscell(channelsToRepair)
+      channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+    end
+    
+    if ~isempty(channelsToRepair)
+      data.elec = elec;
+      
+      cfg_repair = [];
+      cfg_repair.badchannel = channelsToRepair;
+      
+      data = ft_channelrepair(cfg_repair,data);
     end
   end
   
@@ -195,6 +252,8 @@ if rejArt_ft_ica
   % ICA artifact detection
   %
   % look for eye blink, heart beat, and other artifacts
+  %
+  % you should not run ICA on data that has already rejected ICA components
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];

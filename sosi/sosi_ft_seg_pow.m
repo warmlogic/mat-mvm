@@ -139,7 +139,7 @@ files.figFileExt = 'png';
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
 ana.artifact.type = {'ns_auto'};
-%ana.artifact.type = {'ns_auto','ns_man','ft_ica'};
+%ana.artifact.type = {'ns_auto','prerej_manual','ft_ica'};
 
 % ana.otherFxn = {};
 % ana.cfg_other = [];

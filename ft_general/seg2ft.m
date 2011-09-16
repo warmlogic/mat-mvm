@@ -27,24 +27,26 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ARTIFACT INFORMATION:
 %
-% artifactType can be 'none', 'ns_auto', 'ns_man', 'ft_man', or 'ft_ica';
+% artifactType can be 'none', 'ns_auto', 'zeroVar', 'prerej_manual', 'ft_manual', or 'ft_ica';
 % it can be one of those strings or a cell array of multiple strings (e.g.,
-% {'ns_auto','ft_man'} to do both Net Station artifact rejection and
+% {'ns_auto','ft_manual'} to do both Net Station artifact rejection and
 % FieldTrip manual ("visual") rejection). 'ft_ica' also includes manual
-% rejection after manually assessing components.
+% rejection after manually assessing components. Though it is not prohibited,
+% 'ns_auto' and 'zeroVar' should not be used together because there is no
+% reason to find bad trials with both EP Toolkit and NS.
 %
-% 'ns_auto' and 'ns_man' are processed first, then 'ft_man', then 'ft_ica'.
-% Subquent processing will not include earlier rejected artifacts.  Note
-% that any FT artifact processing requires manual intervention (as does
-% 'ns_man'), while 'ns_auto' artifact processing does not. 'ns_man' is for
-% inspecting the artifacts that NS identified. After inspection, both
-% 'ns_man' and 'ft_man' give the option to repair individual channels (for
-% all trials) using FT_CHANNELREPAIR, so be sure to keep track of any
-% channels that you want to repair (i.e., instead of rejecting them as
-% artifacts).
+% 'ns_auto', 'zeroVar', and 'prerej_manual' are processed first, then 'ft_manual',
+% then 'ft_ica'. Subquent processing will not include earlier rejected artifacts.
+% Note: any FT artifact processing requires manual intervention (as does 'prerej_manual'),
+% while 'ns_auto' and 'zeroVar' artifact processing does not. 'prerej_manual' is for
+% inspecting the artifacts that have been previously identified by other
+% software (NS, EP Toolkit, etc.). After manual inspection, both 'prerej_manual'
+% and 'ft_manual' give the option to repair individual channels (for all
+% trials) using FT_CHANNELREPAIR, so be sure to keep track of any channels
+% that you want to repair (i.e., instead of rejecting them as artifacts).
 %
-% If using NS art, this function expects to find a Net Station segment info
-% file with a .bci extension; this contains artifact information. It is
+% If using NS artifacts ('ns_auto'), this function expects to find a Net Station segment
+% info file with a .bci extension; this contains artifact information. It is
 % exported from Net Station using the File Export tool. To set up the tool,
 % export format is metadata and check the segment information option. Run
 % the tool on the file that was exported to egis/raw (i.e., the baseline
@@ -52,13 +54,20 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % stored in a 'ns_bci' directory at the same level as 'ns_egis' or
 % 'ns_raw'.
 %
-% If 'ft_man', a visualization of all channels for each event will appear,
+% Rejecting trials with zero variance ('zeroVar') should be used when using
+% bad trial detection done by EP Toolkit because it flattens all channels
+% of any bad trials.
+%
+% If 'ft_manual', a visualization of all channels for each event will appear,
 % where each trial is shown one-by-one.
 %
 % If 'ft_ica', ICA will run on all trials across all event values.
 % Individual components can be rejected after this.  Finally, a
 % visualization of all channels for each event will appear, where each
 % trial is shown one-by-one.
+%
+% IMPORTANT: DO NOT reject ICA components from data that has already had
+% ICA components rejected.
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % EEGLAB DATA
@@ -80,7 +89,7 @@ if ischar(artifactType)
   artifactType = {artifactType};
 end
 
-artifactOpts = {'none','ns_auto','ns_man','ft_auto','ft_man','ft_ica'};
+artifactOpts = {'none','ns_auto','zeroVar','prerej_manual','ft_auto','ft_manual','ft_ica'};
 
 if any(~ismember(artifactType,artifactOpts))
   error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(artifactType(~ismember(artifactType,artifactOpts))))
@@ -280,6 +289,11 @@ for ses = 1:length(session)
     trialData = cat(3,data.trial{:});
     % check the variance across time for the reference channel
     if sum(var(trialData(nChan_data,:,:),0,2) ~= 0) == 0
+      % if none of trials have a non-zero variance reference channel, then
+      % it has not been rereferenced. Some trials may have zero variance
+      % because of how bad trial rejection works in EP Toolkit (it zeros
+      % out all channels for bad trials).
+      %
       % var=0 means that the final (reference) electrode is flat and this
       % data set has not been (average) rereferenced
       error('This dataset is not rereferenced. Go back and rereference in Net Station before running this script!');

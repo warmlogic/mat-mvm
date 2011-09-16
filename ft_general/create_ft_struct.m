@@ -11,12 +11,16 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % will be kept separate.
 %
 % ana.artifact.type = the type of artifact info to use: 'none', 'ns_auto',
-%                     'ns_man', 'ft_man', or 'ft_ica'. If ns_auto/man,
-%                     SEG2FT expects to find an NS bci metadata file.
+%                     'zeroVar', 'prerej_manual', 'ft_manual', or 'ft_ica'.
+%                     Some types can be combined.
+%                     
+%                     If ns_auto, SEG2FT expects to find a NS bci metadata file.
 %                     This file denotes the reject artifact trials. Use the
 %                     File Export tool to export Metadata > Segment
 %                     Information; put it in a 'ns_bci' directory in
-%                     dataroot/session. See SEG2FT for more information.
+%                     dataroot/session.
+%                     
+%                     See SEG2FT for more information.
 %                     (default = 'none')
 %
 % ana.overwrite.raw = prevent overwriting of raw data, and load in existing
@@ -78,7 +82,7 @@ if ~isfield(ana,'segFxn')
   ana.segFxn = 'seg2ft';
 end
 
-% need an artifact detection type ('none', or: 'ns_auto', 'ns_man', 'ft_man', 'ft_ica')
+% need an artifact detection type ('none', or: 'ns_auto', 'prerej_manual', 'ft_manual', 'ft_ica')
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
 elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
