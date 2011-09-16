@@ -116,6 +116,28 @@ for i = 1:length(fileList)
   [EPdata] = ep_readData(inArgs);
   fprintf('Done.\n');
   
+  fprintf('You should check on the Artifact_Correction_Log for this subject regarding globally bad channels, shorted channels, and bad subject information.\n');
+  
+  % In order to store data about bad channels, we might want to also have
+  % the 'Artifact_Correction_Log fileName date.txt' files in this
+  % directory.
+  
+  % Things we need to be aware of:
+  % 1. Globally bad channels that were not interpolated
+  % 2. Shorted channels
+  % 3. Bad subjects
+  
+  % If a globally bad channel was successfully interpolated, is it still
+  % listed under "Global bad Channels"? This would mean that any channel
+  % listed under the "Global bad Channels" either was not or could not be
+  % interpolated.
+  
+  % What to do about shorted channels? (Channels that are perfectly or
+  % highly correlated)
+  
+  % What to do about bad subjects?
+  
+  
   % cd to the output directory
   cd(dirs.outputDir);
   

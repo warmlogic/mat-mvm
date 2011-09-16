@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.nsFileExt = 'egis';
-exper.nsFileExt = 'raw';
+exper.nsFileExt = 'egis';
+%exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -181,8 +181,13 @@ ana.overwrite.proc = 1;
 
 % any preprocessing?
 cfg_pp = [];
+
 % single precision to save space
 cfg_pp.precision = 'single';
+
+% do a baseline correction
+cfg_pp.demean = 'yes';
+cfg_pp.baselinewindow = [-0.2 0];
 
 cfg_proc = [];
 cfg_proc.keeptrials = 'no';
@@ -346,6 +351,8 @@ exper.badBehSub = {'COSI031','COSI002','COSI027','COSI034','COSI035','COSI013','
 % weird/nonexistent P1/N1 complex
 %
 % COSI?
+
+% COSI017 had lots of "shorted" channels (ID'd by EP)
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
