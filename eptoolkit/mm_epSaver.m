@@ -24,7 +24,7 @@
 %     dataroot/COSI/eeg/eppp/-1000_2000/3_ep_egis_out
 %
 
-experName = 'COSI';
+experName = 'SOCO';
 prepost = [-1 2];
 inputFormat = 'ep_mat';
 outputFormat = 'egi_egis';
@@ -112,7 +112,7 @@ for i = 1:length(fileList)
   cd(fullfile(dirs.dataroot,dirs.dataDir));
   
   % read in the file
-  fprintf('Reading %s...\n',fullfile(dirs.dataroot,dirs.dataDir,[fileName,inputFileExt]));
+  fprintf('Reading %s...\n',fullfile(dirs.dataroot,dirs.dataDir,[fileName,'.',inputFileExt]));
   [EPdata] = ep_readData(inArgs);
   fprintf('Done.\n');
   
@@ -143,11 +143,11 @@ for i = 1:length(fileList)
   
   if ~exist(fullfile(dirs.outputDir,[fileName,outputFileExt]),'file')
     % write out the file
-    fprintf('Saving %s...\n',fullfile(dirs.dataroot,dirs.outputDir,[fileName,outputFileExt]));
+    fprintf('Saving %s...\n',fullfile(dirs.dataroot,dirs.outputDir,[fileName,'.',outputFileExt]));
     ep_writeData(EPdata,fileName,outputFormat);
     fprintf('Done.\n');
   else
-    error('%s already exists.',fullfile(dirs.outputDir,[fileName,outputFileExt]));
+    error('%s already exists.',fullfile(dirs.outputDir,[fileName,'.',outputFileExt]));
     %fprintf('%s already exists. Moving on.\n',fullfile(dirs.outputDir,[fileName,outputFileExt]));
     %continue
   end
