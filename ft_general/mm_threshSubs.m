@@ -27,7 +27,7 @@ end
 if ~isfield(exper,'badBehSub')
   exper.badBehSub = {};
 else
-  exper.badBehSub = sort(exper.badBehSub);
+  exper.badBehSub = sort(exper.badBehSub(ismember(exper.badBehSub,exper.subjects)));
 end
 
 % get the events from ana; those are the ones we care about for analysis
