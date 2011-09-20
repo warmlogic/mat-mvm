@@ -1,78 +1,73 @@
-function ns_fixEvtOrder(numCols,dataroot)
+function ns_fixEvtOrder(newExt,dataroot,prepost)
 %NS_FIXEVTORDER
 %
-% ns_fixEvtOrder(numCols,dataroot)
+% ns_fixEvtOrder(newExt,dataroot,prepost)
 %
 % Inputs:
 %
-%  numCols:     the number of columns in each original .evt file
+%  newExt:      the extension of the new evt file (default: '_e.evt', to
+%               match the output file extension from EP Toolkit)
 %
-%  dataroot:    the location of the original .evt files; also where the new
-%               .evt files are saved (default: pwd)
+%  dataroot:    the location of the original .evt files; the new .evt files
+%               are saved here.
+%               (default: pwd), meaning that by default, all .evt files in
+%               the current working dir are processed
 %
-% no inputs necessary. processes all .evt files in the current working dir
-% by default. otherwise, specify where the .evt files are located.
+%  prepost:     the segmentation time (in ms) before and after each event.
+%               e.g., [1000 2000] is 1000ms before and 2000ms after event.
+%               This only applies when events were exported using relative
+%               time mode, for which the actual event onset time is
+%               recorded. Onset time is not needed for segmented files, so
+%               if you just use Epoch Time in the event export tool you can
+%               ignore this setting. If using relative time, all events
+%               must have the same segmentation time.
+%               (default: []; will error if using a relative time file)
 %
-% This script sorts NetStation evt files (exported from any segmented file
+% IMPORTANT: Make sure you don't have the original evt file open (e.g., in
+%            a spreadsheet app) or Matlab won't be able to read it (the
+%            error will say: 'Invalid file identifier.')
+%
+% This script sorts Net Station evt files (exported from any segmented file
 % using the Event Export tool) by category and then orders the events by
-% occurrence time. This is useful for when NS incorrectly labels the time
+% occurrence time.  This is useful for when NS incorrectly labels the time
 % in evt file created from the seg file such that the onset time refers to
-% the event's occurence in the continuous session file. Instead, the onset
+% the event's occurence in the continuous session file.  Instead, the onset
 % time should refer to the event's location in the segmented file, where
-% the events are separate in time but are contiguous in the file. This
+% the events are separate in time but are contiguous in the file.  This
 % script corrects the onset time to the latter situation sorted first by
 % category (alphabetically) and then by onset time.
 %
-% To create the evt file(s) that this script reads in, make an Event Export
-% tool in NS; check the "Export Category Name" box and set Time Mode to
-% either Relative or Epoch Time. It does not matter whether you sort by
-% category or by onset. Of course, you also need to choose the event types
+% To create the evt file(s) that this script reads:
+% Make an Event Export tool in NS; check the "Export Category Name" box and
+% set Time Mode to Epoch Time (Relative Time also works, but be sure to set
+% the prepost variable correctly).  It does not matter whether you sort by
+% category or by onset.  Of course, you also need to choose the event types
 % to export. Drag the segmented NS file created from the original
 % continuous recording file onto the tool to find the event types that you
 % want.
 %
-% The new evt file can be used to markup a nsf file created from the sbin
-% or egis file created by EP_Toolkit (this is my only reason for creating
-% this script). Use the Markup From File tool in NS; note that the nsf and
-% evt files must have the filenames.
-%
-% In this script the user must set (or hard code):
-%  1) the number of columns in the original evt files (must be the same for
-%     all input files)
-%  2) where the original evt files (created from the seg files) are located
-%     (default is the current directory)
-%  3) the column numbers in the evt file for Category and Onset
-%  4) the segmentation times before and after an event (all events must
-%     have the same length)
-%  5) the extension for the new evt file
-%
-%  NB:
-%  1 and 2 can be set in the function arguments;
-%  3, 4, and 5 are hardcoded in the script.
+% The new evt file can be used to markup a NS file created from the
+% SBIN/RAW or EGIS file created by EP Toolkit (this is my only reason for
+% creating this script). Use the Markup From File tool in NS; note that the
+% NS and evt files must have the filenames.
 %
 
 % By Matt Mollison (2010-2011), matt.mollison@gmail.com
 
-%% To be set by the user
+%% Can be set by the user
 
-if nargin < 2
-  % 1) where the evt files are located
+if nargin < 3
+  % where the evt files are located
   dataroot = pwd;
-  if nargin < 1
-    % 2) the number of columns in the original evt file
-    numCols = 43;
+  if nargin < 2
+    % extension for the new .evt file
+    newExt = '_e.evt';
+    if nargin < 1
+      % pre- and post-event segmentation times
+      prepost = [];
+    end
   end
 end
-
-% 3) the columns for Onset and Category
-cols.onset = 5;
-cols.categ = 7;
-
-% 4) the amount of ms segmented before and after the event, respectively
-prepost = [1000 2000];
-
-% 5) the extension to be used on the new evt file
-evtExt = '_e.evt';
 
 %% Read in the old evt and write out the new evt
 
@@ -94,13 +89,40 @@ for i = 1:length(evt)
   %% Read in the evt file
   [path,name,ext] = fileparts(evt(i).name);
   
+  % figure out how many columns there are
+  fid = fopen(fullfile(dataroot,evt(i).name),'r');
+  % get the file name line
+  fgetl(fid);
+  % get the time mode line
+  fgetl(fid);
+  % get the header line
+  tline = fgetl(fid);
+  % headers
+  if strcmp(tline(end),sprintf('\t'))
+    tline = tline(1:end-1);
+  end
+  hdr = regexp(tline,'\t','split');
+  cols.onset = find(strcmp(hdr,'Onset'));
+  cols.categ = find(strcmp(hdr,'Category'));
+  
+  % get the first data line
+  tline = fgetl(fid);
+  % close the file
+  fclose(fid);
+  % if the last character is a tab, remove it
+  if strcmp(tline(end),sprintf('\t'))
+    tline = tline(1:end-1);
+  end
+  % since it's tab delimited, split it and count the length
+  numCols = length(regexp(tline,'\t','split'));
+  
   fid = fopen(fullfile(dataroot,evt(i).name),'r');
   data = textscan(fid,repmat('%s',1,numCols),'Headerlines',3,'Delimiter','\t');
   fclose(fid);
   
   %% 1. sort by category
   if ~issorted(data{cols.categ})
-    [categ categInd] = sort(data{cols.categ});
+    [categ,categInd] = sort(data{cols.categ});
     for j = 1:numCols
       data{j} = data{j}(categInd);
     end
@@ -131,7 +153,7 @@ for i = 1:length(evt)
         thisEpochNum = str2double(thisCatOnsets{k}(strfind(thisCatOnsets{k},'[')+1:strfind(thisCatOnsets{k},']')-1));
         epochNumbers = [epochNumbers; thisEpochNum];
       end
-      [epoch epochInd] = sort(epochNumbers);
+      [epoch,epochInd] = sort(epochNumbers);
       
       % sort the events within this category
       for k = 1:numCols
@@ -158,7 +180,7 @@ for i = 1:length(evt)
         
         onsetTimesMS = [onsetTimesMS; ms];
       end
-      [onsetMS onsetMSInd] = sort(onsetTimesMS);
+      [onsetMS,onsetMSInd] = sort(onsetTimesMS);
       
       % sort the events within this category
       for k = 1:numCols
@@ -170,14 +192,19 @@ for i = 1:length(evt)
   
   %% renumber epochs or onset times
   if ~isempty(strfind(data{cols.onset}{1},'['))
-    % epochs
+    % Epoch Time mode
     for k = 1:length(data{cols.onset})
       left = data{cols.onset}{k}(1:strfind(data{cols.onset}{k},'['));
       right = data{cols.onset}{k}(strfind(data{cols.onset}{k},']'):end);
       data{cols.onset}{k} = sprintf('%s%s%s',left,num2str(k),right);
     end
   else
-    % onset times in NS's _hh:mm:ss.sss format
+    % Relative Time mode
+    if isempty(prepost)
+      error('Need to set the prepost variable. See HELP NS_FIXEVTORDER for more information.');
+    end
+    
+    % onset times are in NS's _hh:mm:ss.sss format
     mstime = prepost(1);
     for k = 1:length(data{cols.onset})
       hrs = sprintf('%02.0f',floor(mstime / (1000 * 60 * 60)));
@@ -192,7 +219,7 @@ for i = 1:length(evt)
   end
   
   %% save out the new evt file
-  newEvtFile = [name,evtExt];
+  newEvtFile = [name,newExt];
   fprintf('Saving %s...',newEvtFile);
   
   outfile = fopen(fullfile(dataroot,newEvtFile),'wt');
