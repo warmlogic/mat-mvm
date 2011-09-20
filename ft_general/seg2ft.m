@@ -191,9 +191,9 @@ for ses = 1:length(session)
   end
   
   % % debug
-  % hdr = ft_read_header(infile_ns,'headerformat',ftype);
-  % data = ft_read_data(infile_ns,'dataformat',ftype);
-  % event = ft_read_event(infile_ns,'eventformat',ftype);
+  % hdr = ft_read_header(infile_ns,'dataformat',ftype,'headerformat',ftype);
+  % data = ft_read_data(infile_ns,'dataformat',ftype,'headerformat',ftype);
+  % event = ft_read_event(infile_ns,'eventformat',ftype,'dataformat',ftype,'headerformat',ftype);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Initial parameters for reading the data
@@ -232,7 +232,7 @@ for ses = 1:length(session)
   evVals = unique(evVals);
   if ~ismember(eventValue,evVals)
     fprintf('The available event values in %s are: %s\n',infile_ns,sprintf(repmat('''%s'' ',1,length(evVals)),evVals{:}));
-    error('%s is not in the EEG file. You should redefine exper.eventValues.',cell2mat(eventValue));
+    error('%s is not in the EEG file. You should redefine exper.eventValues.',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
   elseif ismember(eventValue,evVals)
     fprintf('You can safely ignore the warning about ''no trialfun was specified''.\n')
   end

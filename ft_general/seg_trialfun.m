@@ -6,6 +6,7 @@ if ischar(cfg.trialdef.eventvalue)
   cfg.trialdef.eventvalue = {cfg.trialdef.eventvalue};
 end
 
+% get the header and event information
 hdr = ft_read_header(cfg.dataset);
 event = ft_read_event(cfg.dataset);
 
@@ -14,8 +15,9 @@ offsetSamp = round(-cfg.trialdef.prestim*hdr.Fs);
 % duration should be 1 sample less than the whole length of an event
 durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
 
-
+% initialize the trl matrix
 trl = [];
+%trl = nan(length(ismember({event(:).value},cfg.trialdef.eventvalue)),4);
 
 for i = 1:length(event)
   if strcmp(event(i).type,cfg.trialdef.eventtype)
@@ -31,12 +33,20 @@ for i = 1:length(event)
         eventNumber = [];
       end
       
-      % add this trial
-      begsample = event(i).sample;
-      endsample = begsample + durationSamp;
+      % add this trial [beginning sample, ending sample, offset, evNum]
+      trl = cat(1,trl,[event(i).sample, (event(i).sample + durationSamp), offsetSamp, eventNumber]);
       
-      trl = [trl; [begsample endsample offsetSamp eventNumber]];
+%       % add this trial
+%       %
+%       % beginning sample
+%       trl(i,1) = event(i).sample;
+%       % ending sample
+%       trl(i,2) = event(i).sample + durationSamp;
+%       % offset
+%       trl(i,3) = offsetSamp;
+%       % type of trial
+%       trl(i,4) = eventNumber;
+      
     end
   end
 end
-

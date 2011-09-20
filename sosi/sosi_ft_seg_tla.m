@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+%exper.nsFileExt = 'egis';
+exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -124,7 +124,7 @@ files.figFileExt = 'png';
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'ns_auto'};
+ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -135,6 +135,9 @@ ana.overwrite.proc = 1;
 
 % any preprocessing?
 cfg_pp = [];
+% do a baseline correction
+cfg_pp.demean = 'yes';
+cfg_pp.baselinewindow = [-0.2 0];
 % single precision to save space
 cfg_pp.precision = 'single';
 

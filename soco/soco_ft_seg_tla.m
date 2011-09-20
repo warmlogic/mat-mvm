@@ -141,6 +141,9 @@ ana.overwrite.proc = 1;
 
 % any preprocessing?
 cfg_pp = [];
+% do a baseline correction
+cfg_pp.demean = 'yes';
+cfg_pp.baselinewindow = [-0.2 0];
 % single precision to save space
 cfg_pp.precision = 'single';
 
