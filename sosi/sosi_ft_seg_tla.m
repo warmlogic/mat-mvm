@@ -175,7 +175,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);

@@ -209,7 +209,7 @@ for ses = 1:length(session)
   cfg.continuous = 'no';
   
   % % debug
-  % data = preprocessing(cfg);
+  % data = ft_preprocessing(cfg);
   
   %% Select events
   

@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+%exper.nsFileExt = 'egis';
+exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -130,7 +130,7 @@ files.figFileExt = 'png';
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'ns_auto'};
+ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -183,7 +183,7 @@ end
 %% load the analysis details
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 
@@ -382,16 +382,16 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'RAS'},{'LPS'}};
+cfg_plot.rois = {{'LAS'},{'LPS'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.zparam = 'avg';
 
-cfg_plot.rois = {{'E83'}};
-cfg_plot.xlim = [-0.2 1.0];
-cfg_plot.ylim = [-10 10];
+% cfg_plot.rois = {{'E83'}};
+% cfg_plot.xlim = [-0.2 1.0];
+% cfg_plot.ylim = [-10 10];
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its

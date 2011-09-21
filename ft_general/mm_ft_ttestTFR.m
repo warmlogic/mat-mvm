@@ -265,6 +265,9 @@ for cnd = 1:length(cfg_ana.conditions)
   
   vs_str = sprintf('%s%s',cfg_ana.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_ana.numConds-1),cfg_ana.conditions{cnd}{2:end}));
   
+  ev1 = cfg_ana.conditions{cnd}{1};
+  ev2 = cfg_ana.conditions{cnd}{2};
+  
   % calculate Cohen's d
   
 %   % METHOD 1
@@ -272,8 +275,6 @@ for cnd = 1:length(cfg_ana.conditions)
 %   % I found this calculation method online and hobbled it together myself;
 %   % I don't know if it is correct because someone on the fieldtrip list
 %   % said to just divide t by the sqrt(df) (calculated below)
-%   ev1 = cfg_ana.conditions{cnd}{1};
-%   ev2 = cfg_ana.conditions{cnd}{2};
 %   
 %   std_pooled = sqrt((((length(cfg_ana.values.(ev1)) - 1) * (std(cfg_ana.values.(ev1),0)^2)) + ...
 %     ((length(cfg_ana.values.(ev2)) - 1) * (std(cfg_ana.values.(ev2),0)^2))) / ...
@@ -292,8 +293,9 @@ for cnd = 1:length(cfg_ana.conditions)
     fprintf(' *');
   end
   fprintf('\n');
-  warning('ttest:cohens_d','I do not know if the calculation of cohen''s d is correct!\n');
 end
+%fprintf('I do not know if the calculation of cohen''s d is correct!\n');
+warning('ttest:cohens_d','I do not know if the calculation of cohen''s d is correct!');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % Plots
