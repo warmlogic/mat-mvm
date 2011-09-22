@@ -287,7 +287,7 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 %exper.badBehSub = {'SOSI011','SOSI030'};
 exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % ,'SOSI003','SOSI024'
 
-% 7 had poor accuracy (and 003, 005, 024?)
+% 007 had poor accuracy (and 003, 005, 024?)
 
 % 011 and 030 had no F responses; 001 has weird voltages
 
