@@ -336,23 +336,22 @@ end
 
 % Subjects with bad behavior
 exper.badBehSub = {};
-%exper.badBehSub = {'COSI002','COSI007','COSI012','COSI018','COSI020'};
-%exper.badBehSub = {'COSI001','COSI003','COSI005','COSI012','COSI013','COSI014','COSI016','COSI017','COSI018','COSI019','COSI020'};
-
-%exper.badBehSub = {'COSI002','COSI027','COSI034','COSI035','COSI013','COSI017','COSI006','COSI018','COSI022'};
-exper.badBehSub = {'COSI031','COSI002','COSI027','COSI034','COSI035','COSI013','COSI017'};
+exper.badBehSub = {'COSI031','COSI002','COSI035','COSI007','COSI030'};
 
 % COSI031 had too many false alarms (too many "old" responses)
 
 % noisy subjects
 %
-% COSI002,
+% COSI002, COSI035
 
 % weird/nonexistent P1/N1 complex
 %
-% COSI?
+% COSI002,'COSI013','COSI017','COSI027'
 
-% COSI017 had lots of "shorted" channels (ID'd by EP)
+% COSI017 had lots of "shorted" channels (ID'd by EP), though I'm not sure
+% I should reject them based on this
+
+% weird FN400 voltage patterns: 007, 030
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -365,6 +364,8 @@ cfg_ana.is_ga = 0;
 cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_tla';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
+
+ga_tla = struct;
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
@@ -579,10 +580,10 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
@@ -600,7 +601,7 @@ cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 1 4];
-cfg_plot.ylims = [-4 -1; -4 -1; 1 4; 1 4];
+cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CCR','CH','CHSC','CHSI','SCR','SH','SHSC','SHSI'};
 
 for r = 1:length(cfg_ana.rois)

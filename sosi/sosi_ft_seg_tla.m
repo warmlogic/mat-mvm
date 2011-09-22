@@ -386,7 +386,7 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'FS'},{'LPS'}};
+cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_plot.rois = {{'Cz'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;

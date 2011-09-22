@@ -324,6 +324,8 @@ cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_tla';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
+ga_tla = struct;
+
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sessions)
