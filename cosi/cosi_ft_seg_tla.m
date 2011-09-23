@@ -354,7 +354,7 @@ exper.badBehSub = {'COSI031','COSI002','COSI035','COSI007','COSI030'};
 % weird FN400 voltage patterns: 007, 030
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper] = mm_threshSubs(exper,ana,20);
 
 %% get the grand average
 

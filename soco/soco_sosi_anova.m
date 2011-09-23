@@ -117,7 +117,7 @@ volt.soco.RHSI.RPS = [1.2703  1.0392  1.7856  0.0202  3.7864  0.0714  7.0961  1.
 %exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 
 exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
-exper.badSub.soco = [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 1 1];
 
 %% Set up the rest of the ANOVA
 
@@ -164,5 +164,32 @@ calcGGHF = 0;
 % (experiment) and one within-subjects factor (Accuracy Condition)
 
 %% independent-samples t-test
-[h,p,ci,stats] = ttest2((volt.sosi.RHSC.LAS(~exper.badSub.sosi) - volt.sosi.RHSI.LAS(~exper.badSub.sosi)),(volt.soco.RHSC.LAS(~exper.badSub.soco) - volt.soco.RHSI.LAS(~exper.badSub.soco)),0.05,'both')
-[h,p,ci,stats] = ttest2((volt.sosi.RHSC.RAS(~exper.badSub.sosi) - volt.sosi.RHSI.RAS(~exper.badSub.sosi)),(volt.soco.RHSC.RAS(~exper.badSub.soco) - volt.soco.RHSI.RAS(~exper.badSub.soco)),0.05,'both')
+
+% test the experiment X accuracy condition voltage difference interaction at one ROI
+
+roi = 'LAS';
+[h,p,ci,stats] = ttest2((volt.sosi.RHSC.(roi)(~exper.badSub.sosi) - volt.sosi.RHSI.(roi)(~exper.badSub.sosi)),(volt.soco.RHSC.(roi)(~exper.badSub.soco) - volt.soco.RHSI.(roi)(~exper.badSub.soco)),0.05,'both');
+fprintf('%s: SOSI (RHSC-RHSI) (M=%.2f) vs SOCO (RHSC-RHSI) (M=%.2f): t(%d)=%.4f, p=%.10f\n',roi,mean(volt.sosi.RHSC.(roi)(~exper.badSub.sosi) - volt.sosi.RHSI.(roi)(~exper.badSub.sosi)),mean(volt.soco.RHSC.(roi)(~exper.badSub.soco) - volt.soco.RHSI.(roi)(~exper.badSub.soco)),stats.df,stats.tstat,p);
+
+roi = 'RAS';
+[h,p,ci,stats] = ttest2((volt.sosi.RHSC.(roi)(~exper.badSub.sosi) - volt.sosi.RHSI.(roi)(~exper.badSub.sosi)),(volt.soco.RHSC.(roi)(~exper.badSub.soco) - volt.soco.RHSI.(roi)(~exper.badSub.soco)),0.05,'both');
+fprintf('%s: SOSI (RHSC-RHSI) (M=%.2f) vs SOCO (RHSC-RHSI) (M=%.2f): t(%d)=%.4f, p=%.10f\n',roi,mean(volt.sosi.RHSC.(roi)(~exper.badSub.sosi) - volt.sosi.RHSI.(roi)(~exper.badSub.sosi)),mean(volt.soco.RHSC.(roi)(~exper.badSub.soco) - volt.soco.RHSI.(roi)(~exper.badSub.soco)),stats.df,stats.tstat,p);
+
+%% behavioral accuracy test
+
+soco_c2_f_wir = [0.5 0.7 0.5 0.5 0.7273 0.9975 0.5135 0.7143 0.5 0.0025 0.7 0.5806 0.561 0.6471 0.5 0.6667 0.6353 0.5 0.6 0.5 0.5217 0.6 0.5312 0.3571 0.5417 0.4091 0.25 0.5773 0.4894 0.5217];
+soco_c6_f_wir = [0.375 0.5833 0.3571 0.5769 0.6364 0.4286 0.6111 0.75 0.4615 0.3333 0.6562 0.5147 0.4091 0.5 0.3684 0.6957 0.5068 0.625 0.2105 0.0025 0.4545 0.4545 0.4828 0.4583 0.8 0.551 0.7143 0.5242 0.5581 0.525];
+% soco collapsed across colors
+soco_f_wir = mean([soco_c2_f_wir;soco_c6_f_wir],1);
+
+sosi_f_wir = [0.7727 0.5741 0.5714 0.6154 0.6301 0.58 0.4286 0.4444 0.6842 0.5 0.0013 0.5135 0.5224 0.541 0.5 0.5067 0.6364 0.6786 0.5154 0.4667 0.5795 0.5942 0.4074 0.7368 0.5312 0.4468 0.5977 0.6 0.625 0.0013];
+
+[h,p,ci,stats] = ttest(soco_f_wir(~exper.badSub.soco),0.5*ones(1,sum(~exper.badSub.soco)),0.05,'both');
+fprintf('SOCO F_WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(soco_f_wir(~exper.badSub.soco)),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(sosi_f_wir(~exper.badSub.sosi),0.5*ones(1,sum(~exper.badSub.sosi)),0.05,'both');
+fprintf('SOSI F_WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(sosi_f_wir(~exper.badSub.sosi)),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest2(sosi_f_wir(~exper.badSub.sosi),soco_f_wir(~exper.badSub.soco),0.05,'both');
+fprintf('F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(sosi_f_wir(~exper.badSub.sosi)),mean(soco_f_wir(~exper.badSub.soco)),stats.df,stats.tstat,p);
+
