@@ -333,9 +333,9 @@ exper.badBehSub = {};
 cfg_ft = [];
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
-%cfg_ft.zparam = 'cohspctrm';
-%cfg_ft.zparam = 'plvspctrm';
-cfg_ft.zparam = 'powspctrm';
+%cfg_ft.parameter = 'cohspctrm';
+%cfg_ft.parameter = 'plvspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 % I don't know if you're supposed to baseline correct coherence
 %cfg_ft.baseline = [-0.3 -0.1];
@@ -456,7 +456,7 @@ cfg_ft.ylim = 'maxmin'; % freq
 cfg_ft.zlim = [0 1]; % pow
 %cfg_ft.zlim = [0.3 0.7]; % pow
 
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 cfg_plot = [];
 cfg_plot.plotTitle = 1;

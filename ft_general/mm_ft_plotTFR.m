@@ -29,8 +29,8 @@ function mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
 % See also:
 %   MM_FT_CHECKCONDITIONS
 
-if ~isfield(cfg_ft,'zparam')
-  error('Must specify cfg_ft.zparam, denoting the data to plot (e.g., ''powspctrm'' or ''cohspctrm'')');
+if ~isfield(cfg_ft,'parameter')
+  error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''powspctrm'' or ''cohspctrm'')');
 end
 
 if ~isfield(cfg_plot,'plotTitle')
@@ -79,11 +79,11 @@ end
 %cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
 % temporary hack for plotting a single subject and 1 evVal, because the
-% data struct will have a field titled zparam and won't have the typical
+% data struct will have a field titled parameter and won't have the typical
 % data.evVal.sub.ses.data structure
-if ~isfield(data,cfg_ft.zparam)
+if ~isfield(data,cfg_ft.parameter)
   cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
-elseif isfield(data,cfg_ft.zparam) && length(cfg_plot.conditions{:}) > 1
+elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
   error('Cannot have more than one condition if data is only one evVal');
 end
 
@@ -203,9 +203,9 @@ for typ = 1:length(cfg_plot.conditions)
       for k = 1:length(cfg_plot.timeS)-1
         subplot(cfg_plot.numRows,cfg_plot.numCols,k);
         cfg_ft.xlim = [cfg_plot.timeS(k) cfg_plot.timeS(k+1)];
-        if isfield(data,cfg_ft.zparam)
+        if isfield(data,cfg_ft.parameter)
           % temporary hack for plotting a single subject and 1 evVal,
-          % because the data struct will have a field titled zparam and
+          % because the data struct will have a field titled parameter and
           % won't have the typical data.evVal.sub.ses.data structure
           feval(str2func(cfg_plot.ftFxn),cfg_ft,data);
         else

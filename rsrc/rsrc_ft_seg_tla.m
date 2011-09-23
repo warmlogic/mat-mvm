@@ -412,7 +412,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-.2 1.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -471,7 +471,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
@@ -514,7 +514,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1]; % time
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'yes';
@@ -862,6 +862,6 @@ set(gcf,'Name','HSI - CR')
 % cfg_ft.contournum = 0;
 % cfg_ft.emarker = '.';
 % cfg_ft.alpha  = 0.05;
-% cfg_ft.zparam = 'stat';
+% cfg_ft.parameter = 'stat';
 % cfg_ft.zlim = [-5 5];
 % ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);

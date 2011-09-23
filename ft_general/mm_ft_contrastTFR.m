@@ -29,8 +29,8 @@ function mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
 % See also:
 %   MM_FT_CHECKCONDITIONS
 
-if ~isfield(cfg_ft,'zparam')
-  error('Must specify cfg_ft.zparam, denoting the data to plot (e.g., ''avg'' or ''individual'')');
+if ~isfield(cfg_ft,'parameter')
+  error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''avg'' or ''individual'')');
 end
 
 if ~isfield(cfg_plot,'plotTitle')
@@ -190,15 +190,15 @@ for typ = 1:length(cfg_plot.conditions)
   
   % create contrast
   cont_plot.(vs_str) = data.(cfg_plot.conditions{typ}{1});
-  cont_plot.(vs_str).(cfg_ft.zparam) = data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam) - data.(cfg_plot.conditions{typ}{2}).(cfg_ft.zparam);
+  cont_plot.(vs_str).(cfg_ft.parameter) = data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter) - data.(cfg_plot.conditions{typ}{2}).(cfg_ft.parameter);
   
-  % zparam
+  % parameter
   if isfield(cfg_ft,'zlim')
     if strcmp(cfg_ft.zlim,'maxmin')
       usedMaxmin = 1;
       timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
       freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
-      cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2))];
+      cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
     else
       usedMaxmin = 0;
     end
@@ -206,7 +206,7 @@ for typ = 1:length(cfg_plot.conditions)
     usedMaxmin = 1;
     timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
     freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
-    cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.zparam)(:,freqsel,timesel),2))];
+    cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
   end
   
   % make a plot
@@ -232,7 +232,7 @@ for typ = 1:length(cfg_plot.conditions)
   if strcmp(cfg_ft.colorbar,'yes')
     cfg_plot.colorbar_str = '_cb';
     h = colorbar;
-    set(get(h,'YLabel'),'string',cfg_ft.zparam);
+    set(get(h,'YLabel'),'string',cfg_ft.parameter);
   else
     cfg_plot.colorbar_str = '';
   end

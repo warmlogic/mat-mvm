@@ -286,7 +286,7 @@ elseif strcmp(cfg_ft.baselinetype,'relative') % ratio (1 = no change)
 elseif strcmp(cfg_ft.baselinetype,'relchange') % (data - mean) / mean
   cfg_ft.zlim = [-1 1];
 end
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 %cfg_ft.ylim = [3 9];
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -419,7 +419,7 @@ cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
 cfg_ft.zlim = [-2 2];
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -444,7 +444,7 @@ cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [28 40]; % freq
 cfg_ft.zlim = [-2 2]; % pow
 
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 cfg_plot = [];
 cfg_plot.plotTitle = 1;
@@ -500,7 +500,7 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 cfg_ft.zlim = [-1 1]; % pow
 
 cfg_ft.interactive = 'yes';
@@ -848,6 +848,6 @@ set(gcf,'Name','HSI - CR')
 % cfg_ft.contournum = 0;
 % cfg_ft.emarker = '.';
 % cfg_ft.alpha  = 0.05;
-% cfg_ft.zparam = 'stat';
+% cfg_ft.parameter = 'stat';
 % cfg_ft.zlim = [-5 5];
 % ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);

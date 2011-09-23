@@ -361,7 +361,7 @@ if strcmp(cfg_ft.baselinetype,'absolute')
 elseif strcmp(cfg_ft.baselinetype,'relative')
   cfg_ft.zlim = [0 2.0];
 end
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 %cfg_ft.ylim = [3 9];
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -600,7 +600,7 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.zlim = [-150 150]; % pow
 
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 cfg_plot = [];
 cfg_plot.plotTitle = 1;
@@ -668,7 +668,7 @@ cfg_ft = [];
 cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 cfg_ft.zlim = [-100 100]; % pow
 
 cfg_ft.interactive = 'yes';

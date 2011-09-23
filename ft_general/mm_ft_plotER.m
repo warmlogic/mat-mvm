@@ -30,8 +30,8 @@ function mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
 % See also:
 %   MM_FT_CHECKCONDITIONS, MM_FT_PLOTERP
 
-if ~isfield(cfg_ft,'zparam')
-  error('Must define cfg_ft.zparam (e.g., ''avg'')');
+if ~isfield(cfg_ft,'parameter')
+  error('Must define cfg_ft.parameter (e.g., ''avg'')');
 end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotER','');
@@ -104,11 +104,11 @@ end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
 % temporary hack for plotting a single subject and 1 evVal, because the
-% data struct will have a field titled zparam and won't have the typical
+% data struct will have a field titled parameter and won't have the typical
 % data.evVal.sub.ses.data structure
-if ~isfield(data,cfg_ft.zparam)
+if ~isfield(data,cfg_ft.parameter)
   cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
-elseif isfield(data,cfg_ft.zparam) && length(cfg_plot.conditions{:}) > 1
+elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
   error('Cannot have more than one condition if data is only one evVal');
 end
 
@@ -230,9 +230,9 @@ for typ = 1:length(cfg_plot.conditions)
         for k = 1:length(cfg_plot.timeS)-1
           subplot(cfg_plot.numRows,cfg_plot.numCols,k);
           cfg_ft.xlim = [cfg_plot.timeS(k) cfg_plot.timeS(k+1)];
-          if isfield(data,cfg_ft.zparam)
+          if isfield(data,cfg_ft.parameter)
             % temporary hack for plotting a single subject and 1 evVal,
-            % because the data struct will have a field titled zparam and
+            % because the data struct will have a field titled parameter and
             % won't have the typical data.evVal.sub.ses.data structure
             feval(str2func(cfg_plot.ftFxn),cfg_ft,data);
           else
@@ -299,8 +299,8 @@ for typ = 1:length(cfg_plot.conditions)
       
       if ischar(cfg_ft.ylim) && strcmp(cfg_ft.ylim,'maxmin')
         timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
-        voltmin = min(min(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
-        voltmax = max(max(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.zparam)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
+        voltmin = min(min(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
+        voltmax = max(max(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
       else
         voltmin = cfg_ft.ylim(1);
         voltmax = cfg_ft.ylim(2);

@@ -285,7 +285,7 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 % Subjects with bad behavior
 %exper.badBehSub = {};
 %exper.badBehSub = {'SOSI011','SOSI030'};
-exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % ,'SOSI003','SOSI024'
+exper.badBehSub = {'SOSI011','SOSI030','SOSI007'};
 
 % 007 had poor accuracy (and 003, 005, 024?)
 
@@ -392,7 +392,7 @@ cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
-cfg_plot.zparam = 'avg';
+cfg_plot.parameter = 'avg';
 
 % cfg_plot.rois = {{'E83'}};
 % cfg_plot.xlim = [-0.2 1.0];
@@ -420,7 +420,7 @@ end
 % 
 % cfg_ft = [];
 % cfg_ft.xlim = [-0.2 1.5];
-% cfg_ft.zparam = 'avg';
+% cfg_ft.parameter = 'avg';
 % 
 % cfg_plot = [];
 % 
@@ -474,9 +474,10 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
 %cfg_ft.xlim = [-0.2 1.0]; % time
-cfg_ft.xlim = [-0.2 2.0]; % time
+%cfg_ft.xlim = [-0.2 2.0]; % time
+cfg_ft.xlim = [-0.2 1.5]; % time
 
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.plotTitle = 0;
@@ -549,7 +550,7 @@ cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
 %cfg_ft.xlim = [-0.2 1.5]; % time
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';
@@ -912,6 +913,6 @@ set(gcf,'Name','HSI - CR')
 % cfg_ft.contournum = 0;
 % cfg_ft.emarker = '.';
 % cfg_ft.alpha  = 0.05;
-% cfg_ft.zparam = 'stat';
+% cfg_ft.parameter = 'stat';
 % cfg_ft.zlim = [-5 5];
 % ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);

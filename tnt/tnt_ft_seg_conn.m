@@ -380,9 +380,9 @@ exper.badBehSub = {};
 cfg_ft = [];
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
-%cfg_ft.zparam = 'cohspctrm';
-%cfg_ft.zparam = 'plvspctrm';
-cfg_ft.zparam = 'powspctrm';
+%cfg_ft.parameter = 'cohspctrm';
+%cfg_ft.parameter = 'plvspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 % I don't know if you're supposed to baseline correct coherence
 %cfg_ft.baseline = [-0.3 -0.1];
@@ -412,7 +412,7 @@ end
 % % one channel, freq x coherence (MTMFFT, no time dimension)
 % cfg_ft = [];
 % cfg_ft.xparam = 'freq';
-% cfg_ft.zparam = 'cohspctrm';
+% cfg_ft.parameter = 'cohspctrm';
 % %cfg_ft.xlim = [3 50];
 % cfg_ft.refchannel = 'E11';
 % cfg_ft.channel = 'E62';
@@ -422,9 +422,9 @@ end
 cfg_ft = [];
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
-%cfg_ft.zparam = 'cohspctrm';
-%cfg_ft.zparam = 'plvspctrm';
-cfg_ft.zparam = 'powspctrm';
+%cfg_ft.parameter = 'cohspctrm';
+%cfg_ft.parameter = 'plvspctrm';
+cfg_ft.parameter = 'powspctrm';
 cfg_ft.refchannel = {'E6'};
 cfg_ft.channel = 'all';
 cfg_ft.xlim = [0.5 0.8]; % time
@@ -444,8 +444,8 @@ end
 cfg_ft = [];
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
-%cfg_ft.zparam = 'cohspctrm';
-cfg_ft.zparam = 'plvspctrm';
+%cfg_ft.parameter = 'cohspctrm';
+cfg_ft.parameter = 'plvspctrm';
 cfg_ft.refchannel = {'E3'};
 cfg_ft.channel = 'all';
 cfg_ft.xlim = [0.5 0.8]; % time
@@ -475,9 +475,9 @@ end
 cfg_ft = [];
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
-cfg_ft.zparam = 'cohspctrm';
-%cfg_ft.zparam = 'plvspctrm';
-%cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'cohspctrm';
+%cfg_ft.parameter = 'plvspctrm';
+%cfg_ft.parameter = 'powspctrm';
 cfg_ft.refchannel = 'E6';
 
 cfg_ft.interactive = 'yes';
@@ -605,7 +605,7 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.zlim = [-0 1]; % pow
 
-cfg_ft.zparam = 'powspctrm';
+cfg_ft.parameter = 'powspctrm';
 
 cfg_plot = [];
 cfg_plot.plotTitle = 1;
@@ -661,7 +661,7 @@ end
 % 
 % cfg_ft = [];
 % cfg_ft.xlim = [-0.2 1.0];
-% cfg_ft.zparam = 'powspctrm';
+% cfg_ft.parameter = 'powspctrm';
 % 
 % cfg_plot = [];
 % 

@@ -317,14 +317,14 @@ cfg_ana.anovamat = [];
 cfg_plot = [];
 cfg_plot.xparam = 'time';
 cfg_plot.yparam = 'freq';
-%cfg_plot.zparam = 'powspctrm';
-%cfg_plot.zparam = 'crsspctrm';
+%cfg_plot.parameter = 'powspctrm';
+%cfg_plot.parameter = 'crsspctrm';
 cfg_plot.channel = 'e53';
 cfg_plot.cohrefchannel = 'e1';
 cfg_plot.showlabels       = 'yes';
 cfg_plot.colorbar         = 'yes';
 figure
-cfg_plot.zparam = 'cohspctrm';
+cfg_plot.parameter = 'cohspctrm';
 ft_singleplotTFR(cfg_plot,data_coh.RCR.sub(1).ses(1).data);
 
 cfg_plot.layout = ft_prepare_layout([],data_freq);
@@ -332,7 +332,7 @@ figure
 ft_multiplotTFR(cfg_plot,data_coh.RCR.sub(1).ses(1).data);
 
 figure
-cfg_plot.zparam = 'plvspctrm';
+cfg_plot.parameter = 'plvspctrm';
 ft_singleplotTFR(cfg_plot,data_plv.RCR.sub(1).ses(1).data);
 
 %ft_singleplotTFR(cfg_plot,data_freq.RCR.sub(1).ses(1).data);
@@ -342,7 +342,7 @@ cfg_plot = [];
 cfg_plot.xparam = 'freq';
 cfg_plot.xlim = [4 8];
 
-cfg_plot.zparam = 'cohspctrm';
+cfg_plot.parameter = 'cohspctrm';
 %cfg_plot.xlim = [4 8];
 %cfg_plot.ylim = [0 1];
 cfg_plot.cohrefchannel = 'e1';
@@ -1646,7 +1646,7 @@ cfg_ft.elec = ga_freq.elec;
 cfg_ft.contournum = 0;
 cfg_ft.emarker = '.';
 cfg_ft.alpha  = 0.05;
-cfg_ft.zparam = 'stat';
+cfg_ft.parameter = 'stat';
 cfg_ft.zlim = [-5 5];
 ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSI);
 ft_clusterplot(cfg_ft,stat_clus.RHSCvsRCR);
@@ -1792,6 +1792,6 @@ set(gcf,'Name','HSI - CR')
 % cfg_ft.contournum = 0;
 % cfg_ft.emarker = '.';
 % cfg_ft.alpha  = 0.05;
-% cfg_ft.zparam = 'stat';
+% cfg_ft.parameter = 'stat';
 % cfg_ft.zlim = [-5 5];
 % ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);

@@ -471,7 +471,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-.2 1.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -511,7 +511,7 @@ cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-.2 1.0];
 cfg_plot.ylim = [-10 10];
-cfg_plot.zparam = 'avg';
+cfg_plot.parameter = 'avg';
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -536,7 +536,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 2.0];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
@@ -582,7 +582,7 @@ cfg_plot.plotTitle = 1;
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1]; % time
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'yes';

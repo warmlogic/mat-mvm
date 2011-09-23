@@ -2,8 +2,8 @@ function mm_ft_contrasttopoER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla)
 %MM_FT_CONTRASTTOPOER plot (and save) contast topoplots of ERP data
 %   
 
-if ~isfield(cfg_ft,'zparam')
-  error('Must specify cfg_ft.zparam, denoting the data to plot (e.g., ''avg'' or ''individual'')');
+if ~isfield(cfg_ft,'parameter')
+  error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''avg'' or ''individual'')');
 end
 
 if cfg_plot.plotColorbar
@@ -61,7 +61,7 @@ for typ = 1:length(ana.events.values)
     
     % create contrast
     cont_topo.(vs_str) = ga_tla.(cfg_plot.cond{c,1});
-    cont_topo.(vs_str).(cfg_ft.zparam) = ga_tla.(cfg_plot.cond{c,1}).(cfg_ft.zparam) - ga_tla.(cfg_plot.cond{c,2}).(cfg_ft.zparam);
+    cont_topo.(vs_str).(cfg_ft.parameter) = ga_tla.(cfg_plot.cond{c,1}).(cfg_ft.parameter) - ga_tla.(cfg_plot.cond{c,2}).(cfg_ft.parameter);
     
     % make a plot
     figure

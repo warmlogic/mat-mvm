@@ -2634,7 +2634,7 @@ cfg.layout = ft_prepare_layout(cfg,ga_KNOW);
 cfg.contournum = 0;
 cfg.emarker = '.';
 cfg.alpha  = 0.05;
-cfg.zparam = 'stat';
+cfg.parameter = 'stat';
 cfg.zlim = [-5 5];
 %cfg.interplimits = 'electrodes';
 ft_clusterplot(cfg,stat_clus_RSvsKNOW); % none?
@@ -2731,6 +2731,6 @@ cfg.layout = ft_prepare_layout(cfg,ga_HSC);
 cfg.contournum = 0;
 cfg.emarker = '.';
 cfg.alpha  = 0.05;
-cfg.zparam = 'stat';
+cfg.parameter = 'stat';
 cfg.zlim = [-5 5];
 ft_clusterplot(cfg,stat_HSCvsHSIvsCR);

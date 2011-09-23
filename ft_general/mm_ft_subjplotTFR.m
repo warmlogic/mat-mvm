@@ -9,8 +9,8 @@ ses = 1;
 vertTextLoc = 0.18;
 
 % make sure some fields are set
-if ~isfield(cfg_ft,'zparam')
-  error('Must define cfg_ft.zparam for ft_singleplotTFR');
+if ~isfield(cfg_ft,'parameter')
+  error('Must define cfg_ft.parameter for ft_singleplotTFR');
 end
 if ~isfield(cfg_plot,'excludeBadSub')
   cfg_plot.excludeBadSub = 0;
@@ -77,7 +77,7 @@ for typ = 1:length(cfg_plot.conditions)
       else
         subplot(cfg_plot.numRows,cfg_plot.numCols,count);
         
-        if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_ft.zparam)
+        if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_ft.parameter)
           ft_singleplotTFR(cfg_ft,data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data);
         end
         

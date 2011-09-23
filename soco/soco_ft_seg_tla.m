@@ -389,7 +389,7 @@ cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
-cfg_plot.zparam = 'avg';
+cfg_plot.parameter = 'avg';
 
 % cfg_plot.rois = {{'E83'}};
 % cfg_plot.xlim = [-0.2 1.0];
@@ -421,7 +421,7 @@ end
 % 
 % cfg_ft = [];
 % cfg_ft.xlim = [-0.2 1.5];
-% cfg_ft.zparam = 'avg';
+% cfg_ft.parameter = 'avg';
 % 
 % cfg_plot = [];
 % 
@@ -480,7 +480,7 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.xlim = [-0.2 1.5]; % time
 cfg_ft.xlim = [-0.2 2.0]; % time
 
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.plotTitle = 0;
@@ -569,7 +569,7 @@ cfg_plot = [];
 cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
-cfg_ft.zparam = 'avg';
+cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';

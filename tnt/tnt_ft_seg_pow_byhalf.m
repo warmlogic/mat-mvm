@@ -948,6 +948,6 @@ end
 % % cfg_ft.contournum = 0;
 % % cfg_ft.emarker = '.';
 % % cfg_ft.alpha  = 0.05;
-% % cfg_ft.zparam = 'stat';
+% % cfg_ft.parameter = 'stat';
 % % cfg_ft.zlim = [-5 5];
 % % ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);

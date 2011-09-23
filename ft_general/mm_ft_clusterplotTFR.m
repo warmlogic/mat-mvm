@@ -44,7 +44,7 @@ cfg_ft.contournum = 0;
 cfg_ft.emarker = '.';
 cfg_ft.xparam = 'time';
 cfg_ft.yparam = 'freq';
-cfg_ft.zparam = 'stat';
+cfg_ft.parameter = 'stat';
 if ~isfield(cfg_ft,'alpha')
   cfg_ft.alpha  = 0.05;
 end
