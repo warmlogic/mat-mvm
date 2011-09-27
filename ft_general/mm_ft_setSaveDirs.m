@@ -11,8 +11,11 @@ function [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg,dirs,files,prefix)
 %                    connectivity analysis.
 %
 % files.saveFigs   = 1 (default) or 0
-% files.figFileExt = 'png' (default), 'eps', 'pdf', 'jpg'
+% files.figPrintFormat = 'png' (default), or e.g. 'epsc2', 'pdf', 'jpeg90'
+%                        (uses the SAVEAS function for printing, so do not
+%                        include '-d')
 %
+% See also: PRINT, SAVEAS
 
 if nargin < 6
   prefix = [];
@@ -159,19 +162,10 @@ if ~isfield(files,'saveFigs')
   files.saveFigs = 1;
 end
 
-% set the default type to png
-if ~isfield(files,'figFileExt')
-  files.figFileExt = 'png';
-end
-
-if strcmp(files.figFileExt,'eps')
-  files.figPrintFormat = '-depsc2';
-elseif strcmp(files.figFileExt,'pdf')
-  files.figPrintFormat = '-dpdf';
-elseif strcmp(files.figFileExt,'png')
-  files.figPrintFormat = '-dpng';
-elseif strcmp(files.figFileExt,'jpg')
-  files.figPrintFormat = '-djpg90';
+% set the default figure file format to png (using the saveas function)
+if ~isfield(files,'figPrintFormat')
+  files.figPrintFormat = 'png';
+  %files.figPrintFormat = 'epsc2';
 end
 
 end

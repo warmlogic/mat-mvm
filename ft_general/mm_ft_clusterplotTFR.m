@@ -131,14 +131,17 @@ for cnd = 1:length(cfg_plot.conditions)
         for f = 1:length(fignums)
           figure(f)
           
-          cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d.%s',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f,files.figFileExt);
+          cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
           
           dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000),vs_str);
           %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tfr_stat_clus',vs_str);
           if ~exist(dirs.saveDirFigsClus,'dir')
             mkdir(dirs.saveDirFigsClus)
           end
-          print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename));
+          if strcmp(files.figPrintFormat(1:2),'-d')
+            files.figPrintFormat = files.figPrintFormat(3:end);
+          end
+          saveas(gcf,fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename),files.figPrintFormat);
         end
         close all
       else

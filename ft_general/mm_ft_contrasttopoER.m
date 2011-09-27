@@ -79,15 +79,18 @@ for typ = 1:length(ana.events.values)
     
     if files.saveFigs
       if ~isempty(ana.events.types{typ})
-        cfg_plot.figfilename = sprintf('tla_topo_ga_%s_%s_%s%d_%d%s.%s',ana.events.types{typ},vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_topo_ga_%s_%s_%s%d_%d%s',ana.events.types{typ},vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str);
       else
-        cfg_plot.figfilename = sprintf('tla_topo_ga_%s_%s%d_%d%s.%s',vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_topo_ga_%s_%s%d_%d%s',vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str);
       end
       dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,'tla_topo');
       if ~exist(dirs.saveDirFigsTopo,'dir')
         mkdir(dirs.saveDirFigsTopo)
       end
-      print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename));
+      if strcmp(files.figPrintFormat(1:2),'-d')
+        files.figPrintFormat = files.figPrintFormat(3:end);
+      end
+      saveas(gcf,fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename),files.figPrintFormat);
     end
   end
 end

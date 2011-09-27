@@ -329,12 +329,15 @@ if cfg_plot.line_plots == 1
   axis square
   publishfig(gcf,0);
   if files.saveFigs
-    cfg_plot.figfilename = sprintf('tla_line_ga_%s%s%d_%d.%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,files.figFileExt);
+    cfg_plot.figfilename = sprintf('tla_line_ga_%s%s%d_%d',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000);
     dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tla_line');
     if ~exist(dirs.saveDirFigsLine,'dir')
       mkdir(dirs.saveDirFigsLine)
     end
-    print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename));
+    if strcmp(files.figPrintFormat(1:2),'-d')
+      files.figPrintFormat = files.figPrintFormat(3:end);
+    end
+    saveas(gcf,fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename),files.figPrintFormat);
   end
 end % cfg_plot.line_plots
 

@@ -117,8 +117,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figFileExt = 'png';
-%files.figFileExt = 'eps';
+files.figPrintFormat = 'png';
+%files.figPrintFormat = 'epsc2';
 
 %% Convert the data to FieldTrip structs
 

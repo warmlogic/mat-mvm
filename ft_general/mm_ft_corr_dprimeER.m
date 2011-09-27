@@ -134,15 +134,18 @@ for typ = 1:length(cfg_ana.conditions)
     fprintf('%s, %s d'', %s - %s:\tPearson''s r=%.4f (r^2=%.4f), p=%.4f, m=%.3f, b=%.3f\n',sprintf(repmat('%s ',1,length(cfg_ana.roi)),cfg_ana.roi{:}),cfg_ana.dpTypes{dp},cfg_ana.conditions{typ}{dp}{1},cfg_ana.conditions{typ}{dp}{2},rho(2,1),rho(2,1)^2,p(2,1),m,b);
     if files.saveFigs
       if ~isempty(cfg_ana.types{typ})
-        cfg_plot.figfilename = sprintf('tla_corr_ga_%s_%s_%s%s%d_%d.%s',cfg_ana.types{typ},cfg_ana.dpTypes{dp},sprintf(repmat('%s_',1,length(cfg_ana.conditions{typ}{dp})),cfg_ana.conditions{typ}{dp}{:}),sprintf(repmat('%s_',1,length(cfg_ana.roi)),cfg_ana.roi{:}),cfg_ana.latency(1)*1000,cfg_ana.latency(2)*1000,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_corr_ga_%s_%s_%s%s%d_%d',cfg_ana.types{typ},cfg_ana.dpTypes{dp},sprintf(repmat('%s_',1,length(cfg_ana.conditions{typ}{dp})),cfg_ana.conditions{typ}{dp}{:}),sprintf(repmat('%s_',1,length(cfg_ana.roi)),cfg_ana.roi{:}),cfg_ana.latency(1)*1000,cfg_ana.latency(2)*1000);
       else
-        cfg_plot.figfilename = sprintf('tla_corr_ga_%s_%s%s%d_%d.%s',cfg_ana.dpTypes{dp},sprintf(repmat('%s_',1,length(cfg_ana.conditions{typ}{dp})),cfg_ana.conditions{typ}{dp}{:}),sprintf(repmat('%s_',1,length(cfg_ana.roi)),cfg_ana.roi{:}),cfg_ana.latency(1)*1000,cfg_ana.latency(2)*1000,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_corr_ga_%s_%s%s%d_%d',cfg_ana.dpTypes{dp},sprintf(repmat('%s_',1,length(cfg_ana.conditions{typ}{dp})),cfg_ana.conditions{typ}{dp}{:}),sprintf(repmat('%s_',1,length(cfg_ana.roi)),cfg_ana.roi{:}),cfg_ana.latency(1)*1000,cfg_ana.latency(2)*1000);
       end
       dirs.saveDirFigsCorr = fullfile(dirs.saveDirFigs,'tla_corr');
       if ~exist(dirs.saveDirFigsCorr,'dir')
         mkdir(dirs.saveDirFigsCorr)
       end
-      print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,dirs.saveDirFigsCorr,cfg_plot.figfilename));
+      if strcmp(files.figPrintFormat(1:2),'-d')
+        files.figPrintFormat = files.figPrintFormat(3:end);
+      end
+      saveas(gcf,fullfile(dirs.saveDirFigs,dirs.saveDirFigsCorr,cfg_plot.figfilename),files.figPrintFormat);
     end
   end % dp
 end % typ

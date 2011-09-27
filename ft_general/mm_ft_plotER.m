@@ -270,15 +270,18 @@ for typ = 1:length(cfg_plot.conditions)
       
       if files.saveFigs
         if ~isempty(cfg_plot.types{typ})
-          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s_%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s_%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
         else
-          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
         end
         dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
         if ~exist(dirs.saveDirFigsER,'dir')
           mkdir(dirs.saveDirFigsER)
         end
-        print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
+        if strcmp(files.figPrintFormat(1:2),'-d')
+          files.figPrintFormat = files.figPrintFormat(3:end);
+        end
+        saveas(gcf,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename),files.figPrintFormat);
       end
     end % for evVal
     
@@ -365,15 +368,18 @@ for typ = 1:length(cfg_plot.conditions)
     
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
-        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s.%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
       else
-        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s.%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,files.figFileExt);
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
       end
       dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
       if ~exist(dirs.saveDirFigsER,'dir')
         mkdir(dirs.saveDirFigsER)
       end
-      print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
+      if strcmp(files.figPrintFormat(1:2),'-d')
+        files.figPrintFormat = files.figPrintFormat(3:end);
+      end
+      saveas(gcf,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename),files.figPrintFormat);
     end
   end % topo/single/multi
 end
