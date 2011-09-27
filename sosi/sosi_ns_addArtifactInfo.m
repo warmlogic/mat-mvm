@@ -80,34 +80,34 @@ for sub = 1:length(exper.subjects)
   end
 end
 
-%% reject some other events for behavioral reasons (e.g., RT)
-% see eeg_toolbox's filterStruct.m for more info
-
-badFilters = [];
-badFilters.eventValues = exper.eventValues;
-badFilters.expr = 'src_rt > 4000 | rkn_rt > 4000';
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
-    ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,129,'nsCategory');
-  end
-end
-
-%% re-add NS's artifact information to the event structure
-
-evFilters = [];
-evFilters.eventValues = exper.eventValues;
-% RCR
-evFilters.RCR.type = 'TEST_LURE';
-evFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% RHSC
-evFilters.RHSC.type = 'TEST_TARGET';
-evFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% RHSI
-evFilters.RHSI.type = 'TEST_TARGET';
-evFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
-    ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,129,1);
-  end
-end
+% %% reject some other events for behavioral reasons (e.g., RT)
+% % see eeg_toolbox's filterStruct.m for more info
+% 
+% badFilters = [];
+% badFilters.eventValues = exper.eventValues;
+% badFilters.expr = 'src_rt > 4000 | rkn_rt > 4000';
+% for sub = 1:length(exper.subjects)
+%   for ses = 1:length(exper.sessions)
+%     ns_rejectEventsBCI(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},badFilters,129,'nsCategory');
+%   end
+% end
+% 
+% %% re-add NS's artifact information to the event structure
+% 
+% evFilters = [];
+% evFilters.eventValues = exper.eventValues;
+% % RCR
+% evFilters.RCR.type = 'TEST_LURE';
+% evFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
+% % RHSC
+% evFilters.RHSC.type = 'TEST_TARGET';
+% evFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
+% % RHSI
+% evFilters.RHSI.type = 'TEST_TARGET';
+% evFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
+% 
+% for sub = 1:length(exper.subjects)
+%   for ses = 1:length(exper.sessions)
+%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},evFilters,129,1);
+%   end
+% end
