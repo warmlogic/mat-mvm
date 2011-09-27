@@ -1,12 +1,14 @@
-function mm_plot_colorbar(minmax,label,filename,orient,cmap,figPrintFormat)
+function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat)
 %MM_PLOT_COLORBAR - Plot a colorbar and print it to file
+%
+% mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat)
 %
 % Input:
 %  minmax = [-1.5 1.5];
-%  label = 'Voltage (\muV)';
 %  orient = 'vert'; % or 'horiz'
+%  label = 'Voltage (\muV)';
+%  filename = '~/Desktop/colorbar'; % no extension necessary
 %  cmap = 'jet'; % or 'hot'
-%  filename = '~/Desktop/colormap'; % no extension necessary
 %  figPrintFormat = 'epsc2'; % see PRINT
 %
 % This function will automatically add the minmax to the filename, to one
@@ -52,7 +54,13 @@ if nargin < 6
   if nargin < 5
     cmap = 'jet';
     if nargin < 4
-      orient = 'vert';
+      filename = 'colorbar';
+      if nargin < 3
+        label = 'Voltage (\muV)';
+        if nargin < 2
+          orient = 'vert';
+        end
+      end
     end
   end
 end
@@ -81,7 +89,7 @@ axis off
 minmax_str{1} = strrep(sprintf('%.1f',minmax(1)),'.','p');
 minmax_str{2} = strrep(sprintf('%.1f',minmax(2)),'.','p');
 [pathstr,name,ext] = fileparts(filename);
-filename = fullfile(pathstr,sprintf('%s_%s_%s',name,minmax_str{1},minmax_str{2}));
+filename = fullfile(pathstr,sprintf('%s_%s_%s_%s',name,orient,minmax_str{1},minmax_str{2}));
 % put the extension back if there was one
 if ~isempty(ext)
   filename = sprintf('%s%s',filename,ext);
