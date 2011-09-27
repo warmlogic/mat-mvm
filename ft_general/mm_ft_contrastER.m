@@ -245,10 +245,16 @@ for typ = 1:length(cfg_plot.conditions)
   end
   
   if files.saveFigs
+    % make a string indicating the z-limits; change the decimal to a p for
+    % "point" because saveas, print, and LaTeX won't find the right
+    % extension when there's a period in the file name (or at least this
+    % makes things easier)
+    cfg_plot.zlim_str{1} = strrep(sprintf('%.1f',cfg_ft.zlim(1)),'.','p');
+    cfg_plot.zlim_str{2} = strrep(sprintf('%.1f',cfg_ft.zlim(2)),'.','p');
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tla_%scont_ga_%s_%s_%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+      cfg_plot.figfilename = sprintf('tla_%scont_ga_%s_%s_%s%d_%d_%s_%s%s%s%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
     else
-      cfg_plot.figfilename = sprintf('tla_%scont_ga_%s_%s%d_%d%s%s%s',cfg_plot.type,vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+      cfg_plot.figfilename = sprintf('tla_%scont_ga_%s_%s%d_%d_%s_%s%s%s%s',cfg_plot.type,vs_str,cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
     end
     
     dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type,'cont']);

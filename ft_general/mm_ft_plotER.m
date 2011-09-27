@@ -103,6 +103,13 @@ if ~isfield(cfg_plot,'condMethod')
 end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
+if cfg_plot.plotLegend == 1
+  % for the legend labels in line plots
+  if ~isfield(cfg_plot,'rename_conditions')
+    cfg_plot.rename_conditions = cfg_plot.conditions;
+  end
+end
+
 % temporary hack for plotting a single subject and 1 evVal, because the
 % data struct will have a field titled parameter and won't have the typical
 % data.evVal.sub.ses.data structure
@@ -313,7 +320,7 @@ for typ = 1:length(cfg_plot.conditions)
       plot([0 0],[voltmin voltmax],'k--'); % vertical
       
       if cfg_plot.plotLegend
-        legend(strrep(cfg_plot.conditions{typ},'_',''),'Location',cfg_plot.legendloc);
+        legend(strrep(cfg_plot.rename_conditions{typ},'_',''),'Location',cfg_plot.legendloc);
       end
       
       % can't save EPS files with alpha so plot the bounds lines instead

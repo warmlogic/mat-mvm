@@ -117,8 +117,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figPrintFormat = 'png';
-%files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'png';
+files.figPrintFormat = 'epsc2';
 
 %% Convert the data to FieldTrip structs
 
@@ -179,6 +179,8 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+
+files.figPrintFormat = 'epsc2';
 
 %% set up channel groups
 
@@ -525,12 +527,14 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWes
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-%cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{'RHSC','RHSI','RCR'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'H-SC','H-SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.rename_conditions = cfg_plot.rename_condByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   
   if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
@@ -553,7 +557,7 @@ cfg_ft = [];
 cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
-cfg_ft.colorbar = 'yes';
+cfg_ft.colorbar = 'no';
 
 % comparisons to make
 %cfg_plot.conditions = {'all'};
@@ -641,7 +645,8 @@ cfg_plot.line_plots = 1;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
-cfg_plot.plot_order = {'RCR','RHSC','RHSI'};
+cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
+cfg_plot.rename_conditions = {'H-SC','H-SI','CR'};
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};

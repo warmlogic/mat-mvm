@@ -131,6 +131,18 @@ cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMe
 % collect all conditions into one cell
 allConds = unique(cat(2,cfg_ana.conditions{:}));
 
+% some settings for plotting
+if cfg_plot.line_plots == 1
+  if ~isfield(cfg_plot,'plot_order')
+    cfg_plot.plot_order = allConds;
+  end
+  % for the x-tick labels in the line plots
+  if ~isfield(cfg_plot,'rename_conditions')
+    cfg_plot.rename_conditions = cfg_plot.plot_order;
+  end
+end
+
+
 % get times, data, SEM
 for evVal = 1:length(allConds)
   ev = allConds{evVal};
@@ -341,10 +353,6 @@ if cfg_plot.line_plots == 1
   cfg_plot.errBarEndMarkerInd = [4 5 7 8];
   cfg_plot.removeErrBarEnds = 1;
   
-  if ~isfield(cfg_plot,'plot_order')
-    cfg_plot.plot_order = allConds;
-  end
-  
   figure
   % plot the lines
   eval(sprintf('plot([%s],cfg_plot.linespec,''LineWidth'',cfg_plot.linewidth);',sprintf(repmat('mean(cfg_ana.values.%s,1) ',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:})));
@@ -371,7 +379,7 @@ if cfg_plot.line_plots == 1
   set(gcf,'Name',sprintf('%s, %.1fs--%.1f s, %.1f--%.1f Hz',strrep(cfg_plot.chan_str,'_',' '),cfg_ft.latency(1),cfg_ft.latency(2),cfg_ft.frequency(1),cfg_ft.frequency(2)))
   
   % make it look good
-  axis([.5 (length(cfg_plot.plot_order) + .5) cfg_plot.ylim(1) cfg_plot.ylim(2)])
+  axis([.5 (length(cfg_plot.rename_conditions) + .5) cfg_plot.ylim(1) cfg_plot.ylim(2)])
   xlabel('Condition');
   if strcmp(cfg_ft.parameter,'powspctrm')
     ylabel('Power');
@@ -382,13 +390,13 @@ if cfg_plot.line_plots == 1
   else
     ylabel(cfg_ft.parameter);
   end
-  set(gca,'XTick',(1:length(cfg_plot.plot_order)))
-  set(gca,'XTickLabel',strrep(cfg_plot.plot_order,'_',''))
+  set(gca,'XTick',(1:length(cfg_plot.rename_conditions)))
+  set(gca,'XTickLabel',strrep(cfg_plot.rename_conditions,'_',''))
   set(gca,'YTick',(cfg_plot.ylim(1):.5:cfg_plot.ylim(2)))
   axis square
   publishfig(gcf,0);
   if files.saveFigs
-    cfg_plot.figfilename = sprintf('tfr_line_ga_%s%s%d_%d_%d_%d',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),cfg_plot.chan_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000);
+    cfg_plot.figfilename = sprintf('tfr_line_ga_%s%s%d_%d_%d_%d',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000);
     dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_line');
     if ~exist(dirs.saveDirFigsLine,'dir')
       mkdir(dirs.saveDirFigsLine)
