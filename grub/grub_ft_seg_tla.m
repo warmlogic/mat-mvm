@@ -130,7 +130,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 0;
-files.figFileExt = 'png';
+files.figPrintFormat = 'png';
+%files.figPrintFormat = 'epsc2';
 if strcmp(files.figFileExt,'eps')
   files.figPrintFormat = '-depsc2';
 elseif strcmp(files.figFileExt,'pdf')
