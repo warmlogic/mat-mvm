@@ -151,10 +151,14 @@ for typ = 1:length(cfg_plot.conditions)
     if ~exist(dirs.saveDirFigsERP,'dir')
       mkdir(dirs.saveDirFigsERP)
     end
+    
     if strcmp(files.figPrintFormat(1:2),'-d')
       files.figPrintFormat = files.figPrintFormat(3:end);
     end
-    saveas(gcf,fullfile(dirs.saveDirFigsERP,cfg_plot.figfilename),files.figPrintFormat);
+    if ~isfield(files,'figPrintRes')
+      files.figPrintRes = 150;
+    end
+    print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsERP,cfg_plot.figfilename));
   end
 end
 

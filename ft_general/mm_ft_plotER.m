@@ -285,10 +285,14 @@ for typ = 1:length(cfg_plot.conditions)
         if ~exist(dirs.saveDirFigsER,'dir')
           mkdir(dirs.saveDirFigsER)
         end
+        
         if strcmp(files.figPrintFormat(1:2),'-d')
           files.figPrintFormat = files.figPrintFormat(3:end);
         end
-        saveas(gcf,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename),files.figPrintFormat);
+        if ~isfield(files,'figPrintRes')
+          files.figPrintRes = 150;
+        end
+        print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
       end
     end % for evVal
     
@@ -383,10 +387,14 @@ for typ = 1:length(cfg_plot.conditions)
       if ~exist(dirs.saveDirFigsER,'dir')
         mkdir(dirs.saveDirFigsER)
       end
+      
       if strcmp(files.figPrintFormat(1:2),'-d')
         files.figPrintFormat = files.figPrintFormat(3:end);
       end
-      saveas(gcf,fullfile(dirs.saveDirFigsER,cfg_plot.figfilename),files.figPrintFormat);
+      if ~isfield(files,'figPrintRes')
+        files.figPrintRes = 150;
+      end
+      print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
     end
   end % topo/single/multi
 end

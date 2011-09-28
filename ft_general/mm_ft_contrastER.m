@@ -246,9 +246,9 @@ for typ = 1:length(cfg_plot.conditions)
   
   if files.saveFigs
     % make a string indicating the z-limits; change the decimal to a p for
-    % "point" because saveas, print, and LaTeX won't find the right
-    % extension when there's a period in the file name (or at least this
-    % makes things easier)
+    % "point" because print.m and LaTeX won't find the right extension when
+    % there's a period in the file name (or at least this makes things
+    % easier for me right now).
     cfg_plot.zlim_str{1} = strrep(sprintf('%.1f',cfg_ft.zlim(1)),'.','p');
     cfg_plot.zlim_str{2} = strrep(sprintf('%.1f',cfg_ft.zlim(2)),'.','p');
     if ~isempty(cfg_plot.types{typ})
@@ -261,10 +261,14 @@ for typ = 1:length(cfg_plot.conditions)
     if ~exist(dirs.saveDirFigsTopo,'dir')
       mkdir(dirs.saveDirFigsTopo)
     end
+    
     if strcmp(files.figPrintFormat(1:2),'-d')
       files.figPrintFormat = files.figPrintFormat(3:end);
     end
-    saveas(gcf,fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename),files.figPrintFormat);
+    if ~isfield(files,'figPrintRes')
+      files.figPrintRes = 150;
+    end
+    print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename));
   end
   
   % put maxmin back in

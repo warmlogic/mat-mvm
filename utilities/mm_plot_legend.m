@@ -1,14 +1,15 @@
-function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat)
+function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPrintRes)
 %MM_PLOT_LEGEND - Plot a legend and print it to file
 %
-% mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat)
+% mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPrintRes)
 %
 % Input:
-%  label = {'a','b','c'};
-%  linestyle = {'k-','b--','r-.'};
-%  linewidth = 1.0;
+%  label = {'a','b','c'}; see LEGEND
+%  linestyle = {'k-','b--','r-.'}; % see PLOT
+%  linewidth = 1.0; % see PLOT
 %  filename = '~/Desktop/legend'; % no extension necessary
 %  figPrintFormat = 'epsc2'; % see PRINT
+%  figPrintRes = 150; % see PRINT
 %
 % This function will automatically add the labels to the filename.
 %
@@ -16,7 +17,7 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat)
 % whitespace. see inline code for a bash script to do this, plus conversion
 % to pdf.
 %
-% See also: PLOT
+% See also: LEGEND, PLOT, PRINT
 
 % Bash script for conversion: epstopdf_batch.sh
 %
@@ -47,12 +48,15 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat)
 %   #eval $CMD $i
 % done
 
-if nargin < 5
-  figPrintFormat = 'epsc2';
-  if nargin < 4
-    filename = 'legend';
-    if nargin < 3
-      linewidth = 1.0;
+if nargin < 6
+  figPrintRes = 150;
+  if nargin < 5
+    figPrintFormat = 'epsc2';
+    if nargin < 4
+      filename = 'legend';
+      if nargin < 3
+        linewidth = 1.0;
+      end
     end
   end
 end
@@ -94,6 +98,6 @@ if ~isempty(ext)
   filename = sprintf('%s%s',filename,ext);
 end
 
-saveas(gcf,filename,figPrintFormat);
+print(gcf,sprintf('-d%s',figPrintFormat),sprintf('-r%d',figPrintRes),filename);
 
 end

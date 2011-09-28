@@ -10,12 +10,15 @@ function [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg,dirs,files,prefix)
 %                    for time-freq representation, 'conn' for a
 %                    connectivity analysis.
 %
-% files.saveFigs   = 1 (default) or 0
-% files.figPrintFormat = 'png' (default), or e.g. 'epsc2', 'pdf', 'jpeg90'
-%                        (uses the SAVEAS function for printing, so do not
-%                        include '-d')
 %
-% See also: PRINT, SAVEAS
+% DEFAULTS (if you don't set these):
+%  files.saveFigs   = 1 (default), or 0 if you don't want to print figures
+%  files.figPrintFormat = 'epsc2' (default), or e.g. 'png', 'pdf', 'jpeg90'
+%                         (uses the PRINT function for printing; do not
+%                         include '-d')
+%  files.figPrintRes    = 150 (default) (DPI)
+%
+% See also: PRINT
 
 if nargin < 6
   prefix = [];
@@ -162,10 +165,15 @@ if ~isfield(files,'saveFigs')
   files.saveFigs = 1;
 end
 
-% set the default figure file format to png (using the saveas function)
+% set default figure file format to color encapsulated PS (vector graphics)
 if ~isfield(files,'figPrintFormat')
-  files.figPrintFormat = 'png';
-  %files.figPrintFormat = 'epsc2';
+  files.figPrintFormat = 'epsc2';
+  %files.figPrintFormat = 'png';
+end
+
+% default resolution for printed figures (DPI)
+if ~isfield(files,'figPrintRes')
+  files.figPrintRes = 150;
 end
 
 end

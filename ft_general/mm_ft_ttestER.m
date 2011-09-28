@@ -341,10 +341,14 @@ if cfg_plot.line_plots == 1
     if ~exist(dirs.saveDirFigsLine,'dir')
       mkdir(dirs.saveDirFigsLine)
     end
+    
     if strcmp(files.figPrintFormat(1:2),'-d')
       files.figPrintFormat = files.figPrintFormat(3:end);
     end
-    saveas(gcf,fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename),files.figPrintFormat);
+    if ~isfield(files,'figPrintRes')
+      files.figPrintRes = 150;
+    end
+    print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename));
   end
 end % cfg_plot.line_plots
 

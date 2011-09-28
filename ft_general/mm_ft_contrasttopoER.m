@@ -87,10 +87,14 @@ for typ = 1:length(ana.events.values)
       if ~exist(dirs.saveDirFigsTopo,'dir')
         mkdir(dirs.saveDirFigsTopo)
       end
+      
       if strcmp(files.figPrintFormat(1:2),'-d')
         files.figPrintFormat = files.figPrintFormat(3:end);
       end
-      saveas(gcf,fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename),files.figPrintFormat);
+      if ~isfield(files,'figPrintRes')
+        files.figPrintRes = 150;
+      end
+      print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename));
     end
   end
 end

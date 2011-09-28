@@ -251,20 +251,30 @@ for typ = 1:length(cfg_plot.conditions)
   end
   
   if files.saveFigs
+    % make a string indicating the z-limits; change the decimal to a p for
+    % "point" because print.m and LaTeX won't find the right extension when
+    % there's a period in the file name (or at least this makes things
+    % easier for me right now).
+    cfg_plot.zlim_str{1} = strrep(sprintf('%.1f',cfg_ft.zlim(1)),'.','p');
+    cfg_plot.zlim_str{2} = strrep(sprintf('%.1f',cfg_ft.zlim(2)),'.','p');
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s_%s%d_%d_%d_%d_%s_%s%s%s%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
     else
-      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s%d_%d_%d_%d_%s_%s%s%s%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
     end
     
     dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,['tfr_',cfg_plot.type,'cont']);
     if ~exist(dirs.saveDirFigsTopo,'dir')
       mkdir(dirs.saveDirFigsTopo)
     end
+    
     if strcmp(files.figPrintFormat(1:2),'-d')
       files.figPrintFormat = files.figPrintFormat(3:end);
     end
-    saveas(gcf,fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename),files.figPrintFormat);
+    if ~isfield(files,'figPrintRes')
+      files.figPrintRes = 150;
+    end
+    print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTopo,cfg_plot.figfilename));
   end
   
   % put maxmin back in

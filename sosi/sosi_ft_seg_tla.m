@@ -119,6 +119,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 files.saveFigs = 1;
 %files.figPrintFormat = 'png';
 files.figPrintFormat = 'epsc2';
+files.figPrintRes = 300;
 
 %% Convert the data to FieldTrip structs
 
@@ -181,6 +182,7 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
 
 files.figPrintFormat = 'epsc2';
+files.figPrintRes = 300;
 
 %% set up channel groups
 

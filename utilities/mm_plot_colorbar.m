@@ -1,15 +1,16 @@
-function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat)
+function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPrintRes)
 %MM_PLOT_COLORBAR - Plot a colorbar and print it to file
 %
-% mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat)
+% mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPrintRes)
 %
 % Input:
 %  minmax = [-1.5 1.5];
-%  orient = 'vert'; % or 'horiz'
+%  orient = 'vert'; % or 'horiz'; see COLORBAR
 %  label = 'Voltage (\muV)';
 %  filename = '~/Desktop/colorbar'; % no extension necessary
-%  cmap = 'jet'; % or 'hot'
+%  cmap = 'jet'; % or 'hot'; see COLORMAP
 %  figPrintFormat = 'epsc2'; % see PRINT
+%  figPrintRes = 150; % see PRINT
 %
 % This function will automatically add the minmax to the filename, to one
 % decimal place. However, it will replace the decimal with a 'p' so there
@@ -19,6 +20,8 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat)
 % convert this to an eps with eps2eps (installed with MacTeX) to remove the
 % whitespace. see inline code for a bash script to do this, plus conversion
 % to pdf.
+%
+% See also: COLORBAR, COLORMAP, PRINT
 
 % Bash script for conversion: epstopdf_batch.sh
 %
@@ -50,15 +53,18 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat)
 % done
 
 if nargin < 6
-  figPrintFormat = 'epsc2';
-  if nargin < 5
-    cmap = 'jet';
-    if nargin < 4
-      filename = 'colorbar';
-      if nargin < 3
-        label = 'Voltage (\muV)';
-        if nargin < 2
-          orient = 'vert';
+  figPrintRes = 150;
+  if nargin < 6
+    figPrintFormat = 'epsc2';
+    if nargin < 5
+      cmap = 'jet';
+      if nargin < 4
+        filename = 'colorbar';
+        if nargin < 3
+          label = 'Voltage (\muV)';
+          if nargin < 2
+            orient = 'vert';
+          end
         end
       end
     end
@@ -95,7 +101,7 @@ if ~isempty(ext)
   filename = sprintf('%s%s',filename,ext);
 end
 
-saveas(gcf,filename,figPrintFormat);
+print(gcf,sprintf('-d%s',figPrintFormat),sprintf('-r%d',figPrintRes),filename);
 
 end
 
