@@ -643,7 +643,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};

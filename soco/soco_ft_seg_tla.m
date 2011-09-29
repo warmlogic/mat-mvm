@@ -32,17 +32,17 @@ exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
 %exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','N2','N6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
 
 % combine some events into higher-level categories
-%exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
-%exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
-exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
+exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
+exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
+% exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
+% exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
 % exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
 % exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 %exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'N2','N6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
 %exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
+exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -318,7 +318,7 @@ exper.badBehSub = {'SOCO018','SOCO026'};
 % exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,16);
+[exper] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
@@ -664,7 +664,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};

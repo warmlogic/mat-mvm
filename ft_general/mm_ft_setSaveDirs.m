@@ -13,10 +13,10 @@ function [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg,dirs,files,prefix)
 %
 % DEFAULTS (if you don't set these):
 %  files.saveFigs   = 1 (default), or 0 if you don't want to print figures
-%  files.figPrintFormat = 'epsc2' (default), or e.g. 'png', 'pdf', 'jpeg90'
-%                         (uses the PRINT function for printing; do not
-%                         include '-d')
-%  files.figPrintRes    = 150 (default) (DPI)
+%  files.figPrintFormat = 'epsc2' (default), or 'tiff', 'png', 'pdf', 'jpeg90'
+%                         (do not include '-d')
+%  files.figPrintRes    = 150 (default); some journals require higher DPI
+%                         resolution
 %
 % See also: PRINT
 
@@ -158,7 +158,7 @@ if ~exist(dirs.saveDirFigs,'dir')
   mkdir(dirs.saveDirFigs)
 end
 
-%% set some options for figures
+%% set some default options for figures
 
 % do we want to save them?
 if ~isfield(files,'saveFigs')
