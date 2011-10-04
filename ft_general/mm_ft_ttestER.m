@@ -236,13 +236,18 @@ for cnd = 1:length(cfg_ana.conditions)
   ev1 = cfg_ana.conditions{cnd}{1};
   ev2 = cfg_ana.conditions{cnd}{2};
   
-  % calculate Cohen's d
+  % calculate Cohen's d for effect size
   %
   % divide t by the sqrt(df)
   %
   % mentioned on the fieldtrip email list (Rosnow & Rosenthal, Effect sizes
   % for Experimenting Psychologists, Canadian Journal of Experimental
   % Psychology, 2003, 57:3, 221-237.)
+  %
+  % 0.2 to 0.3 = "small" effect
+  % around 0.5 = "medium" effect
+  % 0.8 to infinity = a "large" effect
+  
   cfg_ana.(vs_str).cohens_d = cfg_ana.(vs_str).stat / sqrt(cfg_ana.(vs_str).df);
   
   fprintf('%s (M=%.3f; SEM=%.3f)\tvs %s (M=%.3f; SEM=%.3f):\tt(%d)=%.4f, d=%.3f, SD=%.2f, SEM=%.2f, p=%.10f',...
