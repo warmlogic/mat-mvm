@@ -281,33 +281,20 @@ for cnd = 1:length(cfg_ana.conditions)
   ev2 = cfg_ana.conditions{cnd}{2};
   
   % calculate Cohen's d
-  
-%   % METHOD 1
-%   %
-%   % I found this calculation method online and hobbled it together myself;
-%   % I don't know if it is correct because someone on the fieldtrip list
-%   % said to just divide t by the sqrt(df) (calculated below)
-%   
-%   std_pooled = sqrt((((length(cfg_ana.values.(ev1)) - 1) * (std(cfg_ana.values.(ev1),0)^2)) + ...
-%     ((length(cfg_ana.values.(ev2)) - 1) * (std(cfg_ana.values.(ev2),0)^2))) / ...
-%     (length(cfg_ana.values.(ev1)) - 1 + length(cfg_ana.values.(ev2)) - 1));
-%   cohens_d = (mean(cfg_ana.values.(ev1),1) - mean(cfg_ana.values.(ev2),1)) / std_pooled;
-  
-  % METHOD 2
   %
-  % other method mentioned on the fieldtrip email list (Rosnow &
-  % Rosenthal, Effect sizes for Experimenting Psychologists, Canadian
-  % Journal of Experimental Psychology, 2003, 57:3, 221-237.)
+  % divide t by the sqrt(df)
+  %
+  % mentioned on the fieldtrip email list (Rosnow & Rosenthal, Effect sizes
+  % for Experimenting Psychologists, Canadian Journal of Experimental
+  % Psychology, 2003, 57:3, 221-237.)
   cohens_d = cfg_ana.(vs_str).stat / sqrt(cfg_ana.(vs_str).df);
   
-  fprintf('%s (M=%.3f; SEM=%.3f)\tvs %s (M=%.3f; SEM=%.3f):\tt(%d)=%.4f, p=%.10f (d=%.3f)',cfg_ana.conditions{cnd}{1},mean(cfg_ana.values.(ev1),1),cfg_ana.sem.(ev1),cfg_ana.conditions{cnd}{2},mean(cfg_ana.values.(ev2),1),cfg_ana.sem.(ev2),cfg_ana.(vs_str).df,cfg_ana.(vs_str).stat,cfg_ana.(vs_str).prob,cohens_d);
+  fprintf('%s (M=%.3f; SEM=%.3f)\tvs %s (M=%.3f; SEM=%.3f):\tt(%d)=%.4f, d=%.3f, p=%.10f',cfg_ana.conditions{cnd}{1},mean(cfg_ana.values.(ev1),1),cfg_ana.sem.(ev1),cfg_ana.conditions{cnd}{2},mean(cfg_ana.values.(ev2),1),cfg_ana.sem.(ev2),cfg_ana.(vs_str).df,cfg_ana.(vs_str).stat,cohens_d,cfg_ana.(vs_str).prob);
   if cfg_ana.(vs_str).prob < cfg_ft.alpha
     fprintf(' *');
   end
   fprintf('\n');
 end
-%fprintf('I do not know if the calculation of cohen''s d is correct!\n');
-warning('ttest:cohens_d','I do not know if the calculation of cohen''s d is correct!');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % Plots
