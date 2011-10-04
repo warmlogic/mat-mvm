@@ -177,7 +177,28 @@ roi = 'RAS';
 [h,p,ci,stats] = ttest2((volt.sosi.RHSC.(roi)(~exper.badSub.sosi) - volt.sosi.RHSI.(roi)(~exper.badSub.sosi)),(volt.soco.RHSC.(roi)(~exper.badSub.soco) - volt.soco.RHSI.(roi)(~exper.badSub.soco)),0.05,'both');
 fprintf('%s: SOSI (RHSC-RHSI) (M=%.2f) vs SOCO (RHSC-RHSI) (M=%.2f): t(%d)=%.4f, p=%.10f\n',roi,mean(volt.sosi.RHSC.(roi)(~exper.badSub.sosi) - volt.sosi.RHSI.(roi)(~exper.badSub.sosi)),mean(volt.soco.RHSC.(roi)(~exper.badSub.soco) - volt.soco.RHSI.(roi)(~exper.badSub.soco)),stats.df,stats.tstat,p);
 
+
+volt_sosi_RHSC = mean([volt.sosi.RHSC.('LAS')(~exper.badSub.sosi);volt.sosi.RHSC.('RAS')(~exper.badSub.sosi)],1);
+volt_sosi_RHSI = mean([volt.sosi.RHSI.('LAS')(~exper.badSub.sosi);volt.sosi.RHSI.('RAS')(~exper.badSub.sosi)],1);
+volt_sosi_RCR = mean([volt.sosi.RCR.('LAS')(~exper.badSub.sosi);volt.sosi.RCR.('RAS')(~exper.badSub.sosi)],1);
+volt_soco_RHSC = mean([volt.soco.RHSC.('LAS')(~exper.badSub.soco);volt.soco.RHSC.('RAS')(~exper.badSub.soco)],1);
+volt_soco_RHSI = mean([volt.soco.RHSI.('LAS')(~exper.badSub.soco);volt.soco.RHSI.('RAS')(~exper.badSub.soco)],1);
+volt_soco_RCR = mean([volt.soco.RCR.('LAS')(~exper.badSub.soco);volt.soco.RCR.('RAS')(~exper.badSub.soco)],1);
+
+[h,p,ci,stats] = ttest2((volt_sosi_RHSC - volt_sosi_RHSI),(volt_soco_RHSC - volt_soco_RHSI),0.05,'both');
+fprintf('LAS+RAS: SOSI (RHSC-RHSI) (M=%.2f) vs SOCO (RHSC-RHSI) (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(volt_sosi_RHSC - volt_sosi_RHSI),mean(volt_soco_RHSC - volt_soco_RHSI),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest2((volt_sosi_RHSC - volt_sosi_RCR),(volt_soco_RHSC - volt_soco_RCR),0.05,'both');
+fprintf('LAS+RAS: SOSI (RHSC-RCR) (M=%.2f) vs SOCO (RHSC-RCR) (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(volt_sosi_RHSC - volt_sosi_RCR),mean(volt_soco_RHSC - volt_soco_RCR),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest2((volt_sosi_RHSI - volt_sosi_RCR),(volt_soco_RHSI - volt_soco_RCR),0.05,'both');
+fprintf('LAS+RAS: SOSI (RHSI-RCR) (M=%.2f) vs SOCO (RHSI-RCR) (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(volt_sosi_RHSI - volt_sosi_RCR),mean(volt_soco_RHSI - volt_soco_RCR),stats.df,stats.tstat,p);
+
+
 %% behavioral accuracy test
+
+exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
+exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 
 % SOCO separate colors
 SOCO_C2_RS_WIR = [0.6304 0.7093 0.9323 0.9412 0.8333 0.4957 0.8769 0.8299 0.9322 0.7662 0.7875 0.7143 0.7674 0.5345 0.9167 0.8661 0.9975 0.6 0.9263 0.6263 0.6739 0.5455 0.9737 0.8182 0.7164 0.9975 0.7812 0.7333 0.5484 0.7857];

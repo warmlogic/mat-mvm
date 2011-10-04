@@ -32,17 +32,17 @@ exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
 %exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','N2','N6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
 
 % combine some events into higher-level categories
-exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
-exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
-% exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-% exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
+% exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
+% exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
+exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
+exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
 % exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
 % exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 %exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'N2','N6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
 %exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -184,8 +184,10 @@ end
 
 %% load the analysis details
 
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 
@@ -214,10 +216,11 @@ ana = mm_ft_channelgroups(ana);
 
 % list the values separated by types: 2Colors, 6Colors
 %ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
+ana.eventValues = {{'HSC2','HSI2','CR2'},{'HSC6','HSI6','CR6'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 
 %ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'RHSC','RHSI','RCR'}};
+%ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
@@ -372,14 +375,17 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.condByTypeByROI = {...
 %   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
 %   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
-cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+
+cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
+
+%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.legendloc = cfg_plot.legendlocs{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
-  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  %cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
@@ -632,11 +638,16 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
+% and the times that correspond to each set of ROIs
+
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'},{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% define the times that correspond to each set of ROIs
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+
+% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -651,8 +662,8 @@ cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 
 %cfg_ana.conditions = {{'all'}};
-cfg_ana.conditions = {{'all_within_types'}};
-%cfg_ana.conditions = {{'all_across_types'}};
+%cfg_ana.conditions = {{'all_within_types'}};
+cfg_ana.conditions = {{'all_across_types'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -667,8 +678,9 @@ cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
-%cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
+%cfg_plot.ylims = [-5 -2; 1.5 4.5];
 cfg_plot.ylims = [-5 -2; -5 -2; -5 -2; 1.5 4.5; 1.5 4.5;];
+%cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
 cfg_plot.rename_conditions = {'H-SC','H-SI','CR'};
 
@@ -701,12 +713,14 @@ cfg_ana.typesByROI = {...
 % cell for each event type; each event type cell holds strings for its
 % conditions
 cfg_ana.condByTypeByROI = {...
-  {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+  %{{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+  {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}},...
   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
 
 % For each ROI, what's common among the conditions in each type
 cfg_ana.condCommonByROI = {...
-  {'CR','H','HSC','HSI'},...
+  %{'CR','H','HSC','HSI'},...
+  {'CR','HSC','HSI'},...
   {'CR','HSC','HSI'}};
 
 cfg_ana.IV_names = {'ROI','Block Type','Condition'};

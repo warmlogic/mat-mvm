@@ -605,14 +605,17 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 %% descriptive statistics: ttest
 
 cfg_ana = [];
-% define which regions to average across for the test
-%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% define which regions to average across for the test and
+% the times that correspond to each set of ROIs
+
 cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-%cfg_ana.rois = {{'LAS'},{'RAS'}};
-% define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
-%cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8];
+
+%cfg_ana.rois = {{'LAS'},{'RAS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
