@@ -1,6 +1,7 @@
 %% subject info
 
 exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
+%exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 exper.badSub.soco = [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 
 % %% These voltages are for Net Station + EP + NS preprocessing
@@ -121,6 +122,9 @@ volt.soco.RHSI.RPS = [1.2703  1.0392  1.7856  0.0202  3.7864  0.0714  7.0961  1.
 %exper.badSub.sosi = [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
 %exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 
+
+
+
 %% Set up the rest of the ANOVA
 
 % IMPORTANT: This requires an equal number of subjects in each experiment
@@ -160,10 +164,108 @@ calcGGHF = 0;
 
 [P] = RMAOV32_mod(anovamat,alpha,showtable,calcGGHF);
 
-% I need to use SPSS to run:
+% I need to use R or SPSS to run:
 %
 % At a single ROI, do a 2-way ANOVA with one between-subjects factor
 % (experiment) and one within-subjects factor (Accuracy Condition)
+
+
+
+%% write it out so we can run unequal numbers of subjects
+exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
+%exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+
+%nSub = sum(~exper.badSub.soco) + sum(~exper.badSub.sosi);
+
+% IV1 (between-subjects factor): Experiment
+exper.name = {'sosi','soco'};
+% IV2 (within-subjects RM factor): ROI
+exper.roi = {'LAS','RAS'};
+% IV3 (within-subjects RM factor): Accuracy Condition
+exper.cond = {'RCR','RHSC','RHSI'};
+
+anova_write = [];
+
+for e = 1:length(exper.name)
+  goodSubInd = 0;
+  for s = 1:length(exper.badSub.(exper.name{e}))
+    if exper.badSub.(exper.name{e})(s) == 0
+      goodSubInd = goodSubInd + 1;
+      for r = 1:length(exper.roi)
+        for c = 1:length(exper.cond)
+          %anova_write = [anova_write; goodSubInd sprintf('exp%d',e) sprintf('roi%d',r) sprintf('cnd%d',c) volt.(exper.name{e}).(exper.cond{c}).(exper.roi{r})(s)];
+          anova_write = [anova_write; goodSubInd e r c volt.(exper.name{e}).(exper.cond{c}).(exper.roi{r})(s)];
+        end
+      end
+    end
+  end
+end
+
+outfile = fullfile(getenv('HOME'),'Desktop','soco_sosi_volt.txt');
+fid = fopen(outfile,'w+');
+
+% write the header
+fprintf(fid,'%s\t%s\t%s\t%s\t%s\n','sub','exp','roi','cond','volt');
+% write the data
+for i = 1:size(anova_write,1)
+  fprintf(fid,'%d\t%d\t%d\t%d\t%.4f\n',anova_write(i,1),anova_write(i,2),anova_write(i,3),anova_write(i,4),anova_write(i,5));
+end
+% close it
+fclose(fid);
+
+
+%% write it out for SPSS
+
+exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
+exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+%exper.badSub.soco = [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+
+%nSub = sum(~exper.badSub.soco) + sum(~exper.badSub.sosi);
+
+% IV1 (between-subjects factor): Experiment
+exper.name = {'sosi','soco'};
+% IV2 (within-subjects RM factor): ROI
+exper.roi = {'LAS','RAS'};
+% IV3 (within-subjects RM factor): Accuracy Condition
+exper.cond = {'RCR','RHSC','RHSI'};
+
+anova_write = [];
+
+for e = 1:length(exper.name)
+  goodSubInd = 0;
+  for s = 1:length(exper.badSub.(exper.name{e}))
+    if exper.badSub.(exper.name{e})(s) == 0
+      goodSubInd = goodSubInd + 1;
+      %anova_write = [anova_write; goodSubInd sprintf('exp%d',e) sprintf('roi%d',r) sprintf('cnd%d',c) volt.(exper.name{e}).(exper.cond{c}).(exper.roi{r})(s)];
+      anova_write = [anova_write; goodSubInd, e,...
+        volt.(exper.name{e}).(exper.cond{1}).(exper.roi{1})(s),...
+        volt.(exper.name{e}).(exper.cond{2}).(exper.roi{1})(s),...
+        volt.(exper.name{e}).(exper.cond{3}).(exper.roi{1})(s),...
+        volt.(exper.name{e}).(exper.cond{1}).(exper.roi{2})(s),...
+        volt.(exper.name{e}).(exper.cond{2}).(exper.roi{2})(s),...
+        volt.(exper.name{e}).(exper.cond{3}).(exper.roi{2})(s)];
+    end
+  end
+end
+
+
+
+outfile = fullfile(getenv('HOME'),'Desktop','soco_sosi_volt_spss.txt');
+fid = fopen(outfile,'w+');
+% write the header
+fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n','sub','exp','LAS_CR','LAS_HSC','LAS_HSI','RAS_CR','RAS_HSC','RAS_HSI');
+% write the data
+for i = 1:size(anova_write,1)
+  fprintf(fid,'s%d\t%s\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n',...
+    anova_write(i,1),...
+    exper.name{anova_write(i,2)},...
+    anova_write(i,3),anova_write(i,4),anova_write(i,5),anova_write(i,6),anova_write(i,7),anova_write(i,8));
+end
+% close it
+fclose(fid);
+
+
 
 %% independent-samples t-test
 

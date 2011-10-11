@@ -147,7 +147,7 @@ cfg_pp = [];
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
 % single precision to save space
-cfg_pp.precision = 'single';
+%cfg_pp.precision = 'single';
 
 cfg_proc = [];
 cfg_proc.keeptrials = 'no';
