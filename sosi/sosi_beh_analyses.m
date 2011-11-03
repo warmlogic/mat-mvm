@@ -69,6 +69,8 @@ bw_colormap = [.5 .5 .5];
 %bw_errors = [SOSI_RS_sem 0; SOSI_RO_sem 0; SOSI_F_sem 0];
 bw_data = [SOSI_RS_avg; SOSI_RO_avg; SOSI_F_avg];
 bw_errors = [SOSI_RS_sem; SOSI_RO_sem; SOSI_F_sem];
+bw_xlabel = 'RK Response';
+bw_ylabel = 'Proportion Correct';
 
 cfg_plot = [];
 % set up how the lines will look
@@ -88,8 +90,8 @@ legend(bw_legend,'Location','NorthEast');
 legend boxoff
 axis([0.5 3.5 0 1]);
 title(bw_title);
-xlabel('RK Response')
-ylabel('Proportion Correct')
+xlabel(bw_xlabel)
+ylabel(bw_ylabel)
 publishfig(gcf,0);
 % horiz chance line
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2);
