@@ -170,7 +170,6 @@ for i = 1:length(evt)
           prevInfo = sprintf('%s\t%s',prevInfo,cell2mat(data{k}(j)));
         end
         allStim(stimNum).prevInfo = prevInfo(2:end);
-        stimNum = stimNum + 1;
       case {'reca'}
         allStim(stimNum).SMEM = '1';
       case {'forg'}
@@ -181,7 +180,6 @@ for i = 1:length(evt)
         allStim(stimNum).TMOD = 'visual';
       case {blocTag}
         allStim(stimNum).BLOC = num2str(blockNum);
-        blockNum = blockNum + 1;
       case {serpTag}
         allStim(stimNum).SPOS = num2str(serPos);
         if strcmp(serpTag,'S001') || strcmp(serpTag,'S002') || strcmp(serpTag,'S015') || strcmp(serpTag,'S015')
@@ -191,6 +189,10 @@ for i = 1:length(evt)
         end
         
         % advance after finding the serial position tag because it's last
+        %
+        % that's not right
+        stimNum = stimNum + 1;
+        blockNum = blockNum + 1;
         serPos = serPos + 1;
     end % switch
     
