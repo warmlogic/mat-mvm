@@ -1,5 +1,7 @@
-%function mm_epSaver(experName,prepost,inputFormat,outputFormat)
+%function mm_epSaver(experName,eegDir,prepost,inputFormat,outputFormat)
 %MM_EPSAVER: Use EP's read/write to save EEG data
+%
+% mm_epSaver(experName,eegDir,prepost,inputFormat,outputFormat)
 %
 % This is a simple input/output wrapper to, e.g., save ep_mat format to an
 % EGI-readable format (egi_egis, egi_sbin)
@@ -7,6 +9,8 @@
 % Input:
 %
 %   experName    = experiment name ('COSI')
+%   eegDir       = where the 'eppp' directory is, under the experName dir
+%                  (e.g., fullfile('eeg','eppp'))
 %   prepost      = pre- and post-stimulus timing (in seconds: [-1 2])
 %   inputFormat  = format to read ('ep_mat')
 %   outputFormat = format to save ('egi_egis')
@@ -24,8 +28,14 @@
 %     dataroot/COSI/eeg/eppp/-1000_2000/3_ep_egis_out
 %
 
-experName = 'SOCO';
-prepost = [-1 2];
+% experName = 'SOCO';
+% prepost = [-1 2];
+% eegDir = fullfile('eeg','eppp');
+
+experName = 'FRCE';
+prepost = [-1.25 2.25];
+eegDir = fullfile('EEG','Sessions','cueing paradigm','relabeled','eppp');
+
 inputFormat = 'ep_mat';
 outputFormat = 'egi_egis';
 
@@ -41,7 +51,7 @@ else
 end
 
 % Location of the data files (dataroot)s
-dirs.baseDir = fullfile('eeg','eppp',sprintf('%d_%d',prepost(1)*1000,prepost(2)*1000));
+dirs.baseDir = fullfile(eegDir,sprintf('%d_%d',prepost(1)*1000,prepost(2)*1000));
 dirs.dataDir = fullfile(dirs.baseDir,sprintf('3_ep_%s',inputFileExt));
 
 dirs.homeDir = getenv('HOME');
