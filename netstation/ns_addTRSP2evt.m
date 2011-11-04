@@ -22,9 +22,8 @@ function ns_addTRSP2evt(dataroot)
 %
 % FUNCTION SPECIFICS:
 %
-% Event codes in the new .evt file are changed to either SBUF (stimulus
-% buffer) or STRG (stimulus target). The folliwng old TRSP tag data will be
-% transfered to the key codes mentioned below:
+% Event codes in the new .evt file are changed to STIM. The folliwng old
+% TRSP tag data will be transfered to the key codes mentioned below:
 %
 % cue type
 % Old tag: C001 (ear/auditory) or C002 = eye/visual
@@ -236,10 +235,8 @@ for i = 1:length(evt)
       % set the stimulus type (buffers are the first and last 2 items)
       if thisSerPos == 1 || thisSerPos == 2 || thisSerPos == 15 || thisSerPos == 16
         allStim(stimNum).TYPE = 'STUDY_BUFFER';
-        thisCode = 'SBUF';
       else
         allStim(stimNum).TYPE = 'STUDY_TARGET';
-        thisCode = 'STRG';
       end
       
       % now assemble the full line for writing to file
@@ -252,8 +249,8 @@ for i = 1:length(evt)
         end
       end
       
-      % write the full line to file
-      fprintf(outfile,'%s\t%s\r',thisCode,allStim(stimNum).prevInfo);
+      % write the full line to file with the STIM code
+      fprintf(outfile,'%s\t%s\r','STIM',allStim(stimNum).prevInfo);
       
       % advance the counter to look for the next stimulus
       stimNum = stimNum + 1;
@@ -266,10 +263,10 @@ for i = 1:length(evt)
       end
     end % if this is a stimulus presentation (P###)
     
-  end % for j
+  end % for j (each line of the original .evt)
   
   % close the output file
   fclose(outfile);
   
   fprintf('Done.\n');
-end
+end % for i (each .evt)

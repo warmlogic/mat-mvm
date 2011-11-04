@@ -32,21 +32,29 @@ end
 %% MODIFY THIS STUFF
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-exper.name = 'SOSI';
-%exper.name = 'SOCO';
-%exper.name = 'COSI';
+% exper.name = 'SOSI';
+% %exper.name = 'SOCO';
+% %exper.name = 'COSI';
+% dirs.eegDir = fullfile('eeg','eppp');
+% % sampling rate of the EEG data
+% exper.sampleRate = 250;
+% % segment length created with NetStation (in seconds)
+% exper.prepost = [-1 2];
+% % baseline period (in milliseconds)
+% exper.baseline_ms = [-200 0];
 
+exper.name = 'FRCE';
+dirs.eegDir = fullfile('EEG','eppp');
 % sampling rate of the EEG data
-exper.sampleRate = 250;
+exper.sampleRate = 500;
 % segment length created with NetStation (in seconds)
-exper.prepost = [-1 2];
+exper.prepost = [-1.25 2.25];
 % baseline period (in milliseconds)
 exper.baseline_ms = [-200 0];
 
 % Type of input file
 exper.inputFileExt = 'egis';
 %exper.inputFileExt = 'raw';
-%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POSSIBLY MODIFY THIS STUFF
@@ -58,7 +66,7 @@ timeOut  = {2}; % in HOURS
 
 % Location of the data files (dataroot)s
 if strcmp(exper.inputFileExt,'egis') || strcmp(exper.inputFileExt,'raw')
-  dirs.dataDir = sprintf('eeg/eppp/%d_%d/2_ns_%s',exper.prepost(1)*1000,exper.prepost(2)*1000,exper.inputFileExt);
+  dirs.dataDir = fullfile(dirs.eegDir,sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),sprintf('2_ns_%s',exper.inputFileExt));
 else
   error('Filetype %s is unknown.',exper.inputFileExt);
 end
@@ -66,11 +74,11 @@ end
 dirs.homeDir = getenv('HOME');
 
 % 2 potential Curran server dataroots
-dirs.serverDir = fullfile('/Volumes/curranlab/Data',exper.name);
-dirs.serverLocalDir = fullfile('/Volumes/RAID/curranlab/Data',exper.name);
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data',exper.name);
+dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data',exper.name);
 dirs.localDir = fullfile(dirs.homeDir,'data',exper.name);
 % Dream dataroot
-dirs.dreamDir = fullfile('/data/projects/curranlab',exper.name);
+dirs.dreamDir = fullfile(filesep,'data','projects','curranlab',exper.name);
 
 % pick the right dirs.dataroot
 if exist(dirs.serverDir,'dir')
