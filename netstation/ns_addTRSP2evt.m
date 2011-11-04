@@ -1,4 +1,4 @@
-%function ns_addTRSP2evt(dataroot)
+function ns_addTRSP2evt(dataroot)
 
 % This function reads in an .evt file with multiple event tags denoting
 % trial-specific (TRSP) information, backs up the original .evt, and writes
@@ -11,11 +11,14 @@
 % USAGE STEPS:
 %
 % This function is specific to the FRCE experiment. To properly process the
-% original continuous EEG files with multiple tags per stimulus, you need
-% to first markup the file with subsequent memory performance information.
-% These .evt files are in /curranlab/Data/FRCE/EEG/evt files/. Once you
-% markup the continuous files, export .evt files again, run this function,
-% and markup the continuous files again with the resulting .evt files.
+% original continuous EEG files with multiple tags per stimulus, you must
+% 1: markup the file with subsequent memory performance information. These
+%    .evt files are in /curranlab/Data/FRCE/EEG/evt files/.
+% 2: export .evt files again
+% 3: run this function
+% 4: markup the continuous files again with the new .evt files.
+%
+% NB: Keep track of the different .evt files. Don't mix them up!
 %
 % FUNCTION SPECIFICS:
 %
@@ -199,6 +202,10 @@ for i = 1:length(evt)
         allStim(stimNum).SMEM = '1';
       elseif strcmp(data{cols.code}{j+1},'forg')
         allStim(stimNum).SMEM = '0';
+      else
+        % break out of this file if subsequent memory performance is not
+        % known
+        continue
       end
       
       % set the stimulus modality (+2)
@@ -246,7 +253,7 @@ for i = 1:length(evt)
       end
       
       % write the full line to file
-      fprintf(outfile,'%s%s\r',thisCode,allStim(stimNum).prevInfo);
+      fprintf(outfile,'%s\t%s\r',thisCode,allStim(stimNum).prevInfo);
       
       % advance the counter to look for the next stimulus
       stimNum = stimNum + 1;
