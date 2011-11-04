@@ -6,16 +6,26 @@
 % information collapsed into a single event tag. The new .evt file is
 % useful for doing segmentation in NS.
 %
-% NB: The original .evt file needs to be exported using relative time
+% NB: The original .evt file needs to be exported using relative time.
 %
-% This function is specific to the FRCE experiment. Here are the details:
+% USAGE STEPS:
 %
-% New event code is changed either SBUF or STRG. The folliwng old TRSP tag
-% data will be transfered to these key codes:
+% This function is specific to the FRCE experiment. To properly process the
+% original continuous EEG files with multiple tags per stimulus, you need
+% to first markup the file with subsequent memory performance information.
+% These .evt files are in /curranlab/Data/FRCE/EEG/evt files/. Once you
+% markup the continuous files, export .evt files again, run this function,
+% and markup the continuous files again with the resulting .evt files.
+%
+% FUNCTION SPECIFICS:
+%
+% Event codes in the new .evt file are changed to either SBUF (stimulus
+% buffer) or STRG (stimulus target). The folliwng old TRSP tag data will be
+% transfered to the key codes mentioned below:
 %
 % cue type
 % Old tag: C001 (ear/auditory) or C002 = eye/visual
-% New key code: CUET (string: ear/eye)
+% New key code: CUET (ear or eye)
 %
 % start of prestimulus period
 % Old tag: PRES
@@ -23,7 +33,7 @@
 %
 % length of the prestimulus period
 % Old tag: 1250, 1500, or 1750
-% New key code: PSTM (double: 1250, 1500, 1750)
+% New key code: PSTM (1250, 1500, or 1750)
 %
 % stimulus number
 % Old tag: P001-P320
@@ -31,11 +41,11 @@
 %
 % subsequent memory perofrmance
 % Old tag: reca or forg
-% New key code: SMEM (double: 0, 1)
+% New key code: SMEM (0 or 1)
 %
 % stimulus modality (confounded with cue type)
 % Old tag: M001 (auditory) or M002 (visual)
-% New key code: SMOD (auditory/visual)
+% New key code: SMOD (auditory or visual)
 %
 % block number
 % Old tag: B001-B020
@@ -45,8 +55,8 @@
 % Old tag: S001-S016
 % New key code: SPOS (1-16)
 %
-% Also, adds a target type key code, where it's a buffer if serial position
-% is 1, 2, 15, or 16, or it's a target if serial position is 3-14.
+% Also, adds a stimulus type key code, where it's a buffer if serial
+% position is 1, 2, 15, or 16, or it's a target if serial position is 3-14.
 % New key code: TYPE (STUDY_TARGET or STUDY_BUFFER)
 
 
