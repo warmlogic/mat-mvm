@@ -1,52 +1,53 @@
-function ns_addTRSP2evt(dataroot)
+%function ns_addTRSP2evt(dataroot)
 
-% script to read in an .evt file with multiple event tags denoting
-% trial-specific (TRSP) information and write out .evt files with TRSP
-% information in a single event tag. Useful for doing segmentation in NS.
-
-% I need to collapse all codes into a single Code, based on information in
-% the P### Code (stimulus presentation). The new code is STIM.
-
-% STIM event will have these keys:
-
+% This function reads in an .evt file with multiple event tags denoting
+% trial-specific (TRSP) information, backs up the original .evt, and writes
+% out a new .evt file (with the same name as the original) with TRSP
+% information collapsed into a single event tag. The new .evt file is
+% useful for doing segmentation in NS.
+%
+% NB: The original .evt file needs to be exported using relative time
+%
+% This function is specific to the FRCE experiment. Here are the details:
+%
+% New event code is changed either SBUF or STRG. The folliwng old TRSP tag
+% data will be transfered to these key codes:
+%
 % cue type
-% C001 = ear/auditory
-% C002 = eye/visual
-% key: CUET (string: ear/eye)
-
+% Old tag: C001 (ear/auditory) or C002 = eye/visual
+% New key code: CUET (string: ear/eye)
+%
 % start of prestimulus period
-% PRES
-% key: Don't need to transfer this info
-
-% {1250, 1500, 1750}
+% Old tag: PRES
+% New key code: Don't need to transfer this info
+%
 % length of the prestimulus period
-% key: PSTM (double: 1250, 1500, 1750)
-
+% Old tag: 1250, 1500, or 1750
+% New key code: PSTM (double: 1250, 1500, 1750)
+%
 % stimulus number
-% P001-P320
-% key: STMN
-
+% Old tag: P001-P320
+% New key code: STMN
+%
 % subsequent memory perofrmance
-% reca
-% forg
-% key: SMEM (double: 0, 1)
-
-% target modality (same as cue type)
-% M001 = auditory
-% M002 = visual
-% key: TMOD (string: auditory/visual)
-
-% block
-% B001-B020
-% key: BLOC (double: 1-20)
-
+% Old tag: reca or forg
+% New key code: SMEM (double: 0, 1)
+%
+% stimulus modality (confounded with cue type)
+% Old tag: M001 (auditory) or M002 (visual)
+% New key code: SMOD (auditory/visual)
+%
+% block number
+% Old tag: B001-B020
+% New key code: BLOC (1-20)
+%
 % serial position
-% S001-S016
-% key: SPOS (double: 1-16)
-
-% also add target type, either target buffer if S001, S002,
-% S015, S016, or target stim if anything else
-% key: STMT (string: STUDY_TARGET, STUDY_BUFFER)
+% Old tag: S001-S016
+% New key code: SPOS (1-16)
+%
+% Also, adds a target type key code, where it's a buffer if serial position
+% is 1, 2, 15, or 16, or it's a target if serial position is 3-14.
+% New key code: TYPE (STUDY_TARGET or STUDY_BUFFER)
 
 
 if nargin < 1
@@ -70,38 +71,38 @@ numHeaderlines = 5;
 for i = 1:length(evt)
   fprintf('Processing %s...',evt(i).name);
   
-  % initialize the timeMode
-  timeModeStr = [];
-  
   %% Read in the evt file
   [path,name,ext] = fileparts(evt(i).name);
   
   % figure out how many columns there are
   fid = fopen(fullfile(dataroot,evt(i).name),'r');
+  if fid == -1
+    error('Could not open the file. Make sure you do not have it open in another application.');
+  end
   % get the file name line
   fgetl(fid);
   % get the time mode line
   fgetl(fid);
   % get the header line
-  tline = fgetl(fid);
+  headerline = fgetl(fid);
   % headers
-  if strcmp(tline(end),sprintf('\t'))
-    tline = tline(1:end-1);
+  if strcmp(headerline(end),sprintf('\t'))
+    headerline = headerline(1:end-1);
   end
-  hdr = regexp(tline,'\t','split');
+  hdr = regexp(headerline,'\t','split');
   cols.code = find(strcmp(hdr,'Code'));
-  cols.label = find(strcmp(hdr,'Label'));
-  cols.type = find(strcmp(hdr,'Track'));
-  cols.track = find(strcmp(hdr,'Track'));
-  cols.onset = find(strcmp(hdr,'Onset'));
-  cols.duration = find(strcmp(hdr,'Duration'));
+  %cols.label = find(strcmp(hdr,'Label'));
+  %cols.type = find(strcmp(hdr,'Type'));
+  %cols.track = find(strcmp(hdr,'Track'));
+  %cols.onset = find(strcmp(hdr,'Onset'));
+  %cols.duration = find(strcmp(hdr,'Duration'));
   
   % get these lines because we want to put them back in the file
   sessline = fgetl(fid);
   cellline = fgetl(fid);
   
   % get the first data line so we can count the number of columns
-  tline = fgetl(fid);
+  dataline = fgetl(fid);
   
   % close the file
   fclose(fid);
@@ -115,18 +116,18 @@ for i = 1:length(evt)
     cellline = cellline(1:end-1);
   end
   % if the last character is a tab, remove it
-  if strcmp(tline(end),sprintf('\t'))
-    tline = tline(1:end-1);
+  if strcmp(dataline(end),sprintf('\t'))
+    dataline = dataline(1:end-1);
   end
   % since it's tab delimited, split it and count the length
-  numCols = length(regexp(tline,'\t','split'));
+  numCols = length(regexp(dataline,'\t','split'));
   
   fid = fopen(fullfile(dataroot,evt(i).name),'r');
   data = textscan(fid,repmat('%s',1,numCols),'Delimiter','\t');
   fclose(fid);
   
   % rename the old evt file
-  feval(str2func('unix'),sprintf('mv %s %s',strrep(fullfile(dataroot,evt(i).name),' ','\ '),strrep(fullfile(dataroot,[name,'_separateTags',ext]),' ','\ ')));
+  feval(str2func('unix'),sprintf('mv %s %s',strrep(fullfile(dataroot,evt(i).name),' ','\ '),strrep(fullfile(dataroot,[name,'_backup',ext]),' ','\ ')));
   
   % start the new file to write out
   new_evt = fullfile(dataroot,evt(i).name);
@@ -152,52 +153,106 @@ for i = 1:length(evt)
   % go through each line and collect the info for each stimulus
   for j = (numHeaderlines + 1):length(data{cols.code})
     
+    % set the stimulus number tag so we know what to look for
     stimTag = sprintf('P%03d',stimNum);
-    blocTag = sprintf('B%03d',blockNum);
-    serpTag = sprintf('S%03d',serPos);
     
-    switch cell2mat(data{cols.code}(j))
-      case {'C001'}
+    if strcmp(data{cols.code}{j},stimTag)
+      allStim(stimNum).prevInfo = [];
+      for k = 2:numCols
+        allStim(stimNum).prevInfo = sprintf('%s\t%s',allStim(stimNum).prevInfo,data{k}{j});
+      end
+      allStim(stimNum).prevInfo = allStim(stimNum).prevInfo(2:end);
+      
+      % set the cue type (-3)
+      if strcmp(data{cols.code}{j-3},'C001')
         allStim(stimNum).CUET = 'ear';
-      case {'C002'}
+      elseif strcmp(data{cols.code}{j-3},'C002')
         allStim(stimNum).CUET = 'eye';
-      case {'1250', '1500', '1750'}
-        allStim(stimNum).PSTM = data{cols.code}(j);
-      case {stimTag}
-        allStim(stimNum).STMN = num2str(stimNum);
-        prevInfo = [];
-        for k = 2:numCols
-          prevInfo = sprintf('%s\t%s',prevInfo,cell2mat(data{k}(j)));
-        end
-        allStim(stimNum).prevInfo = prevInfo(2:end);
-      case {'reca'}
+      end
+      
+      % skip the PRES tag (-2)
+      
+      % set the prestimulus period (-1)
+      allStim(stimNum).PSTM = data{cols.code}{j-1};
+      
+      % set the stimulus number
+      thisStimNum = data{cols.code}{j};
+      thisStimNum = str2double(thisStimNum(2:end));
+      if thisStimNum ~= stimNum
+        error('Stimulus number counter (%d) does not match the data (%d)',stimNum,thisStimNum);
+      end
+      allStim(stimNum).STMN = num2str(thisStimNum);
+      %allStim(stimNum).STMN = num2str(stimNum);
+      
+      % set the subsequent memory performance (+1)
+      if strcmp(data{cols.code}{j+1},'reca')
         allStim(stimNum).SMEM = '1';
-      case {'forg'}
+      elseif strcmp(data{cols.code}{j+1},'forg')
         allStim(stimNum).SMEM = '0';
-      case {'M001'}
-        allStim(stimNum).TMOD = 'auditory';
-      case {'M002'}
-        allStim(stimNum).TMOD = 'visual';
-      case {blocTag}
-        allStim(stimNum).BLOC = num2str(blockNum);
-      case {serpTag}
-        allStim(stimNum).SPOS = num2str(serPos);
-        if strcmp(serpTag,'S001') || strcmp(serpTag,'S002') || strcmp(serpTag,'S015') || strcmp(serpTag,'S015')
-          allStim(stimNum).STMT = 'STUDY_BUFFER';
+      end
+      
+      % set the stimulus modality (+2)
+      if strcmp(data{cols.code}{j+2},'M001')
+        allStim(stimNum).SMOD = 'auditory';
+      elseif strcmp(data{cols.code}{j+2},'M002')
+        allStim(stimNum).SMOD = 'visual';
+      end
+      
+      % set the block number (+3)
+      thisBlockNum = data{cols.code}{j+3};
+      thisBlockNum = str2double(thisBlockNum(2:end));
+      if thisBlockNum ~= blockNum
+        error('Block number counter (%d) does not match the data (%d)',blockNum,thisBlockNum);
+      end
+      allStim(stimNum).BLOC = num2str(thisBlockNum);
+      %allStim(stimNum).BLOC = num2str(blockNum);
+      
+      % set the serial position for this block (+4)
+      thisSerPos = data{cols.code}{j+4};
+      thisSerPos = str2double(thisSerPos(2:end));
+      if thisSerPos ~= serPos
+        error('Serial position counter (%d) does not match the data (%d)',serPos,thisSerPos);
+      end
+      allStim(stimNum).SPOS = num2str(thisSerPos);
+      %allStim(stimNum).SPOS = num2str(serPos);
+      
+      % set the stimulus type (buffers are the first and last 2 items)
+      if thisSerPos == 1 || thisSerPos == 2 || thisSerPos == 15 || thisSerPos == 16
+        allStim(stimNum).TYPE = 'STUDY_BUFFER';
+        thisCode = 'SBUF';
+      else
+        allStim(stimNum).TYPE = 'STUDY_TARGET';
+        thisCode = 'STRG';
+      end
+      
+      % now assemble the full line for writing to file
+      fn = fieldnames(allStim);
+      for k = 1:length(fn)
+        if strcmp(fn{k},'prevInfo')
+          continue
         else
-          allStim(stimNum).STMT = 'STUDY_TARGET';
+          allStim(stimNum).prevInfo = sprintf('%s\t%s\t%s',allStim(stimNum).prevInfo,fn{k},allStim(stimNum).(fn{k}));
         end
-        
-        % advance after finding the serial position tag because it's last
-        %
-        % that's not right
-        stimNum = stimNum + 1;
+      end
+      
+      % write the full line to file
+      fprintf(outfile,'%s%s\r',thisCode,allStim(stimNum).prevInfo);
+      
+      % advance the counter to look for the next stimulus
+      stimNum = stimNum + 1;
+      if serPos == 16
+        serPos = 1;
+        % only advance the block number after going through all positions
         blockNum = blockNum + 1;
+      else
         serPos = serPos + 1;
-    end % switch
+      end
+    end % if this is a stimulus presentation (P###)
     
-  end
+  end % for j
   
+  % close the output file
+  fclose(outfile);
+  
+  fprintf('Done.\n');
 end
-
-
