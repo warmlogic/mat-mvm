@@ -154,7 +154,7 @@ cfg_pp = [];
 % % single precision to save space
 %cfg_pp.precision = 'single';
 cfg_pp.demean = 'yes';
-%cfg_pp.baselinewindow = [-0.2 0];
+cfg_pp.baselinewindow = [-0.2 0];
 
 % cfg_pp.detrend = 'yes';
 % cfg_pp.dftfilter = 'yes';
