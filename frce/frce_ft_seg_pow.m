@@ -118,8 +118,8 @@ files.figPrintRes = 150;
 
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'zeroVar'};
-%ana.artifact.type = {'nsAuto'};
-ana.artifact.type = {'nsAuto','preRejManual'};
+ana.artifact.type = {'nsAuto'};
+%ana.artifact.type = {'nsAuto','preRejManual'};
 ana.overwrite.raw = 1;
 
 %ana.artifact.type = {'trialNum'};

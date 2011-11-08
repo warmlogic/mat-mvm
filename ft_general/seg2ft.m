@@ -251,7 +251,7 @@ for ses = 1:length(session)
   end
   % define the trials
   try
-    fprintf('Searching for %s events...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
+    fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
     cfg = ft_definetrial(cfg);
   catch ME
     % if there were zero trials for this event type
