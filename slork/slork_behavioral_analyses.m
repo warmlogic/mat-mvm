@@ -1,6 +1,8 @@
 % Can I also calculate F from the IRK equation for experiments 1 and 4 using
 % confidence? What would Wixted say?
 
+figFontName = 'Arial';
+
 subjects = {
   'SLORK002'...
   'SLORK003'...
@@ -233,7 +235,7 @@ bw_colormap = 'gray';
 h = barweb([S_RS_avg, Q_RS_avg; S_RO_avg, Q_RO_avg; S_F_avg, Q_F_avg],[S_RS_sem, Q_RS_sem; S_RO_sem, Q_RO_sem; S_F_sem, Q_F_sem],[],bw_groupnames,bw_title,[],[],bw_colormap,[],bw_legend);
 set(h.legend,'Location','NorthEast');
 axis([0.5 3.5 0 1]);
-publishfig(gcf,0);
+publishfig(gcf,0,[],[],figFontName);
 hold on
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
 print(gcf,'-depsc2','~/Desktop/RS_RO_F_accuracy');

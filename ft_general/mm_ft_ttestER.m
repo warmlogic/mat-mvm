@@ -334,7 +334,10 @@ if cfg_plot.line_plots == 1
   set(gca,'XTickLabel',strrep(cfg_plot.rename_conditions,'_',''))
   set(gca,'YTick',(cfg_plot.ylim(1):.5:cfg_plot.ylim(2)))
   axis square
-  publishfig(gcf,0);
+  if ~isfield(files,'figFontName')
+    files.figFontName = 'Helvetica';
+  end
+  publishfig(gcf,0,[],[],files.figFontName);
   if files.saveFigs
     cfg_plot.figfilename = sprintf('tla_line_ga_%s%s%d_%d',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000);
     dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tla_line');

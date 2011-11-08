@@ -237,12 +237,15 @@ for typ = 1:length(cfg_plot.conditions)
     if cfg_plot.plotTitle
       %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.condNames{1},cfg_plot.condNames{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
       title(sprintf('%s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
-      publishfig(gca,0);
       cfg_plot.title_str = '_title';
     else
       cfg_plot.title_str = '';
     end
-    
+    if ~isfield(files,'figFontName')
+      files.figFontName = 'Helvetica';
+    end
+    publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
+      
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
         cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);

@@ -14,11 +14,14 @@ function [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg,dirs,files,prefix)
 % DEFAULTS (if you don't set these):
 %  files.saveFigs   = 1 (default), or 0 if you don't want to print figures
 %  files.figPrintFormat = 'epsc2' (default), or 'tiff', 'png', 'pdf', 'jpeg90'
-%                         (do not include '-d')
+%                         (do not include '-d') % see PRINT
 %  files.figPrintRes    = 150 (default); some journals require higher DPI
-%                         resolution
+%                         resolution % see PRINT
+%  files.figFontName    = 'Helvetica' (default); some journals require a
+%                         specific font (e.g., 'Arial', 'Courier', 'Times',
+%                         'FixedWidth') % see LISTFONTS
 %
-% See also: PRINT
+% See also: PRINT, LISTFONTS
 
 if nargin < 6
   prefix = [];
@@ -169,11 +172,20 @@ end
 if ~isfield(files,'figPrintFormat')
   files.figPrintFormat = 'epsc2';
   %files.figPrintFormat = 'png';
+else
+  if strcmp(files.figPrintFormat(1:2),'-d')
+    files.figPrintFormat = files.figPrintFormat(3:end);
+  end
 end
 
 % default resolution for printed figures (DPI)
 if ~isfield(files,'figPrintRes')
-  files.figPrintRes = 150;
+  files.figPrintRes = 150; % 150 is the Matlab default
+end
+
+% default font for figures
+if ~isfield(files,'figFontName')
+  files.figFontName = 'Helvetica'; % Helvetica is the Matlab default
 end
 
 end

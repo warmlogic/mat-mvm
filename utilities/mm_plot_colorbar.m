@@ -1,16 +1,21 @@
-function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPrintRes)
+function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPrintRes,figFontName)
 %MM_PLOT_COLORBAR - Plot a colorbar and print it to file
 %
 % mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPrintRes)
 %
 % Input:
-%  minmax = [-1.5 1.5];
-%  orient = 'vert'; % or 'horiz'; see COLORBAR
-%  label = 'Voltage (\muV)';
-%  filename = '~/Desktop/colorbar'; % no extension necessary
-%  cmap = 'jet'; % or 'hot'; see COLORMAP
-%  figPrintFormat = 'epsc2'; % see PRINT
-%  figPrintRes = 150; % see PRINT
+%  minmax         = [-1.5 1.5]
+%  orient         = 'vert' (default); or 'horiz' % see COLORBAR
+%  label          = 'Voltage (\muV)' (default)
+%  filename       = 'colorbar' (pwd; default); or e.g.,'~/Desktop/colorbar'
+%                   % no extension necessary
+%  cmap           = the colormap to use; 'jet' (default); or, e.g., 'hot'
+%                   % see COLORMAP
+%  figPrintFormat = 'epsc2' (default) % see PRINT
+%  figPrintRes    = figure resolution; 150 (default) % see PRINT
+%  figFontName    = 'Helvetica' (default); some journals require a specific
+%                   font (e.g., 'Arial', 'Courier', 'Times', 'FixedWidth')
+%                   % see LISTFONTS
 %
 % This function will automatically add the minmax to the filename, to one
 % decimal place. However, it will replace the decimal with a 'p' so there
@@ -21,7 +26,7 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 % whitespace. see inline code for a bash script to do this, plus conversion
 % to pdf.
 %
-% See also: COLORBAR, COLORMAP, PRINT
+% See also: COLORBAR, COLORMAP, PRINT, LISTFONTS
 
 % Bash script for conversion: epstopdf_batch.sh
 %
@@ -52,18 +57,21 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 %   #eval $CMD $i
 % done
 
-if nargin < 6
-  figPrintRes = 150;
+if nargin < 7
+  figFontName = 'Helvetica';
   if nargin < 6
-    figPrintFormat = 'epsc2';
-    if nargin < 5
-      cmap = 'jet';
-      if nargin < 4
-        filename = 'colorbar';
-        if nargin < 3
-          label = 'Voltage (\muV)';
-          if nargin < 2
-            orient = 'vert';
+    figPrintRes = 150;
+    if nargin < 6
+      figPrintFormat = 'epsc2';
+      if nargin < 5
+        cmap = 'jet';
+        if nargin < 4
+          filename = 'colorbar';
+          if nargin < 3
+            label = 'Voltage (\muV)';
+            if nargin < 2
+              orient = 'vert';
+            end
           end
         end
       end
@@ -85,7 +93,7 @@ elseif strcmp(orient,'horiz')
 end
 
 % make the fonts bigger
-publishfig(gca,1);
+publishfig(gca,1,[],[],figFontName);
 
 % turn off the main plot
 cla

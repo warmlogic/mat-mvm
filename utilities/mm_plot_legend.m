@@ -1,15 +1,19 @@
-function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPrintRes)
+function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPrintRes,figFontName)
 %MM_PLOT_LEGEND - Plot a legend and print it to file
 %
 % mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPrintRes)
 %
 % Input:
-%  label = {'a','b','c'}; see LEGEND
-%  linestyle = {'k-','b--','r-.'}; % see PLOT
-%  linewidth = 1.0; % see PLOT
-%  filename = '~/Desktop/legend'; % no extension necessary
-%  figPrintFormat = 'epsc2'; % see PRINT
-%  figPrintRes = 150; % see PRINT
+%  label          = {'a','b','c'}; see LEGEND
+%  linestyle      = {'k-','b--','r-.'} % see PLOT
+%  linewidth      = 1.0 (default) % see PLOT
+%  filename       = 'legend' (default); or, e.g., '~/Desktop/legend';
+%                   % no extension necessary
+%  figPrintFormat = 'epsc2' (default) % see PRINT
+%  figPrintRes    = figure resolution; 150 (default) % see PRINT
+%  figFontName    = 'Helvetica' (default); some journals require a specific
+%                   font (e.g., 'Arial', 'Courier', 'Times', 'FixedWidth')
+%                   % see LISTFONTS
 %
 % This function will automatically add the labels to the filename.
 %
@@ -17,7 +21,7 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 % whitespace. see inline code for a bash script to do this, plus conversion
 % to pdf.
 %
-% See also: LEGEND, PLOT, PRINT
+% See also: LEGEND, PLOT, PRINT, LISTFONTS
 
 % Bash script for conversion: epstopdf_batch.sh
 %
@@ -48,14 +52,17 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 %   #eval $CMD $i
 % done
 
-if nargin < 6
-  figPrintRes = 150;
-  if nargin < 5
-    figPrintFormat = 'epsc2';
-    if nargin < 4
-      filename = 'legend';
-      if nargin < 3
-        linewidth = 1.0;
+if nargin < 7
+  figFontName = 'Helvetica';
+  if nargin < 6
+    figPrintRes = 150;
+    if nargin < 5
+      figPrintFormat = 'epsc2';
+      if nargin < 4
+        filename = 'legend';
+        if nargin < 3
+          linewidth = 1.0;
+        end
       end
     end
   end
@@ -82,7 +89,7 @@ hold off
 legend(label);
 
 % make the fonts bigger
-publishfig(gca,1);
+publishfig(gca,1,[],[],figFontName);
 
 % turn off the main plot
 cla

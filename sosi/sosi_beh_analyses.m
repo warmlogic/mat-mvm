@@ -1,3 +1,4 @@
+figFontName = 'Arial';
 
 subjects = {
   'SOSI001';
@@ -92,7 +93,7 @@ axis([0.5 3.5 0 1]);
 title(bw_title);
 xlabel(bw_xlabel)
 ylabel(bw_ylabel)
-publishfig(gcf,0);
+publishfig(gcf,0,[],[],figFontName);
 % horiz chance line
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2);
 hold off
@@ -111,7 +112,7 @@ print(gcf,'-dpng','~/Desktop/SOSI_RS_RO_F_accuracy');
 % h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,[],[],bw_colormap,[],bw_legend);
 % set(h.legend,'Location','NorthEast');
 % axis([0.5 3.5 0 1]);
-% publishfig(gcf,0);
+% publishfig(gcf,0,[],[],figFontName);
 % hold on
 % plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
 % %print(gcf,'-dpng','~/Desktop/SOSI_RS_RO_F_accuracy');

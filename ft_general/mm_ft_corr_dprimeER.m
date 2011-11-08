@@ -127,7 +127,10 @@ for typ = 1:length(cfg_ana.conditions)
     %axis([floor(min(x1)) ceil(max(x1)) floor(min(y1)) ceil(max(y1))])
     axis([0 ceil(max(x1)) -4 4])
     axis square
-    publishfig(gcf,0);
+    if ~isfield(files,'figFontName')
+      files.figFontName = 'Helvetica';
+    end
+    publishfig(gcf,0,[],[],files.figFontName);
     if ~isempty(cfg_ana.types{typ})
       fprintf('%s: ',cfg_ana.types{typ});
     end

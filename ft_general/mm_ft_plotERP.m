@@ -134,7 +134,10 @@ for typ = 1:length(cfg_plot.conditions)
   end
   %title(strrep(cfg_plot.chan_str,'_',' '))
   %axis ij % negative up
-  publishfig(gca,~cfg_plot.plotTitle);
+  if ~isfield(files,'figFontName')
+    files.figFontName = 'Helvetica';
+  end
+  publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
   
   if cfg_plot.plotLegend
     cfg_plot.legend_str = '_legend';

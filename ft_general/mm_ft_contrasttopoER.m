@@ -74,8 +74,11 @@ for typ = 1:length(ana.events.values)
     if cfg_plot.plotTitle
       %title(sprintf('%s - %s, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.xlim(1),cfg_ft.xlim(2)));
       title(sprintf('%s - %s, %.1f--%.1f s',cfg_plot.cond{c,1},cfg_plot.cond{c,2},cfg_ft.xlim(1),cfg_ft.xlim(2)));
-      publishfig(gca,0);
     end
+    if ~isfield(files,'figFontName')
+      files.figFontName = 'Helvetica';
+    end
+    publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
     
     if files.saveFigs
       if ~isempty(ana.events.types{typ})

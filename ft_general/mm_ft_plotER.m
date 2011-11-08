@@ -255,7 +255,10 @@ for typ = 1:length(cfg_plot.conditions)
           title(sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
         end
         
-        publishfig(gca,~cfg_plot.plotTitle);
+        if ~isfield(files,'figFontName')
+          files.figFontName = 'Helvetica';
+        end
+        publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
         
       end % subplot
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
@@ -358,7 +361,10 @@ for typ = 1:length(cfg_plot.conditions)
       %title(strrep(cfg_plot.chan_str,'_',' '));
     end
     if ~cfg_plot.subplot
-      publishfig(gca,~cfg_plot.plotTitle);
+      if ~isfield(files,'figFontName')
+        files.figFontName = 'Helvetica';
+      end
+      publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
     end
     
     if cfg_plot.plotLegend

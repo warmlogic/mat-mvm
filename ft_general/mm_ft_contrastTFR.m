@@ -244,11 +244,14 @@ for typ = 1:length(cfg_plot.conditions)
   if cfg_plot.plotTitle
     %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
     title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
-    publishfig(gca,0);
     cfg_plot.title_str = '_title';
   else
     cfg_plot.title_str = '';
   end
+  if ~isfield(files,'figFontName')
+    files.figFontName = 'Helvetica';
+  end
+  publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
   
   if files.saveFigs
     % make a string indicating the z-limits; change the decimal to a p for

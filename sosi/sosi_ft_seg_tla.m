@@ -120,6 +120,7 @@ files.saveFigs = 1;
 %files.figPrintFormat = 'png';
 files.figPrintFormat = 'epsc2';
 files.figPrintRes = 300;
+files.figFontName = 'Arial';
 
 %% Convert the data to FieldTrip structs
 

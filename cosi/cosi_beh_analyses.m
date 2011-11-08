@@ -1,5 +1,7 @@
 % COSI behavioral analyses
 
+figFontName = 'Arial';
+
 subjects = {
   'COSI001';
   'COSI002';
@@ -96,7 +98,7 @@ bw_errors = [COSI_COLOR_RS_sem, COSI_SIDE_RS_sem; COSI_COLOR_RO_sem, COSI_SIDE_R
 h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,[],[],bw_colormap,[],bw_legend);
 set(h.legend,'Location','NorthEast');
 axis([0.5 3.5 0 1]);
-publishfig(gcf,0);
+publishfig(gcf,0,[],[],figFontName);
 hold on
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
 %print(gcf,'-dpng','~/Desktop/COSI_SIDE_COLOR_RS_RO_F_accuracy');
