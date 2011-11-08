@@ -129,8 +129,12 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figPrintFormat = 'png';
-%files.figPrintFormat = 'epsc2';
+files.figFontName = 'Arial';
+files.figPrintFormat = 'epsc2';
+files.figPrintRes = 150;
+
+%files.figPrintFormat = 'tiff';
+%files.figPrintRes = 1000;
 
 % %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
@@ -227,7 +231,14 @@ end
 
 %adFile = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 adFile = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+
+files.figFontName = 'Arial';
+files.figPrintFormat = 'epsc2';
+files.figPrintRes = 150;
+
+%files.figPrintFormat = 'tiff';
+%files.figPrintRes = 1000;
 
 %% set up channel groups
 

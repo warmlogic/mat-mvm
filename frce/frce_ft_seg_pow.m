@@ -89,8 +89,12 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figPrintFormat = 'png';
-%files.figPrintFormat = 'epsc2';
+files.figFontName = 'Arial';
+files.figPrintFormat = 'epsc2';
+files.figPrintRes = 150;
+
+%files.figPrintFormat = 'tiff';
+%files.figPrintRes = 1000;
 
 %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
@@ -113,7 +117,8 @@ files.figPrintFormat = 'png';
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'zeroVar'};
+%ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {'ns_auto'};
 ana.overwrite.raw = 1;
 
 ana.ftFxn = 'ft_freqanalysis';
@@ -146,6 +151,7 @@ cfg_pp = [];
 %cfg_pp.precision = 'single';
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
+
 % cfg_pp.detrend = 'yes';
 % cfg_pp.dftfilter = 'yes';
 % cfg_pp.dftfreq = [60 120 180];
@@ -159,7 +165,7 @@ cfg_proc = [];
 cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
 cfg_proc.keeptrials = 'yes';
-cfg_proc.keeptapers = 'yes';
+cfg_proc.keeptapers = 'no';
 
 % % MTM FFT
 % cfg_proc.method = 'mtmfft';
@@ -176,13 +182,13 @@ cfg_proc.method = 'mtmconvol';
 cfg_proc.taper = 'hanning';
 %cfg_proc.taper = 'dpss';
 %cfg_proc.toi = -0.8:0.04:3.0;
-cfg_proc.toi = -0.5:0.04:1.0;
-freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-cfg_proc.foi = 3:freqstep:40;
+cfg_proc.toi = -0.5:0.05:1.5;
+%freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+%cfg_proc.foi = 3:freqstep:40;
 %cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foi = 3:1:9;
+cfg_proc.foi = 4:1:9;
 %cfg_proc.foi = 2:2:30;
-cfg_proc.t_ftimwin = 4./cfg_proc.foi;
+cfg_proc.t_ftimwin = 6./cfg_proc.foi;
 % tapsmofrq is not used for hanning taper; it is used for dpss
 %cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
 
@@ -241,8 +247,8 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
-[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_ns_auto/pow_mtmconvol_hanning_pow_-500_1500_3_9/analysisDetails.mat';
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
 
@@ -289,12 +295,13 @@ end
 cfg_ft.parameter = 'powspctrm';
 %cfg_ft.ylim = [3 9];
 cfg_ft.showlabels = 'yes';
+cfg_ft.fontsize = 12;
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub=1;
 ses=1;
-for i = 1:4
+for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   title(ana.eventValues{1}{i});
@@ -349,6 +356,8 @@ exper.badBehSub = {};
 [exper] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
+
+ga_freq = struct;
 
 % set up strings to put in grand average function
 cfg_ana = [];

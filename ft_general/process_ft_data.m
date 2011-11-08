@@ -177,8 +177,8 @@ else
             catch ME
               disp(ME)
               warning([mfilename,':ftFxn_problem'],'Something is wrong with %s, %s, %s.',exper.subjects{sub},sesStr,eventVal);
-              errFile = fullfile(saveFileDir,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
-              fprintf('Saving error information in %s.',errFile);
+              errFile = fullfile(saveDirProcFile,sprintf('err_%s_%s.mat',ana.ftype,eventVal));
+              fprintf('Saving error information in %s.\n',errFile);
               save(errFile,'ME');
             end % try
             

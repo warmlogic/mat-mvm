@@ -124,9 +124,14 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-%files.figPrintFormat = 'png';
+files.figFontName = 'Arial';
+
 files.figPrintFormat = 'epsc2';
-files.figPrintRes = 300;
+files.figPrintRes = 150;
+
+%files.figPrintFormat = 'png';
+%files.figPrintFormat = 'tiff';
+%files.figPrintRes = 1000;
 
 %% Convert the data to FieldTrip structs
 
@@ -191,10 +196,14 @@ adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
+files.figFontName = 'Arial';
 files.figPrintFormat = 'epsc2';
-files.figPrintRes = 300;
+files.figPrintRes = 150;
+
+%files.figPrintFormat = 'tiff';
+%files.figPrintRes = 1000;
 
 %% set up channel groups
 

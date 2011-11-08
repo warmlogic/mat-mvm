@@ -183,7 +183,7 @@ fprintf('Done.\n');
 
 %% load the analysis details
 
-%[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(filename,1);
+%[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(filename,1);
 
 %% set up channel groups
 

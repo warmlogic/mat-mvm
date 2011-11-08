@@ -27,10 +27,10 @@ runLocally = 0;
 if runLocally == 0
   %adFile = '/data/projects/curranlab/KAHN2matt/eeg/eegpp/-800_1500/ft_data/CR___CoTa_InTa_eq0/conn_mtmconvol_hanning_fourier_-500_980_3_8/analysisDetails.mat';
   adFile = '/data/projects/curranlab/KAHN2matt/eeg/eegpp/-800_1500/ft_data/CR___CoTa_InTa_PP___PR___PTa__RP___RR___RTa__eq0/conn_wavelet_w5_fourier_-300_980_3_9/analysisDetails.mat';
-  [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 elseif runLocally == 1
   adFile = '/Volumes/curranlab/TNT_matt/eeg/-1000_1700/ft_data/NT_TH_eq1/conn_mtmconvol_hanning_fourier_-500_980_3_9/analysisDetails.mat';
-  [exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 end
 
 % % initialize the analysis structs

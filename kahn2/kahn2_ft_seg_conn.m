@@ -260,7 +260,7 @@ end
 
 %adFile = '/Volumes/curranlab/Data/KAHN2matt/eeg/eegpp/-800_1500/ft_data/CR___CoTa_InTa_eq0/conn_mtmconvol_hanning_fourier_-500_980_3_8/analysisDetails.mat';
 adFile = '/Volumes/curranlab/Data/KAHN2matt/eeg/eegpp/-800_1500/ft_data/CR___CoTa_InTa_PP___PR___PTa__RP___RR___RTa__eq0/conn_wavelet_w5_fourier_-300_980_3_9/analysisDetails.mat';
-[exper,ana,dirs,files,cfg_proc] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
 
