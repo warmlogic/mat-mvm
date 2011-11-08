@@ -189,7 +189,8 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
   fprintf('Use arrows to move to next trial.\n');
   fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-  fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
+  fprintf('Use the ''q'' key to quit the data browser when finished.\n');
+  fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
   
   cfg = ft_databrowser(cfg,data);
   
@@ -239,7 +240,8 @@ if rejArt_ftManual
   fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
   fprintf('Use arrows to move to next trial.\n');
   fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-  fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
+  fprintf('Use the ''q'' key to quit the data browser when finished.\n');
+  fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
   
   cfg = ft_databrowser(cfg,data);
   
@@ -326,7 +328,8 @@ if rejArt_ftICA
     fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
     fprintf('Use arrows to move to next trial.\n');
     fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-    fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
+    fprintf('Use the ''q'' key to quit the data browser when finished.\n');
+    fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
     
     cfg = ft_databrowser(cfg,data_ic_cleaned);
     
