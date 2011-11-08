@@ -1,4 +1,4 @@
-function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
+function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,ana)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
 % [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
@@ -27,25 +27,26 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ARTIFACT INFORMATION:
 %
-% artifactType can be 'none', 'ns_auto', 'zeroVar', 'prerej_manual', 'ft_manual', or 'ft_ica';
+% ana.artifact.type can be 'none', 'nsAuto', 'zeroVar', 'preRejManual',
+% 'ftManual', or 'ftICA';
 % it can be one of those strings or a cell array of multiple strings (e.g.,
-% {'ns_auto','ft_manual'} to do both Net Station artifact rejection and
-% FieldTrip manual ("visual") rejection). 'ft_ica' also includes manual
+% {'nsAuto','preRejManual'} to do both Net Station artifact rejection and
+% FieldTrip manual ("visual") rejection). 'ftICA' also includes manual
 % rejection after manually assessing components. Though it is not prohibited,
-% 'ns_auto' and 'zeroVar' should not be used together because there is no
-% reason to find bad trials with both EP Toolkit and NS.
+% 'nsAuto' and 'zeroVar' should not be used together because there is
+% probably no good reason to find bad trials with both EP Toolkit and NS.
 %
-% 'ns_auto', 'zeroVar', and 'prerej_manual' are processed first, then 'ft_manual',
-% then 'ft_ica'. Subquent processing will not include earlier rejected artifacts.
-% Note: any FT artifact processing requires manual intervention (as does 'prerej_manual'),
-% while 'ns_auto' and 'zeroVar' artifact processing does not. 'prerej_manual' is for
+% 'nsAuto', 'zeroVar', and 'preRejManual' are processed first, then 'ftManual',
+% then 'ftICA'. Subquent processing will not include earlier rejected artifacts.
+% Note: any FT artifact processing requires manual intervention (as does 'preRejManual'),
+% while 'nsAuto' and 'zeroVar' artifact processing does not. 'preRejManual' is for
 % inspecting the artifacts that have been previously identified by other
-% software (NS, EP Toolkit, etc.). After manual inspection, both 'prerej_manual'
-% and 'ft_manual' give the option to repair individual channels (for all
+% software (NS, EP Toolkit, etc.). After manual inspection, both 'preRejManual'
+% and 'ftManual' give the option to repair individual channels (for all
 % trials) using FT_CHANNELREPAIR, so be sure to keep track of any channels
 % that you want to repair (i.e., instead of rejecting them as artifacts).
 %
-% If using NS artifacts ('ns_auto'), this function expects to find a Net Station segment
+% If using NS artifacts ('nsAuto'), this function expects to find a Net Station segment
 % info file with a .bci extension; this contains artifact information. It is
 % exported from Net Station using the File Export tool. To set up the tool,
 % export format is metadata and check the segment information option. Run
@@ -58,10 +59,10 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % bad trial detection done by EP Toolkit because it flattens all channels
 % of any bad trials.
 %
-% If 'ft_manual', a visualization of all channels for each event will appear,
+% If 'ftManual', a visualization of all channels for each event will appear,
 % where each trial is shown one-by-one.
 %
-% If 'ft_ica', ICA will run on all trials across all event values.
+% If 'ftICA', ICA will run on all trials across all event values.
 % Individual components can be rejected after this.  Finally, a
 % visualization of all channels for each event will appear, where each
 % trial is shown one-by-one.
@@ -85,18 +86,18 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 
 %% set the artifact processing parameters
 
-if ischar(artifactType)
-  artifactType = {artifactType};
+if ischar(ana.artifact.type)
+  ana.artifact.type = {ana.artifact.type};
 end
 
-artifactOpts = {'none','ns_auto','zeroVar','prerej_manual','ft_auto','ft_manual','ft_ica'};
+artifactOpts = {'none','nsAuto','zeroVar','preRejManual','ftAuto','ftManual','ftICA'};
 
-if any(~ismember(artifactType,artifactOpts))
-  error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(artifactType(~ismember(artifactType,artifactOpts))))
+if any(~ismember(ana.artifact.type,artifactOpts))
+  error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(ana.artifact.type(~ismember(ana.artifact.type,artifactOpts))))
 end
 
 % set artifact defaults
-if any(ismember(artifactType,artifactOpts)) && ~ismember('none',artifactType)
+if any(ismember(ana.artifact.type,artifactOpts)) && ~ismember('none',ana.artifact.type)
   rejArt = 1;
 else
   rejArt = 0;
@@ -250,11 +251,12 @@ for ses = 1:length(session)
   end
   % define the trials
   try
+    fprintf('Searching for %s events...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
     cfg = ft_definetrial(cfg);
   catch ME
     % if there were zero trials for this event type
     if strfind(ME.message,'no trials were defined')
-      fprintf('No %s events found!\n',cell2mat(eventValue));
+      fprintf('No %s events found!\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
     end
     fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',cell2mat(eventValue));
     
@@ -365,9 +367,8 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    data = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,elecfile,data);
+    data = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,elecfile,data);
   end
-  
   
   %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1

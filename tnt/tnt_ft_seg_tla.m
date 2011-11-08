@@ -149,7 +149,7 @@ files.figPrintFormat = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
-ana.artifact.type = {'ns_auto','ft_manual'};
+ana.artifact.type = {'nsAuto','ftManual'};
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';

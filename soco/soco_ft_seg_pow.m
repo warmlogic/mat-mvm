@@ -161,7 +161,7 @@ files.figPrintFormat = 'png';
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'ns_auto'};
+ana.artifact.type = {'nsAuto'};
 
 ana.ftFxn = 'ft_freqanalysis';
 

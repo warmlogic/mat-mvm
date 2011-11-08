@@ -118,8 +118,12 @@ files.figPrintRes = 150;
 
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'zeroVar'};
-ana.artifact.type = {'ns_auto'};
+%ana.artifact.type = {'nsAuto'};
+ana.artifact.type = {'nsAuto','preRejManual'};
 ana.overwrite.raw = 1;
+
+%ana.artifact.type = {'trialNum'};
+%ana.artifact.trialNum.VisReca = [5 12 41];
 
 ana.ftFxn = 'ft_freqanalysis';
 
@@ -150,7 +154,7 @@ cfg_pp = [];
 % % single precision to save space
 %cfg_pp.precision = 'single';
 cfg_pp.demean = 'yes';
-cfg_pp.baselinewindow = [-0.2 0];
+%cfg_pp.baselinewindow = [-0.2 0];
 
 % cfg_pp.detrend = 'yes';
 % cfg_pp.dftfilter = 'yes';
@@ -186,7 +190,7 @@ cfg_proc.toi = -0.5:0.05:1.5;
 %freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
 %cfg_proc.foi = 3:freqstep:40;
 %cfg_proc.foi = 3:freqstep:9;
-cfg_proc.foi = 4:1:9;
+cfg_proc.foi = 4:1:40;
 %cfg_proc.foi = 2:2:30;
 cfg_proc.t_ftimwin = 6./cfg_proc.foi;
 % tapsmofrq is not used for hanning taper; it is used for dpss
@@ -247,7 +251,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_ns_auto/pow_mtmconvol_hanning_pow_-500_1500_3_9/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_3_9/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups

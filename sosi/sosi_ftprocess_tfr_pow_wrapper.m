@@ -147,7 +147,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = 'ns_auto';
+ana.artifact.type = 'nsAuto';
 
 % ana.otherFxn = {};
 % ana.otherFxn{1} = 'ft_scalpcurrentdensity';

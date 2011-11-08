@@ -1,8 +1,8 @@
-function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,elecfile,data)
+function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
-% [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactType,data)
+% [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,data)
 %
-% artifactType details are described in: SEG2FT, CREATE_FT_STRUCT
+% ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
 % See also: SEG2FT, CREATE_FT_STRUCT
 
@@ -16,50 +16,75 @@ function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,artifactTyp
 %% set the artifact processing parameters
 
 % figure out which artifact options we're using
-if ismember('ns_auto',artifactType)
-  rejArt_ns_auto = 1;
+if ismember('nsAuto',ana.artifact.type)
+  rejArt_nsAuto = 1;
 else
-  rejArt_ns_auto = 0;
+  rejArt_nsAuto = 0;
 end
-if ismember('zeroVar',artifactType)
+if ismember('zeroVar',ana.artifact.type)
   rejArt_zeroVar = 1;
 else
   rejArt_zeroVar = 0;
 end
-if ismember('prerej_manual',artifactType)
-  rejArt_prerej_manual = 1;
+if ismember('preRejManual',ana.artifact.type)
+  rejArt_preRejManual = 1;
 else
-  rejArt_prerej_manual = 0;
+  rejArt_preRejManual = 0;
 end
-if ismember('ft_auto',artifactType)
-  rejArt_ft_auto = 1;
+% if ismember('trialNum',ana.artifact.type)
+%   if ~isfield(ana.artifact,'trialNum')
+%     error('Must define which trials to reject due to artifacts.');
+%   elseif isfield(ana.artifact,'trialNum') && ~isfield(ana.artifact,eventValue,cell2mat(eventValue))
+%     error('Must define which %s trials to reject due to artifacts.',cell2mat(eventValue));
+%   end
+%   rejArt_trialNum = 1;
+% else
+%   rejArt_trialNum = 0;
+% end
+if ismember('ftAuto',ana.artifact.type)
+  rejArt_ftAuto = 1;
 else
-  rejArt_ft_auto = 0;
+  rejArt_ftAuto = 0;
 end
-if ismember('ft_manual',artifactType)
-  rejArt_ft_manual = 1;
+if ismember('ftManual',ana.artifact.type)
+  rejArt_ftManual = 1;
 else
-  rejArt_ft_manual = 0;
+  rejArt_ftManual = 0;
 end
-if ismember('ft_ica',artifactType)
-  rejArt_ft_ica = 1;
+if ismember('ftICA',ana.artifact.type)
+  rejArt_ftICA = 1;
 else
-  rejArt_ft_ica = 0;
+  rejArt_ftICA = 0;
 end
 
-% if rejArt_ns_auto == 1 && rejArt_zeroVar == 1
-%   error('Cannot reject both NS artifacts (''ns_auto'') and trials with zero variance (''zeroVar''). Choose one or the other.')
+% if rejArt_nsAuto == 1 && rejArt_zeroVar == 1
+%   error('Cannot reject both NS artifacts (''nsAuto'') and trials with zero variance (''zeroVar''). Choose one or the other.')
 % end
 
-if rejArt_prerej_manual == 1 && rejArt_ns_auto == 0 && rejArt_zeroVar == 0
-  error('To manually inspect prerejected artifacts (''prerej_manual''), you must also use either ''ns_auto'' or ''zeroVar''.');
+if rejArt_preRejManual == 1 && rejArt_nsAuto == 0 && rejArt_zeroVar == 0
+  error('To manually inspect prerejected artifacts (''preRejManual''), you must also use either ''nsAuto'' or ''zeroVar''. Otherwise, just use ''ftManual'')');
 end
 
-%% check on NS and zero variance artifacts; and manual inspection option
+%% check on predefined trial numbers, NS, and zero variance artifacts;
+% manual inspection option will show which have been rejected
 
 foundArt = 0;
 
-if rejArt_ns_auto
+% % reject using trial numbers
+% if rejArt_trialNum
+%   if ~isempty(find(ana.artifact.trialNum.(cell2mat(eventValue)),1))
+%     foundArt = 1;
+%     fprintf('Automatically rejecting %d predefined artifacts for%s.\n',length(ana.artifact.trialNum.(cell2mat(eventValue))),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+%     cfg = [];
+%     % mark the trials that have artifacts as such; select the entire sample
+%     % range for the bad events
+%     cfg.artfctdef.visual.artifact = data.sampleinfo(ana.artifact.trialNum.(eventValue),:);
+%   else
+%     fprintf('No predefined artifacts found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+%   end
+% end
+
+if rejArt_nsAuto
   % make sure the file with NS artifact info exists
   summaryFile = dir(fullfile(dataroot,sesName,'ns_bci',[subject,'*.bci']));
   if ~isempty(summaryFile)
@@ -134,8 +159,8 @@ if rejArt_zeroVar
       cfg = [];
       cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv),:);
     else
-      if rejArt_ns_auto && foundArt
-        % if running both ns_auto and zeroVar
+      if rejArt_nsAuto && foundArt
+        % if running both nsAuto and zeroVar
         if isfield(cfg,'artfctdef')
           if isfield(cfg.artfctdef,'visual')
             if isfield(cfg.artfctdef.visual,'artifact')
@@ -153,7 +178,7 @@ if rejArt_zeroVar
 end
 
 % if we want to inspect manually
-if (rejArt_ns_auto || rejArt_zeroVar) && rejArt_prerej_manual
+if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   foundArt = 1;
   cfg.continuous = 'no';
   cfg.viewmode = 'butterfly';
@@ -192,14 +217,14 @@ if (rejArt_ns_auto || rejArt_zeroVar) && rejArt_prerej_manual
 end
 
 % do the actual rejection of artifact trials (complete or parial rejection)
-if (rejArt_ns_auto || rejArt_zeroVar) && foundArt
+if (rejArt_nsAuto || rejArt_zeroVar) && foundArt
   cfg.artfctdef.reject = 'complete';
   data = ft_rejectartifact(cfg,data);
 end
 
 %% visual artifact inspection (manual)
 
-if rejArt_ft_manual
+if rejArt_ftManual
   % use cursor drag and click to mark artifacts;
   % use arrows to advance to next trial;
   % use the q key to quit the data browser
@@ -216,7 +241,7 @@ if rejArt_ft_manual
   fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
   fprintf('Use the ''q'' key to quit the data browser when finished.\n\n\n');
   
-  cfg = ft_databrowser(cfg_browser,data);
+  cfg = ft_databrowser(cfg,data);
   
   % see if there were any channels to repair first
   rejArt_repair = [];
@@ -247,7 +272,7 @@ end
 
 %% ICA artifact detection
 
-if rejArt_ft_ica
+if rejArt_ftICA
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % ICA artifact detection
   %
@@ -315,7 +340,7 @@ end
 
 %% run FieldTrip's automatic artifact detection on the data
 
-if rejArt_ft_auto
+if rejArt_ftAuto
   % get the trial definition for automated FT artifact rejection
   trl = ft_findcfg(data.cfg,'trl');
   

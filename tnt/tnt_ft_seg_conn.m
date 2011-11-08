@@ -143,7 +143,7 @@ files.figPrintFormat = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = 'ns_auto';
+ana.artifact.type = 'nsAuto';
 
 % % otherFxn - other processing; must be numbered sequentially in {index}
 % ana.otherFxn = {};

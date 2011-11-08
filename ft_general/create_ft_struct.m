@@ -10,13 +10,14 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % as {{'ses1','ses2'}}. If they're input as {{'ses1'},{'ses2'}} then they
 % will be kept separate.
 %
-% ana.artifact.type = the type of artifact info to use: 'none', 'ns_auto',
-%                     'zeroVar', 'prerej_manual', 'ft_manual', or 'ft_ica'.
+% ana.artifact.type = the type of artifact info to use: 'none', 'nsAuto',
+%                     'zeroVar', 'preRejManual','ftManual', or 'ftICA'.
+%
 %                     Some types can be combined.
 %                     
-%                     If ns_auto, SEG2FT expects to find a NS bci metadata file.
-%                     This file denotes the reject artifact trials. Use the
-%                     File Export tool to export Metadata > Segment
+%                     If nsAuto, SEG2FT expects to find a NS bci metadata
+%                     file. This file denotes the reject artifact trials.
+%                     Use the File Export tool to export Metadata > Segment
 %                     Information; put it in a 'ns_bci' directory in
 %                     dataroot/session.
 %                     
@@ -82,7 +83,7 @@ if ~isfield(ana,'segFxn')
   ana.segFxn = 'seg2ft';
 end
 
-% need an artifact detection type ('none', or: 'ns_auto', 'prerej_manual', 'ft_manual', 'ft_ica')
+% need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
 elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
@@ -254,7 +255,7 @@ for sub = 1:length(exper.subjects)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,exper.prepost,files.elecfile,ana.artifact.type);
+      ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,exper.prepost,files.elecfile,ana);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -302,7 +303,7 @@ for sub = 1:length(exper.subjects)
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
         % ft_raw
-        ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),exper.prepost,files.elecfile,ana.artifact.type);
+        ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),exper.prepost,files.elecfile,ana);
         
         % if an extra value was defined and the current event is one of its
         % sub-values, store the current event in the toCombine field for

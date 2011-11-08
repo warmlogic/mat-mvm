@@ -143,7 +143,7 @@ files.figPrintFormat = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = 'ns_auto';
+ana.artifact.type = 'nsAuto';
 
 % any preprocessing?
 cfg_pp = [];

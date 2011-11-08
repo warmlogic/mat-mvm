@@ -175,7 +175,7 @@ files.figPrintRes = 150;
 % raw data
 ana.segFxn = 'seg2ft';
 ana.artifact.type = {'zeroVar'};
-%ana.artifact.type = {'ns_auto'};
+%ana.artifact.type = {'nsAuto'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -229,7 +229,7 @@ end
 
 %% load the analysis details
 
-%adFile = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_ns_auto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/COSI/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
 adFile = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
