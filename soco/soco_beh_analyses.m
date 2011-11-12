@@ -181,3 +181,24 @@ print(gcf,'-depsc2','~/Desktop/SOCO_RS_RO_F_accuracy');
 % hold on
 % plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
 % print(gcf,'-dpng','~/Desktop/SOCO_RS_RO_F_accuracy');
+
+%% both
+
+bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+bw_title = 'Proportion of Source Correct responses';
+bw_legend = {'2 Colors','6 Colors','Collapsed'};
+bw_colormap = 'gray';
+bw_data = [C2_RS_avg, C6_RS_avg, RS_avg; C2_RO_avg, C6_RO_avg, RO_avg; C2_F_avg, C6_F_avg, F_avg];
+bw_errors = [C2_RS_sem, C6_RS_sem, RS_sem; C2_RO_sem, C6_RO_sem, RO_sem; C2_F_sem, C6_F_sem, F_sem];
+bw_xlabel = 'RK Response';
+bw_ylabel = 'Proportion Correct';
+
+figure
+h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend);
+set(h.legend,'Location','NorthEast');
+axis([0.5 3.5 0 1]);
+publishfig(gcf,0,[],[],figFontName);
+hold on
+plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
+print(gcf,'-dpng','~/Desktop/SOCO_C2_C6_Col_RS_RO_F_accuracy');
+print(gcf,'-depsc2','~/Desktop/SOCO_C2_C6_Col_RS_RO_F_accuracy');

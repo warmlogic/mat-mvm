@@ -303,7 +303,7 @@ cfg_ft.fontsize = 12;
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub=1;
+sub=6;
 ses=1;
 for i = 1:length(ana.eventValues{1})
   figure

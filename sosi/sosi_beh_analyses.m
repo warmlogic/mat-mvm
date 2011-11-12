@@ -99,7 +99,7 @@ plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2);
 hold off
 % print it
 print(gcf,'-dpng','~/Desktop/SOSI_RS_RO_F_accuracy');
-%print(gcf,'-depsc2','~/Desktop/SOSI_RS_RO_F_accuracy');
+print(gcf,'-depsc2','~/Desktop/SOSI_RS_RO_F_accuracy');
 
 % figure
 % bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
