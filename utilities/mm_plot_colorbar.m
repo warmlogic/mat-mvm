@@ -4,7 +4,7 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 % mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPrintRes)
 %
 % Input:
-%  minmax         = [-1.5 1.5]
+%  minmax         = [-1.5 1.5] (required)
 %  orient         = 'vert' (default); or 'horiz' % see COLORBAR
 %  label          = 'Voltage (\muV)' (default)
 %  filename       = 'colorbar' (pwd; default); or e.g.,'~/Desktop/colorbar'
@@ -57,26 +57,52 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 %   #eval $CMD $i
 % done
 
-if nargin < 7
+% if nargin < 7
+%   figFontName = 'Helvetica';
+%   if nargin < 6
+%     figPrintRes = 150;
+%     if nargin < 6
+%       figPrintFormat = 'epsc2';
+%       if nargin < 5
+%         cmap = 'jet';
+%         if nargin < 4
+%           filename = 'colorbar';
+%           if nargin < 3
+%             label = 'Voltage (\muV)';
+%             if nargin < 2
+%               orient = 'vert';
+%             end
+%           end
+%         end
+%       end
+%     end
+%   end
+% end
+
+if ~exist('minmax','var') || isempty(minmax)
+  error('Must set minmax variable');
+end
+
+if ~exist('orient','var') || isempty(orient)
+  orient = 'vert';
+end
+if ~exist('label','var') || isempty(label)
+  label = 'Voltage (\muV)';
+end
+if ~exist('filename','var') || isempty(filename)
+  filename = 'colorbar';
+end
+if ~exist('cmap','var') || isempty(cmap)
+  cmap = 'jet';
+end
+if ~exist('figPrintFormat','var') || isempty(figPrintFormat)
+  figPrintFormat = 'epsc2';
+end
+if ~exist('figPrintRes','var') || isempty(figPrintRes)
+  figPrintRes = 150;
+end
+if ~exist('figFontName','var') || isempty(figFontName)
   figFontName = 'Helvetica';
-  if nargin < 6
-    figPrintRes = 150;
-    if nargin < 6
-      figPrintFormat = 'epsc2';
-      if nargin < 5
-        cmap = 'jet';
-        if nargin < 4
-          filename = 'colorbar';
-          if nargin < 3
-            label = 'Voltage (\muV)';
-            if nargin < 2
-              orient = 'vert';
-            end
-          end
-        end
-      end
-    end
-  end
 end
 
 % set the colormap
@@ -93,7 +119,7 @@ elseif strcmp(orient,'horiz')
 end
 
 % make the fonts bigger
-publishfig(gca,1,[],[],figFontName);
+publishfig(gcf,1,[],[],figFontName);
 
 % turn off the main plot
 cla

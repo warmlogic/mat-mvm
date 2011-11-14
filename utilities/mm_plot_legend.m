@@ -4,8 +4,8 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 % mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPrintRes)
 %
 % Input:
-%  label          = {'a','b','c'}; see LEGEND
-%  linestyle      = {'k-','b--','r-.'} % see PLOT
+%  label          = {'a','b','c'} (required) % see LEGEND
+%  linestyle      = {'k-','b--','r-.'} (required) % see PLOT
 %  linewidth      = 1.0 (default) % see PLOT
 %  filename       = 'legend' (default); or, e.g., '~/Desktop/legend';
 %                   % no extension necessary
@@ -52,20 +52,43 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 %   #eval $CMD $i
 % done
 
-if nargin < 7
+% if nargin < 7
+%   figFontName = 'Helvetica';
+%   if nargin < 6
+%     figPrintRes = 150;
+%     if nargin < 5
+%       figPrintFormat = 'epsc2';
+%       if nargin < 4
+%         filename = 'legend';
+%         if nargin < 3
+%           linewidth = 1.0;
+%         end
+%       end
+%     end
+%   end
+% end
+
+if ~exist('label','var') || isempty(label)
+  error('Must set label variable');
+end
+if ~exist('linestyle','var') || isempty(linestyle)
+  error('Must set label linestyle');
+end
+
+if ~exist('linewidth','var') || isempty(linewidth)
+  linewidth = 1.0;
+end
+if ~exist('filename','var') || isempty(filename)
+  filename = 'legend';
+end
+if ~exist('figPrintFormat','var') || isempty(figPrintFormat)
+  figPrintFormat = 'epsc2';
+end
+if ~exist('figPrintRes','var') || isempty(figPrintRes)
+  figPrintRes = 150;
+end
+if ~exist('figFontName','var') || isempty(figFontName)
   figFontName = 'Helvetica';
-  if nargin < 6
-    figPrintRes = 150;
-    if nargin < 5
-      figPrintFormat = 'epsc2';
-      if nargin < 4
-        filename = 'legend';
-        if nargin < 3
-          linewidth = 1.0;
-        end
-      end
-    end
-  end
 end
 
 if length(label) ~= length(linestyle)
@@ -89,7 +112,7 @@ hold off
 legend(label);
 
 % make the fonts bigger
-publishfig(gca,1,[],[],figFontName);
+publishfig(gcf,1,[],[],figFontName);
 
 % turn off the main plot
 cla

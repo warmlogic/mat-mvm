@@ -39,7 +39,7 @@ end
 if cleartitle
   title('');
 end
-  
+
 % set the tics on all children
 h = get(handle,'Children');
 for j=1:length(h)

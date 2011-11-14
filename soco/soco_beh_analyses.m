@@ -79,7 +79,7 @@ fprintf('C6_RO_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(C6_RO_avg),stats.df,sta
 [h,p,ci,stats] = ttest(C6_F_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
 fprintf('C6_F_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(C6_F_avg),stats.df,stats.tstat,p);
 
-bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
 bw_legend = {'2 Colors','6 Colors'};
 bw_colormap = 'gray';
@@ -126,7 +126,7 @@ fprintf('RO_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(RO_avg),stats.df,stats.tst
 [h,p,ci,stats] = ttest(F_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
 fprintf('F_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(F_avg),stats.df,stats.tstat,p);
 
-bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
 bw_legend = {'Color, Collapsed'};
 %bw_colormap = 'gray';
@@ -167,7 +167,7 @@ print(gcf,'-dpng','~/Desktop/SOCO_RS_RO_F_accuracy');
 print(gcf,'-depsc2','~/Desktop/SOCO_RS_RO_F_accuracy');
 
 % figure
-% bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+% bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 % bw_title = 'Proportion of Source Correct responses';
 % bw_legend = {'Color'};
 % %bw_colormap = 'gray';
@@ -184,7 +184,7 @@ print(gcf,'-depsc2','~/Desktop/SOCO_RS_RO_F_accuracy');
 
 %% both
 
-bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
 bw_legend = {'2 Colors','6 Colors','Collapsed'};
 bw_colormap = 'gray';

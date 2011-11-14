@@ -61,7 +61,7 @@ fprintf('SOSI_RO_WIR: t(%d)=%.4f, p=%.10f\n',stats.df,stats.tstat,p);
 fprintf('SOSI_F_WIR: t(%d)=%.4f, p=%.10f\n',stats.df,stats.tstat,p);
 
 
-bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
 bw_legend = {'Location'};
 %bw_colormap = 'gray';
@@ -102,7 +102,7 @@ print(gcf,'-dpng','~/Desktop/SOSI_RS_RO_F_accuracy');
 print(gcf,'-depsc2','~/Desktop/SOSI_RS_RO_F_accuracy');
 
 % figure
-% bw_groupnames = {'Rem. Src.';'Rem. Other';'Familiar'};
+% bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 % bw_title = 'Proportion of Source Correct responses';
 % bw_legend = {'Side'};
 % %bw_colormap = 'gray';
