@@ -852,7 +852,7 @@ ft_topoplotTFR(cfg_ft,ga_freq_RHSCvsRHSI);
 %   set(gcf,'Name',sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}))
 %   %title(sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}))
 %   %axis ij % negative up
-%   publishfig(gca,1);
+%   publishfig(gcf,1);
 %   if cfg_plot.plotLegend
 %     cfg_plot.legend_str = '_legend';
 %   else
@@ -880,7 +880,7 @@ ft_topoplotTFR(cfg_ft,ga_freq_RHSCvsRHSI);
 % % xlabel('Time (ms)');
 % % ylabel('Voltage (\muV)');
 % % %axis ij % negative up
-% % publishfig(gca,1);
+% % publishfig(gcf,1);
 % % if files.saveFigs
 % %   cfg_plot.figfilename = sprintf('ga_erp_%s%0.1f_%.1f.eps',sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_plot.latency(1),cfg_plot.latency(2));
 % %   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -938,7 +938,7 @@ end
 if cfg_plot.plotTitle
   title('Hits - Correct Rejections');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -964,7 +964,7 @@ end
 if cfg_plot.plotTitle
   title('Source Correct - Source Incorrect');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -990,7 +990,7 @@ end
 if cfg_plot.plotTitle
   title('Source Correct - Correct Rejections');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -1016,7 +1016,7 @@ end
 if cfg_plot.plotTitle
   title('Source Incorrect - Correct Rejections');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -1048,7 +1048,7 @@ end
 if cfg_plot.plotTitle
   title('Hits - Correct Rejections');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -1074,7 +1074,7 @@ end
 if cfg_plot.plotTitle
   title('Source Correct - Source Incorrect');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -1100,7 +1100,7 @@ end
 if cfg_plot.plotTitle
   title('Source Correct - Correct Rejections');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));
@@ -1126,7 +1126,7 @@ end
 if cfg_plot.plotTitle
   title('Source Incorrect - Correct Rejections');
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 if files.saveFigs
   cfg_plot.figfilename = sprintf('topo_ga_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
   print(gcf,files.figPrintFormat,fullfile(dirs.saveDirFigs,cfg_plot.figfilename));

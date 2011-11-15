@@ -1,6 +1,6 @@
 % COSI behavioral analyses
 
-figFontName = 'Arial';
+figFontName = 'Helvetica';
 
 subjects = {
   'COSI001';

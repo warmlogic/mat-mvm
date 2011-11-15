@@ -137,7 +137,7 @@ for typ = 1:length(cfg_plot.conditions)
   if ~isfield(files,'figFontName')
     files.figFontName = 'Helvetica';
   end
-  publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
+  publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
   
   if cfg_plot.plotLegend
     cfg_plot.legend_str = '_legend';

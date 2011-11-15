@@ -1,4 +1,4 @@
-figFontName = 'Arial';
+figFontName = 'Helvetica';
 
 subjects = {
   'SOCO001';
@@ -95,7 +95,7 @@ axis([0.5 3.5 0 1]);
 publishfig(gcf,0,[],[],figFontName);
 hold on
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
-print(gcf,'-dpng','~/Desktop/SOCO_C2_C6_RS_RO_F_accuracy');
+%print(gcf,'-dpng','~/Desktop/SOCO_C2_C6_RS_RO_F_accuracy');
 print(gcf,'-depsc2','~/Desktop/SOCO_C2_C6_RS_RO_F_accuracy');
 
 %% collapse across colors
@@ -163,7 +163,7 @@ publishfig(gcf,0,[],[],figFontName);
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2);
 hold off
 % print it
-print(gcf,'-dpng','~/Desktop/SOCO_RS_RO_F_accuracy');
+%print(gcf,'-dpng','~/Desktop/SOCO_RS_RO_F_accuracy');
 print(gcf,'-depsc2','~/Desktop/SOCO_RS_RO_F_accuracy');
 
 % figure
@@ -200,5 +200,5 @@ axis([0.5 3.5 0 1]);
 publishfig(gcf,0,[],[],figFontName);
 hold on
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
-print(gcf,'-dpng','~/Desktop/SOCO_C2_C6_Col_RS_RO_F_accuracy');
+%print(gcf,'-dpng','~/Desktop/SOCO_C2_C6_Col_RS_RO_F_accuracy');
 print(gcf,'-depsc2','~/Desktop/SOCO_C2_C6_Col_RS_RO_F_accuracy');

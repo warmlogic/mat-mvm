@@ -9,7 +9,7 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 %  linewidth      = 1.0 (default) % see PLOT
 %  filename       = 'legend' (default); or, e.g., '~/Desktop/legend';
 %                   % no extension necessary
-%  figPrintFormat = 'epsc2' (default) % see PRINT
+%  figPrintFormat = 'epsc2' (default) % don't include '-d'; see PRINT
 %  figPrintRes    = figure resolution; 150 (default) % see PRINT
 %  figFontName    = 'Helvetica' (default); some journals require a specific
 %                   font (e.g., 'Arial', 'Courier', 'Times', 'FixedWidth')
@@ -27,7 +27,6 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 %
 % #!/bin/bash
 % 
-% #files=(`ls *.png`)
 % if [ $# -le 0 ]; then
 %     echo
 %     echo "Usage: $(basename $0) file1.eps [file2.eps ...]"
@@ -40,33 +39,13 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 % # set the filelist
 % files=$*
 % 
-% # set the base command
-% CMD="epstopdf "
-% 
 % # loop and add each file
 % for i in ${files[*]} ; do
 %   echo "$i -->> ${i%.eps}.pdf"
 %   eval "eps2eps $i temp_$i ; epstopdf temp_$i"
 %   eval "mv temp_${i%.eps}.pdf ${i%.eps}.pdf"
 %   eval "rm temp_$i"
-%   #eval $CMD $i
 % done
-
-% if nargin < 7
-%   figFontName = 'Helvetica';
-%   if nargin < 6
-%     figPrintRes = 150;
-%     if nargin < 5
-%       figPrintFormat = 'epsc2';
-%       if nargin < 4
-%         filename = 'legend';
-%         if nargin < 3
-%           linewidth = 1.0;
-%         end
-%       end
-%     end
-%   end
-% end
 
 if ~exist('label','var') || isempty(label)
   error('Must set label variable');

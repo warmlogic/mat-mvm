@@ -11,7 +11,7 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 %                   % no extension necessary
 %  cmap           = the colormap to use; 'jet' (default); or, e.g., 'hot'
 %                   % see COLORMAP
-%  figPrintFormat = 'epsc2' (default) % see PRINT
+%  figPrintFormat = 'epsc2' (default) % don't include '-d'; see PRINT
 %  figPrintRes    = figure resolution; 150 (default) % see PRINT
 %  figFontName    = 'Helvetica' (default); some journals require a specific
 %                   font (e.g., 'Arial', 'Courier', 'Times', 'FixedWidth')
@@ -32,7 +32,6 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 %
 % #!/bin/bash
 % 
-% #files=(`ls *.png`)
 % if [ $# -le 0 ]; then
 %     echo
 %     echo "Usage: $(basename $0) file1.eps [file2.eps ...]"
@@ -45,39 +44,13 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 % # set the filelist
 % files=$*
 % 
-% # set the base command
-% CMD="epstopdf "
-% 
 % # loop and add each file
 % for i in ${files[*]} ; do
 %   echo "$i -->> ${i%.eps}.pdf"
 %   eval "eps2eps $i temp_$i ; epstopdf temp_$i"
 %   eval "mv temp_${i%.eps}.pdf ${i%.eps}.pdf"
 %   eval "rm temp_$i"
-%   #eval $CMD $i
 % done
-
-% if nargin < 7
-%   figFontName = 'Helvetica';
-%   if nargin < 6
-%     figPrintRes = 150;
-%     if nargin < 6
-%       figPrintFormat = 'epsc2';
-%       if nargin < 5
-%         cmap = 'jet';
-%         if nargin < 4
-%           filename = 'colorbar';
-%           if nargin < 3
-%             label = 'Voltage (\muV)';
-%             if nargin < 2
-%               orient = 'vert';
-%             end
-%           end
-%         end
-%       end
-%     end
-%   end
-% end
 
 if ~exist('minmax','var') || isempty(minmax)
   error('Must set minmax variable');
@@ -85,6 +58,9 @@ end
 
 if ~exist('orient','var') || isempty(orient)
   orient = 'vert';
+end
+if ~strcmp(orient,'vert') && ~strcmp(orient,'horiz')
+  error('You set ''orient'' to ''%s''. Must set it to ''vert'' or ''horiz''',orient);
 end
 if ~exist('label','var') || isempty(label)
   label = 'Voltage (\muV)';

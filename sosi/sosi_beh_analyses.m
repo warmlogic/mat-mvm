@@ -1,4 +1,4 @@
-figFontName = 'Arial';
+figFontName = 'Helvetica';
 
 subjects = {
   'SOSI001';
@@ -98,7 +98,7 @@ publishfig(gcf,0,[],[],figFontName);
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2);
 hold off
 % print it
-print(gcf,'-dpng','~/Desktop/SOSI_RS_RO_F_accuracy');
+%print(gcf,'-dpng','~/Desktop/SOSI_RS_RO_F_accuracy');
 print(gcf,'-depsc2','~/Desktop/SOSI_RS_RO_F_accuracy');
 
 % figure

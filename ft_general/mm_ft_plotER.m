@@ -42,6 +42,23 @@ end
 if ~isfield(cfg_plot,'plotLegend') || (strcmp(cfg_plot.type,'topo') || strcmp(cfg_plot.type,'multi'))
   cfg_plot.plotLegend = 0;
 end
+% check on the labels
+if ~isfield(cfg_plot,'xlabel')
+  cfg_plot.xlabel = 'Time (s)';
+end
+if ~isfield(cfg_plot,'ylabel')
+  cfg_plot.ylabel = 'Voltage (\muV)';
+end
+cfg_plot.label_str = '';
+if isfield(cfg_plot,'xlabel') && ~isempty(cfg_plot.xlabel)
+  cfg_plot.label_str = cat(2,cfg_plot.label_str,'x');
+end
+if isfield(cfg_plot,'ylabel') && ~isempty(cfg_plot.ylabel)
+  cfg_plot.label_str = cat(2,cfg_plot.label_str,'y');
+end
+if ~isempty(cfg_plot.label_str)
+  cfg_plot.label_str = cat(2,'_',cfg_plot.label_str,'label');
+end
 
 if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
   if ~isfield(cfg_ft,'fontsize')
@@ -258,7 +275,7 @@ for typ = 1:length(cfg_plot.conditions)
         if ~isfield(files,'figFontName')
           files.figFontName = 'Helvetica';
         end
-        publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
+        publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
         
       end % subplot
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
@@ -280,9 +297,9 @@ for typ = 1:length(cfg_plot.conditions)
       
       if files.saveFigs
         if ~isempty(cfg_plot.types{typ})
-          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s_%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
+          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s_%s%d_%d%s%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,cfg_plot.label_str);
         else
-          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
+          cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%d_%d%s%s%s%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,cfg_plot.label_str);
         end
         dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
         if ~exist(dirs.saveDirFigsER,'dir')
@@ -339,8 +356,8 @@ for typ = 1:length(cfg_plot.conditions)
       plot([cfg_plot.x_bound(2) cfg_plot.x_bound(2)],[voltmin voltmax],'k'); % vertical
       hold off
       
-      xlabel('Time (s)');
-      ylabel('Voltage (\muV)');
+      xlabel(cfg_plot.xlabel);
+      ylabel(cfg_plot.ylabel);
       if ~isempty(cfg_plot.types{typ})
         set(gcf,'Name',[strrep(cfg_plot.chan_str,'_',' '),' ',cfg_plot.types{typ}])
       else
@@ -364,7 +381,7 @@ for typ = 1:length(cfg_plot.conditions)
       if ~isfield(files,'figFontName')
         files.figFontName = 'Helvetica';
       end
-      publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
+      publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
     end
     
     if cfg_plot.plotLegend
@@ -385,9 +402,9 @@ for typ = 1:length(cfg_plot.conditions)
     
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
-        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s_%s%s%d_%d%s%s%s%s',cfg_plot.type,cfg_plot.types{typ},sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,cfg_plot.label_str);
       else
-        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str);
+        cfg_plot.figfilename = sprintf('tla_%s_ga_%s%s%d_%d%s%s%s%s',cfg_plot.type,sprintf(repmat('%s_',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_plot.chan_str,round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.legend_str,cfg_plot.subplot_str,cfg_plot.title_str,cfg_plot.label_str);
       end
       dirs.saveDirFigsER = fullfile(dirs.saveDirFigs,['tla_',cfg_plot.type]);
       if ~exist(dirs.saveDirFigsER,'dir')

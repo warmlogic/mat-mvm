@@ -129,7 +129,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figFontName = 'Arial';
+files.figFontName = 'Helvetica';
 files.figPrintFormat = 'epsc2';
 files.figPrintRes = 150;
 
@@ -233,7 +233,7 @@ end
 adFile = '/Volumes/curranlab/Data/COSI/eeg/eppp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
-files.figFontName = 'Arial';
+files.figFontName = 'Helvetica';
 files.figPrintFormat = 'epsc2';
 files.figPrintRes = 150;
 

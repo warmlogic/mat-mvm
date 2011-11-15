@@ -89,7 +89,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figFontName = 'Arial';
+files.figFontName = 'Helvetica';
 files.figPrintFormat = 'epsc2';
 files.figPrintRes = 150;
 

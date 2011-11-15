@@ -117,7 +117,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figFontName = 'Arial';
+files.figFontName = 'Helvetica';
 
 files.figPrintFormat = 'epsc2';
 files.figPrintRes = 150;
@@ -186,7 +186,7 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
-files.figFontName = 'Arial';
+files.figFontName = 'Helvetica';
 files.figPrintFormat = 'epsc2';
 files.figPrintRes = 150;
 
@@ -506,8 +506,13 @@ cfg_plot.ftFxn = 'ft_singleplotER';
 cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
 cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
+cfg_plot.plotLegend = 0;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+
+cfg_plot.xlabel = 'Time (s)';
+cfg_plot.ylabel = 'Voltage (\muV)';
+% cfg_plot.xlabel = '';
+% cfg_plot.ylabel = '';
 
 % cfg_plot.ftFxn = 'ft_topoplotER';
 % cfg_plot.ylims = [-6 6];
@@ -540,7 +545,7 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWes
 % conditions
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 cfg_plot.condByROI = repmat({{{'RHSC','RHSI','RCR'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'H-SC','H-SI','CR'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'Hits-SC','Hits-SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -617,14 +622,14 @@ cfg_ana = [];
 % define which regions to average across for the test and
 % the times that correspond to each set of ROIs
 
-cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+% cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.rois = {{'LAS'},{'RAS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -655,12 +660,16 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
-%cfg_plot.ylims = [-4 -1; 2.5 5.5];
-cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
+cfg_plot.line_plots = 1;
+% cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
+cfg_plot.ylims = [-4 -1; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
 cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
-cfg_plot.rename_conditions = {'H-SC','H-SI','CR'};
+cfg_plot.rename_conditions = {'Hits-SC','Hits-SI','CR'};
+cfg_plot.xlabel = 'Condition';
+cfg_plot.ylabel = 'Voltage (\muV)';
+% cfg_plot.xlabel = '';
+% cfg_plot.ylabel = '';
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};

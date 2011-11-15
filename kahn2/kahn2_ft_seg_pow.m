@@ -400,7 +400,7 @@ for c = 1:length(cfg_plot.comboEv)
   if cfg_plot.plotTitle
     title(sprintf('%s - %s',cfg_plot.condNames{1},cfg_plot.condNames{2}));
   end
-  publishfig(gca,0);
+  publishfig(gcf,0);
   
   % make a topoplot
   figure
@@ -412,7 +412,7 @@ for c = 1:length(cfg_plot.comboEv)
   if cfg_plot.plotTitle
     title(sprintf('%s - %s',cfg_plot.condNames{1},cfg_plot.condNames{2}));
   end
-  publishfig(gca,0);
+  publishfig(gcf,0);
   
   if files.saveFigs
     cfg_plot.figfilename = sprintf('topo_ga_freq_%s%s%d_%d%s.%s',sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);

@@ -244,7 +244,7 @@ for typ = 1:length(cfg_plot.conditions)
     if ~isfield(files,'figFontName')
       files.figFontName = 'Helvetica';
     end
-    publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
+    publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
       
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})

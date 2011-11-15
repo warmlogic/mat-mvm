@@ -78,7 +78,7 @@ for typ = 1:length(ana.events.values)
     if ~isfield(files,'figFontName')
       files.figFontName = 'Helvetica';
     end
-    publishfig(gca,~cfg_plot.plotTitle,[],[],files.figFontName);
+    publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
     
     if files.saveFigs
       if ~isempty(ana.events.types{typ})

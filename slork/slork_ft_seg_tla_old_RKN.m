@@ -552,7 +552,7 @@ for i = 1:length(plot_rois)
   set(gcf,'Name',[sprintf(repmat('%s ',1,length(roi)),roi{:})])
   %title(sprintf(repmat('%s ',1,length(roi)),roi{:}))
   %axis ij % negative up
-  publishfig(gca,1);
+  publishfig(gcf,1);
   if plotLegend
     legend_str = '_legend';
   else
@@ -616,7 +616,7 @@ if plotTitle
   titleStr = sprintf('Familiar - New');
   title(titleStr);
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 figfilename = sprintf('topo_ga_%s_%s%s%d_%d%s.%s',testType,sprintf(repmat('%s_',1,length(cond)),cond{:}),sprintf(repmat('%s_',1,length(roi)),roi{:}),cfg.xlim(1)*1000,cfg.xlim(2)*1000,colorbar_str,figFileExt);
 if saveFigs
   print(gcf,figPrintFormat,fullfile(saveDirFigs,figfilename));
@@ -643,7 +643,7 @@ if plotTitle
   titleStr = sprintf('Remember Source - New');
   title(titleStr);
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 figfilename = sprintf('topo_ga_%s_%s%s%d_%d%s.%s',testType,sprintf(repmat('%s_',1,length(cond)),cond{:}),sprintf(repmat('%s_',1,length(roi)),roi{:}),cfg.xlim(1)*1000,cfg.xlim(2)*1000,colorbar_str,figFileExt);
 if saveFigs
   print(gcf,figPrintFormat,fullfile(saveDirFigs,figfilename));
@@ -670,7 +670,7 @@ if plotTitle
   titleStr = sprintf('Remember Source - Familiar');
   title(titleStr);
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 figfilename = sprintf('topo_ga_%s_%s%s%d_%d%s.%s',testType,sprintf(repmat('%s_',1,length(cond)),cond{:}),sprintf(repmat('%s_',1,length(roi)),roi{:}),cfg.xlim(1)*1000,cfg.xlim(2)*1000,colorbar_str,figFileExt);
 if saveFigs
   print(gcf,figPrintFormat,fullfile(saveDirFigs,figfilename));
@@ -701,7 +701,7 @@ if plotTitle
   titleStr = sprintf('Familiar - New');
   title(titleStr);
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 figfilename = sprintf('topo_ga_%s_%s%s%d_%d%s.%s',testType,sprintf(repmat('%s_',1,length(cond)),cond{:}),sprintf(repmat('%s_',1,length(roi)),roi{:}),cfg.xlim(1)*1000,cfg.xlim(2)*1000,colorbar_str,figFileExt);
 if saveFigs
   print(gcf,figPrintFormat,fullfile(saveDirFigs,figfilename));
@@ -728,7 +728,7 @@ if plotTitle
   titleStr = sprintf('Remember Source - New');
   title(titleStr);
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 figfilename = sprintf('topo_ga_%s_%s%s%d_%d%s.%s',testType,sprintf(repmat('%s_',1,length(cond)),cond{:}),sprintf(repmat('%s_',1,length(roi)),roi{:}),cfg.xlim(1)*1000,cfg.xlim(2)*1000,colorbar_str,figFileExt);
 if saveFigs
   print(gcf,figPrintFormat,fullfile(saveDirFigs,figfilename));
@@ -755,7 +755,7 @@ if plotTitle
   titleStr = sprintf('Remember Source - Familiar');
   title(titleStr);
 end
-publishfig(gca,0);
+publishfig(gcf,0);
 figfilename = sprintf('topo_ga_%s_%s%s%d_%d%s.%s',testType,sprintf(repmat('%s_',1,length(cond)),cond{:}),sprintf(repmat('%s_',1,length(roi)),roi{:}),cfg.xlim(1)*1000,cfg.xlim(2)*1000,colorbar_str,figFileExt);
 if saveFigs
   print(gcf,figPrintFormat,fullfile(saveDirFigs,figfilename));

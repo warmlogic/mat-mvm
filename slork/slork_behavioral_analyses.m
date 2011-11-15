@@ -1,7 +1,7 @@
 % Can I also calculate F from the IRK equation for experiments 1 and 4 using
 % confidence? What would Wixted say?
 
-figFontName = 'Arial';
+figFontName = 'Helvetica';
 
 subjects = {
   'SLORK002'...

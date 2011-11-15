@@ -506,7 +506,7 @@ for pa = 1:length(ana.pa_ga_plot)
   set(gcf,'Name',sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}))
   %title(sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}))
   %axis ij % negative up
-  publishfig(gca,1);
+  publishfig(gcf,1);
   if cfg_plot.plotLegend
     cfg_plot.legend_str = '_legend';
   else
@@ -590,7 +590,7 @@ for pa = 1:length(ana.pa_evVal)
       if cfg_plot.plotTitle
         title(sprintf('%s - %s',cfg_plot.condNames{1},cfg_plot.condNames{2}));
       end
-      publishfig(gca,0);
+      publishfig(gcf,0);
       if files.saveFigs
         if ~isempty(ana.pa_type{pa})
           cfg_plot.figfilename = sprintf('tla_topo_ga_%s_%s%s%d_%d%s.%s',ana.pa_type{pa},sprintf(repmat('%s_',1,length(cfg_plot.cond)),cfg_plot.cond{:}),sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:}),cfg_ft.xlim(1)*1000,cfg_ft.xlim(2)*1000,cfg_plot.colorbar_str,files.figFileExt);
