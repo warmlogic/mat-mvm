@@ -1,10 +1,13 @@
 function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype)
 %MM_FT_LOADSUBJECTDATA Load subject data into a full struct
 %
-% [data] = mm_ft_loadSubjectData(exper,dirs,ftype)
+% [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype)
 %
+% exper       = the exper struct
+% dirs        = the dirs struct, with the field saveDirProc (or saveDirRaw)
+% eventValues = a cell of the event values to load (e.g., ana.eventValues)
 % ftype       = string included in the filename to load (e.g., 'tla' in
-%               'data_tla_CR.mat')
+%               'data_tla_CR.mat'); can be 'raw' to load the raw data.
 %
 
 % % make sure eventValues is set up correctly
@@ -42,8 +45,12 @@ for sub = 1:length(exper.subjects)
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
       sesStr = exper.sessions{ses};
     end
-
-    saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
+    
+    if strcmp(ftype,'raw')
+      saveFileDir = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
+    else
+      saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
+    end
     for typ = 1:length(eventValues)
       for evVal = 1:length(eventValues{typ})
         

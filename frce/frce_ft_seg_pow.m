@@ -57,7 +57,6 @@ exper.sessions = {'ses1'};
 
 % directory where the data to read is located
 dirs.dataDir = fullfile(exper.name,dirs.eegDir,sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
-%dirs.dataDir = fullfile(exper.name,'eeg','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
 
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
@@ -95,24 +94,6 @@ files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
 %files.figPrintRes = 1000;
-
-%% add NS's artifact information to the event structure
-% nsEvFilters.eventValues = exper.eventValues;
-% % RCR
-% nsEvFilters.RCR.type = 'LURE_PRES';
-% nsEvFilters.RCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % RHSC
-% nsEvFilters.RHSC.type = 'TARG_PRES';
-% nsEvFilters.RHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % RHSI
-% nsEvFilters.RHSI.type = 'TARG_PRES';
-% nsEvFilters.RHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% 
-% for sub = 1:length(exper.subjects)
-%   for ses = 1:length(exper.sessions)
-%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,0);
-%   end
-% end
 
 %% Convert the data to FieldTrip structs
 
