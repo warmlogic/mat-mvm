@@ -91,14 +91,20 @@ end
 if do_the_replace
   fprintf('Replacing saved dirs.dataroot (%s) with dataroot for this location (%s)...',old_dataroot,new_dataroot);
   
-  % backwards compatibility
+  % backwards compatibility, we no longer make the "saveDir" field
   if ~isfield(dirs,'saveDirProc') && isfield(dirs,'saveDir')
     dirs.saveDirProc = dirs.saveDir;
     dirs = rmfield(dirs,'saveDir');
+    % and put in a raw field for good measure
+    if ~isfield(dirs,'saveDirRaw')
+      seps = strfind(dirs.saveDirProc,filesep);
+      dirs.saveDirRaw = strrep(dirs.saveDirProc,dirs.saveDirProc(seps(end)+1:end),'ft_raw');
+    end
   end
   
   % replace the old directories with the new
   dirs.saveDirProc = strrep(dirs.saveDirProc,old_dataroot,new_dataroot);
+  dirs.saveDirRaw = strrep(dirs.saveDirRaw,old_dataroot,new_dataroot);
   dirs.saveDirFigs = strrep(dirs.saveDirFigs,old_dataroot,new_dataroot);
   % setting the new dataroot must go last
   dirs.dataroot = new_dataroot;

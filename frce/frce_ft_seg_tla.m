@@ -293,8 +293,10 @@ cfg_ft.xlim = [-.2 2.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6];
+%cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'Pz'}};
+cfg_plot.rois = {{'Cz'}};
+cfg_plot.ylims = [-5 5; -5 2; -5 2; -1 6; -1 6];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -340,8 +342,8 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-%cfg_plot.rois = {{'Cz'}};
+%cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'Cz'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
