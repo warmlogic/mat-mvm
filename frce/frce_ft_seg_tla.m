@@ -29,8 +29,12 @@ exper.nsFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'VisForg','VisReca'});
-%exper.eventValues = sort({'AudForg','AudReca','VisForg','VisReca'});
+%exper.eventValues = sort({'VisForg','VisReca'});
+exper.eventValues = sort({'AudForg','AudReca','VisForg','VisReca'});
+
+exper.eventValuesExtra.toCombine = {{'AudForg','VisForg'},{'AudReca','VisReca'}};
+exper.eventValuesExtra.newValue = {{'Forg'},{'Reca'}};
+exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'FRCE 03';
