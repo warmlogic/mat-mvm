@@ -40,8 +40,8 @@ if nargin == 0
     'COSI2003';
     'COSI2004';
     'COSI2005';
-%     'COSI2006';
-%     'COSI2007';
+    'COSI2006';
+    'COSI2007';
 %     'COSI2008';
 %     'COSI2009';
 %     'COSI2010';
@@ -91,6 +91,7 @@ end
 fprintf('EEG data.\n');
 
 sessions = {'session_0','session_1'};
+%sessions = {'session_0'};
 %sessions = {'session_1'};
 
 % matlabpool open

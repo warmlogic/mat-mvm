@@ -3,10 +3,16 @@ dataroot = fullfile(getenv('HOME'),'Downloads','FRCE_data_classification');
 chans73 = [3 4 5 6 7 9 10 11 12 13 15 16 18 19 20 22 23 24 27 28 29 30 31 34 35 36 37 40 41 42 46 47 51 52 53 54 55 59 60 61 62 66 67 71 72 76 77 78 79 80 84 85 86 87 91 92 93 97 98 102 103 104 105 106 109 110 111 112 116 117 118 123 124];
 
 % load in the dataset
-adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
-ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'}};
+%ana.eventValues = {exper.eventValues};
+%ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+%ana.eventValues = {{'AudForg','AudReca'}};
+%ana.eventValues = {{'VisForg','VisReca'}};
+%ana.eventValues = {{'Forg','Reca'}};
+ana.eventValues = {{'Aud','Vis'}};
 
 % pre-defined in this function
 ana = mm_ft_channelgroups(ana);
@@ -18,18 +24,12 @@ ana = mm_ft_channelgroups(ana);
 
 [data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
 
-equateTrials = 1;
+equateTrials = true;
 
 %% process the data - ERP
 
 %subInd = find(ismember(exper.subjects,cfg_prep.subjs));
 ses = 1;
-
-cfg = [];
-cfg.parameter = 'trial';
-cfg.keeptrials = 'yes'; % classifiers operate on individual trials
-%cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPS'})});
-cfg.channel = eval(sprintf('{%s}',sprintf(repmat('''E%d'' ',size(chans73)),chans73)));
 
 if equateTrials
   % find the lowest number of trials within each subject
@@ -47,6 +47,13 @@ end
 % initialize the struct
 data_erp = struct;
 
+% set the analysis parameters
+cfg = [];
+cfg.parameter = 'trial';
+cfg.keeptrials = 'yes'; % classifiers operate on individual trials
+%cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPS'})});
+cfg.channel = eval(sprintf('{%s}',sprintf(repmat('''E%d'' ',size(chans73)),chans73)));
+
 % get the ERP data
 for sub = 1:length(exper.subjects)
   for i = 1:length(ana.eventValues{1})
@@ -63,7 +70,9 @@ end
 
 ses = 1;
 cfg_ana = [];
+%cfg_ana.latency = [0.5 1.0];
 cfg_ana.latency = [0.3 1.0];
+%cfg_ana.latency = [0 0.3];
 
 accuracy = nan(length(exper.subjects),1);
 pval = nan(length(exper.subjects),1);
@@ -76,23 +85,27 @@ cfg.method = 'crossvalidate';
 cfg.latency = cfg_ana.latency;
 cfg.avgoverchan = 'no';
 cfg.avgovertime = 'no';
-cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',length(chans73)) ft_mv_svm};
+% z-transform, feature selection (map data to a different space), SVM
+%cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',length(chans73)) ft_mv_filterer('maxfeatures',10) ft_mv_svm};
+cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',10) ft_mv_svm};
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'lambda',1,'family','binomial')};
 
 for sub = 1:length(exper.subjects)
+  fprintf('%s\n',exper.subjects{sub});
   
-  VisForg = data_erp.(ana.eventValues{1}{1}).sub(sub).ses(ses).data;
-  VisReca = data_erp.(ana.eventValues{1}{2}).sub(sub).ses(ses).data;
+  data1 = data_erp.(ana.eventValues{1}{1}).sub(sub).ses(ses).data;
+  data2 = data_erp.(ana.eventValues{1}{2}).sub(sub).ses(ses).data;
   
-  cfg.design = [ones(size(VisForg.trial,1),1); 2*ones(size(VisReca.trial,1),1)];
+  cfg.design = [ones(size(data1.trial,1),1); 2*ones(size(data2.trial,1),1)]';
   
-  stat = ft_timelockstatistics(cfg,VisForg,VisReca);
+  stat = ft_timelockstatistics(cfg,data1,data2);
   
   accuracy(sub) = stat.performance;
   pval(sub) = stat.pvalue;
+  continTab{sub} = stat.cv.performance('contingency');
   
   fprintf('accuracy = %.2f%%, p = %.4f\n',stat.performance*100,stat.pvalue);
   
-  continTab{sub} = stat.cv.performance('contingency');
   fprintf('\t\tPredicted\n');
   fprintf('\t\t%s\t%s\n',ana.eventValues{1}{1},ana.eventValues{1}{2});
   fprintf('True\t%s\t%d\t%d\n',ana.eventValues{1}{1},continTab{sub}(1,1),continTab{sub}(1,2));
@@ -117,7 +130,112 @@ end
 
 
 
+%% process the data - time-frequency
 
+%subInd = find(ismember(exper.subjects,cfg_prep.subjs));
+ses = 1;
+
+if equateTrials
+  % find the lowest number of trials within each subject
+  lowEvNum = nan(length(exper.subjects),1);
+  for sub = 1:length(exper.subjects)
+    lowEvNum(sub) = Inf;
+    for i = 1:length(ana.eventValues{1})
+      if size(data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.trial,2) < lowEvNum(sub)
+        lowEvNum(sub) = size(data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.trial,2);
+      end
+    end
+  end
+end
+
+% initialize the struct
+data_freq = struct;
+
+% set the analysis parameters
+cfg = [];
+%cfg.parameter = 'trial';
+cfg.keeptrials = 'yes'; % classifiers operate on individual trials
+%cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPS'})});
+cfg.channel = eval(sprintf('{%s}',sprintf(repmat('''E%d'' ',size(chans73)),chans73)));
+
+cfg.output       = 'pow';
+cfg.method       = 'mtmconvol';
+cfg.taper        = 'hanning';
+cfg.foi          = 4:1:9;
+cfg.t_ftimwin    = ones(length(cfg.foi),1).*0.5;
+cfg.toi          = (0.3:0.1:1.0);
+
+% get the ERP data
+for sub = 1:length(exper.subjects)
+  for i = 1:length(ana.eventValues{1})
+    if equateTrials
+      % choose a random subset to equate trial numbers
+      evNums = randperm(size(data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.trial,2));
+      cfg.trials = sort(evNums(1:lowEvNum(sub)));
+    end
+    data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_freqanalysis(cfg,data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  end
+end
+
+
+%% Time-Frequency classification
+
+ses = 1;
+
+accuracy = nan(length(exper.subjects),1);
+pval = nan(length(exper.subjects),1);
+continTab = cell(length(exper.subjects),1);
+
+cfg = [];
+cfg.layout = 'GSN-HydroCel-129.sfp';
+cfg.method = 'crossvalidate';
+cfg.avgoverchan = 'no';
+cfg.avgovertime = 'no';
+% z-transform, feature selection in the original space
+cfg.mva = {ft_mv_standardizer ft_mv_glmnet('lambda',0.1)};
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('validator',ft_mv_crossvalidator('nfolds',5),'family','gaussian')};
+
+for sub = 1:length(exper.subjects)
+  fprintf('%s\n',exper.subjects{sub});
+  
+  data1 = data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data;
+  data2 = data_freq.(ana.eventValues{1}{2}).sub(sub).ses(ses).data;
+  
+  cfg.design = [ones(size(data1.powspctrm,1),1); 2*ones(size(data2.powspctrm,1),1)]';
+  
+  stat = ft_freqstatistics(cfg,data1,data2);
+  
+  accuracy(sub) = stat.performance;
+  pval(sub) = stat.pvalue;
+  continTab{sub} = stat.cv.performance('contingency');
+  
+  fprintf('accuracy = %.2f%%, p = %.4f\n',stat.performance*100,stat.pvalue);
+  
+  fprintf('\t\tPredicted\n');
+  fprintf('\t\t%s\t%s\n',ana.eventValues{1}{1},ana.eventValues{1}{2});
+  fprintf('True\t%s\t%d\t%d\n',ana.eventValues{1}{1},continTab{sub}(1,1),continTab{sub}(1,2));
+  fprintf('\t%s\t%d\t%d\n',ana.eventValues{1}{2},continTab{sub}(2,1),continTab{sub}(2,2));
+  
+end
+
+
+%% plot it
+
+cfg             = [];
+cfg.layout = 'GSN-HydroCel-129.sfp';
+cfg.zparam      = 'model1';
+cfg.comment     = '';
+cfg.colorbar    = 'yes';
+ft_topoplotTFR(cfg,stat);
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Old
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Change in freq relative to baseline using absolute power
 
@@ -154,7 +272,8 @@ cfg_prep.subjs = {
   'FRCE 15';
   };
 
-cfg_prep.conds = {'VisForg','VisReca'}; % exper.eventValues;
+%cfg_prep.conds = {'VisForg','VisReca'};
+cfg_prep.conds = ana.eventValues;
 cfg_prep.freqs = [4 7;6 10;7 12;10 15;12 19;15 25; 19 30;25 35;30 40];
 cfg_prep.parameter = 'powspctrm';
 cfg_prep.chans = chans73;
@@ -171,8 +290,8 @@ pval = nan(length(exper.subjects),length(cfg_prep.freqs));
 continTab = cell(length(exper.subjects),length(cfg_prep.freqs));
 
 for sub = 1:length(cfg_prep.subjs)
-  VisForg = data_freq.VisForg.sub(sub).ses(ses).data;
-  VisReca = data_freq.VisReca.sub(sub).ses(ses).data;
+  data1 = data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data;
+  data2 = data_freq.(ana.eventValues{1}{2}).sub(sub).ses(ses).data;
   
   for frq = 1:size(cfg_prep.freqs,1)
     
@@ -181,7 +300,7 @@ for sub = 1:length(cfg_prep.subjs)
     cfg.layout = 'GSN-HydroCel-129.sfp';
     cfg.method  = 'crossvalidate';
     cfg.nfolds = 5;
-    cfg.design  = [ones(size(VisForg.powspctrm,1),1); 2*ones(size(VisReca.powspctrm,1),1)]';
+    cfg.design  = [ones(size(data1.powspctrm,1),1); 2*ones(size(data2.powspctrm,1),1)]';
     %cfg.channel = eval(sprintf('{%s}',sprintf(repmat('''E%d'' ',size(chans73)),(chans73))));
     cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LAS','RAS'})});
     %cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPS','RPS'})});
@@ -195,7 +314,7 @@ for sub = 1:length(cfg_prep.subjs)
     
     cfg.mva = {ft_mv_standardizer ft_mv_glmnet('lambda',0.1)};
     
-    stat = ft_freqstatistics(cfg,VisForg,VisReca);
+    stat = ft_freqstatistics(cfg,data1,data2);
     
     accuracy(sub,frq) = stat.performance;
     pval(sub,frq) = stat.pvalue;

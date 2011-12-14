@@ -32,8 +32,8 @@ exper.nsFileExt = 'egis';
 %exper.eventValues = sort({'VisForg','VisReca'});
 exper.eventValues = sort({'AudForg','AudReca','VisForg','VisReca'});
 
-exper.eventValuesExtra.toCombine = {{'AudForg','VisForg'},{'AudReca','VisReca'}};
-exper.eventValuesExtra.newValue = {{'Forg'},{'Reca'}};
+exper.eventValuesExtra.toCombine = {{'AudForg','VisForg'},{'AudReca','VisReca'},{'AudForg','AudReca'},{'VisForg','VisReca'}};
+exper.eventValuesExtra.newValue = {{'Forg'},{'Reca'},{'Aud'},{'Vis'}};
 exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
@@ -178,6 +178,7 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 ana.eventValues = {exper.eventValues};
+ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -339,7 +340,6 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
-  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
 %% subplots of each subject's ERPs

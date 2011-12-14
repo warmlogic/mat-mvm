@@ -29,8 +29,12 @@ exper.nsFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'VisForg','VisReca'});
-%exper.eventValues = sort({'AudForg','AudReca','VisForg','VisReca'});
+%exper.eventValues = sort({'VisForg','VisReca'});
+exper.eventValues = sort({'AudForg','AudReca','VisForg','VisReca'});
+
+exper.eventValuesExtra.toCombine = {{'AudForg','VisForg'},{'AudReca','VisReca'},{'AudForg','AudReca'},{'VisForg','VisReca'}};
+exper.eventValuesExtra.newValue = {{'Forg'},{'Reca'},{'Aud'},{'Vis'}};
+exper.eventValuesExtra.onlyKeepExtras = 0;
 
 exper.subjects = {
   'FRCE 03';
@@ -171,7 +175,7 @@ cfg_proc.toi = -0.5:0.05:1.5;
 %freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
 %cfg_proc.foi = 3:freqstep:40;
 %cfg_proc.foi = 3:freqstep:9;
-cfg_proc.foi = 4:1:40;
+cfg_proc.foi = 4:1:64;
 %cfg_proc.foi = 2:2:30;
 cfg_proc.t_ftimwin = 6./cfg_proc.foi;
 % tapsmofrq is not used for hanning taper; it is used for dpss
@@ -232,7 +236,8 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/analysisDetails.mat'
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups

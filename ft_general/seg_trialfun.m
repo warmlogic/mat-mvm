@@ -14,6 +14,7 @@ event = ft_read_event(cfg.dataset);
 offsetSamp = round(-cfg.trialdef.prestim*hdr.Fs);
 % duration should be 1 sample less than the whole length of an event
 durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
+% TODO: should this be ceil instead of round?
 
 % initialize the trl matrix
 trl = [];
