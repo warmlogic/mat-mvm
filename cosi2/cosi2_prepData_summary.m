@@ -33,7 +33,7 @@ if nargin < 4
 end
 
 subjects = {
-  'COSI2001';
+%   'COSI2001';
   'COSI2002';
   'COSI2003';
   'COSI2004';
@@ -70,8 +70,8 @@ subjects = {
 %   'COSI2035';
   };
 
-%sessions = {'session_0','session_1'};
-sessions = {'session_0'};
+sessions = {'session_0','session_1'};
+%sessions = {'session_0'};
 %sessions = {'session_1'};
 
 %% Set up the headers
@@ -127,7 +127,15 @@ for s = 1:length(subsets)
     % include artifacts in event count
     eventsTable = fullfile(dataroot,[expName,'_summary',subsets{s}]);
     if averageSes == 1
-      eventsTable = sprintf('%s_avgSes',eventsTable);
+      eventsTable = sprintf('%s_sesAvg',eventsTable);
+    elseif averageSes == 0
+      sesNums = sessions{1}(end);
+      if length(sessions) > 1
+        for i = 2:length(sessions)
+          sesNums = cat(2,sprintf('%s%s',sesNums,sessions{i}(end)));
+        end
+      end
+      eventsTable = sprintf('%s_ses%s',sesNums);
     end
     if rejectArt == 1
       eventsTable = sprintf('%s_rejArt',eventsTable);
@@ -924,7 +932,7 @@ for s = 1:length(subsets)
           end
           fprintf(outfile,'%s,%s',subjects{sub},allSes);
         else
-          fprintf(outfile,'%s,%d',subjects{sub},ses-1);
+          fprintf(outfile,'%s,%d',subjects{sub},sessions{ses}(end));
         end
         % format for tableData and print
         tableDataStr = repmat(',%.4f',1,length(tableData));
