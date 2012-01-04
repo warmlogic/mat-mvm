@@ -33,14 +33,14 @@ if nargin < 4
 end
 
 subjects = {
-%   'COSI2001';
+  'COSI2001';
   'COSI2002';
   'COSI2003';
   'COSI2004';
   'COSI2005';
   'COSI2006';
   'COSI2007';
-%   'COSI2008';
+  'COSI2008';
 %   'COSI2009';
 %   'COSI2010';
 %   'COSI2011';
@@ -135,7 +135,7 @@ for s = 1:length(subsets)
           sesNums = cat(2,sprintf('%s%s',sesNums,sessions{i}(end)));
         end
       end
-      eventsTable = sprintf('%s_ses%s',sesNums);
+      eventsTable = sprintf('%s_ses%s',eventsTable,sesNums);
     end
     if rejectArt == 1
       eventsTable = sprintf('%s_rejArt',eventsTable);
@@ -932,7 +932,7 @@ for s = 1:length(subsets)
           end
           fprintf(outfile,'%s,%s',subjects{sub},allSes);
         else
-          fprintf(outfile,'%s,%d',subjects{sub},sessions{ses}(end));
+          fprintf(outfile,'%s,%s',subjects{sub},sessions{ses}(end));
         end
         % format for tableData and print
         tableDataStr = repmat(',%.4f',1,length(tableData));

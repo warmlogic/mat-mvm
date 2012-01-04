@@ -31,7 +31,7 @@ elseif exist(serverLocalDir,'dir')
 else
   dataroot = fullfile(getenv('HOME'),'data',expName,'eeg','behavioral');
 end
-saveDir = dataroot;
+%saveDir = dataroot;
 
 if nargin == 0
   subjects = {
@@ -42,7 +42,7 @@ if nargin == 0
     'COSI2005';
     'COSI2006';
     'COSI2007';
-%     'COSI2008';
+    'COSI2008';
 %     'COSI2009';
 %     'COSI2010';
 %     'COSI2011';
@@ -84,11 +84,10 @@ end
 
 fprintf('Processing %d subjects',length(subjects));
 if prep_eeg == 1
-  fprintf(' and aligning ');
+  fprintf(' and aligning EEG data.\n');
 elseif prep_eeg == 0
-  fprintf(' without ');
+  fprintf(', behavioral data only.\n');
 end
-fprintf('EEG data.\n');
 
 sessions = {'session_0','session_1'};
 %sessions = {'session_0'};
@@ -100,6 +99,12 @@ for sub = 1:length(subjects)
   fprintf('Getting data for %s...',subjects{sub});
   for ses = 1:length(sessions)
     fprintf('%s...\n',sessions{ses});
+    sesDir = fullfile(dataroot,subjects{sub},sessions{ses});
+    
+    if ~exist(sesDir,'dir')
+      fprintf('Data for %s does not exist (%s). Moving on.\n',sessions{ses},sesDir);
+      continue
+    end
     
     if prep_eeg == 1
       % find the bad channels for this subject and session
@@ -110,7 +115,7 @@ for sub = 1:length(subjects)
 %       end
       %subSesBadChan = [];
       
-      nsFile = dir(fullfile(saveDir,subjects{sub},sessions{ses},'eeg','*.raw'));
+      nsFile = dir(fullfile(sesDir,'eeg','*.raw'));
       if isempty(nsFile)
         fprintf('Did not find %s raw NS file. Moving on.\n',subjects{sub})
         continue
@@ -122,7 +127,7 @@ for sub = 1:length(subjects)
     end
     
     % set the subject events directory
-    eventsOutdir_sub = fullfile(saveDir,subjects{sub},sessions{ses},'events');
+    eventsOutdir_sub = fullfile(sesDir,'events');
     if ~exist(eventsOutdir_sub,'dir')
       mkdir(eventsOutdir_sub);
     end
@@ -130,9 +135,7 @@ for sub = 1:length(subjects)
     % set the subject events file
     eventsOutfile_sub = fullfile(eventsOutdir_sub,'events.mat');
     if exist(eventsOutfile_sub,'file')
-      %fprintf('%s already exists! Skipping this subject!\n',eventsOutfile_sub);
-      %continue
-      fprintf('%s already exists! Next subject...\n',eventsOutfile_sub);
+      fprintf('Events file (%s) already exists! Moving on to next subject...\n',eventsOutfile_sub);
       continue
     else
       %if ~lockFile(eventsOutfile_sub)
@@ -151,7 +154,6 @@ for sub = 1:length(subjects)
     if prep_eeg == 1
       fprintf('Prepping EEG data...\n');
       % get this subject's session dir
-      sesDir = fullfile(dataroot,subjects{sub},sessions{ses});
       subEegDir = fullfile(sesDir,'eeg','eeg.noreref');
       pfile = dir(fullfile(subEegDir,[subjects{sub},'*params.txt']));
       
