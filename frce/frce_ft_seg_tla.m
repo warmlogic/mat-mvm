@@ -32,6 +32,10 @@ exper.nsFileExt = 'egis';
 %exper.eventValues = sort({'VisForg','VisReca'});
 exper.eventValues = sort({'AudForg','AudReca','VisForg','VisReca'});
 
+% these are stimulus presentations (following a cue) where the 1.25s before
+% stimulus is a fixation cross; visual or auditory stimuli were presented
+% for 1s. The following ISI was 2s.
+
 exper.eventValuesExtra.toCombine = {{'AudForg','VisForg'},{'AudReca','VisReca'},{'AudForg','AudReca'},{'VisForg','VisReca'}};
 exper.eventValuesExtra.newValue = {{'Forg'},{'Reca'},{'Aud'},{'Vis'}};
 exper.eventValuesExtra.onlyKeepExtras = 0;
@@ -123,7 +127,7 @@ cfg_pp.baselinewindow = [-0.2 0];
 %cfg_pp.precision = 'single';
 
 cfg_proc = [];
-cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptrials = 'no';
 
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
@@ -180,7 +184,11 @@ ana = mm_ft_channelgroups(ana);
 % analysis functions
 
 ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+%ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+%ana.eventValues = {{'Forg','Reca'}};
+%ana.eventValues = {{'Aud','Vis'}};
+%ana.eventValues = {{'AudForg','AudReca'}};
+ana.eventValues = {{'VisForg','VisReca'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -301,9 +309,9 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'Pz'}};
-cfg_plot.rois = {{'Cz'}};
-cfg_plot.ylims = [-5 5; -5 2; -5 2; -1 6; -1 6];
+cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'},{'Oz'}};
+%cfg_plot.rois = {{'FI'},{'FS'},{'C'},{'PS'},{'PI'}};
+cfg_plot.ylims = [-5 5; -5 5; -5 5; -5 5; -5 5];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -349,7 +357,8 @@ end
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'Cz'}};
+%cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'},{'Oz'}};
+cfg_plot.rois = {{'FI'},{'FS'},{'C'},{'PS'},{'PI'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
@@ -451,26 +460,26 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 0;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 0;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 
 cfg_plot.xlabel = 'Time (s)';
 cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
 % cfg_plot.ylabel = '';
 
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-6 6];
-% %cfg_plot.ylims = 'maxmin';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% %cfg_ft.comment = 'no';
-% %cfg_plot.rois = {'all'};
+cfg_plot.ftFxn = 'ft_topoplotER';
+cfg_plot.ylims = [-3 3];
+%cfg_plot.ylims = 'maxmin';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+%cfg_ft.comment = 'no';
+cfg_plot.rois = {'all'};
 % cfg_plot.subplot = 0;
 % cfg_plot.rois = {{'FS'}};
 % cfg_ft.xlim = [0.3 0.5]; % time
@@ -478,6 +487,8 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % % cfg_ft.xlim = [0.5 0.8]; % time
 % %cfg_plot.rois = {{'LPS'}};
 % %cfg_ft.xlim = [1.0 1.5]; % time
+cfg_plot.subplot = 1;
+cfg_ft.xlim = (0:0.05:1.0); % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -492,14 +503,14 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{'RHSC','RHSI','RCR'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'Hits-SC','Hits-SI','CR'}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{{'RHSC','RHSI','RCR'}}},size(cfg_plot.rois));
+%cfg_plot.rename_condByROI = repmat({{{'Hits-SC','Hits-SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
-  cfg_plot.rename_conditions = cfg_plot.rename_condByROI{r};
+  %cfg_plot.rename_conditions = cfg_plot.rename_condByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   
   if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
@@ -525,9 +536,9 @@ cfg_ft.interactive = 'no';
 cfg_ft.colorbar = 'no';
 
 % comparisons to make
-%cfg_plot.conditions = {'all'};
+cfg_plot.conditions = {'all'};
 %cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
-cfg_plot.conditions = {{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
+%cfg_plot.conditions = {{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
 %cfg_plot.conditions = {{'RHSC','RCR'}}; % {'RH','RCR'},
 %cfg_plot.conditions = {{'FSC','RSSI'}};
 
@@ -538,20 +549,21 @@ cfg_ft.zlim = [-1.5 1.5]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
+%cfg_ft.comment = 'no';
 
- cfg_plot.roi = {'LAS','RAS'};
-%cfg_plot.roi = {'LAS'};
-%cfg_plot.roi = {'FS'};
-cfg_ft.xlim = [0.3 0.5]; % time
+%  cfg_plot.roi = {'LAS','RAS'};
+% %cfg_plot.roi = {'LAS'};
+% %cfg_plot.roi = {'FS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
 
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
 
-%cfg_plot.subplot = 1;
-% cfg_ft.xlim = [0 1.0]; % time
-%cfg_ft.xlim = (0:0.05:1.0); % time
+cfg_plot.subplot = 1;
+%cfg_ft.xlim = [0 1.0]; % time
+cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
+cfg_plot.roi = {'all'};
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
