@@ -1,8 +1,7 @@
 %dataroot = fullfile(getenv('HOME'),'Downloads','FRCE_data_classification');
 
-%dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/';
-
-dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/';
+dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/';
+%dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/';
 
 %center73 = [3 4 5 6 7 9 10 11 12 13 15 16 18 19 20 22 23 24 27 28 29 30 31 34 35 36 37 40 41 42 46 47 51 52 53 54 55 59 60 61 62 66 67 71 72 76 77 78 79 80 84 85 86 87 91 92 93 97 98 102 103 104 105 106 109 110 111 112 116 117 118 123 124];
 
@@ -369,9 +368,9 @@ cfg.nfolds = 5;
 cfg_ana.chanStr = {'center73'};
 cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)});
 
-%cfg.latency = [-0.3 0];
-%cfg.latency = [0 1.0];
-cfg.latency = [0 0.6];
+%cfg.latency = [-0.2 0];
+cfg.latency = [0 1.0];
+%cfg.latency = [0 0.6];
 %cfg.latency = [0 0.3];
 %cfg.latency = [0.3 0.6];
 %cfg.latency = [0.5 1.0];
@@ -387,9 +386,9 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 %cfg_ana.method = 'cspFs10SVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan) ft_mv_filterer('maxfeatures',10) ft_mv_svm};
 
-cfg_ana.method = 'cspSVM';
+%cfg_ana.method = 'cspSVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan) ft_mv_svm};
-cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan,'numpatterns',1,'outputdatatype','logpowcsp','filttype','CSP0') ft_mv_svm};
+%cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan,'numpatterns',1,'outputdatatype','logpowcsp','filttype','CSP0') ft_mv_svm};
 
 %cfg_ana.method = 'fs10SVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',10) ft_mv_svm};
@@ -417,8 +416,8 @@ cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan,'numpatterns',1,
 % doesn't perform very well
 
 % L2 regularized logistic regression
-%cfg_ana.method = 'L2regLogR';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'lambda',1,'family','binomial')};
+cfg_ana.method = 'L2regLogR';
+cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'lambda',1,'family','binomial')};
 % seems to have the best performance
 
 % elastic net logistic regression
@@ -461,6 +460,7 @@ for sub = 1:length(exper.subjects)
     fprintf('\t\t%s\t%s\n',ana.eventValues{1}{1},ana.eventValues{1}{2});
     fprintf('True\t%s\t%d\t%d\n',ana.eventValues{1}{1},continTab{sub,frq}(1,1),continTab{sub,frq}(1,2));
     fprintf('\t%s\t%d\t%d\n',ana.eventValues{1}{2},continTab{sub,frq}(2,1),continTab{sub,frq}(2,2));
+    fprintf('\n');
     
   end
 end
