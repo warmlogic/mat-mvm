@@ -97,10 +97,10 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
 files.figFontName = 'Helvetica';
-files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'epsc2';
 files.figPrintRes = 150;
 
-%files.figPrintFormat = 'png';
+files.figPrintFormat = 'png';
 %files.figPrintFormat = 'tiff';
 %files.figPrintRes = 1000;
 
@@ -162,7 +162,13 @@ end
 
 
 %adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/analysisDetails.mat';
+
+% % all trials
+%adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/analysisDetails.mat';
+
+% average
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -188,7 +194,9 @@ ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'Forg','Reca'}};
 %ana.eventValues = {{'Aud','Vis'}};
 %ana.eventValues = {{'AudForg','AudReca'}};
-ana.eventValues = {{'VisForg','VisReca'}};
+%ana.eventValues = {{'VisForg','VisReca'}};
+%ana.eventValues = {{'Forg','Reca'},{'Aud','Vis'}};
+ana.eventValues = {{'AudForg','VisForg'},{'AudReca','VisReca'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -694,8 +702,11 @@ cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.latencies = [0 1.0; 1.0 2.0];
 
-cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+
+%cfg_ana.conditions = {{'Forg','Reca'},{'Aud','Vis'}};
+cfg_ana.conditions = {{'AudForg','VisForg'},{'AudReca','VisReca'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -706,6 +717,7 @@ end
 %% plot the cluster statistics
 
 files.saveFigs = 1;
+files.figPrintFormat = 'png';
 
 cfg_ft = [];
 cfg_ft.alpha = .1;

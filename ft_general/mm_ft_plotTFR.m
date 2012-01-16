@@ -60,6 +60,8 @@ if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
     if isfield(cfg_ft,'markerfontsize')
       cfg_ft.markerfontsize = 9;
     end
+  elseif strcmp(cfg_plot.type,'multi')
+    cfg_ft.colorbar = 'no';
   end
 end
 

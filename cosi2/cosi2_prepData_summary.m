@@ -41,9 +41,9 @@ subjects = {
   'COSI2006';
   'COSI2007';
   'COSI2008';
-%   'COSI2009';
-%   'COSI2010';
-%   'COSI2011';
+  'COSI2009';
+  'COSI2010';
+  'COSI2011';
 %   'COSI2012';
 %   'COSI2013';
 %   'COSI2014';

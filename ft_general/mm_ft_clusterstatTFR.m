@@ -48,6 +48,7 @@ end
 
 cfg_ft.elec = ana.elec;
 if strcmp(cfg_ft.avgoverchan,'no')
+  cfg_ft.method = 'distance';
   cfg_ft.neighbours = ft_prepare_neighbours(cfg_ft);
 end
 

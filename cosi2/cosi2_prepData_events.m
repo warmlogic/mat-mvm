@@ -43,9 +43,9 @@ if nargin == 0
     'COSI2006';
     'COSI2007';
     'COSI2008';
-%     'COSI2009';
-%     'COSI2010';
-%     'COSI2011';
+    'COSI2009';
+    'COSI2010';
+    'COSI2011';
 %     'COSI2012';
 %     'COSI2013';
 %     'COSI2014';
@@ -101,8 +101,8 @@ for sub = 1:length(subjects)
     fprintf('%s...\n',sessions{ses});
     sesDir = fullfile(dataroot,subjects{sub},sessions{ses});
     
-    if ~exist(sesDir,'dir')
-      fprintf('Data for %s does not exist (%s). Moving on.\n',sessions{ses},sesDir);
+    if ~exist(fullfile(sesDir,'session.log'),'file')
+      fprintf('Data for %s does not exist (%s). Moving on.\n',sessions{ses},fullfile(sesDir,'session.log'));
       continue
     end
     

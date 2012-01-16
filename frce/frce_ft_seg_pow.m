@@ -93,7 +93,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
 files.figFontName = 'Helvetica';
-files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'epsc2';
+files.figPrintFormat = 'png';
 files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
@@ -153,7 +154,7 @@ cfg_pp.baselinewindow = [-0.2 0];
 cfg_proc = [];
 cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
-cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptrials = 'no';
 cfg_proc.keeptapers = 'no';
 
 % % MTM FFT
@@ -237,7 +238,12 @@ end
 %% load the analysis details
 
 %adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/analysisDetails.mat'
+
+% all trials
+%adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/analysisDetails.mat';
+
+% average
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -257,7 +263,9 @@ ana = mm_ft_channelgroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
+%ana.eventValues = {exper.eventValues};
+
+ana.eventValues = {{'AudForg','AudReca','VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -377,9 +385,11 @@ cfg_ft = [];
 %cfg_ft.baselinetype = 'absolute';
 %if strcmp(cfg_ft.baselinetype,'absolute')
 %cfg_ft.xlim = [0 1];
-%cfg_ft.ylim = [3 50];
-cfg_ft.ylim = [3 8];
+%cfg_ft.ylim = [4 64];
+%cfg_ft.ylim = [4 8];
 %cfg_ft.ylim = [8 12];
+%cfg_ft.ylim = [12 28];
+cfg_ft.ylim = [28 64];
 %cfg_ft.zlim = [-1 1];
 cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
@@ -493,14 +503,15 @@ cfg_plot = [];
 cfg_plot.plotTitle = 1;
 
 % comparisons to make
-cfg_plot.conditions = {'all'};
+%cfg_plot.conditions = {'all'};
+cfg_plot.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
 
 cfg_ft = [];
 %cfg_ft.xlim = [.5 .8]; % time
-%cfg_ft.ylim = [3 8]; % freq
-cfg_ft.ylim = [8 12]; % freq
+cfg_ft.ylim = [4 8]; % freq
+%cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
-%cfg_ft.ylim = [28 50]; % freq
+%cfg_ft.ylim = [28 64]; % freq
 cfg_ft.parameter = 'powspctrm';
 cfg_ft.zlim = [-1 1]; % pow
 
@@ -602,8 +613,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'yes';
-%cfg_ft.avgoverfreq = 'no';
+%cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -617,15 +628,17 @@ cfg_ft.alpha = .025;
 cfg_ana = [];
 cfg_ana.roi = 'all';
 %cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+
+cfg_ana.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [2 40];
+  cfg_ana.frequencies = [4 64];
 else
-  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 64];
+  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 end
-cfg_ana.latencies = [0 1.0];
+cfg_ana.latencies = [0 1.5];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
 for lat = 1:size(cfg_ana.latencies,1)
@@ -650,7 +663,7 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR
