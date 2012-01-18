@@ -12,9 +12,9 @@ adFile = fullfile(dataroot,'analysisDetails.mat');
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
-%ana.eventValues = {{'AudForg','AudReca'}};
+ana.eventValues = {{'AudForg','AudReca'}};
 %ana.eventValues = {{'VisForg','VisReca'}};
-ana.eventValues = {{'Forg','Reca'}};
+%ana.eventValues = {{'Forg','Reca'}};
 %ana.eventValues = {{'Aud','Vis'}};
 
 % pre-defined in this function
@@ -23,9 +23,9 @@ ana = mm_ft_channelgroups(ana);
 % redefine which subjects to load
 %exper.subjects = {'FRCE 05'};
 
-%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
-[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
+%[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
 
 equateTrials = true;
 
@@ -77,11 +77,11 @@ end
 
 ses = 1;
 cfg_ana = [];
-cfg_ana.latency = [-0.5 0];
+%cfg_ana.latency = [-0.5 0];
 %cfg_ana.latency = [0.5 1.0];
 %cfg_ana.latency = [0.3 1.0];
 %cfg_ana.latency = [.15 0.4];
-%cfg_ana.latency = [0 1.0];
+cfg_ana.latency = [0 1.0];
 
 %cfg_ana.chanStr = 'right';
 cfg_ana.chanStr = {'center73'};
@@ -149,6 +149,8 @@ cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'lambda',1,'family','binomi
 % optimize lambda using a 5-fold inner cross validation
 %cfg_ana.method = 'optLamLogR';
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0.5, 'validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
+%cfg_ana.method = 'L2optLamLogR';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0, 'validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
 
 for sub = 1:length(exper.subjects)
   fprintf('%s\n',exper.subjects{sub});
@@ -284,19 +286,31 @@ cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)})
 % % multitaper
 % cfg.output       = 'pow';
 % cfg.method       = 'mtmconvol';
-% cfg.taper        = 'hanning';
-% cfg.foi          = (4:1:64);
+% %cfg.foi          = (4:1:64);
+% % logarythmically spaced (4 to 128)
+% cfg.foi = (2^(1/8)).^(16:56);
+% % % logarythmically spaced (2 to 64)
+% %cfg.foi = (2^(1/8)).^(16:48);
 % cfg.t_ftimwin    = ones(length(cfg.foi),1).*0.5;
 % %cfg.toi          = (0.3:0.02:1.0);
 % %cfg.toi          = (0.1:0.02:0.6);
 % cfg.toi          = (-0.3:0.02:1.0);
+% %cfg.taper        = 'hanning';
+% cfg.taper = 'dpss';
+% % tapsmofrq is not used for hanning taper; it is used for dpss
+% cfg.tapsmofrq = 0.4*cfg.foi;
 
 % wavelet
 cfg.method = 'wavelet';
 cfg.width = 6;
 cfg.toi = (-0.3:0.02:1.0);
-cfg.foi = (4:1:64);
+%cfg.foi = (4:1:64);
+cfg.foi = (2^(1/8)).^(16:56);
 
+% logarythmically spaced (4 to 128)
+% cfg.foi = (2^(1/8)).^(16:56);
+% logarythmically spaced (2 to 64)
+% cfg.foi = (2^(1/8)).^(8:48);
 
 % get the TF data
 for sub = 1:length(exper.subjects)
@@ -307,6 +321,39 @@ for sub = 1:length(exper.subjects)
       cfg.trials = sort(evNums(1:lowEvNum(sub)));
     end
     data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_freqanalysis(cfg,data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  end
+end
+
+%% Time-Frequency: if data is already processed but not equated
+if equateTrials
+  ses=1;
+  
+  % initialize random number generator
+  %rng('shuffle');
+  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  
+  % find the lowest number of trials within each subject
+  lowEvNum = Inf(length(exper.subjects),1);
+  for sub = 1:length(exper.subjects)
+    for i = 1:length(ana.eventValues{1})
+      if size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1) < lowEvNum(sub)
+        lowEvNum(sub) = size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1);
+      end
+    end
+    for i = 1:length(ana.eventValues{1})
+      % if we're working on the smaller event, get a random sub-selection
+      if size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1) > lowEvNum(sub)
+        fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{1}{i});
+        evNums = randperm(size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1));
+        % old version
+        data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
+        % new version, rpt selection doesn't work as of ft-20120116
+        %cfg = [];
+        %cfg.rpt = sort(evNums(1:lowEvNum(sub)));
+        %data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_selectdata(cfg,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+      end
+    end
+    
   end
 end
 
@@ -331,28 +378,13 @@ end
 
 %% Time-Frequency: classification
 
-% % TF data is already processed
-% if equateTrials
-%   % initialize random number generator
-%   %rng('shuffle');
-%   RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
-%   
-%   % find the lowest number of trials within each subject
-%   lowEvNum = Inf(length(exper.subjects),1);
-%   for sub = 1:length(exper.subjects)
-%     for i = 1:length(ana.eventValues{1})
-%       if size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1) < lowEvNum(sub)
-%         lowEvNum(sub) = size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1);
-%       end
-%     end
-%   end
-% end
-
 ses = 1;
 
 cfg_ana = [];
-cfg_ana.freqs = [4 7;6 10;7 12;10 15;12 19;15 25; 19 30;25 35;30 40;35 64];
+cfg_ana.freqs = [4 8;6 10;8 12;10 15;12 19;15 25; 19 30;25 35;30 40;35 64];
+%cfg_ana.freqs = [4 64];
 %cfg_ana.freqs = [4 8; 8 12; 12 28; 28 64];
+%cfg_ana.freqs = [4 7.99; 8 15.99; 16 31.99; 32 63.99; 64 128];
 
 accuracy = nan(length(exper.subjects),size(cfg_ana.freqs,1));
 pval = nan(length(exper.subjects),size(cfg_ana.freqs,1));
@@ -362,7 +394,7 @@ cfg = [];
 cfg.parameter = 'powspctrm';
 cfg.layout = 'GSN-HydroCel-129.sfp';
 cfg.method = 'crossvalidate';
-cfg.nfolds = 5;
+cfg.nfolds = 10;
 
 %cfg_ana.chanStr = 'right';
 cfg_ana.chanStr = {'center73'};
@@ -393,6 +425,9 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 %cfg_ana.method = 'fs10SVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',10) ft_mv_svm};
 
+%cfg_ana.method = 'gsSVM';
+%cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',ft_mv_svm,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','C','vals',logspace(-3,3,7))};
+
 % z-transform, feature selection in the original space
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('lambda',0.1)};
 
@@ -410,24 +445,40 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('lambda',0,'family','binomial')};
 % crashes
 
+%cfg_ana.method = 'gsL1';
+%cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',ft_mv_glmnet('alpha',1,'family','binomial'),'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','lambda','vals',(0.01:0.01:0.1))};
+% not working
+
 % L1 regularized logistic regression
-%cfg_ana.method = 'L1regLogR';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',1,'family','binomial')};
-% doesn't perform very well
+%cfg_ana.method = 'L1regLogRLam005';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.05,'family','binomial')};
+% lam=1 doesn't perform very well
+% lam=0.1 and 0.05 performs well
+% lambda=0.2 doesn't perform well
 
 % L2 regularized logistic regression
-cfg_ana.method = 'L2regLogR';
-cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'lambda',1,'family','binomial')};
-% seems to have the best performance
+cfg_ana.method = 'L2regLogRLam09';
+cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'lambda',0.9,'family','binomial')};
+% alpha=0, lambda=1 has good performance
+% alpha=0, lambda=0.1 ? (Slooow)
 
 % elastic net logistic regression
-%cfg_ana.method = 'elasNetLogR';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0.5,'lambda',1,'family','binomial')};
-% terrible performance
+%cfg_ana.method = 'elasNetLogRAlp99Lam01';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0.99,'lambda',0.1,'family','binomial')};
+% meh performance at alpha=0, lambda=2
+% decent performance at alpha=0.1, lambda=0.9
+% bad performance at alpha=0.2, lambda=0.9
+% bad performance at alpha=0.1, lambda=0.5
+% terrible performance at alpha=0.5, lambda=1
+% great performance at alpha=0.99, lambda=0.1
 
 % optimize lambda using a 5-fold inner cross validation
 %cfg_ana.method = 'optLamLogR';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0.5, 'validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
+
+%cfg_ana.method = 'L2optLamLogR';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0, 'validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
+% lumping all trials in one category, really bad performance
 
 for sub = 1:length(exper.subjects)
   fprintf('%s\n',exper.subjects{sub});
@@ -448,7 +499,7 @@ for sub = 1:length(exper.subjects)
     continTab{sub,frq} = stat.cv.performance('contingency');
     
     % print out some performance info
-    fprintf('\n%s, %d-%d Hz\naccuracy = %.2f%%, p = %.4f',exper.subjects{sub},cfg.frequency(1),cfg.frequency(2),accuracy(sub,frq)*100,pval(sub,frq));
+    fprintf('\n%s, %.2f-%.2f Hz\naccuracy = %.2f%%, p = %.4f',exper.subjects{sub},cfg.frequency(1),cfg.frequency(2),accuracy(sub,frq)*100,pval(sub,frq));
     if pval(sub,frq) < .05
      fprintf(' ***\n');
     else
@@ -503,7 +554,7 @@ fprintf(fid,'avgOverFreq\t%s\n',cfg.avgoverfreq);
 fprintf(fid,'\n');
 
 fprintf(fid,'Probabilities\n');
-fprintf(fid,'%s',sprintf(repmat('\t%d-%d Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+fprintf(fid,'%s',sprintf(repmat('\t%.2f-%.2f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
 fprintf(fid,'\tAverage\n');
 for sub = 1:length(exper.subjects)
   fprintf(fid,'%s%s',exper.subjects{sub},sprintf(repmat('\t%.2f',1,size(accuracy,2)),accuracy(sub,:)));

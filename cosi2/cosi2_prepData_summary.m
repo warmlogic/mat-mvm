@@ -44,10 +44,10 @@ subjects = {
   'COSI2009';
   'COSI2010';
   'COSI2011';
-%   'COSI2012';
-%   'COSI2013';
-%   'COSI2014';
-%   'COSI2015';
+  'COSI2012';
+  'COSI2013';
+  'COSI2014';
+  'COSI2015';
 %   'COSI2016';
 %   'COSI2017';
 %   'COSI2018';
@@ -70,8 +70,8 @@ subjects = {
 %   'COSI2035';
   };
 
-sessions = {'session_0','session_1'};
-%sessions = {'session_0'};
+%sessions = {'session_0','session_1'};
+sessions = {'session_0'};
 %sessions = {'session_1'};
 
 %% Set up the headers

@@ -154,7 +154,7 @@ cfg_pp.baselinewindow = [-0.2 0];
 cfg_proc = [];
 cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
-cfg_proc.keeptrials = 'no';
+cfg_proc.keeptrials = 'yes';
 cfg_proc.keeptapers = 'no';
 
 % % MTM FFT
@@ -167,20 +167,20 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.tapsmofrq = 5;
 % cfg_proc.toi = -0:0.04:1.0;
 
-% multi-taper method
-cfg_proc.method = 'mtmconvol';
-cfg_proc.taper = 'hanning';
-%cfg_proc.taper = 'dpss';
-%cfg_proc.toi = -0.8:0.04:3.0;
-cfg_proc.toi = -0.5:0.05:1.5;
-%freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-%cfg_proc.foi = 3:freqstep:40;
-%cfg_proc.foi = 3:freqstep:9;
-cfg_proc.foi = 4:1:64;
-%cfg_proc.foi = 2:2:30;
-cfg_proc.t_ftimwin = 6./cfg_proc.foi;
-% tapsmofrq is not used for hanning taper; it is used for dpss
-%cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+% % multi-taper method
+% cfg_proc.method = 'mtmconvol';
+% cfg_proc.taper = 'hanning';
+% %cfg_proc.taper = 'dpss';
+% %cfg_proc.toi = -0.8:0.04:3.0;
+% cfg_proc.toi = -0.5:0.05:1.5;
+% %freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% %cfg_proc.foi = 3:freqstep:40;
+% %cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.foi = 4:1:64;
+% %cfg_proc.foi = 2:2:30;
+% cfg_proc.t_ftimwin = 6./cfg_proc.foi;
+% % tapsmofrq is not used for hanning taper; it is used for dpss
+% %cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
 
 % % wavelet
 % cfg_proc.method = 'wavelet';
@@ -192,6 +192,29 @@ cfg_proc.t_ftimwin = 6./cfg_proc.foi;
 % %cfg_proc.foi = 3:freqstep:50;
 % cfg_proc.foi = 3:freqstep:9;
 % %cfg_proc.foilim = [3 9];
+
+% multitaper
+cfg_proc.method       = 'mtmconvol';
+%cfg_proc.foi          = (4:1:64);
+% logarythmically spaced (4 to 128)
+cfg_proc.foi = (2^(1/8)).^(16:56);
+% % logarythmically spaced (2 to 64)
+%cfg_proc.foi = (2^(1/8)).^(16:48);
+cfg_proc.t_ftimwin    = 6./cfg_proc.foi;
+%cfg_proc.toi          = (0.3:0.02:1.0);
+%cfg_proc.toi          = (0.1:0.02:0.6);
+cfg_proc.toi          = (-0.5:0.02:1.5);
+%cfg_proc.taper        = 'hanning';
+cfg_proc.taper = 'dpss';
+% tapsmofrq is not used for hanning taper; it is used for dpss
+cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+
+% % wavelet
+% cfg_proc.method = 'wavelet';
+% cfg_proc.width = 6;
+% cfg_proc.toi = (-0.5:0.02:1.5);
+% %cfg_proc.foi = (4:1:64);
+% cfg_proc.foi = (2^(1/8)).^(16:56);
 
 % set the save directories; final argument is prefix of save directory
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
