@@ -130,6 +130,7 @@ for i = 1:length(events)
   rknrStr = 'rknr'; % the response
   rkrtStr = 'rkrt'; % reaction time
   rkncStr = 'rknc'; % was it correct? (always = 1)
+  redoStr = 'redo'; % was this a redo trial? (the "corrected" answer, not the accidental one)
   % eeg_toolbox artifact info
   %artiStr = 'arti'; % did eeg_toolbox find an artifact?
   
@@ -209,6 +210,9 @@ for i = 1:length(events)
     rkn_correct = '-1';
   end
   
+  % was this a "corrected" redo trial?
+  redo = num2str(events(i).redo);
+  
   % % eeg_toolbox artifact information
   % artifactMS = num2str(events(i).artifactMS);
   
@@ -255,8 +259,8 @@ for i = 1:length(events)
   
   %cellLabels = {subStr,sesStr,listStr,trialStr,ncolStr,typeStr,itemStr,poolStr,pcorStr,scolStr,lcolStr,srpsStr,rec_targStr,scndStr,sturStr,strtStr,src_targStr,srcrStr,srrtStr,scorStr,rknrStr,rkrtStr,rcorStr,artiStr};
   %cellData = {subject,session,list,trial,ncol,type,item,pool,pool_correct,scol,lcol,serpos,rec_isTarg,study_cond,study_resp,study_rt,src_isTarg,src_resp,src_rt,src_correct,rkn_resp,rkn_rt,rkn_correct,artifactMS};
-  cellLabels = {subStr,sesStr,listStr,trialStr,ncolStr,typeStr,condStr,itemStr,srpsStr,scolStr,lcolStr,xcrdStr,ycrdStr,rec_targStr,rcorStr,src_targStr,srcrStr,srrtStr,scorStr,rknrStr,rkrtStr,rkncStr};
-  cellData = {subject,session,list,trial,ncol,type,cond,item,serpos,scol,lcol,xcrd,ycrd,rec_isTarg,rec_correct,src_isTarg,src_resp,src_rt,src_correct,rkn_resp,rkn_rt,rkn_correct};
+  cellLabels = {subStr,sesStr,listStr,trialStr,ncolStr,typeStr,condStr,itemStr,srpsStr,scolStr,lcolStr,xcrdStr,ycrdStr,rec_targStr,rcorStr,src_targStr,srcrStr,srrtStr,scorStr,rknrStr,rkrtStr,rkncStr,redoStr};
+  cellData = {subject,session,list,trial,ncol,type,cond,item,serpos,scol,lcol,xcrd,ycrd,rec_isTarg,rec_correct,src_isTarg,src_resp,src_rt,src_correct,rkn_resp,rkn_rt,rkn_correct,redo};
   
   % print the event info
   for c = 1:length(eventInfo)

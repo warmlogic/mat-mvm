@@ -31,12 +31,15 @@ function events = cosi2_createEvents(dataroot,subject,session,nsFile)
 %   rkn_resp
 %   rkn_rt
 %   rkn_correct
+%   redo
 %
-% For source response, correct is calculated relative to a "SIZE" response
-% (i.e., "hit" if SIZE response for SIZE source, and "false alarm" if SIZE
-% response for LIFE source). This could be switched around to be relative to
-% LIFE.
+% Color:
+% For source response, correct is calculated relative to a " Blue" (B)
+% response (i.e., "hit" if B response for B source, and "false alarm" if B
+% response for Yellow source). This could be switched around to be relative
+% to Y.
 %
+% Side:
 % For source response, correct is calculated relative to a "right
 % side" (R) response (i.e., "hit" if R response for R source, and
 % "false alarm" if R response for L source). This could be switched
@@ -61,20 +64,36 @@ fclose(fid);
 
 %[l1 l2 l3 l4 l5 l6 l7 l8] = textread(logfile,'%d%d%s%s%s%s%s%s','delimiter','\t','emptyvalue',NaN);
 
+% constants
+NUMLISTS = 4;
+MAXTESTTIME = 30000;
+REDO_STR = 'REDO';
+NEW_STR = 'NEW';
+
+% this only works with two colors
+SRC_TARG_COLOR = 'Blue';
+SRC_LURE_COLOR = 'Yellow';
+
+% find the places where they did a redo response; will exclude these
+redoInd = strcmp(logdata{5},REDO_STR);
+redoToRemove = redoInd;
+% also set the redone source response to 1; will exclude these too
+redoToRemove(find(redoInd == 1) - 1) = 1;
+% find the "corrected" redo trials; we want to keep this but mark them
+redoToKeep = redoInd;
+redoToKeep(find(redoToRemove == 1) + 2) = 1;
+redoToKeep(redoInd == 1) = 0;
+
 sesNum = str2double(strrep(session,'session_',''));
 if isempty(nsFile)
-  log = struct('subject',subject,'session',sesNum,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3});
+  log = struct('subject',subject,'session',sesNum,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3},'redo',num2cell(redoToKeep),'redoToRemove',num2cell(redoToRemove));
 else
-  log = struct('subject',subject,'session',sesNum,'nsFile',nsFile,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3});
+  log = struct('subject',subject,'session',sesNum,'nsFile',nsFile,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3},'redo',num2cell(redoToKeep),'redoToRemove',num2cell(redoToRemove));
 end
-
-% constants
-numLists = 4;
-maxTestTime = 30000;
 
 % initialize
 listNum = NaN;
-numColors = cell(1,numLists);
+numColors = cell(1,NUMLISTS);
 numColor = NaN;
 
 % get the test types
@@ -179,27 +198,31 @@ for i = 1:length(log)
       log(i).numColors = log(i-1).numColors;
       % put in the trial number within this list
       log(i).trial = log(i-1).trial;
-
+      
       % get the response
       log(i).src_resp = logdata{5}{i};
       % was it correct?
       log(i).src_correct = str2double(logdata{8}{i});
       % get the reaction time
       log(i).src_rt = str2double(logdata{6}{i});
-      if log(i).src_rt == maxTestTime
+      if log(i).src_rt == MAXTESTTIME
         log(i).src_resp = '';
         log(i).src_correct = -1;
       end
       
       % determine if they correctly recognized it as either old
       % (independent of source accuracy) or new
-      if log(i).rec_isTarg == 1 && ~strcmp(log(i).src_resp,'NEW')
+      if log(i).rec_isTarg == 1 && ~strcmp(log(i).src_resp,NEW_STR)
+        % hit
         log(i).rec_correct = 1;
-      elseif log(i).rec_isTarg == 1 && strcmp(log(i).src_resp,'NEW')
+      elseif log(i).rec_isTarg == 1 && strcmp(log(i).src_resp,NEW_STR)
+        % miss
         log(i).rec_correct = 0;
-      elseif log(i).rec_isTarg == 0 && strcmp(log(i).src_resp,'NEW')
+      elseif log(i).rec_isTarg == 0 && strcmp(log(i).src_resp,NEW_STR)
+        % correct rejection
         log(i).rec_correct = 1;
-      elseif log(i).rec_isTarg == 0 && ~strcmp(log(i).src_resp,'NEW')
+      elseif log(i).rec_isTarg == 0 && ~strcmp(log(i).src_resp,NEW_STR)
+        % false alarm
         log(i).rec_correct = 0;
       else
         log(i).rec_correct = -1;
@@ -244,7 +267,7 @@ for i = 1:length(log)
       log(i).rkn_correct = str2double(logdata{8}{i});
       % get the response
       log(i).rkn_resp = logdata{5}{i};
-      if log(i).rkn_rt == maxTestTime
+      if log(i).rkn_rt == MAXTESTTIME
         log(i).rkn_resp = '';
         log(i).rkn_correct = -1;
       end
@@ -263,6 +286,10 @@ end % for i = 1:length(log)
 
 % grab only the events we want from our log struct
 events = filterStruct(log,'ismember(type,varargin{1})',{'STUDY_BUFFER','STUDY_TARGET','TEST_TARGET','TEST_LURE','SOURCE_RESP','RK_RESP','NEW_RESP'});
+
+% remove the redone events that we don't want
+[~,redoneInd] = filterStruct(events,'redoToRemove == 1');
+events = rmfield(events(~redoneInd),'redoToRemove');
 
 % put the info from test into the study events, and the info from
 % study into the test events
@@ -332,11 +359,11 @@ for i = 1:length(events)
           % sources are targets and all LEFT SIDE TARGET COLOR sources are
           % lures; -1 if otherwise; this is described at the top of the
           % function
-          if events(i).rec_isTarg == 1 && (events(i).study_color_x > 0.5 && events(i).study_color_x <= 1)
-            % if source color was on right then it's a target
+          if events(i).rec_isTarg == 1 && strcmp(events(i).study_color,SRC_TARG_COLOR)
+            % if source color was SRC_TARG_COLOR then it's a target
             events(i).src_isTarg = 1;
-          elseif events(i).rec_isTarg == 1 && (events(i).study_color_x < 0.5 && events(i).study_color_x >= 0)
-            % if source color was on left then it's a lure
+          elseif events(i).rec_isTarg == 1 && strcmp(events(i).study_color,SRC_LURE_COLOR)
+            % if source color was SRC_LURE_COLOR then it's a lure
             events(i).src_isTarg = 0;
           end
         elseif strcmp(events(i).cond,'side')
@@ -396,7 +423,7 @@ end
 
 % put fields in an orderly manner
 if isempty(nsFile)
-  events = orderfields(events,{'subject','session','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct'});
+  events = orderfields(events,{'subject','session','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct','redo'});
 else
-  events = orderfields(events,{'subject','session','nsFile','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct'});
+  events = orderfields(events,{'subject','session','nsFile','mstime','msoffset','list','numColors','trial','type','cond','item','serialpos','study_loc_x','study_loc_y','study_color','study_color_x','lure_color','lure_color_x','rec_isTarg','rec_correct','src_isTarg','src_resp','src_rt','src_correct','rkn_resp','rkn_rt','rkn_correct','redo'});
 end

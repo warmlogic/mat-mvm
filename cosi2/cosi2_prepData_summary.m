@@ -8,7 +8,7 @@ function cosi2_prepData_summary(rejectArt,saveFiles,averageSes,dataroot)
 
 expName = 'COSI2';
 
-subsets = {'_color','_side'};
+subsets = {'color','side'};
 
 if nargin < 4
   serverDir = fullfile(filesep,'Volumes','curranlab','Data',expName,'eeg','behavioral');
@@ -22,34 +22,36 @@ if nargin < 4
     dataroot = fullfile(uroot,'data',expName,'eeg','behavioral');
   end
   if nargin < 3
-    averageSes = 0;
+    averageSes = false;
     if nargin < 2
-      saveFiles = 1;
+      saveFiles = true;
       if nargin < 1
-        rejectArt = 0;
+        rejectArt = false;
       end
     end
   end
 end
 
 subjects = {
-  'COSI2001';
+%   'COSI2001'; % short study durations
+%               % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
   'COSI2002';
   'COSI2003';
   'COSI2004';
   'COSI2005';
   'COSI2006';
   'COSI2007';
-  'COSI2008';
+  'COSI2008'; % longer study durations began here
+              %(500ms preview, 2000ms, 1125+-125ms ISI)
   'COSI2009';
   'COSI2010';
   'COSI2011';
   'COSI2012';
-  'COSI2013';
+  'COSI2013'; % redo option began here
   'COSI2014';
   'COSI2015';
-%   'COSI2016';
-%   'COSI2017';
+  'COSI2016';
+  'COSI2017';
 %   'COSI2018';
 %   'COSI2020';
 %   'COSI2019';
@@ -123,9 +125,12 @@ end
 
 %% for each subset
 for s = 1:length(subsets)
-  if saveFiles == 1
+  if saveFiles == true
     % include artifacts in event count
-    eventsTable = fullfile(dataroot,[expName,'_summary',subsets{s}]);
+    eventsTable = fullfile(dataroot,[expName,'_summary']);
+    if ~isempty(subsets{s})
+      eventsTable = sprintf('%s_%s',eventsTable,subsets{s});
+    end
     if averageSes == 1
       eventsTable = sprintf('%s_sesAvg',eventsTable);
     elseif averageSes == 0
@@ -137,7 +142,7 @@ for s = 1:length(subsets)
       end
       eventsTable = sprintf('%s_ses%s',eventsTable,sesNums);
     end
-    if rejectArt == 1
+    if rejectArt == true
       eventsTable = sprintf('%s_rejArt',eventsTable);
     end
     eventsTable = sprintf('%s.csv',eventsTable);
@@ -147,7 +152,7 @@ for s = 1:length(subsets)
       if isempty(subsets{s})
         fprintf(outfile,'%s\n','All together');
       else
-        fprintf(outfile,'%s\n',strrep(subsets{s},'_',''));
+        fprintf(outfile,'%s\n',subsets{s});
       end
       fprintf(outfile,'%s',tableHeader{1});
       for headCol = 2:length(tableHeader)
@@ -160,7 +165,7 @@ for s = 1:length(subsets)
       %saveFiles = 0;
     end
   else
-    fprintf('saveFiles = 0, not writing out any files\n')
+    fprintf('saveFiles = %d, not writing out any files\n',saveFiles)
   end
   
   %% initialize
@@ -309,11 +314,11 @@ for s = 1:length(subsets)
   
   %% for each subject
   for sub = 1:length(subjects)
-    fprintf('Getting data for %s...',subjects{sub});
     
     %% for each session
     for ses = 1:length(sessions)
-      fprintf('%s...\n',sessions{ses});
+      fprintf('Getting data for %s, %s...\n',subjects{sub},sessions{ses});
+      
       % set the subject events directory
       eventsDir_sub = fullfile(dataroot,subjects{sub},sessions{ses},'events');
       if exist(fullfile(eventsDir_sub,'events.mat'),'file')
@@ -336,14 +341,10 @@ for s = 1:length(subsets)
       %subSesEv = filterStruct(events,'ismember(subject,varargin{1}) & ismember(session,varargin{2})',subs_str{sub},sess(ses));
       
       % get only the events for this subset
-      if strcmp(subsets{s},'_color')
-        % get only the size study events
-        fprintf('Color\n');
-        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',{'color'});
-      elseif strcmp(subsets{s},'_side')
-        % get only the life study events
-        fprintf('Side\n');
-        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',{'side'});
+      if strcmp(subsets{s},'color') ||  strcmp(subsets{s},'side')
+        % get only the subset study events
+        fprintf('%s\n',subsets{s});
+        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',subsets(s));
       else
         fprintf('All\n');
         subSesEv = events;
@@ -377,7 +378,7 @@ for s = 1:length(subsets)
       %
       % source targets (for Hs and Ms) and lures (for CRs and FAs) come
       % from the source coding of target items, as explained in
-      % cosi_createEvents.m
+      % cosi2_createEvents.m
       src_targEv = filterStruct(rec_targEv,'src_isTarg == 1 & rec_correct == 1');
       src_lureEv = filterStruct(rec_targEv,'src_isTarg == 0 & rec_correct == 1');
       

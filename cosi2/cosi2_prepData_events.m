@@ -35,7 +35,7 @@ end
 
 if nargin == 0
   subjects = {
-    'COSI2001';
+%     'COSI2001';
     'COSI2002';
     'COSI2003';
     'COSI2004';
@@ -50,8 +50,8 @@ if nargin == 0
     'COSI2013';
     'COSI2014';
     'COSI2015';
-%     'COSI2016';
-%     'COSI2017';
+    'COSI2016';
+    'COSI2017';
 %     'COSI2018';
 %     'COSI2019';
 %     'COSI2020';
@@ -96,9 +96,8 @@ sessions = {'session_0','session_1'};
 % matlabpool open
 
 for sub = 1:length(subjects)
-  fprintf('Getting data for %s...',subjects{sub});
   for ses = 1:length(sessions)
-    fprintf('%s...\n',sessions{ses});
+    fprintf('Getting data for %s, %s...\n',subjects{sub},sessions{ses});
     sesDir = fullfile(dataroot,subjects{sub},sessions{ses});
     
     if ~exist(fullfile(sesDir,'session.log'),'file')
