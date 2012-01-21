@@ -412,8 +412,8 @@ cfg_ana.latencies = [0 0.5; 0.5 1.0];
 %cfg_ana.latencies = [-0.2 0.0; 0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 
 %cfg_ana.chanStr = {'right'};
-%cfg_ana.chanStr = {'center73'};
-cfg_ana.chanStr = {'all129'};
+cfg_ana.chanStr = {'center73'};
+%cfg_ana.chanStr = {'all129'};
 
 accuracy = nan(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
 pval = nan(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
@@ -448,7 +448,7 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 
 %cfg_ana.method = 'cspSVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan) ft_mv_svm};
-%cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan,'numpatterns',6,'outputdatatype','logpowcsp','filttype','CSP0') ft_mv_svm};
+%cfg.mva = {ft_mv_standardizer ft_mv_csp('numchan',cfg_ana.nChan,'numpatterns',3,'outputdatatype','logpowcsp','filttype','CSP0') ft_mv_svm};
 
 %cfg_ana.method = 'filt10SVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',10) ft_mv_svm('verbose',true)};
@@ -459,8 +459,8 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 %cfg_ana.method = 'gsFiltCSVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',{ft_mv_filterer ft_mv_svm},'validator',ft_mv_crossvalidator('nfolds',4,'metric','accuracy'),'mvidx',[1 2],'vars',{'maxfeatures' 'C'},'vals',{1:2:10 [1 10]})};
 %cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',{ft_mv_filterer ft_mv_svm},'validator',ft_mv_crossvalidator('nfolds',4,'metric','accuracy'),'mvidx',[1 2],'vars',{'maxfeatures' 'C'},'vals',{1:2:10 logspace(-3,3,7)})};
-%cfg_ana.method = 'filt10gsCSVM';
-%cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',100) ft_mv_gridsearch('verbose',true,'mva',ft_mv_svm,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','C','vals',logspace(-3,3,7))};
+cfg_ana.method = 'filt10gsCSVM';
+cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',100) ft_mv_gridsearch('verbose',true,'mva',ft_mv_svm,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','C','vals',logspace(-3,3,7))};
 
 % z-transform, feature selection in the original space
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('lambda',0.1)};
@@ -484,8 +484,8 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 % not working
 
 % L1 regularized logistic regression
-cfg_ana.method = 'L1regLogRLam01';
-cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
+%cfg_ana.method = 'L1regLogRLam01';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
 %cfg_ana.method = 'L1regLogRLam01_ns';
 %cfg.mva = {ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
 % lam=1 doesn't perform very well
