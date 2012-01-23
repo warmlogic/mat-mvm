@@ -302,7 +302,7 @@ adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NT_TH_eq
 
 %% set up channel groups
 
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %% set up the event values to analyze; specific to each experiment
 

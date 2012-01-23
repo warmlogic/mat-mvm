@@ -1,4 +1,4 @@
-function ns_addTRSP2evt(dataroot)
+function frce_ns_addTRSP2evt(dataroot)
 
 % This function reads in an .evt file with multiple event tags denoting
 % trial-specific (TRSP) information, backs up the original .evt, and writes
@@ -7,6 +7,10 @@ function ns_addTRSP2evt(dataroot)
 % useful for doing segmentation in NS.
 %
 % NB: The original .evt file needs to be exported using relative time.
+%
+% TODO: don't separate into targets & buffers, let separation happen in NS
+%
+%
 %
 % USAGE STEPS:
 %
@@ -233,6 +237,8 @@ for i = 1:length(evt)
       %allStim(stimNum).SPOS = num2str(serPos);
       
       % set the stimulus type (buffers are the first and last 2 items)
+      %
+      % TODO: don't separate into buffers, let separation happen in NS
       if thisSerPos == 1 || thisSerPos == 2 || thisSerPos == 15 || thisSerPos == 16
         allStim(stimNum).TYPE = 'STUDY_BUFFER';
       else

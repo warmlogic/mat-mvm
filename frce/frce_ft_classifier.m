@@ -21,8 +21,8 @@ ana.eventValues = {{'VisForg','VisReca'}};
 %ana.eventValues = {{'Forg','Reca'}};
 %ana.eventValues = {{'Aud','Vis'}};
 
-% pre-defined in this function
-ana = mm_ft_channelgroups(ana);
+% pre-defined ROIs in this function
+ana = mm_ft_elecGroups(ana);
 
 % redefine which subjects to load
 %exper.subjects = {'FRCE 05'};
@@ -267,12 +267,14 @@ if equateTrials
   %rng('shuffle');
   RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
   
-  % find the lowest number of trials within each subject
-  lowEvNum = Inf(length(exper.subjects),1);
-  for sub = 1:length(exper.subjects)
-    for i = 1:length(ana.eventValues{1})
-      if size(data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.trial,2) < lowEvNum(sub)
-        lowEvNum(sub) = size(data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.trial,2);
+  for typ = 1:length(ana.eventValues)
+    % find the lowest number of trials within each subject
+    lowEvNum = Inf(length(exper.subjects),1);
+    for sub = 1:length(exper.subjects)
+      for i = 1:length(ana.eventValues{typ})
+        if size(data_raw.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trial,2) < lowEvNum(sub)
+          lowEvNum(sub) = size(data_raw.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trial,2);
+        end
       end
     end
   end
@@ -323,15 +325,17 @@ cfg.foi = (2^(1/8)).^(16:56);
 % cfg.foi = (2^(1/8)).^(8:48);
 
 % get the TF data
-for sub = 1:length(exper.subjects)
-  for i = 1:length(ana.eventValues{1})
-    if equateTrials
-      ana.equateTrials = 'yes';
-      % choose a random subset to equate trial numbers
-      evNums = randperm(size(data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.trial,2));
-      cfg.trials = sort(evNums(1:lowEvNum(sub)));
+for typ = 1:length(ana.eventValues)
+  for sub = 1:length(exper.subjects)
+    for i = 1:length(ana.eventValues{typ})
+      if equateTrials
+        ana.equateTrials = 'yes';
+        % choose a random subset to equate trial numbers
+        evNums = randperm(size(data_raw.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trial,2));
+        cfg.trials = sort(evNums(1:lowEvNum(sub)));
+      end
+      data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_freqanalysis(cfg,data_raw.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data);
     end
-    data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_freqanalysis(cfg,data_raw.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   end
 end
 
@@ -346,29 +350,31 @@ if equateTrials
   %rng('shuffle');
   RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
   
+  for typ = 1:length(ana.eventValues)
   % find the lowest number of trials within each subject
   lowEvNum = Inf(length(exper.subjects),1);
   for sub = 1:length(exper.subjects)
-    for i = 1:length(ana.eventValues{1})
-      if size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1) < lowEvNum(sub)
-        lowEvNum(sub) = size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1);
+    for i = 1:length(ana.eventValues{typ})
+      if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) < lowEvNum(sub)
+        lowEvNum(sub) = size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1);
       end
     end
-    for i = 1:length(ana.eventValues{1})
+    for i = 1:length(ana.eventValues{typ})
       % if we're working on the smaller event, get a random sub-selection
-      if size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1) > lowEvNum(sub)
-        fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{1}{i});
-        evNums = randperm(size(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data.powspctrm,1));
+      if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) > lowEvNum(sub)
+        fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{typ}{i});
+        evNums = randperm(size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1));
         % old version
-        data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
+        data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
         % new version, rpt selection doesn't work as of ft-20120116
         %cfg = [];
         %cfg.rpt = sort(evNums(1:lowEvNum(sub)));
-        %data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data = ft_selectdata(cfg,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+        %data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(cfg,data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data);
       end
-    end
+    end % i
     
-  end
+  end % sub
+  end % typ
 end
 
 %% Time-Frequency: Change in freq relative to baseline using absolute power
@@ -411,9 +417,10 @@ cfg_ana.latencies = [0 0.5; 0.5 1.0];
 %cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
 %cfg_ana.latencies = [-0.2 0.0; 0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 
-%cfg_ana.chanStr = {'right'};
-cfg_ana.chanStr = {'center73'};
-%cfg_ana.chanStr = {'all129'};
+%cfg_ana.chanStr = {{'right'}};
+%cfg_ana.chanStr = {{'center73'}};
+cfg_ana.chanStr = {{'LPS'},{'RPS'}};
+%cfg_ana.chanStr = {{'all129'}};
 
 accuracy = nan(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
 pval = nan(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
@@ -426,8 +433,6 @@ cfg.layout = 'GSN-HydroCel-129.sfp';
 cfg.method = 'crossvalidate';
 cfg.nfolds = 10;
 
-cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)});
-
 %cfg.latency = [-0.2 0];
 %cfg.latency = [0 1.0];
 %cfg.latency = [0 0.6];
@@ -439,8 +444,6 @@ cfg.avgoverchan = 'no';
 cfg.avgovertime = 'no';
 cfg.avgoverfreq = 'no';
 %cfg.avgoverfreq = 'yes';
-
-cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)}));
 
 % z-transform, feature selection (map data to a different space), SVM
 %cfg_ana.method = 'cspFs10SVM';
@@ -459,8 +462,11 @@ cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.c
 %cfg_ana.method = 'gsFiltCSVM';
 %cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',{ft_mv_filterer ft_mv_svm},'validator',ft_mv_crossvalidator('nfolds',4,'metric','accuracy'),'mvidx',[1 2],'vars',{'maxfeatures' 'C'},'vals',{1:2:10 [1 10]})};
 %cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',{ft_mv_filterer ft_mv_svm},'validator',ft_mv_crossvalidator('nfolds',4,'metric','accuracy'),'mvidx',[1 2],'vars',{'maxfeatures' 'C'},'vals',{1:2:10 logspace(-3,3,7)})};
-cfg_ana.method = 'filt10gsCSVM';
-cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',100) ft_mv_gridsearch('verbose',true,'mva',ft_mv_svm,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','C','vals',logspace(-3,3,7))};
+
+%cfg_ana.method = 'filt100gsCSVM';
+%cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',100) ft_mv_gridsearch('verbose',true,'mva',ft_mv_svm,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','C','vals',logspace(-3,3,7))};
+%cfg_ana.method = 'gsCSVM';
+%cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',ft_mv_svm,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','C','vals',logspace(-3,3,7))};
 
 % z-transform, feature selection in the original space
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('lambda',0.1)};
@@ -480,7 +486,7 @@ cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',100) ft_mv_gridsearch
 % crashes
 
 %cfg_ana.method = 'L1gsLam';
-%cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',ft_mv_glmnet('alpha',1,'family','binomial'),'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars','lambda','vals',(0.01:0.01:0.1))};
+%cfg.mva = {ft_mv_standardizer ft_mv_gridsearch('verbose',true,'mva',ft_mv_glmnet,'validator',ft_mv_crossvalidator('nfolds',0.8,'metric','accuracy'),'vars',{'alpha','lambda'},'vals',{(0:0.1:1) (0.1:0.01:0.2)})};
 % not working
 
 % L1 regularized logistic regression
@@ -514,174 +520,206 @@ cfg.mva = {ft_mv_standardizer ft_mv_filterer('maxfeatures',100) ft_mv_gridsearch
 % great performance at alpha=0.99, lambda=0.1
 
 % L1 optimize lambda using a 5-fold inner cross validation
-%cfg_ana.method = 'L1regLogRLamOpt';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
+cfg_ana.method = 'L1regLogRLamOpt';
+cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'validator',ft_mv_crossvalidator('verbose',true,'nfolds',5,'metric','accuracy'),'family','binomial')};
 
 % L2 optimize lambda using a 5-fold inner cross validation
-%cfg_ana.method = 'L2optLamLogR';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'validator',ft_mv_crossvalidator('nfolds',5,'metric','accuracy'),'family','binomial')};
+%cfg_ana.method = 'L2regLogRLamOpt';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'validator',ft_mv_crossvalidator('verbose',true'nfolds',5,'metric','accuracy'),'family','binomial')};
 % lumping all trials in one category, really bad performance
 
-for sub = 1:length(exper.subjects)
-  fprintf('%s\n',exper.subjects{sub});
-  data1 = data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data;
-  data2 = data_freq.(ana.eventValues{1}{2}).sub(sub).ses(ses).data;
+for typ = 1:length(ana.eventValues)
+  if length(ana.eventValues{typ}) ~= 2
+    error('Currently we can only classify 2 events, you included %d (%s)',length(ana.eventValues{typ}),vsStr);
+  end
+  vsStr = sprintf(repmat('%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
   
-  for lat = 1:size(cfg_ana.latencies,1)
-    cfg.latency = cfg_ana.latencies(lat,:);
+  for chn = 1:length(cfg_ana.chanStr)
+    cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{chn})});
+    %cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{chn})}));
+    cfg_ana.nChan = length(cfg.channel);
+    chanStr = sprintf(repmat('%s_',1,length(cfg_ana.chanStr{chn})),cfg_ana.chanStr{chn}{:});
     
-    for frq = 1:size(cfg_ana.freqs,1)
-      cfg.frequency = cfg_ana.freqs(frq,:);
+    for sub = 1:length(exper.subjects)
+      fprintf('%s\n',exper.subjects{sub});
+      data1 = data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data;
+      data2 = data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data;
       
-      cfg.design = [ones(size(data1.powspctrm,1),1); 2*ones(size(data2.powspctrm,1),1)]';
-      
-      stat_all(sub,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
-      
-      accuracy(sub,lat,frq) = stat_all(sub,lat,frq).stat.performance;
-      pval(sub,lat,frq) = stat_all(sub,lat,frq).stat.pvalue;
-      continTab{sub,lat,frq} = stat_all(sub,lat,frq).stat.cv.performance('contingency');
-      
-      % print out some performance info
-      fprintf('\n%s, %.1f-%.1f s, %.1f-%.1f Hz\naccuracy = %.2f%%, p = %.4f',exper.subjects{sub},cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2),accuracy(sub,lat,frq)*100,pval(sub,lat,frq));
-      if pval(sub,lat,frq) < .05
-        fprintf(' ***\n');
-      else
-        fprintf('\n');
+      for lat = 1:size(cfg_ana.latencies,1)
+        cfg.latency = cfg_ana.latencies(lat,:);
+        
+        for frq = 1:size(cfg_ana.freqs,1)
+          cfg.frequency = cfg_ana.freqs(frq,:);
+          
+          cfg.design = [ones(size(data1.powspctrm,1),1); 2*ones(size(data2.powspctrm,1),1)]';
+          
+          stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
+          
+          accuracy(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.performance;
+          pval(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.pvalue;
+          continTab{sub,chn,lat,frq} = stat_all(sub,chn,lat,frq).stat.cv.performance('contingency');
+          
+          % print out some performance info
+          fprintf('\n%s, %s, %s, %.1f-%.1f s, %.1f-%.1f Hz\n',exper.subjects{sub},vsStr,chanStr,cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2));
+          fprintf('accuracy = %.2f%%, p = %.4f',stat_all(sub,chn,lat,frq).stat.performance*100,stat_all(sub,chn,lat,frq).stat.pvalue);
+          if stat_all(sub,chn,lat,frq).stat.pvalue < .05
+            fprintf(' ***\n');
+          else
+            fprintf('\n');
+          end
+          
+          % print out the contingency table
+          fprintf('\t\tPredicted\n');
+          fprintf('\t\t%s\t%s\n',ana.eventValues{typ}{1},ana.eventValues{typ}{2});
+          fprintf('True\t%s\t%d\t%d\n',ana.eventValues{typ}{1},continTab{sub,chn,lat,frq}(1,1),continTab{sub,chn,lat,frq}(1,2));
+          fprintf('\t%s\t%d\t%d\n',ana.eventValues{typ}{2},continTab{sub,chn,lat,frq}(2,1),continTab{sub,chn,lat,frq}(2,2));
+          fprintf('\n');
+        end
       end
-      
-      % print out the contingency table
-      fprintf('\t\tPredicted\n');
-      fprintf('\t\t%s\t%s\n',ana.eventValues{1}{1},ana.eventValues{1}{2});
-      fprintf('True\t%s\t%d\t%d\n',ana.eventValues{1}{1},continTab{sub,lat,frq}(1,1),continTab{sub,lat,frq}(1,2));
-      fprintf('\t%s\t%d\t%d\n',ana.eventValues{1}{2},continTab{sub,lat,frq}(2,1),continTab{sub,lat,frq}(2,2));
+    end
+    
+    %% Time-Frequency: save the results to a file
+    
+    if strcmp(cfg.avgoverfreq,'yes')
+      freqAvgStr = 'Avg';
+    else
+      freqAvgStr = '';
+    end
+    if strcmp(cfg.avgovertime,'yes')
+      timeAvgStr = 'Avg';
+    else
+      timeAvgStr = '';
+    end
+    if size(cfg_ana.latencies,1) > 1
+      timeAvgStr = sprintf('%sSplit%d',timeAvgStr,size(cfg_ana.latencies,1));
+    end
+    if strcmp(cfg.avgoverchan,'yes')
+      chanAvgStr = 'Avg';
+    else
+      chanAvgStr = '';
+    end
+    outfile = sprintf('ft_%s_%s_%dfreq%s_%s%s%d_%d%s',...
+      vsStr,cfg_ana.method,size(cfg_ana.freqs,1),freqAvgStr,...
+      chanStr,chanAvgStr,cfg_ana.latencies(1,1)*1000,cfg_ana.latencies(end,end)*1000,timeAvgStr);
+    fprintf('Saving results to %s...',outfile);
+    fid = fopen(fullfile(dataroot,[outfile,'.txt']),'w+');
+    
+    fprintf('ROI\t%s\n',strrep(chanStr,'_',' '));
+    fprintf('Events\t%s\n',vsStr);
+    
+    % print details and performance
+    fprintf(fid,'%s\n',cfg_ana.method);
+    
+    if isfield(ana,'equateTrials')
+      if ana.equateTrials
+        fprintf(fid,'equated trial counts\n');
+      else
+        fprintf(fid,'non-equated trial counts\n');
+      end
+    else
+      fprintf(fid,'probably non-equated trial counts\n');
+    end
+    
+    if isfield(ana,'blc')
+      if ana.blc
+        fprintf(fid,'tf baseline corrected\n');
+      else
+        fprintf(fid,'not tf baseline corrected\n');
+      end
+    else
+      fprintf(fid,'probably not tf baseline corrected\n');
+    end
+    
+    fprintf(fid,'tf method\t%s\n',ft_findcfg(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.cfg,'method'));
+    fprintf(fid,'taper\t%s\n',ft_findcfg(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.cfg,'taper'));
+    
+    fprintf(fid,'full freqs\t%.1f-%.1f Hz\n',data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.freq(1),data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.freq(end));
+    fprintf(fid,'full times\t%.1f-%.1f s\n',data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.time(1),data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.time(end));
+    
+    fprintf(fid,'%s\t%d folds\n',cfg.method,cfg.nfolds);
+    %fprintf(fid,'start: %d ms\n',cfg.latency(1)*1000);
+    %fprintf(fid,'end: %d ms\n',cfg.latency(2)*1000);
+    
+    fprintf(fid,'avgOverChan\t%s\n',cfg.avgoverchan);
+    fprintf(fid,'avgOverTime\t%s\n',cfg.avgovertime);
+    fprintf(fid,'avgOverFreq\t%s\n',cfg.avgoverfreq);
+    fprintf(fid,'\n');
+    
+    fprintf(fid,'Probabilities\n');
+    fprintf(fid,'\t%s',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+    fprintf(fid,'\tAverage\n');
+    for sub = 1:length(exper.subjects)
+      fprintf(fid,'%s',exper.subjects{sub});
+      for lat = 1:size(cfg_ana.latencies,1)
+        % print the accuracy for eqach frequency band for this latency
+        fprintf(fid,'\t%.1f-%.1fs%s',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%.3f',1,size(cfg_ana.freqs,1)),accuracy(sub,chn,lat,:)));
+        % average across frequency bands
+        fprintf(fid,'\t%.3f\n',mean(accuracy(sub,chn,lat,:),4));
+      end
+    end
+    fprintf(fid,'Average');
+    for lat = 1:size(cfg_ana.latencies,1)
+      % average acorss subjects within this latency
+      fprintf(fid,'\t%.1f-%.1fs%s',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%.3f',1,size(cfg_ana.freqs,1)),mean(accuracy(:,chn,lat,:),1)));
+      % average across frequency bands and subjects
+      fprintf(fid,'\t%.3f\n',mean(mean(accuracy(:,chn,lat,:),4),1));
+    end
+    % average across all latencies and subjects
+    fprintf(fid,'\tAverage%s',sprintf(repmat('\t%.3f',1,size(cfg_ana.freqs,1)),mean(mean(accuracy(:,chn,:,:),3),1)));
+    % average across everything
+    fprintf(fid,'\t%.2f\n',mean(mean(mean(accuracy(:,chn,:,:),1),3),4));
+    fprintf(fid,'\n');
+    
+    % print p-values
+    fprintf(fid,'p-values\n');
+    fprintf(fid,'\t%s\n',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+    for sub = 1:length(exper.subjects)
+      fprintf(fid,'%s',exper.subjects{sub});
+      for lat = 1:size(cfg_ana.latencies,1)
+        % p-values for each subject, latency, and frequnecy band
+        fprintf(fid,'\t%.1f-%.1fs%s\n',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%f',1,size(cfg_ana.freqs,1)),pval(sub,lat,:)));
+      end
+    end
+    
+    %% statistics
+    
+    % t-test to see if accuracies are above 50%. within a frequency band,
+    % within a time region, test accuracy vs 0.5.
+    
+    chance50 = 0.5*ones(size(exper.subjects));
+    alpha = 0.05;
+    
+    fprintf(fid,'\nVersus chance (p-values)\n');
+    fprintf(fid,'\t%s\n',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+    
+    for lat = 1:size(cfg_ana.latencies,1)
+      fprintf(fid,'%.1f-%.1fs',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2));
+      for frq = 1:size(cfg_ana.freqs,1)
+        [h,p,ci,stats] = ttest(squeeze(accuracy(:,chn,lat,frq)),chance50,alpha,'both');
+        fprintf('%s, %.1f-%.1f s,\t%.1f-%.1f Hz,\tavg=%.2f%%:\t',strrep(chanStr,'_',' '),stat_all(1,chn,lat,frq).stat.time(1),stat_all(1,chn,lat,frq).stat.time(end),stat_all(1,chn,lat,frq).stat.freq(1),stat_all(1,chn,lat,frq).stat.freq(end),mean(accuracy(:,chn,lat,frq),1)*100);
+        fprintf('p=%.4f, t(%d)=%.4f',p,stats.df,stats.tstat);
+        if h == 1
+          fprintf(' <---');
+        end
+        fprintf('\n');
+        
+        fprintf(fid,'\t%.4f',p);
+        
+      end
       fprintf('\n');
+      fprintf(fid,'\n');
     end
-  end
-end
-
-%% Time-Frequency: save the results to a file
-
-%vsStr = sprintf('%s%s',ana.eventValues{1}{1},sprintf(repmat('vs%s',1,1),ana.eventValues{1}{2}));
-vsStr = sprintf(repmat('%s',1,length(ana.eventValues{1})),ana.eventValues{1}{:});
-chanStr = sprintf(repmat('%s_',1,length(cfg_ana.chanStr)),cfg_ana.chanStr{:});
-if strcmp(cfg.avgoverfreq,'yes')
-  freqAvgStr = 'Avg';
-else
-  freqAvgStr = '';
-end
-if strcmp(cfg.avgovertime,'yes')
-  timeAvgStr = 'Avg';
-else
-  timeAvgStr = '';
-end
-if size(cfg_ana.latencies,1) > 1
-  timeAvgStr = sprintf('%sSplit%d',timeAvgStr,size(cfg_ana.latencies,1));
-end
-if strcmp(cfg.avgoverchan,'yes')
-  chanAvgStr = 'Avg';
-else
-  chanAvgStr = '';
-end
-outfile = sprintf('ft_%s_%s_%dfreq%s_%s%s%d_%d%s',...
-  vsStr,cfg_ana.method,size(cfg_ana.freqs,1),freqAvgStr,...
-  chanStr,chanAvgStr,cfg_ana.latencies(1,1)*1000,cfg_ana.latencies(end,end)*1000,timeAvgStr);
-fprintf('Saving results to %s...',outfile);
-fid = fopen(fullfile(dataroot,[outfile,'.txt']),'w+');
-
-% print details and performance
-fprintf(fid,'%s\n',cfg_ana.method);
-
-if isfield(ana,'equateTrials')
-  if ana.equateTrials
-    fprintf(fid,'equated trial counts\n');
-  else
-    fprintf(fid,'non-equated trial counts\n');
-  end
-else
-  fprintf(fid,'probably non-equated trial counts\n');
-end
-
-if isfield(ana,'blc')
-  if ana.blc
-    fprintf(fid,'tf baseline corrected\n');
-  else
-    fprintf(fid,'not tf baseline corrected\n');
-  end
-else
-  fprintf(fid,'probably not tf baseline corrected\n');
-end
-
-fprintf(fid,'tf method\t%s\n',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.cfg,'method'));
-fprintf(fid,'taper\t%s\n',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.cfg,'taper'));
-
-fprintf(fid,'full freqs\t%.1f-%.1f Hz\n',data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.freq(1),data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.freq(end));
-fprintf(fid,'full times\t%.1f-%.1f s\n',data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.time(1),data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.time(end));
-
-fprintf(fid,'%s\t%d folds\n',cfg.method,cfg.nfolds);
-%fprintf(fid,'start: %d ms\n',cfg.latency(1)*1000);
-%fprintf(fid,'end: %d ms\n',cfg.latency(2)*1000);
-
-fprintf(fid,'avgOverChan\t%s\n',cfg.avgoverchan);
-fprintf(fid,'avgOverTime\t%s\n',cfg.avgovertime);
-fprintf(fid,'avgOverFreq\t%s\n',cfg.avgoverfreq);
-fprintf(fid,'\n');
-
-fprintf(fid,'Probabilities\n');
-fprintf(fid,'\t%s',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
-fprintf(fid,'\tAverage\n');
-for sub = 1:length(exper.subjects)
-  fprintf(fid,'%s',exper.subjects{sub});
-  for lat = 1:size(cfg_ana.latencies,1)
-    fprintf(fid,'\t%.1f-%.1fs%s',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%.3f',1,size(cfg_ana.freqs,1)),accuracy(sub,lat,:)));
-    fprintf(fid,'\t%.3f\n',mean(accuracy(sub,lat,:),3));
-  end
-end
-fprintf(fid,'Average');
-for lat = 1:size(cfg_ana.latencies,1)
-  fprintf(fid,'\t%.1f-%.1fs%s',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%.3f',1,size(cfg_ana.freqs,1)),mean(accuracy(:,lat,:),1)));
-  fprintf(fid,'\t%.3f\n',mean(mean(accuracy(:,lat,:),3),1));
-end
-fprintf(fid,'\tAverage%s',sprintf(repmat('\t%.3f',1,size(cfg_ana.freqs,1)),mean(mean(accuracy,2),1)));
-fprintf(fid,'\t%.2f\n',mean(mean(mean(accuracy,1),2),3));
-fprintf(fid,'\n');
-
-% print p-values
-fprintf(fid,'p-values\n');
-fprintf(fid,'\t%s\n',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
-for sub = 1:length(exper.subjects)
-  fprintf(fid,'%s',exper.subjects{sub});
-  for lat = 1:size(cfg_ana.latencies,1)
-    fprintf(fid,'\t%.1f-%.1fs%s\n',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%f',1,size(cfg_ana.freqs,1)),pval(sub,lat,:)));
-  end
-end
-
-fclose(fid);
-
-% save the details to a mat file
-save(fullfile(dataroot,outfile),'stat_all');
-
-fprintf('Done\n\n');
-
-%% statistics
-
-% t-test to see if accuracies are above 50%. within a frequency band,
-% within a time region, test accuracy vs 0.5.
-
-chance50 = 0.5*ones(size(exper.subjects));
-alpha = 0.05;
-
-for lat = 1:size(cfg_ana.latencies,1)
-  for frq = 1:size(cfg_ana.freqs,1)
-    [h,p,ci,stats] = ttest(squeeze(accuracy(:,lat,frq)),chance50,alpha,'both');
-    fprintf('%.1f-%.1f s,\t%.1f-%.1f Hz,\tavg=%.2f%%:\t',stat_all(1,lat,frq).stat.time(1),stat_all(1,lat,frq).stat.time(end),stat_all(1,lat,frq).stat.freq(1),stat_all(1,lat,frq).stat.freq(end),mean(accuracy(:,lat,frq),1)*100);
-    fprintf('p=%.4f, t(%d)=%.4f',p,stats.df,stats.tstat);
-    if h == 1
-      fprintf(' <---');
-    end
-    fprintf('\n');
-  end
-  fprintf('\n');
-end
+    
+    % close the file
+    fclose(fid);
+    
+    % save the details to a mat file
+    save(fullfile(dataroot,outfile),'stat_all');
+    
+    fprintf('Done\n\n');
+    
+  end % channel ROI
+end % typ
 
 %% Time-Frequency: make feature subplots of each subject's frequency bands
 
@@ -701,120 +739,122 @@ cfg_plot.plotstyle = 'topo';
 %cfg_plot.plotstyle = 'multi';
 %cfg_plot.plotstyle = 'F-TxC';
 %cfg_plot.plotstyle = 'C-TxF';
-      
-for sub = 1:length(exper.subjects)
-  for lat = 1:size(cfg_ana.latencies,1)
-    for frqband = 1:size(cfg_ana.freqs,1)
-      
-      % only plot if the p-value was reasonable
-      if stat_all(sub,lat,frqband).stat.pvalue < 0.05
-        if strcmp(cfg_plot.plotstyle,'topo') || strcmp(cfg_plot.plotstyle,'F-TxC')
-          figure;
-          count = 0;
-          nFreq = length(stat_all(sub,lat,frqband).stat.freq);
-          nChan = length(stat_all(sub,lat,frqband).stat.label);
-          
-          for frq = 1:nFreq
-            % Model 1
-            count = count + 1;
+
+for chn = 1:length(cfg_ana.chanStr)
+  for sub = 1:length(exper.subjects)
+    for lat = 1:size(cfg_ana.latencies,1)
+      for frqband = 1:size(cfg_ana.freqs,1)
+        
+        % only plot if the p-value was reasonable
+        if stat_all(sub,chn,lat,frqband).stat.pvalue < 0.05
+          if strcmp(cfg_plot.plotstyle,'topo') || strcmp(cfg_plot.plotstyle,'F-TxC')
+            figure;
+            count = 0;
+            nFreq = length(stat_all(sub,chn,lat,frqband).stat.freq);
+            nChan = length(stat_all(sub,chn,lat,frqband).stat.label);
             
-            if strcmp(cfg_plot.plotstyle,'topo')
-              if nFreq <= 5
-                nRow = 1;
-                nCol = nFreq;
-              elseif nFreq > 5 && nFreq <= 10
-                nRow = 2;
-                nCol = ceil(nFreq / 2);
-              elseif nFreq > 10 && nFreq <= 15
-                nRow = 3;
-                nCol = ceil(nFreq / 3);
-              elseif nFreq > 15
-                nRow = 4;
-                nCol = ceil(nFreq / 4);
-              end
+            for frq = 1:nFreq
+              % Model 1
+              count = count + 1;
               
-              cfg_plot.comment = sprintf('%s, %.1f Hz',exper.subjects{sub},stat_all(sub,lat,frqband).stat.freq(frq));
-              subplot(nRow,nCol,count);
-              ft_topoplotTFR(cfg_plot,stat_all(sub,lat,frqband).stat);
-            elseif strcmp(cfg_plot.plotstyle,'F-TxC')
-              if nFreq <= 5
-                nRow = 1;
-                nCol = nFreq;
-              elseif nFreq > 8 && nFreq <= 16
-                nRow = 2;
-                nCol = ceil(nFreq / 2);
-              elseif nFreq > 16
-                nRow = 3;
-                nCol = ceil(nFreq / 3);
+              if strcmp(cfg_plot.plotstyle,'topo')
+                if nFreq <= 5
+                  nRow = 1;
+                  nCol = nFreq;
+                elseif nFreq > 5 && nFreq <= 10
+                  nRow = 2;
+                  nCol = ceil(nFreq / 2);
+                elseif nFreq > 10 && nFreq <= 15
+                  nRow = 3;
+                  nCol = ceil(nFreq / 3);
+                elseif nFreq > 15
+                  nRow = 4;
+                  nCol = ceil(nFreq / 4);
+                end
+                
+                cfg_plot.comment = sprintf('%s, %.1f Hz',exper.subjects{sub},stat_all(sub,chn,lat,frqband).stat.freq(frq));
+                subplot(nRow,nCol,count);
+                ft_topoplotTFR(cfg_plot,stat_all(sub,chn,lat,frqband).stat);
+              elseif strcmp(cfg_plot.plotstyle,'F-TxC')
+                if nFreq <= 5
+                  nRow = 1;
+                  nCol = nFreq;
+                elseif nFreq > 8 && nFreq <= 16
+                  nRow = 2;
+                  nCol = ceil(nFreq / 2);
+                elseif nFreq > 16
+                  nRow = 3;
+                  nCol = ceil(nFreq / 3);
+                end
+                
+                %subplot(nRow,nCol,count);
+                subplot(nRow,nCol,count);
+                imagesc(stat_all(sub,chn,lat,frqband).stat.time,1:nChan,squeeze(stat_all(sub,chn,lat,frqband).stat.model1(:,frq,:)),clim);
+                axis xy;
+                set(gca,'YTick',1:nChan);
+                set(gca,'YTickLabel',stat_all(sub,chn,lat,frqband).stat.label);
+                title(sprintf('%s, %.1f Hz',exper.subjects{sub},stat_all(sub,chn,lat,frqband).stat.freq(frq)));
+                xlabel('Time (s)');
+                ylabel('Electrode number');
+                %colorbar;
+                
+                %         % Model 2
+                %         %count = count + 1;
+                %         %subplot(nFreq,2,count);
+                %         subplot(2,nFreq,count + nFreq);
+                %         imagesc(stat_all(sub,chn,lat,frqband).stat.time,1:nChan,squeeze(stat_all(sub,chn,lat,frqband).stat.model2(:,frq,:)),clim);
+                %         axis xy;
+                %         set(gca,'YTick',1:nChan);
+                %         set(gca,'YTickLabel',stat_all(sub,chn,lat,frqband).stat.label);
+                %         title(sprintf('%s, Model 2, %.1f Hz',exper.subjects{sub},stat_all(sub,chn,lat,frqband).stat.freq(frq)));
+                %         xlabel('Time (s)');
+                %         ylabel('Electrode number');
+                %         %colorbar;
+                
               end
+            end
+          elseif strcmp(cfg_plot.plotstyle,'multi')
+            figure;
+            cfg_plot.showlabels = 'yes';
+            cfg_plot.interactive = 'yes';
+            ft_multiplotTFR(cfg_plot,stat_all(sub,chn,lat,frqband).stat);
+          elseif strcmp(cfg_plot.plotstyle,'C-TxF')
+            figure;
+            count = 0;
+            [chanNum,j] = find(stat_all(sub,chn,lat,frqband).stat.model1 ~= 0);
+            chanNum = unique(chanNum);
+            
+            if length(chanNum) <= 8
+              nRow = 1;
+              nCol = length(chanNum);
+            elseif length(chanNum) > 8 && length(chanNum) <= 16
+              nRow = 2;
+              nCol = ceil(length(chanNum) / 2);
+            elseif length(chanNum) > 16 && length(chanNum) < 30
+              nRow = 3;
+              nCol = ceil(length(chanNum) / 3);
+            elseif length(chanNum) > 30
+              nRow = 4;
+              nCol = ceil(length(chanNum) / 4);
+            end
+            
+            for c = 1:length(chanNum)
+              count = count + 1;
               
-              %subplot(nRow,nCol,count);
               subplot(nRow,nCol,count);
-              imagesc(stat_all(sub,lat,frqband).stat.time,1:nChan,squeeze(stat_all(sub,lat,frqband).stat.model1(:,frq,:)),clim);
+              imagesc(stat_all(sub,chn,lat,frqband).stat.time,stat_all(sub,chn,lat,frqband).stat.freq,squeeze(stat_all(sub,chn,lat,frqband).stat.model1(c,:,:)),clim);
               axis xy;
-              set(gca,'YTick',1:nChan);
-              set(gca,'YTickLabel',stat_all(sub,lat,frqband).stat.label);
-              title(sprintf('%s, %.1f Hz',exper.subjects{sub},stat_all(sub,lat,frqband).stat.freq(frq)));
+              %set(gca,'YTickLabel',stat_all(sub,chn,lat,frqband).stat.freq);
+              title(sprintf('%s, %s',exper.subjects{sub},stat_all(sub,chn,lat,frqband).stat.label{c}));
               xlabel('Time (s)');
-              ylabel('Electrode number');
-              %colorbar;
-              
-              %         % Model 2
-              %         %count = count + 1;
-              %         %subplot(nFreq,2,count);
-              %         subplot(2,nFreq,count + nFreq);
-              %         imagesc(stat_all(sub,lat,frqband).stat.time,1:nChan,squeeze(stat_all(sub,lat,frqband).stat.model2(:,frq,:)),clim);
-              %         axis xy;
-              %         set(gca,'YTick',1:nChan);
-              %         set(gca,'YTickLabel',stat_all(sub,lat,frqband).stat.label);
-              %         title(sprintf('%s, Model 2, %.1f Hz',exper.subjects{sub},stat_all(sub,lat,frqband).stat.freq(frq)));
-              %         xlabel('Time (s)');
-              %         ylabel('Electrode number');
-              %         %colorbar;
+              ylabel('Frequency (Hz)');
               
             end
           end
-        elseif strcmp(cfg_plot.plotstyle,'multi')
-          figure;
-          cfg_plot.showlabels = 'yes';
-          cfg_plot.interactive = 'yes';
-          ft_multiplotTFR(cfg_plot,stat_all(sub,lat,frqband).stat);
-        elseif strcmp(cfg_plot.plotstyle,'C-TxF')
-          figure;
-          count = 0;
-          [chanNum,j] = find(stat_all(sub,lat,frqband).stat.model1 ~= 0);
-          chanNum = unique(chanNum);
-          
-          if length(chanNum) <= 8
-            nRow = 1;
-            nCol = length(chanNum);
-          elseif length(chanNum) > 8 && length(chanNum) <= 16
-            nRow = 2;
-            nCol = ceil(length(chanNum) / 2);
-          elseif length(chanNum) > 16 && length(chanNum) < 30
-            nRow = 3;
-            nCol = ceil(length(chanNum) / 3);
-          elseif length(chanNum) > 30
-            nRow = 4;
-            nCol = ceil(length(chanNum) / 4);
-          end
-          
-          for c = 1:length(chanNum)
-            count = count + 1;
-            
-            subplot(nRow,nCol,count);
-            imagesc(stat_all(sub,lat,frqband).stat.time,stat_all(sub,lat,frqband).stat.freq,squeeze(stat_all(sub,lat,frqband).stat.model1(c,:,:)),clim);
-            axis xy;
-            %set(gca,'YTickLabel',stat_all(sub,lat,frqband).stat.freq);
-            title(sprintf('%s, %s',exper.subjects{sub},stat_all(sub,lat,frqband).stat.label{c}));
-            xlabel('Time (s)');
-            ylabel('Frequency (Hz)');
-            
-          end
+          set(gcf,'Name',sprintf('%s %.1f-%.1f s, %.1f-%.1f Hz: acc=%.1f%%, p=%.3f',exper.subjects{sub},cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),stat_all(sub,chn,lat,frqband).stat.freq(1),stat_all(sub,chn,lat,frqband).stat.freq(end),stat_all(sub,chn,lat,frqband).stat.performance*100,stat_all(sub,chn,lat,frqband).stat.pvalue));
+          pos = get(gcf, 'Position');
+          set(gcf, 'Units', 'pixels', 'Position', [pos(1), pos(2), figsize(2), figsize(1)]);
         end
-        set(gcf,'Name',sprintf('%s %.1f-%.1f s, %.1f-%.1f Hz: acc=%.1f%%, p=%.3f',exper.subjects{sub},cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),stat_all(sub,lat,frqband).stat.freq(1),stat_all(sub,lat,frqband).stat.freq(end),stat_all(sub,lat,frqband).stat.performance*100,stat_all(sub,lat,frqband).stat.pvalue));
-        pos = get(gcf, 'Position');
-        set(gcf, 'Units', 'pixels', 'Position', [pos(1), pos(2), figsize(2), figsize(1)]);
       end
     end
   end
@@ -827,4 +867,4 @@ end
 % cfg_plot.zparam      = 'model1';
 % cfg_plot.comment     = '';
 % cfg_plot.colorbar    = 'yes';
-% ft_topoplotTFR(cfg_plot,stat_all(sub,lat,frqband).stat);
+% ft_topoplotTFR(cfg_plot,stat_all(sub,chn,lat,frqband).stat);

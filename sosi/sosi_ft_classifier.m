@@ -7,7 +7,7 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 % exper.subjects = {'SOSI005'};
 
 % pre-defined in this function
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %ana.eventValues = {exper.eventValues};
 ana.eventValues = {{'RHSC','RHSI','RCR'}};

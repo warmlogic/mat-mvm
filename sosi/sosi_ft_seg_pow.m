@@ -270,7 +270,7 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 
 %% set up channel groups
 
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %% create fields for analysis and GA plotting; specific to each experiment
 

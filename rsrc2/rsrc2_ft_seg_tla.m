@@ -212,7 +212,7 @@ adFile = '/Volumes/curranlab/Data/RSRC2/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_
 %% set up channel groups
 
 % pre-defined in this function
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %% list the event values to analyze; specific to each experiment
 

@@ -271,7 +271,7 @@ adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/ep
 
 %% set up channel groups
 
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %% create fields for analysis and GA plotting; specific to each experiment
 

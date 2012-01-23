@@ -243,7 +243,7 @@ end
 
 %% set up channel groups
 
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %% list the event values to analyze; specific to each experiment
 

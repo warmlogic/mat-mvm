@@ -2,7 +2,7 @@
 adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 ana.eventValues = {exper.eventValues};
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 [data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
 %[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');

@@ -264,7 +264,7 @@ adFile = '/Volumes/curranlab/Data/KAHN2matt/eeg/eegpp/-800_1500/ft_data/CR___CoT
 
 %% set up channel groups
 
-ana = mm_ft_channelgroups(ana);
+ana = mm_ft_elecGroups(ana);
 
 %% list the event values to analyze; specific to each experiment
 
