@@ -16,8 +16,8 @@ adFile = fullfile(dataroot,'analysisDetails.mat');
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
-%ana.eventValues = {{'AudForg','AudReca'}};
-ana.eventValues = {{'VisForg','VisReca'}};
+ana.eventValues = {{'AudForg','AudReca'}};
+%ana.eventValues = {{'VisForg','VisReca'}};
 %ana.eventValues = {{'Forg','Reca'}};
 %ana.eventValues = {{'Aud','Vis'}};
 
@@ -61,14 +61,15 @@ data_erp = struct;
 cfg_ana = [];
 %cfg_ana.chanStr = {'right'};
 %cfg_ana.chanStr = {'LPS'};
-cfg_ana.chanStr = {'center73'};
-cfg_ana.chanStr = {'all129'};
+%cfg_ana.chanStr = {'center74'};
+cfg_ana.chanStr = {'center91'};
+%cfg_ana.chanStr = {'all129'};
 
 % set the analysis parameters
 cfg = [];
 cfg.parameter = 'trial';
 cfg.keeptrials = 'yes'; % classifiers operate on individual trials
-cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)});
+cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)}));
 
 % get the ERP data
 for sub = 1:length(exper.subjects)
@@ -93,7 +94,8 @@ cfg_ana = [];
 cfg_ana.latency = [0 1.0];
 
 %cfg_ana.chanStr = 'right';
-cfg_ana.chanStr = {'center73'};
+%cfg_ana.chanStr = {'center74'};
+cfg_ana.chanStr = {'center91'};
 
 accuracy = nan(length(exper.subjects),1);
 pval = nan(length(exper.subjects),1);
@@ -104,13 +106,13 @@ cfg.layout = 'GSN-HydroCel-129.sfp';
 %cfg.parameter = 'trial';
 cfg.method = 'crossvalidate';
 cfg.nfolds = 5;
-cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)});
+cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)}));
 
 
 cfg.latency = cfg_ana.latency;
 cfg.avgoverchan = 'no';
 cfg.avgovertime = 'no';
-cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)}));
+cfg_ana.nChan = length(cfg.channel);
 
 % z-transform, feature selection (map data to a different space), SVM
 %cfg_ana.method = 'cspFs10SVM';
@@ -263,6 +265,8 @@ fclose(fid);
 ses = 1;
 
 if equateTrials
+  ana.equateTrials = true;
+  
   % initialize random number generator
   %rng('shuffle');
   RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
@@ -286,14 +290,15 @@ data_freq = struct;
 cfg_ana = [];
 %cfg_ana.chanStr = {'right'};
 %cfg_ana.chanStr = {'LPS'};
-cfg_ana.chanStr = {'center73'};
+%cfg_ana.chanStr = {'center74'};
+cfg_ana.chanStr = {'center91'};
 %cfg_ana.chanStr = {'all129'};
 
 % set the analysis parameters
 cfg = [];
 %cfg.parameter = 'trial';
 cfg.keeptrials = 'yes'; % classifiers operate on individual trials
-cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)});
+cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr)}));
 
 % % multitaper
 % cfg.output       = 'pow';
@@ -317,10 +322,10 @@ cfg.method = 'wavelet';
 cfg.width = 6;
 cfg.toi = (-0.3:0.02:1.0);
 %cfg.foi = (4:1:64);
-cfg.foi = (2^(1/8)).^(16:56);
+cfg.foi = (2^(1/8)).^(16:53);
 
-% logarythmically spaced (4 to 128)
-% cfg.foi = (2^(1/8)).^(16:56);
+% logarythmically spaced (4 to 100)
+% cfg.foi = (2^(1/8)).^(16:53);
 % logarythmically spaced (2 to 64)
 % cfg.foi = (2^(1/8)).^(8:48);
 
@@ -351,42 +356,45 @@ if equateTrials
   RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
   
   for typ = 1:length(ana.eventValues)
-  % find the lowest number of trials within each subject
-  lowEvNum = Inf(length(exper.subjects),1);
-  for sub = 1:length(exper.subjects)
-    for i = 1:length(ana.eventValues{typ})
-      if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) < lowEvNum(sub)
-        lowEvNum(sub) = size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1);
-      end
-    end
-    for i = 1:length(ana.eventValues{typ})
-      % if we're working on the smaller event, get a random sub-selection
-      if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) > lowEvNum(sub)
-        fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{typ}{i});
-        evNums = randperm(size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1));
-        % old version
-        data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
-        % new version, rpt selection doesn't work as of ft-20120116
-        %cfg = [];
-        %cfg.rpt = sort(evNums(1:lowEvNum(sub)));
-        %data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(cfg,data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data);
-      end
-    end % i
+    % find the lowest number of trials within each subject
+    lowEvNum = Inf(length(exper.subjects),1);
     
-  end % sub
+    for sub = 1:length(exper.subjects)
+      for i = 1:length(ana.eventValues{typ})
+        if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) < lowEvNum(sub)
+          lowEvNum(sub) = size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1);
+        end
+      end
+      for i = 1:length(ana.eventValues{typ})
+        % if we're working on the smaller event, get a random sub-selection
+        if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) > lowEvNum(sub)
+          fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{typ}{i});
+          evNums = randperm(size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1));
+          % old version
+          data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
+          % new version, rpt selection doesn't work as of ft-20120116
+          %cfg = [];
+          %cfg.rpt = sort(evNums(1:lowEvNum(sub)));
+          %data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(cfg,data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data);
+        end
+      end % i
+    end % sub
+    
   end % typ
 end
 
 %% Time-Frequency: Change in freq relative to baseline using absolute power
 
 % save the original data
-data_freq_orig = data_freq;
-
-ana.blc = true;
+%data_freq_orig = data_freq;
 
 cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
-cfg_fb.baselinetype = 'absolute';
+%cfg_fb.baselinetype = 'absolute';
+cfg_fb.baselinetype = 'relative';
+
+ana.blc = true;
+ana.blc_method = cfg_fb.baselinetype;
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
@@ -405,27 +413,27 @@ ses = 1;
 
 cfg_ana = [];
 
-%cfg_ana.freqs = [4 8; 6 10; 8 12; 10 15; 12 19; 15 25; 19 30; 25 35; 30 40; 35 64; 64 128];
+%cfg_ana.freqs = [4 8; 6 10; 8 12; 10 15; 12 19; 15 25; 19 30; 25 35; 30 40; 35 64; 64 100];
 %cfg_ana.freqs = [4 8; 6 10; 8 12; 10 15; 12 19; 15 25; 19 30; 25 35; 30 40; 35 64];
-cfg_ana.freqs = [4 8; 8.1 12; 12.1 19; 19.1 30; 30.1 42; 42.1 64];
+%cfg_ana.freqs = [4 8; 8.1 12; 12.1 19; 19.1 30; 30.1 42; 42.1 64];
+cfg_ana.freqs = [4 8; 8.1 14; 14.1 28; 28.1 42; 42.1 64];
 %cfg_ana.freqs = [4 64];
-%cfg_ana.freqs = [4 8; 8 12; 12 28; 28 64];
-%cfg_ana.freqs = [4 7.9; 8 15.9; 16 31.9; 32 63.9; 64 128];
+%cfg_ana.freqs = [4 8; 8 14; 14 28; 28 64];
+%cfg_ana.freqs = [4 8; 8.1 14; 14.1 32; 32.1 64; 64.1 100];
 
 %cfg_ana.latencies = [0 1.0];
-cfg_ana.latencies = [0 0.5; 0.5 1.0];
+%cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.45];
+cfg_ana.latencies = [1.0 1.45];
 %cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
 %cfg_ana.latencies = [-0.2 0.0; 0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 
 %cfg_ana.chanStr = {{'right'}};
-%cfg_ana.chanStr = {{'center73'}};
-cfg_ana.chanStr = {{'LPS'},{'RPS'}};
+cfg_ana.chanStr = {{'center74'}};
+%cfg_ana.chanStr = {{'center91'}};
+%cfg_ana.chanStr = {{'center74'},{'center91'},{'midline'},{'left'},{'right'},{'anterior'},{'posterior'}};
+%cfg_ana.chanStr = {{'LAS'},{'RAS'},{'LPS'},{'RPS'},{'LAI'},{'RAI'},{'LPI'},{'RPI'},{'FI'},{'FS'},{'PS'},{'PI'}};
+%cfg_ana.chanStr = {{'center74'},{'center91'},{'midline'},{'left'},{'right'},{'anterior'},{'posterior'},{'LAS'},{'RAS'},{'LPS'},{'RPS'},{'LAI'},{'RAI'},{'LPI'},{'RPI'},{'FI'},{'FS'},{'PS'},{'PI'}};
 %cfg_ana.chanStr = {{'all129'}};
-
-accuracy = nan(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
-pval = nan(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
-continTab = cell(length(exper.subjects),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
-stat_all = struct([]);
 
 cfg = [];
 cfg.parameter = 'powspctrm';
@@ -490,8 +498,8 @@ cfg.avgoverfreq = 'no';
 % not working
 
 % L1 regularized logistic regression
-%cfg_ana.method = 'L1regLogRLam01';
-%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
+cfg_ana.method = 'L1regLogRLam01';
+cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
 %cfg_ana.method = 'L1regLogRLam01_ns';
 %cfg.mva = {ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
 % lam=1 doesn't perform very well
@@ -520,25 +528,36 @@ cfg.avgoverfreq = 'no';
 % great performance at alpha=0.99, lambda=0.1
 
 % L1 optimize lambda using a 5-fold inner cross validation
-cfg_ana.method = 'L1regLogRLamOpt';
-cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'validator',ft_mv_crossvalidator('verbose',true,'nfolds',5,'metric','accuracy'),'family','binomial')};
+%cfg_ana.method = 'L1regLogRLamOpt';
+%cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'validator',ft_mv_crossvalidator('verbose',true,'nfolds',5,'metric','accuracy'),'family','binomial')};
 
 % L2 optimize lambda using a 5-fold inner cross validation
 %cfg_ana.method = 'L2regLogRLamOpt';
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'validator',ft_mv_crossvalidator('verbose',true'nfolds',5,'metric','accuracy'),'family','binomial')};
 % lumping all trials in one category, really bad performance
 
+
 for typ = 1:length(ana.eventValues)
   if length(ana.eventValues{typ}) ~= 2
     error('Currently we can only classify 2 events, you included %d (%s)',length(ana.eventValues{typ}),vsStr);
   end
   vsStr = sprintf(repmat('%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
+  vsStrTab = sprintf(repmat('\t%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
+  
+  % initialize some values
+  accuracy = nan(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
+  pval = nan(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
+  continTab = cell(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
+  stat_all = struct([]);
   
   for chn = 1:length(cfg_ana.chanStr)
-    cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{chn})});
-    %cfg_ana.nChan = length(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{chn})}));
+    cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{chn})}));
     cfg_ana.nChan = length(cfg.channel);
     chanStr = sprintf(repmat('%s_',1,length(cfg_ana.chanStr{chn})),cfg_ana.chanStr{chn}{:});
+    chanStrTab = sprintf(repmat('\t%s',1,length(cfg_ana.chanStr{chn})),cfg_ana.chanStr{chn}{:});
+    if isempty(cfg.channel)
+      error('No channels selected for%s!',chanStrTab);
+    end
     
     for sub = 1:length(exper.subjects)
       fprintf('%s\n',exper.subjects{sub});
@@ -553,14 +572,16 @@ for typ = 1:length(ana.eventValues)
           
           cfg.design = [ones(size(data1.powspctrm,1),1); 2*ones(size(data2.powspctrm,1),1)]';
           
+          % run it
           stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
           
+          % store some values
           accuracy(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.performance;
           pval(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.pvalue;
           continTab{sub,chn,lat,frq} = stat_all(sub,chn,lat,frq).stat.cv.performance('contingency');
           
           % print out some performance info
-          fprintf('\n%s, %s, %s, %.1f-%.1f s, %.1f-%.1f Hz\n',exper.subjects{sub},vsStr,chanStr,cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2));
+          fprintf('\n%s, %s, %s (%d chans), %.1f-%.1f s, %.1f-%.1f Hz\n',exper.subjects{sub},vsStr,chanStr(1:end-1),cfg_ana.nChan,cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2));
           fprintf('accuracy = %.2f%%, p = %.4f',stat_all(sub,chn,lat,frq).stat.performance*100,stat_all(sub,chn,lat,frq).stat.pvalue);
           if stat_all(sub,chn,lat,frq).stat.pvalue < .05
             fprintf(' ***\n');
@@ -574,11 +595,13 @@ for typ = 1:length(ana.eventValues)
           fprintf('True\t%s\t%d\t%d\n',ana.eventValues{typ}{1},continTab{sub,chn,lat,frq}(1,1),continTab{sub,chn,lat,frq}(1,2));
           fprintf('\t%s\t%d\t%d\n',ana.eventValues{typ}{2},continTab{sub,chn,lat,frq}(2,1),continTab{sub,chn,lat,frq}(2,2));
           fprintf('\n');
-        end
-      end
-    end
+        end % frq
+      end % lat
+    end % sub
     
-    %% Time-Frequency: save the results to a file
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Time-Frequency: save the results to a file
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     if strcmp(cfg.avgoverfreq,'yes')
       freqAvgStr = 'Avg';
@@ -598,17 +621,42 @@ for typ = 1:length(ana.eventValues)
     else
       chanAvgStr = '';
     end
+    
     outfile = sprintf('ft_%s_%s_%dfreq%s_%s%s%d_%d%s',...
       vsStr,cfg_ana.method,size(cfg_ana.freqs,1),freqAvgStr,...
       chanStr,chanAvgStr,cfg_ana.latencies(1,1)*1000,cfg_ana.latencies(end,end)*1000,timeAvgStr);
-    fprintf('Saving results to %s...',outfile);
+    
+    fprintf('Saving results to %s...\n',outfile);
     fid = fopen(fullfile(dataroot,[outfile,'.txt']),'w+');
     
-    fprintf('ROI\t%s\n',strrep(chanStr,'_',' '));
-    fprintf('Events\t%s\n',vsStr);
+    fprintf(fid,'ROI%s\t(%d channels)\n',chanStrTab,cfg_ana.nChan);
+    fprintf(fid,'Events%s\n',vsStrTab);
     
     % print details and performance
     fprintf(fid,'%s\n',cfg_ana.method);
+    
+    fprintf(fid,'tf method\t%s\n',ft_findcfg(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.cfg,'method'));
+    fprintf(fid,'taper\t%s\n',ft_findcfg(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.cfg,'taper'));
+    
+    fprintf(fid,'all freqs\t%.2f-%.2f Hz\n',data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.freq(1),data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.freq(end));
+    fprintf(fid,'all times\t%.2f-%.2f s\n',data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.time(1),data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.time(end));
+    fprintf(fid,'this freq range\t%.2f-%.2f Hz\n',cfg_ana.freqs(1),cfg_ana.freqs(end));
+    fprintf(fid,'this freq bins%s\n',sprintf(repmat('\t%.2f-%.2f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+    fprintf(fid,'this time range\t%.2f-%.2f s\t%s\n',cfg_ana.latencies(1,1),cfg_ana.latencies(end,end),timeAvgStr);
+    fprintf(fid,'this time bins%s\n',sprintf(repmat('\t%.2f-%.2f s',1,size(cfg_ana.latencies,1)),cfg_ana.latencies'));
+    
+    if isfield(ana,'blc')
+      if ana.blc
+        if ~isfield(ana,'blc_method')
+          ana.blc_method = 'unknown';
+        end
+        fprintf(fid,'tf baseline corrected\t%s\n',ana.blc_method);
+      else
+        fprintf(fid,'not tf baseline corrected\n');
+      end
+    else
+      fprintf(fid,'probably not tf baseline corrected\n');
+    end
     
     if isfield(ana,'equateTrials')
       if ana.equateTrials
@@ -620,25 +668,9 @@ for typ = 1:length(ana.eventValues)
       fprintf(fid,'probably non-equated trial counts\n');
     end
     
-    if isfield(ana,'blc')
-      if ana.blc
-        fprintf(fid,'tf baseline corrected\n');
-      else
-        fprintf(fid,'not tf baseline corrected\n');
-      end
-    else
-      fprintf(fid,'probably not tf baseline corrected\n');
-    end
-    
-    fprintf(fid,'tf method\t%s\n',ft_findcfg(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.cfg,'method'));
-    fprintf(fid,'taper\t%s\n',ft_findcfg(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.cfg,'taper'));
-    
-    fprintf(fid,'full freqs\t%.1f-%.1f Hz\n',data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.freq(1),data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.freq(end));
-    fprintf(fid,'full times\t%.1f-%.1f s\n',data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.time(1),data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data.time(end));
-    
-    fprintf(fid,'%s\t%d folds\n',cfg.method,cfg.nfolds);
-    %fprintf(fid,'start: %d ms\n',cfg.latency(1)*1000);
-    %fprintf(fid,'end: %d ms\n',cfg.latency(2)*1000);
+    fprintf(fid,'mva\t%s\n',cfg_ana.method);
+    fprintf(fid,'method\t%s\n',cfg.method);
+    fprintf(fid,'folds\t%.2f\n',cfg.nfolds);
     
     fprintf(fid,'avgOverChan\t%s\n',cfg.avgoverchan);
     fprintf(fid,'avgOverTime\t%s\n',cfg.avgovertime);
@@ -677,11 +709,13 @@ for typ = 1:length(ana.eventValues)
       fprintf(fid,'%s',exper.subjects{sub});
       for lat = 1:size(cfg_ana.latencies,1)
         % p-values for each subject, latency, and frequnecy band
-        fprintf(fid,'\t%.1f-%.1fs%s\n',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%f',1,size(cfg_ana.freqs,1)),pval(sub,lat,:)));
+        fprintf(fid,'\t%.1f-%.1fs%s\n',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%f',1,size(cfg_ana.freqs,1)),pval(sub,chn,lat,:)));
       end
     end
     
-    %% statistics
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % statistics
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % t-test to see if accuracies are above 50%. within a frequency band,
     % within a time region, test accuracy vs 0.5.
@@ -689,21 +723,22 @@ for typ = 1:length(ana.eventValues)
     chance50 = 0.5*ones(size(exper.subjects));
     alpha = 0.05;
     
-    fprintf(fid,'\nVersus chance (p-values)\n');
-    fprintf(fid,'\t%s\n',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+    fprintf(fid,'\nVersus chance\n');
+    fprintf(fid,'%s\n',sprintf(repmat('\t%.1f-%.1f Hz\t',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+    fprintf(fid,'%s\n',sprintf(repmat('\tp\tt(%d)',1,size(cfg_ana.freqs,1)),(size(exper.subjects,1)-1)*ones(size(cfg_ana.freqs,1),1)));
     
     for lat = 1:size(cfg_ana.latencies,1)
       fprintf(fid,'%.1f-%.1fs',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2));
       for frq = 1:size(cfg_ana.freqs,1)
         [h,p,ci,stats] = ttest(squeeze(accuracy(:,chn,lat,frq)),chance50,alpha,'both');
-        fprintf('%s, %.1f-%.1f s,\t%.1f-%.1f Hz,\tavg=%.2f%%:\t',strrep(chanStr,'_',' '),stat_all(1,chn,lat,frq).stat.time(1),stat_all(1,chn,lat,frq).stat.time(end),stat_all(1,chn,lat,frq).stat.freq(1),stat_all(1,chn,lat,frq).stat.freq(end),mean(accuracy(:,chn,lat,frq),1)*100);
+        fprintf('%s, %.1f-%.1f s,\t%.1f-%.1f Hz,\tavg=%.2f%%:\t',chanStr(1:end-1),stat_all(1,chn,lat,frq).stat.time(1),stat_all(1,chn,lat,frq).stat.time(end),stat_all(1,chn,lat,frq).stat.freq(1),stat_all(1,chn,lat,frq).stat.freq(end),mean(accuracy(:,chn,lat,frq),1)*100);
         fprintf('p=%.4f, t(%d)=%.4f',p,stats.df,stats.tstat);
         if h == 1
           fprintf(' <---');
         end
         fprintf('\n');
         
-        fprintf(fid,'\t%.4f',p);
+        fprintf(fid,'\t%.4f\t%.4f',p,stats.tstat);
         
       end
       fprintf('\n');
