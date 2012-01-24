@@ -47,12 +47,12 @@ subjects = {
   'COSI2010';
   'COSI2011';
   'COSI2012';
-  'COSI2013'; % redo option began here
+  'COSI2013'; % redo option and source-on-one-side began here
   'COSI2014';
   'COSI2015';
   'COSI2016';
   'COSI2017';
-%   'COSI2018';
+  'COSI2018';
 %   'COSI2020';
 %   'COSI2019';
 %   'COSI2021';

@@ -52,7 +52,7 @@ if nargin == 0
     'COSI2015';
     'COSI2016';
     'COSI2017';
-%     'COSI2018';
+    'COSI2018';
 %     'COSI2019';
 %     'COSI2020';
 %     'COSI2021';
