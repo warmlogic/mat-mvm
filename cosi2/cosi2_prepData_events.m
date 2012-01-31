@@ -35,30 +35,32 @@ end
 
 if nargin == 0
   subjects = {
-%     'COSI2001';
+%     'COSI2001'; % short study durations began with COSI2001
+%     % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
     'COSI2002';
     'COSI2003';
     'COSI2004';
     'COSI2005';
     'COSI2006';
     'COSI2007';
-    'COSI2008';
+    'COSI2008'; % longer study durations began with COSI2008
+    %(500ms preview, 2000ms, 1125+-125ms ISI)
     'COSI2009';
     'COSI2010';
-    'COSI2011';
+    'COSI2011'; % 11 did not do session_1 (didn't like EEG)
     'COSI2012';
-    'COSI2013';
-    'COSI2014';
+    'COSI2013'; % redo option and source-on-one-side began with COSI2013
+    'COSI2014'; % 14 did not do session_1 (didn't perform well)
     'COSI2015';
     'COSI2016';
     'COSI2017';
     'COSI2018';
-%     'COSI2019';
-%     'COSI2020';
-%     'COSI2021';
-%     'COSI2022';
-%     'COSI2023';
-%     'COSI2024';
+    'COSI2019';
+    'COSI2020';
+    'COSI2021';
+    'COSI2022';
+    'COSI2023';
+    'COSI2024';
 %     'COSI2025';
 %     'COSI2026';
 %     'COSI2027';

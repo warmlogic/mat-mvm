@@ -43,14 +43,23 @@ end
 % % baseline period (in milliseconds)
 % exper.baseline_ms = [-200 0];
 
-exper.name = 'FRCE';
-dirs.eegDir = fullfile('EEG','eppp');
+exper.name = 'COSI2';
+dirs.eegDir = fullfile('eeg','eppp');
 % sampling rate of the EEG data
 exper.sampleRate = 500;
 % segment length created with NetStation (in seconds)
-exper.prepost = [-1.25 2.25];
+exper.prepost = [-1 2];
 % baseline period (in milliseconds)
 exper.baseline_ms = [-200 0];
+
+% exper.name = 'FRCE';
+% dirs.eegDir = fullfile('EEG','eppp');
+% % sampling rate of the EEG data
+% exper.sampleRate = 500;
+% % segment length created with NetStation (in seconds)
+% exper.prepost = [-1.25 2.25];
+% % baseline period (in milliseconds)
+% exper.baseline_ms = [-200 0];
 
 % Type of input file
 exper.inputFileExt = 'egis';
@@ -210,7 +219,7 @@ inArg = {'files',exper.inputFile,...
   'trialminmax',100,... % bad trial voltage diff; default 100 uV
   'detrend',0,... % not recommended (default: 0)
   'badtrials',20,... % default 20%
-  'channelMode','none',... % bad channel correction: 'replace' interpolates bad channels; 'none' to do nothing
+  'channelMode','replace',... % bad channel correction: 'replace' interpolates bad channels; 'none' to do nothing
   'trialMode','none',... % movement correction: 'fix' to fix bad trial data; 'none' to do nothing
   'noadjacent',1,... % 1 to not allow adjacent bad channels (trial or subject declared bad) (default: 1)
   'chunkSize',exper.memChunkSize,...

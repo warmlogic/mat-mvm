@@ -42,8 +42,8 @@ cfg_ft.highlightcolorneg = [0 0.5 0];
 cfg_ft.elec = ana.elec;
 cfg_ft.contournum = 0;
 cfg_ft.emarker = '.';
-cfg_ft.xparam = 'time';
-cfg_ft.yparam = 'freq';
+%cfg_ft.xparam = 'time';
+%cfg_ft.yparam = 'freq';
 cfg_ft.parameter = 'stat';
 if ~isfield(cfg_ft,'alpha')
   cfg_ft.alpha  = 0.05;
@@ -76,7 +76,7 @@ for cnd = 1:length(cfg_plot.conditions)
   
   fprintf('%s, %d--%d ms, %.1f--%.1f Hz\n',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_ft.frequency(1),cfg_ft.frequency(2));
   
-  savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%d_%d_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+  savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
   if exist(savedFile,'file')
     fprintf('Loading %s\n',savedFile);
     load(savedFile);

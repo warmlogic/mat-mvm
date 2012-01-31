@@ -173,7 +173,7 @@ for cnd = 1:length(cfg_ana.conditions)
   % note whether there positive or negative clusters
   stat_clus.(vs_str).foundclus = foundclus;
   
-  saveFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%d_%d_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+  saveFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
   fprintf('Saving %s\n',saveFile);
   save(saveFile,'stat_clus');
 end

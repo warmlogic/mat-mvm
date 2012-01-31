@@ -33,32 +33,32 @@ if nargin < 4
 end
 
 subjects = {
-%   'COSI2001'; % short study durations
-%               % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
+%   'COSI2001'; % short study durations began with COSI2001
+%   % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
   'COSI2002';
   'COSI2003';
   'COSI2004';
   'COSI2005';
   'COSI2006';
   'COSI2007';
-  'COSI2008'; % longer study durations began here
-              %(500ms preview, 2000ms, 1125+-125ms ISI)
+  'COSI2008'; % longer study durations began with COSI2008
+  %(500ms preview, 2000ms, 1125+-125ms ISI)
   'COSI2009';
   'COSI2010';
-  'COSI2011';
+  'COSI2011'; % 11 did not do session_1 (didn't like EEG)
   'COSI2012';
-  'COSI2013'; % redo option and source-on-one-side began here
-  'COSI2014';
+  'COSI2013'; % redo option and source-on-one-side began with COSI2013
+  'COSI2014'; % 14 did not do session_1
   'COSI2015';
   'COSI2016';
   'COSI2017';
   'COSI2018';
-%   'COSI2020';
-%   'COSI2019';
-%   'COSI2021';
-%   'COSI2022';
-%   'COSI2023';
-%   'COSI2024';
+  'COSI2019';
+  'COSI2020';
+  'COSI2021';
+  'COSI2022';
+  'COSI2023';
+  'COSI2024';
 %   'COSI2025';
 %   'COSI2026';
 %   'COSI2027';
@@ -73,8 +73,8 @@ subjects = {
   };
 
 %sessions = {'session_0','session_1'};
-sessions = {'session_0'};
-%sessions = {'session_1'};
+%sessions = {'session_0'};
+sessions = {'session_1'};
 
 %% Set up the headers
 if rejectArt == 0
@@ -313,6 +313,7 @@ for s = 1:length(subsets)
   end
   
   %% for each subject
+  skipped = zeros(length(subjects),length(sessions));
   for sub = 1:length(subjects)
     
     %% for each session
@@ -325,6 +326,7 @@ for s = 1:length(subsets)
         events = loadEvents(fullfile(eventsDir_sub,'events.mat'));
       else
         fprintf('events.mat for %s %s does not exist. Moving on.\n',subjects{sub},sessions{ses});
+        skipped(sub,ses) = 1;
         continue
       end
       
@@ -856,6 +858,9 @@ for s = 1:length(subsets)
   end % sub
   
   if averageSes == 1
+    % average all the fields
+    
+    % TODO: nanmean?
     
     numEvFN = fieldnames(numEv);
     ratesFN = fieldnames(rates);
@@ -883,43 +888,45 @@ for s = 1:length(subsets)
   
   for sub = 1:length(subjects)
     for ses = 1:size(numEv.rec_targEv,2)
-      if rejectArt == 0
-        tableData = [...
-          numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
-          acc.item_dp(sub,ses),acc.source_dp(sub,ses),acc.item_c(sub,ses),acc.source_c(sub,ses),... % accuracy
-          numEv.rec_h(sub,ses),numEv.rec_m(sub,ses),numEv.rec_cr(sub,ses),numEv.rec_fa(sub,ses),numEv.src_h(sub,ses),numEv.src_m(sub,ses),numEv.src_cr(sub,ses),numEv.src_fa(sub,ses),... % raw numbers for accuracy
-          rates.rec_h(sub,ses),rates.rec_m(sub,ses),rates.rec_cr(sub,ses),rates.rec_fa(sub,ses),rates.src_h(sub,ses),rates.src_m(sub,ses),rates.src_cr(sub,ses),rates.src_fa(sub,ses),... % accuracy rates
-          numEv.rec_h_srcCor(sub,ses),numEv.rec_h_srcInc(sub,ses),... % raw numbers for recognition hits
-          rates.rec_h_srcCor(sub,ses),rates.rec_h_srcInc(sub,ses),... % accuracy rates for recognition hits
-          numEv.rec_h_rs(sub,ses),numEv.rec_h_ro(sub,ses),numEv.rec_h_k(sub,ses),... % raw numbers for recognition hit response collapsed across source accuracy
-          numEv.rec_h_srcCor_rs(sub,ses),numEv.rec_h_srcCor_ro(sub,ses),numEv.rec_h_srcCor_k(sub,ses),numEv.rec_h_srcInc_rs(sub,ses),numEv.rec_h_srcInc_ro(sub,ses),numEv.rec_h_srcInc_k(sub,ses),numEv.rec_m_sure(sub,ses),numEv.rec_m_maybe(sub,ses),numEv.rec_cr_sure(sub,ses),numEv.rec_cr_maybe(sub,ses),numEv.rec_fa_rs(sub,ses),numEv.rec_fa_ro(sub,ses),numEv.rec_fa_k(sub,ses),... % raw numbers by confidence
-          rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_m_sure(sub,ses),rates.rec_m_maybe(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),rates.rec_fa_rs(sub,ses),rates.rec_fa_ro(sub,ses),rates.rec_fa_k(sub,ses),... % rates by confidence
-          rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
-          rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_m_sure(sub,ses),rates_wir.rec_m_maybe(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses),rates_wir.rec_fa_rs(sub,ses),rates_wir.rec_fa_ro(sub,ses),rates_wir.rec_fa_k(sub,ses),... % within-response rates
-          rt.rec_h(sub,ses),rt.rec_m(sub,ses),rt.rec_cr(sub,ses),rt.rec_fa(sub,ses),... % rec reaction times
-          rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
-          rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
-          rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_m_sure(sub,ses),rt.rec_m_maybe(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),rt.rec_fa_rs(sub,ses),rt.rec_fa_ro(sub,ses),rt.rec_fa_k(sub,ses),... % rt by confidence
-          acc.Pr(sub,ses),acc.Br(sub,ses),... % more accuracy
-          ];
-      elseif rejectArt == 1
-        tableData = [...
-          numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
-          acc.source_dp(sub,ses),acc.source_c(sub,ses),... % accuracy
-          numEv.rec_h(sub,ses),numEv.rec_cr(sub,ses),numEv.src_h(sub,ses),numEv.src_m(sub,ses),numEv.src_cr(sub,ses),numEv.src_fa(sub,ses),... % raw numbers for accuracy
-          rates.src_h(sub,ses),rates.src_m(sub,ses),rates.src_cr(sub,ses),rates.src_fa(sub,ses),... % accuracy rates
-          numEv.rec_h_srcCor(sub,ses),numEv.rec_h_srcInc(sub,ses),... % raw numbers for recognition hits
-          rates.rec_h_srcCor(sub,ses),rates.rec_h_srcInc(sub,ses),... % accuracy rates for recognition hits
-          numEv.rec_h_rs(sub,ses),numEv.rec_h_ro(sub,ses),numEv.rec_h_k(sub,ses),... % raw numbers for recognition hit response collapsed across source accuracy
-          numEv.rec_h_srcCor_rs(sub,ses),numEv.rec_h_srcCor_ro(sub,ses),numEv.rec_h_srcCor_k(sub,ses),numEv.rec_h_srcInc_rs(sub,ses),numEv.rec_h_srcInc_ro(sub,ses),numEv.rec_h_srcInc_k(sub,ses),numEv.rec_cr_sure(sub,ses),numEv.rec_cr_maybe(sub,ses),... % raw numbers by confidence
-          rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),... % rates by confidence
-          rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
-          rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses)... % within-response rates
-          rt.rec_h(sub,ses),rt.rec_cr(sub,ses),... % rec reaction times
-          rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
-          rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
-          rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),... % rt by confidence
-          ];
+      if skipped(sub,ses) == 0
+        if rejectArt == 0
+          tableData = [...
+            numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
+            acc.item_dp(sub,ses),acc.source_dp(sub,ses),acc.item_c(sub,ses),acc.source_c(sub,ses),... % accuracy
+            numEv.rec_h(sub,ses),numEv.rec_m(sub,ses),numEv.rec_cr(sub,ses),numEv.rec_fa(sub,ses),numEv.src_h(sub,ses),numEv.src_m(sub,ses),numEv.src_cr(sub,ses),numEv.src_fa(sub,ses),... % raw numbers for accuracy
+            rates.rec_h(sub,ses),rates.rec_m(sub,ses),rates.rec_cr(sub,ses),rates.rec_fa(sub,ses),rates.src_h(sub,ses),rates.src_m(sub,ses),rates.src_cr(sub,ses),rates.src_fa(sub,ses),... % accuracy rates
+            numEv.rec_h_srcCor(sub,ses),numEv.rec_h_srcInc(sub,ses),... % raw numbers for recognition hits
+            rates.rec_h_srcCor(sub,ses),rates.rec_h_srcInc(sub,ses),... % accuracy rates for recognition hits
+            numEv.rec_h_rs(sub,ses),numEv.rec_h_ro(sub,ses),numEv.rec_h_k(sub,ses),... % raw numbers for recognition hit response collapsed across source accuracy
+            numEv.rec_h_srcCor_rs(sub,ses),numEv.rec_h_srcCor_ro(sub,ses),numEv.rec_h_srcCor_k(sub,ses),numEv.rec_h_srcInc_rs(sub,ses),numEv.rec_h_srcInc_ro(sub,ses),numEv.rec_h_srcInc_k(sub,ses),numEv.rec_m_sure(sub,ses),numEv.rec_m_maybe(sub,ses),numEv.rec_cr_sure(sub,ses),numEv.rec_cr_maybe(sub,ses),numEv.rec_fa_rs(sub,ses),numEv.rec_fa_ro(sub,ses),numEv.rec_fa_k(sub,ses),... % raw numbers by confidence
+            rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_m_sure(sub,ses),rates.rec_m_maybe(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),rates.rec_fa_rs(sub,ses),rates.rec_fa_ro(sub,ses),rates.rec_fa_k(sub,ses),... % rates by confidence
+            rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
+            rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_m_sure(sub,ses),rates_wir.rec_m_maybe(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses),rates_wir.rec_fa_rs(sub,ses),rates_wir.rec_fa_ro(sub,ses),rates_wir.rec_fa_k(sub,ses),... % within-response rates
+            rt.rec_h(sub,ses),rt.rec_m(sub,ses),rt.rec_cr(sub,ses),rt.rec_fa(sub,ses),... % rec reaction times
+            rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
+            rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
+            rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_m_sure(sub,ses),rt.rec_m_maybe(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),rt.rec_fa_rs(sub,ses),rt.rec_fa_ro(sub,ses),rt.rec_fa_k(sub,ses),... % rt by confidence
+            acc.Pr(sub,ses),acc.Br(sub,ses),... % more accuracy
+            ];
+        elseif rejectArt == 1
+          tableData = [...
+            numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
+            acc.source_dp(sub,ses),acc.source_c(sub,ses),... % accuracy
+            numEv.rec_h(sub,ses),numEv.rec_cr(sub,ses),numEv.src_h(sub,ses),numEv.src_m(sub,ses),numEv.src_cr(sub,ses),numEv.src_fa(sub,ses),... % raw numbers for accuracy
+            rates.src_h(sub,ses),rates.src_m(sub,ses),rates.src_cr(sub,ses),rates.src_fa(sub,ses),... % accuracy rates
+            numEv.rec_h_srcCor(sub,ses),numEv.rec_h_srcInc(sub,ses),... % raw numbers for recognition hits
+            rates.rec_h_srcCor(sub,ses),rates.rec_h_srcInc(sub,ses),... % accuracy rates for recognition hits
+            numEv.rec_h_rs(sub,ses),numEv.rec_h_ro(sub,ses),numEv.rec_h_k(sub,ses),... % raw numbers for recognition hit response collapsed across source accuracy
+            numEv.rec_h_srcCor_rs(sub,ses),numEv.rec_h_srcCor_ro(sub,ses),numEv.rec_h_srcCor_k(sub,ses),numEv.rec_h_srcInc_rs(sub,ses),numEv.rec_h_srcInc_ro(sub,ses),numEv.rec_h_srcInc_k(sub,ses),numEv.rec_cr_sure(sub,ses),numEv.rec_cr_maybe(sub,ses),... % raw numbers by confidence
+            rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),... % rates by confidence
+            rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
+            rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses)... % within-response rates
+            rt.rec_h(sub,ses),rt.rec_cr(sub,ses),... % rec reaction times
+            rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
+            rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
+            rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),... % rt by confidence
+            ];
+        end
       end
       
       if saveFiles == 1
@@ -935,17 +942,21 @@ for s = 1:length(subsets)
         else
           fprintf(outfile,'%s,%s',subjects{sub},sessions{ses}(end));
         end
-        % format for tableData and print
-        tableDataStr = repmat(',%.4f',1,length(tableData));
-        fprintf(outfile,tableDataStr,tableData);
-        %for tabData = 1:length(tableData)
-        %  fprintf(outfile,'%d\t',tableData(tabData));
-        %end
-        if rejectArt == 1
-          artStr = sprintf(',%d,%d,%.4f',numEv.art(sub,ses),numEv.total(sub,ses),(numEv.art(sub,ses) / numEv.total(sub,ses)));
-          fprintf(outfile,'%s\n',artStr);
-        else
-          fprintf(outfile,'\n');
+        if skipped(sub,ses) == 0
+          % format for tableData and print
+          tableDataStr = repmat(',%.4f',1,length(tableData));
+          fprintf(outfile,tableDataStr,tableData);
+          %for tabData = 1:length(tableData)
+          %  fprintf(outfile,'%d\t',tableData(tabData));
+          %end
+          if rejectArt == 1
+            artStr = sprintf(',%d,%d,%.4f',numEv.art(sub,ses),numEv.total(sub,ses),(numEv.art(sub,ses) / numEv.total(sub,ses)));
+            fprintf(outfile,'%s\n',artStr);
+          else
+            fprintf(outfile,'\n');
+          end
+        elseif skipped(sub,ses) == 1
+          fprintf(outfile,'\tskipped\n');
         end
       end
       

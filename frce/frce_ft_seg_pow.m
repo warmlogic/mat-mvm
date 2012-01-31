@@ -288,7 +288,7 @@ ana = mm_ft_elecGroups(ana);
 
 %ana.eventValues = {exper.eventValues};
 
-ana.eventValues = {{'AudForg','AudReca','VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -349,7 +349,7 @@ end
 
 cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
-cfg_fb.baselinetype = 'absolute';
+cfg_fb.baselinetype = 'relative';
 
 %data_freq_orig = data_freq;
 
@@ -636,8 +636,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-%cfg_ft.avgoverfreq = 'yes';
-cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -650,19 +650,20 @@ cfg_ft.alpha = .025;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
+%cfg_ana.roi = 'center74';
 %cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
-cfg_ana.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+cfg_ana.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'}};
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [4 64];
 else
-  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 64];
+  cfg_ana.frequencies = [4 8; 8.1 14; 14.1 28; 28.1 42; 42.1 64];
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 end
-cfg_ana.latencies = [0 1.5];
-%cfg_ana.latencies = [0 0.5; 0.5 1.0];
+%cfg_ana.latencies = [0 1.5];
+cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.45];
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -679,7 +680,7 @@ files.saveFigs = 1;
 
 cfg_ft = [];
 %cfg_ft.alpha = .025;
-cfg_ft.alpha = .05;
+cfg_ft.alpha = .1;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
