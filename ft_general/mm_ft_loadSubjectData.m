@@ -1,14 +1,16 @@
-function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype)
+function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
 %MM_FT_LOADSUBJECTDATA Load subject data into a full struct
 %
-% [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype)
+% [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
 %
 % exper       = the exper struct
 % dirs        = the dirs struct, with the field saveDirProc (or saveDirRaw)
 % eventValues = a cell of the event values to load (e.g., ana.eventValues)
 % ftype       = string included in the filename to load (e.g., 'tla' in
 %               'data_tla_CR.mat'); can be 'raw' to load the raw data.
-%
+% keeptrials  = optional; default=1. If loading powspctrm data created with
+%               keeptrials='yes', set to 0 to return averaged data.
+%               NB: uses ft_freqdescriptives
 
 % % make sure eventValues is set up correctly
 % if isfield(exper,'eventValuesExtra') && isfield(exper.eventValuesExtra,'newValue') && ~isempty(exper.eventValuesExtra.newValue)
@@ -25,6 +27,10 @@ function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype)
 %   end
 %   exper.eventValues = sort(exper.eventValues);
 % end
+
+if ~exist('keeptrials','var') || isempty(keeptrials)
+  keeptrials = 1;
+end
 
 if iscell(eventValues)
   if ~iscell(eventValues{1})
@@ -56,21 +62,36 @@ for sub = 1:length(exper.subjects)
         
         inputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ftype,eventValues{typ}{evVal}));
         if exist(inputfile,'file')
-          fprintf('Loading %s...',inputfile);
+          fprintf('Loading %s %s %s: %s...\n',exper.subjects{sub},exper.sessions{ses},eventValues{typ}{evVal},inputfile);
           % load the data
           subSesEvData = load(inputfile);
           % get the name of the field
           fn = fieldnames(subSesEvData);
           % rename the field to 'data'
           if length(fn) == 1
-            data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
+            if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
+              % use ft_freqdescriptives to average over individual trials
+              % if desired and the data is appropriate
+              fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},exper.sessions{ses},eventValues{typ}{evVal});
+              cfg_fd = [];
+              cfg_fd.keeptrials = 'no';
+              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
+            elseif keeptrials == 0 && ~strcmp(ftype,'pow')
+              error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},exper.sessions{ses},eventValues{typ}{evVal},ftype);
+            elseif keeptrials == 0 && ~isfield(subSesEvData.(cell2mat(fn)),'powspctrm')
+              error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},exper.sessions{ses},eventValues{typ}{evVal});
+            elseif keeptrials == 0&& isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
+              error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},exper.sessions{ses},eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).powspctrm));
+            else
+              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
+            end
           else
-            error('More than one field in data struct! There should only be one.');
+            error('More than one field in data struct! There should only be one.\n');
           end
           
           % % old method
           % data.(eventValues{typ}{evVal}).sub(sub).ses(ses) = load(inputfile);
-          fprintf('Done.\n');
+          fprintf('Done.\n\n');
         else
           warning([mfilename,':noFileFound'],'NOT FOUND: %s\n',inputfile);
           fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n');
