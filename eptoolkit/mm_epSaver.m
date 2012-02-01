@@ -32,9 +32,13 @@
 % prepost = [-1 2];
 % eegDir = fullfile('eeg','eppp');
 
-experName = 'FRCE';
-prepost = [-1.25 2.25];
-eegDir = fullfile('EEG','Sessions','cueing paradigm','relabeled','eppp');
+% experName = 'FRCE';
+% prepost = [-1.25 2.25];
+% eegDir = fullfile('EEG','Sessions','cueing paradigm','relabeled','eppp');
+
+experName = 'COSI2';
+prepost = [-1.0 2.0];
+eegDir = fullfile('eeg','eppp');
 
 inputFormat = 'ep_mat';
 outputFormat = 'egi_egis';
