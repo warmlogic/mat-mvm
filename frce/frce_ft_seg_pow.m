@@ -193,28 +193,28 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.foi = 3:freqstep:9;
 % %cfg_proc.foilim = [3 9];
 
-% multitaper
-cfg_proc.method       = 'mtmconvol';
-%cfg_proc.foi          = (4:1:64);
-% logarythmically spaced (4 to 128)
-cfg_proc.foi = (2^(1/8)).^(16:56);
-% % logarythmically spaced (2 to 64)
-%cfg_proc.foi = (2^(1/8)).^(16:48);
-cfg_proc.t_ftimwin    = 6./cfg_proc.foi;
-%cfg_proc.toi          = (0.3:0.02:1.0);
-%cfg_proc.toi          = (0.1:0.02:0.6);
-cfg_proc.toi          = (-0.5:0.02:1.5);
-%cfg_proc.taper        = 'hanning';
-cfg_proc.taper = 'dpss';
-% tapsmofrq is not used for hanning taper; it is used for dpss
-cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
-
-% % wavelet
-% cfg_proc.method = 'wavelet';
-% cfg_proc.width = 6;
-% cfg_proc.toi = (-0.5:0.02:1.5);
-% %cfg_proc.foi = (4:1:64);
+% % multitaper
+% cfg_proc.method       = 'mtmconvol';
+% %cfg_proc.foi          = (4:1:64);
+% % logarythmically spaced (4 to 128)
 % cfg_proc.foi = (2^(1/8)).^(16:56);
+% % % logarythmically spaced (2 to 64)
+% %cfg_proc.foi = (2^(1/8)).^(16:48);
+% cfg_proc.t_ftimwin    = 6./cfg_proc.foi;
+% %cfg_proc.toi          = (0.3:0.02:1.0);
+% %cfg_proc.toi          = (0.1:0.02:0.6);
+% cfg_proc.toi          = (-0.5:0.02:1.5);
+% %cfg_proc.taper        = 'hanning';
+% cfg_proc.taper = 'dpss';
+% % tapsmofrq is not used for hanning taper; it is used for dpss
+% cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+
+% wavelet
+cfg_proc.method = 'wavelet';
+cfg_proc.width = 5;
+cfg_proc.toi = (-0.625:0.02:1.625);
+cfg_proc.foi = (4:1:100);
+%cfg_proc.foi = (2^(1/8)).^(16:53);
 
 % set the save directories; final argument is prefix of save directory
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
@@ -262,11 +262,15 @@ end
 
 %adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
 
-% all trials
-%adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/analysisDetails.mat';
+% % multitaper - all trials
+% adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/analysisDetails.mat';
 
-% average
-adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64_avg/analysisDetails.mat';
+% % multitaper - average
+% adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64_avg/analysisDetails.mat';
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+
+% wavelet - all trials
+adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_wavelet_w5_pow_-625_1615_4_100/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -300,7 +304,10 @@ end
 
 %% load some data
 
-[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+
+% load the average
+[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow',0);
 
 %% Test plots to make sure data look ok
 
@@ -353,16 +360,18 @@ cfg_fb.baselinetype = 'relative';
 
 %data_freq_orig = data_freq;
 
+fprintf('Baseline correcting frequency data: ''%s'' baseline: %.2fs to %.2fs\n',cfg_fb.baselinetype,cfg_fb.baseline(1),cfg_fb.baseline(2));
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        fprintf('%s, %s, %s...',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
         data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
       end
     end
   end
 end
+fprintf('Done.\n');
 
 % % find the time points without NaNs for a particular frequency
 % data_freq.(exper.eventValues{1}).sub(1).ses(1).data.time(~isnan(squeeze(data_freq.(exper.eventValues{1}).sub(1).ses(1).data.powspctrm(1,2,:))'))
@@ -412,11 +421,11 @@ cfg_ft = [];
 %cfg_ft.ylim = [4 8];
 %cfg_ft.ylim = [8 12];
 %cfg_ft.ylim = [12 28];
-cfg_ft.ylim = [28 64];
+%cfg_ft.ylim = [28 64];
 %cfg_ft.zlim = [-1 1];
-cfg_ft.zlim = [-2 2];
+%cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
-%  cfg_ft.zlim = [0 2.0];
+cfg_ft.zlim = [0 3.0];
 %end
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -527,7 +536,8 @@ cfg_plot.plotTitle = 1;
 
 % comparisons to make
 %cfg_plot.conditions = {'all'};
-cfg_plot.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+%cfg_plot.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
+cfg_plot.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'}};
 
 cfg_ft = [];
 %cfg_ft.xlim = [.5 .8]; % time
@@ -654,16 +664,16 @@ cfg_ana.roi = 'all';
 %cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
-cfg_ana.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'}};
+cfg_ana.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'}};
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [4 64];
+  cfg_ana.frequencies = [4 100];
 else
-  cfg_ana.frequencies = [4 8; 8.1 14; 14.1 28; 28.1 42; 42.1 64];
+  cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 100];
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 end
 %cfg_ana.latencies = [0 1.5];
-cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.45];
+cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.615];
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -687,7 +697,7 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR

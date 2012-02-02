@@ -148,7 +148,8 @@ else
     %if sum(~ismember(conditions{i},cat(2,ana.eventValues{:})))
     if sum(~ismember(cellflat(conditions{i}),cellflat(ana.eventValues))) ~= 0
       condNames = sprintf(repmat('%s ',1,length(conditions{i})),conditions{i}{:});
-      anaEvValueNames = sprintf(repmat('%s ',1,length(ana.eventValues{:})),ana.eventValues{:}{:});
+      anaEvValueNames = cellflat(ana.eventValues);
+      anaEvValueNames = sprintf(repmat('%s ',1,length(cellflat(ana.eventValues))),anaEvValueNames{:});
       error('mm_ft_checkConditions:cfgConditionsNotIn_ana_eventValues','conditions %snot found in ana.eventValues: %s',condNames,anaEvValueNames);
     end
   end
