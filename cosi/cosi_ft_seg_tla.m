@@ -539,7 +539,7 @@ for r = 1:length(cfg_plot.rois)
     cfg_plot.legendloc = cfg_plot.legendlocs{r};
   end
   
-  mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
+  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 end
 
 %% plot the contrasts

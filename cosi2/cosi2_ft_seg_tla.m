@@ -58,7 +58,7 @@ exper.subjects = {
 %   'COSI2011';
 %   'COSI2012';
   'COSI2013';
-  'COSI2014';
+%   'COSI2014';
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -68,7 +68,7 @@ exper.subjects = {
   'COSI2021';
   'COSI2022';
   'COSI2023';
-  'COSI2024';
+%   'COSI2024';
 %   'COSI2025';
 %   'COSI2026';
 %   'COSI2027';
@@ -90,9 +90,9 @@ exper.subjects = {
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
 
-exper.sessions = {'session_0'};
+%exper.sessions = {'session_0'};
 %exper.sessions = {'session_1'};
-%exper.sessions = {{'session_0','session_1'}};
+exper.sessions = {{'session_0','session_1'}};
 
 %% set up file and directory handling parameters
 
@@ -287,7 +287,7 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-figure
+%figure
 sub=1;
 ses=1;
 for i = 1:2
@@ -527,7 +527,7 @@ for r = 1:length(cfg_plot.rois)
     cfg_plot.legendloc = cfg_plot.legendlocs{r};
   end
   
-  mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
+  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 end
 
 %% plot the contrasts

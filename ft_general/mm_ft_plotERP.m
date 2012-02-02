@@ -1,9 +1,11 @@
 function mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,data)
 %MM_FT_PLOTERP make (and save) ERP plots
 %
-% WARNING: This is an old function! You should use MM_FT_PLOTER instead.
+% WARNING: This is an old function! Use mm_ft_plotER instead.
 %
 % See also: MM_FT_PLOTER
+
+warning([mfilename,':oldFxn'],'%s is an old function! Use mm_ft_plotER instead.',mfilename);
 
 if ~isfield(cfg_ft,'parameter')
   error('Must define cfg_ft.parameter (e.g., ''avg'')');

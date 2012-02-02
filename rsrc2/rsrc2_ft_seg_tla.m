@@ -371,7 +371,7 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
+  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 end
 
 %% plot the contrasts

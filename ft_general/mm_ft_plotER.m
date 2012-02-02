@@ -36,6 +36,10 @@ end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotER','');
 
+% for automatically resizing figure windows
+cfg_plot.screenXY = get(0,'ScreenSize');
+cfg_plot.screenXY = cfg_plot.screenXY(3:4);
+
 if ~isfield(cfg_plot,'plotTitle')
   cfg_plot.plotTitle = 0;
 end
@@ -419,6 +423,17 @@ for typ = 1:length(cfg_plot.conditions)
       end
       print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsER,cfg_plot.figfilename));
     end
+    
+    % get the figure's current position and size
+    cfg_plot.pos = get(gcf, 'Position');
+    % get the height x width ratio
+    hwRatio = cfg_plot.pos(3) / cfg_plot.pos(4);
+    % % square figure
+    % cfg_plot.figSize = [ceil(min(cfg_plot.screenXY) * 0.85) ceil(min(cfg_plot.screenXY) * 0.85)];
+    % maintain figure height x width ratio
+    cfg_plot.figSize = [ceil(min(cfg_plot.screenXY) * 0.85) ceil(min(cfg_plot.screenXY) * 0.85 * hwRatio)];
+    % resize the figure window
+    set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg_plot.pos(1) * 0.6), cfg_plot.pos(2), cfg_plot.figSize(2), cfg_plot.figSize(1)]);
   end % topo/single/multi
 end
 
