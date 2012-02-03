@@ -36,14 +36,18 @@ function events = cosi2_createEvents(dataroot,subject,session,nsFile)
 % Color:
 % For source response, correct is calculated relative to a " Blue" (B)
 % response (i.e., "hit" if B response for B source, and "false alarm" if B
-% response for Yellow source). This could be switched around to be relative
-% to Y.
+% response for Yellow source; CR if Y to Y source, M if Y to B source).
+% This could be switched around to be relative to Y.
 %
 % Side:
 % For source response, correct is calculated relative to a "right
 % side" (R) response (i.e., "hit" if R response for R source, and
-% "false alarm" if R response for L source). This could be switched
-% around to be relative to L.
+% "false alarm" if R response for L source; CR if L to L source, M if L to
+% R). This could be switched around to be relative to L.
+%
+%
+% 'redo' codes: 0=not redone. 1=changed to correct. 2=changed to incorrect.
+% 3=same.
 %
 
 %dataroot = '/Volumes/curranlab/Data/COSI2/eeg/behavioral';
@@ -62,8 +66,6 @@ fid = fopen(logfile);
 logdata = textscan(fid,'%n%n%s%s%s%s%s%s%s%s%s%s','delimiter','\t','emptyvalue',NaN);
 fclose(fid);
 
-%[l1 l2 l3 l4 l5 l6 l7 l8] = textread(logfile,'%d%d%s%s%s%s%s%s','delimiter','\t','emptyvalue',NaN);
-
 % constants
 NUMLISTS = 4;
 MAXTESTTIME = 30000;
@@ -76,19 +78,73 @@ SRC_LURE_COLOR = 'Yellow';
 
 % find the places where they did a redo response; will exclude these
 redoInd = strcmp(logdata{5},REDO_STR);
-redoToRemove = redoInd;
-% also set the redone source response to 1; will exclude these too
-redoToRemove(find(redoInd == 1) - 1) = 1;
-% find the "corrected" redo trials; we want to keep this but mark them
-redoToKeep = redoInd;
-redoToKeep(find(redoToRemove == 1) + 2) = 1;
-redoToKeep(redoInd == 1) = 0;
+if ~isempty(redoInd)
+  % find the redone source responses; we want to keep these and mark them
+  redoToKeep = double(redoInd);
+  % 1. do want to keep the response following REDO (must get set first!!)
+  redoToKeep(find(redoInd == 1) + 1) = 1;
+  % 2. don't want to keep the actual redo response
+  redoToKeep(redoInd == 1) = -1;
+  % 3. don't want to keep the source response that came before it; by being
+  % set last this also gets rid of any multiple redos for a single trial
+  redoToKeep(find(redoInd == 1) - 1) = -1;
+  
+  % this is where the final redo source responses occurred
+  redoToKeepInd = find(redoToKeep == 1);
+  
+  % find out whether the final redo source responses were accurate
+  redoRespAcc = str2double(logdata{8}(redoToKeepInd));
+  
+  % get indices of actual redo responses to see if there were multiple
+  % redos for a single trial
+  redoRespInd = find(redoInd == 1);
+  if length(redoRespInd) ~= length(redoRespAcc)
+    multiRedos = diff(redoRespInd) == 2;
+    % add a first 0 value because the first redo response will always be
+    % the one we want. then find the other locations where multiple redos
+    % were not contiguous (i.e., diff == 2)
+    redoRespInd = redoRespInd([0; multiRedos] == 0);
+  end
+  
+  % find out whether the first source responses were accurate
+  firstRespAcc = str2double(logdata{8}(redoRespInd - 1));
+  
+  % Add more info: 1=change to correct, 2=change to incorrect, 3=same.
+  for i = 1:length(redoRespAcc)
+    if firstRespAcc(i) == 0 && redoRespAcc(i) == 1
+      redoToKeep(redoToKeepInd(i)) = 1;
+    elseif firstRespAcc(i) == 1 && redoRespAcc(i) == 0
+      redoToKeep(redoToKeepInd(i)) = 2;
+    elseif firstRespAcc(i) == 1 && redoRespAcc(i) == 1
+      redoToKeep(redoToKeepInd(i)) = 3;
+    elseif firstRespAcc(i) == 0 && redoRespAcc(i) == 0
+      redoToKeep(redoToKeepInd(i)) = 3;
+    end
+  end
+  
+  % remove the redo data
+  newlogdata = cell(size(logdata));
+  for i = 1:length(logdata)
+    newlogdata{i} = logdata{i}(redoToKeep ~= -1);
+  end
+  %oldlogdata = logdata;
+  logdata = newlogdata;
+  redoToKeep = redoToKeep(redoToKeep ~= -1);
+  % put the redo info in the item presentation
+  redoToKeepInd = find(redoToKeep ~= 0);
+  for i = 1:length(redoToKeepInd)
+    redoToKeep(redoToKeepInd(i) - 1) = redoToKeep(redoToKeepInd(i));
+  end
+else
+  % otherwise if they made no redo responses then it gets set to all 0s
+  redoToKeep = redoInd;
+end
 
 sesNum = str2double(strrep(session,'session_',''));
 if isempty(nsFile)
-  log = struct('subject',subject,'session',sesNum,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3},'redo',num2cell(redoToKeep),'redoToRemove',num2cell(redoToRemove));
+  log = struct('subject',subject,'session',sesNum,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3},'redo',num2cell(redoToKeep));
 else
-  log = struct('subject',subject,'session',sesNum,'nsFile',nsFile,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3},'redo',num2cell(redoToKeep),'redoToRemove',num2cell(redoToRemove));
+  log = struct('subject',subject,'session',sesNum,'nsFile',nsFile,'mstime',num2cell(logdata{1}),'msoffset',num2cell(logdata{2}),'trial',[],'type',logdata{3},'redo',num2cell(redoToKeep));
 end
 
 % initialize
@@ -286,10 +342,6 @@ end % for i = 1:length(log)
 
 % grab only the events we want from our log struct
 events = filterStruct(log,'ismember(type,varargin{1})',{'STUDY_BUFFER','STUDY_TARGET','TEST_TARGET','TEST_LURE','SOURCE_RESP','RK_RESP','NEW_RESP'});
-
-% remove the redone events that we don't want
-[~,redoneInd] = filterStruct(events,'redoToRemove == 1');
-events = rmfield(events(~redoneInd),'redoToRemove');
 
 % put the info from test into the study events, and the info from
 % study into the test events

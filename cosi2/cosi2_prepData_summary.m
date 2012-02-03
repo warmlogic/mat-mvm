@@ -35,6 +35,7 @@ end
 subjects = {
 %   'COSI2001'; % short study durations began with COSI2001
 %   % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
+% COSI2001 did not finish
   'COSI2002';
   'COSI2003';
   'COSI2004';
@@ -45,10 +46,10 @@ subjects = {
   %(500ms preview, 2000ms, 1125+-125ms ISI)
   'COSI2009';
   'COSI2010';
-  'COSI2011'; % 11 did not do session_1 (didn't like EEG)
+  'COSI2011'; % COSI2011 did not do session_1 (didn't like EEG)
   'COSI2012';
   'COSI2013'; % redo option and source-on-one-side began with COSI2013
-  'COSI2014'; % 14 did not do session_1
+  'COSI2014'; % COSI2014 did not do session_1 (didn't perform well)
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -59,10 +60,10 @@ subjects = {
   'COSI2022';
   'COSI2023';
   'COSI2024';
-%   'COSI2025';
-%   'COSI2026';
-%   'COSI2027';
-%   'COSI2028';
+  'COSI2025';
+  'COSI2026';
+  'COSI2027';
+  'COSI2028';
 %   'COSI2029';
 %   'COSI2030';
 %   'COSI2031';
@@ -72,13 +73,13 @@ subjects = {
 %   'COSI2035';
   };
 
-%sessions = {'session_0','session_1'};
+sessions = {'session_0','session_1'};
 %sessions = {'session_0'};
-sessions = {'session_1'};
+%sessions = {'session_1'};
 
 %% Set up the headers
 if rejectArt == 0
-  tableHeader = {'sub','ses',... % subject info
+  tableHeader = {'subject','sesssion','subset',... % subject info
     'R targ','R lure','S targ','S lure',... % raw numbers of targs, lures
     'Item d''','Source d''','Item RespBias (c)','Source RespBias (c)',... % accuracy
     'RH','RM','RCR','RFA','SH','SM','SCR','SFA',... % raw numbers for accuracy
@@ -95,9 +96,10 @@ if rejectArt == 0
     'RH-SCor rt','RH-SInc rt',... % recognition hits reaction times
     'RH-SCor RS rt','RH-SCor RO rt','RH-SCor Fam rt','RH-SInc RS rt','RH-SInc RO rt','RH-SInc Fam rt','RM Sure rt','RM Maybe rt','RCR Sure rt','RCR Maybe rt','RFA RS rt','RFA RO rt','RFA Fam rt',... % rt by confidence
     'Rec Discrimination (Pr)','Rec Response Bias (Br)',... % more accuracy
+    'Redo T chg2cor','Redo T chg2inc','Redo T chg2same','Redo L chg2cor','Redo L chg2inc','Redo L chg2same',...
     };
 elseif rejectArt == 1
-  tableHeader = {'sub','ses',... % subject info
+  tableHeader = {'subject','sesssion','subset'... % subject info
     'R targ','R lure','S targ','S lure',... % raw numbers of targs, lures
     'Source d''','Source RespBias (c)',... % accuracy
     'RH','RCR','SH','SM','SCR','SFA',... % raw numbers for accuracy
@@ -113,6 +115,7 @@ elseif rejectArt == 1
     'SH rt','SM rt','SCR rt','SFA rt',... % src reaction times
     'RH-SCor rt','RH-SInc rt',... % recognition hits reaction times
     'RH-SCor RS rt','RH-SCor RO rt','RH-SCor Fam rt','RH-SInc RS rt','RH-SInc RO rt','RH-SInc Fam rt','RCR Sure rt','RCR Maybe rt',... % rt by confidence
+    'Redo T chg2cor','Redo T chg2inc','Redo T chg2same','Redo L chg2cor','Redo L chg2inc','Redo L chg2same',...
     };
 end
 
@@ -127,6 +130,8 @@ end
 for s = 1:length(subsets)
   if saveFiles == true
     % include artifacts in event count
+    
+    % eventsTable is the filename
     eventsTable = fullfile(dataroot,[expName,'_summary']);
     if ~isempty(subsets{s})
       eventsTable = sprintf('%s_%s',eventsTable,subsets{s});
@@ -208,6 +213,14 @@ for s = 1:length(subsets)
   numEv.rec_fa_rs = nan(length(subjects),length(sessions));
   numEv.rec_fa_ro = nan(length(subjects),length(sessions));
   numEv.rec_fa_k = nan(length(subjects),length(sessions));
+  
+  % redo events
+  numEv.redo_T_chg2cor = nan(length(subjects),length(sessions));
+  numEv.redo_T_chg2inc = nan(length(subjects),length(sessions));
+  numEv.redo_T_chg2sam = nan(length(subjects),length(sessions));
+  numEv.redo_L_chg2cor = nan(length(subjects),length(sessions));
+  numEv.redo_L_chg2inc = nan(length(subjects),length(sessions));
+  numEv.redo_L_chg2sam = nan(length(subjects),length(sessions));
   
   % rates
   rates.rec_h = nan(length(subjects),length(sessions));
@@ -436,6 +449,17 @@ for s = 1:length(subsets)
         rec_fa_ro = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
         rec_fa_k = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
       end
+      
+      %%%%%%%%%%%%%%%
+      % REDO EVENTS %
+      %%%%%%%%%%%%%%%
+      
+      numEv.redo_T_chg2cor(sub,ses) = length(filterStruct(rec_targEv,'redo == 1'));
+      numEv.redo_T_chg2inc(sub,ses) = length(filterStruct(rec_targEv,'redo == 2'));
+      numEv.redo_T_chg2sam(sub,ses) = length(filterStruct(rec_targEv,'redo == 3'));
+      numEv.redo_L_chg2cor(sub,ses) = length(filterStruct(rec_lureEv,'redo == 1'));
+      numEv.redo_L_chg2inc(sub,ses) = length(filterStruct(rec_lureEv,'redo == 2'));
+      numEv.redo_L_chg2sam(sub,ses) = length(filterStruct(rec_lureEv,'redo == 3'));
       
       %% RATES
       
@@ -907,6 +931,7 @@ for s = 1:length(subsets)
             rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
             rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_m_sure(sub,ses),rt.rec_m_maybe(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),rt.rec_fa_rs(sub,ses),rt.rec_fa_ro(sub,ses),rt.rec_fa_k(sub,ses),... % rt by confidence
             acc.Pr(sub,ses),acc.Br(sub,ses),... % more accuracy
+            numEv.redo_T_chg2cor(sub,ses),numEv.redo_T_chg2inc(sub,ses),numEv.redo_T_chg2sam(sub,ses),numEv.redo_L_chg2cor(sub,ses),numEv.redo_L_chg2inc(sub,ses),numEv.redo_L_chg2sam(sub,ses),...
             ];
         elseif rejectArt == 1
           tableData = [...
@@ -925,6 +950,7 @@ for s = 1:length(subsets)
             rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
             rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
             rt.rec_h_srcCor_rs(sub,ses),rt.rec_h_srcCor_ro(sub,ses),rt.rec_h_srcCor_k(sub,ses),rt.rec_h_srcInc_rs(sub,ses),rt.rec_h_srcInc_ro(sub,ses),rt.rec_h_srcInc_k(sub,ses),rt.rec_cr_sure(sub,ses),rt.rec_cr_maybe(sub,ses),... % rt by confidence
+            numEv.redo_T_chg2cor(sub,ses),numEv.redo_T_chg2inc(sub,ses),numEv.redo_T_chg2sam(sub,ses),numEv.redo_L_chg2cor(sub,ses),numEv.redo_L_chg2inc(sub,ses),numEv.redo_L_chg2sam(sub,ses),...
             ];
         end
       end
@@ -938,9 +964,9 @@ for s = 1:length(subsets)
               allSes = cat(2,sprintf('%s_%s',allSes,sessions{i}(end)));
             end
           end
-          fprintf(outfile,'%s,%s',subjects{sub},allSes);
+          fprintf(outfile,'%s,%s,%s',subjects{sub},allSes,subsets{s});
         else
-          fprintf(outfile,'%s,%s',subjects{sub},sessions{ses}(end));
+          fprintf(outfile,'%s,%s,%s',subjects{sub},sessions{ses}(end),subsets{s});
         end
         if skipped(sub,ses) == 0
           % format for tableData and print
@@ -956,7 +982,7 @@ for s = 1:length(subsets)
             fprintf(outfile,'\n');
           end
         elseif skipped(sub,ses) == 1
-          fprintf(outfile,'\tskipped\n');
+          fprintf(outfile,',skipped\n');
         end
       end
       

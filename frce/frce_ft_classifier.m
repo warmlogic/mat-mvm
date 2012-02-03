@@ -1,13 +1,17 @@
 %dataroot = fullfile(getenv('HOME'),'Downloads','FRCE_data_classification');
 
-% % dpss 4:128 log spaced
-% dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_dpss_pow_-500_1500_4_128/';
-% hanning 4:1:64
-dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_64/';
-% % erp
-%dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto/tla_-1250_2250/';
+dataroot = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data';
+dataroot = fullfile(dataroot,'Aud_AudForg_AudReca_Forg_Reca_Vis_VisForg_VisReca_eq0_art_nsAuto');
 
-%center73 = [3 4 5 6 7 9 10 11 12 13 15 16 18 19 20 22 23 24 27 28 29 30 31 34 35 36 37 40 41 42 46 47 51 52 53 54 55 59 60 61 62 66 67 71 72 76 77 78 79 80 84 85 86 87 91 92 93 97 98 102 103 104 105 106 109 110 111 112 116 117 118 123 124];
+% % dpss 4:128 log spaced
+% dataroot = fullfile(dataroot,'pow_mtmconvol_dpss_pow_-500_1500_4_128');
+% hanning 4:1:64
+% dataroot = fullfile(dataroot,'pow_mtmconvol_hanning_pow_-500_1500_4_64');
+% % erp
+%dataroot = fullfile(dataroot,'tla_-1250_2250');
+
+% wavelet, 4:1:100
+dataroot = fullfile(dataroot,'pow_wavelet_w5_pow_-625_1615_4_100');
 
 % load in the dataset
 %adFile = '/Volumes/curranlab/Data/FRCE/EEG/Sessions/cueing paradigm/relabeled/eppp/-1250_2250/ft_data/VisForg_VisReca_eq0_art_nsAuto/pow_mtmconvol_hanning_pow_-500_1500_4_40/analysisDetails.mat';
@@ -17,8 +21,8 @@ adFile = fullfile(dataroot,'analysisDetails.mat');
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
 %ana.eventValues = {{'AudForg','AudReca'}};
-%ana.eventValues = {{'VisForg','VisReca'}};
-ana.eventValues = {{'VisForg','VisReca'},{'AudForg','AudReca'}};
+ana.eventValues = {{'VisForg','VisReca'}};
+%ana.eventValues = {{'VisForg','VisReca'},{'AudForg','AudReca'}};
 %ana.eventValues = {{'Forg','Reca'}};
 %ana.eventValues = {{'Aud','Vis'}};
 
@@ -305,6 +309,8 @@ if equateTrials
       end
     end
   end
+else
+  ana.equateTrials = false;
 end
 
 % initialize the struct
@@ -343,7 +349,7 @@ cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.cha
 % wavelet
 cfg.method = 'wavelet';
 cfg.width = 6;
-cfg.toi = (-0.3:0.02:1.0);
+cfg.toi = (-0.3:0.02:1.625);
 %cfg.foi = (4:1:64);
 cfg.foi = (2^(1/8)).^(16:53);
 
@@ -407,6 +413,8 @@ if equateTrials
     end % sub
     
   end % typ
+else
+  ana.equateTrials = false;
 end
 
 %% Time-Frequency: Change in freq relative to baseline using absolute power
@@ -586,6 +594,33 @@ cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','bino
 %cfg_ana.method = 'L2regLogRLamOpt';
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',0,'validator',ft_mv_crossvalidator('verbose',true'nfolds',5,'metric','accuracy'),'family','binomial')};
 % lumping all trials in one category, really bad performance
+
+
+%%%%%%%%% testing
+cfg_ana.method = 'L1regLogRLam01';
+obj = ft_mv_analysis({ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')});
+
+obj = obj.train(X,Y);
+
+%%%%%%%%%%%%%%%%%
+
+gn = ft_mv_glmnet('validator',ft_mv_crossvalidator('nfolds',5),'family','gaussian');
+
+cv = ft_mv_crossvalidator('mva',{ft_mv_standardizer ft_mv_svm},'nfolds',10,'metric','accuracy');
+cv = cv.train(X,Y);
+% display classification accuracy
+cv.metric = 'accuracy';
+disp(cv.performance);
+% display outcome of mcnemar test
+cv.sigtest = 'mcnemar';
+disp(cv.significance);
+
+% investigate 'trainfolds' (or 'testfolds') property
+
+%%%%%%%%%%%%%%%%
+
+ft_mv_hmm;
+%%%%%%%%%%%%%%%%%%%%%
 
 
 for typ = 1:length(ana.eventValues)

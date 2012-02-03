@@ -33,10 +33,11 @@ else
 end
 %saveDir = dataroot;
 
-if nargin == 0
+if ~exist('subjects','var') || isempty(subjects)
   subjects = {
 %     'COSI2001'; % short study durations began with COSI2001
 %     % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
+% COSI2001 did not finish
     'COSI2002';
     'COSI2003';
     'COSI2004';
@@ -47,10 +48,10 @@ if nargin == 0
     %(500ms preview, 2000ms, 1125+-125ms ISI)
     'COSI2009';
     'COSI2010';
-    'COSI2011'; % 11 did not do session_1 (didn't like EEG)
+    'COSI2011'; % COSI2011 did not do session_1 (didn't like EEG)
     'COSI2012';
     'COSI2013'; % redo option and source-on-one-side began with COSI2013
-    'COSI2014'; % 14 did not do session_1 (didn't perform well)
+    'COSI2014'; % COSI2014 did not do session_1 (didn't perform well)
     'COSI2015';
     'COSI2016';
     'COSI2017';
@@ -61,10 +62,10 @@ if nargin == 0
     'COSI2022';
     'COSI2023';
     'COSI2024';
-%     'COSI2025';
-%     'COSI2026';
-%     'COSI2027';
-%     'COSI2028';
+    'COSI2025';
+    'COSI2026';
+    'COSI2027';
+    'COSI2028';
 %     'COSI2029';
 %     'COSI2030';
 %     'COSI2031';
@@ -78,16 +79,16 @@ if nargin == 0
 %     'COSI2039';
 %     'COSI2040';
     };
-  
-  prep_eeg = 1;
-elseif nargin < 2
-  prep_eeg = 1;
+end
+
+if ~exist('prep_eeg','var') || isempty(prep_eeg)
+  prep_eeg = true;
 end
 
 fprintf('Processing %d subjects',length(subjects));
-if prep_eeg == 1
+if prep_eeg == true
   fprintf(' and aligning EEG data.\n');
-elseif prep_eeg == 0
+elseif prep_eeg == false
   fprintf(', behavioral data only.\n');
 end
 
@@ -107,7 +108,7 @@ for sub = 1:length(subjects)
       continue
     end
     
-    if prep_eeg == 1
+    if prep_eeg == true
       % find the bad channels for this subject and session
 %       sesStruct = filterStruct(infoStruct,'ismember(subject,varargin{1}) & ismember(session,varargin{2})',subjects{sub},sessions{ses});
 %       subSesBadChan = sesStruct.badChan;
@@ -152,7 +153,7 @@ for sub = 1:length(subjects)
     end
     
     %% prep the EEG data
-    if prep_eeg == 1
+    if prep_eeg == true
       fprintf('Prepping EEG data...\n');
       % get this subject's session dir
       subEegDir = fullfile(sesDir,'eeg','eeg.noreref');
