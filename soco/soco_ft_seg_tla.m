@@ -27,19 +27,22 @@ exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
+%exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
 %exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
-%exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','N2','N6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
+exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','NM2','NM6','NS2','NS6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
 
 % combine some events into higher-level categories
 % exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
 % exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
-exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
-% exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
-% exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
-%exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'N2','N6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
-%exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
+
+%exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
+%exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
+
+%exper.eventValuesExtra.toCombine = {{'F2','F6'},{'NM2','NM6','NS2','NS6'},{'RO2','RO6'},{'RS2','RS6'}};
+%exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+
+exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
+exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
@@ -199,7 +202,8 @@ adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 files.figFontName = 'Helvetica';
-files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'epsc2';
+files.figPrintFormat = 'png';
 files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
@@ -229,10 +233,11 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 
 %ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'RHSC','RHSI','RCR'}};
-%ana.eventValues = {{'F','N','RO','RS'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC'}};
+%ana.eventValues = {{'RHSC','RHSI','RCR'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
+ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
+%ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
@@ -314,7 +319,14 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_t
 % Subjects with bad behavior
 %exper.badBehSub = {};
 % huge response bias to say "new": 18, 26
-exper.badBehSub = {'SOCO018','SOCO026'};
+exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
+
+% % equating d' 15 subjects
+% exper.badBehSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030','SOCO028','SOCO020','SOCO014','SOCO013','SOCO017'};
+% % equating d' 13 subjects
+%exper.badBehSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030','SOCO028','SOCO020','SOCO014','SOCO013','SOCO017','SOCO027','SOCO021'};
+
+
 
 % exper.p1n1_good = {'SOCO005','SOCO006','SOCO008','SOCO010','SOCO011','SOCO013','SOCO015','SOCO022','SOCO024','SOCO027','SOCO030'};
 % exper.p1n1_ok = {'SOCO001','SOCO003','SOCO004','SOCO007','SOCO012','SOCO014','SOCO016','SOCO021','SOCO023','SOCO029'};
@@ -385,16 +397,16 @@ cfg_plot.excludeBadSub = 1;
 %   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
 %   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
 
-cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
+%cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
-%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.legendloc = cfg_plot.legendlocs{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
-  cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-  %cfg_plot.conditions = cfg_plot.condByROI{r};
+  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  cfg_plot.conditions = cfg_plot.condByROI{r};
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));

@@ -27,13 +27,20 @@ exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'RCR','RHSC','RHSI'});
+%exper.eventValues = sort({'RCR','RHSC','RHSI'});
 %exper.eventValues = sort({'F','N','RO','RS'});
-%exper.eventValues = sort({'FSC','FSI','N','ROSC','ROSI','RSSC','RSSI'});
+exper.eventValues = sort({'FSC','FSI','NS','NM','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
-exper.eventValuesExtra.newValue = {{'RH'}};
-exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+
+% exper.eventValuesExtra.newValue = {{'RH'}};
+% exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+
+% exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+% exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
+
+exper.eventValuesExtra.newValue = {{'N'}};
+exper.eventValuesExtra.toCombine = {{'NS','NM'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 0;
@@ -187,7 +194,8 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_R
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 files.figFontName = 'Helvetica';
-files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'epsc2';
+files.figPrintFormat = 'png';
 files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
@@ -212,11 +220,12 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 %ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'RHSC','RHSI','RCR'}};
+%ana.eventValues = {{'RHSC','RHSI','RCR'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
+ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
+%ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
@@ -298,7 +307,14 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 % Subjects with bad behavior
 %exper.badBehSub = {};
 %exper.badBehSub = {'SOSI011','SOSI030'};
-exper.badBehSub = {'SOSI011','SOSI030','SOSI007'};
+exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for publication; also 001 has low trial counts
+
+% % equating source d' 15 subjects
+% exper.badBehSub = {'SOSI011','SOSI030','SOSI007','SOSI004','SOSI015','SOSI013','SOSI025','SOSI029','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009'};
+% % equating source d' 13 subjects
+% exper.badBehSub = {'SOSI011','SOSI030','SOSI007','SOSI004','SOSI015','SOSI013','SOSI025','SOSI029','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009','SOSI026','SOSI017'};
+
+
 
 % 007 had poor accuracy (and 003, 005, 024?)
 
