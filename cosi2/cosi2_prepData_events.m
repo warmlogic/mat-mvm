@@ -19,6 +19,21 @@ function cosi2_prepData_events(subjects,prep_eeg)
 %   The behavioral data is located in:
 %     /Volumes/curranlab/Data/COSI2/eeg/behavioral/subject/session
 %
+%
+% NB:
+% COSI2 subjects 8-12 have a few screwed up things in session.log. 9 is
+% the most messed up. The keys that were recorded (and the responses) for Y
+% and B source responses were reversed. So subject 9 thought X was for B
+% and / was for Y (because that's what they saw on the screen), but it
+% recorded it as X=Y and /=B. This should be fixed to score the subject
+% correctly. Subjects 8, 10, 11, and 12 had their color response for false
+% alarms messed up (color response to a new item). I don't think this
+% affects anything behaviorally, because we
+% only look at correctly identified new items (correct rejections), but
+% anyway: 8, 9, 10, and 12 had all incorrect false alarm responses recorded
+% as "Yellow", and 11 had them all recorded as "Blue" (the recorded keys
+% were correct, so this should be easy to fix if we need to). 9 would have
+% been the same as yellow but the colors got mixed up.
 
 expName = 'COSI2';
 

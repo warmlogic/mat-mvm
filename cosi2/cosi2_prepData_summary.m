@@ -1,4 +1,4 @@
-function cosi2_prepData_summary(rejectArt,saveFiles,averageSes,dataroot)
+function cosi2_prepData_summary(rejectArt,saveFiles,dataroot)
 % function cosi2_prepData_summary(rejectArt,saveFiles,averageSes,dataroot)
 %
 % Save column-formatted data as a csv file
@@ -10,7 +10,7 @@ expName = 'COSI2';
 
 subsets = {'color','side'};
 
-if nargin < 4
+if nargin < 3
   serverDir = fullfile(filesep,'Volumes','curranlab','Data',expName,'eeg','behavioral');
   serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data',expName,'eeg','behavioral');
   if exist(serverDir,'dir')
@@ -21,27 +21,24 @@ if nargin < 4
     uroot = getenv('HOME');
     dataroot = fullfile(uroot,'data',expName,'eeg','behavioral');
   end
-  if nargin < 3
-    averageSes = false;
-    if nargin < 2
-      saveFiles = true;
-      if nargin < 1
-        rejectArt = false;
-      end
+  if nargin < 2
+    saveFiles = true;
+    if nargin < 1
+      rejectArt = false;
     end
   end
 end
 
 subjects = {
-%   'COSI2001'; % short study durations began with COSI2001
-%   % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
-% COSI2001 did not finish
-  'COSI2002';
-  'COSI2003';
-  'COSI2004';
-  'COSI2005';
-  'COSI2006';
-  'COSI2007';
+  %   'COSI2001'; % short study durations began with COSI2001
+  %   % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
+  % COSI2001 did not finish
+%   'COSI2002';
+%   'COSI2003';
+%   'COSI2004';
+%   'COSI2005';
+%   'COSI2006';
+%   'COSI2007';
   'COSI2008'; % longer study durations began with COSI2008
   %(500ms preview, 2000ms, 1125+-125ms ISI)
   'COSI2009';
@@ -64,18 +61,23 @@ subjects = {
   'COSI2026';
   'COSI2027';
   'COSI2028';
-%   'COSI2029';
-%   'COSI2030';
-%   'COSI2031';
-%   'COSI2032';
-%   'COSI2033';
-%   'COSI2034';
-%   'COSI2035';
+  'COSI2029';
+  %   'COSI2030';
+  %   'COSI2031';
+  %   'COSI2032';
+  %   'COSI2033';
+  %   'COSI2034';
+  %   'COSI2035';
   };
 
-sessions = {'session_0','session_1'};
+%sessions = {'session_0','session_1'};
 %sessions = {'session_0'};
 %sessions = {'session_1'};
+
+
+%sessions = {{0, 1}};
+%sessions = {{0}, {1}};
+sessions = {{0}, {1}, {0, 1}};
 
 %% Set up the headers
 if rejectArt == 0
@@ -127,26 +129,41 @@ end
 %matlabpool open 3
 
 %% for each subset
-for s = 1:length(subsets)
+for sset = 1:length(subsets)
   if saveFiles == true
     % include artifacts in event count
     
     % eventsTable is the filename
     eventsTable = fullfile(dataroot,[expName,'_summary']);
-    if ~isempty(subsets{s})
-      eventsTable = sprintf('%s_%s',eventsTable,subsets{s});
+    if ~isempty(subsets{sset})
+      eventsTable = sprintf('%s_%s',eventsTable,subsets{sset});
     end
-    if averageSes == 1
-      eventsTable = sprintf('%s_sesAvg',eventsTable);
-    elseif averageSes == 0
-      sesNums = sessions{1}(end);
-      if length(sessions) > 1
-        for i = 2:length(sessions)
-          sesNums = cat(2,sprintf('%s%s',sesNums,sessions{i}(end)));
-        end
+    
+    sesNums = '';
+    for i = 1:length(sessions)
+      sesNums = sprintf('%s_ses',sesNums);
+      for j = 1:length(sessions{i})
+        sesNums = sprintf('%s%d',sesNums,sessions{i}{j});
       end
-      eventsTable = sprintf('%s_ses%s',eventsTable,sesNums);
+      if length(sessions{i}) > 1
+        sesNums = sprintf('%sAvg',sesNums);
+      end
     end
+    eventsTable = sprintf('%s%s',eventsTable,sesNums);
+    
+    
+    %     if averageSes == 1
+    %       eventsTable = sprintf('%s_sesAvg',eventsTable);
+    %     elseif averageSes == 0
+    %       sesNums = sessions{1}(end);
+    %       if length(sessions) > 1
+    %         for i = 2:length(sessions)
+    %           sesNums = cat(2,sprintf('%s%s',sesNums,sessions{i}(end)));
+    %         end
+    %       end
+    %       eventsTable = sprintf('%s_ses%s',eventsTable,sesNums);
+    %     end
+    
     if rejectArt == true
       eventsTable = sprintf('%s_rejArt',eventsTable);
     end
@@ -154,10 +171,10 @@ for s = 1:length(subsets)
     
     if ~exist(eventsTable,'file')
       outfile = fopen(eventsTable,'wt');
-      if isempty(subsets{s})
+      if isempty(subsets{sset})
         fprintf(outfile,'%s\n','All together');
       else
-        fprintf(outfile,'%s\n',subsets{s});
+        fprintf(outfile,'%s\n',subsets{sset});
       end
       fprintf(outfile,'%s',tableHeader{1});
       for headCol = 2:length(tableHeader)
@@ -326,24 +343,54 @@ for s = 1:length(subsets)
   end
   
   %% for each subject
-  skipped = zeros(length(subjects),length(sessions));
+  
+  % store a string for which sessions were loaded
+  subSesNums_str = cell(length(subjects),length(sessions));
+  % note when we saved a session
+  savedData = zeros(length(subjects),length(sessions));
+  
   for sub = 1:length(subjects)
     
     %% for each session
     for ses = 1:length(sessions)
-      fprintf('Getting data for %s, %s...\n',subjects{sub},sessions{ses});
       
-      % set the subject events directory
-      eventsDir_sub = fullfile(dataroot,subjects{sub},sessions{ses},'events');
-      if exist(fullfile(eventsDir_sub,'events.mat'),'file')
-        events = loadEvents(fullfile(eventsDir_sub,'events.mat'));
-      else
-        fprintf('events.mat for %s %s does not exist. Moving on.\n',subjects{sub},sessions{ses});
-        skipped(sub,ses) = 1;
+      events = [];
+      subSesNums_str{sub}{ses} = '';
+      
+      for s = 1:length(sessions{ses})
+        fprintf('Getting data for %s, session_%d...\n',subjects{sub},sessions{ses}{s});
+        
+        % set the subject events directory
+        eventsDir_sub = fullfile(dataroot,subjects{sub},['session_',num2str(sessions{ses}{s})],'events');
+        if exist(fullfile(eventsDir_sub,'events.mat'),'file')
+          % load the events
+          sesEvents = loadEvents(fullfile(eventsDir_sub,'events.mat'));
+          
+          % put the sessions together into one big session
+          events = cat(1,events,sesEvents);
+          
+          % note that this session was loaded
+          savedData(sub,ses) = savedData(sub,ses) + 1;
+          % note that this session was loaded
+          subSesNums_str{sub}{ses} = sprintf('%s_%d',subSesNums_str{sub}{ses},sessions{ses}{s});
+        else
+          % note that this session was not loaded
+          subSesNums_str{sub}{ses} = sprintf('%s_skip%d',subSesNums_str{sub}{ses},sessions{ses}{s});
+          % get rid of the first underscore
+          fprintf('events.mat for %s session_%d does not exist. Moving on.\n',subjects{sub},sessions{ses}{s});
+        end
+        % get rid of the first underscore
+        if s == length(sessions{ses})
+          subSesNums_str{sub}{ses} = subSesNums_str{sub}{ses}(2:end);
+        end
+      end % for s
+      
+      % if there were no sessions, then continue to next session or subject
+      if savedData(sub,ses) == 0
         continue
       end
       
-      % include events with defined study color name and that was tested
+      % only include events that were tested
       events = filterStruct(events,'src_correct ~= -1');
       
       if rejectArt == 1
@@ -356,10 +403,10 @@ for s = 1:length(subsets)
       %subSesEv = filterStruct(events,'ismember(subject,varargin{1}) & ismember(session,varargin{2})',subs_str{sub},sess(ses));
       
       % get only the events for this subset
-      if strcmp(subsets{s},'color') ||  strcmp(subsets{s},'side')
+      if strcmp(subsets{sset},'color') ||  strcmp(subsets{sset},'side')
         % get only the subset study events
-        fprintf('%s\n',subsets{s});
-        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',subsets(s));
+        fprintf('%s\n',subsets{sset});
+        subSesEv = filterStruct(events,'ismember(cond,varargin{1})',subsets(sset));
       else
         fprintf('All\n');
         subSesEv = events;
@@ -881,38 +928,38 @@ for s = 1:length(subsets)
     end % ses
   end % sub
   
-  if averageSes == 1
-    % average all the fields
-    
-    % TODO: nanmean?
-    
-    numEvFN = fieldnames(numEv);
-    ratesFN = fieldnames(rates);
-    rates_wirFN = fieldnames(rates_wir);
-    accFN = fieldnames(acc);
-    rtFN = fieldnames(rt);
-    
-    % sum or average across sessions
-    for f = 1:length(numEvFN)
-      numEv.(numEvFN{f}) = sum(numEv.(numEvFN{f}),2);
-    end
-    for f = 1:length(ratesFN)
-      rates.(ratesFN{f}) = mean(rates.(ratesFN{f}),2);
-    end
-    for f = 1:length(rates_wirFN)
-      rates_wir.(rates_wirFN{f}) = mean(rates_wir.(rates_wirFN{f}),2);
-    end
-    for f = 1:length(accFN)
-      acc.(accFN{f}) = mean(acc.(accFN{f}),2);
-    end
-    for f = 1:length(rtFN)
-      rt.(rtFN{f}) = mean(rt.(rtFN{f}),2);
-    end
-  end
+  %   if averageSes == 1
+  %     % average all the fields
+  %
+  %     % TODO: nanmean?
+  %
+  %     numEvFN = fieldnames(numEv);
+  %     ratesFN = fieldnames(rates);
+  %     rates_wirFN = fieldnames(rates_wir);
+  %     accFN = fieldnames(acc);
+  %     rtFN = fieldnames(rt);
+  %
+  %     % sum or average across sessions
+  %     for f = 1:length(numEvFN)
+  %       numEv.(numEvFN{f}) = sum(numEv.(numEvFN{f}),2);
+  %     end
+  %     for f = 1:length(ratesFN)
+  %       rates.(ratesFN{f}) = mean(rates.(ratesFN{f}),2);
+  %     end
+  %     for f = 1:length(rates_wirFN)
+  %       rates_wir.(rates_wirFN{f}) = mean(rates_wir.(rates_wirFN{f}),2);
+  %     end
+  %     for f = 1:length(accFN)
+  %       acc.(accFN{f}) = mean(acc.(accFN{f}),2);
+  %     end
+  %     for f = 1:length(rtFN)
+  %       rt.(rtFN{f}) = mean(rt.(rtFN{f}),2);
+  %     end
+  %   end
   
   for sub = 1:length(subjects)
     for ses = 1:size(numEv.rec_targEv,2)
-      if skipped(sub,ses) == 0
+      if savedData(sub,ses) > 0
         if rejectArt == 0
           tableData = [...
             numEv.rec_targEv(sub,ses),numEv.rec_lureEv(sub,ses),numEv.src_targEv(sub,ses),numEv.src_lureEv(sub,ses),... % raw numbers of targs, lures
@@ -957,18 +1004,19 @@ for s = 1:length(subsets)
       
       if saveFiles == 1
         % print sub and ses
-        if averageSes == 1
-          allSes = sessions{1}(end);
-          if length(sessions) > 1
-            for i = 2:length(sessions)
-              allSes = cat(2,sprintf('%s_%s',allSes,sessions{i}(end)));
-            end
-          end
-          fprintf(outfile,'%s,%s,%s',subjects{sub},allSes,subsets{s});
-        else
-          fprintf(outfile,'%s,%s,%s',subjects{sub},sessions{ses}(end),subsets{s});
-        end
-        if skipped(sub,ses) == 0
+        %         if averageSes == 1
+        %           allSes = sessions{1}(end);
+        %           if length(sessions) > 1
+        %             for i = 2:length(sessions)
+        %               allSes = cat(2,sprintf('%s_%s',allSes,sessions{i}(end)));
+        %             end
+        %           end
+        %           fprintf(outfile,'%s,%s,%s',subjects{sub},allSes,subsets{sset});
+        %         else
+        %           fprintf(outfile,'%s,%s,%s',subjects{sub},sessions{ses}(end),subsets{sset});
+        %         end
+        fprintf(outfile,'%s,%s,%s',subjects{sub},subSesNums_str{sub}{ses},subsets{sset});
+        if savedData(sub,ses) > 0
           % format for tableData and print
           tableDataStr = repmat(',%.4f',1,length(tableData));
           fprintf(outfile,tableDataStr,tableData);
@@ -981,14 +1029,13 @@ for s = 1:length(subsets)
           else
             fprintf(outfile,'\n');
           end
-        elseif skipped(sub,ses) == 1
+        elseif savedData(sub,ses) == 0
           fprintf(outfile,',skipped\n');
         end
       end
       
     end % ses
   end % sub
-  
   
   if saveFiles == 1
     fprintf('Saving %s...',eventsTable);
