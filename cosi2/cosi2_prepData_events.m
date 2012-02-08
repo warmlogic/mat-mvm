@@ -84,7 +84,7 @@ if ~exist('subjects','var') || isempty(subjects)
     'COSI2026';
     'COSI2027';
     'COSI2028';
-%     'COSI2029';
+    'COSI2029';
 %     'COSI2030';
 %     'COSI2031';
 %     'COSI2032';

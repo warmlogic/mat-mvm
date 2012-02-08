@@ -33,17 +33,17 @@ exper.eventValues = sort({'FSC','FSI','NS','NM','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
 
-% exper.eventValuesExtra.newValue = {{'RH'}};
 % exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+% exper.eventValuesExtra.newValue = {{'RH'}};
 
-% exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
-% exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
+%exper.eventValuesExtra.toCombine = {{'NS','NM'}};
+%exper.eventValuesExtra.newValue = {{'N'}};
 
-exper.eventValuesExtra.newValue = {{'N'}};
-exper.eventValuesExtra.toCombine = {{'NS','NM'}};
+exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
+exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'SOSI001';
@@ -188,15 +188,15 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RK/ft_data/F_N_RO_RS_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/RKSCSI/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
-files.figFontName = 'Helvetica';
-%files.figPrintFormat = 'epsc2';
-files.figPrintFormat = 'png';
-files.figPrintRes = 150;
+% files.figFontName = 'Helvetica';
+% %files.figPrintFormat = 'epsc2';
+% files.figPrintFormat = 'png';
+% files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
 %files.figPrintRes = 1000;
@@ -222,10 +222,10 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
-ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
+%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
-%ana.eventValues = {{'F','N','RO','RS'}};
+ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
