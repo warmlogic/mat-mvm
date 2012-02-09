@@ -2,19 +2,20 @@ function cosi2_prepData_events(subjects,prep_eeg)
 % cosi2_prepData_events(subjects,prep_eeg)
 %
 % Purpose
-%   Create behavioral events; if prep_eeg == 1: export Net Station events
+%   Create behavioral events; if prep_eeg==true: export Net Station events
 %
 % Inputs
 %   subjects: a cell of subject numbers
 %
 %   prep_eeg: boolean, whether or not to prepare the EEG data
+%             (default: true)
 %
 % Outputs
 %   Events (struct and NetStation) will be saved in:
 %     /Users/username/data/COSI2/subject/session/events
 %
 % Assumptions
-%   Each subject only ran two sessions (session_0, session_1)
+%   Each subject ran two sessions (session_0, session_1)
 %
 %   The behavioral data is located in:
 %     /Volumes/curranlab/Data/COSI2/eeg/behavioral/subject/session
@@ -53,15 +54,15 @@ end
 
 if ~exist('subjects','var') || isempty(subjects)
   subjects = {
-%     'COSI2001'; % short study durations began with COSI2001
-%     % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
-% COSI2001 did not finish
-    'COSI2002';
-    'COSI2003';
-    'COSI2004';
-    'COSI2005';
-    'COSI2006';
-    'COSI2007';
+% %     'COSI2001'; % short study durations began with COSI2001
+% %     % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
+% % COSI2001 did not finish
+%     'COSI2002';
+%     'COSI2003';
+%     'COSI2004';
+%     'COSI2005';
+%     'COSI2006';
+%     'COSI2007';
     'COSI2008'; % longer study durations began with COSI2008
     %(500ms preview, 2000ms, 1125+-125ms ISI)
     'COSI2009';
@@ -85,9 +86,9 @@ if ~exist('subjects','var') || isempty(subjects)
     'COSI2027';
     'COSI2028';
     'COSI2029';
-%     'COSI2030';
-%     'COSI2031';
-%     'COSI2032';
+    'COSI2030';
+% %     'COSI2031'; % EEG reference electrode messed up. Not including.
+    'COSI2032';
 %     'COSI2033';
 %     'COSI2034';
 %     'COSI2035';
@@ -104,9 +105,9 @@ if ~exist('prep_eeg','var') || isempty(prep_eeg)
 end
 
 fprintf('Processing %d subjects',length(subjects));
-if prep_eeg == true
+if prep_eeg
   fprintf(' and aligning EEG data.\n');
-elseif prep_eeg == false
+else
   fprintf(', behavioral data only.\n');
 end
 
@@ -126,7 +127,7 @@ for sub = 1:length(subjects)
       continue
     end
     
-    if prep_eeg == true
+    if prep_eeg
       % find the bad channels for this subject and session
 %       sesStruct = filterStruct(infoStruct,'ismember(subject,varargin{1}) & ismember(session,varargin{2})',subjects{sub},sessions{ses});
 %       subSesBadChan = sesStruct.badChan;
@@ -171,7 +172,7 @@ for sub = 1:length(subjects)
     end
     
     %% prep the EEG data
-    if prep_eeg == true
+    if prep_eeg
       fprintf('Prepping EEG data...\n');
       % get this subject's session dir
       subEegDir = fullfile(sesDir,'eeg','eeg.noreref');

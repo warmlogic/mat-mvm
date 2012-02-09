@@ -62,9 +62,9 @@ subjects = {
   'COSI2027';
   'COSI2028';
   'COSI2029';
-  %   'COSI2030';
-  %   'COSI2031';
-  %   'COSI2032';
+  'COSI2030';
+%   'COSI2031'; % EEG reference electrode messed up. Not including.
+  'COSI2032';
   %   'COSI2033';
   %   'COSI2034';
   %   'COSI2035';
