@@ -89,7 +89,7 @@ if ~exist('subjects','var') || isempty(subjects)
     'COSI2030';
 % %     'COSI2031'; % EEG reference electrode messed up. Not including.
     'COSI2032';
-%     'COSI2033';
+    'COSI2033';
 %     'COSI2034';
 %     'COSI2035';
 %     'COSI2036';

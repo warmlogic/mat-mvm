@@ -22,19 +22,26 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+%exper.nsFileExt = 'egis';
+exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'RCR','RHSC','RHSI'});
+%exper.eventValues = sort({'RCR','RHSC','RHSI'});
+exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 
 % combine the two types of hits into one category
-exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
-exper.eventValuesExtra.newValue = {{'RH'}};
+%exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+%exper.eventValuesExtra.newValue = {{'RH'}};
+
+%exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
+%exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+
+exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'}};
+exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'SOSI001';
@@ -85,9 +92,9 @@ dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)
 %dirs.dataDir = fullfile(exper.name,'eeg','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
 
 % Possible locations of the data files (dataroot)
-dirs.serverDir = fullfile('/Volumes','curranlab','Data');
-dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
-dirs.dreamDir = fullfile('/data','projects','curranlab');
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
 % pick the right dirs.dataroot
@@ -117,7 +124,7 @@ files.saveFigs = 1;
 files.figPrintFormat = 'png';
 %files.figPrintFormat = 'epsc2';
 
-%% add NS's artifact information to the event structure
+% %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
 % % RCR
 % nsEvFilters.RCR.type = 'LURE_PRES';
@@ -139,7 +146,8 @@ files.figPrintFormat = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = {'nsAuto'};
+ana.artifact.type = {'zeroVar'};
+%ana.artifact.type = {'nsAuto'};
 %ana.artifact.type = {'nsAuto','preRejManual','ftICA'};
 
 % ana.otherFxn = {};
@@ -167,9 +175,9 @@ ana.artifact.type = {'nsAuto'};
 % any preprocessing?
 cfg_pp = [];
 % single precision to save space
-cfg_pp.precision = 'single';
-% cfg_pp.demean = 'yes';
-% cfg_pp.baselinewindow = [-.2 0];
+%cfg_pp.precision = 'single';
+cfg_pp.demean = 'yes';
+cfg_pp.baselinewindow = [-.2 0];
 % cfg_pp.detrend = 'yes';
 % cfg_pp.dftfilter = 'yes';
 % cfg_pp.dftfreq = [60 120 180];
@@ -195,31 +203,33 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.tapsmofrq = 5;
 % cfg_proc.toi = -0:0.04:1.0;
 
-% multi-taper method
-cfg_proc.method = 'mtmconvol';
-cfg_proc.taper = 'hanning';
-%cfg_proc.taper = 'dpss';
+% % multi-taper method
+% cfg_proc.method = 'mtmconvol';
+% cfg_proc.taper = 'hanning';
+% %cfg_proc.taper = 'dpss';
+% %cfg_proc.toi = -0.8:0.04:3.0;
+% cfg_proc.toi = -0.5:0.04:1.0;
+% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% cfg_proc.foi = 2:freqstep:40;
+% %cfg_proc.foi = 3:freqstep:9;
+% %cfg_proc.foi = 3:1:9;
+% %cfg_proc.foi = 2:2:30;
+% cfg_proc.t_ftimwin = 4./cfg_proc.foi;
+% % tapsmofrq is not used for hanning taper; it is used for dpss
+% %cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+
+% wavelet
+cfg_proc.method = 'wavelet';
+cfg_proc.width = 5;
 %cfg_proc.toi = -0.8:0.04:3.0;
 cfg_proc.toi = -0.5:0.04:1.0;
+% evenly spaced frequencies, but not as many as foilim makes
 freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-cfg_proc.foi = 2:freqstep:40;
+cfg_proc.foi = 3:freqstep:40;
 %cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foi = 3:1:9;
-%cfg_proc.foi = 2:2:30;
-cfg_proc.t_ftimwin = 4./cfg_proc.foi;
-% tapsmofrq is not used for hanning taper; it is used for dpss
-%cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+%cfg_proc.foilim = [3 9];
 
-% % wavelet
-% cfg_proc.method = 'wavelet';
-% cfg_proc.width = 5;
-% %cfg_proc.toi = -0.8:0.04:3.0;
-% cfg_proc.toi = -0.3:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-% %cfg_proc.foi = 3:freqstep:50;
-% cfg_proc.foi = 3:freqstep:9;
-% %cfg_proc.foilim = [3 9];
+%cfg_proc.foi = (2^(1/8)).^(16:42);
 
 % set the save directories; final argument is prefix of save directory
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
@@ -265,7 +275,8 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_40_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -303,12 +314,16 @@ end
 
 cfg_ft = [];
 cfg_ft.baseline = [-0.3 -0.1];
-cfg_ft.baselinetype = 'absolute';
+cfg_ft.baselinetype = 'absolute'; % maybe this
+%cfg_ft.baselinetype = 'relative';
+%cfg_ft.baselinetype = 'relchange'; % or this
 if strcmp(cfg_ft.baselinetype,'absolute')
-  %cfg_ft.zlim = [-400 400];
-  cfg_ft.zlim = [-2 2];
+  cfg_ft.zlim = [-400 400];
+  %cfg_ft.zlim = [-2 2];
 elseif strcmp(cfg_ft.baselinetype,'relative')
   cfg_ft.zlim = [0 2.0];
+elseif strcmp(cfg_ft.baselinetype,'relchange')
+  cfg_ft.zlim = [-1.0 1.0];
 end
 cfg_ft.parameter = 'powspctrm';
 %cfg_ft.ylim = [3 9];
@@ -318,10 +333,10 @@ cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub=1;
 ses=1;
-for i = 1:4
+for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
-  title(ana.eventValues{1}{i});
+  title(sprintf('%s, baseline: %.1f, %.1f (%s)',ana.eventValues{1}{i},cfg_ft.baseline(1),cfg_ft.baseline(2),cfg_ft.baselinetype));
 end
 
 % cfg_ft = [];
@@ -345,7 +360,9 @@ end
 
 cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
-cfg_fb.baselinetype = 'absolute';
+%cfg_fb.baselinetype = 'absolute'; % maybe this
+%cfg_fb.baselinetype = 'relative';
+cfg_fb.baselinetype = 'relchange'; % or this
 
 %data_freq_orig = data_freq;
 
@@ -627,8 +644,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'yes';
-%cfg_ft.avgoverfreq = 'no';
+%cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -641,11 +658,11 @@ cfg_ft.alpha = .025;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
-%cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [2 40];
+  cfg_ana.frequencies = [3 40];
 else
   cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
   %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
@@ -669,13 +686,15 @@ files.saveFigs = 1;
 cfg_ft = [];
 %cfg_ft.alpha = .025;
 cfg_ft.alpha = .05;
+%cfg_ft.alpha = .1;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
-cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'yes';
+cfg_ft.avgoverfreq = 'no';
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR

@@ -29,19 +29,43 @@ exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'CCR','CHSC','CHSI','SCR','SHSC','SHSI'});
-%exper.eventValues = sort({'CF','SF','CN','SN','CRO','SRO','CRS','SRS'});
+
+% exper.eventValues = sort({'CCR','CHSC','CHSI','SCR','SHSC','SHSI'});
+% exper.eventValues = sort({'CF','SF','CN','SN','CRO','SRO','CRS','SRS'});
+
+exper.eventValues = sort({...
+  'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
+  'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
+
 
 % combine some events into higher-level categories
-exper.eventValuesExtra.toCombine = {{'CHSC','CHSI'},{'SHSC','SHSI'}};
-exper.eventValuesExtra.newValue = {{'CH'},{'SH'}};
+% exper.eventValuesExtra.toCombine = {{'CHSC','CHSI'},{'SHSC','SHSI'}};
+% exper.eventValuesExtra.newValue = {{'CH'},{'SH'}};
 %exper.eventValuesExtra.toCombine = {{'CCR','SCR'},{'CHSC','CHSI','SHSC','SHSI'},{'CHSC','SHSC'},{'CHSI','SHSI'}};
 %exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
 %exper.eventValuesExtra.toCombine = {{'CF','SF'},{'CN','SN'},{'CRO','SRO'},{'CRS','SRS'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 
+
+%exper.eventValuesExtra.toCombine = {{'CNS','CNM'},{'SNS','SNM'}};
+%exper.eventValuesExtra.newValue = {{'CN'},{'SN'}};
+
+% exper.eventValuesExtra.toCombine = {...
+%   {'CFSC','CFSI'},{'CNS','CNM'},{'CROSC','CROSI'},{'CRSSC','CRSSI'},...
+%   {'SFSC','SFSI'},{'SNS','SNM'},{'SROSC','SROSI'},{'SRSSC','SRSSI'}};
+% exper.eventValuesExtra.newValue = {...
+%   {'CF'},{'CN'},{'CRO'},{'CRS'},...
+%   {'FF'},{'FN'},{'FRO'},{'FRS'}};
+
+exper.eventValuesExtra.toCombine = {...
+  {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
+  {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
+exper.eventValuesExtra.newValue = {...
+  {'CCR'},{'CSC'},{'CSI'},...
+  {'SCR'},{'SSC'},{'SSI'}};
+
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -52,13 +76,13 @@ exper.subjects = {
 %   'COSI2005';
 %   'COSI2006';
 %   'COSI2007';
-%   'COSI2008';
-%   'COSI2009';
-%   'COSI2010';
-%   'COSI2011';
-%   'COSI2012';
+  'COSI2008';
+  'COSI2009';
+  'COSI2010';
+%   'COSI2011'; % will not have a session_1
+  'COSI2012';
   'COSI2013';
-%   'COSI2014';
+%   'COSI2014'; % will not have a session_1
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -68,20 +92,24 @@ exper.subjects = {
   'COSI2021';
   'COSI2022';
   'COSI2023';
-%   'COSI2024';
-%   'COSI2025';
-%   'COSI2026';
-%   'COSI2027';
-%   'COSI2028';
-%   'COSI2029';
-%   'COSI2030';
-%   'COSI2031';
-%   'COSI2032';
-%   'COSI2033';
+  'COSI2024';
+  'COSI2025';
+  'COSI2026';
+%   'COSI2027'; % waiting on session_1
+  'COSI2028';
+  'COSI2029';
+  'COSI2030';
+%   'COSI2031'; % completely excluded
+  'COSI2032';
+%   'COSI2033'; % waiting on session_1
 %   'COSI2034';
 %   'COSI2035';
+%   'COSI2036';
+%   'COSI2037';
+%   'COSI2038';
+%   'COSI2039';
+%   'COSI2040';
   };
-% COSI009 blinked a lot (> 90%); did not do second session
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
@@ -190,12 +218,16 @@ ana.overwrite.proc = 1;
 % any preprocessing?
 cfg_pp = [];
 
-% single precision to save space
-cfg_pp.precision = 'single';
+% % single precision to save space
+% cfg_pp.precision = 'single';
 
 % do a baseline correction
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
+
+% do a lowpass filter at 40 Hz because this is currently 100 Hz
+cfg_pp.lpfilter = 'yes';
+cfg_pp.lpfreq = 40;
 
 cfg_proc = [];
 cfg_proc.keeptrials = 'no';
@@ -233,15 +265,13 @@ end
 %% load the analysis details
 
 %adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
-files.figFontName = 'Helvetica';
-files.figPrintFormat = 'epsc2';
-files.figPrintRes = 150;
-
-%files.figPrintFormat = 'tiff';
-%files.figPrintRes = 1000;
+% files.figFontName = 'Helvetica';
+% %files.figPrintFormat = 'epsc2';
+% files.figPrintFormat = 'png';
+% files.figPrintRes = 150;
 
 %% set up channel groups
 
@@ -262,7 +292,7 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 % list the values separated by types: Color, Side
-ana.eventValues = {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}};
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};

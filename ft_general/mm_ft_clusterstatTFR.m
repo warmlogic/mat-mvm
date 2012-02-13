@@ -14,7 +14,7 @@ function [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data)
 % MM_FT_CHECKCONDITIONS for more details.
 %
 % See also:
-%   MM_FT_CHECKCONDITIONS
+%   MM_FT_CHECKCONDITIONS, FT_FREQSTATISTICS
 
 if ~isfield(cfg_ft,'parameter')
   error('Must specify the cfg_ft.parameter, denoting the parameter to test (e.g., ''powspctrm'' or ''cohspctrm'')');
@@ -62,18 +62,21 @@ cfg_ft.clusterstatistic = 'maxsum';
 if ~isfield(cfg_ft,'clusteralpha')
   cfg_ft.clusteralpha = 0.05;
 end
-% alpha level of the permutation test
+% alpha level of the permutation test per tail (statistics_montecarlo
+% default = .05)
 if ~isfield(cfg_ft,'alpha')
-  cfg_ft.alpha = 0.025;
+  cfg_ft.alpha = 0.05;
+  %cfg_ft.alpha = 0.025;
 end
 % number of draws from the permutation distribution
 if ~isfield(cfg_ft,'numrandomization')
   cfg_ft.numrandomization = 1000;
 end
 % minimum number of neighborhood channels that is required for a selected
-% sample to be included in the clustering algorithm (default = 0)
+% sample to be included in the clustering algorithm (FT default in
+% fieldtrip/private/clusterstat = 0)
 if ~isfield(cfg_ft,'minnbchan')
-  cfg_ft.minnbchan = 2;
+  cfg_ft.minnbchan = 1;
 end
 
 % exclude the bad subjects from the subject count

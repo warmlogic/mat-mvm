@@ -1,32 +1,46 @@
-%function mm_epSaver(experName,eegDir,prepost,inputFormat,outputFormat)
+function mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat)
 %MM_EPSAVER: Use EP's read/write to save EEG data
 %
-% mm_epSaver(experName,eegDir,prepost,inputFormat,outputFormat)
+% mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat)
 %
 % This is a simple input/output wrapper to, e.g., save ep_mat format to an
-% EGI-readable format (egi_egis, egi_sbin)
+% EGI-readable format (egi_egis, egi_sbin) using ep_writeData.m
 %
 % Input:
 %
-%   experName    = experiment name ('COSI')
-%   eegDir       = where the 'eppp' directory is, under the experName dir
-%                  (e.g., fullfile('eeg','eppp'))
-%   prepost      = pre- and post-stimulus timing (in seconds: [-1 2])
-%   inputFormat  = format to read ('ep_mat')
-%   outputFormat = format to save ('egi_egis')
+%   experName    = experiment name (required; e.g., 'COSI')
 %
-%   Original files should be located in:
-%     dataroot/experName/eeg/eppp/pre_post_ms/3_ep_[inputFormatExtension]
-%     e.g.,
-%     dataroot/COSI/eeg/eppp/-1000_2000/3_ep_mat
+%   prepost      = pre- and post-stimulus timing, in seconds
+%                  (required; e.g., [-1.0 2.0])
+%                  NB: NEGATIVE AND POSITIVE VALUES IN SECONDS!
+%
+%   eegDir       = where the 'eppp' directory is, under the experName dir
+%                  (default: fullfile('eeg','eppp'))
+%
+%   inputFormat  = format to read (default: 'ep_mat')
+%
+%   outputFormat = format to save (default: 'egi_egis')
+%
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Original files should be located in:
+%    dataroot/[experName]/[eeg/eppp]/[pre_post_ms]/3_ep_[inputFormatExtension]
+%    e.g.,
+%    dataroot/COSI/eeg/eppp/-1000_2000/3_ep_mat
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Output:
 %
 %   Files are saved to 
-%     dataroot/experName/eeg/eppp/pre_post_ms/3_ep_[outputFormatExtension]_out
+%     dataroot/[experName]/[eeg/eppp]/[pre_post_ms]/3_ep_[outputFormatExtension]_out
 %     e.g.,
 %     dataroot/COSI/eeg/eppp/-1000_2000/3_ep_egis_out
 %
+% See also: EP_WRITEDATA
+%
+
+
+%experName = 'COSI2';
 
 % experName = 'SOCO';
 % prepost = [-1 2];
@@ -36,12 +50,27 @@
 % prepost = [-1.25 2.25];
 % eegDir = fullfile('EEG','Sessions','cueing paradigm','relabeled','eppp');
 
-experName = 'COSI2';
-prepost = [-1.0 2.0];
-eegDir = fullfile('eeg','eppp');
+if ~exist('experName','var') || isempty(experName)
+  error('Must set experName (e.g., ''EXPR'')');
+end
 
-inputFormat = 'ep_mat';
-outputFormat = 'egi_egis';
+if ~exist('prepost','var') || isempty(prepost)
+  error('Must set prepost (e.g., [-1.0 2.0])');
+  %prepost = [-1.0 2.0];
+end
+
+if ~exist('eegDir','var') || isempty(eegDir)
+  eegDir = fullfile('eeg','eppp');
+end
+
+if ~exist('inputFormat','var') || isempty(inputFormat)
+  inputFormat = 'ep_mat';
+end
+
+if ~exist('outputFormat','var') || isempty(outputFormat)
+  outputFormat = 'egi_egis';
+end
+
 
 % Input file extension
 if strcmp(inputFormat,'egi_egis')
@@ -61,11 +90,11 @@ dirs.dataDir = fullfile(dirs.baseDir,sprintf('3_ep_%s',inputFileExt));
 dirs.homeDir = getenv('HOME');
 
 % 2 potential Curran server dataroots
-dirs.serverDir = fullfile('/Volumes/curranlab/Data',experName);
-dirs.serverLocalDir = fullfile('/Volumes/RAID/curranlab/Data',experName);
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data',experName);
+dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data',experName);
 dirs.localDir = fullfile(dirs.homeDir,'data',experName);
 % Dream dataroot
-dirs.dreamDir = fullfile('/data/projects/curranlab',experName);
+dirs.dreamDir = fullfile(filesep,'data','projects','curranlab',experName);
 
 % pick the right dirs.dataroot
 if exist(dirs.serverDir,'dir')

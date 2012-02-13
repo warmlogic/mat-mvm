@@ -29,7 +29,7 @@ exper.nsFileExt = 'raw';
 % events in the NS files
 %exper.eventValues = sort({'RCR','RHSC','RHSI'});
 %exper.eventValues = sort({'F','N','RO','RS'});
-exper.eventValues = sort({'FSC','FSI','NS','NM','ROSC','ROSI','RSSC','RSSI'});
+exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
 
@@ -95,9 +95,9 @@ dirs.subDir = '';
 %dirs.subDir = 'RKSCSI';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
-dirs.serverDir = fullfile('/Volumes','curranlab','Data');
-dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
-dirs.dreamDir = fullfile('/data','projects','curranlab');
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
 % pick the right dirs.dataroot

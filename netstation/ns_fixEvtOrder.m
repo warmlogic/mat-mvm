@@ -1,19 +1,12 @@
-function ns_fixEvtOrder(newExt,dataroot,prepost)
+function ns_fixEvtOrder(prepost,newExt,dataroot)
 %NS_FIXEVTORDER
 %
-% ns_fixEvtOrder(newExt,dataroot,prepost)
+% ns_fixEvtOrder(prepost,newExt,dataroot)
 %
 % Inputs:
 %
-%  newExt:      the extension of the new evt file (default: '_e.evt', to
-%               match the output file extension from EP Toolkit)
-%
-%  dataroot:    the location of the original .evt files; the new .evt files
-%               are saved here.
-%               (default: pwd), meaning that by default, all .evt files in
-%               the current working dir are processed
-%
 %  prepost:     the segmentation time (in ms) before and after each event.
+%               NB: BOTH VALUES ARE POSITIVE AND IN MILLISECONDS!
 %               e.g., [1000 2000] is 1000ms before and 2000ms after event.
 %               This only applies when events were exported using relative
 %               time mode, for which the actual event onset time is
@@ -22,6 +15,14 @@ function ns_fixEvtOrder(newExt,dataroot,prepost)
 %               ignore this setting. If using relative time, all events
 %               must have the same segmentation time.
 %               (default: []; will error if using a relative time file)
+%
+%  newExt:      the extension of the new evt file (default: '_e.evt', to
+%               match the output file extension from EP Toolkit)
+%
+%  dataroot:    the location of the original .evt files; the new .evt files
+%               are saved here.
+%               (default: pwd), meaning that by default, all .evt files in
+%               the current working dir are processed
 %
 % IMPORTANT: Make sure you don't have the original evt file open (e.g., in
 %            a spreadsheet app) or Matlab won't be able to read it (the
@@ -56,17 +57,21 @@ function ns_fixEvtOrder(newExt,dataroot,prepost)
 
 %% Can be set by the user
 
-if nargin < 3
-  % where the evt files are located
+if ~exist('prepost','var') || isempty(prepost)
+  prepost = [];
+end
+if isempty(prepost)
+  fprintf('Prepost must be set if using relative time evt files, otherwise this will error out.\n');
+end
+
+if ~exist('newExt','var') || isempty(newExt)
+  newExt = '_e.evt';
+elseif exist('newExt','var') && isempty(newExt)
+  error('''newExt'' cannot be empty because the new file needs to have a different name.');
+end
+
+if ~exist('dataroot','var') || isempty(dataroot)
   dataroot = pwd;
-  if nargin < 2
-    % extension for the new .evt file
-    newExt = '_e.evt';
-    if nargin < 1
-      % pre- and post-event segmentation times
-      prepost = [];
-    end
-  end
 end
 
 %% Read in the old evt and write out the new evt
@@ -240,4 +245,8 @@ for i = 1:length(evt)
   fclose(outfile);
   fprintf('Done.\n');
   
+end
+
+fprintf('Finished processing %d files.\n',length(evt));
+
 end
