@@ -380,7 +380,8 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+%exper.badBehSub = {};
+exper.badBehSub = {'COSI2008','COSI2009','COSI2011','COSI2020','COSI2025'};
 
 
 % exclude subjects with low event counts
@@ -575,7 +576,7 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.conditions = {{'all_within_types'}};
 %cfg_plot.conditions = {{'all_across_types'}};
 %cfg_plot.condMethod = 'pairwise';
-cfg_plot.conditions = {{'CHSC','CCR'},{'CHSI','CCR'},{'CHSC','CHSI'},{'SHSC','SCR'},{'SHSI','SCR'},{'SHSC','SHSI'}}; % {'CH','CCR'},{'SH','SCR'},
+cfg_plot.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}}; % {'CH','CCR'},{'SH','SCR'},
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1 1]; % volt
@@ -664,14 +665,14 @@ cfg_ana.typesByROI = {...
 % conditions
 cfg_ana.condByTypeByROI = {...
   %{{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
-  {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}},...
-  {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
+  {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}},...
+  {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}}};
 
 % For each ROI, what's common among the conditions in each type
 cfg_ana.condCommonByROI = {...
   %{'CR','H','HSC','HSI'},...
-  {'CR','HSC','HSI'},...
-  {'CR','HSC','HSI'}};
+  {'CR','SC','SI'},...
+  {'CR','SC','SI'}};
 
 cfg_ana.IV_names = {'ROI','Block Type','Condition'};
 
@@ -701,13 +702,13 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % IV2: define the conditions tested for each set of ROIs
 cfg_ana.condByROI = {...
-  {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
-  {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
+  {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}},...
+  {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}}};
 
 % For each ROI, what's common among the conditions in each type
 cfg_ana.condCommonByROI = {...
-  {'CR','H','HSC','HSI'},...
-  {'CR','HSC','HSI'}};
+  {'CR','SC','SI'},...
+  {'CR','SC','SI'}};
 
 % abbreviations for the condition types
 cfg_ana.typesByROI = {...
@@ -782,8 +783,9 @@ cfg_ana.latencies = [0 1.0; 1.0 2.0];
 %   {'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'},...
 %   {'CCR','SCR'},{'CH','SH'},{'CHSC','SHSC'},{'CHSI','SHSI'}};
 %cfg_ana.conditions = {'all_within_types'};
-cfg_ana.conditions = {{'CHSC','CCR'},{'CHSI','CCR'},{'CHSC','CHSI'},...
-  {'SHSC','SCR'},{'SHSI','SCR'},{'SHSC','SHSI'}}; % {'CH','CCR'},{'SH','SCR'},
+cfg_ana.conditions = {...
+  {'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},...
+  {'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
