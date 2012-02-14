@@ -23,21 +23,30 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+%exper.nsFileExt = 'egis';
+exper.nsFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
+%exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
 %exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
+exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','NM2','NM6','NS2','NS6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
 
 % combine some events into higher-level categories
-exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSC6'},{'HSI2','HSI6'},{'HSC2','HSI2','HSC6','HSI6'}};
-exper.eventValuesExtra.newValue = {{'RCR'},{'RHSC'},{'RHSI'},{'RH'}};
-%exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
-%exper.eventValuesExtra.newValue = {{'H2'},{'H6'}};
-%exper.eventValuesExtra.toCombine = {{'F2','F6'},{'N2','N6'},{'RO2','RO6'},{'RS2','RS6'}};
+%exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSC6'},{'HSI2','HSI6'},{'HSC2','HSI2','HSC6','HSI6'}};
+%exper.eventValuesExtra.newValue = {{'RCR'},{'RHSC'},{'RHSI'},{'RH'}};
+
+%exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
+%exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
+
+%exper.eventValuesExtra.toCombine = {{'FSC2','FSC6','FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6','ROSI2','ROSI6'},{'RSSC2','RSSC6','RSSI2','RSSI6'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+
+exper.eventValuesExtra.toCombine = {...
+  {'NM2','NM6','NS2','NS6'},...
+  {'FSC2','FSC6','ROSC2','ROSC6','RSSC2','RSSC6'},...
+  {'FSI2','FSI6','ROSI2','ROSI6','RSSI2','RSSI6'}};
+exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
@@ -161,14 +170,25 @@ files.figPrintFormat = 'png';
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'nsAuto'};
-
 ana.ftFxn = 'ft_freqanalysis';
+ana.artifact.type = {'zeroVar'};
+%ana.artifact.type = {'nsAuto'};
+%ana.artifact.type = {'nsAuto','preRejManual','ftICA'};
 
 % any preprocessing?
 cfg_pp = [];
 % single precision to save space
-cfg_pp.precision = 'single';
+%cfg_pp.precision = 'single';
+cfg_pp.demean = 'yes';
+cfg_pp.baselinewindow = [-0.2 0];
+% cfg_pp.detrend = 'yes';
+% cfg_pp.dftfilter = 'yes';
+% cfg_pp.dftfreq = [60 120 180];
+% % cfg_pp.bsfilter = 'yes';
+% % cfg_pp.bsfreq = [59 61; 119 121; 179 181];
+% % cfg_pp.bsfreq = [58 62; 118 122; 178 182];
+% % cfg_pp.lpfilter = 'yes';
+% % cfg_pp.lpfreq = [35];
 
 cfg_proc = [];
 cfg_proc.output = 'pow';
@@ -186,31 +206,33 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.tapsmofrq = 5;
 % cfg_proc.toi = -0:0.04:1.0;
 
-% multi-taper method
-cfg_proc.method = 'mtmconvol';
-cfg_proc.taper = 'hanning';
-%cfg_proc.taper = 'dpss';
+% % multi-taper method
+% cfg_proc.method = 'mtmconvol';
+% cfg_proc.taper = 'hanning';
+% %cfg_proc.taper = 'dpss';
+% %cfg_proc.toi = -0.8:0.04:3.0;
+% cfg_proc.toi = -0.5:0.04:1.0;
+% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% cfg_proc.foi = 2:freqstep:40;
+% %cfg_proc.foi = 3:freqstep:9;
+% %cfg_proc.foi = 3:1:9;
+% %cfg_proc.foi = 2:2:30;
+% cfg_proc.t_ftimwin = 4./cfg_proc.foi;
+% % tapsmofrq is not used for hanning taper; it is used for dpss
+% %cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+
+% wavelet
+cfg_proc.method = 'wavelet';
+cfg_proc.width = 5;
 %cfg_proc.toi = -0.8:0.04:3.0;
 cfg_proc.toi = -0.5:0.04:1.0;
+% evenly spaced frequencies, but not as many as foilim makes
 freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-cfg_proc.foi = 2:freqstep:40;
+cfg_proc.foi = 3:freqstep:40;
 %cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foi = 3:1:9;
-%cfg_proc.foi = 2:2:30;
-cfg_proc.t_ftimwin = 4./cfg_proc.foi;
-% tapsmofrq is not used for hanning taper; it is used for dpss
-%cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+%cfg_proc.foilim = [3 9];
 
-% % wavelet
-% cfg_proc.method = 'wavelet';
-% cfg_proc.width = 5;
-% %cfg_proc.toi = -0.8:0.04:3.0;
-% cfg_proc.toi = -0.3:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-% %cfg_proc.foi = 3:freqstep:50;
-% cfg_proc.foi = 3:freqstep:9;
-% %cfg_proc.foilim = [3 9];
+%cfg_proc.foi = (2^(1/8)).^(16:42);
 
 % set the save directories; final argument is prefix of save directory
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
@@ -256,7 +278,8 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_40_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups

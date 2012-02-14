@@ -38,14 +38,17 @@ exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','NM2','NM6','NS2','NS6','R
 %exper.eventValuesExtra.toCombine = {{'CR2','CR6'},{'HSC2','HSI2','HSC6','HSI6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
 %exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
 
-%exper.eventValuesExtra.toCombine = {{'F2','F6'},{'NM2','NM6','NS2','NS6'},{'RO2','RO6'},{'RS2','RS6'}};
-%exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
-
 %exper.eventValuesExtra.toCombine = {{'FSC2','FSC6'},{'FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6'},{'ROSI2','ROSI6'},{'RSSC2','RSSC6'},{'RSSI2','RSSI6'}};
 %exper.eventValuesExtra.newValue = {{'FSC'},{'FSI'},{'N'},{'ROSC'},{'ROSI'},{'RSSC'},{'RSSI'}};
 
-exper.eventValuesExtra.toCombine = {{'FSC2','FSC6','FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6','ROSI2','ROSI6'},{'RSSC2','RSSC6','RSSI2','RSSI6'}};
-exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+%exper.eventValuesExtra.toCombine = {{'FSC2','FSC6','FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6','ROSI2','ROSI6'},{'RSSC2','RSSC6','RSSI2','RSSI6'}};
+%exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+
+exper.eventValuesExtra.toCombine = {...
+  {'NM2','NM6','NS2','NS6'},...
+  {'FSC2','FSC6','ROSC2','ROSC6','RSSC2','RSSC6'},...
+  {'FSI2','FSI6','ROSI2','ROSI6','RSSI2','RSSI6'}};
+exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
