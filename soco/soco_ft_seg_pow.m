@@ -322,12 +322,16 @@ end
 
 cfg_ft = [];
 cfg_ft.baseline = [-0.3 -0.1];
-cfg_ft.baselinetype = 'absolute';
+cfg_ft.baselinetype = 'absolute'; % maybe this
+%cfg_ft.baselinetype = 'relative';
+%cfg_ft.baselinetype = 'relchange'; % or this
 if strcmp(cfg_ft.baselinetype,'absolute')
-  %cfg_ft.zlim = [-400 400];
-  cfg_ft.zlim = [-2 2];
+  cfg_ft.zlim = [-400 400];
+  %cfg_ft.zlim = [-2 2];
 elseif strcmp(cfg_ft.baselinetype,'relative')
   cfg_ft.zlim = [0 2.0];
+elseif strcmp(cfg_ft.baselinetype,'relchange')
+  cfg_ft.zlim = [-1.0 1.0];
 end
 cfg_ft.parameter = 'powspctrm';
 %cfg_ft.ylim = [3 9];
@@ -337,7 +341,7 @@ cfg_ft.interactive = 'yes';
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub=1;
 ses=1;
-for i = 1:4
+for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   title(ana.eventValues{1}{i});
@@ -364,7 +368,9 @@ end
 
 cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
-cfg_fb.baselinetype = 'absolute';
+cfg_fb.baselinetype = 'absolute'; % maybe this
+%cfg_fb.baselinetype = 'relative';
+%cfg_fb.baselinetype = 'relchange'; % or this
 
 %data_freq_orig = data_freq;
 
@@ -386,9 +392,9 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
-% noisy channels
-%exper.badBehSub = {'SOCO002','SOCO004','SOCO006','SOCO010','SOCO019','SOCO020','SOCO022','SOCO023','SOCO026','SOCO027','SOCO029'};
+%exper.badBehSub = {};
+% huge response bias to say "new": 18, 26
+exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -429,7 +435,8 @@ cfg_ft = [];
 cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
 %cfg_ft.zlim = [-1 1];
-cfg_ft.zlim = [-2 2];
+%cfg_ft.zlim = [-2 2];
+cfg_ft.zlim = [-400 400];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
 %  cfg_ft.zlim = [0 2.0];
 %end
@@ -472,7 +479,8 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
-cfg_ft.zlim = [-2 2];
+%cfg_ft.zlim = [-2 2];
+cfg_ft.zlim = [-400 400];
 cfg_ft.parameter = 'powspctrm';
 
 for r = 1:length(cfg_plot.rois)
@@ -719,22 +727,24 @@ cfg_ft.avgoverfreq = 'no';
 
 cfg_ft.parameter = 'powspctrm';
 
-cfg_ft.numrandomization = 500;
-
 % debugging
 %cfg_ft.numrandomization = 10;
 
+cfg_ft.numrandomization = 500;
+cfg_ft.clusteralpha = .05;
+cfg_ft.alpha = .025;
+
 cfg_ana = [];
 cfg_ana.roi = 'all';
-cfg_ana.latencies = [0 1.0];
-cfg_ana.conditions = {'all_within_types'};
+cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {'all_within_types'};
 % cfg_ana.conditions = {...
 %   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
 %   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
 %   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [2 40];
+  cfg_ana.frequencies = [3 40];
 else
   cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
   %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
@@ -763,6 +773,7 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 
+%cfg_ft.avgoverfreq = 'yes';
 cfg_ft.avgoverfreq = 'no';
 
 if strcmp(cfg_ft.avgoverfreq,'no')

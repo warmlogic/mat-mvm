@@ -385,7 +385,8 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+%exper.badBehSub = {};
+exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for ERP publication; also 001 has low trial counts
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
