@@ -1,4 +1,4 @@
-function [RMAOV32] = RMAOV32(X,alpha)
+function [P] = RMAOV32(X,alpha)
 % RMAOV32 Three-way Analysis of Variance With Repeated Measures on Two Factors Test.
 %   This is a three-factor analysis of variance design in which there are repeated measures
 %   on two of the factors. In repeated measures designs, the same participants are used
@@ -429,6 +429,8 @@ F7 = MSABC/MSEBC;
 %Probability associated to the F-statistics.
 P6 = 1 - fcdf(F6,v9,v11);
 P7 = 1 - fcdf(F7,v10,v11);
+
+P = [P1 P2 P3 P4 P5 P6 P7];
 
 SSWS = SSB+SSAB+SSEB+SSC+SSAC+SSEC+SSBC+SSABC+SSEBC;
 vWS = v3+v4+v5+v6+v7+v8+v9+v10+v11;
