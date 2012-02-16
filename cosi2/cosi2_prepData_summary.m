@@ -59,15 +59,16 @@ subjects = {
   'COSI2024';
   'COSI2025';
   'COSI2026';
-  'COSI2027';
+  'COSI2027'; % waiting on session_1
   'COSI2028';
   'COSI2029';
   'COSI2030';
 %   'COSI2031'; % EEG reference electrode messed up. Not including.
   'COSI2032';
-  'COSI2033';
-  %   'COSI2034';
-  %   'COSI2035';
+  'COSI2033'; % waiting on session_1
+  'COSI2034';
+  'COSI2035'; % waiting on session_1
+  'COSI2036'; % waiting on session_1
   };
 
 %sessions = {'session_0','session_1'};
