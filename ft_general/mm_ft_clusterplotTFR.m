@@ -66,8 +66,13 @@ if ~isfield(cfg_plot,'condMethod')
 end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
+% extra identification in directory name when saving results
+if ~isfield(cfg_plot,'dirStr')
+  cfg_plot.dirStr = '';
+end
+
 % set the directory to load the file from
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.dirStr));
 
 for cnd = 1:length(cfg_plot.conditions)
   % set the number of conditions that we're testing
@@ -133,7 +138,7 @@ for cnd = 1:length(cfg_plot.conditions)
           
           cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
           
-          dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000),vs_str);
+          dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.dirStr),vs_str);
           %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tfr_stat_clus',vs_str);
           if ~exist(dirs.saveDirFigsClus,'dir')
             mkdir(dirs.saveDirFigsClus)

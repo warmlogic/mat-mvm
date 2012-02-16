@@ -82,6 +82,11 @@ end
 % exclude the bad subjects from the subject count
 cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub);
 
+% extra identification in directory name when saving results
+if ~isfield(cfg_ana,'dirStr')
+  cfg_ana.dirStr = '';
+end
+
 % make sure cfg_ana.conditions is set correctly
 if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
   if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
@@ -97,7 +102,7 @@ end
 cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
 
 % set the saving directory
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_ana.dirStr));
 if ~exist(dirs.saveDirClusStat,'dir')
   mkdir(dirs.saveDirClusStat)
 end

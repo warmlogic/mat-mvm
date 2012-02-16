@@ -54,15 +54,15 @@ end
 
 if ~exist('subjects','var') || isempty(subjects)
   subjects = {
-% %     'COSI2001'; % short study durations began with COSI2001
-% %     % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
-% % COSI2001 did not finish
-%     'COSI2002';
-%     'COSI2003';
-%     'COSI2004';
-%     'COSI2005';
-%     'COSI2006';
-%     'COSI2007';
+    % %     'COSI2001'; % short study durations began with COSI2001
+    % %     % (500ms preview, 1000ms, 625+-125ms ISI; too fast)
+    % % COSI2001 did not finish
+    %     'COSI2002';
+    %     'COSI2003';
+    %     'COSI2004';
+    %     'COSI2005';
+    %     'COSI2006';
+    %     'COSI2007';
     'COSI2008'; % longer study durations began with COSI2008
     %(500ms preview, 2000ms, 1125+-125ms ISI)
     'COSI2009';
@@ -87,16 +87,16 @@ if ~exist('subjects','var') || isempty(subjects)
     'COSI2028';
     'COSI2029';
     'COSI2030';
-% %     'COSI2031'; % EEG reference electrode messed up. Not including.
+    % %     'COSI2031'; % EEG reference electrode messed up. Not including.
     'COSI2032';
     'COSI2033';
-%     'COSI2034';
-%     'COSI2035';
-%     'COSI2036';
-%     'COSI2037';
-%     'COSI2038';
-%     'COSI2039';
-%     'COSI2040';
+    'COSI2034';
+    'COSI2035';
+    'COSI2036';
+    %     'COSI2037';
+    %     'COSI2038';
+    %     'COSI2039';
+    %     'COSI2040';
     };
 end
 

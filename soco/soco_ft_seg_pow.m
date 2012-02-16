@@ -206,31 +206,44 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.tapsmofrq = 5;
 % cfg_proc.toi = -0:0.04:1.0;
 
-% % multi-taper method
+% % multi-taper method - Usually to up 30 Hz
 % cfg_proc.method = 'mtmconvol';
 % cfg_proc.taper = 'hanning';
-% %cfg_proc.taper = 'dpss';
 % %cfg_proc.toi = -0.8:0.04:3.0;
 % cfg_proc.toi = -0.5:0.04:1.0;
 % freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
-% cfg_proc.foi = 2:freqstep:40;
+% cfg_proc.foi = 3:freqstep:40;
 % %cfg_proc.foi = 3:freqstep:9;
 % %cfg_proc.foi = 3:1:9;
 % %cfg_proc.foi = 2:2:30;
-% cfg_proc.t_ftimwin = 4./cfg_proc.foi;
-% % tapsmofrq is not used for hanning taper; it is used for dpss
-% %cfg_proc.tapsmofrq = 0.4*cfg_proc.foi;
+% % temporal smoothing
+% cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
+% % frequency smoothing (tapsmofrq) is not used for hanning taper
 
-% wavelet
-cfg_proc.method = 'wavelet';
-cfg_proc.width = 5;
-%cfg_proc.toi = -0.8:0.04:3.0;
+% multi-taper method - Usually above 30 Hz
+cfg_proc.method = 'mtmconvol';
+cfg_proc.taper = 'dpss';
 cfg_proc.toi = -0.5:0.04:1.0;
-% evenly spaced frequencies, but not as many as foilim makes
 freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
 cfg_proc.foi = 3:freqstep:40;
 %cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foilim = [3 9];
+%cfg_proc.foi = 3:1:9;
+%cfg_proc.foi = 2:2:30;
+% temporal smoothing
+cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
+% frequency smoothing (tapsmofrq) is used for dpss
+cfg_proc.tapsmofrq = 0.3 .* cfg_proc.foi;
+
+% % wavelet
+% cfg_proc.method = 'wavelet';
+% cfg_proc.width = 5;
+% %cfg_proc.toi = -0.8:0.04:3.0;
+% cfg_proc.toi = -0.5:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% cfg_proc.foi = 3:freqstep:40;
+% %cfg_proc.foi = 3:freqstep:9;
+% %cfg_proc.foilim = [3 9];
 
 %cfg_proc.foi = (2^(1/8)).^(16:42);
 
@@ -279,7 +292,13 @@ end
 %% load the analysis details
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+
+% wavelet
 adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_40_avg/analysisDetails.mat';
+
+% multitaper
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 %% set up channel groups
@@ -436,10 +455,19 @@ cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
 %cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
-cfg_ft.zlim = [-400 400];
+%cfg_ft.zlim = [-400 400];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
 %  cfg_ft.zlim = [0 2.0];
 %end
+
+if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+  cfg_ft.zlim = [-400 400];
+elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+  cfg_ft.zlim = [0 2.0];
+elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+  cfg_ft.zlim = [-1.0 1.0];
+end
+
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
@@ -479,9 +507,15 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
-%cfg_ft.zlim = [-2 2];
-cfg_ft.zlim = [-400 400];
 cfg_ft.parameter = 'powspctrm';
+
+if strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
+  cfg_ft.zlim = [-400 400];
+elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relative')
+  cfg_ft.zlim = [0 2.0];
+elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
+  cfg_ft.zlim = [-1.0 1.0];
+end
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -490,7 +524,7 @@ for r = 1:length(cfg_plot.rois)
   mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_freq);
 end
 
-%% plot the conditions
+%% make some GA plots
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
@@ -505,7 +539,14 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 %cfg_ft.zlim = [-100 100]; % pow
-cfg_ft.zlim = [-1 1]; % pow
+
+if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+  cfg_ft.zlim = [-400 400];
+elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+  cfg_ft.zlim = [0 2.0];
+elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+  cfg_ft.zlim = [-1.0 1.0];
+end
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -567,7 +608,14 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.parameter = 'powspctrm';
-cfg_ft.zlim = [-1 1]; % pow
+
+if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+  cfg_ft.zlim = [-400 400];
+elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+  cfg_ft.zlim = [0 2.0];
+elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+  cfg_ft.zlim = [-1.0 1.0];
+end
 
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
@@ -620,9 +668,18 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
-%cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
+
+%cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
+%cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
+if strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
+  cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
+elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relative')
+  cfg_plot.ylims = repmat([0 2.0],size(cfg_ana.rois'));
+elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
+  cfg_plot.ylims = repmat([-1.0 1.0],size(cfg_ana.rois'));
+end
+
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
@@ -722,8 +779,8 @@ end
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
 cfg_ft.avgovertime = 'no';
-%cfg_ft.avgoverfreq = 'yes';
 cfg_ft.avgoverfreq = 'no';
+%cfg_ft.avgoverfreq = 'yes';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -736,12 +793,17 @@ cfg_ft.alpha = .025;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
+cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {'all_within_types'};
 % cfg_ana.conditions = {...
 %   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
 %   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
 %   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
+
+% extra identifier when saving
+thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
+cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [3 40];
@@ -766,15 +828,16 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
+%cfg_ft.alpha = .025;
 cfg_ft.alpha = .05;
+%cfg_ft.alpha = .1;
+cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
-
-%cfg_ft.avgoverfreq = 'yes';
-cfg_ft.avgoverfreq = 'no';
+cfg_plot.dirStr = cfg_ana.dirStr;
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR

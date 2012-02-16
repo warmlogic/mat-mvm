@@ -102,9 +102,9 @@ exper.subjects = {
 %   'COSI2031'; % completely excluded
   'COSI2032';
 %   'COSI2033'; % waiting on session_1
-%   'COSI2034';
-%   'COSI2035';
-%   'COSI2036';
+%   'COSI2034'; % waiting on session_1
+%   'COSI2035'; % waiting on session_1
+%   'COSI2036'; % waiting on session_1
 %   'COSI2037';
 %   'COSI2038';
 %   'COSI2039';
