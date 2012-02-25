@@ -17,8 +17,9 @@ function mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
 %                         {{'all_across_types'}} to automatically create
 %                         pairwise comparisons of event values. See
 %                         MM_FT_CHECKCONDITIONS for more details.
-%   cfg_plot.plotTitle  = 1 or 0. Whether to plot the title.
-%   cfg_plot.subplot    = 1 or 0. Whether to make a subplot. cfg_ft.xlim
+%   cfg_plot.plotTitle  = 1 or 0*. Whether to plot the title.
+%   cfg_plot.plotLegend = 1 or 0*. Whether to plot the legend.
+%   cfg_plot.subplot    = 1 or 0*. Whether to make a subplot. cfg_ft.xlim
 %                         can be a range of time values, otherwise 50ms
 %                         steps between min and max. Used with
 %                         ft_topoplotER only.

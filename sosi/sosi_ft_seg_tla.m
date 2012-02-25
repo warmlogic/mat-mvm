@@ -560,8 +560,8 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % for each event type; each event type cell holds strings for its
 % conditions
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{'RHSC','RHSI','RCR'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'Hits-SC','Hits-SI','CR'}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};

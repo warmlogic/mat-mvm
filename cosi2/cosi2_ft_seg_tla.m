@@ -1,7 +1,6 @@
 % Make plots and do analyses for timelocked EEG (ERPs)
 
 % See Maris & Oostenveld (2007) for info on nonparametric statistics
-
 % initialize the analysis structs
 exper = struct;
 files = struct;
@@ -79,10 +78,10 @@ exper.subjects = {
   'COSI2008';
   'COSI2009';
   'COSI2010';
-%   'COSI2011'; % will not have a session_1
+%   'COSI2011'; % will not have a session_1, didn't like EEG
   'COSI2012';
   'COSI2013';
-%   'COSI2014'; % will not have a session_1
+%   'COSI2014'; % will not have a session_1, didn't perform well
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -95,16 +94,16 @@ exper.subjects = {
   'COSI2024';
   'COSI2025';
   'COSI2026';
-%   'COSI2027'; % waiting on session_1
+  'COSI2027';
   'COSI2028';
   'COSI2029';
   'COSI2030';
-%   'COSI2031'; % completely excluded
+%   'COSI2031'; % completely excluded, bad EEG
   'COSI2032';
-%   'COSI2033'; % waiting on session_1
-%   'COSI2034'; % waiting on session_1
-%   'COSI2035'; % waiting on session_1
-%   'COSI2036'; % waiting on session_1
+  'COSI2033';
+  'COSI2034';
+  'COSI2035';
+  'COSI2036';
 %   'COSI2037';
 %   'COSI2038';
 %   'COSI2039';
@@ -205,8 +204,12 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
+
+% eppp
 ana.artifact.type = {'zeroVar'};
-%ana.artifact.type = {'nsAuto'};
+% % nspp
+% ana.artifact.type = {'nsAuto'};
+
 ana.overwrite.raw = 1;
 
 % process the data
@@ -264,8 +267,12 @@ end
 
 %% load the analysis details
 
-%adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2000/ft_data/CCR_CH_CHSC_CHSI_SCR_SH_SHSC_SHSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
+% % nspp
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
+
+% eppp
 adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
 % files.figFontName = 'Helvetica';
@@ -381,8 +388,11 @@ end
 
 % Subjects with bad behavior
 %exper.badBehSub = {};
-exper.badBehSub = {'COSI2008','COSI2009','COSI2011','COSI2020','COSI2025'};
+exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025'};
 
+% 8, 9, 20, 25: no F responses in one color/side SC/SI bin
+
+% 11, 14, 31: one session
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -415,13 +425,13 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.0];
+cfg_ft.xlim = [-.2 1.5];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_plot.rois = {{'RAS'},{'LPS'}};
-cfg_plot.ylims = [-5 2; -5 2; -5 2; -2 5; -2 5];
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -2 5; -2 5];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -456,16 +466,17 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'LAS'},{'LPS'}};
 cfg_plot.excludeBadSub = 0;
+cfg_plot.parameter = 'avg';
 cfg_plot.numCols = 5;
+
+cfg_plot.rois = {{'LAS'},{'LPS'}};
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
-cfg_plot.parameter = 'avg';
 
 % %cfg_plot.rois = {{'E70'}}; % left
-% %cfg_plot.rois = {{'E75'}}; % center
-% cfg_plot.rois = {{'E83'}}; % right
+% cfg_plot.rois = {{'E75'}}; % center
+% %cfg_plot.rois = {{'E83'}}; % right
 % %cfg_plot.xlim = [-0.2 1.0];
 % cfg_plot.xlim = [0 0.3];
 % cfg_plot.ylim = [-10 10];
@@ -503,7 +514,7 @@ cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub=3;
 ses=1;
-for i = 3
+for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   title(ana.eventValues{1}{i});
@@ -517,21 +528,53 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-%cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
-% vertical solid lines to plot
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 1;
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-% outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% for each event type; each event type cell holds strings for its
-% conditions
+cfg_plot.ftFxn = 'ft_singleplotER';
+cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
+cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+cfg_plot.plotLegend = 0;
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+cfg_plot.plotTitle = 0;
+
+cfg_plot.xlabel = 'Time (s)';
+cfg_plot.ylabel = 'Voltage (\muV)';
+% cfg_plot.xlabel = '';
+% cfg_plot.ylabel = '';
+
+% cfg_plot.ftFxn = 'ft_topoplotER';
+% cfg_plot.ylims = [-6 6];
+% %cfg_plot.ylims = 'maxmin';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% %cfg_ft.comment = 'no';
+% % cfg_plot.rois = {'all'};
+% % cfg_ft.xlim = [0 1.2]; % time
+% % cfg_plot.subplot = 1;
+% cfg_plot.rois = {{'LAS'}};
+% cfg_ft.xlim = [0.3 0.5]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [0.5 0.8]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [1.0 1.5]; % time
+
+% cfg_plot.ftFxn = 'ft_multiplotER';
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.comment = '';
+% %cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
+% %cfg_plot.rois = {{'FS'},{'PS'}};
+% %cfg_plot.rois = {'E71'};
+% cfg_plot.rois = {'all'};
+% cfg_plot.ylims = [-5 5]; % voltage in multiplot
+% %cfg_plot.ylims = repmat('maxmin',size(cfg_plot.rois,2),1); % voltage in multiplot
+
+% INSTRUCTIONS: outermost cell holds one cell for each ROI; each ROI cell
+% holds one cell for each event type; each event type cell holds strings
+% for its conditions
 
 % cfg_plot.condByTypeByROI = {...
 %   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
@@ -547,10 +590,14 @@ cfg_plot.excludeBadSub = 1;
 %cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
 
 cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.typesByROI = repmat({{'Color','Side'}},size(cfg_plot.condByTypeByROI));
+
+cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  cfg_plot.types = cfg_plot.typesByROI{r};
   %cfg_plot.conditions = cfg_plot.condByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
@@ -584,15 +631,15 @@ cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 
-% % cfg_plot.roi = {'LAS','RAS'};
-% % cfg_ft.xlim = [0.3 0.5]; % time
-% cfg_plot.roi = {'LPS','RPS'};
-% cfg_ft.xlim = [0.5 0.8]; % time
-% cfg_ft.comment = 'no';
+% cfg_plot.roi = {'LAS','RAS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
+cfg_plot.roi = {'LPS','RPS'};
+cfg_ft.xlim = [0.5 0.8]; % time
+cfg_ft.comment = 'no';
 
-cfg_ft.xlim = [0 1.0]; % time
-%cfg_ft.xlim = (0:0.05:1.0); % time
-cfg_plot.subplot = 1;
+% cfg_ft.xlim = [0 1.0]; % time
+% %cfg_ft.xlim = (0:0.05:1.0); % time
+% cfg_plot.subplot = 1;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -617,8 +664,8 @@ cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
-%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-cfg_ana.conditions = {{'all_within_types'}};
+cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+%cfg_ana.conditions = {{'all_within_types'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -776,7 +823,8 @@ cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
-cfg_ana.latencies = [0 1.0; 1.0 2.0];
+%cfg_ana.latencies = [0 1.0; 1.0 2.0];
+cfg_ana.latencies = [0 1.0];
 
 % cfg_ana.conditions = {...
 %   {'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},...
