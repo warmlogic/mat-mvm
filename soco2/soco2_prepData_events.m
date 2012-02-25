@@ -23,7 +23,7 @@ function soco2_prepData_events(subjects,prep_eeg)
 
 expName = 'SOCO2';
 
-serverDir = fullfile(filesep,'Volumes','curranlab','Data',expName,'eeg','behavioral');
+serverDir = fullfile(filesep,'Volumes','curranlab','Data',expName,'behavioral');
 serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data',expName,'behavioral');
 if exist(serverDir,'dir')
   dataroot = serverDir;
@@ -38,23 +38,23 @@ if ~exist('subjects','var') || isempty(subjects)
   subjects = {
     % longer study durations; redo option; source on one side;
     % (500ms preview, 2000ms, 1125+-125ms ISI)
-    'SOCO2001';
+    'SOCO2001'; % didn't perform well; very fidgety
     'SOCO2002';
     'SOCO2003';
-    %     'SOCO2004';
-    %     'SOCO2005';
-    %     'SOCO2006';
-    %     'SOCO2007';
-    %     'SOCO2008';
-    %     'SOCO2009';
-    %     'SOCO2010';
-    %     'SOCO2011';
-    %     'SOCO2012';
-    %     'SOCO2013';
-    %     'SOCO2014';
-    %     'SOCO2015';
-    %     'SOCO2016';
-    %     'SOCO2017';
+    'SOCO2004';
+    'SOCO2005'; % no F SC responses
+    'SOCO2006';
+    'SOCO2007';
+    'SOCO2008';
+    'SOCO2009';
+    'SOCO2010';
+    'SOCO2011';
+    'SOCO2012';
+    'SOCO2013';
+    'SOCO2014';
+    'SOCO2015';
+    'SOCO2016';
+    'SOCO2017';
     %     'SOCO2018';
     %     'SOCO2019';
     %     'SOCO2020';
