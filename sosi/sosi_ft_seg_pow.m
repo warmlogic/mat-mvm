@@ -449,14 +449,6 @@ cfg_ft.ylim = [3 8];
 %  cfg_ft.zlim = [0 2.0];
 %end
 
-if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
-
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
@@ -491,14 +483,6 @@ cfg_ft = [];
 cfg_ft.colorbar = 'yes';
 cfg_ft.parameter = 'powspctrm';
 
-if strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
-
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
@@ -521,14 +505,6 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 %cfg_ft.zlim = [-100 100]; % pow
-
-if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -588,14 +564,6 @@ cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.parameter = 'powspctrm';
-
-if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
 
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';

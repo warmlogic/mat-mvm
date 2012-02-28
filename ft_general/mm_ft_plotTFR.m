@@ -43,6 +43,17 @@ cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotTFR','');
 cfg_plot.screenXY = get(0,'ScreenSize');
 cfg_plot.screenXY = cfg_plot.screenXY(3:4);
 
+% good default z-limits
+if ~isfield(cfg_ft,'zlim')
+  if strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+    cfg_ft.zlim = [-400 400];
+  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+    cfg_ft.zlim = [0 2.0];
+  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+    cfg_ft.zlim = [-1.0 1.0];
+  end
+end
+
 if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
   % need a layout if doing a topo or multi plot
   if isfield(ana,'elec')

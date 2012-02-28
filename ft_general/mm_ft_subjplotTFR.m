@@ -19,6 +19,21 @@ if ~isfield(cfg_plot,'numCols')
   cfg_plot.numCols = 5;
 end
 
+% for automatically resizing figure windows
+cfg_plot.screenXY = get(0,'ScreenSize');
+cfg_plot.screenXY = cfg_plot.screenXY(3:4);
+
+% good default z-limits
+if ~isfield(cfg_ft,'zlim')
+  if strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
+    cfg_ft.zlim = [-400 400];
+  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relative')
+    cfg_ft.zlim = [0 2.0];
+  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
+    cfg_ft.zlim = [-1.0 1.0];
+  end
+end
+
 % make sure conditions are set correctly
 if ~isfield(cfg_plot,'condMethod')
   if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
@@ -105,7 +120,18 @@ for typ = 1:length(cfg_plot.conditions)
     ycoord = ycoord - vertTextLoc;
     text(0.5,ycoord,cfg_plot.conditions{typ}{evVal},'color','k');
     axis off
-  end
-end
+    
+    % get the figure's current position and size
+    cfg_plot.pos = get(gcf, 'Position');
+    % get the height x width ratio
+    hwRatio = cfg_plot.pos(3) / cfg_plot.pos(4);
+    % % square figure
+    % cfg_plot.figSize = [ceil(min(cfg_plot.screenXY) * 0.85) ceil(min(cfg_plot.screenXY) * 0.85)];
+    % maintain figure height x width ratio
+    cfg_plot.figSize = [ceil(min(cfg_plot.screenXY) * 0.85) ceil(min(cfg_plot.screenXY) * 0.85 * hwRatio)];
+    % resize the figure window
+    set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg_plot.pos(1) * 0.6), cfg_plot.pos(2), cfg_plot.figSize(2), cfg_plot.figSize(1)]);
+  end % evVal
+end % typ
 
 end

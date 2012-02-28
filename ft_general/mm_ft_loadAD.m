@@ -48,14 +48,36 @@ if ~isfield(ana,'elec')
   ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 end
 
+% turn the session name into a string
+if ~isfield(exper,'sesStr')
+  % initialize for the sesStr
+  exper.sesStr = cell(size(exper.sessions));
+  
+  for ses = 1:length(exper.sessions)
+    % turn the session name into a string for easier printing
+    if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+      sesStr = exper.sessions{ses}{1};
+      for i = 2:length(exper.sessions{ses})
+        sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
+      end
+    elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
+      sesStr = exper.sessions{ses};
+    end
+    % store the sesStr
+    exper.sesStr{ses} = sesStr;
+  end
+end
+
+%% process the dataroot string
+
 if isnumeric(replace_dataroot) && replace_dataroot == 1
   % get the old dataroot from the data we loaded in
   old_dataroot = dirs.dataroot;
   
   % make sure directories are set up correctly for all possible computers
-  dirs.serverDir = fullfile('/Volumes','curranlab','Data');
-  dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
-  dirs.dreamDir = fullfile('/data/projects/curranlab');
+  dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+  dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+  dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
   dirs.localDir = fullfile(getenv('HOME'),'data');
   
   % pick the current dataroot
@@ -115,9 +137,7 @@ if do_the_replace
   end
 end
 
-end
-
-% % dynamic renaming of cfg_*
+% %% dynamic renaming of cfg_*
 % ad = load(filename);
 % fn = fieldnames(ad);
 % 
@@ -129,3 +149,32 @@ end
 %     eval(sprintf('%s = ad.%s;',fn{i},fn{i}));
 %   end
 % end
+
+%% set some default options for figures
+
+% do we want to save them?
+if ~isfield(files,'saveFigs')
+  files.saveFigs = 1;
+end
+
+% set default figure file format to color encapsulated PS (vector graphics)
+if ~isfield(files,'figPrintFormat')
+  files.figPrintFormat = 'epsc2';
+  %files.figPrintFormat = 'png';
+else
+  if strcmp(files.figPrintFormat(1:2),'-d')
+    files.figPrintFormat = files.figPrintFormat(3:end);
+  end
+end
+
+% default resolution for printed figures (DPI)
+if ~isfield(files,'figPrintRes')
+  files.figPrintRes = 150; % 150 is the Matlab default
+end
+
+% default font for figures
+if ~isfield(files,'figFontName')
+  files.figFontName = 'Helvetica'; % Helvetica is the Matlab default
+end
+
+end

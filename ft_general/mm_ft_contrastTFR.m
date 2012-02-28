@@ -39,6 +39,17 @@ end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotTFR','');
 
+% good default z-limits
+if ~isfield(cfg_ft,'zlim')
+  if strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+    cfg_ft.zlim = [-400 400];
+  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+    cfg_ft.zlim = [0 2.0];
+  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+    cfg_ft.zlim = [-1.0 1.0];
+  end
+end
+
 % for automatically resizing figure windows
 cfg_plot.screenXY = get(0,'ScreenSize');
 cfg_plot.screenXY = cfg_plot.screenXY(3:4);
@@ -207,10 +218,10 @@ for typ = 1:length(cfg_plot.conditions)
       usedMaxmin = 0;
     end
   else
-    usedMaxmin = 1;
     timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
     freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
     cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
+    usedMaxmin = 1;
   end
   
   % make a plot

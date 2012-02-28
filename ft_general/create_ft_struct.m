@@ -184,10 +184,13 @@ elseif exper.equateTrials && length(exper.eventValues) == 1
   exper.eventValuesExtra.equateExtrasSeparately = 0;
 end
 
+% initialize for the sesStr
+exper.sesStr = cell(size(exper.sessions));
+
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     
-    % turn the session name into a string for easier printing
+    % turn the session name into a string
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
       sesStr = exper.sessions{ses}{1};
       for i = 2:length(exper.sessions{ses})
@@ -196,6 +199,8 @@ for sub = 1:length(exper.subjects)
     elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
       sesStr = exper.sessions{ses};
     end
+    % store the sesStr
+    exper.sesStr{ses} = sesStr;
     
     % set the location to save the data and make sure it exists
     saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);

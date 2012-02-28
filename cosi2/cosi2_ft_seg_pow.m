@@ -321,13 +321,13 @@ end
 
 %% load the analysis details
 
-%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
 % wavelet
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_40_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
 
 % % multitaper
-% adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
@@ -419,11 +419,19 @@ cfg_fb.baselinetype = 'relchange'; % or this
 %data_freq_orig = data_freq;
 
 for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
+  for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+        if ~isempty(ft_findcfg(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg,'trials'))
+          if isempty(ft_findcfg(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg,'baselinetype'))
+            data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+          else
+            fprintf('Already baseline corrected!\n');
+          end
+        else
+          fprintf('NO TRIALS!\n');
+        end
       end
     end
   end
@@ -437,7 +445,11 @@ end
 
 % Subjects with bad behavior
 %exper.badBehSub = {};
-exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for ERP publication; also 001 has low trial counts
+exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025'};
+
+% 8, 9, 20, 25: no F responses in one color/side SC/SI bin
+
+% 11, 14, 31: one session
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -523,14 +535,6 @@ cfg_ft = [];
 cfg_ft.colorbar = 'yes';
 cfg_ft.parameter = 'powspctrm';
 
-if strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
-
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
@@ -553,14 +557,6 @@ cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 %cfg_ft.zlim = [-100 100]; % pow
-
-if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -611,7 +607,8 @@ cfg_plot = [];
 cfg_plot.plotTitle = 1;
 
 % comparisons to make
-cfg_plot.conditions = {'all'};
+%cfg_plot.conditions = {'all'};
+cfg_plot.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
 cfg_ft = [];
 %cfg_ft.xlim = [.5 .8]; % time
@@ -620,14 +617,6 @@ cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 cfg_ft.parameter = 'powspctrm';
-
-if strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
-  cfg_ft.zlim = [-400 400];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(ft_findcfg(ga_freq.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
 
 cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
@@ -665,8 +654,9 @@ cfg_ana.latencies = [0.7 1.0; 0.4 0.7];
 % define the frequencies that correspond to each set of ROIs
 cfg_ana.frequencies = [3 8; 3 8];
 
+cfg_plot.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
-cfg_ana.conditions = {{'SC','SI'},{'SC','SI'}};
+%cfg_ana.conditions = {{'SC','SI'},{'SC','SI'}};
 %cfg_ana.conditions = {'all'};
 
 % set parameters for the statistical test
@@ -759,10 +749,11 @@ thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'ba
 cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [3 40];
+  %cfg_ana.frequencies = [3 40];
+  cfg_ana.frequencies = [3 100];
 else
-  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
+  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
 end
 cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];

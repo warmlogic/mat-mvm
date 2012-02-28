@@ -28,11 +28,11 @@ if nargin < 6
 end
 
 if ~isfield(dirs,'dataDir')
-  error('Must specift dirs.dataDir.');
+  error('Must specify dirs.dataDir.');
 end
 
 if ~exist(fullfile(dirs.dataroot,dirs.dataDir),'dir')
-  error('%s does not exist; dirs.dataDir must be a real directory (fullfile(dirs.dataroot,dirs.dataDir))',fullfile(dirs.dataroot,dirs.dataDir));
+  error('%s does not exist; dirs.dataDir must be a real directory, located at fullfile(dirs.dataroot,dirs.dataDir).',fullfile(dirs.dataroot,dirs.dataDir));
 end
 
 if ~isfield(dirs,'saveDirStem')
