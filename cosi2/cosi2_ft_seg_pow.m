@@ -741,8 +741,8 @@ cfg_ft.alpha = .025;
 cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
-cfg_ana.conditions = {'all'};
-%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+%cfg_ana.conditions = {'all'};
+cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
 % extra identifier when saving
 thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');

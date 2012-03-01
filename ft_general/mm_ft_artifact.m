@@ -120,9 +120,11 @@ if rejArt_nsAuto
     error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
   end
   
-  % select only the good trials for this event
-  thisEv = find(ismember(sesSummary{1},eventValue));
+  % find the bad trials for this event
+  %thisEv = find(ismember(sesSummary{1},eventValue));
   badEv = strcmp(sesSummary{4},'bad');
+  % make sure we only have data for the bad events for this event value
+  badEv = badEv(ismember(sesSummary{1},eventValue));
   %goodEv = strcmp(sesSummary{4},'good');
   %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
   
@@ -135,7 +137,10 @@ if rejArt_nsAuto
     cfg = [];
     % mark the trials that have artifacts as such; select the entire sample
     % range for the bad events
-    cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv(min(thisEv):max(thisEv))),:);
+    cfg.artfctdef.visual.artifact = data.sampleinfo(badEv,:);
+    
+    % this doesn't work when we're passing in multiple event values
+    %cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv(min(thisEv):max(thisEv))),:);
   else
     fprintf('No NS artifacts found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   end
