@@ -49,11 +49,11 @@ subjects = {
     'SOCO2015';
     'SOCO2016';
     'SOCO2017';
-    %     'SOCO2018';
-    %     'SOCO2019';
-    %     'SOCO2020';
-    %     'SOCO2021';
-    %     'SOCO2022';
+    'SOCO2018';
+    'SOCO2019';
+    'SOCO2020';
+    'SOCO2021';
+    'SOCO2022';
     %     'SOCO2023';
     %     'SOCO2024';
     %     'SOCO2025';
@@ -464,15 +464,15 @@ for sset = 1:length(subsets)
       % recognition hit - old items called "old"
       %
       % collapsed across source hits and CRs
-      rec_h_srcCor = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
-      rec_h_srcCor_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-      rec_h_srcCor_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-      rec_h_srcCor_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 1 & ismember(rkn_resp,varargin{1})',{'KNOW'});
+      rec_h_srcCor = filterStruct(rec_h,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
+      rec_h_srcCor_rs = filterStruct(rec_h,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
+      rec_h_srcCor_ro = filterStruct(rec_h,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
+      rec_h_srcCor_k = filterStruct(rec_h,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'KNOW'});
       % collapsed across source misses and FAs
-      rec_h_srcInc = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
-      rec_h_srcInc_rs = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-      rec_h_srcInc_ro = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-      rec_h_srcInc_k = filterStruct(rec_targEv,'rec_correct == 1 & src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
+      rec_h_srcInc = filterStruct(rec_h,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE','REMEMBER_OTHER','KNOW'});
+      rec_h_srcInc_rs = filterStruct(rec_h,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
+      rec_h_srcInc_ro = filterStruct(rec_h,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
+      rec_h_srcInc_k = filterStruct(rec_h,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
       
       % recognition numbers collapsed across source accuracy
       numEv.rec_h_rs(sub,ses) = length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs);
@@ -480,18 +480,34 @@ for sset = 1:length(subsets)
       numEv.rec_h_k(sub,ses) = length(rec_h_srcCor_k) + length(rec_h_srcInc_k);
       
       % recognition correct rejection - new items called "new"
-      rec_cr_sure = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'SURE'});
-      rec_cr_maybe = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
+      if ~isempty(rec_cr)
+        rec_cr_sure = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'SURE'});
+        rec_cr_maybe = filterStruct(rec_cr,'src_correct == 1 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
+      else
+        rec_cr_sure = rec_cr;
+        rec_cr_maybe = rec_cr;
+      end
       
       if rejectArt == 0
         % recognition miss - old items called "new"
-        rec_m_sure = filterStruct(rec_m,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'SURE'});
-        rec_m_maybe = filterStruct(rec_m,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
+        if ~isempty(rec_m)
+          rec_m_sure = filterStruct(rec_m,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'SURE'});
+          rec_m_maybe = filterStruct(rec_m,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'MAYBE'});
+        else
+          rec_m_sure = rec_m;
+          rec_m_maybe = rec_m;
+        end
         
         % recognition false alarm - new items called "old"
-        rec_fa_rs = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
-        rec_fa_ro = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
-        rec_fa_k = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
+        if ~isempty(rec_fa)
+          rec_fa_rs = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_SOURCE'});
+          rec_fa_ro = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'REMEMBER_OTHER'});
+          rec_fa_k = filterStruct(rec_fa,'src_correct == 0 & ismember(rkn_resp,varargin{1})',{'KNOW'});
+        else
+          rec_fa_rs = rec_fa;
+          rec_fa_ro = rec_fa;
+          rec_fa_k = rec_fa;
+        end
       end
       
       %%%%%%%%%%%%%%%

@@ -55,11 +55,11 @@ if ~exist('subjects','var') || isempty(subjects)
     'SOCO2015';
     'SOCO2016';
     'SOCO2017';
-    %     'SOCO2018';
-    %     'SOCO2019';
-    %     'SOCO2020';
-    %     'SOCO2021';
-    %     'SOCO2022';
+    'SOCO2018';
+    'SOCO2019';
+    'SOCO2020';
+    'SOCO2021';
+    'SOCO2022';
     %     'SOCO2023';
     %     'SOCO2024';
     %     'SOCO2025';
