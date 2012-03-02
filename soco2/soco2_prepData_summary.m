@@ -54,11 +54,11 @@ subjects = {
     'SOCO2020';
     'SOCO2021';
     'SOCO2022';
-    %     'SOCO2023';
-    %     'SOCO2024';
-    %     'SOCO2025';
-    %     'SOCO2026';
-    %     'SOCO2027';
+    'SOCO2023';
+    'SOCO2024';
+    'SOCO2025';
+    'SOCO2026';
+    'SOCO2027';
     %     'SOCO2028';
     %     'SOCO2029';
     %     'SOCO2030';

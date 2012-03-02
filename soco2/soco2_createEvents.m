@@ -67,7 +67,6 @@ logdata = textscan(fid,'%n%n%s%s%s%s%s%s%s%s%s%s','delimiter','\t','emptyvalue',
 fclose(fid);
 
 % constants
-NUMLISTS = 8;
 MAXTESTTIME = 30000;
 REDO_STR = 'REDO';
 NEW_STR = 'NEW';
@@ -149,12 +148,20 @@ end
 
 % initialize
 listNum = NaN;
-numColors = cell(1,NUMLISTS);
 numColor = NaN;
 
-% get the test types
+% get some list information
 for i = 1:length(log)
   if strcmp('COLORS',logdata{3}{i})
+    % count the lists noted in the top of the file
+    NUMLISTS = 0;
+    for j = 4:size(logdata,2)
+      if ~isempty(logdata{j}{i})
+        NUMLISTS = NUMLISTS + 1;
+      end
+    end
+    % save the number of colors on each list
+    numColors = cell(1,NUMLISTS);
     for j = 1:NUMLISTS
       numColors{j} = str2double(logdata{j+3}{i});
     end

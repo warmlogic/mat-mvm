@@ -65,6 +65,8 @@ C6_RS_sem = std(C6_RS_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjec
 C6_RO_sem = std(C6_RO_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
 C6_F_sem = std(C6_F_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
 
+%% ttest
+
 [h,p,ci,stats] = ttest(C2_RS_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
 fprintf('C2_RS_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(C2_RS_avg),stats.df,stats.tstat,p);
 [h,p,ci,stats] = ttest(C2_RO_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
@@ -78,6 +80,8 @@ fprintf('C6_RS_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(C6_RS_avg),stats.df,sta
 fprintf('C6_RO_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(C6_RO_avg),stats.df,stats.tstat,p);
 [h,p,ci,stats] = ttest(C6_F_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
 fprintf('C6_F_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(C6_F_avg),stats.df,stats.tstat,p);
+
+%% plot
 
 bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
@@ -107,24 +111,28 @@ chanceVec = 0.5*ones(1,sum(~ismember(subjects,badSub)));
 %RO_WIR = (C2_RO_WIR + C6_RO_WIR)./2;
 %F_WIR = (C2_F_WIR + C6_F_WIR)./2;
 
-RS_WIR = [0.6226 0.7483 0.9202 0.8644 0.7462 0.5022 0.8933 0.8237 0.9225 0.7542 0.8804 0.7333 0.75 0.7328 0.873 0.9031 0.975 0.5909 0.9153 0.6286 0.6603 0.451 0.9639 0.8611 0.7714 0.7857 0.7719 0.7473 0.5755 0.72];
-RO_WIR = [0.416 0.4902 0.5652 0.8443 0.466 0.5571 0.5793 0.5769 0.522 0.5312 0.5526 0.5299 0.5052 0.5325 0.5407 0.5714 0.5644 0.5347 0.4565 0.5646 0.6032 0.5352 0.6158 0.5547 0.4928 0.5806 0.5272 0.6154 0.4706 0.4853];
-F_WIR = [0.4231 0.625 0.4 0.5588 0.6818 0.6667 0.5455 0.7273 0.4839 0.25 0.6806 0.5462 0.5079 0.5714 0.4419 0.6875 0.5759 0.6 0.4103 0.3333 0.5 0.5 0.5082 0.4211 0.5862 0.507 0.6111 0.5475 0.5222 0.5238];
+SOCO_RS_WIR = [0.6226 0.7483 0.9202 0.8644 0.7462 0.5022 0.8933 0.8237 0.9225 0.7542 0.8804 0.7333 0.75 0.7328 0.873 0.9031 0.975 0.5909 0.9153 0.6286 0.6603 0.451 0.9639 0.8611 0.7714 0.7857 0.7719 0.7473 0.5755 0.72];
+SOCO_RO_WIR = [0.416 0.4902 0.5652 0.8443 0.466 0.5571 0.5793 0.5769 0.522 0.5312 0.5526 0.5299 0.5052 0.5325 0.5407 0.5714 0.5644 0.5347 0.4565 0.5646 0.6032 0.5352 0.6158 0.5547 0.4928 0.5806 0.5272 0.6154 0.4706 0.4853];
+SOCO_F_WIR = [0.4231 0.625 0.4 0.5588 0.6818 0.6667 0.5455 0.7273 0.4839 0.25 0.6806 0.5462 0.5079 0.5714 0.4419 0.6875 0.5759 0.6 0.4103 0.3333 0.5 0.5 0.5082 0.4211 0.5862 0.507 0.6111 0.5475 0.5222 0.5238];
 
-RS_avg = mean(RS_WIR(~ismember(subjects,badSub)));
-RO_avg = mean(RO_WIR(~ismember(subjects,badSub)));
-F_avg = mean(F_WIR(~ismember(subjects,badSub)));
+SOCO_RS_avg = mean(SOCO_RS_WIR(~ismember(subjects,badSub)));
+SOCO_RO_avg = mean(SOCO_RO_WIR(~ismember(subjects,badSub)));
+SOCO_F_avg = mean(SOCO_F_WIR(~ismember(subjects,badSub)));
 
-RS_sem = std(RS_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
-RO_sem = std(RO_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
-F_sem = std(F_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
+SOCO_RS_sem = std(SOCO_RS_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
+SOCO_RO_sem = std(SOCO_RO_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
+SOCO_F_sem = std(SOCO_F_WIR(~ismember(subjects,badSub)))/sqrt(sum(~ismember(subjects,badSub)));
 
-[h,p,ci,stats] = ttest(RS_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
-fprintf('RS_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(RS_avg),stats.df,stats.tstat,p);
-[h,p,ci,stats] = ttest(RO_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
-fprintf('RO_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(RO_avg),stats.df,stats.tstat,p);
-[h,p,ci,stats] = ttest(F_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
-fprintf('F_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(F_avg),stats.df,stats.tstat,p);
+%% ttest
+
+[h,p,ci,stats] = ttest(SOCO_RS_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
+fprintf('RS_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOCO_RS_avg),stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(SOCO_RO_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
+fprintf('RO_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOCO_RO_avg),stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(SOCO_F_WIR(~ismember(subjects,badSub)),chanceVec,0.05,'both');
+fprintf('F_WIR (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOCO_F_avg),stats.df,stats.tstat,p);
+
+%% plot
 
 bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
@@ -133,8 +141,8 @@ bw_legend = {'Color, Collapsed'};
 bw_colormap = [.5 .5 .5];
 %bw_data = [RS_avg 0; RO_avg 0; F_avg 0];
 %bw_errors = [RS_sem 0; RO_sem 0; F_sem 0];
-bw_data = [RS_avg; RO_avg; F_avg];
-bw_errors = [RS_sem; RO_sem; F_sem];
+bw_data = [SOCO_RS_avg; SOCO_RO_avg; SOCO_F_avg];
+bw_errors = [SOCO_RS_sem; SOCO_RO_sem; SOCO_F_sem];
 bw_xlabel = 'RK Response';
 bw_ylabel = 'Proportion Correct';
 
@@ -182,14 +190,198 @@ print(gcf,'-depsc2','~/Desktop/SOCO_RS_RO_F_accuracy');
 % plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
 % print(gcf,'-dpng','~/Desktop/SOCO_RS_RO_F_accuracy');
 
-%% both
+%% d'
+
+SOCO_ITEM_DP = [0.9877, 1.8521, 1.6612, 2.3903, 1.5652, 1.2715, 3.0669, 2.0165, 1.5582, 2.7002, 2.434, 0.5012, 1.0083, 1.4696, 2.5912, 1.9567, 1.1204, 1.4478, 1.7541, 0.9364, 1.4128, 0.4553, 1.7471, 1.7161, 1.3115, 0.9281, 2.5018, 0.6834, 1.2993, 2.1327];
+SOCO_SOURCE_DP = [0.0979, 0.7479, 1.6706, 1.8041, 0.6517, 0.1094, 1.0921, 1.5188, 0.8406, 1.2167, 1.3084, 0.4363, 0.6433, 0.6117, 0.4553, 1.5573, 0.6422, 0.2452, 1.1511, 0.5393, 0.675, 0.042, 0.9744, 0.3648, 0.7799, 0.3452, 0.6405, 0.5407, 0.1554, 0.4839];
+
+%% correlation between accuracy and d'
+
+expName = 'SOCO';
+
+% RS and Source d'
+xdata = SOCO_RS_WIR(~ismember(subjects,badSub));
+xstr = 'RS accuracy';
+ydata = SOCO_SOURCE_DP(~ismember(subjects,badSub));
+ystr = 'Source d''';
+
+[rho,p] = corr(xdata',ydata');
+fprintf('%s %s and %s:\tr=%.4f, p=%.9f',expName,xstr,ystr,rho,p);
+if p < .05
+  fprintf(' *\n');
+else
+  fprintf('\n');
+end
+figure;
+plot(xdata,ydata,'ko');
+hold on
+axis([0 1 0 ceil(max(ydata))]);
+title(sprintf('%s, %s and %s, r=%.3f, p=%.4f',expName,xstr,ystr,rho,p));
+xlabel(sprintf('%s',xstr));
+ylabel(sprintf('%s',ystr));
+
+MB = polyfit(xdata,ydata,1);
+X = [min(xdata) max(xdata)];
+Ms = ones(1, 2)*MB(1);
+Bs = ones(1,2)*MB(2);
+Y = Ms.*X + Bs;
+plot(X,Y,'r');
+hold off
+
+% RS and Item d'
+xdata = SOCO_RS_WIR(~ismember(subjects,badSub));
+xstr = 'RS accuracy';
+ydata = SOCO_ITEM_DP(~ismember(subjects,badSub));
+ystr = 'Item d''';
+
+[rho,p] = corr(xdata',ydata');
+fprintf('%s %s and %s:\tr=%.4f, p=%.9f',expName,xstr,ystr,rho,p);
+if p < .05
+  fprintf(' *\n');
+else
+  fprintf('\n');
+end
+figure;
+plot(xdata,ydata,'ko');
+hold on
+axis([0 1 0 ceil(max(ydata))]);
+title(sprintf('%s, %s and %s, r=%.3f, p=%.4f',expName,xstr,ystr,rho,p));
+xlabel(sprintf('%s',xstr));
+ylabel(sprintf('%s',ystr));
+
+MB = polyfit(xdata,ydata,1);
+X = [min(xdata) max(xdata)];
+Ms = ones(1, 2)*MB(1);
+Bs = ones(1,2)*MB(2);
+Y = Ms.*X + Bs;
+plot(X,Y,'r');
+hold off
+
+% RO and Source d'
+xdata = SOCO_RO_WIR(~ismember(subjects,badSub));
+xstr = 'RO accuracy';
+ydata = SOCO_SOURCE_DP(~ismember(subjects,badSub));
+ystr = 'Source d''';
+
+[rho,p] = corr(xdata',ydata');
+fprintf('%s %s and %s:\tr=%.4f, p=%.9f',expName,xstr,ystr,rho,p);
+if p < .05
+  fprintf(' *\n');
+else
+  fprintf('\n');
+end
+figure;
+plot(xdata,ydata,'ko');
+hold on
+axis([0 1 0 ceil(max(ydata))]);
+title(sprintf('%s, %s and %s, r=%.3f, p=%.4f',expName,xstr,ystr,rho,p));
+xlabel(sprintf('%s',xstr));
+ylabel(sprintf('%s',ystr));
+
+MB = polyfit(xdata,ydata,1);
+X = [min(xdata) max(xdata)];
+Ms = ones(1, 2)*MB(1);
+Bs = ones(1,2)*MB(2);
+Y = Ms.*X + Bs;
+plot(X,Y,'r');
+hold off
+
+% RO and Item d'
+xdata = SOCO_RO_WIR(~ismember(subjects,badSub));
+xstr = 'RO accuracy';
+ydata = SOCO_ITEM_DP(~ismember(subjects,badSub));
+ystr = 'Item d''';
+
+[rho,p] = corr(xdata',ydata');
+fprintf('%s %s and %s:\tr=%.4f, p=%.9f',expName,xstr,ystr,rho,p);
+if p < .05
+  fprintf(' *\n');
+else
+  fprintf('\n');
+end
+figure;
+plot(xdata,ydata,'ko');
+hold on
+axis([0 1 0 ceil(max(ydata))]);
+title(sprintf('%s, %s and %s, r=%.3f, p=%.4f',expName,xstr,ystr,rho,p));
+xlabel(sprintf('%s',xstr));
+ylabel(sprintf('%s',ystr));
+
+MB = polyfit(xdata,ydata,1);
+X = [min(xdata) max(xdata)];
+Ms = ones(1, 2)*MB(1);
+Bs = ones(1,2)*MB(2);
+Y = Ms.*X + Bs;
+plot(X,Y,'r');
+hold off
+
+% F and Source d'
+xdata = SOCO_F_WIR(~ismember(subjects,badSub));
+xstr = 'F accuracy';
+ydata = SOCO_SOURCE_DP(~ismember(subjects,badSub));
+ystr = 'Source d''';
+
+[rho,p] = corr(xdata',ydata');
+fprintf('%s %s and %s:\tr=%.4f, p=%.9f',expName,xstr,ystr,rho,p);
+if p < .05
+  fprintf(' *\n');
+else
+  fprintf('\n');
+end
+figure;
+plot(xdata,ydata,'ko');
+hold on
+axis([0 1 0 ceil(max(ydata))]);
+title(sprintf('%s, %s and %s, r=%.3f, p=%.4f',expName,xstr,ystr,rho,p));
+xlabel(sprintf('%s',xstr));
+ylabel(sprintf('%s',ystr));
+
+MB = polyfit(xdata,ydata,1);
+X = [min(xdata) max(xdata)];
+Ms = ones(1, 2)*MB(1);
+Bs = ones(1,2)*MB(2);
+Y = Ms.*X + Bs;
+plot(X,Y,'r');
+hold off
+
+% F and Item d'
+xdata = SOCO_F_WIR(~ismember(subjects,badSub));
+xstr = 'F accuracy';
+ydata = SOCO_ITEM_DP(~ismember(subjects,badSub));
+ystr = 'Item d''';
+
+[rho,p] = corr(xdata',ydata');
+fprintf('%s %s and %s:\tr=%.4f, p=%.9f',expName,xstr,ystr,rho,p);
+if p < .05
+  fprintf(' *\n');
+else
+  fprintf('\n');
+end
+figure;
+plot(xdata,ydata,'ko');
+hold on
+axis([0 1 0 ceil(max(ydata))]);
+title(sprintf('%s, %s and %s, r=%.3f, p=%.4f',expName,xstr,ystr,rho,p));
+xlabel(sprintf('%s',xstr));
+ylabel(sprintf('%s',ystr));
+
+MB = polyfit(xdata,ydata,1);
+X = [min(xdata) max(xdata)];
+Ms = ones(1, 2)*MB(1);
+Bs = ones(1,2)*MB(2);
+Y = Ms.*X + Bs;
+plot(X,Y,'r');
+hold off
+
+
+%% plot separate colors and collapsed colors together
 
 bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';
 bw_legend = {'2 Colors','6 Colors','Collapsed'};
 bw_colormap = 'gray';
-bw_data = [C2_RS_avg, C6_RS_avg, RS_avg; C2_RO_avg, C6_RO_avg, RO_avg; C2_F_avg, C6_F_avg, F_avg];
-bw_errors = [C2_RS_sem, C6_RS_sem, RS_sem; C2_RO_sem, C6_RO_sem, RO_sem; C2_F_sem, C6_F_sem, F_sem];
+bw_data = [C2_RS_avg, C6_RS_avg, SOCO_RS_avg; C2_RO_avg, C6_RO_avg, SOCO_RO_avg; C2_F_avg, C6_F_avg, SOCO_F_avg];
+bw_errors = [C2_RS_sem, C6_RS_sem, SOCO_RS_sem; C2_RO_sem, C6_RO_sem, SOCO_RO_sem; C2_F_sem, C6_F_sem, SOCO_F_sem];
 bw_xlabel = 'RK Response';
 bw_ylabel = 'Proportion Correct';
 

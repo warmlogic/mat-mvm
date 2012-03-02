@@ -64,8 +64,8 @@ exper.subjects = {
   'SOSI016';
   'SOSI017';
   'SOSI018';
-  'SOSI020';
   'SOSI019';
+  'SOSI020';
   'SOSI021';
   'SOSI022';
   'SOSI023';

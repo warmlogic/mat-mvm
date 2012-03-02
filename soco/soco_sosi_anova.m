@@ -4,6 +4,8 @@
 % use a subject number style inclusion setup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% SOSI019 and SOSI020 are out of order, but it's OK because of how we index
+
 exper.sosi.subjects = {
   'SOSI001';
   'SOSI002';
