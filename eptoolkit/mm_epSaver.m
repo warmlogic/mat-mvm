@@ -51,24 +51,27 @@ function mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat)
 % eegDir = fullfile('EEG','Sessions','cueing paradigm','relabeled','eppp');
 
 if ~exist('experName','var') || isempty(experName)
-  error('Must set experName (e.g., ''EXPR'')');
+  error('Must set experName string (e.g., ''EXPR'')');
 end
 
 if ~exist('prepost','var') || isempty(prepost)
-  error('Must set prepost (e.g., [-1.0 2.0])');
   %prepost = [-1.0 2.0];
+  error('Must set prepost (e.g., [-1.0 2.0])');
 end
 
 if ~exist('eegDir','var') || isempty(eegDir)
   eegDir = fullfile('eeg','eppp');
+  fprintf('Setting eegDir to default: %s\n',eegDir);
 end
 
 if ~exist('inputFormat','var') || isempty(inputFormat)
   inputFormat = 'ep_mat';
+  fprintf('Setting inputFormat to default: %s\n',inputFormat);
 end
 
 if ~exist('outputFormat','var') || isempty(outputFormat)
   outputFormat = 'egi_egis';
+  fprintf('Setting outputFormat to default: %s\n',outputFormat);
 end
 
 

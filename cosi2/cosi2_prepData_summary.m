@@ -43,10 +43,10 @@ subjects = {
   %(500ms preview, 2000ms, 1125+-125ms ISI)
   'COSI2009';
   'COSI2010';
-  'COSI2011'; % COSI2011 did not do session_1 (didn't like EEG)
+  'COSI2011'; % COSI2011: no session_1 (didn't like EEG)
   'COSI2012';
   'COSI2013'; % redo option and source-on-one-side began with COSI2013
-  'COSI2014'; % COSI2014 did not do session_1 (didn't perform well)
+  'COSI2014'; % COSI2014: no session_1 (didn't perform well in session_0)
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -59,16 +59,22 @@ subjects = {
   'COSI2024';
   'COSI2025';
   'COSI2026';
-  'COSI2027'; % waiting on session_1
+  'COSI2027';
   'COSI2028';
   'COSI2029';
   'COSI2030';
-%   'COSI2031'; % EEG reference electrode messed up. Not including.
+  'COSI2031'; % COSI2031: thought ref electrode messed up, no session_1
   'COSI2032';
-  'COSI2033'; % waiting on session_1
+  'COSI2033';
   'COSI2034';
-  'COSI2035'; % waiting on session_1
-  'COSI2036'; % waiting on session_1
+  'COSI2035';
+  'COSI2036';
+  'COSI2037';
+  'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+  'COSI2039';
+  'COSI2040';
+  'COSI2041'; % COSI2041: no-show session_1
+  'COSI2042';
   };
 
 %sessions = {'session_0','session_1'};

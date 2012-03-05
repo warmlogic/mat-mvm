@@ -81,7 +81,7 @@ exper.subjects = {
 %   'COSI2011'; % will not have a session_1, didn't like EEG
   'COSI2012';
   'COSI2013';
-%   'COSI2014'; % will not have a session_1, didn't perform well
+%   'COSI2014'; % no session_1, didn't perform well in session_0
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -98,16 +98,18 @@ exper.subjects = {
   'COSI2028';
   'COSI2029';
   'COSI2030';
-%   'COSI2031'; % completely excluded, bad EEG
+%   'COSI2031'; % Thought reference electrode messed up. No session_1.
   'COSI2032';
   'COSI2033';
   'COSI2034';
   'COSI2035';
   'COSI2036';
-%   'COSI2037';
-%   'COSI2038';
-%   'COSI2039';
-%   'COSI2040';
+  'COSI2037';
+  'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+  'COSI2039';
+  'COSI2040';
+%   'COSI2041'; % COSI2041: no-show, no session_1
+  'COSI2042';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -392,7 +394,13 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025'};
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
-% 11, 14, 31: one session
+% 11, 14, 31, 41: no session_1
+
+% 38: potentially bad session_1
+
+% 16, 29 have fewer than 15 trials for Side-SI
+
+% 39 has fewer than 15 trials for Color-SI
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -695,7 +703,7 @@ end
 cfg_ana = [];
 cfg_ana.alpha = 0.05;
 cfg_ana.showtable = 1;
-cfg_ana.printTable_tex = 1;
+cfg_ana.printTable_tex = 0;
 
 % IV1: define which regions to average across for the test
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};

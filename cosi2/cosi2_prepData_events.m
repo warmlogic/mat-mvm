@@ -87,16 +87,18 @@ if ~exist('subjects','var') || isempty(subjects)
     'COSI2028';
     'COSI2029';
     'COSI2030';
-    'COSI2031'; % EEG reference electrode messed up. Not including.
+    'COSI2031'; % Thought EEG reference electrode messed up. No session_1.
     'COSI2032';
     'COSI2033';
     'COSI2034';
     'COSI2035';
     'COSI2036';
-    %     'COSI2037';
-    %     'COSI2038';
-    %     'COSI2039';
-    %     'COSI2040';
+    'COSI2037';
+    'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+    'COSI2039';
+    'COSI2040';
+    'COSI2041'; % COSI2041: no-show, no session_1
+    'COSI2042';
     };
 end
 
