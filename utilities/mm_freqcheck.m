@@ -57,7 +57,7 @@ end
 % cfg = [];
 % cfg.foi = 4:1:8;
 % cfg.toi = -1.0:0.04:2.0;
-% baseline = [-0.3 -0.1];
+% baseline = [-1.0 -0.75];
 % cfg.method = 'wavelet';
 % cfg.width = 6;
 %
@@ -144,7 +144,7 @@ elseif strcmp(cfg.method,'mtmconvol')
   
   if strcmp(cfg.taper,'hanning')
     % hanning taper
-    fprintf('Using the ''%s'' taper. This is good for under 30 Hz.\n',cfg.taper);
+    fprintf('Using the ''%s'' taper. This is good for processing below 30 Hz.\n',cfg.taper);
     
     if min(cfg.foi) > 30
       fprintf('You''re only processing frequencies above 30 Hz. You should consider using the dpss taper/multitaper instead.\n');
@@ -171,7 +171,7 @@ elseif strcmp(cfg.method,'mtmconvol')
     
   elseif strcmp(cfg.taper,'dpss')
     % dpss taper, using multitapers
-    fprintf('Using the ''%s'' taper, which is based on Slepian sequences as tapers. This is good for over 30 Hz.\n',cfg.taper);
+    fprintf('Using the ''%s'' taper, which is based on Slepian sequences as tapers. This is good for processing above 30 Hz.\n',cfg.taper);
     
     if max(cfg.foi) < 30
       fprintf('You''re only processing frequencies below 30 Hz. You should consider using the hanning taper instead.\n');
@@ -231,7 +231,7 @@ end
 % tell us about the baseline
 % With your settings, you need to process
 fprintf('The average baseline period that you want to use is [%.2f %.2f] (length: %.2f s). ',baseline(1),baseline(end),diff(baseline));
-if baseline(end) < -1 * min_baseline_s(1)
+if baseline(end) <= -1 * min_baseline_s(1)
   fprintf('That''s fine.\n');
 elseif baseline(end) > -1 * min_baseline_s(1)
   fprintf('\n*** YOU MUST CHANGE IT TO END AT %.4f OR EARLIER ***\nAt the current setting of ending at %.2f s, it overlaps with power calculation for the stimulus period.\n', -1*min_baseline_s(1),baseline(end));
