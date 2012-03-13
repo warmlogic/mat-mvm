@@ -1,12 +1,13 @@
-function cfg = mm_freqcheck(cfg,baseline)
+function cfg = mm_freqcheck(exper,cfg,baseline,plotit)
 %MM_FREQCHECK - Checks your freq cfg for ft_freqanalysis
 %
-% cfg = mm_freqcheck(cfg,baseline)
+% cfg = mm_freqcheck(exper,cfg,baseline,plotit)
 %
 % Input:
+%   exper      = exper struct
 %   cfg        = cfg that will go into FT_FREQANALYSIS
 %   baseline   = e.g., [-1.0 -0.75]
-%   samplerate = sample rate of data
+%   plotit     = whether to plot some info (default: true)
 %
 % Output:
 %   cfg        = same cfg with some defaults set if you didn't set them
@@ -19,22 +20,61 @@ function cfg = mm_freqcheck(cfg,baseline)
 % See also: FT_FREQANALYSIS
 %
 
+% check on the input
+if ~exist('exper','var') || isempty(exper)
+  error('Must set exper input.');
+end
+if ~exist('cfg','var') || isempty(cfg)
+  error('Must set cfg input.');
+end
+if ~exist('baseline','var') || isempty(baseline)
+  error('Must set baseline input.');
+end
+if ~exist('plotit','var') || isempty(plotit)
+  plotit = true;
+end
+
 if ~isfield(cfg,'method')
   error('Must set cfg.methd (e.g., ''wavelet'' or ''mtmconvol'').');
 end
 
+% check on trial padding
+if ~isfield(cfg,'pad')
+  cfg.pad = 'maxperlen';
+end
+if strcmp(cfg.pad, 'maxperlen')
+  padding = diff(exper.prepost);
+  cfg.pad = padding / exper.sampleRate;
+else
+  padding = cfg.pad * exper.sampleRate;
+  if padding < diff(exper.prepost)
+    error('the specified padding is too short');
+  end
+end
+
+% check on the frequencies of interest (foi)
 if ~isfield(cfg,'foi') && ~isfield(cfg,'foilim')
   error('Must set cfg.foi (e.g., 4:1:8) or cfg.foilim (e.g., [4 8]).');
+elseif isfield(cfg,'foi') && isfield(cfg,'foilim')
+  error('Do not set both cfg.foi and cfg.foilim.');
 end
-% TODO: how does FieldTrip determine the spacing of foilim?
 if ~isfield(cfg,'foi') && isfield(cfg,'foilim')
-  fprintf('You set cfg.foilim=[%.1f %.1f]. Removing this field and setting cfg.foi=%.1f:1:%.1f;\n',cfg.foilim(1),cfg.foilim(2),cfg.foilim(1),cfg.foilim(2));
-  cfg.foi = cfg.foilim(1):1:cfg.foilim(2);
+  % % fieldtrip default step size
+  % freqstep = (exper.sampleRate/(cfg.pad*exper.sampleRate));
+  
+  % double the step size
+  freqstep = (exper.sampleRate/(cfg.pad*exper.sampleRate)) * 2;
+  
+  fprintf('You set cfg.foilim=[%.1f %.1f]. Removing this field and setting cfg.foi=%.1f:%.2f:%.1f;\n',cfg.foilim(1),cfg.foilim(2),cfg.foilim(1),freqstep,cfg.foilim(2));
+  cfg.foi = cfg.foilim(1):freqstep:cfg.foilim(2);
   cfg = rmfield(cfg,'foilim');
+elseif isfield(cfg,'foi') && ~isfield(cfg,'foilim')
+  fboi = round(cfg.foi ./ (exper.sampleRate ./ (cfg.pad * exper.sampleRate))) + 1;
+  cfg.foi = (fboi-1) ./ cfg.pad; % boi - 1 because 0 Hz is included in fourier output
 end
 
 if ~isfield(cfg,'toi')
-  error('Must set cfg.toi (e.g., -1.0:0.04:2.0).');
+  error('Must set cfg.toi (e.g., -1.0:0.04:2.0). Every 40 or 50 ms is good.');
 end
 
 if ~isfield(cfg,'output')
@@ -50,10 +90,6 @@ if strcmp(cfg.output,'pow') && ~isfield(cfg,'channel')
 elseif strcmp(cfg.output,'powandcsd') && ~isfield(cfg,'channelcmb')
   %fprintf('You set cfg.output=''%s'', setting cfg.channelcmb={''all'',''all''}.\n',cfg.output);
   cfg.channelcmb = {'all','all'};
-end
-
-if ~isfield(cfg,'pad')
-  cfg.pad = 'maxperlen';
 end
 
 % % some test parameters
@@ -118,34 +154,36 @@ if strcmp(cfg.method,'wavelet')
   %fprintf('Width%s\n',sprintf(repmat('\t%.2f',1,length(wavelet_widths_s)),wavelet_widths_s));
   %fprintf('BL-end%s\n',sprintf(repmat('\t%.2f',1,length(min_baseline_s)),min_baseline_s));
   
-  figure;
-  subplot(2,2,1)
-  plot(cfg.foi,wavelet_widths_s,'b*');
-  xlabel('Freq (Hz)');
-  ylabel('Wavelet widths (s)');
-  xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-  ylim([0 wavelet_widths_s(1)]);
-  
-  subplot(2,2,2)
-  plot(cfg.foi,wavelet_widths_s ./ 2,'b*');
-  xlabel('Freq (Hz)');
-  ylabel('BL end before stim (s): wavelet\_widths ./ 2');
-  xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-  ylim([0 wavelet_widths_s(1)]);
-  
-  subplot(2,2,3)
-  plot(cfg.foi,cfg.width,'b*');
-  xlabel('Freq (Hz)');
-  ylabel('Cycles per wavelet: cfg.width');
-  xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-  
-  subplot(2,2,4)
-  plot(cfg.foi,cfg.toi(end) - min_baseline_s,'b*');
-  xlabel('Freq (Hz)');
-  ylabel(sprintf('%s calculated out to (s)',cfg.output));
-  xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-  
-  publishfig(gcf,0,12,16);
+  if plotit
+    figure;
+    subplot(2,2,1)
+    plot(cfg.foi,wavelet_widths_s,'b*');
+    xlabel('Freq (Hz)');
+    ylabel('Wavelet widths (s)');
+    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+    ylim([0 wavelet_widths_s(1)]);
+    
+    subplot(2,2,2)
+    plot(cfg.foi,wavelet_widths_s ./ 2,'b*');
+    xlabel('Freq (Hz)');
+    ylabel('BL end before stim (s): wavelet\_widths ./ 2');
+    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+    ylim([0 wavelet_widths_s(1)]);
+    
+    subplot(2,2,3)
+    plot(cfg.foi,cfg.width,'b*');
+    xlabel('Freq (Hz)');
+    ylabel('Cycles per wavelet: cfg.width');
+    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+    
+    subplot(2,2,4)
+    plot(cfg.foi,cfg.toi(end) - min_baseline_s,'b*');
+    xlabel('Freq (Hz)');
+    ylabel(sprintf('%s calculated out to (s)',cfg.output));
+    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+    
+    publishfig(gcf,0,12,16);
+  end
   
 elseif strcmp(cfg.method,'mtmconvol')
   % multitaper method
@@ -180,33 +218,35 @@ elseif strcmp(cfg.method,'mtmconvol')
       fprintf('You''re processing frequencies both below and above 30 Hz. Consider splitting the analyses into two parts.\n');
     end
     
-    figure;
-    subplot(2,2,1)
-    plot(cfg.foi,cfg.t_ftimwin,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('Time window length (s): t\_ftimwin');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    subplot(2,2,2)
-    plot(cfg.foi,cfg.t_ftimwin ./ 2,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('BL end before stim (s): t\_ftimwin ./ 2');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    ylim([0 cfg.t_ftimwin(1)]);
-    
-    subplot(2,2,3)
-    plot(cfg.foi,cfg.t_ftimwin .* cfg.foi,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('Cycles per time window: t\_ftimwin .* foi');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    subplot(2,2,4)
-    plot(cfg.foi,cfg.toi(end) - min_baseline_s,'b*');
-    xlabel('Freq (Hz)');
-    ylabel(sprintf('%s calculated out to (s)',cfg.output));
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    publishfig(gcf,0,12,16);
+    if plotit
+      figure;
+      subplot(2,2,1)
+      plot(cfg.foi,cfg.t_ftimwin,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('Time window length (s): t\_ftimwin');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      subplot(2,2,2)
+      plot(cfg.foi,cfg.t_ftimwin ./ 2,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('BL end before stim (s): t\_ftimwin ./ 2');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      ylim([0 cfg.t_ftimwin(1)]);
+      
+      subplot(2,2,3)
+      plot(cfg.foi,cfg.t_ftimwin .* cfg.foi,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('Cycles per time window: t\_ftimwin .* foi');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      subplot(2,2,4)
+      plot(cfg.foi,cfg.toi(end) - min_baseline_s,'b*');
+      xlabel('Freq (Hz)');
+      ylabel(sprintf('%s calculated out to (s)',cfg.output));
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      publishfig(gcf,0,12,16);
+    end
     
   elseif strcmp(cfg.taper,'dpss')
     % dpss taper, using multitapers
@@ -231,45 +271,47 @@ elseif strcmp(cfg.method,'mtmconvol')
       fprintf('One frequency has fewer than zero tapers: That is bad! Set the multiplier in cfg.tapsmofrq to something larger than %.4f.\n',cfg.tapsmofrq/cfg.foi);
     end
     
-    subplot(2,3,1)
-    plot(cfg.foi,cfg.t_ftimwin,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('Time window length (s): t\_ftimwin');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    subplot(2,3,2)
-    plot(cfg.foi,cfg.t_ftimwin ./ 2,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('BL end before stim (s): t\_ftimwin ./ 2');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    ylim([0 cfg.t_ftimwin(1)]);
-    
-    subplot(2,3,3)
-    plot(cfg.foi,cfg.t_ftimwin .* cfg.foi,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('Cycles per time window: t\_ftimwin .* foi');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    subplot(2,3,4)
-    plot(cfg.foi,cfg.tapsmofrq,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('Frequency smoothing: tapsmofrq');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    subplot(2,3,5)
-    plot(cfg.foi,K,'b*');
-    xlabel('Freq (Hz)');
-    ylabel('Number of tapers');
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    ylim([(min(K) - 1) (max(K) + 1)]);
-    
-    subplot(2,3,6)
-    plot(cfg.foi,cfg.toi(end) - min_baseline_s,'b*');
-    xlabel('Freq (Hz)');
-    ylabel(sprintf('%s calculated out to (s)',cfg.output));
-    xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
-    
-    publishfig(gcf,0,12,16);
+    if plotit
+      subplot(2,3,1)
+      plot(cfg.foi,cfg.t_ftimwin,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('Time window length (s): t\_ftimwin');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      subplot(2,3,2)
+      plot(cfg.foi,cfg.t_ftimwin ./ 2,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('BL end before stim (s): t\_ftimwin ./ 2');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      ylim([0 cfg.t_ftimwin(1)]);
+      
+      subplot(2,3,3)
+      plot(cfg.foi,cfg.t_ftimwin .* cfg.foi,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('Cycles per time window: t\_ftimwin .* foi');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      subplot(2,3,4)
+      plot(cfg.foi,cfg.tapsmofrq,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('Frequency smoothing: tapsmofrq');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      subplot(2,3,5)
+      plot(cfg.foi,K,'b*');
+      xlabel('Freq (Hz)');
+      ylabel('Number of tapers');
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      ylim([(min(K) - 1) (max(K) + 1)]);
+      
+      subplot(2,3,6)
+      plot(cfg.foi,cfg.toi(end) - min_baseline_s,'b*');
+      xlabel('Freq (Hz)');
+      ylabel(sprintf('%s calculated out to (s)',cfg.output));
+      xlim([(cfg.foi(1) - 1) (cfg.foi(end) + 1)]);
+      
+      publishfig(gcf,0,12,16);
+    end
     
   else
     fprintf('cfg.taper=%s is not currently supported in %s.\n',cfg.taper,mfilename);

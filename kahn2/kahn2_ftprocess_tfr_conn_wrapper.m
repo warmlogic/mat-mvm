@@ -188,7 +188,7 @@ end
 % % cfg_proc.method = 'mtmfft';
 % % cfg_proc.taper = 'dpss';
 % % %cfg_proc.foilim = [3 50];
-% % freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % %cfg_proc.foi = 3:freqstep:50;
 % % cfg_proc.foi = 3:freqstep:9;
 % % cfg_proc.tapsmofrq = 5;
@@ -200,7 +200,7 @@ end
 % %cfg_proc.taper = 'dpss';
 % %cfg_proc.toi = -0.8:0.04:3.0;
 % cfg_proc.toi = -0.5:0.04:1.0;
-% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % %cfg_proc.foi = 3:freqstep:50;
 % cfg_proc.foi = 3:freqstep:9;
 % %cfg_proc.foi = 3:1:9;
@@ -215,7 +215,7 @@ end
 % % %cfg_proc.toi = -0.8:0.04:3.0;
 % % cfg_proc.toi = -0.3:0.04:1.0;
 % % % evenly spaced frequencies, but not as many as foilim makes
-% % freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % %cfg_proc.foi = 3:freqstep:50;
 % % cfg_proc.foi = 3:freqstep:9;
 % % %cfg_proc.foilim = [3 9];

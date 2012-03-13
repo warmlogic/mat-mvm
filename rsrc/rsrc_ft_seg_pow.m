@@ -195,7 +195,7 @@ cfg_proc.width = 5;
 %cfg_proc.toi = -0.8:0.04:1.5;
 cfg_proc.toi = -0.3:0.04:1.0;
 % evenly spaced frequencies, but not as many as cfg_proc.foilim makes
-freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 %cfg_proc.foi = 3:freqstep:50;
 %cfg_proc.foi = 3:freqstep:9;
 cfg_proc.foi = 3:freqstep:100;
@@ -206,7 +206,7 @@ cfg_proc.foi = 3:freqstep:100;
 % cfg_proc.taper = 'dpss';
 % %cfg_proc.toi = -0.5:0.04:1.5;
 % cfg_proc.toi = -0.8:0.04:3.0;
-% freqstep = exper.sampleRate/(sum(abs(exper.prepost))*exper.sampleRate)*2;
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % cfg_proc.foi = 3:freqstep:50;
 % %cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.t_ftimwin = 4./cfg_proc.foi;
