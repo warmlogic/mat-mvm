@@ -281,10 +281,10 @@ for e = 1:length(exper.name)
 end
 
 alpha = 0.05;
-showtable = 1;
-calcGGHF = 0;
+%showtable = 1;
+%calcGGHF = 0;
 
-%[P] = RMAOV33_mod(anovamat,alpha,showtable,calcGGHF);
+%[P] = RMAOV32_mod(anovamat,alpha,showtable,calcGGHF);
 [P] = RMAOV32(anovamat,alpha);
 
 % I need to use R or SPSS to run:
