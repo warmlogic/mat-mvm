@@ -72,6 +72,35 @@ exper.soco.subjects = {
   'SOCO030';
   };
 
+
+
+
+exper.soco.goodSub = {
+  'SOCO003';
+  'SOCO004';
+  'SOCO007';
+  'SOCO009';
+  'SOCO010';
+  'SOCO016';
+  'SOCO019';
+  'SOCO020';
+  'SOCO030';
+  };
+
+exper.sosi.goodSub = {
+  'SOSI002';
+  'SOSI003';
+  'SOSI008';
+  'SOSI016';
+  'SOSI017';
+  'SOSI018';
+  'SOSI024';
+  'SOSI025';
+  'SOSI029';
+  };
+
+
+
 % % excluded based on trial counts, etc.
 % exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030'};
 % exper.soco.badSub = {'SOCO018','SOCO026'};
@@ -82,12 +111,14 @@ exper.soco.subjects = {
 % exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009'};
 % exper.soco.badSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030'};
 
-% excluded to equate source d' (15 lowest side vs 15 highest color)
-exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009','SOSI004','SOSI015','SOSI013','SOSI025','SOSI029'};
-exper.soco.badSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030','SOCO020','SOCO028','SOCO014','SOCO027','SOCO017'};
+% % excluded to equate source d' (15 lowest side vs 15 highest color)
+% exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009','SOSI004','SOSI015','SOSI013','SOSI025','SOSI029'};
+% exper.soco.badSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030','SOCO020','SOCO028','SOCO014','SOCO027','SOCO017'};
 
 
-
+% exclude based on automatic equating of accuracy
+exper.soco.badSub = exper.soco.subjects(~ismember(exper.soco.subjects,exper.soco.goodSub));
+exper.sosi.badSub = exper.sosi.subjects(~ismember(exper.sosi.subjects,exper.sosi.goodSub));
 
 
 % exper.sosi.badSub = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
@@ -253,7 +284,7 @@ alpha = 0.05;
 showtable = 1;
 calcGGHF = 0;
 
-%[P] = RMAOV32_mod(anovamat,alpha,showtable,calcGGHF);
+%[P] = RMAOV33_mod(anovamat,alpha,showtable,calcGGHF);
 [P] = RMAOV32(anovamat,alpha);
 
 % I need to use R or SPSS to run:
@@ -388,11 +419,40 @@ fprintf('LAS+RAS: SOSI (RHSC-RCR) (M=%.2f) vs SOCO (RHSC-RCR) (M=%.2f): t(%d)=%.
 [h,p,ci,stats] = ttest2((volt_sosi_RHSI - volt_sosi_RCR),(volt_soco_RHSI - volt_soco_RCR),0.05,'both');
 fprintf('LAS+RAS: SOSI (RHSI-RCR) (M=%.2f) vs SOCO (RHSI-RCR) (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(volt_sosi_RHSI - volt_sosi_RCR),mean(volt_soco_RHSI - volt_soco_RCR),stats.df,stats.tstat,p);
 
+%% dependent-samples t-test (Within an experiment)
+
+alpha = 0.05;
+
+rois = {'LAS','RAS'};
+expNames = {'soco','sosi'};
+condPairs = {{'RHSC','RHSI'},{'RHSC','RCR'},{'RHSI','RCR'}};
+
+for e = 1:length(expNames)
+  expName = expNames{e};
+  for r = 1:length(rois)
+    roi = rois{r};
+    for c = 1:length(condPairs)
+      conds = condPairs{c};
+      [h,p,ci,stats] = ttest(...
+        volt.(expName).(conds{1}).(roi)(~ismember(exper.(expName).subjects,exper.(expName).badSub)),...
+        volt.(expName).(conds{2}).(roi)(~ismember(exper.(expName).subjects,exper.(expName).badSub)),...
+        alpha,'both');
+      fprintf('ttest: %s: %s: %s (M=%.2f) vs %s (M=%.2f): t(%d)=%.4f, p=%.10f',roi,expName,...
+        conds{1},mean(volt.(expName).(conds{1}).(roi)(~ismember(exper.(expName).subjects,exper.(expName).badSub))),...
+        conds{2},mean(volt.(expName).(conds{2}).(roi)(~ismember(exper.(expName).subjects,exper.(expName).badSub))),...
+        stats.df,stats.tstat,p);
+      if p < alpha
+        fprintf(' *');
+      end
+      fprintf('\n');
+    end
+  end
+end
 
 %% behavioral accuracy test
 
-exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
-exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+%exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
+%exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 
 % SOCO separate colors
 SOCO_C2_RS_WIR = [0.6304 0.7093 0.9323 0.9412 0.8333 0.4957 0.8769 0.8299 0.9322 0.7662 0.7875 0.7143 0.7674 0.5345 0.9167 0.8661 0.9975 0.6 0.9263 0.6263 0.6739 0.5455 0.9737 0.8182 0.7164 0.9975 0.7812 0.7333 0.5484 0.7857];
@@ -413,16 +473,16 @@ SOSI_RS_WIR = [0.9441 0.8333 0.9444 0.9302 0.7884 0.8621 0.5323 0.9349 0.9891 0.
 SOSI_RO_WIR = [0.7333 0.8636 0.9987 0.6667 0.7143 0.5354 0.4393 0.45 0.7391 0.8088 0.575 0.7273 0.6739 0.6792 0.625 0.6441 0.8681 0.6087 0.625 0.6053 0.6304 0.4898 0.6533 0.726 0.6825 0.5942 0.899 0.8395 0.625 0.5417];
 SOSI_F_WIR = [0.7727 0.5741 0.5778 0.6094 0.6389 0.58 0.4286 0.4444 0.6842 0.5 0.0013 0.5135 0.5303 0.541 0.5 0.5067 0.6279 0.7037 0.5118 0.4667 0.5795 0.5882 0.4074 0.7368 0.5238 0.4468 0.5977 0.6 0.625 0.0013];
 
-% within experiment
-[h,p,ci,stats] = ttest(SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub)),0.5*ones(1,sum(~ismember(exper.soco.subjects,exper.soco.badSub))),0.05,'both');
-fprintf('SOCO F_WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
-
-[h,p,ci,stats] = ttest(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub)),0.5*ones(1,sum(~ismember(exper.sosi.subjects,exper.sosi.badSub))),0.05,'both');
-fprintf('SOSI F_WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub))),stats.df,stats.tstat,p);
-
 % between experiments
 [h,p,ci,stats] = ttest2(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
-fprintf('F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+fprintf('ttest2: F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+% within experiment
+[h,p,ci,stats] = ttest(SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub)),0.5*ones(1,sum(~ismember(exper.soco.subjects,exper.soco.badSub))),0.05,'both');
+fprintf('ttest: SOCO F_WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(SOCO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub)),0.5*ones(1,sum(~ismember(exper.sosi.subjects,exper.sosi.badSub))),0.05,'both');
+fprintf('ttest: SOSI F_WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(SOSI_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub))),stats.df,stats.tstat,p);
 
 
 %% collapse across RO and F
@@ -440,3 +500,81 @@ fprintf('SOSI RO+F WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(SOSI_RO_F
 [h,p,ci,stats] = ttest2(SOSI_RO_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_RO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
 fprintf('RO+F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_RO_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_RO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% mix and match subjects from each experiment to equate source d' but
+% differ on F accuracy
+
+%% initialize randomness
+
+s = RandStream.create('mt19937ar','seed',sum(100*clock));
+RandStream.setGlobalStream(s);
+
+%% more data
+
+% d'
+SOCO_ITEM_DP = [0.9877, 1.8521, 1.6612, 2.3903, 1.5652, 1.2715, 3.0669, 2.0165, 1.5582, 2.7002, 2.434, 0.5012, 1.0083, 1.4696, 2.5912, 1.9567, 1.1204, 1.4478, 1.7541, 0.9364, 1.4128, 0.4553, 1.7471, 1.7161, 1.3115, 0.9281, 2.5018, 0.6834, 1.2993, 2.1327];
+SOCO_SOURCE_DP = [0.0979, 0.7479, 1.6706, 1.8041, 0.6517, 0.1094, 1.0921, 1.5188, 0.8406, 1.2167, 1.3084, 0.4363, 0.6433, 0.6117, 0.4553, 1.5573, 0.6422, 0.2452, 1.1511, 0.5393, 0.675, 0.042, 0.9744, 0.3648, 0.7799, 0.3452, 0.6405, 0.5407, 0.1554, 0.4839];
+
+SOSI_ITEM_DP = [2.4055, 1.0515, 1.9568, 1.3392, 0.875, 1.2222, 0.185, 1.9591, 1.9172, 1.1959, 2.4869, 0.9108, 1.0227, 1.705, 1.5148, 0.9685, 0.8106, 2.0084, 1.1812, 1.3761, 1.1057, 1.1521, 2.297, 0.4484, 1.4344, 1.5941, 1.398, 1.7473, 1.5984, 1.2503];
+SOSI_SOURCE_DP = [2.6106, 1.2027, 1.515, 1.6033, 1.3849, 1.0842, -0.0091, 1.8163, 2.6303, 1.1873, 2.3238, 1.3773, 1.6582, 1.5506, 1.6074, 0.8615, 1.5816, 2.6045, 1.1413, 1.1, 1.4382, 0.8814, 2.1249, 1.0363, 1.6679, 1.5655, 2.2779, 2.1689, 1.6759, 1.6488];
+
+nTries = 10000;
+p_thresh = 0.1;
+
+%% try to equate
+
+nSub = 20;
+
+foundIt = false;
+
+while nSub > 5
+  fprintf('nSub = %d\n',nSub);
+  
+  for i = 1:nTries
+    fprintf('.');
+    
+    SOCO_subNums = randperm(length(exper.soco.subjects));
+    SOCO_subNums = SOCO_subNums(~ismember(exper.soco.subjects(SOCO_subNums),exper.soco.badSub));
+    SOCO_subNums = SOCO_subNums(1:nSub);
+    SOSI_subNums = randperm(length(exper.sosi.subjects));
+    SOSI_subNums = SOSI_subNums(~ismember(exper.sosi.subjects(SOSI_subNums),exper.sosi.badSub));
+    SOSI_subNums = SOSI_subNums(1:nSub);
+    
+    [h,p,ci,stats] = ttest2(SOCO_SOURCE_DP(SOCO_subNums),SOSI_SOURCE_DP(SOSI_subNums),0.05,'both');
+    if p > p_thresh
+      [h_cs,p_cs,ci_cs,stats_cs] = ttest2(SOCO_F_WIR(SOCO_subNums),SOSI_F_WIR(SOSI_subNums),0.05,'both');
+      if p_cs < .05
+        fprintf('Found p > %.2f and p_cs < .05 after %d tries (nSub=%d).\n',p_thresh,i,nSub);
+        
+        fprintf('ttest2: SOCO source d''=%.2f vs SOSI source d''=%.2f: t(%d)=%.2f, p=%.3f',mean(SOCO_SOURCE_DP(SOCO_subNums)),mean(SOSI_SOURCE_DP(SOSI_subNums)),stats.df,stats.tstat,p);
+        
+        fprintf('\nSOCO:');
+        sort(exper.soco.subjects(SOCO_subNums))
+        fprintf('\nSOSI:');
+        sort(exper.sosi.subjects(SOSI_subNums))
+        
+        [h,p,ci,stats] = ttest2(SOCO_F_WIR(SOCO_subNums),SOSI_F_WIR(SOSI_subNums),0.05,'both');
+        fprintf('ttest2: SOCO F=%.2f vs SOSI F=%.2f: t(%d)=%.2f, p=%.3f\n',mean(SOCO_F_WIR(SOCO_subNums)),mean(SOSI_F_WIR(SOSI_subNums)),stats.df,stats.tstat,p);
+        
+        [h,p,ci,stats] = ttest(SOCO_F_WIR(SOCO_subNums),repmat(0.5,size(SOCO_subNums)),0.05,'both');
+        fprintf('ttest: SOCO F=%.2f vs chance (%.1f): t(%d)=%.2f, p=%.3f\n',mean(SOCO_F_WIR(SOCO_subNums)),0.5,stats.df,stats.tstat,p);
+        
+        [h,p,ci,stats] = ttest(SOSI_F_WIR(SOSI_subNums),repmat(0.5,size(SOSI_subNums)),0.05,'both');
+        fprintf('ttest: SOSI F=%.2f vs chance (%.1f): t(%d)=%.2f, p=%.3f\n',mean(SOSI_F_WIR(SOSI_subNums)),0.5,stats.df,stats.tstat,p);
+        
+        foundIt = true;
+        break
+      end
+    end
+    if i == nTries
+      fprintf('Hit the %d-try limit.\n',i);
+    end
+  end
+  if foundIt == true
+    break
+  else
+    nSub = nSub - 1;
+  end
+end

@@ -176,7 +176,7 @@ if exper.equateTrials && length(exper.eventValues) > 1
   % selection; thus, replace the default stream with one whose seed is
   % based on the clock
   s = RandStream.create('mt19937ar','seed',sum(100*clock));
-  RandStream.setDefaultStream(s);
+  RandStream.setGlobalStream(s);
 elseif exper.equateTrials && length(exper.eventValues) == 1
   % don't equate
   fprintf('Not equating trials because there is only 1 event.\n');
