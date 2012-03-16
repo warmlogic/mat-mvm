@@ -110,6 +110,9 @@ exper.subjects = {
   'COSI2040';
 %   'COSI2041'; % COSI2041: no-show, no session_1
   'COSI2042';
+  'COSI2043';
+  'COSI2044';
+  'COSI2045';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -389,21 +392,23 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-%exper.badBehSub = {};
-exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025'};
+exper.badBehSub = {};
+%exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'COSI2035'
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
 % 11, 14, 31, 41: no session_1
 
-% 38: potentially bad session_1
-
 % 16, 29 have fewer than 15 trials for Side-SI
 
 % 39 has fewer than 15 trials for Color-SI
 
+% 38: potentially bad session_1 (puker)
+
+% 35 and 38 have noisy ERPs
+
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper] = mm_threshSubs(exper,ana,1);
 
 %% get the grand average
 
@@ -697,6 +702,26 @@ for r = 1:length(cfg_ana.rois)
   
   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
 end
+
+% % output some values
+% cfg_ana.rois_flat = cellflat(cfg_ana.rois);
+% cfg_ana.rois_str = sprintf(repmat('_%s',1,length(cfg_ana.rois_flat)),cfg_ana.rois_flat{:});
+% cfg_ana.conditions_flat = unique(cellflat(cfg_ana.conditions));
+% cfg_ana.conditions_str = sprintf(repmat('_%s',1,length(cfg_ana.conditions_flat)),cfg_ana.conditions_flat{:});
+% % start the file
+% [cfg_ana.fid] = fopen(fullfile(dirs.saveDirProc,sprintf('%s%s%s.txt',exper.name,cfg_ana.conditions_str,cfg_ana.rois_str)),'w+');
+% fprintf(cfg_ana.fid,'%s\n',exper.name);
+% cfg_ana.goodSub = exper.subjects(~exper.badSub);
+% fprintf(cfg_ana.fid,'\t%s\n',sprintf(repmat('\t%s',1,length(cfg_ana.goodSub)),cfg_ana.goodSub{:}));
+% for r = 1:length(cfg_ana.rois)
+%   cfg_ana.roi = cfg_ana.rois{r};
+%   cfg_ft.latency = cfg_ana.latencies(r,:);
+%   cfg_plot.ylim = cfg_plot.ylims(r,:);
+%   
+%   mm_printDataToText(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
+% end
+% fclose(cfg_ana.fid);
+
 
 %% 3-way ANOVA: Hemisphere x Block Type x Condition
 

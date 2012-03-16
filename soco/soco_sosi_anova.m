@@ -25,8 +25,8 @@ exper.sosi.subjects = {
   'SOSI016';
   'SOSI017';
   'SOSI018';
-  'SOSI020';
-  'SOSI019';
+  'SOSI020'; % out of order
+  'SOSI019'; % out of order
   'SOSI021';
   'SOSI022';
   'SOSI023';
@@ -73,39 +73,42 @@ exper.soco.subjects = {
   };
 
 
+% % good subjects found in automatic equating
+%
+% exper.soco.goodSub = {
+%   'SOCO003';
+%   'SOCO004';
+%   'SOCO007';
+%   'SOCO009';
+%   'SOCO010';
+%   'SOCO016';
+%   'SOCO019';
+%   'SOCO020';
+%   'SOCO030';
+%   };
+% 
+% exper.sosi.goodSub = {
+%   'SOSI002';
+%   'SOSI003';
+%   'SOSI008';
+%   'SOSI016';
+%   'SOSI017';
+%   'SOSI018';
+%   'SOSI024';
+%   'SOSI025';
+%   'SOSI029';
+%   };
+%
+% % exclude based on automatic equating of accuracy
+% exper.soco.badSub = exper.soco.subjects(~ismember(exper.soco.subjects,exper.soco.goodSub));
+% exper.sosi.badSub = exper.sosi.subjects(~ismember(exper.sosi.subjects,exper.sosi.goodSub));
 
 
-exper.soco.goodSub = {
-  'SOCO003';
-  'SOCO004';
-  'SOCO007';
-  'SOCO009';
-  'SOCO010';
-  'SOCO016';
-  'SOCO019';
-  'SOCO020';
-  'SOCO030';
-  };
-
-exper.sosi.goodSub = {
-  'SOSI002';
-  'SOSI003';
-  'SOSI008';
-  'SOSI016';
-  'SOSI017';
-  'SOSI018';
-  'SOSI024';
-  'SOSI025';
-  'SOSI029';
-  };
-
-
-
-% % excluded based on trial counts, etc.
-% exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030'};
-% exper.soco.badSub = {'SOCO018','SOCO026'};
-% % % just trying something out: equating numbers
-% % exper.soco.badSub = {'SOCO001','SOCO002','SOCO018','SOCO026'};
+% excluded based on trial counts, etc.
+exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030'};
+exper.soco.badSub = {'SOCO018','SOCO026'};
+% % just trying something out: equating numbers
+% exper.soco.badSub = {'SOCO001','SOCO002','SOCO018','SOCO026'};
 
 % % excluded to equate source d' (20 lowest side vs 20 highest color)
 % exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009'};
@@ -115,10 +118,6 @@ exper.sosi.goodSub = {
 % exper.sosi.badSub = {'SOSI001','SOSI007','SOSI011','SOSI030','SOSI008','SOSI023','SOSI028','SOSI027','SOSI018','SOSI009','SOSI004','SOSI015','SOSI013','SOSI025','SOSI029'};
 % exper.soco.badSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030','SOCO020','SOCO028','SOCO014','SOCO027','SOCO017'};
 
-
-% exclude based on automatic equating of accuracy
-exper.soco.badSub = exper.soco.subjects(~ismember(exper.soco.subjects,exper.soco.goodSub));
-exper.sosi.badSub = exper.sosi.subjects(~ismember(exper.sosi.subjects,exper.sosi.goodSub));
 
 
 % exper.sosi.badSub = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
@@ -508,8 +507,10 @@ fprintf('RO+F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(S
 
 %% initialize randomness
 
-s = RandStream.create('mt19937ar','seed',sum(100*clock));
-RandStream.setGlobalStream(s);
+% s = RandStream.create('mt19937ar','seed','shuffle');
+% RandStream.setGlobalStream(s);
+
+RandStream.setGlobalStream(RandStream.create('mt19937ar','seed','shuffle'));
 
 %% more data
 
@@ -517,13 +518,18 @@ RandStream.setGlobalStream(s);
 SOCO_ITEM_DP = [0.9877, 1.8521, 1.6612, 2.3903, 1.5652, 1.2715, 3.0669, 2.0165, 1.5582, 2.7002, 2.434, 0.5012, 1.0083, 1.4696, 2.5912, 1.9567, 1.1204, 1.4478, 1.7541, 0.9364, 1.4128, 0.4553, 1.7471, 1.7161, 1.3115, 0.9281, 2.5018, 0.6834, 1.2993, 2.1327];
 SOCO_SOURCE_DP = [0.0979, 0.7479, 1.6706, 1.8041, 0.6517, 0.1094, 1.0921, 1.5188, 0.8406, 1.2167, 1.3084, 0.4363, 0.6433, 0.6117, 0.4553, 1.5573, 0.6422, 0.2452, 1.1511, 0.5393, 0.675, 0.042, 0.9744, 0.3648, 0.7799, 0.3452, 0.6405, 0.5407, 0.1554, 0.4839];
 
-SOSI_ITEM_DP = [2.4055, 1.0515, 1.9568, 1.3392, 0.875, 1.2222, 0.185, 1.9591, 1.9172, 1.1959, 2.4869, 0.9108, 1.0227, 1.705, 1.5148, 0.9685, 0.8106, 2.0084, 1.1812, 1.3761, 1.1057, 1.1521, 2.297, 0.4484, 1.4344, 1.5941, 1.398, 1.7473, 1.5984, 1.2503];
-SOSI_SOURCE_DP = [2.6106, 1.2027, 1.515, 1.6033, 1.3849, 1.0842, -0.0091, 1.8163, 2.6303, 1.1873, 2.3238, 1.3773, 1.6582, 1.5506, 1.6074, 0.8615, 1.5816, 2.6045, 1.1413, 1.1, 1.4382, 0.8814, 2.1249, 1.0363, 1.6679, 1.5655, 2.2779, 2.1689, 1.6759, 1.6488];
+% 19 and 20 out of order (use this)
+SOSI_ITEM_DP = [2.4055, 1.0515, 1.9568, 1.3392, 0.875, 1.2222, 0.185, 1.9591, 1.9172, 1.1959, 2.4869, 0.9108, 1.0227, 1.705, 1.5148, 0.9685, 0.8106, 2.0084, 1.3761, 1.1812, 1.1057, 1.1521, 2.297, 0.4484, 1.4344, 1.5941, 1.398, 1.7473, 1.5984, 1.2503];
+SOSI_SOURCE_DP = [2.6106, 1.2027, 1.515, 1.6033, 1.3849, 1.0842, -0.0091, 1.8163, 2.6303, 1.1873, 2.3238, 1.3773, 1.6582, 1.5506, 1.6074, 0.8615, 1.5816, 2.6045, 1.1, 1.1413, 1.4382, 0.8814, 2.1249, 1.0363, 1.6679, 1.5655, 2.2779, 2.1689, 1.6759, 1.6488];
+
+% % 19 and 20 in correct order
+% SOSI_ITEM_DP = [2.4055, 1.0515, 1.9568, 1.3392, 0.875, 1.2222, 0.185, 1.9591, 1.9172, 1.1959, 2.4869, 0.9108, 1.0227, 1.705, 1.5148, 0.9685, 0.8106, 2.0084, 1.1812, 1.3761, 1.1057, 1.1521, 2.297, 0.4484, 1.4344, 1.5941, 1.398, 1.7473, 1.5984, 1.2503];
+% SOSI_SOURCE_DP = [2.6106, 1.2027, 1.515, 1.6033, 1.3849, 1.0842, -0.0091, 1.8163, 2.6303, 1.1873, 2.3238, 1.3773, 1.6582, 1.5506, 1.6074, 0.8615, 1.5816, 2.6045, 1.1413, 1.1, 1.4382, 0.8814, 2.1249, 1.0363, 1.6679, 1.5655, 2.2779, 2.1689, 1.6759, 1.6488];
+
+%% try to equate
 
 nTries = 10000;
 p_thresh = 0.1;
-
-%% try to equate
 
 nSub = 20;
 
@@ -577,4 +583,130 @@ while nSub > 5
   else
     nSub = nSub - 1;
   end
+end
+
+%% do an nchoosek count of F comparisons
+
+% choose based on source d' top (SOCO) or bottom (SOSI) nSubsubset subjects
+nSubSubset = 15;
+
+dp_alpha = 0.1;
+f_alpha = 0.05;
+
+% excluded based on trial counts, etc.
+exper.sosi.badBehSub = {'SOSI001','SOSI007','SOSI011','SOSI030'};
+exper.soco.badBehSub = {'SOCO018','SOCO026'};
+
+% worst to best
+[~,SOCO_sort] = sort(SOCO_SOURCE_DP);
+[~,SOSI_sort] = sort(SOSI_SOURCE_DP);
+
+% change SOCO to best to worst
+SOCO_sort = fliplr(SOCO_sort);
+
+% order the subjects from best to worst
+exper.soco.subSort = exper.soco.subjects(SOCO_sort);
+% order the subjects from worst to best
+exper.sosi.subSort = exper.sosi.subjects(SOSI_sort);
+
+% exclude the bad behavior ones
+exper.soco.subSort = exper.soco.subSort(~ismember(exper.soco.subSort,exper.soco.badBehSub));
+exper.sosi.subSort = exper.sosi.subSort(~ismember(exper.sosi.subSort,exper.sosi.badBehSub));
+
+% best to worst
+exper.soco.subSubset = exper.soco.subSort(1:nSubSubset);
+% worst to best
+exper.sosi.subSubset = exper.sosi.subSort(1:nSubSubset);
+
+% figure out which subjects to exclude from the subset
+exper.soco.badSub = exper.soco.subjects(~ismember(exper.soco.subjects,exper.soco.subSubset));
+exper.sosi.badSub = exper.sosi.subjects(~ismember(exper.sosi.subjects,exper.sosi.subSubset));
+
+% get just the data we want
+SOCO_SOURCE_DP_SUBSET = SOCO_SOURCE_DP(ismember(exper.soco.subjects,exper.soco.subSubset));
+SOSI_SOURCE_DP_SUBSET = SOSI_SOURCE_DP(ismember(exper.sosi.subjects,exper.sosi.subSubset));
+SOCO_F_WIR_SUBSET = SOCO_F_WIR(ismember(exper.soco.subjects,exper.soco.subSubset));
+SOSI_F_WIR_SUBSET = SOSI_F_WIR(ismember(exper.sosi.subjects,exper.sosi.subSubset));
+
+%% start at 1 fewer than the number of subjects in the subset
+
+%nSub = nSubSubset - 1;
+nSub = 15;
+minSub = 10;
+nIter = (nSub - minSub + 1);
+
+results = struct;
+results.nSubSubset = nSubSubset;
+
+counter = 0;
+
+while nSub >= minSub
+  counter = counter + 1;
+  results.nSub(counter) = nSub;
+  
+  % calculate the unique combinations of subjects
+  allCombos = single(nchoosek(1:nSubSubset,nSub));
+  
+  fprintf('Testing %d combinations for nSub=%d (out of the %d best SOCO & worst SOSI subjects) (%d of %d)...\n',size(allCombos,1),nSub,nSubSubset,counter,nIter);
+  
+  results.nCombos(counter) = size(allCombos,1);
+  
+  % initialize
+%   results.DPh{counter} = false(size(allCombos,1),1);
+%   results.DPp{counter} = nan(size(allCombos,1),1);
+%   results.DPt{counter} = nan(size(allCombos,1),1);
+%   results.Fh{counter} = false(size(allCombos,1),1);
+%   results.Fp{counter} = nan(size(allCombos,1),1);
+%   results.Ft{counter} = nan(size(allCombos,1),1);
+  
+  results.DPh{counter} = false(size(allCombos,1),size(allCombos,1));
+  results.DPp{counter} = nan(size(allCombos,1),size(allCombos,1));
+  results.DPt{counter} = nan(size(allCombos,1),size(allCombos,1));
+  results.Fh{counter} = false(size(allCombos,1),size(allCombos,1));
+  results.Fp{counter} = nan(size(allCombos,1),size(allCombos,1));
+  results.Ft{counter} = nan(size(allCombos,1),size(allCombos,1));
+  
+  for i = 1:size(allCombos,1)
+  for j = 1:size(allCombos,1)
+    
+    if mod(i,1000) == 0
+      fprintf('.');
+    end
+    
+    % test the d' difference
+    [h,p,ci,stats] = ttest2(SOCO_SOURCE_DP_SUBSET(allCombos(i,:)),SOSI_SOURCE_DP_SUBSET(allCombos(j,:)),dp_alpha,'both');
+    % store the results
+    results.DPh{counter}(i) = h;
+    results.DPp{counter}(i) = p;
+    results.DPt{counter}(i) = stats.tstat;
+    
+    % if d' was equal
+    if h == 0
+      
+      % test the F accuracy difference
+      [h,p,ci,stats] = ttest2(SOCO_F_WIR_SUBSET(allCombos(i,:)),SOSI_F_WIR_SUBSET(allCombos(j,:)),f_alpha,'both');
+      
+      % store the results
+      results.Fh{counter}(i) = h;
+      results.Fp{counter}(i) = p;
+      results.Ft{counter}(i) = stats.tstat;
+      
+    end
+  end
+  end
+  fprintf('\nDone with nSub=%d.\n',nSub);
+  nSub = nSub - 1;
+end
+
+save('~/Desktop/soco_sosi_permute_results.m','results');
+
+%%
+
+for i = 1:nIter
+  fprintf('%d top (color) and bottom (side) subjects:\n',results.nSub(i));
+  FtestedInd = ~isnan(results.Fp{i});
+  %FlessInd = results.Fp{i}(~isnan(results.Fp{i})) < f_alpha;
+  FlessInd = results.Fh{i};
+  fprintf('\tColor vs Side source d'': %d of %d t-tests had p>%.2f (%.2f%%)\n',sum(FtestedInd(:)),results.nCombos(i)^2,dp_alpha,((sum(FtestedInd(:))/results.nCombos(i)^2)*100));
+  fprintf('\tColor vs Side F accuracy: %d of %d the null d'' tests had p<%.2f (%.2f%%)\n',sum(FlessInd(:)),sum(FtestedInd(:)),f_alpha,(sum(FlessInd(:))/sum(FtestedInd(:))*100));
 end

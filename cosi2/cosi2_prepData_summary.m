@@ -75,6 +75,9 @@ subjects = {
   'COSI2040';
   'COSI2041'; % COSI2041: no-show session_1
   'COSI2042';
+  'COSI2043';
+  'COSI2044';
+  'COSI2045';
   };
 
 %sessions = {'session_0','session_1'};
