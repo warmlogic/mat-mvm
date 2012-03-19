@@ -189,10 +189,15 @@ cfg_pp.baselinewindow = [-0.2 0];
 % % cfg_pp.lpfreq = [35];
     
 cfg_proc = [];
-cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
-cfg_proc.keeptrials = 'no';
-cfg_proc.keeptapers = 'no';
+% cfg_proc.output = 'pow';
+% % cfg_proc.output = 'powandcsd';
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.keeptapers = 'no';
+
+cfg_proc.output = 'fourier';
+cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptapers = 'yes';
 
 % % MTM FFT
 % cfg_proc.method = 'mtmfft';
@@ -218,35 +223,39 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
 % % frequency smoothing (tapsmofrq) is not used for hanning taper
 
-% multi-taper method - Usually above 30 Hz
-cfg_proc.method = 'mtmconvol';
-cfg_proc.taper = 'dpss';
-cfg_proc.toi = -0.5:0.04:1.0;
-freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-cfg_proc.foi = 3:freqstep:40;
-%cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foi = 3:1:9;
-%cfg_proc.foi = 2:2:30;
-% temporal smoothing
-cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
-% frequency smoothing (tapsmofrq) is used for dpss
-cfg_proc.tapsmofrq = 0.3 .* cfg_proc.foi;
-
-% % wavelet
-% cfg_proc.method = 'wavelet';
-% cfg_proc.width = 5;
-% %cfg_proc.toi = -0.8:0.04:3.0;
+% % multi-taper method - Usually above 30 Hz
+% cfg_proc.method = 'mtmconvol';
+% cfg_proc.taper = 'dpss';
 % cfg_proc.toi = -0.5:0.04:1.0;
+% cfg_proc.foilim = [4 8];
+% % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
+% % cfg_proc.foi = 3:freqstep:40;
+% %cfg_proc.foi = 3:freqstep:9;
+% %cfg_proc.foi = 3:1:9;
+% %cfg_proc.foi = 2:2:30;
+% % temporal smoothing
+% cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
+% % frequency smoothing (tapsmofrq) is used for dpss
+% cfg_proc.tapsmofrq = 0.3 .* cfg_proc.foi;
+
+% wavelet
+cfg_proc.method = 'wavelet';
+cfg_proc.width = 6;
+%cfg_proc.toi = -0.8:0.04:3.0;
+cfg_proc.toi = -0.5:0.04:1.0;
 % % evenly spaced frequencies, but not as many as foilim makes
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-% cfg_proc.foi = 3:freqstep:40;
-% %cfg_proc.foi = 3:freqstep:9;
-% %cfg_proc.foilim = [3 9];
+% % cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.foi = 3:freqstep:60;
+cfg_proc.foi = 4:1:100;
+%cfg_proc.foi = 4:1:60;
+%cfg_proc.foilim = [3 9];
 
+% log-spaced freqs
 %cfg_proc.foi = (2^(1/8)).^(16:42);
 
 % set the save directories; final argument is prefix of save directory
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,cfg_proc.output);
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = cfg_proc.output;
@@ -289,10 +298,15 @@ end
 
 %% load the analysis details
 
+adFile = saveFile;
+
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
-% wavelet
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_40_avg/analysisDetails.mat';
+% wavelet6 [3 9]
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w6_pow_-500_980_3_9_avg/analysisDetails.mat';
+
+% wavelet5 [3 40]
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_40_avg/analysisDetails.mat';
 
 % % multitaper
 % adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
@@ -328,7 +342,116 @@ end
 
 %% load some data
 
-[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+
+[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,cfg_proc.output);
+
+% mm_ft_loadData - use cfg to do normalization and blc while loading, then
+% return average
+
+% mm_ft_freqbaseline - do normalization and baselining
+
+% log10 normalize; dB normalize (10*log10(power / baseline)); vector
+% normalize (normc/normr)
+
+% baseline: absolute; relative; relchange; ztransform; separate baseline
+% condition
+
+% use nanmean
+
+%% playing with log/baseline correcting
+
+% samples to use for baseline
+blt = 6:11;
+
+sub=1;
+ses=1;
+chan = 11;
+cond = {'SC'};
+cnd = 1;
+
+% get power
+%p = data_freq.(cond{cnd}).sub(sub).ses(ses).data.powspctrm;
+
+% turn fourier into power
+f = data_freq.(cond{cnd}).sub(sub).ses(ses).data.fourierspctrm;
+p = abs(f).^2;
+
+% turn fourier into phase locking (inter-trial coherence)
+pl = f ./ abs(f);
+pl_itc = abs(squeeze(mean(pl,1)));
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(pl_itc(chan,:,:)));axis xy;colorbar;
+title('raw phase');
+
+% phase: subtract baseline
+pl_blm = repmat(abs(squeeze(mean(mean(pl(:,:,:,blt),1),4))),[1,1,38]);
+pl_itc_abs = pl_itc - pl_blm;
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(pl_itc_abs(chan,:,:)));axis xy;colorbar;
+title('raw phase - bl');
+
+% raw
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(p(:,chan,:,:),1)));axis xy;colorbar;
+title('raw power');
+
+% log10
+p(p == 0) = eps(0);
+plog = log10(p);
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(plog(:,chan,:,:),1)));axis xy;colorbar;
+title('log10(raw power)');
+
+% z-transform relative to baseline
+p(p == 0) = eps(0);
+plog = log10(p);
+plog_blm = repmat(mean(plog(:,:,:,blt),4),[1,1,1,38]);
+plog_blstd = repmat(mean(std(plog(:,:,:,blt),0,1),4),[85,1,1,38]);
+plog_z = (plog - plog_blm) ./ plog_blstd;
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(plog_z(:,chan,:,:),1)),[-1 1]);axis xy;colorbar;
+title('z(log10(raw power) ~blm)');
+
+% absolute: subtract baseline
+plog_abs = plog - plog_blm;
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(plog_abs(:,chan,:,:),1)),[-1 1]);axis xy;colorbar;
+title('absolute: log10(raw power) - blm');
+
+% relative: divide by baseline - NOT WORKING
+plog_rel = plog ./ plog_blm;
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(plog_rel(:,chan,:,:),1)));axis xy;colorbar;
+title('relative: log10(raw power) ./ blm');
+
+% relchange: subtract and by baseline (center at 0) - NOT WORKING
+plog_relchg = (plog - plog_blm) ./ plog_blm;
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(plog_relchg(:,chan,:,:),1)));axis xy;colorbar;
+title('relchange: (log10(raw power) - blm) ./ blm');
+
+% % robert (get rid of trials) - no different from z-transforming
+% plog_r_blm = repmat(squeeze(mean(mean(plog(:,:,:,blt),4),1)),[1,1,38]);
+% plog_r_blstd = repmat(squeeze(mean(std(plog(:,:,:,blt),0,1),4)),[1,1,38]);
+% plog_r_z = (squeeze(mean(plog,1)) - plog_r_blm) ./ plog_r_blstd;
+% figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(plog_r_z(chan,:,:)),[-1 1]);axis xy;colorbar;
+% title('robert z(log10(output)~blm)');
+
+% dB(raw)
+p(p == 0) = eps(0);
+pdb = 10*log10(p);
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(pdb(:,chan,:,:),1)));axis xy;colorbar;
+title('dB = 10*log10(raw power)');
+
+% dB(raw ./ bl)
+p(p == 0) = eps(0);
+p_blm = repmat(mean(p(:,:,:,blt),4),[1,1,1,38]);
+pdb_ers = 10*log10(p ./ p_blm);
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(pdb_ers(:,chan,:,:),1)),[-4 4]);axis xy;colorbar;
+title('10*log10(raw power ./ mean(bl))');
+
+% % db(raw) ./ db(bl) - NOT WORKING
+% p(p == 0) = eps(0);
+% p_blm = repmat(mean(p(:,:,:,blt),4),[1,1,1,38]);
+% pdb_ers_sep = (10*log10(p)) ./ (10*log10(p_blm));
+% figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(pdb_ers_sep(:,chan,:,:),1)),[-4 4]);axis xy;colorbar;
+% title('10*log10(raw power) ./ 10*log10(mean(bl))');
+
+
+
 
 %% Test plots to make sure data look ok
 
