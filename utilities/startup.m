@@ -53,8 +53,8 @@ if ~isempty(ftDir)
   % add the peer directory
   addpath(fullfile(ftDir,'peer'));
   
-  % add the multivariate directory
-  addpath(genpath(fullfile(ftDir,'multivariate')));
+  % add the multivariate directory (outdated; use DMLT)
+  %addpath(genpath(fullfile(ftDir,'multivariate')));
   
   % add the SPM directory
   %addpath(fullfile(ftDir,'external','spm8'));
@@ -73,11 +73,28 @@ if ~isempty(ftDir)
   end
   
   % functions that get in the way
-  if exist(fullfile(ftDir,'utilities','compat','progress.m'),'file')
-    unix(sprintf('mv %s %s',fullfile(ftDir,'utilities','compat','progress.m'),fullfile(ftDir,'utilities','compat','progress_old.m')));
+  conflictFiles = {{'progress','MVPA'}}; % {{fxn, other package},{fxn, other package}}
+  for i = 1:length(conflictFiles)
+    if exist(fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'.m']),'file')
+      fprintf('Found an old/unnecessary FieldTrip function %s.m that conflicts with %s''s function. Moving FT''s to %s_old.m.',conflictFiles{i}{1},conflictFiles{i}{2},conflictFiles{i}{1});
+      unix(sprintf('mv %s %s',fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'.m']),fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'_old.m'])));
+    end
   end
   
 end
+
+%% setup DMLT
+dmltDir = fullfile(myMatlabDir,'DMLT');
+if exist(dmltDir,'dir')
+  % add top folder and all subfolders
+  addpath(genpath(dmltDir));
+end
+
+% if you get an error because libgfortran is not installed, follow the
+% instructions from here <http://www.cs.ubc.ca/~hoffmanm/matlab.html> to
+% download the libgfortran 4.2 tarball from here
+% <http://r.research.att.com/tools/> listed under OS X 10.6 and copy
+% libgfortran.* files to /usr/local/lib.
 
 %% set up EP_Toolkit path
 epDir = dir(fullfile(myMatlabDir,'EP_Toolkit*'));
@@ -111,6 +128,6 @@ end
 %% finish
 %cd(myMatlabDir);
 
-clear *Dir entries i entry
+clear *Dir entries i entry conflictFiles
 
 %clearvars

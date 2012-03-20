@@ -45,35 +45,35 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'SOSI001';
-  'SOSI002';
-  'SOSI003';
-  'SOSI004';
-  'SOSI005';
-  'SOSI006';
-  'SOSI007';
-  'SOSI008';
-  'SOSI009';
-  'SOSI010';
-  'SOSI011';
-  'SOSI012';
-  'SOSI013';
-  'SOSI014';
-  'SOSI015';
-  'SOSI016';
-  'SOSI017';
-  'SOSI018';
-  'SOSI020';
-  'SOSI019';
-  'SOSI021';
-  'SOSI022';
-  'SOSI023';
-  'SOSI024';
-  'SOSI025';
-  'SOSI026';
-  'SOSI027';
-  'SOSI028';
-  'SOSI029';
-  'SOSI030';
+%   'SOSI002';
+%   'SOSI003';
+%   'SOSI004';
+%   'SOSI005';
+%   'SOSI006';
+%   'SOSI007';
+%   'SOSI008';
+%   'SOSI009';
+%   'SOSI010';
+%   'SOSI011';
+%   'SOSI012';
+%   'SOSI013';
+%   'SOSI014';
+%   'SOSI015';
+%   'SOSI016';
+%   'SOSI017';
+%   'SOSI018';
+%   'SOSI020';
+%   'SOSI019';
+%   'SOSI021';
+%   'SOSI022';
+%   'SOSI023';
+%   'SOSI024';
+%   'SOSI025';
+%   'SOSI026';
+%   'SOSI027';
+%   'SOSI028';
+%   'SOSI029';
+%   'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -247,8 +247,8 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
-cfg_proc.foi = 4:1:100;
-%cfg_proc.foi = 4:1:60;
+%cfg_proc.foi = 4:1:100;
+cfg_proc.foi = 4:1:60;
 %cfg_proc.foilim = [3 9];
 
 % log-spaced freqs
@@ -298,7 +298,10 @@ end
 
 %% load the analysis details
 
-adFile = saveFile;
+%adFile = saveFile;
+
+% local, testing 1 subject; fourier
+adFile = '/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_60/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
@@ -349,6 +352,7 @@ end
 % mm_ft_loadData - use cfg to do normalization and blc while loading, then
 % return average
 
+
 % mm_ft_freqbaseline - do normalization and baselining
 
 % log10 normalize; dB normalize (10*log10(power / baseline)); vector
@@ -359,6 +363,75 @@ end
 
 % use nanmean
 
+%% new loading workflow
+
+
+cfg = [];
+cfg.keeptrials = 'no';
+cfg.ftype = 'fourier';
+cfg.output = 'pow'; % 'pow', 'phase'
+cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB' (bypass ft_freqbaseline and include bl in dB transform)
+cfg.baselinetype = 'zscore'; % 'zscore 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baseline = [-0.4 -0.2];
+
+[data_freq] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+
+cfg = [];
+cfg.keeptrials = 'no';
+cfg.ftype = 'fourier';
+cfg.output = 'phase'; % 'pow', 'phase'
+cfg.baselinetype = 'absolute'; % 'zscore 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baseline = [-0.4 -0.2];
+
+[data_phase] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+
+
+
+% mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
+
+%% plot something
+
+sub=1;
+ses=1;
+cond = {'CR','SC','SI'};
+
+%if strcmp(cfg.output,'pow')
+param = 'powspctrm';
+clim = [-1 1];
+for cnd = 1:length(cond)
+  figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_freq.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+  axis xy;colorbar;
+  title(sprintf('Z-Power: %s',cond{cnd}));
+end
+%elseif strcmp(cfg.output,'phase')
+param = 'plvspctrm';
+clim = [0 1];
+for cnd = 1:length(cond)
+  figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+  axis xy;colorbar;
+  title(sprintf('Phase - BL: %s',cond{cnd}));
+end
+%end
+
+%% playing with ft_connectivityanalysis
+
+sub=1;
+ses=1;
+cond = {'SC'};
+cnd = 1;
+
+cfg = [];
+%cfg.method = 'plv';
+cfg.method = 'wpli_debiased';
+cfg.channel = {'E11','E55'};
+
+% this tries to run univariate2bivariate
+data_conn = ft_connectivityanalysis(cfg,data_freq.(cond{cnd}).sub(sub).ses(ses).data);
+param = sprintf('%sspctrm',cfg.method);
+figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_conn.(param)(1,2,:,:)));axis xy;colorbar;
+title(sprintf('%s: %s-%s',cfg.method,cfg.channel{1},cfg.channel{2}));
+
+
 %% playing with log/baseline correcting
 
 % samples to use for baseline
@@ -366,40 +439,50 @@ blt = 6:11;
 
 sub=1;
 ses=1;
-chan = 11;
 cond = {'SC'};
 cnd = 1;
 
+chan = 11;
+
 % get power
 %p = data_freq.(cond{cnd}).sub(sub).ses(ses).data.powspctrm;
+% p(p == 0) = eps(0);
 
-% turn fourier into power
+% get complex fourier spectra
 f = data_freq.(cond{cnd}).sub(sub).ses(ses).data.fourierspctrm;
-p = abs(f).^2;
 
-% turn fourier into phase locking (inter-trial coherence)
+% turn fourier into phase-locking values (inter-trial coherence?)
 pl = f ./ abs(f);
 pl_itc = abs(squeeze(mean(pl,1)));
 figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(pl_itc(chan,:,:)));axis xy;colorbar;
 title('raw phase');
 
 % phase: subtract baseline
+%
+% Doesn't matter which one we use, results are the same
+%
+% average phase over trials, then over time
 pl_blm = repmat(abs(squeeze(mean(mean(pl(:,:,:,blt),1),4))),[1,1,38]);
+% average phase over time, then over trials
+%pl_blm = repmat(abs(squeeze(mean(mean(pl(:,:,:,blt),4),1))),[1,1,38]);
 pl_itc_abs = pl_itc - pl_blm;
 figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(pl_itc_abs(chan,:,:)));axis xy;colorbar;
 title('raw phase - bl');
 
-% raw
+% turn fourier into power
+p = abs(f).^2;
+p(p == 0) = eps(0);
+
+% raw power
 figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(p(:,chan,:,:),1)));axis xy;colorbar;
 title('raw power');
 
-% log10
-p(p == 0) = eps(0);
+% log10 normalized power
 plog = log10(p);
 figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(plog(:,chan,:,:),1)));axis xy;colorbar;
 title('log10(raw power)');
 
-% z-transform relative to baseline
+% z-transform power relative to baseline period
 p(p == 0) = eps(0);
 plog = log10(p);
 plog_blm = repmat(mean(plog(:,:,:,blt),4),[1,1,1,38]);

@@ -1,6 +1,8 @@
 function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
 %MM_FT_LOADSUBJECTDATA Load subject data into a full struct
 %
+% NB: THIS FUNCTION WILL BE REPLACED WITH MM_FT_LOADDATA
+%
 % [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
 %
 % exper       = the exper struct
@@ -27,6 +29,10 @@ function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
 %   end
 %   exper.eventValues = sort(exper.eventValues);
 % end
+
+
+
+%warning([mfilename,':oldFxn'],'%s will soon become an old function! Use mm_ft_loadData instead.',mfilename);
 
 if ~exist('keeptrials','var') || isempty(keeptrials)
   keeptrials = 1;
@@ -80,7 +86,7 @@ for sub = 1:length(exper.subjects)
               error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ftype);
             elseif keeptrials == 0 && ~isfield(subSesEvData.(cell2mat(fn)),'powspctrm')
               error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
-            elseif keeptrials == 0&& isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
+            elseif keeptrials == 0 && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
               error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).powspctrm));
             else
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
