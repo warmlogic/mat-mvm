@@ -81,6 +81,11 @@ if ~isfield(cfg,'baselinetype')
   cfg.baselinetype = '';
 end
 
+if strcmp(cfg.normalize,'dB') && ~isempty(cfg.baselinetype) && ~strcmp(cfg.baselinetype,'relative')
+  warning([mfilename,':dbNormBL'],'dB normalization uses a relative baseline type (division). setting cfg.baselinetype=''relative''.\n');
+  cfg.baselinetype = 'relative';
+end
+
 if iscell(eventValues)
   if ~iscell(eventValues{1})
     eventValues = {eventValues};
@@ -138,7 +143,7 @@ for sub = 1:length(exper.subjects)
                 subSesEvData.(cell2mat(fn)).powspctrm(subSesEvData.(cell2mat(fn)).powspctrm == 0) = eps(0);
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
                 param = 'powspctrm';
-                % TODO
+                % TODO? tell FT that we have power?
                 % subSesEvData.(cell2mat(fn)) = ft_checkdata(subSesEvData.(cell2mat(fn)),'haspow','yes');
               elseif strcmp(cfg.output,'phase')
                 subSesEvData.(cell2mat(fn)).plvspctrm = subSesEvData.(cell2mat(fn)).(param) ./ abs(subSesEvData.(cell2mat(fn)).(param));
@@ -146,50 +151,84 @@ for sub = 1:length(exper.subjects)
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
                 param = 'plvspctrm';
                 % change dimord
+                % TODO: automate?
                 subSesEvData.(cell2mat(fn)).dimord = 'chan_freq_time';
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),'trialinfo');
               end
             end
             
             % normalize
-            if strcmp(cfg.normalize,'log10')
+            if ~isempty(cfg.normalize)
               fprintf('Doing a %s normalization.\n',cfg.normalize);
-              subSesEvData.(cell2mat(fn)).(param) = log10(subSesEvData.(cell2mat(fn)).(param));
+              if strcmp(cfg.normalize,'dB')
+                if strcmp(cfg.baselinetype,'relative')
+                  fprintf('Dividing entire trial by mean([%.2f %.2f] pre-stimulus) (baseline correcting) before normalizing.\n',cfg.baseline(1),cfg.baseline(2));
+                  nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                  blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                  blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                  subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param) ./ blm);
+                elseif isempty(cfg.baselinetype)
+                  subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param));
+                else
+                  % TODO: check if this could occur
+                  error('Fix this normalization!');
+                end
+              elseif strcmp(cfg.normalize,'vector')
+                for tr = 1:size(subSesEvData.(cell2mat(fn)).(param),1)
+                  for ch = 1:size(subSesEvData.(cell2mat(fn)).(param),2)
+                    % doesn't ignore NaNs, but is way faster
+                    subSesEvData.(cell2mat(fn)).(param)(tr,ch,:,:) = normr(squeeze(subSesEvData.(cell2mat(fn)).(param)(tr,ch,:,:)));
+                    % % try to ignore NaNs
+                    %for fq = 1:size(subSesEvData.(cell2mat(fn)).(param),3)
+                    %  thisTrl = squeeze(subSesEvData.(cell2mat(fn)).(param)(tr,ch,fq,:));
+                    %  subSesEvData.(cell2mat(fn)).(param)(tr,ch,fq,~isnan(thisTrl)) = normc(thisTrl(~isnan(thisTrl)));
+                    %end
+                    % % trying another method, but it doesn't work
+                    %thisTrl = squeeze(subSesEvData.(cell2mat(fn)).(param)(tr,ch,:,:));
+                    %subSesEvData.(cell2mat(fn)).(param)(tr,ch,:,~isnan(thisTrl)) = normr(thisTrl(~isnan(thisTrl)));
+                  end
+                end
+              else
+                % run using feval
+                subSesEvData.(cell2mat(fn)).(param) = feval(cfg.normalize,subSesEvData.(cell2mat(fn)).(param));
+              end
             end
             
             % baseline
-            if strcmp(cfg.baselinetype,'zscore') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow'))
-              fprintf('Z-transforming data relative to [%.2f %.2f] pre-stimulus.\n',cfg.baseline(1),cfg.baseline(2));
-              blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
-              
-              nTrl = size(subSesEvData.(cell2mat(fn)).(param),1);
-              %nFrq = size(subSesEvData.(cell2mat(fn)).(param),3);
-              nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
-              
-              blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-              blstd = repmat(nanmean(std(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,1),4),[nTrl,1,1,nSmp]);
-              subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blstd;
-              
-            elseif strcmp(cfg.baselinetype,'absolute') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow'))
-              fprintf('Subtracting [%.2f %.2f] pre-stimulus from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
-              blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= baseline(2);
-              
-              %nFrq = length(subSesEvData.(cell2mat(fn)).freq);
-              nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
-              
-              blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-              subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
-              
-            elseif strcmp(cfg.baselinetype,'absolute') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'phase'))
-              fprintf('Subtracting [%.2f %.2f] pre-stimulus from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
-              blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
-              
-              nSmp = size(subSesEvData.(cell2mat(fn)).(param),3);
-              
-              blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,blt),3),[1,1,nSmp]);
-              subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
+            if ~isempty(cfg.baselinetype) && ~strcmp(cfg.normalize,'dB')
+              if strcmp(cfg.baselinetype,'zscore') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
+                fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
+                blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                
+                nTrl = size(subSesEvData.(cell2mat(fn)).(param),1);
+                %nFrq = size(subSesEvData.(cell2mat(fn)).(param),3);
+                nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                
+                blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                blstd = repmat(nanmean(std(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,1),4),[nTrl,1,1,nSmp]);
+                subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blstd;
+                
+              elseif strcmp(cfg.baselinetype,'absolute') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
+                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= baseline(2);
+                
+                nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                
+                blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
+                
+              elseif strcmp(cfg.baselinetype,'absolute') && strcmp(cfg.output,'phase') && ndims(subSesEvData.(cell2mat(fn)).(param)) == 3
+                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                
+                nSmp = size(subSesEvData.(cell2mat(fn)).(param),3);
+                
+                blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,blt),3),[1,1,nSmp]);
+                subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
+              end
             end
             
+            % average
             if strcmp(cfg.keeptrials,'no') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
               % use ft_freqdescriptives to average over individual trials
               % if desired and the data is appropriate
@@ -197,12 +236,12 @@ for sub = 1:length(exper.subjects)
               cfg_fd = [];
               cfg_fd.cfg.keeptrials = 'no';
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
-%             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
-%               error('\n%s %s %s: Can only keep trials for cfg.ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.ftype);
-%             elseif strcmp(cfg.keeptrials,'no') && ~isfield(subSesEvData.(cell2mat(fn)),'powspctrm')
-%               error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
-%             elseif strcmp(cfg.keeptrials,'no') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
-%               error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).powspctrm));
+              %             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
+              %               error('\n%s %s %s: Can only keep trials for cfg.ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.ftype);
+              %             elseif strcmp(cfg.keeptrials,'no') && ~isfield(subSesEvData.(cell2mat(fn)),'powspctrm')
+              %               error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
+              %             elseif strcmp(cfg.keeptrials,'no') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
+              %               error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).powspctrm));
             else
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
             end
