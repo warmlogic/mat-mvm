@@ -117,6 +117,9 @@ addpath(myMatlabDir);
 entries = regexp(path, ['[^',pathsep,']*',pathsep], 'match');
 for i = 1:length(entries)
   entry = char(entries{i});
+  if ~isempty(strfind(entry, '.git'))
+    rmpath(entry);
+  end
   if ~isempty(strfind(entry, '.svn'))
     rmpath(entry);
   end
