@@ -53,58 +53,92 @@ for cnd = 1:length(cfg_plot.conditions)
   end
   
   if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
-    fprintf('%s:\tNo positive or negative clusters\n',vs_str);
+    fprintf('%s:\tNo positive or negative clusters found.\n',vs_str);
     continue
   end
   
   if isfield(stat_clus.(vs_str),'posclusters') || isfield(stat_clus.(vs_str),'negclusters')
     if ~isempty(stat_clus.(vs_str).posclusters)
       %for i = 1:length(stat_clus.(vs_str).posclusters)
-      %  fprintf('%s, Pos %d = %.5f\n',vs_str,i,stat_clus.(vs_str).posclusters(i).prob);
+      %  fprintf('%s, Pos (%d of %d): p=%.5f\n',vs_str,i,length(stat_clus.(vs_str).posclusters),stat_clus.(vs_str).posclusters(i).prob);
       %end
-      fprintf('%s\tSmallest Pos = %.5f\n',vs_str,stat_clus.(vs_str).posclusters(1).prob);
+      fprintf('%s\tSmallest Pos: p=%.5f\n',vs_str,stat_clus.(vs_str).posclusters(1).prob);
     end
     if ~isempty(stat_clus.(vs_str).negclusters)
       %for i = 1:length(stat_clus.(vs_str).negclusters)
-      %  fprintf('%s, Neg %d = %.5f\n',vs_str,i,stat_clus.(vs_str).negclusters(i).prob);
+      %  fprintf('%s, Neg (%d of %d): p=%.5f\n',vs_str,i,length(stat_clus.(vs_str).negclusters),stat_clus.(vs_str).negclusters(i).prob);
       %end
-      fprintf('%s\tSmallest Neg = %.5f\n',vs_str,stat_clus.(vs_str).negclusters(1).prob);
+      fprintf('%s\tSmallest Neg: p=%.5f\n',vs_str,stat_clus.(vs_str).negclusters(1).prob);
     end
     
-    %if ~isempty(stat_clus.(vs_str).posclusters) || ~isempty(stat_clus.(vs_str).negclusters)
-    
-    if (~isempty(stat_clus.(vs_str).posclusters) && ~isempty(find(stat_clus.(vs_str).posclusters(1).prob < cfg_ft.alpha,1))) || (~isempty(stat_clus.(vs_str).negclusters) && ~isempty(find(stat_clus.(vs_str).negclusters(1).prob < cfg_ft.alpha,1)))
-      fprintf('%s:\t***Found positive or negative clusters***\n',vs_str);
-      ft_clusterplot(cfg_ft,stat_clus.(vs_str));
-      
-      if files.saveFigs
-        fignums = findobj('Type','figure');
-        for f = 1:length(fignums)
-          figure(f)
-          
-          cfg_plot.figfilename = sprintf('tla_clus_ga_%s_%d_%d_fig%d',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
-          
-          dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000),vs_str);
-          %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tla_stat_clus',vs_str);
-          if ~exist(dirs.saveDirFigsClus,'dir')
-            mkdir(dirs.saveDirFigsClus)
-          end
-          
-          if strcmp(files.figPrintFormat(1:2),'-d')
-            files.figPrintFormat = files.figPrintFormat(3:end);
-          end
-          if ~isfield(files,'figPrintRes')
-            files.figPrintRes = 150;
-          end
-          print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename));
+    if ~isempty(stat_clus.(vs_str).posclusters) || ~isempty(stat_clus.(vs_str).negclusters)
+      if ~isempty(stat_clus.(vs_str).posclusters)
+        sigpos = [];
+        for iPos = 1:length(stat_clus.(vs_str).posclusters)
+          sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg_ft.alpha;
         end
-      end % if
+        sigpos = find(sigpos == 1);
+      end
+      if ~isempty(stat_clus.(vs_str).negclusters)
+        signeg = [];
+        for iNeg = 1:length(stat_clus.(vs_str).negclusters)
+          signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg_ft.alpha;
+        end
+        signeg = find(signeg == 1);
+      end
+      Nsigpos = length(sigpos);
+      Nsigneg = length(signeg);
+      Nsigall = Nsigpos + Nsigneg;
       
-      close all
-    elseif (~isempty(stat_clus.(vs_str).posclusters) && isempty(find(stat_clus.(vs_str).posclusters(1).prob < cfg_ft.alpha,1))) || (~isempty(stat_clus.(vs_str).negclusters) && isempty(find(stat_clus.(vs_str).negclusters(1).prob < cfg_ft.alpha,1)))
-      fprintf('%s:\tNo significant positive or negative clusters\n',vs_str);
+      clus_str = '';
+      if Nsigpos > 0
+        clus_str = cat(2,clus_str,'positive');
+      end
+      if Nsigneg > 0 && isempty(clus_str)
+        clus_str = cat(2,clus_str,'negative');
+      elseif Nsigneg > 0 && ~isempty(clus_str)
+        clus_str = cat(2,clus_str,' and negative');
+      end
+      
+      if Nsigall > 0
+        if Nsigall == 1
+          clus_str = cat(2,clus_str,' cluster');
+        elseif Nsigall > 1
+          clus_str = cat(2,clus_str,' clusters');
+        end
+        fprintf('%s:\t***Found significant %s at p<%.3f***\n',vs_str,clus_str,cfg_ft.alpha);
+        ft_clusterplot(cfg_ft,stat_clus.(vs_str));
+        
+        if files.saveFigs
+          fignums = findobj('Type','figure');
+          for f = 1:length(fignums)
+            figure(f)
+            
+            cfg_plot.figfilename = sprintf('tla_clus_ga_%s_%d_%d_fig%d',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
+            
+            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000),vs_str);
+            %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tla_stat_clus',vs_str);
+            if ~exist(dirs.saveDirFigsClus,'dir')
+              mkdir(dirs.saveDirFigsClus)
+            end
+            
+            if strcmp(files.figPrintFormat(1:2),'-d')
+              files.figPrintFormat = files.figPrintFormat(3:end);
+            end
+            if ~isfield(files,'figPrintRes')
+              files.figPrintRes = 150;
+            end
+            print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename));
+          end
+        end % if
+        
+        close all
+      elseif Nsigall == 0
+        %elseif (~isempty(stat_clus.(vs_str).posclusters) && isempty(find(stat_clus.(vs_str).posclusters(1).prob < cfg_ft.alpha,1))) || (~isempty(stat_clus.(vs_str).negclusters) && isempty(find(stat_clus.(vs_str).negclusters(1).prob < cfg_ft.alpha,1)))
+        fprintf('%s:\tNo significant positive or negative clusters at p<%.3f\n',vs_str,cfg_ft.alpha);
+      end
     elseif isempty(stat_clus.(vs_str).posclusters) && isempty(stat_clus.(vs_str).negclusters)
-      fprintf('%s:\tNo positive or negative clusters\n',vs_str);
+      fprintf('%s:\tNo positive or negative clusters found.\n',vs_str);
     end
   end % if isfield
   

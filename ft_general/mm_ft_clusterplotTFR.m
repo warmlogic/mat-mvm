@@ -1,6 +1,6 @@
 function mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs)
 %mm_ft_clusterplotTFR Plot (and save) significant clusters
-%   
+%
 
 if ~isfield(cfg_ft,'avgoverfreq')
   cfg_ft.avgoverfreq = 'yes';
@@ -91,77 +91,110 @@ for cnd = 1:length(cfg_plot.conditions)
   end
   
   if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
-    fprintf('%s:\tNo positive or negative clusters\n',vs_str);
+    fprintf('%s:\tNo positive or negative clusters found.\n',vs_str);
     continue
   end
   
   if isfield(stat_clus.(vs_str),'posclusters') || isfield(stat_clus.(vs_str),'negclusters')
     if ~isempty(stat_clus.(vs_str).posclusters)
       %for i = 1:length(stat_clus.(vs_str).posclusters)
-      %  fprintf('%s, Pos %d = %.5f\n',vs_str,i,stat_clus.(vs_str).posclusters(i).prob);
+      %  fprintf('%s, Pos (%d of %d) p=%.5f\n',vs_str,i,length(stat_clus.(vs_str).posclusters),stat_clus.(vs_str).posclusters(i).prob);
       %end
-      fprintf('%s\tSmallest Pos = %.5f\n',vs_str,stat_clus.(vs_str).posclusters(1).prob);
+      fprintf('%s\tSmallest Pos: p=%.5f\n',vs_str,stat_clus.(vs_str).posclusters(1).prob);
     end
     if ~isempty(stat_clus.(vs_str).negclusters)
       %for i = 1:length(stat_clus.(vs_str).negclusters)
-      %  fprintf('%s, Neg %d = %.5f\n',vs_str,i,stat_clus.(vs_str).negclusters(i).prob);
+      %  fprintf('%s, Neg (%d of %d) p=%.5f\n',vs_str,i,length(stat_clus.(vs_str).negclusters),stat_clus.(vs_str).negclusters(i).prob);
       %end
-      fprintf('%s\tSmallest Neg = %.5f\n',vs_str,stat_clus.(vs_str).negclusters(1).prob);
+      fprintf('%s\tSmallest Neg: p=%.5f\n',vs_str,stat_clus.(vs_str).negclusters(1).prob);
     end
     
-    %if ~isempty(stat_clus.(vs_str).posclusters) || ~isempty(stat_clus.(vs_str).negclusters)
-    
-    if (~isempty(stat_clus.(vs_str).posclusters) && ~isempty(find(stat_clus.(vs_str).posclusters(1).prob < cfg_ft.alpha,1))) || (~isempty(stat_clus.(vs_str).negclusters) && ~isempty(find(stat_clus.(vs_str).negclusters(1).prob < cfg_ft.alpha,1)))
-      fprintf('%s:\t***Found positive or negative clusters***\n',vs_str);
+    if ~isempty(stat_clus.(vs_str).posclusters) || ~isempty(stat_clus.(vs_str).negclusters)
+      if ~isempty(stat_clus.(vs_str).posclusters)
+        sigpos = [];
+        for iPos = 1:length(stat_clus.(vs_str).posclusters)
+          sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg_ft.alpha;
+        end
+        sigpos = find(sigpos == 1);
+      end
+      if ~isempty(stat_clus.(vs_str).negclusters)
+        signeg = [];
+        for iNeg = 1:length(stat_clus.(vs_str).negclusters)
+          signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg_ft.alpha;
+        end
+        signeg = find(signeg == 1);
+      end
+      Nsigpos = length(sigpos);
+      Nsigneg = length(signeg);
+      Nsigall = Nsigpos + Nsigneg;
       
-      if isequal(cfg_ft.avgoverfreq,'yes')
-        ft_clusterplot(cfg_ft,stat_clus.(vs_str));
-      elseif isequal(cfg_ft.avgoverfreq,'no')
-        % save the fields
-        conditions_orig = cfg_plot.conditions;
-        eventValues_orig = ana.eventValues;
-        
-        % do the plot
-        cfg_plot.conditions = vs_str;
-        cfg_plot.condMethod = 'check';
-        ana.eventValues = {{vs_str}};
-        mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
-        % put the fields back
-        cfg_plot.conditions = conditions_orig;
-        ana.eventValues = eventValues_orig;
+      clus_str = '';
+      if Nsigpos > 0
+        clus_str = cat(2,clus_str,'positive');
+      end
+      if Nsigneg > 0 && isempty(clus_str)
+        clus_str = cat(2,clus_str,'negative');
+      elseif Nsigneg > 0 && ~isempty(clus_str)
+        clus_str = cat(2,clus_str,' and negative');
       end
       
-      if files.saveFigs
-        fignums = findobj('Type','figure');
-        for f = 1:length(fignums)
-          figure(f)
-          
-          cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
-          
-          dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.dirStr),vs_str);
-          %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tfr_stat_clus',vs_str);
-          if ~exist(dirs.saveDirFigsClus,'dir')
-            mkdir(dirs.saveDirFigsClus)
-          end
-          
-          if strcmp(files.figPrintFormat(1:2),'-d')
-            files.figPrintFormat = files.figPrintFormat(3:end);
-          end
-          if ~isfield(files,'figPrintRes')
-            files.figPrintRes = 150;
-          end
-          print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename));
+      if Nsigall > 0
+        if Nsigall == 1
+          clus_str = cat(2,clus_str,' cluster');
+        elseif Nsigall > 1
+          clus_str = cat(2,clus_str,' clusters');
         end
+        fprintf('%s:\t***Found significant %s at p<%.3f***\n',vs_str,clus_str,cfg_ft.alpha);
+        
+        if isequal(cfg_ft.avgoverfreq,'yes')
+          ft_clusterplot(cfg_ft,stat_clus.(vs_str));
+        elseif isequal(cfg_ft.avgoverfreq,'no')
+          % save the fields
+          conditions_orig = cfg_plot.conditions;
+          eventValues_orig = ana.eventValues;
+          
+          % do the plot
+          cfg_plot.conditions = vs_str;
+          cfg_plot.condMethod = 'check';
+          ana.eventValues = {{vs_str}};
+          mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
+          
+          % put the fields back
+          cfg_plot.conditions = conditions_orig;
+          ana.eventValues = eventValues_orig;
+          
+          % for when we're looking at multiplots
+          keyboard
+        end
+        
+        if files.saveFigs
+          fignums = findobj('Type','figure');
+          for f = 1:length(fignums)
+            figure(f)
+            
+            cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
+            
+            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.dirStr),vs_str);
+            if ~exist(dirs.saveDirFigsClus,'dir')
+              mkdir(dirs.saveDirFigsClus)
+            end
+            
+            if strcmp(files.figPrintFormat(1:2),'-d')
+              files.figPrintFormat = files.figPrintFormat(3:end);
+            end
+            if ~isfield(files,'figPrintRes')
+              files.figPrintRes = 150;
+            end
+            print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename));
+          end
+        end % if
         close all
-      else
-        keyboard
-        close all
-      end % if
-      
-    elseif (~isempty(stat_clus.(vs_str).posclusters) && isempty(find(stat_clus.(vs_str).posclusters(1).prob < cfg_ft.alpha,1))) || (~isempty(stat_clus.(vs_str).negclusters) && isempty(find(stat_clus.(vs_str).negclusters(1).prob < cfg_ft.alpha,1)))
-      fprintf('%s:\tNo significant positive or negative clusters\n',vs_str);
+        
+      elseif Nsigall == 0
+        fprintf('%s:\tNo significant positive or negative clusters at p<%.3f\n',vs_str,cfg_ft.alpha);
+      end
     elseif isempty(stat_clus.(vs_str).posclusters) && isempty(stat_clus.(vs_str).negclusters)
-      fprintf('%s:\tNo positive or negative clusters\n',vs_str);
+      fprintf('%s:\tNo positive or negative clusters found.\n',vs_str);
     end
   end % if isfield
   

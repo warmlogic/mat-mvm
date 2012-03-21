@@ -825,8 +825,8 @@ cfg.clusAlpha = 0.1;
 cfg.clusTimes = cfg.times;
 
 cfg.legendloc = 'SouthWest';
-%cfg.yminmax = [-0.5 0.25];
-cfg.yminmax = [-0.5 0.2];
+cfg.yminmax = [-0.5 0.25];
+%cfg.yminmax = [-0.5 0.2];
 cfg.nCol = 3;
 
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);

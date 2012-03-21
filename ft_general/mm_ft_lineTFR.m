@@ -180,7 +180,7 @@ for typ = 1:length(cfg.conditions)
   if cfg.plotClusSig
     condCombos = nchoosek(1:nCond,2);
   end
-
+  
   for f = 1:nFreq
     figure
     
@@ -194,8 +194,9 @@ for typ = 1:length(cfg.conditions)
     chan_str_all = cellflat(cfg.rois);
     chan_str_all = sprintf(repmat('%s_',1,length(chan_str_all)),chan_str_all{:});
     
-    % choose the frequency range
-    freqsel = data.(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
+    % initialize
+    h = nan(nROIs,nCond);
+    dataVec = nan(nCond,nROIs,nTime);
     
     for r = 1:nROIs
       cfg.roi = cfg.rois{r};
@@ -224,88 +225,20 @@ for typ = 1:length(cfg.conditions)
         end
       end
       
-      % initialize
-      h = nan(1,nCond);
-      dataVec = nan(nCond,nTime);
-      
       for evVal = 1:nCond
         for t = 1:nTime
-          % find the indices for the times and frequencies that we want
-          timesel = data.(cfg.conditions{typ}{evVal}).time >= cfg.times(t,1) & data.(cfg.conditions{typ}{evVal}).time <= cfg.times(t,2);
+          % find the indices for the chans, freqs, and times that we want
           chansel = ismember(data.(cfg.conditions{typ}{evVal}).label,cfg.channel);
+          freqsel = data.(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
+          timesel = data.(cfg.conditions{typ}{evVal}).time >= cfg.times(t,1) & data.(cfg.conditions{typ}{evVal}).time <= cfg.times(t,2);
           
-          dataVec(evVal,t) = nanmean(nanmean(nanmean(data.(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
+          dataVec(evVal,r,t) = nanmean(nanmean(nanmean(data.(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
         end % t
         
         % TODO: don't plot at the average time, plot at the first time and
         % add on the final time point manually?
-        h(evVal) = plot(mean(cfg.times,2),dataVec(evVal,:),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
+        h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
       end % evVal
-      
-      % Find the significant clusters
-      if cfg.plotClusSig
-        for t = 1:size(cfg.clusTimes,1)
-          dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000,cfg.clusDirStr));
-          foundpos = 0;
-          foundneg = 0;
-          for evVal = 1:nCond
-            vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)});
-            savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000));
-            if exist(savedFile,'file')
-              %fprintf('Loading %s\n',savedFile);
-              load(savedFile);
-            else
-              warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
-              continue
-            end
-            
-            if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
-              %fprintf('%s:\tNo positive or negative clusters\n',vs_str);
-              continue
-            end
-            
-            sigpos = [];
-            if ~isempty(stat_clus.(vs_str).posclusters)
-              for iPos = 1:length(stat_clus.(vs_str).posclusters)
-                sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusAlpha;
-              end
-              sigpos = find(sigpos == 1);
-              
-              posCLM = squeeze(stat_clus.(vs_str).posclusterslabelmat);
-              sigposCLM = zeros(size(posCLM,1),size(sigpos,2));
-              for iPos = 1:length(sigpos)
-                sigposCLM(:,iPos) = (posCLM == sigpos(iPos));
-                
-                if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))) > 0
-                  %fprintf('%s:\t***Found positive clusters***\n',vs_str);
-                  foundpos = foundpos + 1;
-                  text(mean(cfg.clusTimes(t,:),2) - 0.05,max([dataVec(condCombos(evVal,1),t) dataVec(condCombos(evVal,2),t)]) + (0.05 * foundpos),sprintf('%s>%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)}));
-                end
-              end % iPos
-            end
-            
-            signeg = [];
-            if ~isempty(stat_clus.(vs_str).negclusters)
-              for iNeg = 1:length(stat_clus.(vs_str).negclusters)
-                signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusAlpha;
-              end
-              signeg = find(signeg == 1);
-
-              negCLM = squeeze(stat_clus.(vs_str).negclusterslabelmat);
-              signegCLM = zeros(size(negCLM,1),size(signeg,2));
-              for iNeg = 1:length(signeg)
-                signegCLM(:,iNeg) = (negCLM == signeg(iNeg));
-                
-                if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))) > 0
-                  %fprintf('%s:\t***Found negative clusters***\n',vs_str);
-                  foundneg = foundneg + 1;
-                  text(mean(cfg.clusTimes(t,:),2) - 0.05,min([dataVec(condCombos(evVal,1),t) dataVec(condCombos(evVal,2),t)]) - (0.05 * foundneg),sprintf('%s<%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)}));
-                end
-              end % iNeg
-            end
-          end % evVal
-        end % t
-      end % if plotClusSig
       
       xlim(cfg.xminmax);
       ylim(cfg.yminmax);
@@ -326,14 +259,106 @@ for typ = 1:length(cfg.conditions)
         cfg.title_str = '';
       end
       
+      if cfg.plotLegend && r == nROIs
+        legend(h(r,:),strrep(cfg.rename_conditions{typ},'_',''),'Location',cfg.legendloc);
+        cfg.legend_str = '_legend';
+      else
+        cfg.legend_str = '';
+      end
     end % r
     
-    if cfg.plotLegend
-      legend(h,strrep(cfg.rename_conditions{typ},'_',''),'Location',cfg.legendloc);
-      cfg.legend_str = '_legend';
-    else
-      cfg.legend_str = '';
-    end
+    % Find the significant clusters
+    if cfg.plotClusSig
+      foundpos = zeros(nROIs,nTime);
+      foundneg = zeros(nROIs,nTime);
+      for t = 1:size(cfg.clusTimes,1)
+        dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000,cfg.clusDirStr));
+        for evVal = 1:nCond
+          vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)});
+          savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000));
+          if exist(savedFile,'file')
+            %fprintf('Loading %s\n',savedFile);
+            load(savedFile);
+          else
+            warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
+            continue
+          end
+          
+          if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
+            %fprintf('%s:\tNo positive or negative clusters\n',vs_str);
+            continue
+          end
+          
+          for r = 1:nROIs
+            cfg.roi = cfg.rois{r};
+            subplot(cfg.nRow,cfg.nCol,r);
+            
+            % set the channel information
+            if ismember(cfg.roi,ana.elecGroupsStr)
+              % if it's in the predefined ROIs, get the channel numbers
+              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
+              % set the string for the filename
+              chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+            else
+              % otherwise it should be the channel number(s) or 'all'
+              cfg.channel = cfg.roi;
+              
+              % set the string for the filename
+              if isfield(cfg,'cohrefchannel')
+                chan_str = [cfg.cohrefchannel,'-',sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:})];
+              else
+                chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+              end
+            end
+            
+            % find the positive clusters
+            if ~isempty(stat_clus.(vs_str).posclusters)
+              sigpos = [];
+              for iPos = 1:length(stat_clus.(vs_str).posclusters)
+                sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusAlpha;
+              end
+              sigpos = find(sigpos == 1);
+              
+              posCLM = squeeze(stat_clus.(vs_str).posclusterslabelmat);
+              sigposCLM = zeros(size(posCLM,1),size(sigpos,2));
+              for iPos = 1:length(sigpos)
+                sigposCLM(:,iPos) = (posCLM == sigpos(iPos));
+                
+                if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))) > 0
+                  %fprintf('%s:\t***Found positive clusters***\n',vs_str);
+                  foundpos(r,t) = foundpos(r,t) + 1;
+                  text(mean(cfg.clusTimes(t,:),2) - 0.05,max(max([dataVec(:,r,t) dataVec(:,r,t)])) + (0.05 * foundpos(r,t)),...
+                    sprintf('%s>%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)}));
+                end
+              end % iPos
+            end
+            
+            % find the negative clusters
+            if ~isempty(stat_clus.(vs_str).negclusters)
+              signeg = [];
+              for iNeg = 1:length(stat_clus.(vs_str).negclusters)
+                signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusAlpha;
+              end
+              signeg = find(signeg == 1);
+              
+              negCLM = squeeze(stat_clus.(vs_str).negclusterslabelmat);
+              signegCLM = zeros(size(negCLM,1),size(signeg,2));
+              for iNeg = 1:length(signeg)
+                signegCLM(:,iNeg) = (negCLM == signeg(iNeg));
+                
+                if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))) > 0
+                  %fprintf('%s:\t***Found negative clusters***\n',vs_str);
+                  foundneg(r,t) = foundneg(r,t) + 1;
+                  text(mean(cfg.clusTimes(t,:),2) - 0.05,min(min([dataVec(:,r,t) dataVec(:,r,t)])) - (0.05 * foundneg(r,t)),...
+                    sprintf('%s<%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)}));
+                end
+              end % iNeg
+            end
+            hold off
+          end % r
+        end % evVal
+      end % t
+    end % if plotClusSig
     
     if ~isfield(files,'figFontName')
       files.figFontName = 'Helvetica';
