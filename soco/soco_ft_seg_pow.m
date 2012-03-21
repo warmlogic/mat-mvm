@@ -191,10 +191,15 @@ cfg_pp.baselinewindow = [-0.2 0];
 % % cfg_pp.lpfreq = [35];
 
 cfg_proc = [];
-cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
-cfg_proc.keeptrials = 'no';
-cfg_proc.keeptapers = 'no';
+% cfg_proc.output = 'pow';
+% % cfg_proc.output = 'powandcsd';
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.keeptapers = 'no';
+
+cfg_proc.output = 'fourier';
+cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptapers = 'yes';
 
 % % MTM FFT
 % cfg_proc.method = 'mtmfft';
@@ -220,35 +225,38 @@ cfg_proc.keeptapers = 'no';
 % cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
 % % frequency smoothing (tapsmofrq) is not used for hanning taper
 
-% multi-taper method - Usually above 30 Hz
-cfg_proc.method = 'mtmconvol';
-cfg_proc.taper = 'dpss';
-cfg_proc.toi = -0.5:0.04:1.0;
-freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-cfg_proc.foi = 3:freqstep:40;
-%cfg_proc.foi = 3:freqstep:9;
-%cfg_proc.foi = 3:1:9;
-%cfg_proc.foi = 2:2:30;
-% temporal smoothing
-cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
-% frequency smoothing (tapsmofrq) is used for dpss
-cfg_proc.tapsmofrq = 0.3 .* cfg_proc.foi;
-
-% % wavelet
-% cfg_proc.method = 'wavelet';
-% cfg_proc.width = 5;
-% %cfg_proc.toi = -0.8:0.04:3.0;
+% % multi-taper method - Usually above 30 Hz
+% cfg_proc.method = 'mtmconvol';
+% cfg_proc.taper = 'dpss';
 % cfg_proc.toi = -0.5:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % cfg_proc.foi = 3:freqstep:40;
 % %cfg_proc.foi = 3:freqstep:9;
-% %cfg_proc.foilim = [3 9];
+% %cfg_proc.foi = 3:1:9;
+% %cfg_proc.foi = 2:2:30;
+% % temporal smoothing
+% cfg_proc.t_ftimwin = 5 ./ cfg_proc.foi;
+% % frequency smoothing (tapsmofrq) is used for dpss
+% cfg_proc.tapsmofrq = 0.3 .* cfg_proc.foi;
 
+% wavelet
+cfg_proc.method = 'wavelet';
+cfg_proc.width = 6;
+%cfg_proc.toi = -0.8:0.04:3.0;
+cfg_proc.toi = -0.5:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
+% % cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.foi = 3:freqstep:60;
+cfg_proc.foi = 4:1:100;
+%cfg_proc.foi = 4:1:60;
+%cfg_proc.foilim = [3 9];
+
+% log-spaced freqs
 %cfg_proc.foi = (2^(1/8)).^(16:42);
 
 % set the save directories; final argument is prefix of save directory
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,cfg_proc.output);
 
 % ftype: a string used in naming the processed files (data_FTYPE_EVENT.mat)
 ana.ftype = cfg_proc.output;

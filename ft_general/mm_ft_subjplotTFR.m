@@ -31,6 +31,8 @@ if ~isfield(cfg_ft,'zlim')
     cfg_ft.zlim = [0 2.0];
   elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
     cfg_ft.zlim = [-1.0 1.0];
+  else
+    cfg_ft.zlim = [-1.0 1.0];
   end
 end
 

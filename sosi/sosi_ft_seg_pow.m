@@ -45,35 +45,35 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'SOSI001';
-%   'SOSI002';
-%   'SOSI003';
-%   'SOSI004';
-%   'SOSI005';
-%   'SOSI006';
-%   'SOSI007';
-%   'SOSI008';
-%   'SOSI009';
-%   'SOSI010';
-%   'SOSI011';
-%   'SOSI012';
-%   'SOSI013';
-%   'SOSI014';
-%   'SOSI015';
-%   'SOSI016';
-%   'SOSI017';
-%   'SOSI018';
-%   'SOSI020';
-%   'SOSI019';
-%   'SOSI021';
-%   'SOSI022';
-%   'SOSI023';
-%   'SOSI024';
-%   'SOSI025';
-%   'SOSI026';
-%   'SOSI027';
-%   'SOSI028';
-%   'SOSI029';
-%   'SOSI030';
+  'SOSI002';
+  'SOSI003';
+  'SOSI004';
+  'SOSI005';
+  'SOSI006';
+  'SOSI007';
+  'SOSI008';
+  'SOSI009';
+  'SOSI010';
+  'SOSI011';
+  'SOSI012';
+  'SOSI013';
+  'SOSI014';
+  'SOSI015';
+  'SOSI016';
+  'SOSI017';
+  'SOSI018';
+  'SOSI020';
+  'SOSI019';
+  'SOSI021';
+  'SOSI022';
+  'SOSI023';
+  'SOSI024';
+  'SOSI025';
+  'SOSI026';
+  'SOSI027';
+  'SOSI028';
+  'SOSI029';
+  'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -301,7 +301,10 @@ end
 %adFile = saveFile;
 
 % local, testing 1 subject; fourier
-adFile = '/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_60/analysisDetails.mat';
+%adFile = '/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_60/analysisDetails.mat';
+
+% fourier 4-100 Hz
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
@@ -349,50 +352,42 @@ end
 
 [data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,cfg_proc.output);
 
-% mm_ft_loadData - use cfg to do normalization and blc while loading, then
-% return average
-
-
-% mm_ft_freqbaseline - do normalization and baselining
-
-% log10 normalize; dB normalize (10*log10(power / baseline)); vector
-% normalize (normc/normr)
-
-% baseline: absolute; relative; relchange; ztransform; separate baseline
-% condition
-
-% use nanmean
-
-%% new loading workflow
-
+%% new loading workflow - pow
 
 cfg = [];
 cfg.keeptrials = 'no';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'phase'
-cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB' (bypass ft_freqbaseline and include bl in dB transform)
-cfg.baselinetype = 'zscore'; % 'zscore 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
+cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
 
 [data_freq] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+
+save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
+
+%% new loading workflow - phase
+
+% equate trials!!
 
 cfg = [];
 cfg.keeptrials = 'no';
 cfg.ftype = 'fourier';
 cfg.output = 'phase'; % 'pow', 'phase'
-cfg.baselinetype = 'absolute'; % 'zscore 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
 
 [data_phase] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
+save(fullfile(dirs.saveDirProc,'data_phase.mat'),'data_phase');
 
-
-% mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
+% TODO: mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
 
 %% plot something
 
 sub=1;
 ses=1;
+chan=11;
 cond = {'CR','SC','SI'};
 
 %if strcmp(cfg.output,'pow')
@@ -403,15 +398,15 @@ for cnd = 1:length(cond)
   axis xy;colorbar;
   title(sprintf('Z-Power: %s',cond{cnd}));
 end
-%elseif strcmp(cfg.output,'phase')
-param = 'plvspctrm';
-clim = [0 1];
-for cnd = 1:length(cond)
-  figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
-  axis xy;colorbar;
-  title(sprintf('Phase - BL: %s',cond{cnd}));
-end
-%end
+% %elseif strcmp(cfg.output,'phase')
+% param = 'plvspctrm';
+% clim = [0 1];
+% for cnd = 1:length(cond)
+%   figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+%   axis xy;colorbar;
+%   title(sprintf('Phase - BL: %s',cond{cnd}));
+% end
+% %end
 
 %% playing with ft_connectivityanalysis
 
@@ -539,18 +534,20 @@ title('10*log10(raw power ./ mean(bl))');
 %% Test plots to make sure data look ok
 
 cfg_ft = [];
-cfg_ft.baseline = [-0.3 -0.1];
-cfg_ft.baselinetype = 'absolute'; % maybe this
-%cfg_ft.baselinetype = 'relative';
-%cfg_ft.baselinetype = 'relchange'; % or this
-if strcmp(cfg_ft.baselinetype,'absolute')
-  cfg_ft.zlim = [-400 400];
-  %cfg_ft.zlim = [-2 2];
-elseif strcmp(cfg_ft.baselinetype,'relative')
-  cfg_ft.zlim = [0 2.0];
-elseif strcmp(cfg_ft.baselinetype,'relchange')
-  cfg_ft.zlim = [-1.0 1.0];
-end
+% cfg_ft.baseline = [-0.3 -0.1];
+% cfg_ft.baselinetype = 'absolute'; % maybe this
+% %cfg_ft.baselinetype = 'relative';
+% %cfg_ft.baselinetype = 'relchange'; % or this
+% if strcmp(cfg_ft.baselinetype,'absolute')
+%   cfg_ft.zlim = [-400 400];
+%   %cfg_ft.zlim = [-2 2];
+% elseif strcmp(cfg_ft.baselinetype,'relative')
+%   cfg_ft.zlim = [0 2.0];
+% elseif strcmp(cfg_ft.baselinetype,'relchange')
+%   cfg_ft.zlim = [-1.0 1.0];
+% end
+cfg_ft.zlim = [-1.0 1.0];
+
 cfg_ft.parameter = 'powspctrm';
 %cfg_ft.ylim = [3 9];
 cfg_ft.showlabels = 'yes';
@@ -562,7 +559,11 @@ ses=1;
 for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
-  title(sprintf('%s, baseline: %.1f, %.1f (%s)',ana.eventValues{1}{i},cfg_ft.baseline(1),cfg_ft.baseline(2),cfg_ft.baselinetype));
+  if isfield(cfg_ft,'baselinetype') && ~isempty(cfg_ft.baselinetype)
+    title(sprintf('%s, baseline: %.1f, %.1f (%s)',ana.eventValues{1}{i},cfg_ft.baseline(1),cfg_ft.baseline(2),cfg_ft.baselinetype));
+  else
+    title(sprintf('%s',ana.eventValues{1}{i}));
+  end
 end
 
 % cfg_ft = [];
@@ -646,9 +647,10 @@ cfg_ft = [];
 %cfg_ft.baselinetype = 'absolute';
 %if strcmp(cfg_ft.baselinetype,'absolute')
 %cfg_ft.xlim = [0 1];
-%cfg_ft.ylim = [3 50];
-cfg_ft.ylim = [3 8];
+cfg_ft.ylim = [4 100];
+%cfg_ft.ylim = [4 8];
 %cfg_ft.ylim = [8 12];
+cfg_ft.zlim = [-0.4 0.4];
 %cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
@@ -801,15 +803,16 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_freq);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'PS'},{'FI'}};
+%cfg_ana.rois = {{'PS'},{'FS'}};
+cfg_ana.rois = {{'LAS'},{'LPS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.7 1.0; 0.4 0.7];
+cfg_ana.latencies = [0.21 0.33; 0.6 1.0];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8];
+cfg_ana.frequencies = [35 80; 4 8];
 
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
-cfg_ana.conditions = {{'SC','SI'},{'SC','SI'}};
-%cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {{'SC','SI'},{'SC','SI'}};
+cfg_ana.conditions = {'all'};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -832,6 +835,8 @@ elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cf
   cfg_plot.ylims = repmat([0 2.0],size(cfg_ana.rois'));
 elseif strcmp(ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'relchange')
   cfg_plot.ylims = repmat([-1.0 1.0],size(cfg_ana.rois'));
+else
+  cfg_plot.ylims = repmat([-2.0 2.0],size(cfg_ana.rois'));
 end
 
 for r = 1:length(cfg_ana.rois)
@@ -853,12 +858,12 @@ cfg_ana.printTable_tex = 1;
 % IV1: define which regions to average across for the test
 cfg_ana.rois = {{'LAS','RAS'},{'LAS','RAS'},{'LPS','RPS'}};
 % IV2: define the conditions tested for each set of ROIs
-cfg_ana.condByROI = {{'RCR','RH'},{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
+cfg_ana.condByROI = {{'CR','SC','SI'},{'CR','SC','SI'}};
 %cfg_ana.condByROI = repmat({{'TH','NT'}},size(cfg_ana.rois));
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8; 8 12];
+cfg_ana.frequencies = [3 8; 8 12];
 
 cfg_ana.IV_names = {'ROI','Condition'};
 
@@ -877,9 +882,10 @@ end
 
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
-cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'no';
-%cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
+%cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -887,8 +893,10 @@ cfg_ft.parameter = 'powspctrm';
 %cfg_ft.numrandomization = 100;
 
 cfg_ft.numrandomization = 500;
-cfg_ft.clusteralpha = .05;
-cfg_ft.alpha = .025;
+% cfg_ft.clusteralpha = .05;
+% cfg_ft.alpha = .025;
+cfg_ft.clusteralpha = .1;
+cfg_ft.alpha = .05;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
@@ -897,17 +905,22 @@ cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 % extra identifier when saving
-thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
-cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
+%thisBLtype = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype');
+%thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
+thisBLtype = 'zscore';
+thisBL = [-0.4 -0.2];
+cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [3 40];
+  cfg_ana.frequencies = [4 100];
 else
-  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
+  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 end
-cfg_ana.latencies = [0 1.0];
+%cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
+%cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+cfg_ana.latencies = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -924,8 +937,8 @@ files.saveFigs = 1;
 
 cfg_ft = [];
 %cfg_ft.alpha = .025;
-cfg_ft.alpha = .05;
-%cfg_ft.alpha = .1;
+%cfg_ft.alpha = .05;
+cfg_ft.alpha = .1;
 cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 
 cfg_plot = [];

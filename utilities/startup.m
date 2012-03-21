@@ -76,7 +76,7 @@ if ~isempty(ftDir)
   conflictFiles = {{'progress','MVPA'}}; % {{fxn, other package},{fxn, other package}}
   for i = 1:length(conflictFiles)
     if exist(fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'.m']),'file')
-      fprintf('Found an old/unnecessary FieldTrip function %s.m that conflicts with %s''s function. Moving FT''s to %s_old.m.',conflictFiles{i}{1},conflictFiles{i}{2},conflictFiles{i}{1});
+      fprintf('Found an old/unnecessary FieldTrip function %s.m that conflicts with %s''s function. Moving FT''s to %s_old.m.\n',conflictFiles{i}{1},conflictFiles{i}{2},conflictFiles{i}{1});
       unix(sprintf('mv %s %s',fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'.m']),fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'_old.m'])));
     end
   end
