@@ -105,7 +105,7 @@ if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
       % not allowed
       cfg_ft = rmfield(cfg_ft,'showlabels');
     end
-    if isfield(cfg_ft,'markerfontsize')
+    if ~isfield(cfg_ft,'markerfontsize')
       cfg_ft.markerfontsize = 9;
     end
   end

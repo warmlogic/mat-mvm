@@ -799,6 +799,38 @@ cfg_ft.xlim = [0 1.0]; % time
 
 mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_freq);
 
+%% line plots
+
+cfg = [];
+cfg.parameter = 'powspctrm';
+
+%cfg.times = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+%cfg.times = [0.4 0.6];
+cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
+%cfg.freqs = [4 8];
+
+cfg.rois = {...
+  {'LAS'},{'FS'},{'RAS'},...
+  {'LPS'},{'PS'},{'RPS'}};
+
+cfg.conditions = ana.eventValues;
+
+cfg.plotTitle = true;
+cfg.plotLegend = true;
+
+cfg.plotClusSig = true;
+cfg.clusDirStr = '_zscore_-400_-200';
+cfg.clusAlpha = 0.1;
+cfg.clusTimes = cfg.times;
+
+cfg.legendloc = 'SouthWest';
+%cfg.yminmax = [-0.5 0.25];
+cfg.yminmax = [-0.5 0.2];
+cfg.nCol = 3;
+
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);
+
 %% descriptive statistics: ttest
 
 cfg_ana = [];
