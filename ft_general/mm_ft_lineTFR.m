@@ -312,8 +312,8 @@ for typ = 1:length(cfg.conditions)
             end
             
             % find the positive clusters
+            sigpos = [];
             if ~isempty(stat_clus.(vs_str).posclusters)
-              sigpos = [];
               for iPos = 1:length(stat_clus.(vs_str).posclusters)
                 sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusAlpha;
               end
@@ -334,8 +334,8 @@ for typ = 1:length(cfg.conditions)
             end
             
             % find the negative clusters
+            signeg = [];
             if ~isempty(stat_clus.(vs_str).negclusters)
-              signeg = [];
               for iNeg = 1:length(stat_clus.(vs_str).negclusters)
                 signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusAlpha;
               end

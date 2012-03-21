@@ -72,15 +72,15 @@ for cnd = 1:length(cfg_plot.conditions)
     end
     
     if ~isempty(stat_clus.(vs_str).posclusters) || ~isempty(stat_clus.(vs_str).negclusters)
+      sigpos = [];
       if ~isempty(stat_clus.(vs_str).posclusters)
-        sigpos = [];
         for iPos = 1:length(stat_clus.(vs_str).posclusters)
           sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg_ft.alpha;
         end
         sigpos = find(sigpos == 1);
       end
+      signeg = [];
       if ~isempty(stat_clus.(vs_str).negclusters)
-        signeg = [];
         for iNeg = 1:length(stat_clus.(vs_str).negclusters)
           signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg_ft.alpha;
         end
