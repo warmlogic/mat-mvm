@@ -194,6 +194,9 @@ for typ = 1:length(cfg.conditions)
     chan_str_all = cellflat(cfg.rois);
     chan_str_all = sprintf(repmat('%s_',1,length(chan_str_all)),chan_str_all{:});
     
+    % choose the frequency range
+    freqsel = data.(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
+    
     for r = 1:nROIs
       cfg.roi = cfg.rois{r};
       
@@ -229,11 +232,13 @@ for typ = 1:length(cfg.conditions)
         for t = 1:nTime
           % find the indices for the times and frequencies that we want
           timesel = data.(cfg.conditions{typ}{evVal}).time >= cfg.times(t,1) & data.(cfg.conditions{typ}{evVal}).time <= cfg.times(t,2);
-          freqsel = data.(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
           chansel = ismember(data.(cfg.conditions{typ}{evVal}).label,cfg.channel);
           
           dataVec(evVal,t) = nanmean(nanmean(nanmean(data.(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
         end % t
+        
+        % TODO: don't plot at the average time, plot at the first time and
+        % add on the final time point manually?
         h(evVal) = plot(mean(cfg.times,2),dataVec(evVal,:),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
       end % evVal
       
@@ -300,7 +305,7 @@ for typ = 1:length(cfg.conditions)
             end
           end % evVal
         end % t
-      end
+      end % if plotClusSig
       
       xlim(cfg.xminmax);
       ylim(cfg.yminmax);
