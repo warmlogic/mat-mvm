@@ -807,8 +807,8 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_freq);
 cfg = [];
 cfg.parameter = 'powspctrm';
 
-cfg.times = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-%cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+%cfg.times = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 %cfg.times = [0.4 0.6];
 cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
 %cfg.freqs = [4 8];
@@ -823,21 +823,22 @@ cfg.plotTitle = true;
 cfg.plotLegend = true;
 
 cfg.plotClusSig = true;
-%cfg.clusDirStr = '_zscore_-400_-200';
-cfg.clusDirStr = '_phase_-400_-200';
 cfg.clusAlpha = 0.05;
 %cfg.clusTimes = cfg.times;
 cfg.clusTimes = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-
-%cfg.ylabel = 'Z-Transformed Power';
-cfg.ylabel = 'Phase locking';
 
 cfg.legendloc = 'SouthWest';
 cfg.yminmax = [-0.6 0.6];
 %cfg.yminmax = [-0.5 0.2];
 cfg.nCol = 3;
 
+cfg.clusDirStr = '_zscore_-400_-200';
+cfg.ylabel = 'Z-Transformed Power';
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);
+
+% cfg.clusDirStr = '_phase_-400_-200';
+% cfg.ylabel = 'Phase locking';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_phase);
 
 %% descriptive statistics: ttest
 
