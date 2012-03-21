@@ -32,6 +32,9 @@ function [data] = mm_ft_loadData(cfg,exper,dirs,eventValues)
 %   exper.eventValues = sort(exper.eventValues);
 % end
 
+powparam = 'powspctrm';
+phaseparam = 'plvspctrm';
+
 if ~isfield(cfg,'keeptrials')
   cfg.keeptrials = 'yes';
 end
@@ -139,17 +142,17 @@ for sub = 1:length(exper.subjects)
               param = 'fourierspctrm';
               fprintf('Converting %s to %s.\n',cfg.ftype,cfg.output);
               if strcmp(cfg.output,'pow')
-                subSesEvData.(cell2mat(fn)).powspctrm = abs(subSesEvData.(cell2mat(fn)).(param)).^2;
-                subSesEvData.(cell2mat(fn)).powspctrm(subSesEvData.(cell2mat(fn)).powspctrm == 0) = eps(0);
+                subSesEvData.(cell2mat(fn)).(powparam) = abs(subSesEvData.(cell2mat(fn)).(param)).^2;
+                subSesEvData.(cell2mat(fn)).(powparam)(subSesEvData.(cell2mat(fn)).(powparam) == 0) = eps(0);
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
-                param = 'powspctrm';
+                param = powparam;
                 % TODO? tell FT that we have power?
                 % subSesEvData.(cell2mat(fn)) = ft_checkdata(subSesEvData.(cell2mat(fn)),'haspow','yes');
               elseif strcmp(cfg.output,'phase')
-                subSesEvData.(cell2mat(fn)).plvspctrm = subSesEvData.(cell2mat(fn)).(param) ./ abs(subSesEvData.(cell2mat(fn)).(param));
-                subSesEvData.(cell2mat(fn)).plvspctrm = abs(squeeze(nanmean(subSesEvData.(cell2mat(fn)).plvspctrm,1)));
+                subSesEvData.(cell2mat(fn)).(phaseparam) = subSesEvData.(cell2mat(fn)).(param) ./ abs(subSesEvData.(cell2mat(fn)).(param));
+                subSesEvData.(cell2mat(fn)).(phaseparam) = abs(squeeze(nanmean(subSesEvData.(cell2mat(fn)).(phaseparam),1)));
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
-                param = 'plvspctrm';
+                param = phaseparam;
                 % change dimord
                 % TODO: automate?
                 subSesEvData.(cell2mat(fn)).dimord = 'chan_freq_time';
@@ -229,19 +232,19 @@ for sub = 1:length(exper.subjects)
             end
             
             % average
-            if strcmp(cfg.keeptrials,'no') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
+            if strcmp(cfg.keeptrials,'no') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               % use ft_freqdescriptives to average over individual trials
               % if desired and the data is appropriate
               fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with cfg.keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
               cfg_fd = [];
               cfg_fd.cfg.keeptrials = 'no';
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
-              %             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
+              %             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               %               error('\n%s %s %s: Can only keep trials for cfg.ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.ftype);
               %             elseif strcmp(cfg.keeptrials,'no') && ~isfield(subSesEvData.(cell2mat(fn)),'powspctrm')
               %               error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
-              %             elseif strcmp(cfg.keeptrials,'no') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
-              %               error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).powspctrm));
+              %             elseif strcmp(cfg.keeptrials,'no') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) ~= 4
+              %               error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).(powparam)));
             else
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
             end

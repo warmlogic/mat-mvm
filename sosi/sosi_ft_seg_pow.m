@@ -623,11 +623,14 @@ exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for ERP publication; also 0
 cfg_ana = [];
 cfg_ana.is_ga = 0;
 cfg_ana.conditions = ana.eventValues;
-cfg_ana.data_str = 'data_freq';
+%cfg_ana.data_str = 'data_freq';
+cfg_ana.data_str = 'data_phase';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
+cfg_ft.parameter = 'powspctrm';
+%cfg_ft.parameter = 'plvspctrm';
 for ses = 1:length(exper.sessions)
   for typ = 1:length(ana.eventValues)
     for evVal = 1:length(ana.eventValues{typ})
@@ -939,7 +942,9 @@ cfg_ana.conditions = {'all'};
 % extra identifier when saving
 %thisBLtype = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype');
 %thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
-thisBLtype = 'zscore';
+
+%thisBLtype = 'zscore';
+thisBLtype = 'phase';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
