@@ -3,6 +3,14 @@ function mm_ft_lineTFR(cfg,ana,files,dirs,data)
 %
 %   mm_ft_lineTFR(cfg,ana,files,dirs,data)
 %
+% NB: figure doesn't save very well.
+%
+% NB: When plotting cluster permutation test significant differences, the
+%     directionality labels will get printed for that ROI if even just one
+%     channel in the ROI was below cfg.clusAlpha (i.e., it doesn't mean the
+%     whole ROI shows a significant effect).
+%
+% Also, expect to have similar significance patterns across adjacent ROIs
 %
 % See also:
 %   MM_FT_CHECKCONDITIONS
@@ -78,15 +86,17 @@ if cfg.plotLegend
     cfg.rename_conditions = cfg.conditions;
   end
   if ~isfield(cfg,'legendloc')
-    cfg.legendloc = 'SouthWest';
+    cfg.legendloc = 'NorthWest';
   end
 end
 
 if ~isfield(cfg,'yminmax')
-  cfg.yminmax = [-0.5 0.5];
+  cfg.setylim = true;
+else
+  cfg.setylim = false;
 end
 if ~isfield(cfg,'xminmax')
-  cfg.xminmax = [min(cfg.times(:)) max(cfg.times(:))];
+  cfg.xlim = [min(reshape(cfg.times,[],1)) max(reshape(cfg.times,[],1))];
 end
 
 if ~isfield(cfg,'linewidth')
@@ -99,6 +109,7 @@ if ~isfield(cfg,'linestyle')
   cfg.linestyle = {'-','--','-.','-','--','-.','-'};
 end
 
+% cluster significance stuff
 if ~isfield(cfg,'plotClusSig')
   cfg.plotClusSig = false;
 end
@@ -108,6 +119,20 @@ if cfg.plotClusSig
   end
   if ~isfield(cfg,'clusAlpha')
     cfg.clusAlpha = 0.05;
+  end
+  if cfg.setylim
+    textSpace = 0.05;
+  else
+    textSpace = 0.075;
+  end
+  if ~isfield(cfg,'clusSize')
+    cfg.clusSize = [0.01 0.05 0.1 0.2 0.3];
+  end
+  if ~isfield(cfg,'clusSymb');
+    cfg.clusSymb = ['*','x','+','o','.']; % 
+  end
+  if ~isfield(cfg,'clusLimits')
+    cfg.clusLimits = false;
   end
 end
 
@@ -173,6 +198,21 @@ nROIs = length(cfg.rois);
 nFreq = size(cfg.freqs,1);
 nTime = size(cfg.times,1);
 
+% subplot setup
+if ~isfield(cfg,'nCol') &&  ~isfield(cfg,'nRow')
+  cfg.nCol = 3;
+  cfg.nRow = ceil(nROIs / cfg.nCol);
+  fprintf('Using default cfg.nCol=%d; with %d ROIs, cfg.nRow=%d.\n',cfg.nCol,nROIs,cfg.nRow);
+elseif isfield(cfg,'nCol') &&  ~isfield(cfg,'nRow')
+  cfg.nRow = ceil(nROIs / cfg.nCol);
+elseif ~isfield(cfg,'nCol') &&  isfield(cfg,'nRow')
+  cfg.nCol = ceil(nROIs / cfg.nRow);
+elseif isfield(cfg,'nCol') &&  isfield(cfg,'nRow')
+  if (cfg.nCol * cfg.nRow) < nROIs
+    error('Plotting %d ROIs, but you did not specify enough rows (cfg.nRow=%d) and/or columns (cfg.nCol=%d).',nROIs,cfg.nRow,cfg.nROI);
+  end
+end
+
 for typ = 1:length(cfg.conditions)
   % get all the condition names together
   nCond = length(cfg.conditions{typ});
@@ -183,12 +223,6 @@ for typ = 1:length(cfg.conditions)
   
   for f = 1:nFreq
     figure
-    
-    % subplot setup
-    if ~isfield(cfg,'nCol');
-      cfg.nCol = 2;
-    end
-    cfg.nRow = ceil(nROIs / cfg.nCol);
     
     % get all the ROI names together
     chan_str_all = cellflat(cfg.rois);
@@ -203,9 +237,8 @@ for typ = 1:length(cfg.conditions)
       
       subplot(cfg.nRow,cfg.nCol,r);
       
-      plot(cfg.xminmax,[0 0],'k--'); % horizontal
-      hold on;
-      plot([0 0],cfg.yminmax,'k--'); % vertical
+      plot(cfg.xlim,[0 0],'k--'); % horizontal
+      hold on
       
       % set the channel information
       if ismember(cfg.roi,ana.elecGroupsStr)
@@ -240,17 +273,32 @@ for typ = 1:length(cfg.conditions)
         h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
       end % evVal
       
-      xlim(cfg.xminmax);
-      ylim(cfg.yminmax);
+      if cfg.setylim
+        cfg.ylim = [(min(reshape(dataVec,[],1)) - 0.1) (max(reshape(dataVec,[],1)) + 0.1)];
+      end
+      plot([0 0],cfg.ylim,'k--'); % vertical
+      
+      xlim(cfg.xlim);
+      ylim(cfg.ylim);
+      
       xlabel(cfg.xlabel);
       ylabel(cfg.ylabel);
+      
       hold off
       
       if ~isempty(cfg.types{typ})
-        set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz',cfg.types{typ},strrep(cond_str,'_',' '),strrep(chan_str_all,'_',' '),cfg.freqs(f,1),cfg.freqs(f,2)))
+        type_str = sprintf('%s, ',cfg.types{typ});
       else
-        set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz',strrep(cond_str,'_',' '),strrep(chan_str_all,'_',' '),cfg.freqs(f,1),cfg.freqs(f,2)))
+        type_str = '';
       end
+      
+      if cfg.plotClusSig
+        alpha_str = sprintf(', a=%.2f',cfg.clusAlpha);
+      else
+        alpha_str = '';
+      end
+      
+      set(gcf,'Name',sprintf('%s%s, %s, %.1f--%.1f Hz%s',type_str,strrep(cond_str,'_',' '),strrep(chan_str_all,'_',' '),cfg.freqs(f,1),cfg.freqs(f,2),alpha_str))
       
       if cfg.plotTitle
         title(sprintf('%s, %.1f--%.1f Hz',strrep(chan_str,'_',' '),cfg.freqs(f,1),cfg.freqs(f,2)));
@@ -269,10 +317,15 @@ for typ = 1:length(cfg.conditions)
     
     % Find the significant clusters
     if cfg.plotClusSig
+      % initialize
       foundpos = zeros(nROIs,nTime);
       foundneg = zeros(nROIs,nTime);
+      
       for t = 1:size(cfg.clusTimes,1)
         dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000,cfg.clusDirStr));
+        if ~exist(dirs.saveDirClusStat,'dir')
+          error('%s not found!\nMake sure this directory is accessible for loading cluster permutation test results.',dirs.saveDirClusStat);
+        end
         for evVal = 1:nCond
           vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)});
           savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000));
@@ -290,6 +343,7 @@ for typ = 1:length(cfg.conditions)
           end
           
           for r = 1:nROIs
+            % choose the right roi/subplot
             cfg.roi = cfg.rois{r};
             subplot(cfg.nRow,cfg.nCol,r);
             
@@ -297,18 +351,19 @@ for typ = 1:length(cfg.conditions)
             if ismember(cfg.roi,ana.elecGroupsStr)
               % if it's in the predefined ROIs, get the channel numbers
               cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
-              % set the string for the filename
-              chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
             else
-              % otherwise it should be the channel number(s) or 'all'
+              % otherwise it should be the channel number(s)
               cfg.channel = cfg.roi;
-              
-              % set the string for the filename
-              if isfield(cfg,'cohrefchannel')
-                chan_str = [cfg.cohrefchannel,'-',sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:})];
-              else
-                chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+            end
+            
+            if cfg.clusLimits
+              if cfg.setylim
+                cfg.ylim = [(min(reshape(dataVec,[],1)) - 0.1) (max(reshape(dataVec,[],1)) + 0.1)];
               end
+              hold on
+              plot([cfg.clusTimes(t,1) cfg.clusTimes(t,1)],cfg.ylim,'Color',[0 0 1]); % vertical
+              plot([cfg.clusTimes(t,2) cfg.clusTimes(t,2)],cfg.ylim,'Color',[0 0 1]); % vertical
+              hold off
             end
             
             % find the positive clusters
@@ -327,8 +382,17 @@ for typ = 1:length(cfg.conditions)
                 if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))) > 0
                   %fprintf('%s:\t***Found positive clusters***\n',vs_str);
                   foundpos(r,t) = foundpos(r,t) + 1;
-                  text(mean(cfg.clusTimes(t,:),2) - 0.05,max(max([dataVec(:,r,t) dataVec(:,r,t)])) + (0.05 * foundpos(r,t)),...
-                    sprintf('%s>%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)}));
+                  
+                  % debug
+                  fprintf('%.1fto%.1fHz: %s, %.2fto%.2fms, %s: Pos clus #%d (found=%d) (%d chan), p=%.3f, \n',...
+                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.roi{1},cfg.clusTimes(t,1),cfg.clusTimes(t,2),vs_str,sigpos(iPos),foundpos(r,t),...
+                    sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))),...
+                    stat_clus.(vs_str).posclusters(iPos).prob);
+                  
+                  clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
+                  clus_str = sprintf('%s>%s:%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)},clus_symb);
+                  text(mean(cfg.clusTimes(t,:),2) - (textSpace * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpace * foundpos(r,t)),...
+                    clus_str);
                 end
               end % iPos
             end
@@ -349,12 +413,21 @@ for typ = 1:length(cfg.conditions)
                 if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))) > 0
                   %fprintf('%s:\t***Found negative clusters***\n',vs_str);
                   foundneg(r,t) = foundneg(r,t) + 1;
-                  text(mean(cfg.clusTimes(t,:),2) - 0.05,min(min([dataVec(:,r,t) dataVec(:,r,t)])) - (0.05 * foundneg(r,t)),...
-                    sprintf('%s<%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)}));
+                  
+                  % debug
+                  fprintf('%.1fto%.1fHz: %s, %.2fto%.2fms, %s: Neg clus #%d (found=%d) (%d chan), p=%.3f, \n',...
+                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.roi{1},cfg.clusTimes(t,1),cfg.clusTimes(t,2),vs_str,signeg(iNeg),foundneg(r,t),...
+                    sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))),...
+                    stat_clus.(vs_str).negclusters(iNeg).prob);
+                  
+                  clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
+                  clus_str = sprintf('%s<%s:%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)},clus_symb);
+                  text(mean(cfg.clusTimes(t,:),2) - (textSpace * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpace * foundneg(r,t)),...
+                    clus_str);
                 end
               end % iNeg
             end
-            hold off
+            %hold off
           end % r
         end % evVal
       end % t
@@ -363,14 +436,23 @@ for typ = 1:length(cfg.conditions)
     if ~isfield(files,'figFontName')
       files.figFontName = 'Helvetica';
     end
-    publishfig(gcf,~cfg.plotTitle,[],[],files.figFontName);
     
     if files.saveFigs
       if ~isempty(cfg.types{typ})
-        cfg.figfilename = sprintf('tfr_%s_ga_%s_%s%s%d_%d%s%s',cfg.type,cfg.types{typ},cond_str,chan_str_all,round(cfg.xminmax(1)*1000),round(cfg.xminmax(2)*1000),cfg.legend_str,cfg.title_str);
+        type_str = sprintf('%s_',cfg.types{typ});
       else
-        cfg.figfilename = sprintf('tfr_%s_ga_%s%s%d_%d%s%s',cfg.type,cond_str,chan_str_all,round(cfg.xminmax(1)*1000),round(cfg.xminmax(2)*1000),cfg.legend_str,cfg.title_str);
+        type_str = '';
       end
+      
+      if cfg.plotClusSig
+        alpha_str = sprintf('%.2f',cfg.clusAlpha);
+        alpha_str = sprintf('_a%s',alpha_str(end-1:end));
+      else
+        alpha_str = '';
+      end
+      
+      cfg.figfilename = sprintf('tfr_%s_ga_%s%s%s%d_%d_%d_%d%s%s%s',cfg.type,type_str,cond_str,chan_str_all,round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),alpha_str,cfg.legend_str,cfg.title_str);
+      
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')
         mkdir(dirs.saveDirFigsTFR)
@@ -384,6 +466,8 @@ for typ = 1:length(cfg.conditions)
       end
       print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
     end
+    
+    publishfig(gcf,~cfg.plotTitle,[],[],files.figFontName);
     
     % get the figure's current position and size
     cfg.pos = get(gcf, 'Position');

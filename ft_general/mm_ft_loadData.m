@@ -33,10 +33,25 @@ function [data] = mm_ft_loadData(cfg,exper,dirs,eventValues)
 % end
 
 powparam = 'powspctrm';
-phaseparam = 'plvspctrm';
+%phaseparam = 'plvspctrm';
+% use 'powspctrm' for now because that's what FT expects
+phaseparam = 'powspctrm';
+fourierparam = 'fourierspctrm';
 
 if ~isfield(cfg,'keeptrials')
   cfg.keeptrials = 'yes';
+elseif isfield(cfg,'keeptrials')
+  if ~strcmp(cfg.keeptrials,'yes') || ~strcmp(cfg.keeptrials,'no')
+    error('cfg.keeptrials must be set to ''yes'' or ''no''.');
+  end
+end
+
+if ~isfield(cfg,'equatetrials')
+  cfg.equatetrial = 'no';
+elseif isfield(cfg,'equatetrials')
+  if ~strcmp(cfg.equatetrials,'yes') || ~strcmp(cfg.equatetrials,'no')
+    error('cfg.equatetrials must be set to ''yes'' or ''no''.');
+  end
 end
 
 if ~isfield(cfg,'ftype')
@@ -97,6 +112,27 @@ elseif ~iscell(eventValues)
   eventValues = {{eventValues}};
 end
 
+% if we're equating trials, find out the number of trials to choose
+if strcmp(cfg.equatetrials,'yes')
+  % initialize random number generator
+  rng('shuffle');
+  % find the lowest number of trials within each subject
+  lowEvNum = Inf(length(exper.subjects),length(exper.sessions),length(ana.eventValues));
+  
+  for typ = 1:length(ana.eventValues)
+    for sub = 1:length(exper.subjects)
+      for ses = 1:length(exper.sessions)
+        for ev = 1:length(ana.eventValues{typ})
+          if size(data_raw.(ana.eventValues{typ}{ev}).sub(sub).ses(ses).data.trial,2) < lowEvNum(sub)
+            lowEvNum(sub,ses,typ) = size(data_raw.(ana.eventValues{typ}{ev}).sub(sub).ses(ses).data.trial,2);
+          end
+        end
+      end
+    end
+  end
+end
+
+% process the data
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     % turn the session name into a string for easier printing
@@ -139,22 +175,21 @@ for sub = 1:length(exper.subjects)
             
             % convert complex fourier-spectra to power or phase
             if fftflg
-              param = 'fourierspctrm';
               fprintf('Converting %s to %s.\n',cfg.ftype,cfg.output);
               if strcmp(cfg.output,'pow')
-                subSesEvData.(cell2mat(fn)).(powparam) = abs(subSesEvData.(cell2mat(fn)).(param)).^2;
+                subSesEvData.(cell2mat(fn)).(powparam) = abs(subSesEvData.(cell2mat(fn)).(fourierparam)).^2;
                 subSesEvData.(cell2mat(fn)).(powparam)(subSesEvData.(cell2mat(fn)).(powparam) == 0) = eps(0);
-                subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
+                subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),fourierparam);
                 param = powparam;
                 % TODO? tell FT that we have power?
                 % subSesEvData.(cell2mat(fn)) = ft_checkdata(subSesEvData.(cell2mat(fn)),'haspow','yes');
               elseif strcmp(cfg.output,'phase')
-                subSesEvData.(cell2mat(fn)).(phaseparam) = subSesEvData.(cell2mat(fn)).(param) ./ abs(subSesEvData.(cell2mat(fn)).(param));
+                subSesEvData.(cell2mat(fn)).(phaseparam) = subSesEvData.(cell2mat(fn)).(fourierparam) ./ abs(subSesEvData.(cell2mat(fn)).(fourierparam));
                 subSesEvData.(cell2mat(fn)).(phaseparam) = abs(squeeze(nanmean(subSesEvData.(cell2mat(fn)).(phaseparam),1)));
-                subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
+                subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),fourierparam);
                 param = phaseparam;
                 % change dimord
-                % TODO: automate?
+                % TODO: can I automate this (e.g., with ft_checkdata)?
                 subSesEvData.(cell2mat(fn)).dimord = 'chan_freq_time';
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),'trialinfo');
               end
@@ -235,9 +270,17 @@ for sub = 1:length(exper.subjects)
             if strcmp(cfg.keeptrials,'no') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               % use ft_freqdescriptives to average over individual trials
               % if desired and the data is appropriate
-              fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with cfg.keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
+              fprintf('\n%s %s %s has individual trials and you just want their average. Using ft_freqdescriptives with cfg.keeptrials=''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.keeptrials);
               cfg_fd = [];
-              cfg_fd.cfg.keeptrials = 'no';
+              cfg_fd.keeptrials = cfg.keeptrials;
+              
+              if strcmp(cfg.equatetrials,'yes')
+                % select the subset of trials
+                evNums = randperm(size(subSesEvData.(cell2mat(fn)).trial,2));
+                cfg_fd.trials = sort(evNums(1:lowEvNum(sub,ses,typ)));
+              end
+              
+              % run ft_freqdescriptives
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
               %             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               %               error('\n%s %s %s: Can only keep trials for cfg.ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.ftype);
@@ -245,8 +288,26 @@ for sub = 1:length(exper.subjects)
               %               error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
               %             elseif strcmp(cfg.keeptrials,'no') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) ~= 4
               %               error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).(powparam)));
-            else
-              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
+            elseif strcmp(cfg.keeptrials,'yes')
+              cfg_fd = [];
+              cfg_fd.keeptrials = cfg.keeptrials;
+              
+              if strcmp(cfg.equatetrials,'yes')
+                fprintf('\n%s %s %s has individual trials and you want to keep them all, and equate trial counts. Using ft_freqdescriptives with cfg.keeptrials=''%s'', and selecting a random subset.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.keeptrials);
+                % select the subset of trials
+                evNums = randperm(size(subSesEvData.(cell2mat(fn)).trial,2));
+                cfg_fd.trials = sort(evNums(1:lowEvNum(sub,ses,typ)));
+                
+                % run ft_freqdescriptives
+                data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
+              elseif strcmp(cfg.equatetrials,'no')
+                fprintf('\n%s %s %s has individual trials. Keeping all of them.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
+                cfg_fd.trials = 'all';
+                data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
+              end
+              
+              % % run ft_freqdescriptives
+              % data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
             end
             
           else

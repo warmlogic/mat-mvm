@@ -356,6 +356,7 @@ end
 
 cfg = [];
 cfg.keeptrials = 'no';
+cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'phase'
 cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
@@ -364,7 +365,7 @@ cfg.baseline = [-0.4 -0.2];
 
 [data_freq] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
-save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
+%save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
 
 %% new loading workflow - phase
 
@@ -372,6 +373,7 @@ save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
 
 cfg = [];
 cfg.keeptrials = 'no';
+cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'phase'; % 'pow', 'phase'
 cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
@@ -379,7 +381,7 @@ cfg.baseline = [-0.4 -0.2];
 
 [data_phase] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
-save(fullfile(dirs.saveDirProc,'data_phase.mat'),'data_phase');
+%save(fullfile(dirs.saveDirProc,'data_phase.mat'),'data_phase');
 
 % TODO: mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
 
@@ -617,14 +619,29 @@ exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for ERP publication; also 0
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
 
+%% rename plv to pow
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        data_phase.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.powspctrm = data_phase.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.plvspctrm;
+        data_phase.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_phase.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'plvspctrm');
+      end
+    end
+  end
+end
+
+
 %% get the grand average
 
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
 cfg_ana.conditions = ana.eventValues;
-%cfg_ana.data_str = 'data_freq';
-cfg_ana.data_str = 'data_phase';
+cfg_ana.data_str = 'data_freq';
+%cfg_ana.data_str = 'data_phase';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
@@ -813,9 +830,11 @@ cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
 %cfg.freqs = [4 8];
 
-cfg.rois = {...
-  {'LAS'},{'FS'},{'RAS'},...
-  {'LPS'},{'PS'},{'RPS'}};
+% cfg.rois = {...
+%   {'LAS'},{'FS'},{'RAS'},...
+%   {'LPS'},{'PS'},{'RPS'}};
+
+cfg.rois = {{'LPS'},{'PS'},{'RPS'}};
 
 cfg.conditions = ana.eventValues;
 
@@ -823,22 +842,22 @@ cfg.plotTitle = true;
 cfg.plotLegend = true;
 
 cfg.plotClusSig = true;
-cfg.clusAlpha = 0.05;
+cfg.clusAlpha = 0.1;
 %cfg.clusTimes = cfg.times;
 cfg.clusTimes = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+cfg.clusLimits = true;
 
-cfg.legendloc = 'SouthWest';
-cfg.yminmax = [-0.6 0.6];
-%cfg.yminmax = [-0.5 0.2];
+%cfg.ylim = [-0.6 0.6];
+%cfg.ylim = [-0.5 0.2];
 cfg.nCol = 3;
 
-cfg.clusDirStr = '_zscore_-400_-200';
-cfg.ylabel = 'Z-Transformed Power';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);
+% cfg.clusDirStr = '_zscore_-400_-200';
+% cfg.ylabel = 'Z-Transformed Power';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);
 
-% cfg.clusDirStr = '_phase_-400_-200';
-% cfg.ylabel = 'Phase locking';
-% mm_ft_lineTFR(cfg,ana,files,dirs,ga_phase);
+cfg.clusDirStr = '_phase_-400_-200';
+cfg.ylabel = 'Phase locking';
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_phase);
 
 %% descriptive statistics: ttest
 

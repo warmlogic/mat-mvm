@@ -173,10 +173,8 @@ fprintf('Converting NetStation to FieldTrip...\n');
 
 if exper.equateTrials && length(exper.eventValues) > 1
   % if we're going to equate trials across conditions, need to use a random
-  % selection; thus, replace the default stream with one whose seed is
-  % based on the clock
-  s = RandStream.create('mt19937ar','seed',sum(100*clock));
-  RandStream.setGlobalStream(s);
+  % selection
+  rng('shuffle');
 elseif exper.equateTrials && length(exper.eventValues) == 1
   % don't equate
   fprintf('Not equating trials because there is only 1 event.\n');

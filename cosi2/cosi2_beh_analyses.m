@@ -1,8 +1,7 @@
 
 %% initialize randomness
 
-s = RandStream.create('mt19937ar','seed',sum(100*clock));
-RandStream.setGlobalStream(s);
+rng('shuffle');
 
 %% data
 

@@ -2,6 +2,19 @@
 
 % See Maris & Oostenveld (2007) for a info on nonparametric statistics
 
+
+% contrasts:
+
+% ANOVA:
+
+% T/NT x 1/2 x R/F
+% T/NT/B x 1/2
+
+% ttest
+% T vs NT (whole session)
+% T vs Nt (2)
+% NTF vs NTR (2)
+
 % initialize the analysis structs
 exper = struct;
 files = struct;
@@ -55,44 +68,47 @@ exper.eventValuesExtra.newValue = {...
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
 
+% From Nick: Data: /Volumes/RAID/curranlab/Data/TNT/TNT_matt. Here are the
+% subjects I've used in the latest analysis (note that unused subjects are
+% commented out):
 exper.subjects = {
-  'TNT 06';
-%   'TNT 07';
-%   'TNT 08';
-%   'TNT 09';
-%   'TNT 11';
-%   'TNT 13';
-%   'TNT 14';
-%   'TNT 15';
-%   'TNT 17';
-%   'TNT 19';
-%   'TNT 20';
-%   'TNT 21';
-%   'TNT 22';
-%   'TNT 23';
-%   'TNT 25';
-%   'TNT 26';
-%   'TNT 27';
-%   'TNT 28';
-%   'TNT 30';
-%   'TNT 32';
-%   'TNT 33';
-%   'TNT 35';
-%   'TNT 39';
-%   'TNT 41';
-%   'TNT 42';
-%   'TNT 44';
-%   'TNT 45';
-%   'TNT 46';
-%   'TNT 47';
-%   'TNT 48';
-%   'TNT 49';
-%   'TNT 50';
-%   'TNT 51';
-%   'TNT 52';
-%   'TNT 53';
-%   'TNT 54';
-  };
+  % 'TNT 06';
+   'TNT 07';
+ %  'TNT 08';
+   'TNT 09';
+  % 'TNT 11';
+  % 'TNT 13';
+   'TNT 14';
+   'TNT 15';
+   'TNT 17';
+   'TNT 19';
+   'TNT 20';
+   'TNT 21';
+   'TNT 22';
+   'TNT 23';
+   'TNT 25';
+   'TNT 26';
+   'TNT 27';
+   'TNT 28';
+   'TNT 30';
+   'TNT 32';
+   'TNT 33';
+   'TNT 35';
+  % 'TNT 39';
+   'TNT 41';
+   'TNT 42';
+   'TNT 44';
+   'TNT 45';
+  % 'TNT 46';
+   'TNT 47';
+  % 'TNT 48';
+   'TNT 49';
+  % 'TNT 50';
+   'TNT 51';
+   'TNT 52';
+   'TNT 53';
+   'TNT 54';
+   };
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw

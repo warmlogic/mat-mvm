@@ -174,8 +174,7 @@ ses = 1;
 
 if equateTrials
   % initialize random number generator
-  %rng('shuffle');
-  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  rng('shuffle');
   
   % find the lowest number of trials within each subject
   lowEvNum = nan(length(exper.subjects),1);
@@ -402,8 +401,7 @@ if equateTrials
   ana.equateTrials = true;
   
   % initialize random number generator
-  %rng('shuffle');
-  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  rng('shuffle');
   
   for typ = 1:length(ana.eventValues)
     % find the lowest number of trials within each subject
@@ -486,8 +484,7 @@ if equateTrials
   ses=1;
   
   % initialize random number generator
-  %rng('shuffle');
-  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  rng('shuffle');
   
   for typ = 1:length(ana.eventValues)
     % find the lowest number of trials within each subject

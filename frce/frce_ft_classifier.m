@@ -36,7 +36,7 @@ ana = mm_ft_elecGroups(ana);
 
 %[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
 
-equateTrials = true;
+equatetrials = true;
 
 %% beh: accuracy
 
@@ -65,10 +65,9 @@ end
 %subInd = find(ismember(exper.subjects,cfg_prep.subjs));
 ses = 1;
 
-if equateTrials
+if equatetrials
   % initialize random number generator
-  %rng('shuffle');
-  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  rng('shuffle');
   
   % find the lowest number of trials within each subject
   lowEvNum = nan(length(exper.subjects),1);
@@ -101,7 +100,7 @@ cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.cha
 % get the ERP data
 for sub = 1:length(exper.subjects)
   for i = 1:length(ana.eventValues{typ})
-    if equateTrials
+    if equatetrials
       % choose a random subset to equate trial numbers
       evNums = randperm(size(data_raw.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trial,2));
       cfg.trials = sort(evNums(1:lowEvNum(sub)));
@@ -291,12 +290,11 @@ fclose(fid);
 %subInd = find(ismember(exper.subjects,cfg_prep.subjs));
 ses = 1;
 
-if equateTrials
+if equatetrials
   ana.equateTrials = true;
   
   % initialize random number generator
-  %rng('shuffle');
-  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  rng('shuffle');
   
   for typ = 1:length(ana.eventValues)
     % find the lowest number of trials within each subject
@@ -362,7 +360,7 @@ cfg.foi = (2^(1/8)).^(16:53);
 for typ = 1:length(ana.eventValues)
   for sub = 1:length(exper.subjects)
     for i = 1:length(ana.eventValues{typ})
-      if equateTrials
+      if equatetrials
         ana.equateTrials = 'yes';
         % choose a random subset to equate trial numbers
         evNums = randperm(size(data_raw.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trial,2));
@@ -377,15 +375,14 @@ end
 
 % TODO: can happen automatically in ft_mv_crossvalidator ('balance',true)
 
-if equateTrials
+if equatetrials
   
   ana.equateTrials = true;
   
   ses=1;
   
   % initialize random number generator
-  %rng('shuffle');
-  RandStream.setGlobalStream(RandStream('mt19937ar','Seed',sum(clock*100)));
+  rng('shuffle');
   
   for typ = 1:length(ana.eventValues)
     % find the lowest number of trials within each subject
