@@ -350,12 +350,13 @@ end
 
 %[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
-[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,cfg_proc.output);
+%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,cfg_proc.output);
 
 %% new loading workflow - pow
 
 cfg = [];
 cfg.keeptrials = 'no';
+%cfg.equatetrials = 'no';
 cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'phase'
@@ -363,23 +364,21 @@ cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
 cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
 
-[data_freq] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+[data_freq,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
 %save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
 
 %% new loading workflow - phase
 
-% equate trials!!
-
 cfg = [];
-cfg.keeptrials = 'no';
+%cfg.equatetrials = 'no';
 cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'phase'; % 'pow', 'phase'
-cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baselinetype = 'absolute'; % 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
 
-[data_phase] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+[data_phase,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
 %save(fullfile(dirs.saveDirProc,'data_phase.mat'),'data_phase');
 
@@ -389,7 +388,12 @@ cfg.baseline = [-0.4 -0.2];
 
 sub=1;
 ses=1;
-chan=11;
+
+chan=11; % Fz
+%chan=62; % Pz
+%chan=53; % LPS middle
+%chan=20; % LAS middle
+
 cond = {'CR','SC','SI'};
 
 %if strcmp(cfg.output,'pow')
@@ -400,15 +404,15 @@ for cnd = 1:length(cond)
   axis xy;colorbar;
   title(sprintf('Z-Power: %s',cond{cnd}));
 end
-% %elseif strcmp(cfg.output,'phase')
-% param = 'plvspctrm';
-% clim = [0 1];
-% for cnd = 1:length(cond)
-%   figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
-%   axis xy;colorbar;
-%   title(sprintf('Phase - BL: %s',cond{cnd}));
-% end
-% %end
+%elseif strcmp(cfg.output,'phase')
+param = 'powspctrm';
+clim = [0 1];
+for cnd = 1:length(cond)
+  figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+  axis xy;colorbar;
+  title(sprintf('Phase - BL: %s',cond{cnd}));
+end
+%end
 
 %% playing with ft_connectivityanalysis
 
