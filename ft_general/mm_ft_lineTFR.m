@@ -121,9 +121,11 @@ if cfg.plotClusSig
     cfg.clusAlpha = 0.05;
   end
   if cfg.setylim
-    textSpace = 0.05;
+    textSpaceVert = 0.04;
+    textSpaceHorz = 0.05;
   else
-    textSpace = 0.075;
+    textSpaceVert = 0.075;
+    textSpaceHorz = 0.05;
   end
   if ~isfield(cfg,'clusSize')
     cfg.clusSize = [0.01 0.05 0.1 0.2 0.3];
@@ -384,14 +386,14 @@ for typ = 1:length(cfg.conditions)
                   foundpos(r,t) = foundpos(r,t) + 1;
                   
                   % debug
-                  fprintf('%.1fto%.1fHz: %s, %.2fto%.2fms, %s: Pos clus #%d (found=%d) (%d chan), p=%.3f, \n',...
-                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.roi{1},cfg.clusTimes(t,1),cfg.clusTimes(t,2),vs_str,sigpos(iPos),foundpos(r,t),...
+                  fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
+                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,sigpos(iPos),...
                     sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))),...
-                    stat_clus.(vs_str).posclusters(iPos).prob);
+                    stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
                   clus_str = sprintf('%s>%s:%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)},clus_symb);
-                  text(mean(cfg.clusTimes(t,:),2) - (textSpace * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpace * foundpos(r,t)),...
+                  text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
                 end
               end % iPos
@@ -415,14 +417,14 @@ for typ = 1:length(cfg.conditions)
                   foundneg(r,t) = foundneg(r,t) + 1;
                   
                   % debug
-                  fprintf('%.1fto%.1fHz: %s, %.2fto%.2fms, %s: Neg clus #%d (found=%d) (%d chan), p=%.3f, \n',...
-                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.roi{1},cfg.clusTimes(t,1),cfg.clusTimes(t,2),vs_str,signeg(iNeg),foundneg(r,t),...
+                  fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
+                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,signeg(iNeg),...
                     sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))),...
-                    stat_clus.(vs_str).negclusters(iNeg).prob);
+                    stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
                   clus_str = sprintf('%s<%s:%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)},clus_symb);
-                  text(mean(cfg.clusTimes(t,:),2) - (textSpace * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpace * foundneg(r,t)),...
+                  text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
                 end
               end % iNeg

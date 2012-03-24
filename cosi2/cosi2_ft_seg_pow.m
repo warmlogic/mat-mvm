@@ -76,7 +76,7 @@ exper.subjects = {
 %   'COSI2011'; % will not have a session_1, didn't like EEG
   'COSI2012';
   'COSI2013';
-%   'COSI2014'; % will not have a session_1, didn't perform well
+%   'COSI2014'; % no session_1, didn't perform well in session_0
   'COSI2015';
   'COSI2016';
   'COSI2017';
@@ -93,16 +93,21 @@ exper.subjects = {
   'COSI2028';
   'COSI2029';
   'COSI2030';
-%   'COSI2031'; % completely excluded, bad EEG
+%   'COSI2031'; % Thought reference electrode messed up. No session_1.
   'COSI2032';
   'COSI2033';
   'COSI2034';
   'COSI2035';
   'COSI2036';
-%   'COSI2037';
-%   'COSI2038';
-%   'COSI2039';
-%   'COSI2040';
+  'COSI2037';
+  'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+  'COSI2039';
+  'COSI2040';
+%   'COSI2041'; % COSI2041: no-show, no session_1
+  'COSI2042';
+  'COSI2043';
+  'COSI2044';
+  'COSI2045';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -220,10 +225,15 @@ cfg_pp.baselinewindow = [-0.2 0];
 % % cfg_pp.lpfreq = [35];
     
 cfg_proc = [];
-cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
-cfg_proc.keeptrials = 'no';
-cfg_proc.keeptapers = 'no';
+% cfg_proc.output = 'pow';
+% % cfg_proc.output = 'powandcsd';
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.keeptapers = 'no';
+
+cfg_proc.output = 'fourier';
+cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptapers = 'yes';
 
 % % MTM FFT
 % cfg_proc.method = 'mtmfft';
@@ -265,20 +275,22 @@ cfg_proc.keeptapers = 'no';
 
 % wavelet
 cfg_proc.method = 'wavelet';
-cfg_proc.width = 5;
+cfg_proc.width = 6;
 %cfg_proc.toi = -0.8:0.04:3.0;
 cfg_proc.toi = -0.5:0.04:1.0;
-% evenly spaced frequencies, but not as many as foilim makes
-freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-cfg_proc.foi = 3:freqstep:100;
-%cfg_proc.foi = 3:freqstep:9;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
+% % cfg_proc.foi = 3:freqstep:9;
+% cfg_proc.foi = 3:freqstep:60;
+cfg_proc.foi = 4:1:100;
+%cfg_proc.foi = 4:1:60;
 %cfg_proc.foilim = [3 9];
 
-% log-spaced
+% log-spaced freqs
 %cfg_proc.foi = (2^(1/8)).^(16:53);
 
 % set the save directories; final argument is prefix of save directory
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'pow');
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,cfg_proc.output);
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = cfg_proc.output;
@@ -323,8 +335,11 @@ end
 
 %adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
-% wavelet
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
+% fourier 4-100 Hz
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+
+% % wavelet
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
 
 % % multitaper
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
@@ -360,7 +375,91 @@ end
 
 %% load some data
 
-[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+
+%% new loading workflow - pow
+
+cfg = [];
+cfg.keeptrials = 'no';
+cfg.equatetrials = 'no';
+%cfg.equatetrials = 'yes';
+cfg.ftype = 'fourier';
+cfg.output = 'pow'; % 'pow', 'phase'
+cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
+cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baseline = [-0.4 -0.2];
+
+[data_freq,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+
+if strcmp(cfg.equatetrials,'yes')
+  eq_str = '_eq';
+elseif strcmp(cfg.equatetrials,'no')
+  eq_str = '';
+end
+if strcmp(cfg.equatetrials,'yes')
+  individ_str = '_trials';
+elseif strcmp(cfg.equatetrials,'no')
+  individ_str = '_avg';
+end
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_freq%s%s.mat',eq_str,individ_str));
+save(saveFile,'data_freq');
+
+%% new loading workflow - phase
+
+cfg = [];
+cfg.equatetrials = 'no';
+%cfg.equatetrials = 'yes';
+cfg.ftype = 'fourier';
+cfg.output = 'phase'; % 'pow', 'phase'
+cfg.baselinetype = 'absolute'; % 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baseline = [-0.4 -0.2];
+
+[data_phase,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+
+if strcmp(cfg.equatetrials,'yes')
+  eq_str = '_eq';
+elseif strcmp(cfg.equatetrials,'no')
+  eq_str = '';
+end
+if strcmp(cfg.equatetrials,'yes')
+  individ_str = '_trials';
+elseif strcmp(cfg.equatetrials,'no')
+  individ_str = '_avg';
+end
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_phase%s%s.mat',eq_str,individ_str));
+save(saveFile,'data_phase');
+
+% TODO: mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
+
+%% plot something
+
+sub=1;
+ses=1;
+
+chan=11; % Fz
+%chan=62; % Pz
+%chan=53; % LPS middle
+%chan=20; % LAS middle
+
+cond = {'CCR','CSC','CSI','SCR','SSC','SSI'};
+
+%if strcmp(cfg.output,'pow')
+param = 'powspctrm';
+clim = [-1 1];
+for cnd = 1:length(cond)
+  figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_freq.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+  axis xy;colorbar;
+  title(sprintf('Z-Power: %s',cond{cnd}));
+end
+%elseif strcmp(cfg.output,'phase')
+param = 'powspctrm';
+clim = [0 1];
+for cnd = 1:length(cond)
+  figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+  axis xy;colorbar;
+  title(sprintf('Phase - BL: %s',cond{cnd}));
+end
+%end
 
 %% Test plots to make sure data look ok
 
