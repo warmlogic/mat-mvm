@@ -102,7 +102,7 @@ end
 cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
 
 % set the saving directory
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_ana.dirStr));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_ana.dirStr));
 if ~exist(dirs.saveDirClusStat,'dir')
   mkdir(dirs.saveDirClusStat)
 end
@@ -181,7 +181,7 @@ for cnd = 1:length(cfg_ana.conditions)
   % note whether there positive or negative clusters
   stat_clus.(vs_str).foundclus = foundclus;
   
-  saveFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+  saveFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)));
   fprintf('Saving %s\n',saveFile);
   save(saveFile,'stat_clus');
 end

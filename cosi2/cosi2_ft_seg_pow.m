@@ -382,15 +382,13 @@ end
 
 cfg = [];
 cfg.keeptrials = 'no';
-%cfg.equatetrials = 'no';
-cfg.equatetrials = 'yes';
+cfg.equatetrials = 'no';
+%cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'phase'
 cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
 cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
-
-[data_freq,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
 if strcmp(cfg.equatetrials,'yes')
   eq_str = '_eq';
@@ -403,19 +401,28 @@ elseif strcmp(cfg.keeptrials,'no')
   individ_str = '_avg';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_freq%s%s.mat',eq_str,individ_str));
-save(saveFile,'data_freq','exper');
+
+if exist(saveFile,'file')
+  fprintf('Loading saved file: %s\n',saveFile);
+  load(saveFile);
+  fprintf('Done.\n');
+else
+  fprintf('Running mm_ft_loadData\n');
+  [data_freq,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+  save(saveFile,'data_freq','exper');
+  fprintf('Done.\n');
+end
 
 %% new loading workflow - phase
 
 cfg = [];
-%cfg.equatetrials = 'no';
-cfg.equatetrials = 'yes';
+cfg.keeptrials = 'no';
+cfg.equatetrials = 'no';
+%cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'phase'; % 'pow', 'phase'
 cfg.baselinetype = 'absolute'; % 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
-
-[data_phase,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
 
 if strcmp(cfg.equatetrials,'yes')
   eq_str = '_eq';
@@ -428,7 +435,17 @@ elseif strcmp(cfg.keeptrials,'no')
   individ_str = '_avg';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_phase%s%s.mat',eq_str,individ_str));
-save(saveFile,'data_phase','exper');
+
+if exist(saveFile,'file')
+  fprintf('Loading saved file: %s\n',saveFile);
+  load(saveFile);
+  fprintf('Done.\n');
+else
+  fprintf('Running mm_ft_loadData\n');
+  [data_phase,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
+  save(saveFile,'data_phase','exper');
+  fprintf('Done.\n');
+end
 
 % TODO: mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
 
@@ -438,9 +455,11 @@ sub=3;
 ses=1;
 
 %chan=11; % Fz
-chan=62; % Pz
-%chan=53; % LPS middle
+%chan=62; % Pz
 %chan=20; % LAS middle
+%chan=118; % RAS middle
+chan=53; % LPS middle
+%chan=86; % RPS middle
 
 cond = {'CCR','CSC','CSI','SCR','SSC','SSI'};
 
@@ -578,15 +597,20 @@ cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
-cfg_ft.parameter = 'powspctrm';
-%cfg_ft.parameter = 'plvspctrm';
+
 for ses = 1:length(exper.sessions)
   for typ = 1:length(ana.eventValues)
     for evVal = 1:length(ana.eventValues{typ})
       %tic
       fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
-      ga_freq.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      %ga_phase.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      if strcmp(cfg_ana.data_str,'data_freq')
+        cfg_ft.parameter = 'powspctrm';
+        ga_freq.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_phase')
+        %cfg_ft.parameter = 'plvspctrm';
+        cfg_ft.parameter = 'powspctrm';
+        ga_phase.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      end
       fprintf('Done.\n');
       %toc
     end
@@ -841,8 +865,8 @@ end
 
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
-%cfg_ft.avgovertime = 'no';
-cfg_ft.avgovertime = 'yes';
+cfg_ft.avgovertime = 'no';
+%cfg_ft.avgovertime = 'yes';
 %cfg_ft.avgoverfreq = 'no';
 cfg_ft.avgoverfreq = 'yes';
 
@@ -867,8 +891,8 @@ cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'
 %thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
-%thisBLtype = 'zpow_eq';
-thisBLtype = 'phase_eq';
+%thisBLtype = 'zpow';
+thisBLtype = 'phase';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
@@ -878,18 +902,27 @@ else
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
   cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 end
-%cfg_ana.latencies = [0 1.0];
-%cfg_ana.latencies = [0 0.5; 0.5 1.0];
-%cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-cfg_ana.latencies = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+
+if strcmp(cfg_ft.avgovertime,'no')
+  cfg_ana.latencies = [0 1.0];
+  %cfg_ana.latencies = [0 0.5; 0.5 1.0];
+elseif strcmp(cfg_ft.avgovertime,'yes')
+  %cfg_ana.latencies = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+  %cfg_ana.latencies = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+  %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+  cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]';
+end
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
   for fr = 1:size(cfg_ana.frequencies,1)
     cfg_ft.frequency = cfg_ana.frequencies(fr,:);
     
-    %[stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_freq);
-    [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_phase);
+    if ~isempty(strfind(cfg_ana.dirStr,'pow'))
+      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_freq);
+    elseif ~isempty(strfind(cfg_ana.dirStr,'phase'))
+      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_phase);
+    end
   end
 end
 
@@ -948,8 +981,9 @@ cfg = [];
 cfg.parameter = 'powspctrm';
 
 %cfg.times = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-%cfg.times = [0.4 0.6];
+%cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+%cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
 %cfg.freqs = [4 8];
 
@@ -968,7 +1002,8 @@ cfg.plotLegend = true;
 cfg.plotClusSig = true;
 cfg.clusAlpha = 0.1;
 %cfg.clusTimes = cfg.times;
-cfg.clusTimes = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+%cfg.clusTimes = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.clusLimits = true;
 
 %cfg.ylim = [-0.6 0.6];

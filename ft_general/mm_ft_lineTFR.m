@@ -131,13 +131,15 @@ if cfg.plotClusSig
     cfg.clusSize = [0.01 0.05 0.1 0.2 0.3];
   end
   if ~isfield(cfg,'clusSymb');
-    cfg.clusSymb = ['*','x','+','o','.']; % 
+    cfg.clusSymb = ['*','x','+','o','.']; % [0.01 0.05 0.1 0.2 0.3]
   end
   if ~isfield(cfg,'clusLimits')
     cfg.clusLimits = false;
   end
+  if ~isfield(cfg,'clusLimColor')
+    cfg.clusLimColor = [0 0 1];
+  end
 end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -324,13 +326,13 @@ for typ = 1:length(cfg.conditions)
       foundneg = zeros(nROIs,nTime);
       
       for t = 1:size(cfg.clusTimes,1)
-        dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000,cfg.clusDirStr));
+        dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',round(cfg.clusTimes(t,1)*1000),round(cfg.clusTimes(t,2)*1000),cfg.clusDirStr));
         if ~exist(dirs.saveDirClusStat,'dir')
           error('%s not found!\nMake sure this directory is accessible for loading cluster permutation test results.',dirs.saveDirClusStat);
         end
         for evVal = 1:nCond
           vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)});
-          savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000));
+          savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),round(cfg.clusTimes(t,1)*1000),round(cfg.clusTimes(t,2)*1000)));
           if exist(savedFile,'file')
             %fprintf('Loading %s\n',savedFile);
             load(savedFile);
@@ -340,7 +342,7 @@ for typ = 1:length(cfg.conditions)
           else
             % try the reverse order
             vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,2)},cfg.conditions{typ}{condCombos(evVal,1)});
-            savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000));
+            savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),round(cfg.clusTimes(t,1)*1000),round(cfg.clusTimes(t,2)*1000)));
             if exist(savedFile,'file')
               %fprintf('Loading %s\n',savedFile);
               load(savedFile);
@@ -375,9 +377,16 @@ for typ = 1:length(cfg.conditions)
               if cfg.setylim
                 cfg.ylim = [(min(reshape(dataVec,[],1)) - 0.1) (max(reshape(dataVec,[],1)) + 0.1)];
               end
+              clusLimColorL = cfg.clusLimColor;
+              clusLimColorR = cfg.clusLimColor;
+              if t == 1
+                clusLimColorL = [0 0 0];
+              elseif t == size(cfg.clusTimes,1)
+                clusLimColorR = [0 0 0];
+              end
               hold on
-              plot([cfg.clusTimes(t,1) cfg.clusTimes(t,1)],cfg.ylim,'Color',[0 0 1]); % vertical
-              plot([cfg.clusTimes(t,2) cfg.clusTimes(t,2)],cfg.ylim,'Color',[0 0 1]); % vertical
+              plot([cfg.clusTimes(t,1) cfg.clusTimes(t,1)],cfg.ylim,'Color',clusLimColorL); % vertical
+              plot([cfg.clusTimes(t,2) cfg.clusTimes(t,2)],cfg.ylim,'Color',clusLimColorR); % vertical
               hold off
             end
             

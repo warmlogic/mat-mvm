@@ -34,16 +34,16 @@ end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
 % set the directory to load the file from
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)));
 
 for cnd = 1:length(cfg_plot.conditions)
   % set the number of conditions that we're testing
   cfg_plot.numConds = size(cfg_plot.conditions{cnd},2);
   vs_str = sprintf('%s%s',cfg_plot.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_plot.numConds-1),cfg_plot.conditions{cnd}{2:end}));
   
-  fprintf('%s, %d--%d ms\n',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000);
+  fprintf('%s, %d--%d ms\n',vs_str,round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000));
   
-  savedFile = fullfile(dirs.saveDirClusStat,sprintf('tla_stat_clus_%s_%d_%d.mat',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+  savedFile = fullfile(dirs.saveDirClusStat,sprintf('tla_stat_clus_%s_%d_%d.mat',vs_str,round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)));
   if exist(savedFile,'file')
     fprintf('Loading %s\n',savedFile);
     load(savedFile);
@@ -114,9 +114,9 @@ for cnd = 1:length(cfg_plot.conditions)
           for f = 1:length(fignums)
             figure(f)
             
-            cfg_plot.figfilename = sprintf('tla_clus_ga_%s_%d_%d_fig%d',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
+            cfg_plot.figfilename = sprintf('tla_clus_ga_%s_%d_%d_fig%d',vs_str,round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),f);
             
-            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000),vs_str);
+            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)),vs_str);
             %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tla_stat_clus',vs_str);
             if ~exist(dirs.saveDirFigsClus,'dir')
               mkdir(dirs.saveDirFigsClus)

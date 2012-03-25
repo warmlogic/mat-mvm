@@ -72,16 +72,16 @@ if ~isfield(cfg_plot,'dirStr')
 end
 
 % set the directory to load the file from
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.dirStr));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_plot.dirStr));
 
 for cnd = 1:length(cfg_plot.conditions)
   % set the number of conditions that we're testing
   cfg_plot.numConds = size(cfg_plot.conditions{cnd},2);
   vs_str = sprintf('%s%s',cfg_plot.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_plot.numConds-1),cfg_plot.conditions{cnd}{2:end}));
   
-  fprintf('%s, %d--%d ms, %.1f--%.1f Hz\n',vs_str,cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_ft.frequency(1),cfg_ft.frequency(2));
+  fprintf('%s, %d--%d ms, %.1f--%.1f Hz\n',vs_str,round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_ft.frequency(1),cfg_ft.frequency(2));
   
-  savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000));
+  savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg_ft.frequency(1),cfg_ft.frequency(2),round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)));
   if exist(savedFile,'file')
     fprintf('Loading %s\n',savedFile);
     load(savedFile);
@@ -172,9 +172,9 @@ for cnd = 1:length(cfg_plot.conditions)
           for f = 1:length(fignums)
             figure(f)
             
-            cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,f);
+            cfg_plot.figfilename = sprintf('tfr_clus_ga_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_ft.frequency(1)),round(cfg_ft.frequency(2)),round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),f);
             
-            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.dirStr),vs_str);
+            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_plot.dirStr),vs_str);
             if ~exist(dirs.saveDirFigsClus,'dir')
               mkdir(dirs.saveDirFigsClus)
             end

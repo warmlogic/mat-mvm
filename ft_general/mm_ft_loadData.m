@@ -130,6 +130,7 @@ end
 
 % if we're equating trials, find out the number of trials to choose
 if strcmp(cfg.equatetrials,'yes')
+  fprintf('Will be equating trials across conditions within a type.\n');
   if isfield(exper,'randTrials')
     fprintf('exper struct already contains randTrials field. Using that for sub-sampling trials.\n');
   else
@@ -159,6 +160,31 @@ if strcmp(cfg.equatetrials,'yes')
         end
       end
     end
+  end
+  for typ = 1:length(eventValues)
+    fprintf('Condition type consisting of: %s\n',sprintf(repmat('%s ',1,length(eventValues{typ})),eventValues{typ}{:}));
+    if length(exper.subjects{1}) > 7
+      tabchar_sub = '\t';
+    else
+      tabchar_sub = '';
+    end
+    % print out the trial counts for each subject
+    fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(eventValues{typ})),eventValues{typ}{:}));
+    for ses = 1:length(exper.sessions)
+      for sub = 1:length(exper.subjects)
+        subStr = exper.subjects{sub};
+        for evVal = 1:length(eventValues{typ})
+          if length(eventValues{typ}{evVal}) > 7
+            tabchar_ev = '\t';
+          else
+            tabchar_ev = '';
+          end
+          subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(eventValues{typ}{evVal})(sub,ses),sprintf(tabchar_ev)));
+        end
+        fprintf('%s\n',subStr);
+      end
+    end
+    fprintf('\n');
   end
 end
 
@@ -361,7 +387,7 @@ for sub = 1:length(exper.subjects)
           fprintf('Done.\n\n');
         else
           warning([mfilename,':noFileFound'],'NOT FOUND: %s\n',inputfile);
-          fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n');
+          fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n\n');
           data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg.trl = [];
         end % if
       end % for evVal

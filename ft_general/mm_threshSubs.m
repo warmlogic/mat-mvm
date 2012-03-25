@@ -31,7 +31,7 @@ else
 end
 
 % get the events from ana; those are the ones we care about for analysis
-events = cat(2,ana.eventValues{:});
+eventValues = cat(2,ana.eventValues{:});
 
 % initialize to store who is below threshold
 exper.nTrials.lowNum = false(length(exper.subjects),length(exper.sessions));
@@ -39,9 +39,9 @@ exper.nTrials.lowNum = false(length(exper.subjects),length(exper.sessions));
 % figure out who is below threshold
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
-    for evVal = 1:length(events)
+    for evVal = 1:length(eventValues)
       % compare nTrials to threshold
-      if exper.nTrials.(events{evVal})(sub,ses) < exper.nTrials.thresh
+      if exper.nTrials.(eventValues{evVal})(sub,ses) < exper.nTrials.thresh
         exper.nTrials.lowNum(sub,ses) = true;
       end
     end
@@ -51,25 +51,25 @@ end
 %% print some info
 
 if length(exper.subjects{1}) > 7
-  tabchar = '\t';
+  tabchar_sub = '\t';
 else
-  tabchar = '';
+  tabchar_sub = '';
 end
 
 fprintf('\n');
 
 % print out the trial counts for each subject
-fprintf('Subject%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(events)),events{:}));
+fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(eventValues)),eventValues{:}));
 for ses = 1:length(exper.sessions)
   for sub = 1:length(exper.subjects)
     subStr = exper.subjects{sub};
-    for evVal = 1:length(events)
-      if length(events{evVal}) > 7
+    for evVal = 1:length(eventValues)
+      if length(eventValues{evVal}) > 7
         tabchar_ev = '\t';
       else
         tabchar_ev = '';
       end
-      subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(events{evVal})(sub,ses),sprintf(tabchar_ev)));
+      subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(eventValues{evVal})(sub,ses),sprintf(tabchar_ev)));
     end
     fprintf('%s\n',subStr);
   end
@@ -106,11 +106,11 @@ exper.badSub = logical(exper.badSub);
 
 % print a summary
 fprintf('\nNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',sum(~exper.badSub),exper.nTrials.thresh);
-for evVal = 1:length(events)
-  meanTrials = mean(exper.nTrials.(events{evVal})(~exper.badSub));
-  semTrials = std(exper.nTrials.(events{evVal})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
-  stdTrials = std(exper.nTrials.(events{evVal})(~exper.badSub),0,1);
-  fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',events{evVal},meanTrials,semTrials,stdTrials);
+for evVal = 1:length(eventValues)
+  meanTrials = mean(exper.nTrials.(eventValues{evVal})(~exper.badSub));
+  semTrials = std(exper.nTrials.(eventValues{evVal})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
+  stdTrials = std(exper.nTrials.(eventValues{evVal})(~exper.badSub),0,1);
+  fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',eventValues{evVal},meanTrials,semTrials,stdTrials);
 end
 
 end
