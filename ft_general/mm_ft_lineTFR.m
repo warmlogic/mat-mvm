@@ -334,9 +334,22 @@ for typ = 1:length(cfg.conditions)
           if exist(savedFile,'file')
             %fprintf('Loading %s\n',savedFile);
             load(savedFile);
+            %fprintf('No stat_clus file found for %s. Checking reverse condition order.\n',vs_str);
+            cond1 = cfg.conditions{typ}{condCombos(evVal,1)};
+            cond2 = cfg.conditions{typ}{condCombos(evVal,2)};
           else
-            warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
-            continue
+            % try the reverse order
+            vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,2)},cfg.conditions{typ}{condCombos(evVal,1)});
+            savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1)*1000,cfg.clusTimes(t,2)*1000));
+            if exist(savedFile,'file')
+              %fprintf('Loading %s\n',savedFile);
+              load(savedFile);
+              cond1 = cfg.conditions{typ}{condCombos(evVal,2)};
+              cond2 = cfg.conditions{typ}{condCombos(evVal,1)};
+            else
+              warning([mfilename,':FileNotFound'],'No stat_clus file found for %s (or reverse order): %s. Going to next comparison.\n',vs_str,savedFile);
+              continue
+            end
           end
           
           if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
@@ -392,7 +405,7 @@ for typ = 1:length(cfg.conditions)
                     stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
-                  clus_str = sprintf('%s>%s:%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)},clus_symb);
+                  clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
                 end
@@ -423,7 +436,7 @@ for typ = 1:length(cfg.conditions)
                     stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
-                  clus_str = sprintf('%s<%s:%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)},clus_symb);
+                  clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
                 end

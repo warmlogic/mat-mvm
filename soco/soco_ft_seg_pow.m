@@ -367,13 +367,13 @@ if strcmp(cfg.equatetrials,'yes')
 elseif strcmp(cfg.equatetrials,'no')
   eq_str = '';
 end
-if strcmp(cfg.equatetrials,'yes')
+if strcmp(cfg.keeptrials,'yes')
   individ_str = '_trials';
-elseif strcmp(cfg.equatetrials,'no')
+elseif strcmp(cfg.keeptrials,'no')
   individ_str = '_avg';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_freq%s%s.mat',eq_str,individ_str));
-save(saveFile,'data_freq');
+save(saveFile,'data_freq','exper');
 
 %% new loading workflow - phase
 
@@ -392,13 +392,13 @@ if strcmp(cfg.equatetrials,'yes')
 elseif strcmp(cfg.equatetrials,'no')
   eq_str = '';
 end
-if strcmp(cfg.equatetrials,'yes')
+if strcmp(cfg.keeptrials,'yes')
   individ_str = '_trials';
-elseif strcmp(cfg.equatetrials,'no')
+elseif strcmp(cfg.keeptrials,'no')
   individ_str = '_avg';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_phase%s%s.mat',eq_str,individ_str));
-save(saveFile,'data_phase');
+save(saveFile,'data_phase','exper');
 
 % TODO: mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
 

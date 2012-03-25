@@ -392,8 +392,8 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
-%exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'COSI2035'
+%exper.badBehSub = {};
+exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'COSI2035'
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 

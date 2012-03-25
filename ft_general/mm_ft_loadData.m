@@ -144,13 +144,17 @@ if strcmp(cfg.equatetrials,'yes')
       for ses = 1:length(exper.sessions)
         for typ = 1:length(eventValues)
           for evVal = 1:length(eventValues{typ})
-            if exper.nTrials.(eventValues{typ}{evVal})(sub,ses) < lowEvNum(sub,ses,typ)
+            if exper.nTrials.(eventValues{typ}{evVal})(sub,ses) < lowEvNum(sub,ses,typ) && exper.nTrials.(eventValues{typ}{evVal})(sub,ses) > 0
               lowEvNum(sub,ses,typ) = exper.nTrials.(eventValues{typ}{evVal})(sub,ses);
             end
           end
           exper.randTrials{sub,ses,typ} = nan(lowEvNum(sub,ses,typ),length(eventValues{typ}));
           for evVal = 1:length(eventValues{typ})
-            exper.randTrials{sub,ses,typ}(:,evVal) = sort(randperm(exper.nTrials.(eventValues{typ}{evVal})(sub,ses),lowEvNum(sub,ses,typ)));
+            if exper.nTrials.(eventValues{typ}{evVal})(sub,ses) ~= 0
+              exper.randTrials{sub,ses,typ}(:,evVal) = sort(randperm(exper.nTrials.(eventValues{typ}{evVal})(sub,ses),lowEvNum(sub,ses,typ)));
+            else
+              exper.randTrials{sub,ses,typ}(:,evVal) = [];
+            end
           end
         end
       end
@@ -213,6 +217,7 @@ for sub = 1:length(exper.subjects)
                 % TODO: test
                 if strcmp(cfg.equatetrials,'yes')
                   % get the subset of trials
+                  fprintf('Phase data: Equating trial counts across conditions (within a type). Randomly selecting %d (of %d) trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(fourierparam),1));
                   subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam)(exper.randTrials{sub,ses,typ}(:,evVal),:,:,:);
                 end
                 
@@ -280,7 +285,7 @@ for sub = 1:length(exper.subjects)
                 subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blstd;
                 
               elseif strcmp(cfg.baselinetype,'absolute') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
-                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
                 blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= baseline(2);
                 
                 nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
@@ -289,7 +294,7 @@ for sub = 1:length(exper.subjects)
                 subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
                 
               elseif strcmp(cfg.baselinetype,'absolute') && strcmp(cfg.output,'phase') && ndims(subSesEvData.(cell2mat(fn)).(param)) == 3
-                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) phase from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
                 blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
                 
                 nSmp = size(subSesEvData.(cell2mat(fn)).(param),3);
@@ -301,7 +306,7 @@ for sub = 1:length(exper.subjects)
             
             % save the data in a container struct
             fprintf('%s %s %s: ',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
-            if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),(powparam)) && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
+            if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),powparam) && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               fprintf('Power data: ');
               %             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               %               error('\n%s %s %s: Can only keep trials for cfg.ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},cfg.ftype);
@@ -315,17 +320,18 @@ for sub = 1:length(exper.subjects)
               cfg_fd.keeptrials = cfg.keeptrials;
               
               if strcmp(cfg.keeptrials,'no')
-                fprintf('Averaging over individual trials');
+                fprintf('Averaging over individual trials.');
               elseif strcmp(cfg.keeptrials,'yes')
-                fprintf('Keeping individual trials');
+                fprintf('Keeping individual trials.');
               end
               
               if strcmp(cfg.equatetrials,'yes')
-                fprintf(', equating trial counts across all conditions in this type by selecting random subsets.\n');
+                fprintf(' Equating trial counts across all conditions (within a type).\n');
+                fprintf('Randomly selecting %d of %d trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(powparam),1));
                 % get the subset of trials
                 cfg_fd.trials = exper.randTrials{sub,ses,typ}(:,evVal);
               elseif strcmp(cfg.equatetrials,'no')
-                fprintf(', using all trials.\n');
+                fprintf('. Using all trials.\n');
                 % use all of the trials
                 cfg_fd.trials = 'all';
               end
@@ -333,12 +339,12 @@ for sub = 1:length(exper.subjects)
                 % use ft_freqdescriptives to average over individual
                 % trials, if desired and the data is appropriate
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
-            elseif strcmp(cfg.output,'phase') && isfield(subSesEvData.(cell2mat(fn)),(phaseparam)) && ndims(subSesEvData.(cell2mat(fn)).(phaseparam)) == 3
-              fprintf('Phase data: Individual trials are lost, ');
-              if strcmp(cfg.equatetrials,'yes')
-                fprintf('and using randomly selected subsets of trials so each condition (within a type) has the same number of trials.\n');
-              elseif strcmp(cfg.equatetrials,'no')
-                fprintf('and using all trials, though this could affect the phase calculation if trial counts are unequal.\n');
+            elseif strcmp(cfg.output,'phase') && isfield(subSesEvData.(cell2mat(fn)),phaseparam) && ndims(subSesEvData.(cell2mat(fn)).(phaseparam)) == 3
+              fprintf('Phase data: Individual trials are lost.');
+              if strcmp(cfg.equatetrials,'no')
+                fprintf(' Using all trials. NB: this could affect the phase calculation if trial counts are unequal!!\n');
+              %elseif strcmp(cfg.equatetrials,'yes')
+              %  fprintf(' Using randomly selected subsets of trials so each condition (within a type) has the same number of trials.\n');
               end
               data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
             else

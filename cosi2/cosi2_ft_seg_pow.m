@@ -363,7 +363,8 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
+%ana.eventValues = {exper.eventValues};
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -381,8 +382,8 @@ end
 
 cfg = [];
 cfg.keeptrials = 'no';
-cfg.equatetrials = 'no';
-%cfg.equatetrials = 'yes';
+%cfg.equatetrials = 'no';
+cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'phase'
 cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
@@ -396,19 +397,19 @@ if strcmp(cfg.equatetrials,'yes')
 elseif strcmp(cfg.equatetrials,'no')
   eq_str = '';
 end
-if strcmp(cfg.equatetrials,'yes')
+if strcmp(cfg.keeptrials,'yes')
   individ_str = '_trials';
-elseif strcmp(cfg.equatetrials,'no')
+elseif strcmp(cfg.keeptrials,'no')
   individ_str = '_avg';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_freq%s%s.mat',eq_str,individ_str));
-save(saveFile,'data_freq');
+save(saveFile,'data_freq','exper');
 
 %% new loading workflow - phase
 
 cfg = [];
-cfg.equatetrials = 'no';
-%cfg.equatetrials = 'yes';
+%cfg.equatetrials = 'no';
+cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'phase'; % 'pow', 'phase'
 cfg.baselinetype = 'absolute'; % 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
@@ -421,23 +422,23 @@ if strcmp(cfg.equatetrials,'yes')
 elseif strcmp(cfg.equatetrials,'no')
   eq_str = '';
 end
-if strcmp(cfg.equatetrials,'yes')
+if strcmp(cfg.keeptrials,'yes')
   individ_str = '_trials';
-elseif strcmp(cfg.equatetrials,'no')
+elseif strcmp(cfg.keeptrials,'no')
   individ_str = '_avg';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_phase%s%s.mat',eq_str,individ_str));
-save(saveFile,'data_phase');
+save(saveFile,'data_phase','exper');
 
 % TODO: mm_ft_loadData runs: mm_ft_freqnormalize, mm_ft_freqbaseline
 
 %% plot something
 
-sub=1;
+sub=3;
 ses=1;
 
-chan=11; % Fz
-%chan=62; % Pz
+%chan=11; % Fz
+chan=62; % Pz
 %chan=53; % LPS middle
 %chan=20; % LAS middle
 
@@ -447,17 +448,21 @@ cond = {'CCR','CSC','CSI','SCR','SSC','SSI'};
 param = 'powspctrm';
 clim = [-1 1];
 for cnd = 1:length(cond)
-  figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_freq.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
-  axis xy;colorbar;
-  title(sprintf('Z-Power: %s',cond{cnd}));
+  if isfield(data_freq.(cond{cnd}).sub(sub).ses(ses).data,param)
+    figure;imagesc(data_freq.(cond{cnd}).sub(sub).ses(ses).data.time,data_freq.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_freq.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+    axis xy;colorbar;
+    title(sprintf('Z-Power: %s, sub %d, ses %d, chan %d',cond{cnd},sub,ses,chan));
+  end
 end
 %elseif strcmp(cfg.output,'phase')
 param = 'powspctrm';
 clim = [0 1];
 for cnd = 1:length(cond)
-  figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
-  axis xy;colorbar;
-  title(sprintf('Phase - BL: %s',cond{cnd}));
+  if isfield(data_phase.(cond{cnd}).sub(sub).ses(ses).data,param)
+    figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+    axis xy;colorbar;
+    title(sprintf('Phase - BL: %s, sub %d, ses %d, chan %d',cond{cnd},sub,ses,chan));
+  end
 end
 %end
 
@@ -544,11 +549,19 @@ end
 
 % Subjects with bad behavior
 %exper.badBehSub = {};
-exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025'};
+exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'COSI2035'
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
-% 11, 14, 31: one session
+% 11, 14, 31, 41: no session_1
+
+% 16, 29 have fewer than 15 trials for Side-SI
+
+% 39 has fewer than 15 trials for Color-SI
+
+% 38: potentially bad session_1 (puker)
+
+% 35 and 38 have noisy ERPs
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -560,16 +573,20 @@ cfg_ana = [];
 cfg_ana.is_ga = 0;
 cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_freq';
+%cfg_ana.data_str = 'data_phase';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
+cfg_ft.parameter = 'powspctrm';
+%cfg_ft.parameter = 'plvspctrm';
 for ses = 1:length(exper.sessions)
   for typ = 1:length(ana.eventValues)
     for evVal = 1:length(ana.eventValues{typ})
       %tic
       fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
       ga_freq.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      %ga_phase.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
       fprintf('Done.\n');
       %toc
     end
@@ -824,9 +841,10 @@ end
 
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
-cfg_ft.avgovertime = 'no';
-cfg_ft.avgoverfreq = 'no';
-%cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
+%cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgoverfreq = 'yes';
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -834,8 +852,10 @@ cfg_ft.parameter = 'powspctrm';
 %cfg_ft.numrandomization = 100;
 
 cfg_ft.numrandomization = 500;
-cfg_ft.clusteralpha = .05;
-cfg_ft.alpha = .025;
+% cfg_ft.clusteralpha = .05;
+% cfg_ft.alpha = .025;
+cfg_ft.clusteralpha = .1;
+cfg_ft.alpha = .05;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
@@ -844,25 +864,32 @@ cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
 % extra identifier when saving
-thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
-cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
+%thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
+%cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
+
+%thisBLtype = 'zpow_eq';
+thisBLtype = 'phase_eq';
+thisBL = [-0.4 -0.2];
+cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  %cfg_ana.frequencies = [3 40];
-  cfg_ana.frequencies = [3 100];
+  cfg_ana.frequencies = [4 100];
 else
-  %cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 40];
-  cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 100];
+  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
+  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 end
-cfg_ana.latencies = [0 1.0];
+%cfg_ana.latencies = [0 1.0];
 %cfg_ana.latencies = [0 0.5; 0.5 1.0];
+%cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+cfg_ana.latencies = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
   for fr = 1:size(cfg_ana.frequencies,1)
     cfg_ft.frequency = cfg_ana.frequencies(fr,:);
     
-    [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_freq);
+    %[stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_freq);
+    [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_phase);
   end
 end
 
@@ -872,8 +899,8 @@ files.saveFigs = 1;
 
 cfg_ft = [];
 %cfg_ft.alpha = .025;
-cfg_ft.alpha = .05;
-%cfg_ft.alpha = .1;
+%cfg_ft.alpha = .05;
+cfg_ft.alpha = .1;
 cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 
 cfg_plot = [];
@@ -913,6 +940,49 @@ if emailme
   send_gmail(subject,mail_message);
 end
 
+%% line plots
+
+files.saveFigs = 0;
+
+cfg = [];
+cfg.parameter = 'powspctrm';
+
+%cfg.times = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+%cfg.times = [0.4 0.6];
+cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
+%cfg.freqs = [4 8];
+
+cfg.rois = {...
+  {'LAS'},{'FS'},{'RAS'},...
+  {'LPS'},{'PS'},{'RPS'}};
+
+% cfg.rois = {{'LPS'},{'PS'},{'RPS'}};
+
+%cfg.conditions = ana.eventValues;
+cfg.conditions = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+
+cfg.plotTitle = true;
+cfg.plotLegend = true;
+
+cfg.plotClusSig = true;
+cfg.clusAlpha = 0.1;
+%cfg.clusTimes = cfg.times;
+cfg.clusTimes = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+cfg.clusLimits = true;
+
+%cfg.ylim = [-0.6 0.6];
+%cfg.ylim = [-0.5 0.2];
+cfg.nCol = 3;
+
+cfg.clusDirStr = '_zpow_-400_-200';
+cfg.ylabel = 'Z-Transformed Power';
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);
+
+% cfg.clusDirStr = '_phase_-400_-200';
+% cfg.ylabel = 'Phase locking';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_phase);
+
 %% correlations
 
 cfg_ana = [];
@@ -949,146 +1019,3 @@ for r = 1:length(cfg_ana.rois)
   
   mm_ft_corr_dprimeER(cfg_ana,ana,exper,files,dirs,data_tla);
 end
-
-%% Make contrast plots (with culster stat info) - old function
-
-% set up contrast
-cfg_ana = [];
-cfg_ana.include_clus_stat = 0;
-cfg_ana.timeS = (0:0.05:1.0);
-cfg_ana.timeSamp = round(linspace(1,exper.sampleRate,length(cfg_ana.timeS)));
-
-cfg_plot = [];
-cfg_plot.minMaxVolt = [-1 1];
-cfg_plot.numRows = 4;
-
-cfg_ft = [];
-cfg_ft.interactive = 'no';
-cfg_ft.elec = ga_freq.elec;
-cfg_ft.highlight = 'on';
-if cfg_ana.include_clus_stat == 0
-  cfg_ft.highlightchannel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LAS','RAS','RPS','LPS'})});
-end
-%cfg_ft.comment = 'xlim';
-cfg_ft.commentpos = 'title';
-
-% create contrast
-cont_topo = [];
-cont_topo.RHvsRCR = ga_freq.RH;
-cont_topo.RHvsRCR.avg = ga_freq.RH.avg - ga_freq.RCR.avg;
-cont_topo.RHvsRCR.individual = ga_freq.RH.individual - ga_freq.RCR.individual;
-if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHvsRCR.posclusterslabelmat==1;
-end
-% make a plot
-figure
-for k = 1:length(cfg_ana.timeS)-1
-  subplot(cfg_plot.numRows,(length(cfg_ana.timeS)-1)/cfg_plot.numRows,k);
-  cfg_ft.xlim = [cfg_ana.timeS(k) cfg_ana.timeS(k+1)];
-  cfg_ft.zlim = [cfg_plot.minMaxVolt(1) cfg_plot.minMaxVolt(2)];
-  if cfg_ana.include_clus_stat == 1
-    pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
-    cfg_ft.highlightchannel = find(pos_int==1);
-  end
-  ft_topoplotER(cfg_ft,cont_topo.RHvsRCR);
-end
-set(gcf,'Name','H - CR')
-
-% create contrast
-cont_topo.RHSCvsRHSI = ga_freq.RHSC;
-cont_topo.RHSCvsRHSI.avg = ga_freq.RHSC.avg - ga_freq.RHSI.avg;
-cont_topo.RHSCvsRHSI.individual = ga_freq.RHSC.individual - ga_freq.RHSI.individual;
-if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHSCvsRHSI.posclusterslabelmat==1;
-end
-% make a plot
-figure
-for k = 1:length(cfg_ana.timeS)-1
-  subplot(cfg_plot.numRows,(length(cfg_ana.timeS)-1)/cfg_plot.numRows,k);
-  cfg_ft.xlim = [cfg_ana.timeS(k) cfg_ana.timeS(k+1)];
-  cfg_ft.zlim = [cfg_plot.minMaxVolt(1) cfg_plot.minMaxVolt(2)];
-  if cfg_ana.include_clus_stat == 1
-    pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
-    cfg_ft.highlightchannel = find(pos_int==1);
-  end
-  ft_topoplotER(cfg_ft,cont_topo.RHSCvsRHSI);
-end
-set(gcf,'Name','HSC - HSI')
-
-% create contrast
-cont_topo.RHSCvsRCR = ga_freq.RHSC;
-cont_topo.RHSCvsRCR.avg = ga_freq.RHSC.avg - ga_freq.RCR.avg;
-cont_topo.RHSCvsRCR.individual = ga_freq.RHSC.individual - ga_freq.RCR.individual;
-if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHSCvsRCR.posclusterslabelmat==1;
-end
-% make a plot
-figure
-for k = 1:length(cfg_ana.timeS)-1
-  subplot(cfg_plot.numRows,(length(cfg_ana.timeS)-1)/cfg_plot.numRows,k);
-  cfg_ft.xlim = [cfg_ana.timeS(k) cfg_ana.timeS(k+1)];
-  cfg_ft.zlim = [cfg_plot.minMaxVolt(1) cfg_plot.minMaxVolt(2)];
-  if cfg_ana.include_clus_stat == 1
-    pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
-    cfg_ft.highlightchannel = find(pos_int==1);
-  end
-  ft_topoplotER(cfg_ft,cont_topo.RHSCvsRCR);
-end
-set(gcf,'Name','HSC - CR')
-
-% % mecklinger plot
-% cfg_ft.xlim = [1200 1800];
-% cfg_ft.zlim = [-2 2];
-% cfg_ft.colorbar = 'yes';
-% figure
-% ft_topoplotER(cfg_ft,cont_topo.RHSCvsRCR);
-
-% create contrast
-cont_topo.RHSIvsRCR = ga_freq.RHSI;
-cont_topo.RHSIvsRCR.avg = ga_freq.RHSI.avg - ga_freq.RCR.avg;
-cont_topo.RHSIvsRCR.individual = ga_freq.RHSI.individual - ga_freq.RCR.individual;
-if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHSIvsRCR.posclusterslabelmat==1;
-end
-% make a plot
-figure
-for k = 1:length(cfg_ana.timeS)-1
-  subplot(cfg_plot.numRows,(length(cfg_ana.timeS)-1)/cfg_plot.numRows,k);
-  cfg_ft.xlim = [cfg_ana.timeS(k) cfg_ana.timeS(k+1)];
-  cfg_ft.zlim = [cfg_plot.minMaxVolt(1) cfg_plot.minMaxVolt(2)];
-  if cfg_ana.include_clus_stat == 1
-    pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
-    cfg_ft.highlightchannel = find(pos_int==1);
-  end
-  ft_topoplotER(cfg_ft,cont_topo.RHSIvsRCR);
-end
-set(gcf,'Name','HSI - CR')
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% % because of a bug (might be fixed now)
-% if ~isfield(stat_clus.RHSCvsRHSIvsRCR,'negclusters') && isfield(stat_clus.RHSCvsRHSIvsRCR,'posclusters')
-%   fprintf('No neg clusters found\n');
-%   stat_clus.RHSCvsRHSIvsRCR.negclusters.prob = .5;
-%   stat_clus.RHSCvsRHSIvsRCR.negclusters.clusterstat = 0;
-%   stat_clus.RHSCvsRHSIvsRCR.negclusterslabelmat = zeros(size(stat_clus.RHSCvsRHSIvsRCR.posclusterslabelmat));
-%   stat_clus.RHSCvsRHSIvsRCR.negdistribution = zeros(size(stat_clus.RHSCvsRHSIvsRCR.posdistribution));
-% end
-% if ~isfield(stat_clus.RHSCvsRHSIvsRCR,'posclusters') && isfield(stat_clus.RHSCvsRHSIvsRCR,'negclusters')
-%   fprintf('No pos clusters found\n');
-%   stat_clus.RHSCvsRHSIvsRCR.posclusters.prob = 1;
-%   stat_clus.RHSCvsRHSIvsRCR.posclusters.clusterstat = 0;
-%   stat_clus.RHSCvsRHSIvsRCR.posclusterslabelmat = zeros(size(stat_clus.RHSCvsRHSIvsRCR.negclusterslabelmat));
-%   stat_clus.RHSCvsRHSIvsRCR.posdistribution = zeros(size(stat_clus.RHSCvsRHSIvsRCR.negdistribution));
-% end
-%
-% cfg_ft = [];
-% % p-val markers; default ['*','x','+','o','.'], p < [0.01 0.05 0.1 0.2 0.3]
-% cfg_ft.highlightsymbolseries = ['*','*','.','.','.'];
-% cfg_ft.layout = ft_prepare_layout(cfg_ft,ga_freq);
-% cfg_ft.contournum = 0;
-% cfg_ft.emarker = '.';
-% cfg_ft.alpha  = 0.05;
-% cfg_ft.parameter = 'stat';
-% cfg_ft.zlim = [-5 5];
-% ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);
