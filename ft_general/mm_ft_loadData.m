@@ -135,7 +135,7 @@ if strcmp(cfg.equatetrials,'yes')
     fprintf('exper struct already contains randTrials field. Using that for sub-sampling trials.\n');
   else
     % initialize random number generator
-    rng('shuffle');
+    rng('shuffle','twister');
     % initialize to find the lowest number of trials within each subject
     lowEvNum = Inf(length(exper.subjects),length(exper.sessions),length(eventValues));
     % initialize to store the randomly chosen events

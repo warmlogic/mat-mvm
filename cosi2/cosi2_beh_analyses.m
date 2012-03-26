@@ -1,7 +1,7 @@
 
 %% initialize randomness
 
-rng('shuffle');
+rng('shuffle','twister');
 
 %% data
 

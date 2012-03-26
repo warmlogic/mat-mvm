@@ -174,7 +174,7 @@ ses = 1;
 
 if equateTrials
   % initialize random number generator
-  rng('shuffle');
+  rng('shuffle','twister');
   
   % find the lowest number of trials within each subject
   lowEvNum = nan(length(exper.subjects),1);
@@ -401,7 +401,7 @@ if equateTrials
   ana.equateTrials = true;
   
   % initialize random number generator
-  rng('shuffle');
+  rng('shuffle','twister');
   
   for typ = 1:length(ana.eventValues)
     % find the lowest number of trials within each subject
@@ -484,7 +484,7 @@ if equateTrials
   ses=1;
   
   % initialize random number generator
-  rng('shuffle');
+  rng('shuffle','twister');
   
   for typ = 1:length(ana.eventValues)
     % find the lowest number of trials within each subject

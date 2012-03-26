@@ -383,7 +383,7 @@ if exist(saveFile,'file')
 else
   fprintf('Running mm_ft_loadData\n');
   [data_freq,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
-  save(saveFile,'data_freq','exper');
+  save(saveFile,'data_freq','exper','cfg');
   fprintf('Done.\n');
 end
 
@@ -417,7 +417,7 @@ if exist(saveFile,'file')
 else
   fprintf('Running mm_ft_loadData\n');
   [data_phase,exper] = mm_ft_loadData(cfg,exper,dirs,ana.eventValues);
-  save(saveFile,'data_phase','exper');
+  save(saveFile,'data_phase','exper','cfg');
   fprintf('Done.\n');
 end
 
@@ -983,8 +983,8 @@ cfg_ana.conditions = {'all'};
 %thisBLtype = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype');
 %thisBL = ft_findcfg(data_freq.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
 
-thisBLtype = 'zpow';
-%thisBLtype = 'phase';
+%thisBLtype = 'zpow_eq';
+thisBLtype = 'phase_eq';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
@@ -999,8 +999,6 @@ if strcmp(cfg_ft.avgovertime,'no')
   cfg_ana.latencies = [0 1.0];
   %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 elseif strcmp(cfg_ft.avgovertime,'yes')
-  %cfg_ana.latencies = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-  %cfg_ana.latencies = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
   %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
   cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]';
 end
@@ -1072,18 +1070,24 @@ files.saveFigs = 0;
 cfg = [];
 cfg.parameter = 'powspctrm';
 
-%cfg.times = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-%cfg.times = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+%cfg.times = [-0.2:0.05:0.9; -0.1:0.05:1.0]';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
 cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
+
 cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
 %cfg.freqs = [4 8];
 
-cfg.rois = {...
-  {'LAS'},{'FS'},{'RAS'},...
-  {'LPS'},{'PS'},{'RPS'}};
+% cfg.rois = {...
+%   {'LAS'},{'FS'},{'RAS'},...
+%   {'LPS'},{'PS'},{'RPS'},...
+%   };
 
-% cfg.rois = {{'LPS'},{'PS'},{'RPS'}};
+cfg.rois = {...
+  {'LAI'},{'FI'},{'RAI'},...
+  {'LAS'},{'FS'},{'RAS'},...
+  {'LPS'},{'PS'},{'RPS'},...
+  {'LPI'},{'PI'},{'RPI'},...
+  };
 
 cfg.conditions = ana.eventValues;
 
@@ -1093,7 +1097,6 @@ cfg.plotLegend = true;
 cfg.plotClusSig = true;
 cfg.clusAlpha = 0.1;
 %cfg.clusTimes = cfg.times;
-%cfg.clusTimes = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.clusLimits = true;
 
@@ -1102,7 +1105,7 @@ cfg.clusLimits = true;
 cfg.nCol = 3;
 
 cfg.clusDirStr = '_zpow_-400_-200';
-cfg.ylabel = 'Z-Transformed Power';
+cfg.ylabel = 'Z-Trans Pow';
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_freq);
 
 % cfg.clusDirStr = '_phase_-400_-200';

@@ -507,7 +507,7 @@ fprintf('RO+F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(S
 
 %% initialize randomness
 
-rng('shuffle');
+rng('shuffle','twister');
 
 %% more data
 

@@ -174,7 +174,7 @@ fprintf('Converting NetStation to FieldTrip...\n');
 if exper.equateTrials && length(exper.eventValues) > 1
   % if we're going to equate trials across conditions, need to use a random
   % selection
-  rng('shuffle');
+  rng('shuffle','twister');
 elseif exper.equateTrials && length(exper.eventValues) == 1
   % don't equate
   fprintf('Not equating trials because there is only 1 event.\n');
