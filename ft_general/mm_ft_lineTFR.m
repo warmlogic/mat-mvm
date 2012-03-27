@@ -40,7 +40,10 @@ function mm_ft_lineTFR(cfg,ana,files,dirs,data)
 %
 %   data                = output from ft_freqgrandaverage
 
-cfg.type = 'line';
+if ~isfield(cfg,'type')
+  cfg.type = 'line';
+end
+cfg.type = strrep(cfg.type,' ','');
 
 if ~isfield(cfg,'parameter')
   error('Must specify cfg.parameter, denoting the data to plot (e.g., ''powspctrm'' or ''cohspctrm'')');
@@ -121,7 +124,7 @@ if cfg.plotClusSig
     cfg.clusAlpha = 0.05;
   end
   if cfg.setylim
-    textSpaceVert = 0.04;
+    textSpaceVert = 0.05;
     textSpaceHorz = 0.05;
   else
     textSpaceVert = 0.075;

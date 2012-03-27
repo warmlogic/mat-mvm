@@ -188,8 +188,8 @@ end
 
 %% load the analysis details
 
-%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
@@ -220,12 +220,12 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 %ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'RHSC','RHSI','RCR'}};
+ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
-ana.eventValues = {{'F','N','RO','RS'}};
+%ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
 
 % make sure ana.eventValues is set properly
@@ -360,6 +360,139 @@ for ses = 1:length(exper.sessions)
     end
   end
 end
+
+%% time-freq
+
+cfg_ft = [];
+cfg_ft.pad = 'maxperlen';
+% cfg_ft.output = 'pow';
+% % cfg_ft.output = 'powandcsd';
+% cfg_ft.keeptrials = 'no';
+% cfg_ft.keeptapers = 'no';
+cfg_ft.output = 'fourier';
+cfg_ft.keeptrials = 'yes';
+cfg_ft.keeptapers = 'yes';
+
+% wavelet
+cfg_ft.method = 'wavelet';
+cfg_ft.width = 6;
+%cfg_ft.toi = -0.8:0.04:3.0;
+cfg_ft.toi = -0.5:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
+% % cfg_ft.foi = 3:freqstep:9;
+% cfg_ft.foi = 3:freqstep:60;
+%cfg_ft.foi = 4:1:100;
+cfg_ft.foi = 4:1:100;
+
+baseline = [-0.4 -0.2];
+
+data_freq = struct;
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sessions)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        
+        % power
+        param = 'powspctrm';
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2;
+        blt = time >= baseline(1) & time <= baseline(2);
+        nSmp = size(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
+        blm = repmat(nanmean(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) == 0) = eps(0);
+        
+        % phase
+        param = 'phasespctrm';
+        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = angle(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm);
+      end
+    end
+  end
+end
+
+%% plot something
+
+%chan=11; % Fz
+%chan=62; % Pz
+chan=20; % LAS middle
+%chan=118; % RAS middle
+%chan=53; % LPS middle
+%chan=86; % RPS middle
+
+sub=1;
+ses=1;
+typ=1;
+evVal = 3;
+
+freq = data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.freq;
+time = data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
+
+figure
+
+subplot(3,1,1)
+plot(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.avg(chan,:));
+title(sprintf('ERP, %s, chan %d',ana.eventValues{typ}{evVal},chan));
+xlabel('Time (s)');
+ylabel('Voltage (\muV)');
+
+param = 'powspctrm';
+% %pow = squeeze(abs(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2);
+% blt = time >= baseline(1) & time <= baseline(2);
+% %nTrl = size(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),1);
+% nSmp = size(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
+% blm = repmat(nanmean(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+% data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm);
+% 
+% %blm = repmat(nanmean(log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt)),4),[1,1,1,nSmp]);
+% 
+% % % blstd = repmat(nanmean(nanstd(log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt)),0,1),4),[nTrl,1,1,nSmp]);
+% 
+% %data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = (log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - blm);
+% %data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm);
+% 
+% %data_pow_blc = (log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - blm);
+% data_pow_blc = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
+% 
+% %data_pow_blc = (10.^(data_pow_blc/10)-1)*100;
+
+%figure
+subplot(3,1,2)
+surf(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
+shading interp;view([0,90]);axis tight;
+%imagesc(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)),[-3 3]);
+%axis xy
+colorbar
+title(sprintf('Power, %s, chan %d',ana.eventValues{typ}{evVal},chan));
+xlabel('Time (s)');
+ylabel('Frequency');
+
+%phase = squeeze(angle(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm));
+%figure
+param = 'phasespctrm';
+subplot(3,1,3)
+surf(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
+shading interp;view([0,90]);axis tight;
+colorbar
+title(sprintf('Phase, %s, chan %d',ana.eventValues{typ}{evVal},chan));
+xlabel('Time (s)');
+ylabel('Frequency');
+
+% coh = squeeze(data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm ./ abs(data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm));
+% figure;
+% surf(time,freq,abs(squeeze(coh(chan,:,:))));
+% shading interp;view([0,90]);axis tight;
+
+data_freq.SC = data_freq.RHSC;
+data_freq = rmfield(data_freq,'RHSC');
+data_freq.SI = data_freq.RHSI;
+data_freq = rmfield(data_freq,'RHSI');
+data_freq.CR = data_freq.RCR;
+data_freq = rmfield(data_freq,'RCR');
+
+save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
+
 
 %% plot the conditions - simple
 
