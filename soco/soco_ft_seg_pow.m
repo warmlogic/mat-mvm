@@ -161,7 +161,7 @@ files.figPrintFormat = 'png';
 % nsEvFilters.HSI6.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
 % 
 % for sub = 1:length(exper.subjects)
-%   for ses = 1:length(exper.sessions)
+%   for ses = 1:length(exper.sesStr)
 %     overwriteArtFields = 1;
 %     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
 %   end
@@ -364,24 +364,34 @@ cfg.baseline = [-0.4 -0.2];
 cfg.saveFile = true;
 %cfg.saveFile = false;
 
-if strcmp(cfg.equatetrials,'yes')
+cfg.rmevoked = 'yes';
+if strcmp(cfg.rmevoked,'yes')
+  load('/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+end
+
+if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
   eq_str = '_eq';
-elseif strcmp(cfg.equatetrials,'no')
+else
   eq_str = '';
 end
-if strcmp(cfg.keeptrials,'yes')
+if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
   kt_str = '_trials';
-elseif strcmp(cfg.keeptrials,'no')
+else
   kt_str = '_avg';
 end
-saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s.mat',cfg.output,eq_str,kt_str));
+if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
+  indu_str = '_indu';
+else
+  indu_str = '';
+end
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
 
 if exist(saveFile,'file')
   fprintf('Loading saved file: %s\n',saveFile);
   load(saveFile);
 else
   fprintf('Running mm_ft_loadData\n');
-  [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana);
+  [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana,data_evoked);
   if cfg.saveFile
     fprintf('Saving %s...\n',saveFile);
     save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
@@ -567,10 +577,10 @@ cfg_fb.baselinetype = 'absolute'; % maybe this
 %data_pow_orig = data_pow;
 
 for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
+  for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
         data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
       end
     end
@@ -591,6 +601,29 @@ exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
 
+%% for evoked TF, get rid of the trial dim
+
+data_evoked_orig = data_evoked;
+
+cfg_fd = [];
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sesStr)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        %fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+        
+        % % phase - need to deal with in a different way, can't average
+        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.powspctrm = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.phasespctrm;
+        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'phasespctrm');
+        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'fourierspctrm');
+        
+        data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+      end
+    end
+  end
+end
+
 %% get the grand average
 
 % set up strings to put in grand average function
@@ -599,11 +632,12 @@ cfg_ana.is_ga = 0;
 cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_pow';
 %cfg_ana.data_str = 'data_coh';
+%cfg_ana.data_str = 'data_evoked';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
-for ses = 1:length(exper.sessions)
+for ses = 1:length(exper.sesStr)
   for typ = 1:length(ana.eventValues)
     for evVal = 1:length(ana.eventValues{typ})
       %tic
@@ -615,6 +649,9 @@ for ses = 1:length(exper.sessions)
         %cfg_ft.parameter = 'plvspctrm';
         cfg_ft.parameter = 'powspctrm';
         ga_coh.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_evoked')
+        cfg_ft.parameter = 'powspctrm';
+        ga_evoked.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
       end
       fprintf('Done.\n');
       %toc
@@ -990,7 +1027,8 @@ cfg_ana.conditions = {'all'};
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
-thisBLtype = 'zpow';
+%thisBLtype = 'zpow_indu';
+thisBLtype = 'zp_evok';
 %thisBLtype = 'coh';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
@@ -1020,6 +1058,8 @@ for lat = 1:size(cfg_ana.latencies,1)
       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_pow);
     elseif ~isempty(strfind(cfg_ana.dirStr,'coh'))
       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_coh);
+    elseif ~isempty(strfind(cfg_ana.dirStr,'evok'))
+      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_evoked);
     end
   end
 end
@@ -1112,10 +1152,23 @@ cfg.clusLimits = true;
 %cfg.ylim = [-0.5 0.2];
 cfg.nCol = 3;
 
-cfg.type = 'line_pow';
-cfg.clusDirStr = '_zpow_-400_-200';
+% % whole power
+% cfg.type = 'line_pow';
+% cfg.clusDirStr = '_zpow_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+% % induced power
+% cfg.type = 'line_pow_indu';
+% cfg.clusDirStr = '_zpow_indu_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+% evoked power
+cfg.type = 'line_pow_evok';
+cfg.clusDirStr = '_zp_evok_-400_-200';
 cfg.ylabel = 'Z-Trans Pow';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
 
 % cfg.type = 'line_coh';
 % cfg.clusDirStr = '_coh_-400_-200';

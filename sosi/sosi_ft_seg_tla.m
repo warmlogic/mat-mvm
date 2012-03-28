@@ -294,7 +294,7 @@ ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
 % %% Remove the dof field. I'm not sure what degrees of freedom refers to, but the tutorial says to.
 % for evVal = 1:length(exper.eventValues)
 %   for sub = 1:length(exper.subjects)
-%     for ses = 1:length(exper.sessions)
+%     for ses = 1:length(exper.sesStr)
 %       if isfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof')
 %         data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data = rmfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof');
 %       end
@@ -349,7 +349,7 @@ ga_tla = struct;
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
-for ses = 1:length(exper.sessions)
+for ses = 1:length(exper.sesStr)
   for typ = 1:length(ana.eventValues)
     for evVal = 1:length(ana.eventValues{typ})
       %tic
@@ -361,7 +361,7 @@ for ses = 1:length(exper.sessions)
   end
 end
 
-%% time-freq
+%% time-frequency
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -387,32 +387,39 @@ cfg_ft.foi = 4:1:100;
 
 baseline = [-0.4 -0.2];
 
-data_freq = struct;
+data_evoked = struct;
 for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
+  for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-        
-        % power
-        param = 'powspctrm';
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2;
-        blt = time >= baseline(1) & time <= baseline(2);
-        nSmp = size(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
-        blm = repmat(nanmean(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) == 0) = eps(0);
-        
-        % phase
-        param = 'phasespctrm';
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = angle(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm);
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+        if isfield(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'avg')
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+          
+          time = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
+          
+          % power
+          param = 'powspctrm';
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2;
+          blt = time >= baseline(1) & time <= baseline(2);
+          nSmp = size(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
+          blm = repmat(nanmean(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) == 0) = eps(0);
+          
+          % phase
+          param = 'phasespctrm';
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = angle(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm);
+        else
+          warning([mfilename,':erp2freq'],'NO DATA for %s! Monving on!\n',ana.eventValues{typ}{evVal});
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data;
+        end
       end
     end
   end
 end
 
-%% plot something
+%% plot some TF stuff
 
 %chan=11; % Fz
 %chan=62; % Pz
@@ -426,8 +433,8 @@ ses=1;
 typ=1;
 evVal = 3;
 
-freq = data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.freq;
-time = data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
+freq = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.freq;
+time = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
 
 figure
 
@@ -459,7 +466,7 @@ param = 'powspctrm';
 
 %figure
 subplot(3,1,2)
-surf(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
+surf(time,freq,squeeze(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
 shading interp;view([0,90]);axis tight;
 %imagesc(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)),[-3 3]);
 %axis xy
@@ -472,7 +479,7 @@ ylabel('Frequency');
 %figure
 param = 'phasespctrm';
 subplot(3,1,3)
-surf(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
+surf(time,freq,squeeze(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
 shading interp;view([0,90]);axis tight;
 colorbar
 title(sprintf('Phase, %s, chan %d',ana.eventValues{typ}{evVal},chan));
@@ -484,15 +491,14 @@ ylabel('Frequency');
 % surf(time,freq,abs(squeeze(coh(chan,:,:))));
 % shading interp;view([0,90]);axis tight;
 
-data_freq.SC = data_freq.RHSC;
-data_freq = rmfield(data_freq,'RHSC');
-data_freq.SI = data_freq.RHSI;
-data_freq = rmfield(data_freq,'RHSI');
-data_freq.CR = data_freq.RCR;
-data_freq = rmfield(data_freq,'RCR');
+data_evoked.SC = data_evoked.RHSC;
+data_evoked = rmfield(data_evoked,'RHSC');
+data_evoked.SI = data_evoked.RHSI;
+data_evoked = rmfield(data_evoked,'RHSI');
+data_evoked.CR = data_evoked.RCR;
+data_evoked = rmfield(data_evoked,'RCR');
 
-save(fullfile(dirs.saveDirProc,'data_freq.mat'),'data_freq');
-
+save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
 
 %% plot the conditions - simple
 
