@@ -43,7 +43,7 @@ if ~isfield(cfg,'pad')
   cfg.pad = 'maxperlen';
 end
 if strcmp(cfg.pad, 'maxperlen')
-  padding = diff(exper.prepost);
+  padding = diff(exper.prepost) * exper.sampleRate;
   cfg.pad = padding / exper.sampleRate;
 else
   padding = cfg.pad * exper.sampleRate;
@@ -52,13 +52,24 @@ else
   end
 end
 
-% check on the frequencies of interest (foi)
+% check on the frequencies of interest (foi or foilim)
 if ~isfield(cfg,'foi') && ~isfield(cfg,'foilim')
   error('Must set cfg.foi (e.g., 4:1:8) or cfg.foilim (e.g., [4 8]).');
-elseif isfield(cfg,'foi') && isfield(cfg,'foilim')
+elseif isfield(cfg,'foi') && isfield(cfg,'foilim') && ~isempty(cfg.foi) && ~isempty(cfg.foilim)
   error('Do not set both cfg.foi and cfg.foilim.');
+elseif isfield(cfg,'foi') && ~isfield(cfg,'foilim')
+  cfg.foilim = [];
+elseif ~isfield(cfg,'foi') && isfield(cfg,'foilim')
+  cfg.foi = [];
 end
-if ~isfield(cfg,'foi') && isfield(cfg,'foilim')
+
+% check on the times of interest (toi)
+if ~isfield(cfg,'toi')
+  error('Must set cfg.toi (e.g., -1.0:0.04:2.0). Every 40 or 50 ms is good.');
+end
+
+% modify foi, if necessary
+if isempty(cfg.foi) && ~isempty(cfg.foilim)
   % % fieldtrip default step size
   % freqstep = (exper.sampleRate/(cfg.pad*exper.sampleRate));
   
@@ -68,13 +79,14 @@ if ~isfield(cfg,'foi') && isfield(cfg,'foilim')
   fprintf('You set cfg.foilim=[%.1f %.1f]. Removing this field and setting cfg.foi=%.1f:%.2f:%.1f;\n',cfg.foilim(1),cfg.foilim(2),cfg.foilim(1),freqstep,cfg.foilim(2));
   cfg.foi = cfg.foilim(1):freqstep:cfg.foilim(2);
   cfg = rmfield(cfg,'foilim');
-elseif isfield(cfg,'foi') && ~isfield(cfg,'foilim')
+elseif ~isempty(cfg.foi) && isempty(cfg.foilim)
+  oldfoi = cfg.foi;
   fboi = round(cfg.foi ./ (exper.sampleRate ./ (cfg.pad * exper.sampleRate))) + 1;
   cfg.foi = (fboi-1) ./ cfg.pad; % boi - 1 because 0 Hz is included in fourier output
-end
-
-if ~isfield(cfg,'toi')
-  error('Must set cfg.toi (e.g., -1.0:0.04:2.0). Every 40 or 50 ms is good.');
+  if isfield(cfg,'t_ftimwin') && ~isempty(cfg.t_ftimwin) && strcmp(cfg.correctt_ftimwin,'yes')
+    cyclenum = oldfoi .* cfg.t_ftimwin;
+    cfg.t_ftimwin = cyclenum ./ cfg.foi;
+  end
 end
 
 if ~isfield(cfg,'output')
