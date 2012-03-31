@@ -362,14 +362,19 @@ cfg.equatetrials = 'no';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'coh', 'phase'
 cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
-cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+%cfg.normalize = 'dB'; % 'log10', 'log', 'vector', 'dB'
+%cfg.normalize = 'vector'; % 'log10', 'log', 'vector', 'dB'
+%cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
 
 cfg.saveFile = true;
 %cfg.saveFile = false;
 
 cfg.rmevoked = 'yes';
-if strcmp(cfg.rmevoked,'yes')
+cfg.rmevokedfourier = 'yes';
+cfg.rmevokedpow = 'no';
+if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
   load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
 end
 
@@ -384,9 +389,9 @@ else
   kt_str = '_avg';
 end
 if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
-  indu_str = '_indu';
+  indu_str = '_induced';
 else
-  indu_str = '';
+  indu_str = '_whole';
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
 

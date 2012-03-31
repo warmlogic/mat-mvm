@@ -388,14 +388,17 @@ cfg.equatetrials = 'no';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'coh', 'phase'
 cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
-cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+%cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline = [-0.4 -0.2];
 
 cfg.saveFile = true;
 %cfg.saveFile = false;
 
 cfg.rmevoked = 'yes';
-if strcmp(cfg.rmevoked,'yes')
+cfg.rmevokedfourier = 'yes';
+cfg.rmevokedpow = 'no';
+if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
   load('/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
 end
 
@@ -410,7 +413,7 @@ else
   kt_str = '_avg';
 end
 if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
-  indu_str = '_indu';
+  indu_str = '_induced';
 else
   indu_str = '';
 end
@@ -988,8 +991,8 @@ cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
 %thisBLtype = 'zpow';
-%thisBLtype = 'zpow_indu';
-thisBLtype = 'zp_evok';
+thisBLtype = 'pow_induced';
+%thisBLtype = 'zp_evok';
 %thisBLtype = 'coh';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
@@ -1122,10 +1125,16 @@ cfg.types = {'color','side'};
 % cfg.ylabel = 'Z-Trans Pow';
 % mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
-% induced power
-cfg.type = 'line_pow_indu';
-cfg.clusDirStr = '_zpow_indu_-400_-200';
-cfg.ylabel = 'Z-Trans Pow';
+% % % induced power - old
+% % cfg.type = 'line_pow_indu';
+% % cfg.clusDirStr = '_zpow_indu_-400_-200';
+% % cfg.ylabel = 'Z-Trans Pow';
+% % mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+% induced power - new
+cfg.type = 'line_pow_induced';
+cfg.clusDirStr = '_pow_induced_-400_-200';
+cfg.ylabel = 'Log Pow';
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
 % % evoked power
