@@ -448,6 +448,17 @@ for sub = 1:length(exper.subjects)
   end
 end
 
+%% save it
+
+data_evoked.SC = data_evoked.RHSC;
+data_evoked = rmfield(data_evoked,'RHSC');
+data_evoked.SI = data_evoked.RHSI;
+data_evoked = rmfield(data_evoked,'RHSI');
+data_evoked.CR = data_evoked.RCR;
+data_evoked = rmfield(data_evoked,'RCR');
+
+save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
+
 %% plot some TF stuff
 
 %chan=11; % Fz
@@ -519,17 +530,6 @@ ylabel('Frequency');
 % figure;
 % surf(time,freq,abs(squeeze(coh(chan,:,:))));
 % shading interp;view([0,90]);axis tight;
-
-%% save it
-
-data_evoked.SC = data_evoked.RHSC;
-data_evoked = rmfield(data_evoked,'RHSC');
-data_evoked.SI = data_evoked.RHSI;
-data_evoked = rmfield(data_evoked,'RHSI');
-data_evoked.CR = data_evoked.RCR;
-data_evoked = rmfield(data_evoked,'RCR');
-
-save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
 
 %% plot the conditions - simple
 

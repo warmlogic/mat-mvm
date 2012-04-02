@@ -78,6 +78,16 @@ if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
   elseif strcmp(cfg_plot.type,'multi')
     cfg_ft.colorbar = 'no';
   end
+elseif strcmp(cfg_plot.type,'single')
+  if ~isfield(cfg_plot,'xlabel')
+    cfg_plot.xlabel = 'Time (s)';
+  end
+  if ~isfield(cfg_plot,'ylabel')
+    cfg_plot.ylabel = 'Frequency (Hz)';
+  end
+  if ~isfield(cfg_plot,'zlabel')
+    cfg_plot.zlabel = 'Power';
+  end
 end
 
 % make sure conditions are set correctly
@@ -239,6 +249,16 @@ for typ = 1:length(cfg_plot.conditions)
       set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     else
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+    end
+    
+    if strcmp(cfg_plot.type,'single')
+      xlabel(cfg_plot.xlabel);
+      ylabel(cfg_plot.ylabel);
+      % zlabel(cfg_plot.zlabel);
+      if strcmp(cfg_ft.colorbar,'yes')
+        h = colorbar;
+        set(get(h,'YLabel'),'string',cfg_plot.zlabel);
+      end
     end
     
     if strcmp(cfg_ft.colorbar,'yes')

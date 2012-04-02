@@ -369,7 +369,6 @@ cfg.rmevoked = 'yes';
 cfg.rmevokedfourier = 'yes';
 cfg.rmevokedpow = 'no';
 if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
-if strcmp(cfg.rmevoked,'yes')
   load('/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
 end
 
@@ -615,14 +614,16 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        %fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-        
-        % % phase - need to deal with in a different way, can't average
-        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.powspctrm = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.phasespctrm;
-        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'phasespctrm');
-        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'fourierspctrm');
-        
-        data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        if isfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,param)
+          %fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+          
+          % % phase - need to deal with in a different way, can't average
+          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.powspctrm = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.phasespctrm;
+          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'phasespctrm');
+          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'fourierspctrm');
+          
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        end
       end
     end
   end
@@ -1031,8 +1032,9 @@ cfg_ana.conditions = {'all'};
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
+thisBLtype = 'pow_induced';
 %thisBLtype = 'zpow_indu';
-thisBLtype = 'zp_evok';
+%thisBLtype = 'zp_evok';
 %thisBLtype = 'coh';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
@@ -1117,7 +1119,7 @@ end
 
 %% line plots
 
-files.saveFigs = 1;
+files.saveFigs = 0;
 
 cfg = [];
 cfg.parameter = 'powspctrm';
@@ -1162,17 +1164,23 @@ cfg.nCol = 3;
 % cfg.ylabel = 'Z-Trans Pow';
 % mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
+% induced power
+cfg.type = 'line_pow_induced';
+cfg.clusDirStr = '_pow_induced_-400_-200';
+cfg.ylabel = 'Log Pow';
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
 % % induced power
 % cfg.type = 'line_pow_indu';
 % cfg.clusDirStr = '_zpow_indu_-400_-200';
 % cfg.ylabel = 'Z-Trans Pow';
 % mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
-% evoked power
-cfg.type = 'line_pow_evok';
-cfg.clusDirStr = '_zp_evok_-400_-200';
-cfg.ylabel = 'Z-Trans Pow';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
+% % evoked power
+% cfg.type = 'line_pow_evok';
+% cfg.clusDirStr = '_zp_evok_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
 
 % cfg.type = 'line_coh';
 % cfg.clusDirStr = '_coh_-400_-200';

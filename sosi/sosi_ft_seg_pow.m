@@ -768,14 +768,16 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        %fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-        
-        % % phase - need to deal with in a different way, can't average
-        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.powspctrm = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.phasespctrm;
-        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'phasespctrm');
-        % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'fourierspctrm');
-        
-        data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        if isfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,param)
+          %fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+          
+          % % phase - need to deal with in a different way, can't average
+          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.powspctrm = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.phasespctrm;
+          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'phasespctrm');
+          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'fourierspctrm');
+          
+          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        end
       end
     end
   end
@@ -1100,7 +1102,8 @@ cfg_ana.conditions = {'all'};
 
 %thisBLtype = 'zpow';
 %thisBLtype = 'zpow_indu';
-thisBLtype = 'zp_evok';
+thisBLtype = 'pow_induced';
+%thisBLtype = 'zp_evok';
 %thisBLtype = 'coh';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
@@ -1223,10 +1226,16 @@ cfg.clusLimits = true;
 %cfg.ylim = [-0.5 0.2];
 cfg.nCol = 3;
 
-% whole power
-cfg.type = 'line_pow';
-cfg.clusDirStr = '_zpow_-400_-200';
-cfg.ylabel = 'Z-Trans Pow';
+% % whole power
+% cfg.type = 'line_pow';
+% cfg.clusDirStr = '_zpow_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+% induced power
+cfg.type = 'line_pow_induced';
+cfg.clusDirStr = '_pow_induced_-400_-200';
+cfg.ylabel = 'Log Pow';
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
 % % induced power

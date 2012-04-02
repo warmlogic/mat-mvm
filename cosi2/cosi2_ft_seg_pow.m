@@ -665,7 +665,7 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        if isfield(data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,param)
+        if isfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,param)
           %fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
           
           % % phase - need to deal with in a different way, can't average
@@ -791,7 +791,7 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
 %cfg_ft.xlim = [.5 1.0]; % time
-cfg_ft.ylim = [3 8]; % freq
+%cfg_ft.ylim = [3 8]; % freq
 %cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
@@ -800,12 +800,14 @@ cfg_ft.ylim = [3 8]; % freq
 cfg_ft.parameter = 'powspctrm';
 
 cfg_plot = [];
-cfg_plot.plotTitle = 1;
+cfg_plot.plotTitle = 0;
 
+cfg_plot.rois = {{'LPS'}};
+%cfg_plot.rois = {{'LAS'},{'LPS'}};
 %cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_plot.rois = {{'FS'},{'PS'}};
 %cfg_plot.rois = {'E71'};
-cfg_plot.rois = {'all'};
+%cfg_plot.rois = {'all'};
 
 cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -818,7 +820,12 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % Type of plot
 %%%%%%%%%%%%%%%
 
-%cfg_plot.ftFxn = 'ft_singleplotTFR';
+cfg_plot.ftFxn = 'ft_singleplotTFR';
+%cfg_ft.zlim = [-0.15 0.15];
+cfg_ft.zlim = [-1.5 1.5];
+cfg_plot.xlabel = 'Time (s)';
+cfg_plot.ylabel = 'Frequency (Hz)';
+cfg_plot.zlabel = 'Normalized power';
 
 % cfg_plot.ftFxn = 'ft_topoplotTFR';
 % %cfg_ft.marker = 'on';
@@ -829,15 +836,16 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
 
-cfg_plot.ftFxn = 'ft_multiplotTFR';
-cfg_ft.showlabels = 'yes';
-cfg_ft.comment = '';
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.comment = '';
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
+  %mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
+  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_evoked);
 end
 
 %% plot the contrasts
@@ -991,8 +999,9 @@ cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
 %thisBLtype = 'zpow';
-thisBLtype = 'pow_induced';
+%thisBLtype = 'pow_induced';
 %thisBLtype = 'zp_evok';
+thisBLtype = 'logp_evok';
 %thisBLtype = 'coh';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
@@ -1102,7 +1111,8 @@ cfg.rois = {...
 %   {'LPI'},{'PI'},{'RPI'},...
 %   };
 
-cfg.conditions = ana.eventValues;
+%cfg.conditions = ana.eventValues;
+cfg.conditions = {{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
@@ -1131,17 +1141,24 @@ cfg.types = {'color','side'};
 % % cfg.ylabel = 'Z-Trans Pow';
 % % mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
-% induced power - new
-cfg.type = 'line_pow_induced';
-cfg.clusDirStr = '_pow_induced_-400_-200';
-cfg.ylabel = 'Log Pow';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+% % induced power - new
+% cfg.type = 'line_pow_induced';
+% cfg.clusDirStr = '_pow_induced_-400_-200';
+% cfg.ylabel = 'Log Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
 % % evoked power
 % cfg.type = 'line_pow_evok';
 % cfg.clusDirStr = '_zp_evok_-400_-200';
 % cfg.ylabel = 'Z-Trans Pow';
 % mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
+
+% evoked power
+cfg.type = 'line_pow_evoked';
+cfg.clusDirStr = '_logp_evok_-400_-200';
+cfg.ylabel = 'Log Pow';
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
+
 
 % cfg.type = 'line_coh';
 % cfg.clusDirStr = '_coh_-400_-200';
