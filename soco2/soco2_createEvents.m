@@ -70,6 +70,7 @@ fclose(fid);
 MAXTESTTIME = 30000;
 REDO_STR = 'REDO';
 NEW_STR = 'NEW';
+nStudyReps = 2; % number of times each object is studied (SOCO2028+, = 2)
 
 % this only works with two colors
 SRC_TARG_COLOR = 'Blue';
@@ -443,11 +444,11 @@ for i = 1:length(events)
       % and move the study info into the test event
       
       studyEvent = filterStruct(events,'ismember(type,varargin{1}) & ismember(item,varargin{2})',{'STUDY_TARGET'},{events(i).item});
-      if length(studyEvent) > 1
-        error('Found multiple events when searching for study target %s!',events(i).item);
+      if length(studyEvent) > nStudyReps
+        error('Found multiple events when searching for test target %s!',events(i).item);
       elseif isempty(studyEvent)
         keyboard
-      elseif length(studyEvent) == 1
+      else%if length(studyEvent) == 1
         events(i).src_isTarg = studyEvent.src_isTarg;
         events(i+1).src_isTarg = studyEvent.src_isTarg;
         events(i+2).src_isTarg = studyEvent.src_isTarg;

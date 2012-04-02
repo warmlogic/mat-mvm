@@ -408,7 +408,7 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 % 35 and 38 have noisy ERPs
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,1);
+[exper] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
@@ -501,6 +501,10 @@ for sub = 1:length(exper.subjects)
   end
 end
 
+%% save TF
+
+save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
+
 %% plot some TF stuff
 
 %chan=11; % Fz
@@ -573,10 +577,6 @@ ylabel('Frequency');
 % surf(time,freq,abs(squeeze(coh(chan,:,:))));
 % shading interp;view([0,90]);axis tight;
 
-%% save TF
-
-save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
-
 %% plot the conditions - simple
 
 cfg_ft = [];
@@ -604,7 +604,8 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.condByTypeByROI = {...
 %   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
 %   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
-cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByTypeByROI = repmat({{{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -678,7 +679,8 @@ end
 %% plot the conditions
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1.5];
+%cfg_ft.xlim = [-0.2 1.5];
+cfg_ft.xlim = [-0.2 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
@@ -744,7 +746,9 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
 
-cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByTypeByROI = repmat({{{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}}},size(cfg_plot.rois));
+
 cfg_plot.typesByROI = repmat({{'Color','Side'}},size(cfg_plot.condByTypeByROI));
 
 cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
@@ -812,11 +816,12 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
-%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+%cfg_ana.rois = {{'LAS'},{'LPS'}};
 % define the times that correspond to each set of ROIs
-%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
 cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
@@ -885,12 +890,14 @@ cfg_ana.typesByROI = {...
 % IV3: outermost cell holds one cell for each ROI; each ROI cell holds one
 % cell for each event type; each event type cell holds strings for its
 % conditions
+
 cfg_ana.condByTypeByROI = {...
   %{{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
   {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}},...
   {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}}};
 
 % For each ROI, what's common among the conditions in each type
+
 cfg_ana.condCommonByROI = {...
   %{'CR','H','HSC','HSI'},...
   {'CR','SC','SI'},...

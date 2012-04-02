@@ -36,42 +36,42 @@ end
 
 if ~exist('subjects','var') || isempty(subjects)
   subjects = {
-    % longer study durations; redo option; source on one side;
-    % (500ms preview, 2000ms, 1125+-125ms ISI)
-    'SOCO2001'; % didn't perform well; very fidgety
-    'SOCO2002';
-    'SOCO2003';
-    'SOCO2004';
-    'SOCO2005'; % no F SC responses
-    'SOCO2006';
-    'SOCO2007';
-    'SOCO2008';
-    'SOCO2009';
-    'SOCO2010';
-    'SOCO2011';
-    'SOCO2012';
-    'SOCO2013';
-    'SOCO2014';
-    'SOCO2015';
-    'SOCO2016';
-    'SOCO2017';
-    'SOCO2018';
-    'SOCO2019';
-    'SOCO2020';
-    'SOCO2021';
-    'SOCO2022';
-    'SOCO2023';
-    'SOCO2024';
-    'SOCO2025';
-    'SOCO2026';
-    'SOCO2027';
-    %     'SOCO2028';
-    %     'SOCO2029';
-    %     'SOCO2030';
-    %     'SOCO2031';
-    %     'SOCO2032';
-    %     'SOCO2033';
-    %     'SOCO2034';
+%     % longer study durations; redo option; source on one side;
+%     % (500ms preview, 2000ms, 1125+-125ms ISI)
+%     'SOCO2001'; % didn't perform well; very fidgety
+%     'SOCO2002';
+%     'SOCO2003';
+%     'SOCO2004';
+%     'SOCO2005'; % no F SC responses
+%     'SOCO2006';
+%     'SOCO2007';
+%     'SOCO2008';
+%     'SOCO2009';
+%     'SOCO2010';
+%     'SOCO2011';
+%     'SOCO2012';
+%     'SOCO2013';
+%     'SOCO2014';
+%     'SOCO2015';
+%     'SOCO2016';
+%     'SOCO2017';
+%     'SOCO2018';
+%     'SOCO2019';
+%     'SOCO2020';
+%     'SOCO2021';
+%     'SOCO2022';
+%     'SOCO2023';
+%     'SOCO2024';
+%     'SOCO2025';
+%     'SOCO2026';
+%     'SOCO2027';
+        'SOCO2028'; % 2x study pres; 500 prev, 2000 study, 1125 ISI
+        'SOCO2029';
+        'SOCO2030';
+        'SOCO2031';
+        'SOCO2032';
+        'SOCO2033';
+        'SOCO2034';
     %     'SOCO2035';
     %     'SOCO2036';
     %     'SOCO2037';
