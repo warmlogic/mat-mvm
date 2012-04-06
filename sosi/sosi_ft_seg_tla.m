@@ -165,6 +165,12 @@ cfg_proc.keeptrials = 'no';
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 process_ft_data(ana,cfg_proc,exper,dirs);
 
+% get the bad channel information
+cfg = [];
+cfg.badChanManual = true;
+cfg.badChanEP = true;
+[exper] = mm_getBadChan(cfg,exper,dirs);
+
 %% save the analysis details
 
 saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));

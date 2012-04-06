@@ -95,6 +95,7 @@ foundArt = false;
 % end
 
 if rejArt_badChanManual
+  foundBadChan = false;
   fid = fopen(fullfile(dataroot,[exper.name,'_badChan.txt']));
   
   if fid == -1
@@ -105,48 +106,54 @@ if rejArt_badChanManual
     for i = 1:length(badChanInfo{1})
       if strcmp(badChanInfo{1}{i},subject) && strcmp(badChanInfo{2}{i},sesName)
         badChanInfo{3}{i} = strrep(strrep(badChanInfo{3}{i},'[',''),']','');
-        eval(sprintf('badChanManual = [%s];',badChanInfo{3}{i}));
+        badChanManual = eval(sprintf('[%s];',badChanInfo{3}{i}));
+        foundBadChan = true;
         break
+      else
+        badChanManual = [];
       end
     end
-    if ~exist('badChanManual','var')
+    if ~foundBadChan
       error('No manual bad channel information found for %s %s.',subject,sesName);
     end
   end
 end
 
 if rejArt_badChanEP
+  foundBadChan = false;
+  foundNoBadChan = false;
+  
   epGBC_str = 'Global bad Channels: ';
   ep_prefix = 'Artifact_Correction_Log';
   
-  datasetFile = ft_findcfg(data.cfg,'dataset');
-  if ~isempty(datasetFile)
-    datasetSep = strfind(datasetFile,filesep);
-    if ~isempty(datasetSep)
-      datasetFile = datasetFile(datasetSep(end)+1:end);
-    end
-  else
-    datasetFile = subject;
-    %error('Cannot find dataset in data.cfg');
-  end
-  datasetSep = strfind(datasetFile,'.');
-  datasetFile = datasetFile(1:datasetSep(end)-1);
-  datasetFile = strrep(datasetFile,'_e','');
-  
-  epArtFile = dir(fullfile(dataroot,'ep_art',sprintf('%s %s*.txt',ep_prefix,datasetFile)));
+  %   datasetFile = ft_findcfg(data.cfg,'dataset');
+  %   if ~isempty(datasetFile)
+  %     datasetSep = strfind(datasetFile,filesep);
+  %     if ~isempty(datasetSep)
+  %       datasetFile = datasetFile(datasetSep(end)+1:end);
+  %     end
+  %     datasetSep = strfind(datasetFile,'.');
+  %     datasetFile = datasetFile(1:datasetSep(end)-1);
+  %     datasetFile = strrep(datasetFile,'_e','');
+  %   else
+  %     datasetFile = subject;
+  %   end
+  %   epArtFile = dir(fullfile(dataroot,'ep_art',sesName,sprintf('%s %s*.txt',ep_prefix,datasetFile)));
+  epArtFile = dir(fullfile(dataroot,'ep_art',sesName,sprintf('%s %s*.txt',ep_prefix,subject)));
   
   if ~isempty(epArtFile)
     if length(epArtFile) == 1
       epArtFile = epArtFile.name;
-      fid = fopen(fullfile(dataroot,'ep_art',epArtFile),'r');
+      fid = fopen(fullfile(dataroot,'ep_art',sesName,epArtFile),'r');
       if fid == -1
-        error('Could not open the file. Make sure you do not have it open in another application.');
+        error('Could not open the file for %s %s. Make sure you do not have it open in another application.',subject,sesName);
       else
         tline = [];
         
         while isempty(strfind(tline,epGBC_str))
           % get the next line
           tline = fgetl(fid);
+          foundBadChan = true;
         end
         fclose(fid);
         
@@ -155,13 +162,21 @@ if rejArt_badChanEP
           badChanInfo = badChanInfo(1:end-1);
         end
         if strcmp(badChanInfo,'None')
-          badChanInfo = '';
+          foundNoBadChan = true;
         end
-        %badChanEP = regexp(badChanEP,'\t','split');
-        eval(sprintf('badChanEP = [%s];',badChanInfo));
+        if foundBadChan
+          if ~foundNoBadChan
+            %badChanEP = regexp(badChanEP,'\t','split');
+            badChanEP = eval(sprintf('[%s];',badChanInfo));
+          elseif foundNoBadChan
+            badChanEP = [];
+          end
+        elseif ~foundBadChan
+          error('No bad channel information found.');
+        end
       end
     elseif length(epArtFile) > 1
-      error('More than one EP Articifact Correction Log found for %s %s, probably multiple sessions in the same directory. Consider modifying this script and your directory structure to use individual session folders, or just put the info in a text file.',subject,sesName);
+      error('More than one EP Articifact Correction Log found for %s %s, probably multiple sessions in the same directory. Make sure each subject has one Artifact Log file in individual session folders, or just put the info in a text file.',subject,sesName);
     end
   elseif isempty(epArtFile)
     error('No EP Articifact Correction Log found for %s %s.',subject,sesName);

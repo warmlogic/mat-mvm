@@ -74,11 +74,12 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 % numbers listed as integers in brackets (e.g., [56 93]).
 %
 % 'badChanEP' requires the Artifact_Correction_Log output from EP Toolkit
-% artifact processing, and must reside in a directory called 'ep_art' in
-% fullfile(dirs.dataroot,dirs.dataDir). This will only look for channels
-% listed as being globally bad.
+% artifact processing, and must reside in a directory labeled with the
+% session name (from exper.sessions) which is in a directory called
+% 'ep_art' in fullfile(dirs.dataroot,dirs.dataDir). This will only look for
+% channels listed as being globally bad.
 %
-% EXTREMELY IMPORTANT:
+% !!!EXTREMELY IMPORTANT!!!
 % Do not reject ICA components from data that has already had
 % ICA components rejected. Also, be very very very wary about rejecting ICA
 % components if you want to do phase analyses; I think ICA screws up phase

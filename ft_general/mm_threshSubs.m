@@ -9,7 +9,8 @@ function [exper] = mm_threshSubs(exper,ana,thresh)
 % Input:
 %  exper  = exper struct (manually set bad subjects in exper.badBehSub={})
 %  ana    = ana struct containing eventValues of interest
-%  thresh = the event count threshold below
+%  thresh = the event count threshold below (<) which a subject will be
+%           counted as having a too low trial count
 %
 % Output:
 %  exper.badSub         = overall, who's bad for any reason
