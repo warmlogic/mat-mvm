@@ -141,6 +141,24 @@ if isfield(ana,'otherFxn')
   end
 end
 
+% make sure we have the right electrode information
+if ~isfield(files,'elecfile')
+  error('Must set files.elecfile');
+end
+if ~isempty(strfind(files.elecfile,'GSN'))
+  ana.isNS = true;
+else
+  ana.isNS = false;
+end
+if ~isfield(exper,'refChan')
+  if ana.isNS
+    warning([mfilename,':refChanDefault'],'Setting exper.refChan to average rereference default: ''Cz''.');
+    exper.refChan = 'Cz';
+  else
+    error('Must set exper.refChan (e.g., ''Cz'' or channel number)');
+  end
+end
+
 %% get all the exper.eventValues and exper.eventValuesExtra.newValue together; make sure the extra event values aren't already in the list
 
 if ~isempty(exper.eventValuesExtra.newValue)
@@ -154,9 +172,10 @@ if ~isempty(exper.eventValuesExtra.newValue)
   end
 end
 
-%% initialize for storing the number of events for each subject and session
+%% initialize for storing some information
 
-% store all of the event values regardless of whether we're keeping them
+% store the number of events for each subject and session all of the event
+% values regardless of whether we're keeping them
 if ~isempty(exper.eventValuesExtra.newValue)
   for evVal = 1:length(eventValuesWithExtra)
     exper.nTrials.(eventValuesWithExtra{evVal}) = zeros(length(exper.subjects),length(exper.sessions));
@@ -166,6 +185,9 @@ else
     exper.nTrials.(exper.eventValues{evVal}) = zeros(length(exper.subjects),length(exper.sessions));
   end
 end
+
+% store the bad channel information
+exper.badChan = cell(length(exper.subjects),length(exper.sessions));
 
 %% Store the raw data in FieldTrip format
 
@@ -254,11 +276,11 @@ for sub = 1:length(exper.subjects)
           end
         end
       end
-    elseif ~strcmpi(exper.nsFileExt,'set') && ~isempty(eventValuesToProcess)
+    elseif ~strcmpi(exper.eegFileExt,'set') && ~isempty(eventValuesToProcess)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      ft_raw = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,exper.prepost,files.elecfile,ana);
+      [ft_raw,badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,files.elecfile,ana,exper);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -283,7 +305,10 @@ for sub = 1:length(exper.subjects)
         end
       end
       
-    elseif strcmp(exper.nsFileExt,'set') && ~isempty(eventValuesToProcess)
+    elseif strcmp(exper.eegFileExt,'set') && ~isempty(eventValuesToProcess)
+      % if we're processing EEGLAB data; I don't remember why this is
+      % separate
+      
       % initialize the data structure
       ft_raw = struct;
       
@@ -306,7 +331,7 @@ for sub = 1:length(exper.subjects)
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
         % ft_raw
-        ft_raw.(eventVal) = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.nsFileExt,exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),exper.prepost,files.elecfile,ana);
+        [ft_raw.(eventVal),badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),files.elecfile,ana,exper);
         
         % if an extra value was defined and the current event is one of its
         % sub-values, store the current event in the toCombine field for
@@ -320,6 +345,9 @@ for sub = 1:length(exper.subjects)
         end
       end % for evVal
     end % if
+    
+    % store the bad channel information
+    exper.badChan{sub,ses} = badChan;
     
     % check on any empty events
     for evVal = 1:length(eventValuesToProcess)

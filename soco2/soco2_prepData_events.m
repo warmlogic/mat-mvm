@@ -72,11 +72,11 @@ if ~exist('subjects','var') || isempty(subjects)
         'SOCO2032';
         'SOCO2033';
         'SOCO2034';
-    %     'SOCO2035';
-    %     'SOCO2036';
-    %     'SOCO2037';
-    %     'SOCO2038';
-    %     'SOCO2039';
+        'SOCO2035';
+        'SOCO2036';
+        'SOCO2037';
+        'SOCO2038';
+        'SOCO2039';
     %     'SOCO2040';
     };
 end

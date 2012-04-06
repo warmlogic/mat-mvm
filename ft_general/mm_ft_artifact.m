@@ -1,6 +1,6 @@
-function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,elecfile,data)
+function [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
-% [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,data)
+% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -17,19 +17,29 @@ function [data] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,elecfil
 
 % figure out which artifact options we're using
 if ismember('nsAuto',ana.artifact.type)
-  rejArt_nsAuto = 1;
+  rejArt_nsAuto = true;
 else
-  rejArt_nsAuto = 0;
+  rejArt_nsAuto = false;
 end
 if ismember('zeroVar',ana.artifact.type)
-  rejArt_zeroVar = 1;
+  rejArt_zeroVar = true;
 else
-  rejArt_zeroVar = 0;
+  rejArt_zeroVar = false;
+end
+if ismember('badChanManual',ana.artifact.type)
+  rejArt_badChanManual = true;
+else
+  rejArt_badChanManual = false;
+end
+if ismember('badChanEP',ana.artifact.type)
+  rejArt_badChanEP = true;
+else
+  rejArt_badChanEP = false;
 end
 if ismember('preRejManual',ana.artifact.type)
-  rejArt_preRejManual = 1;
+  rejArt_preRejManual = true;
 else
-  rejArt_preRejManual = 0;
+  rejArt_preRejManual = false;
 end
 % if ismember('trialNum',ana.artifact.type)
 %   if ~isfield(ana.artifact,'trialNum')
@@ -37,43 +47,43 @@ end
 %   elseif isfield(ana.artifact,'trialNum') && ~isfield(ana.artifact,eventValue,cell2mat(eventValue))
 %     error('Must define which %s trials to reject due to artifacts.',cell2mat(eventValue));
 %   end
-%   rejArt_trialNum = 1;
+%   rejArt_trialNum = true;
 % else
-%   rejArt_trialNum = 0;
+%   rejArt_trialNum = false;
 % end
 if ismember('ftAuto',ana.artifact.type)
-  rejArt_ftAuto = 1;
+  rejArt_ftAuto = true;
 else
-  rejArt_ftAuto = 0;
+  rejArt_ftAuto = false;
 end
 if ismember('ftManual',ana.artifact.type)
-  rejArt_ftManual = 1;
+  rejArt_ftManual = true;
 else
-  rejArt_ftManual = 0;
+  rejArt_ftManual = false;
 end
 if ismember('ftICA',ana.artifact.type)
-  rejArt_ftICA = 1;
+  rejArt_ftICA = true;
 else
-  rejArt_ftICA = 0;
+  rejArt_ftICA = false;
 end
 
-% if rejArt_nsAuto == 1 && rejArt_zeroVar == 1
+% if rejArt_nsAuto && rejArt_zeroVar
 %   error('Cannot reject both NS artifacts (''nsAuto'') and trials with zero variance (''zeroVar''). Choose one or the other.')
 % end
 
-if rejArt_preRejManual == 1 && rejArt_nsAuto == 0 && rejArt_zeroVar == 0
+if rejArt_preRejManual && ~rejArt_nsAuto && ~rejArt_zeroVar
   error('To manually inspect prerejected artifacts (''preRejManual''), you must also use either ''nsAuto'' or ''zeroVar''. Otherwise, just use ''ftManual'')');
 end
 
 %% check on predefined trial numbers, NS, and zero variance artifacts;
 % manual inspection option will show which have been rejected
 
-foundArt = 0;
+foundArt = false;
 
 % % reject using trial numbers
 % if rejArt_trialNum
 %   if ~isempty(find(ana.artifact.trialNum.(cell2mat(eventValue)),1))
-%     foundArt = 1;
+%     foundArt = true;
 %     fprintf('Automatically rejecting %d predefined artifacts for%s.\n',length(ana.artifact.trialNum.(cell2mat(eventValue))),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
 %     cfg = [];
 %     % mark the trials that have artifacts as such; select the entire sample
@@ -83,6 +93,93 @@ foundArt = 0;
 %     fprintf('No predefined artifacts found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
 %   end
 % end
+
+if rejArt_badChanManual
+  fid = fopen(fullfile(dataroot,[exper.name,'_badChan.txt']));
+  
+  if fid == -1
+    error('Could not open %s. Make sure you do not have it open in another application.',fullfile(dataroot,[exper.name,'_badChan.txt']));
+  else
+    [badChanInfo] = textscan(fid,'%s%s%s','delimiter','\t');
+    fclose(fid);
+    for i = 1:length(badChanInfo{1})
+      if strcmp(badChanInfo{1}{i},subject) && strcmp(badChanInfo{2}{i},sesName)
+        badChanInfo{3}{i} = strrep(strrep(badChanInfo{3}{i},'[',''),']','');
+        eval(sprintf('badChanManual = [%s];',badChanInfo{3}{i}));
+        break
+      end
+    end
+    if ~exist('badChanManual','var')
+      error('No manual bad channel information found for %s %s.',subject,sesName);
+    end
+  end
+end
+
+if rejArt_badChanEP
+  epGBC_str = 'Global bad Channels: ';
+  ep_prefix = 'Artifact_Correction_Log';
+  
+  datasetFile = ft_findcfg(data.cfg,'dataset');
+  if ~isempty(datasetFile)
+    datasetSep = strfind(datasetFile,filesep);
+    if ~isempty(datasetSep)
+      datasetFile = datasetFile(datasetSep(end)+1:end);
+    end
+  else
+    datasetFile = subject;
+    %error('Cannot find dataset in data.cfg');
+  end
+  datasetSep = strfind(datasetFile,'.');
+  datasetFile = datasetFile(1:datasetSep(end)-1);
+  datasetFile = strrep(datasetFile,'_e','');
+  
+  epArtFile = dir(fullfile(dataroot,'ep_art',sprintf('%s %s*.txt',ep_prefix,datasetFile)));
+  
+  if ~isempty(epArtFile)
+    if length(epArtFile) == 1
+      epArtFile = epArtFile.name;
+      fid = fopen(fullfile(dataroot,'ep_art',epArtFile),'r');
+      if fid == -1
+        error('Could not open the file. Make sure you do not have it open in another application.');
+      else
+        tline = [];
+        
+        while isempty(strfind(tline,epGBC_str))
+          % get the next line
+          tline = fgetl(fid);
+        end
+        fclose(fid);
+        
+        badChanInfo = strrep(tline,epGBC_str,'');
+        if strcmp(badChanInfo(end),sprintf('\t'))
+          badChanInfo = badChanInfo(1:end-1);
+        end
+        if strcmp(badChanInfo,'None')
+          badChanInfo = '';
+        end
+        %badChanEP = regexp(badChanEP,'\t','split');
+        eval(sprintf('badChanEP = [%s];',badChanInfo));
+      end
+    elseif length(epArtFile) > 1
+      error('More than one EP Articifact Correction Log found for %s %s, probably multiple sessions in the same directory. Consider modifying this script and your directory structure to use individual session folders, or just put the info in a text file.',subject,sesName);
+    end
+  elseif isempty(epArtFile)
+    error('No EP Articifact Correction Log found for %s %s.',subject,sesName);
+  end
+end
+
+% collect the bad channels
+if rejArt_badChanManual || rejArt_badChanEP
+  if ~exist('badChanManual','var')
+    badChanManual = [];
+  end
+  if ~exist('badChanEP','var')
+    badChanEP = [];
+  end
+  badChan = unique(cat(2,badChanManual,badChanEP));
+else
+  badChan = [];
+end
 
 if rejArt_nsAuto
   % make sure the file with NS artifact info exists
@@ -132,7 +229,7 @@ if rejArt_nsAuto
   %cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
   
   if ~isempty(find(badEv,1))
-    foundArt = 1;
+    foundArt = true;
     fprintf('Automatically rejecting %d NS artifacts for%s.\n',sum(badEv),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
     cfg = [];
     % mark the trials that have artifacts as such; select the entire sample
@@ -157,7 +254,7 @@ if rejArt_zeroVar
   end
   
   if ~isempty(find(badEv,1))
-    foundArt = 1;
+    foundArt = true;
     fprintf('Automatically rejecting %d trials with zero variance for%s.\n',sum(badEv),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
     
     if ~exist('cfg','var')
@@ -184,7 +281,7 @@ end
 
 % if we want to inspect manually
 if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
-  foundArt = 1;
+  foundArt = true;
   cfg.continuous = 'no';
   cfg.viewmode = 'butterfly';
   %cfg.viewmode = 'vertical';
@@ -319,7 +416,7 @@ if rejArt_ftICA
   % reject the bad components
   if ~isempty(componentsToReject)
     cfg = [];
-    cfg.component = str2num(componentsToReject);
+    cfg.component = str2double(componentsToReject);
     data_ic_cleaned = ft_rejectcomponent(cfg,data_ic);
     
     % another manual search of the data for artifacts

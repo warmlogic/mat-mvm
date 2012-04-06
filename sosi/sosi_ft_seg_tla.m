@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.nsFileExt = 'egis';
-exper.nsFileExt = 'raw';
+%exper.eegFileExt = 'egis';
+exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -121,6 +121,7 @@ end
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
+exper.refChan = {'Cz'};
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
@@ -137,7 +138,7 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
 ana.overwrite.raw = 1;
 
 % process the data

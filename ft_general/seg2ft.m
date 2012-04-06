@@ -1,10 +1,11 @@
-function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,ana)
+function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost,elecfile,artifactType)
+% [ft_raw,badChan] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
 %
 % Output:
-%   ft_raw = struct with one field for each event value
+%   ft_raw  = struct with one field for each event value
+%   badChan = bad channel information
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP:
@@ -28,7 +29,7 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % ARTIFACT INFORMATION:
 %
 % ana.artifact.type can be 'none', 'nsAuto', 'zeroVar', 'preRejManual',
-% 'ftManual', or 'ftICA';
+% 'ftManual', 'ftICA', 'badChanManual', and/or 'badChanEP';
 % it can be one of those strings or a cell array of multiple strings (e.g.,
 % {'nsAuto','preRejManual'} to do both Net Station artifact rejection and
 % FieldTrip manual ("visual") rejection). 'ftICA' also includes manual
@@ -46,14 +47,13 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % trials) using FT_CHANNELREPAIR, so be sure to keep track of any channels
 % that you want to repair (i.e., instead of rejecting them as artifacts).
 %
-% If using NS artifacts ('nsAuto'), this function expects to find a Net Station segment
-% info file with a .bci extension; this contains artifact information. It is
-% exported from Net Station using the File Export tool. To set up the tool,
+% If using NS artifacts ('nsAuto'), this function expects to find a Net Station
+% segment info file with a .bci extension; this contains artifact information.
+% It is exported from Net Station using the File Export tool. To set up the tool,
 % export format is metadata and check the segment information option. Run
 % the tool on the file that was exported to egis/raw (i.e., the baseline
 % correction file or the average rereference file). The bci files should be
-% stored in a 'ns_bci' directory at the same level as 'ns_egis' or
-% 'ns_raw'.
+% stored in a 'ns_bci' directory in fullfile(dirs.dataroot,dirs.dataDir).
 %
 % Rejecting trials with zero variance ('zeroVar') should be used when using
 % bad trial detection done by EP Toolkit because it flattens all channels
@@ -67,8 +67,23 @@ function [ft_raw] = seg2ft(dataroot,nsFileExt,subject,session,eventValue,prepost
 % visualization of all channels for each event will appear, where each
 % trial is shown one-by-one.
 %
-% IMPORTANT: DO NOT reject ICA components from data that has already had
-% ICA components rejected.
+% 'badChanManual' requires a tab-delimited file titled
+% [exper.name,'_badChan.txt'] to reside in
+% fullfile(dirs.dataroot,dirs.dataDir). The three tab sections are subject
+% name (e.g., EXPER001), session name (e.g., session_0), and bad channel
+% numbers listed as integers in brackets (e.g., [56 93]).
+%
+% 'badChanEP' requires the Artifact_Correction_Log output from EP Toolkit
+% artifact processing, and must reside in a directory called 'ep_art' in
+% fullfile(dirs.dataroot,dirs.dataDir). This will only look for channels
+% listed as being globally bad.
+%
+% EXTREMELY IMPORTANT:
+% Do not reject ICA components from data that has already had
+% ICA components rejected. Also, be very very very wary about rejecting ICA
+% components if you want to do phase analyses; I think ICA screws up phase
+% information. See this PDF for more details:
+% http://www.appliedneuroscience.com/Tutorial%20on%20ICA%20Phase%20Adulteration.pdf
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % EEGLAB DATA
@@ -90,7 +105,7 @@ if ischar(ana.artifact.type)
   ana.artifact.type = {ana.artifact.type};
 end
 
-artifactOpts = {'none','nsAuto','zeroVar','preRejManual','ftAuto','ftManual','ftICA'};
+artifactOpts = {'none','nsAuto','zeroVar','badChanManual','badChanEP','preRejManual','ftAuto','ftManual','ftICA'};
 
 if any(~ismember(ana.artifact.type,artifactOpts))
   error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(ana.artifact.type(~ismember(ana.artifact.type,artifactOpts))))
@@ -98,9 +113,9 @@ end
 
 % set artifact defaults
 if any(ismember(ana.artifact.type,artifactOpts)) && ~ismember('none',ana.artifact.type)
-  rejArt = 1;
+  rejArt = true;
 else
-  rejArt = 0;
+  rejArt = false;
 end
 
 %% set up some processing parameters
@@ -120,13 +135,13 @@ if length(session) > 1
   append_data = struct;
 end
 
-if strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'sbin')
+if strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'sbin')
   ftype = 'egi_sbin';
   nsDir = 'ns_raw';
-elseif strcmpi(nsFileExt,'egis')
+elseif strcmpi(exper.eegFileExt,'egis')
   ftype = 'egi_egis';
   nsDir = 'ns_egis';
-elseif strcmpi(nsFileExt,'set')
+elseif strcmpi(exper.eegFileExt,'set')
   ftype = 'eeglab_set';
   nsDir = subject;
 else
@@ -149,7 +164,11 @@ else
   end
   elec = ft_read_sens(elecfile,'fileformat',locsFormat);
 end
+% get rid of the fiduciary channels
+elec.label = ft_channelselection({'all','-Fid*'},elec.label);
 nChan_elecfile = size(elec.label,1);
+
+badChanAllSes = [];
 
 %% for each session, read in the EEG file
 
@@ -159,33 +178,34 @@ for ses = 1:length(session)
   % set sesStr to make sure it starts with a character, not a #, etc.
   sesStr = sprintf('ses_%s',sesName);
   
-  if strcmpi(nsFileExt,'sbin') || strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'egis')
+  if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
     % make sure the EEG file exists
-    nsfile = dir(fullfile(dataroot,sesName,nsDir,[subject,'*.',nsFileExt]));
+    nsfile = dir(fullfile(dataroot,sesName,nsDir,[subject,'*.',exper.eegFileExt]));
     if isempty(nsfile)
-      error('Cannot find %s*.%s file in %s',subject,nsFileExt,fullfile(dataroot,sesName,nsDir));
+      error('Cannot find %s*.%s file in %s',subject,exper.eegFileExt,fullfile(dataroot,sesName,nsDir));
     elseif length(nsfile) > 1
-      error('More than one %s*.%s file found in %s',subject,nsFileExt,fullfile(dataroot,sesName,nsDir));
+      error('More than one %s*.%s file found in %s',subject,exper.eegFileExt,fullfile(dataroot,sesName,nsDir));
     elseif length(nsfile) == 1
       infile_ns = fullfile(dataroot,sesName,nsDir,nsfile.name);
     end
     
-  elseif strcmpi(nsFileExt,'set')
+  elseif strcmpi(exper.eegFileExt,'set')
     % this is really just set up to analyze Erika Nyhus's KAHN2 data
     
-    isclean = 1;
+    %isclean = 1;
+    clean_str = 'clean';
     
-    if isclean
-      clean_str = 'clean';
-    else
-      clean_str = '';
-    end
+    %if isclean
+    %  clean_str = 'clean';
+    %else
+    %  clean_str = '';
+    %end
     
-    nsfile = dir(fullfile(dataroot,nsDir,[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),nsFileExt]));
+    nsfile = dir(fullfile(dataroot,nsDir,[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),exper.eegFileExt]));
     if isempty(nsfile)
-      error('Cannot find %s file in %s',[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),nsFileExt],fullfile(dataroot,nsDir));
+      error('Cannot find %s file in %s',[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),exper.eegFileExt],fullfile(dataroot,nsDir));
     elseif length(nsfile) > 1
-      error('More than one %s file found in %s',[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),nsFileExt],fullfile(dataroot,nsDir));
+      error('More than one %s file found in %s',[subject,sprintf('%s%s%s.',sesName,cell2mat(eventValue),clean_str),exper.eegFileExt],fullfile(dataroot,nsDir));
     elseif length(nsfile) == 1
       infile_ns = fullfile(dataroot,nsDir,nsfile.name);
     end
@@ -240,12 +260,12 @@ for ses = 1:length(session)
   
   % set up for defining the trials based on file type
   cfg.trialdef.eventvalue = eventValue;
-  cfg.trialdef.prestim = abs(prepost(1)); % in seconds; must be positive
-  cfg.trialdef.poststim = prepost(2); % in seconds; must be positive
-  if strcmpi(nsFileExt,'sbin') || strcmpi(nsFileExt,'raw') || strcmpi(nsFileExt,'egis')
+  cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
+  cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
+  if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
     cfg.trialfun = 'seg_trialfun';
     cfg.trialdef.eventtype = 'trial';
-  elseif strcmpi(nsFileExt,'set')
+  elseif strcmpi(exper.eegFileExt,'set')
     cfg.trialfun = 'trialfun_general';
     cfg.trialdef.eventtype = 'trigger';
   end
@@ -272,11 +292,21 @@ for ses = 1:length(session)
   
   % find out how many channels are in the data
   nChan_data = length(data.label);
+
+  % find reference channel index
+  if isnumeric(exper.refChan)
+    refChanInd = false(size(elec.label));
+    refChanInd(exper.refChan) = true;
+  else
+    refChanInd = ismember(elec.label,exper.refChan);
+  end
+  if isempty(find(refChanInd,1))
+    error('Could not find reference channel.');
+  end
   
   %% Check on channel information
   
   % check on whether we have the reference channel (we want to have it);
-  % assuming that the last channel in the series is the reference channel
   %
   % The channel files included with FieldTrip have 3 "extra" (fiduciary)
   % channels defined, so we need to also check using an extra 3 chans
@@ -290,7 +320,7 @@ for ses = 1:length(session)
     % grab data from all of the trials
     trialData = cat(3,data.trial{:});
     % check the variance across time for the reference channel
-    if sum(var(trialData(nChan_data,:,:),0,2) ~= 0) == 0
+    if sum(var(trialData(refChanInd,:,:),0,2) ~= 0) == 0
       % if none of trials have a non-zero variance reference channel, then
       % it has not been rereferenced. Some trials may have zero variance
       % because of how bad trial rejection works in EP Toolkit (it zeros
@@ -367,14 +397,16 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    data = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,elecfile,data);
+    [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data);
   end
+  
+  badChanAllSes = unique(cat(2,badChanAllSes,badChan));
   
   %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1
     append_data.(sesStr) = data;
   end
-end
+end % ses
 
 %% Append sessions, if necessary
   

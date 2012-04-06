@@ -79,9 +79,11 @@ if prep_eeg == 1
   eegroot = fullfile(dataroot,'eeg');
   
   % get bad channel info
-  [subBC,sesBC,badChan] = textread(fullfile(dataroot,'grub_badChan.txt'),'%s%s%s','delimiter','\t');
+  fid = fopen(fullfile(dataroot,'grub_badChan.txt'));
+  [subBC,sesBC,badChan] = textscan(fid,'%s%s%s','delimiter','\t');
+  fclose(fid);
   for i = 1:length(badChan)
-    badChan{i} = str2num(badChan{i});
+    badChan{i} = str2double(badChan{i});
   end
   infoStruct = struct('subject',subBC,'session',sesBC,'badChan',badChan);
 end
