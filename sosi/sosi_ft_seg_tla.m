@@ -48,34 +48,34 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.subjects = {
   'SOSI001';
   'SOSI002';
-  'SOSI003';
-  'SOSI004';
-  'SOSI005';
-  'SOSI006';
-  'SOSI007';
-  'SOSI008';
-  'SOSI009';
-  'SOSI010';
-  'SOSI011';
-  'SOSI012';
-  'SOSI013';
-  'SOSI014';
-  'SOSI015';
-  'SOSI016';
-  'SOSI017';
-  'SOSI018';
-  'SOSI019';
-  'SOSI020';
-  'SOSI021';
-  'SOSI022';
-  'SOSI023';
-  'SOSI024';
-  'SOSI025';
-  'SOSI026';
-  'SOSI027';
-  'SOSI028';
-  'SOSI029';
-  'SOSI030';
+%   'SOSI003';
+%   'SOSI004';
+%   'SOSI005';
+%   'SOSI006';
+%   'SOSI007';
+%   'SOSI008';
+%   'SOSI009';
+%   'SOSI010';
+%   'SOSI011';
+%   'SOSI012';
+%   'SOSI013';
+%   'SOSI014';
+%   'SOSI015';
+%   'SOSI016';
+%   'SOSI017';
+%   'SOSI018';
+%   'SOSI019';
+%   'SOSI020';
+%   'SOSI021';
+%   'SOSI022';
+%   'SOSI023';
+%   'SOSI024';
+%   'SOSI025';
+%   'SOSI026';
+%   'SOSI027';
+%   'SOSI028';
+%   'SOSI029';
+%   'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -165,7 +165,8 @@ cfg_proc.keeptrials = 'no';
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 process_ft_data(ana,cfg_proc,exper,dirs);
 
-% get the bad channel information
+%% get the bad channel information
+
 cfg = [];
 cfg.badChanManual = true;
 cfg.badChanEP = true;
@@ -226,8 +227,8 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-%ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'RHSC','RHSI','RCR'}};
+ana.eventValues = {exper.eventValues};
+%ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
@@ -247,6 +248,32 @@ end
 
 [data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
+%% get rid of the bad channels
+
+%[data_tla] = mm_nanBadChan(exper,ana,data_tla);
+
+param = 'avg';
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sesStr)
+    if ~isempty(exper.badChan{sub,ses})
+      cfg_sd = [];
+      cfg_sd.channel = eval(sprintf('{''all''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses})));
+      for typ = 1:length(ana.eventValues)
+        for evVal = 1:length(ana.eventValues{typ})
+          % remove the bad channels
+          fprintf('Removing bad channels from %s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+          data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(cfg_sd,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+          
+          % % setting bad channels to nan - doesn't work with GA
+          % fprintf('Setting bad channels to NaNs for %s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+          % data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(exper.badChan{sub,ses},:) = NaN;
+        end
+      end
+    end
+  end
+end
+
 %% Test plots to make sure data look ok
 
 cfg_ft = [];
@@ -255,8 +282,13 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-figure
-ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data);
+sub=2;
+ses=1;
+for i = 1:2
+  figure
+  ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 % cfg_ft = [];
 % cfg_ft.showlabels = 'yes';
@@ -524,7 +556,7 @@ cfg_ft.xlim = [-.2 2.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'RPI'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
 cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 

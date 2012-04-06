@@ -36,6 +36,11 @@ if ismember('badChanEP',ana.artifact.type)
 else
   rejArt_badChanEP = false;
 end
+if ismember('rmBadChan',ana.artifact.type)
+  rejArt_rmBadChan = true;
+else
+  rejArt_rmBadChan = false;
+end
 if ismember('preRejManual',ana.artifact.type)
   rejArt_preRejManual = true;
 else
@@ -194,6 +199,17 @@ if rejArt_badChanManual || rejArt_badChanEP
   badChan = unique(cat(2,badChanManual,badChanEP));
 else
   badChan = [];
+end
+
+if rejArt_rmBadChan && ~isempty(badChan)
+  cfg_rv = [];
+  cfg_rv.channel = eval(sprintf('{''all''%s};',sprintf(repmat(' ''-E%d''',1,length(badChan)),badChan)));
+  cfg_rv.keepchannel = 'no';
+  %cfg_rv.keepchannel = 'nan';
+  
+  data = ft_rejectvisual(cfg_rv,data);
+elseif rejArt_rmBadChan && isempty(badChan)
+  fprintf('No bad channels to reject!\n');
 end
 
 if rejArt_nsAuto

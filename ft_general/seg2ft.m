@@ -29,7 +29,7 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 % ARTIFACT INFORMATION:
 %
 % ana.artifact.type can be 'none', 'nsAuto', 'zeroVar', 'preRejManual',
-% 'ftManual', 'ftICA', 'badChanManual', and/or 'badChanEP';
+% 'ftManual', 'ftICA', 'badChanManual', 'badChanEP', and/or 'rmBadChan'
 % it can be one of those strings or a cell array of multiple strings (e.g.,
 % {'nsAuto','preRejManual'} to do both Net Station artifact rejection and
 % FieldTrip manual ("visual") rejection). 'ftICA' also includes manual
@@ -79,6 +79,10 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 % 'ep_art' in fullfile(dirs.dataroot,dirs.dataDir). This will only look for
 % channels listed as being globally bad.
 %
+% For the badChan methods, 'rmBadChan' gives the option to delete those
+% channels from the data (if you edit mm_ft_artifact you can turn those
+% channels into NaNs, or jsut do that later on your own).
+%
 % !!!EXTREMELY IMPORTANT!!!
 % Do not reject ICA components from data that has already had
 % ICA components rejected. Also, be very very very wary about rejecting ICA
@@ -106,7 +110,7 @@ if ischar(ana.artifact.type)
   ana.artifact.type = {ana.artifact.type};
 end
 
-artifactOpts = {'none','nsAuto','zeroVar','badChanManual','badChanEP','preRejManual','ftAuto','ftManual','ftICA'};
+artifactOpts = {'none','nsAuto','zeroVar','badChanManual','badChanEP','rmBadChan','preRejManual','ftAuto','ftManual','ftICA'};
 
 if any(~ismember(ana.artifact.type,artifactOpts))
   error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(ana.artifact.type(~ismember(ana.artifact.type,artifactOpts))))
