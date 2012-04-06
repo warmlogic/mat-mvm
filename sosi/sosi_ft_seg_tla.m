@@ -250,29 +250,7 @@ end
 
 %% get rid of the bad channels
 
-%[data_tla] = mm_nanBadChan(exper,ana,data_tla);
-
-param = 'avg';
-
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sesStr)
-    if ~isempty(exper.badChan{sub,ses})
-      cfg_sd = [];
-      cfg_sd.channel = eval(sprintf('{''all''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses})));
-      for typ = 1:length(ana.eventValues)
-        for evVal = 1:length(ana.eventValues{typ})
-          % remove the bad channels
-          fprintf('Removing bad channels from %s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-          data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(cfg_sd,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-          
-          % % setting bad channels to nan - doesn't work with GA
-          % fprintf('Setting bad channels to NaNs for %s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-          % data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(exper.badChan{sub,ses},:) = NaN;
-        end
-      end
-    end
-  end
-end
+[data_tla] = mm_rmBadChan(exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 

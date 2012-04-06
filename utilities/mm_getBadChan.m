@@ -37,7 +37,11 @@ if cfg.badChanManual == false && cfg.badChanEP == false
 end
 
 % initialize
-exper.badChan = cell(length(exper.subjects),length(exper.sessions));
+if isfield(exper,'badChan')
+  error('Bad channel information already exists in this exper struct. Remove the field and run %s again if you want new bad channel information.',mfilename);
+else
+  exper.badChan = cell(length(exper.subjects),length(exper.sessions));
+end
 
 for sub = 1:length(exper.subjects)
   subject = exper.subjects{sub};
@@ -138,7 +142,8 @@ for sub = 1:length(exper.subjects)
             error('More than one EP Articifact Correction Log found for %s %s, probably multiple sessions in the same directory. Make sure each subject has one Artifact Log file in individual session folders, or just put the info in a text file.',subject,sesName);
           end
         elseif isempty(epArtFile)
-          error('No EP Articifact Correction Log found for %s %s.',subject,sesName);
+          %error('No EP Articifact Correction Log found for %s %s.',subject,sesName);
+          warning([mfilename,':noEPBadChan'],'No EP Toolkit bad channel information found for %s %s.\n',subject,sesName);
         end
       end
       
