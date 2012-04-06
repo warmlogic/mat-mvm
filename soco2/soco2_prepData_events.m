@@ -77,7 +77,17 @@ if ~exist('subjects','var') || isempty(subjects)
         'SOCO2037';
         'SOCO2038';
         'SOCO2039';
-    %     'SOCO2040';
+        'SOCO2040';
+        'SOCO2041';
+        'SOCO2042';
+        'SOCO2043';
+        'SOCO2044';
+        'SOCO2045';
+        'SOCO2046';
+        'SOCO2047';
+        'SOCO2048';
+        'SOCO2049';
+        'SOCO2050';
     };
 end
 
