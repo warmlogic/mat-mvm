@@ -60,8 +60,8 @@ end
 % 
 % % type of NS file for FieldTrip to read; raw or sbin must be put in
 % % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-% exper.nsFileExt = 'egis';
-% %exper.nsFileExt = 'raw';
+% exper.eegFileExt = 'egis';
+% %exper.eegFileExt = 'raw';
 % 
 % % types of events to find in the NS file; these must be the same as the
 % % events in the NS files

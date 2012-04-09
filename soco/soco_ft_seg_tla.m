@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.nsFileExt = 'egis';
-exper.nsFileExt = 'raw';
+%exper.eegFileExt = 'egis';
+exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -146,7 +146,7 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -173,6 +173,13 @@ cfg_proc.keeptrials = 'no';
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 process_ft_data(ana,cfg_proc,exper,dirs);
 
+% %% get the bad channel information
+% 
+% cfg = [];
+% cfg.badChanManual = false;
+% cfg.badChanEP = true;
+% [exper] = mm_getBadChan(cfg,exper,dirs);
+
 %% save the analysis details
 
 % overwrite if it already exists
@@ -198,10 +205,13 @@ end
 
 %% load the analysis details
 
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+
+
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
@@ -261,6 +271,10 @@ end
 %% load in the subject data
 
 [data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
+
+%% get rid of the bad channels
+
+[data_tla] = mm_rmBadChan(exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 

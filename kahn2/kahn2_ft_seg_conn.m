@@ -22,7 +22,7 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'set';
+exper.eegFileExt = 'set';
 
 % types of events to save; must be the same as the events in the NS files
 exper.eventValues = sort({'CR__','CoTa','InTa'});

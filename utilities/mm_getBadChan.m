@@ -25,6 +25,9 @@ function [exper] = mm_getBadChan(cfg,exper,dirs)
 % See also: MM_FT_ARTIFACT
 %
 
+% TODO: Deal with shorted channels
+% "Warning: shorted channels: E1-E2; E3-E4"
+
 if ~isfield(cfg,'badChanManual')
   cfg.badChanManual = false;
 end
@@ -42,6 +45,18 @@ if isfield(exper,'badChan')
 else
   exper.badChan = cell(length(exper.subjects),length(exper.sessions));
 end
+
+fprintf('Finding ');
+if cfg.badChanManual
+  fprintf('manually entered ');
+  if cfg.badChanEP
+    fprintf('and ');
+  end
+end
+if cfg.badChanEP
+  fprintf('EP Toolkit ');
+end
+fprintf('bad channel information.\n');
 
 for sub = 1:length(exper.subjects)
   subject = exper.subjects{sub};
@@ -111,12 +126,14 @@ for sub = 1:length(exper.subjects)
             if fid == -1
               error('Could not open the file for %s %s. Make sure you do not have it open in another application.',subject,sesName);
             else
-              tline = [];
               
-              while isempty(strfind(tline,epGBC_str))
+              while ~foundBadChan
                 % get the next line
                 tline = fgetl(fid);
-                foundBadChan = true;
+                if strncmpi(tline,epGBC_str,length(epGBC_str))
+                  foundBadChan = true;
+                  break
+                end
               end
               fclose(fid);
               

@@ -39,8 +39,11 @@ exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 %exper.eventValuesExtra.toCombine = {{'NS','NM'}};
 %exper.eventValuesExtra.newValue = {{'N'}};
 
-exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
-exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+%exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
+%exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
+
+exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'}};
+exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
@@ -48,34 +51,34 @@ exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.subjects = {
   'SOSI001';
   'SOSI002';
-%   'SOSI003';
-%   'SOSI004';
-%   'SOSI005';
-%   'SOSI006';
-%   'SOSI007';
-%   'SOSI008';
-%   'SOSI009';
-%   'SOSI010';
-%   'SOSI011';
-%   'SOSI012';
-%   'SOSI013';
-%   'SOSI014';
-%   'SOSI015';
-%   'SOSI016';
-%   'SOSI017';
-%   'SOSI018';
-%   'SOSI019';
-%   'SOSI020';
-%   'SOSI021';
-%   'SOSI022';
-%   'SOSI023';
-%   'SOSI024';
-%   'SOSI025';
-%   'SOSI026';
-%   'SOSI027';
-%   'SOSI028';
-%   'SOSI029';
-%   'SOSI030';
+  'SOSI003';
+  'SOSI004';
+  'SOSI005';
+  'SOSI006';
+  'SOSI007';
+  'SOSI008';
+  'SOSI009';
+  'SOSI010';
+  'SOSI011';
+  'SOSI012';
+  'SOSI013';
+  'SOSI014';
+  'SOSI015';
+  'SOSI016';
+  'SOSI017';
+  'SOSI018';
+  'SOSI019';
+  'SOSI020';
+  'SOSI021';
+  'SOSI022';
+  'SOSI023';
+  'SOSI024';
+  'SOSI025';
+  'SOSI026';
+  'SOSI027';
+  'SOSI028';
+  'SOSI029';
+  'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -165,12 +168,12 @@ cfg_proc.keeptrials = 'no';
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 process_ft_data(ana,cfg_proc,exper,dirs);
 
-%% get the bad channel information
-
-cfg = [];
-cfg.badChanManual = true;
-cfg.badChanEP = true;
-[exper] = mm_getBadChan(cfg,exper,dirs);
+% %% get the bad channel information
+% 
+% cfg = [];
+% cfg.badChanManual = false;
+% cfg.badChanEP = true;
+% [exper] = mm_getBadChan(cfg,exper,dirs);
 
 %% save the analysis details
 
@@ -196,7 +199,10 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
@@ -534,7 +540,7 @@ cfg_ft.xlim = [-.2 2.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'RPI'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
 cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 

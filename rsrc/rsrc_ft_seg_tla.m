@@ -39,8 +39,8 @@ exper.sampleRate = 250;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+exper.eegFileExt = 'egis';
+%exper.eegFileExt = 'raw';
 
 % name of the folder to save the FT data in
 if ~isfield(exper.eventValuesExtra,'newValue')

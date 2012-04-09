@@ -21,8 +21,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.nsFileExt = 'egis';
-exper.nsFileExt = 'raw';
+%exper.eegFileExt = 'egis';
+exper.eegFileExt = 'raw';
 
 % NB: exporting to raw because the EGIS tool won't export reference chan
 
@@ -211,7 +211,7 @@ files.figPrintRes = 150;
 ana.segFxn = 'seg2ft';
 
 % eppp
-ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
 % % nspp
 % ana.artifact.type = {'nsAuto'};
 
@@ -246,6 +246,13 @@ cfg_proc.keeptrials = 'no';
 % create the raw and processed structs for each sub, ses, & event value
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 process_ft_data(ana,cfg_proc,exper,dirs);
+
+% %% get the bad channel information
+% 
+% cfg = [];
+% cfg.badChanManual = false;
+% cfg.badChanEP = true;
+% [exper] = mm_getBadChan(cfg,exper,dirs);
 
 %% save the analysis details
 
@@ -320,6 +327,10 @@ end
 %% load in the subject data
 
 [data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
+
+%% get rid of the bad channels
+
+[data_tla] = mm_rmBadChan(exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 

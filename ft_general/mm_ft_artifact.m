@@ -153,12 +153,14 @@ if rejArt_badChanEP
       if fid == -1
         error('Could not open the file for %s %s. Make sure you do not have it open in another application.',subject,sesName);
       else
-        tline = [];
         
-        while isempty(strfind(tline,epGBC_str))
+        while ~foundBadChan
           % get the next line
           tline = fgetl(fid);
-          foundBadChan = true;
+          if strncmpi(tline,epGBC_str,length(epGBC_str))
+            foundBadChan = true;
+            break
+          end
         end
         fclose(fid);
         

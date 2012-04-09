@@ -38,8 +38,8 @@ exper.sampleRate = 250;
 
 % type of NS file for FieldTrip to read; raw/sbin must be put in
 % dirs.dataroot/ns_raw or egis must be put in dirs.dataroot/ns_egis
-exper.nsFileExt = 'egis';
-%exper.nsFileExt = 'raw';
+exper.eegFileExt = 'egis';
+%exper.eegFileExt = 'raw';
 
 % name of the folder to save the FT data in
 dirs.saveDirName = 'ft_data';
@@ -194,7 +194,7 @@ cfg_proc.foi = 3:1:50;
 
 [data_freq,exper] = create_ft_struct('seg2ft','ft_freqanalysis',cfg_proc,cfg_pp,dirs,exper,files);
 
-%[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_proc,cfg_pp,dirs.dataroot,dirs.saveDirName,exper.nsFileExt,exper.subjects,exper.sessions,exper.prepost,files.elecfile,exper.sampleRate,exper.eventValues,exper.eventValuesExtra);
+%[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_proc,cfg_pp,dirs.dataroot,dirs.saveDirName,exper.eegFileExt,exper.subjects,exper.sessions,exper.prepost,files.elecfile,exper.sampleRate,exper.eventValues,exper.eventValuesExtra);
 %[data_freq,exper.eventValues] = create_ft_struct_peer('ft_freqanalysis',cfg_proc,cfg_pp,dirs,exper,files);
 
 % save the structs for loading in later

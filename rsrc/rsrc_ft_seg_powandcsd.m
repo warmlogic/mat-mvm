@@ -27,8 +27,8 @@ exp.sampleRate = 250;
 
 % type of NS file for FieldTrip to read; raw/sbin must be put in
 % dirs.dataroot/ns_raw or egis must be put in dirs.dataroot/ns_egis
-exp.nsFileExt = 'egis';
-%exp.nsFileExt = 'raw';
+exp.eegFileExt = 'egis';
+%exp.eegFileExt = 'raw';
 
 % name of the folder to save the FT data in
 dirs.saveDirName = 'ft_data';
@@ -188,8 +188,8 @@ cfg_proc.channelcmb = {'e1','e53';'e1','e122';'e53','e122'};
 
 cfg_pp = [];
 
-[data_freq,exp.eventValues] = create_ft_struct(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
-%[data_freq,exp.eventValues] = create_ft_struct_parallel(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,dirs.saveDirName,exp.nsFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
+[data_freq,exp.eventValues] = create_ft_struct(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,exp.eegFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
+%[data_freq,exp.eventValues] = create_ft_struct_parallel(cfg_proc,'ft_freqanalysis',cfg_pp,dirs.dataroot,dirs.saveDirName,exp.eegFileExt,exp.subjects,exp.sessions,exp.prepost,files.elecfile,exp.sampleRate,exp.eventValues,exp.eventValuesExtra);
 
 % % save the structs for loading in later
 % saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s_%d_%d_%d_%d.mat',cfg_proc.output,cfg_proc.foi(1),cfg_proc.foi(end),exp.prepost(1)*1000,exp.prepost(2)*1000));
