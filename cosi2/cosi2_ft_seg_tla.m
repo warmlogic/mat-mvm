@@ -107,7 +107,7 @@ exper.subjects = {
   'COSI2037';
   'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
   'COSI2039';
-  'COSI2040';
+  'COSI2040'; % EEG is pretty noisy overall
 %   'COSI2041'; % COSI2041: no-show, no session_1
   'COSI2042';
   'COSI2043';
@@ -417,6 +417,8 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 % 38: potentially bad session_1 (puker)
 
 % 35 and 38 have noisy ERPs
+
+% 40 session_0 has noisy EEG (NS file)
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);

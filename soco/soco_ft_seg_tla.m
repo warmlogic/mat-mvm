@@ -250,9 +250,9 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
 %ana.eventValues = {{'HSC2','HSI2','CR2'},{'HSC6','HSI6','CR6'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
-ana.eventValues = {{'RCR','RHSC','RHSI'}};
+%ana.eventValues = {{'RCR','RHSC','RHSI'}};
 
-%ana.eventValues = {exper.eventValues};
+ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
@@ -284,8 +284,13 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-figure
-ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{2}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{3}).sub(1).ses(1).data);
+sub=2;
+ses=1;
+for i = 1:2
+  figure
+  ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E20'};
@@ -553,8 +558,8 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -2 5; -2 5];
+cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.is_ga = 1;
