@@ -64,10 +64,12 @@ elseif isfield(cfg_ana,'excludeBadSub') && cfg_ana.excludeBadSub ~= 1
 end
 
 % get the label info for this data struct
-if isfield(data.(exper.eventValues{1}).sub(1).ses(1).data,'label');
-  lab = data.(exper.eventValues{1}).sub(1).ses(1).data.label;
+%if isfield(data.(exper.eventValues{1}).sub(1).ses(1).data,'label');
+if isfield(ana.elec,'label');
+  %lab = data.(exper.eventValues{1}).sub(1).ses(1).data.label;
+  lab = ana.elec.label;
 else
-  error('label information not found in data struct');
+  error('label information not found in ana struct');
 end
 
 % set the channel information
@@ -143,6 +145,16 @@ for evVal = 1:length(allConds)
       continue
     else
       goodSubInd = goodSubInd + 1;
+      
+      % get the right channels (on an individual subject basis)
+      if ismember(cfg_ana.roi,ana.elecGroupsStr)
+        cfg_ana.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.roi)});
+        cfg_ana.chansel = ismember(data.(ev).sub(sub).ses(ses).data.label,cfg_ana.channel);
+      else
+        % find the channel indices for averaging
+        cfg_ana.chansel = ismember(data.(ev).sub(sub).ses(ses).data.label,cfg_ana.roi);
+      end
+      
       cfg_ana.timesel.(ev) = find(data.(ev).sub(sub).ses(ses).data.time >= cfg_ft.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg_ft.latency(2));
       cfg_ana.values.(ev)(goodSubInd,ses) = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
     end

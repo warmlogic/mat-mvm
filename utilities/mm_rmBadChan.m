@@ -27,20 +27,24 @@ for sub = 1:length(exper.subjects)
     if ~isempty(exper.badChan{sub,ses})
       for typ = 1:length(ana.eventValues)
         for evVal = 1:length(ana.eventValues{typ})
-          cfg_sd = [];
-          cfg_sd.channel = ft_channelselection(eval(sprintf('{''all''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses}))),data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.label);
-          % remove the bad channels
-          fprintf('Removing %d bad channel(s) from %s, %s, %s\n',length(exper.badChan{sub,ses}),exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-          
-          % % ft_selectdata_new
-          % data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(cfg_sd,data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-          
-          % ft_selectdata_old
-          data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'channel',cfg_sd.channel);
-          
-          % % setting bad channels to nan - doesn't work with GA
-          % fprintf('Setting bad channels to NaNs for %s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-          % data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(exper.badChan{sub,ses},:) = NaN;
+          if isfield(data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'label')
+            cfg_sd = [];
+            cfg_sd.channel = ft_channelselection(eval(sprintf('{''all''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses}))),data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.label);
+            % remove the bad channels
+            fprintf('Removing %d bad channel(s) from %s, %s, %s\n',length(exper.badChan{sub,ses}),exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+            
+            % % ft_selectdata_new
+            % data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(cfg_sd,data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+            
+            % ft_selectdata_old
+            data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'channel',cfg_sd.channel);
+            
+            % % setting bad channels to nan - doesn't work with GA
+            % fprintf('Setting bad channels to NaNs for %s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+            % data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(exper.badChan{sub,ses},:) = NaN;
+          else
+            warning([mfilename,':noData'],'%s %s %s has no data.\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+          end
         end % evVal
       end % typ
     else

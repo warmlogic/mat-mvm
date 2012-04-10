@@ -20,10 +20,12 @@ if ~isfield(cfg_ana,'printTable_tex')
 end
 
 % get the label info for this data struct
-if isfield(data.(exper.eventValues{1}).sub(1).ses(1).data,'label');
-  lab = data.(exper.eventValues{1}).sub(1).ses(1).data.label;
+%if isfield(data.(exper.eventValues{1}).sub(1).ses(1).data,'label');
+if isfield(ana.elec,'label');
+  %lab = data.(exper.eventValues{1}).sub(1).ses(1).data.label;
+  lab = ana.elec.label;
 else
-  error('label information not found in data struct');
+  error('label information not found in ana struct');
 end
 
 % set the channel information
@@ -69,14 +71,6 @@ cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMe
 
 % IV1: ROIs
 for r = 1:length(cfg_ana.roi)
-  if ismember(cfg_ana.roi,ana.elecGroupsStr)
-    cfg_ana.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.roi(r))});
-    cfg_ana.chansel = ismember(lab,cfg_ana.channel);
-  else
-    % find the channel indices for averaging
-    cfg_ana.chansel = ismember(lab,cfg_ana.roi);
-  end
-  
   % IV2: Types of events
   for typ = 1:length(cfg_ana.conditions)
     cfg_ana.cond = cfg_ana.conditions{typ};
@@ -98,6 +92,16 @@ for r = 1:length(cfg_ana.roi)
           continue
         else
           goodSubInd = goodSubInd + 1;
+          
+          % get the right channels (on an individual subject basis)
+          if ismember(cfg_ana.roi,ana.elecGroupsStr)
+            cfg_ana.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.roi(r))});
+            cfg_ana.chansel = ismember(data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.label,cfg_ana.channel);
+          else
+            % find the channel indices for averaging
+            cfg_ana.chansel = ismember(data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.label,cfg_ana.roi);
+          end
+          
           cfg_ana.timesel.(cfg_ana.types{typ}).(cfg_ana.cond{c}) = find(data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.time >= cfg_ana.latency(1) & data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.time <= cfg_ana.latency(2));
           cfg_ana.values.(cfg_ana.types{typ}).(cfg_ana.cond{c})(goodSubInd,ses) = mean(mean(data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.(cfg_ana.parameter)(cfg_ana.chansel,cfg_ana.timesel.(cfg_ana.types{typ}).(cfg_ana.cond{c})),1),2);
         end

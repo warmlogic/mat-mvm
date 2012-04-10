@@ -168,43 +168,6 @@ files.figFontName = 'Helvetica';
 files.figPrintFormat = 'png';
 files.figPrintRes = 150;
 
-%files.figPrintFormat = 'tiff';
-%files.figPrintRes = 1000;
-
-% %% add NS's artifact information to the event structure
-% nsEvFilters.eventValues = exper.eventValues;
-% % CCR
-% nsEvFilters.CCR.type = 'LURE_PRES';
-% nsEvFilters.CCR.testType = 'side';
-% nsEvFilters.CCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % CHSC
-% nsEvFilters.CHSC.type = 'TARG_PRES';
-% nsEvFilters.CHSC.testType = 'side';
-% nsEvFilters.CHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % CHSI
-% nsEvFilters.CHSI.type = 'TARG_PRES';
-% nsEvFilters.CHSI.testType = 'side';
-% nsEvFilters.CHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% % SCR
-% nsEvFilters.SCR.type = 'LURE_PRES';
-% nsEvFilters.SCR.testType = 'task';
-% nsEvFilters.SCR.filters = {'rec_isTarg == 0', 'rec_correct == 1'};
-% % SHSC
-% nsEvFilters.SHSC.type = 'TARG_PRES';
-% nsEvFilters.SHSC.testType = 'task';
-% nsEvFilters.SHSC.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 1'};
-% % SHSI
-% nsEvFilters.SHSI.type = 'TARG_PRES';
-% nsEvFilters.SHSI.testType = 'task';
-% nsEvFilters.SHSI.filters = {'rec_isTarg == 1', 'rec_correct == 1', 'src_correct == 0'};
-% 
-% for sub = 1:length(exper.subjects)
-%   for ses = 1:length(exper.sesStr)
-%     overwriteArtFields = 1;
-%     ns_addArtifactInfo(dirs.dataroot,exper.subjects{sub},exper.sessions{ses},nsEvFilters,overwriteArtFields);
-%   end
-% end
-
 %% Convert the data to FieldTrip structs
 
 % raw data
@@ -283,7 +246,8 @@ end
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
 
 % eppp
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
 
@@ -404,7 +368,7 @@ end
 
 % Subjects with bad behavior
 %exper.badBehSub = {};
-exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'COSI2035'
+exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2037','COSI2038'}; % ,'COSI2035'
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
@@ -415,6 +379,8 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 % 39 has fewer than 15 trials for Color-SI
 
 % 38: potentially bad session_1 (puker)
+
+% 37 has too many bad channels (25) - relevant ROIs?
 
 % 35 and 38 have noisy ERPs
 
@@ -597,9 +563,9 @@ cfg_ft.xlim = [-.2 1.5];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
 %cfg_plot.rois = {{'RAS'},{'LPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -2 5; -2 5];
+cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -4.5 2.4; -2 5; -2 5];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -803,15 +769,16 @@ cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 
-% cfg_plot.roi = {'LAS','RAS'};
-% cfg_ft.xlim = [0.3 0.5]; % time
-cfg_plot.roi = {'LPS','RPS'};
-cfg_ft.xlim = [0.5 0.8]; % time
+cfg_plot.roi = {'LAS','RAS'};
+cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_plot.roi = {'LPS','RPS'};
+% cfg_ft.xlim = [0.5 0.8]; % time
+
 cfg_ft.comment = 'no';
 
-% cfg_ft.xlim = [0 1.0]; % time
-% %cfg_ft.xlim = (0:0.05:1.0); % time
-% cfg_plot.subplot = 1;
+cfg_ft.xlim = [0 1.0]; % time
+%cfg_ft.xlim = (0:0.05:1.0); % time
+cfg_plot.subplot = 1;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -829,12 +796,12 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_ana.rois = {{'LAS'},{'LPS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-%cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
 cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
