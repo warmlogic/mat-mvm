@@ -75,7 +75,7 @@ for sub = 1:length(exper.subjects)
               data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_selectdata(data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'channel',cfg_sd.channel);
             elseif strcmp(cfg.rmBadChan,'nan')
               % setting bad channels to nan - doesn't work with GA
-              fprintf('%s, %s, %s: Setting %s bad channel(s) to NaNs.\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal},length(exper.badChan{sub,ses});
+              fprintf('%s, %s, %s: Setting %s bad channel(s) to NaNs.\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal},length(exper.badChan{sub,ses}));
               data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(exper.badChan{sub,ses},:) = NaN;
             end
             
