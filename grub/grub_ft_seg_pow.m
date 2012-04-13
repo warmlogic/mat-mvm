@@ -234,7 +234,7 @@ end
 %% load the analysis details
 
 adFile = '/Volumes/curranlab/Data/GRUB/eeg/eppp/-1000_2000/ft_data/RCR_RHSC_RHSI_RH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_40_avg/analysisDetails.mat';
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 %% set up channel groups
 

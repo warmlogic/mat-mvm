@@ -56,6 +56,7 @@ powparam = 'powspctrm';
 cohparam = 'powspctrm';
 phaseparam = 'powspctrm';
 
+% keep individual trials?
 if ~isfield(cfg,'keeptrials')
   cfg.keeptrials = 'no';
 elseif isfield(cfg,'keeptrials')
@@ -64,6 +65,7 @@ elseif isfield(cfg,'keeptrials')
   end
 end
 
+% equate trial counts?
 if ~isfield(cfg,'equatetrials')
   cfg.equatetrials = 'no';
 elseif isfield(cfg,'equatetrials')
@@ -72,6 +74,7 @@ elseif isfield(cfg,'equatetrials')
   end
 end
 
+% remove evoked power from whole power?
 if ~isfield(cfg,'rmevoked')
   cfg.rmevoked = 'no';
   cfg.rmevokedfourier = 'no';
@@ -114,6 +117,7 @@ if ~exist('data_evoked','var') || isempty(data_evoked)
   end
 end
 
+% check on input and output format
 if ~isfield(cfg,'ftype')
   error('Must set cfg.ftype; used in the filename to load (e.g., ''tla'' in ''data_tla_CR.mat'');');
 elseif strcmp(cfg.ftype,'pow')
@@ -167,6 +171,7 @@ else
   end
 end
 
+% make sure some fields are set (correctly)
 if ~isfield(cfg,'normalize')
   cfg.normalize = '';
 elseif ~isempty(cfg.normalize) && strcmp(cfg.output,'coh')
@@ -218,11 +223,13 @@ if strcmp(cfg.equatetrials,'yes')
             else
               exper.randTrials{sub,ses,typ}(:,evVal) = [];
             end
-          end
-        end
-      end
-    end
+          end % evVal
+        end % typ
+      end % ses
+    end % sub
   end
+  
+  % print out the trial counts for each subject
   for typ = 1:length(ana.eventValues)
     fprintf('Condition type consisting of: %s\n',sprintf(repmat('%s ',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:}));
     if length(exper.subjects{1}) > 7
@@ -230,7 +237,6 @@ if strcmp(cfg.equatetrials,'yes')
     else
       tabchar_sub = '';
     end
-    % print out the trial counts for each subject
     fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:}));
     for ses = 1:length(exper.sessions)
       for sub = 1:length(exper.subjects)
@@ -293,31 +299,99 @@ for sub = 1:length(exper.subjects)
             
             % convert complex fourier-spectra to power or coherence
             if fftflg
+              
+              % TODO: do I need to update something in the FT structure now
+              % that I get the subset of trials at the start?
+              %
+              % equate the trial counts
+              if strcmp(cfg.equatetrials,'yes')
+                % get the subset of trials
+                fprintf('Equating trial counts across conditions (within a type). Randomly selecting %d (of %d) trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(fourierparam),1));
+                subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam)(exper.randTrials{sub,ses,typ}(:,evVal),:,:,:);
+              end
+                
               fprintf('Converting %s to %s.\n',cfg.ftype,cfg.output);
               if strcmp(cfg.output,'pow')
-                % % option 1: subtract evoked fourier from whole fourier
-                % if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
-                %   fprintf('Subtracting evoked fourier from whole fourier to get induced fourier.\n');
-                %   evoked_data = repmat(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam),[size(subSesEvData.(cell2mat(fn)).(fourierparam),1),1,1,1]);
-                %   subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam) - evoked_data;
-                % end
-                % subSesEvData.(cell2mat(fn)).(powparam) = abs(subSesEvData.(cell2mat(fn)).(fourierparam)).^2;
+                % get the modulus
+                param = 'modulus';
+                subSesEvData.(cell2mat(fn)).(param) = abs(subSesEvData.(cell2mat(fn)).(fourierparam));
+                if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
+                  data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam));
+                end
+                
+                % baseline correct the modulus
+                if strcmp(cfg.baselinedata,'mod')
+                  if ~isempty(cfg.baselinetype)
+                    if strcmp(cfg.baselinetype,'zscore')
+                      fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
+                      blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                      
+                      nTrl = size(subSesEvData.(cell2mat(fn)).(param),1);
+                      %nFrq = size(subSesEvData.(cell2mat(fn)).(param),3);
+                      nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                      
+                      blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                      blstd = repmat(nanmean(nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,1),4),[nTrl,1,1,nSmp]);
+                      subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blstd;
+                      
+                      % can't z-transform evoked data: there's only 1 "trial"
+                      
+                    elseif (strcmp(cfg.baselinetype,'absolute') || strcmp(cfg.baselinetype,'relative') || strcmp(cfg.baselinetype,'relchange')) && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
+                      blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                      nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                      blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                      
+                      if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
+                        blt_ev = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time >= cfg.baseline(1) & data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time <= cfg.baseline(2);
+                        nSmp_ev = size(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
+                        blm_ev = repmat(nanmean(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt_ev),4),[1,1,1,nSmp_ev]);
+                      end
+                      
+                      if strcmp(cfg.baselinetype,'absolute')
+                        fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                        subSesEvData.(cell2mat(fn)).(param) = subSesEvData.(cell2mat(fn)).(param) - blm;
+                        if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
+                          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm_ev;
+                        end
+                      elseif strcmp(cfg.baselinetype,'relative')
+                        %error('relative baseline is not working');
+                        fprintf('Dividing power by mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
+                        subSesEvData.(cell2mat(fn)).(param) = subSesEvData.(cell2mat(fn)).(param) ./ blm;
+                        if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
+                          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm_ev;
+                        end
+                      elseif strcmp(cfg.baselinetype,'relchange')
+                        %error('relchange baseline is not working');
+                        fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by the mean.\n',cfg.baseline(1),cfg.baseline(2));
+                        subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blm;
+                        if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
+                          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = (data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm_ev) ./ blm_ev;
+                        end
+                      end
+                    end
+                  end % if baseline
+                end
+                
                 
                 if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
-                  % option 1: subtract evoked fourier from whole fourier;
-                  % this will make evoked = positive values and induced =
-                  % negative values
-                  fprintf('Subtraction: (abs(whole fourier) - abs(evoked fourier)).^2 = induced power.\n');
+                  % option 1: subtract evoked modulus from whole modulus;
+                  % this will make evoked=positive and induced=negative
+                  %fprintf('Subtraction: (abs(whole fourier) - abs(evoked fourier)).^2 = induced power.\n');
+                  fprintf('Subtraction: ((whole modulus) - (evoked modulus)).^2 = induced power.\n');
                   
-                  % % subtract from single trials, then square
-                  % evoked_data = repmat(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam),[size(subSesEvData.(cell2mat(fn)).(fourierparam),1),1,1,1]);
-                  % subSesEvData.(cell2mat(fn)).(powparam) = (abs(subSesEvData.(cell2mat(fn)).(fourierparam)) - abs(evoked_data)).^2;
+                  % subtract evoked from single trials, then square
+                  % % evoked_data = repmat(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam),[size(subSesEvData.(cell2mat(fn)).(fourierparam),1),1,1,1]);
+                  % % subSesEvData.(cell2mat(fn)).(powparam) = (abs(subSesEvData.(cell2mat(fn)).(fourierparam)) - abs(evoked_data)).^2;
+                  evoked_data = repmat(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),[size(subSesEvData.(cell2mat(fn)).(param),1),1,1,1]);
+                  subSesEvData.(cell2mat(fn)).(powparam) = (subSesEvData.(cell2mat(fn)).(param) - evoked_data).^2;
                   
-                  % subtract means of moduluses, then square
-                  subSesEvData.(cell2mat(fn)).(powparam) = (mean(abs(subSesEvData.(cell2mat(fn)).(fourierparam)),1) - abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam))).^2;
+                  % % subtract means of moduluses, then square
+                  % % subSesEvData.(cell2mat(fn)).(powparam) = (mean(abs(subSesEvData.(cell2mat(fn)).(fourierparam)),1) - abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam))).^2;
+                  % subSesEvData.(cell2mat(fn)).(powparam) = (mean(subSesEvData.(cell2mat(fn)).(param),1) - data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)).^2;
                   
-                  % square means of moduluses, then subtract
-                  %subSesEvData.(cell2mat(fn)).(powparam) = mean(abs(subSesEvData.(cell2mat(fn)).(fourierparam)),1).^2 - abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam)).^2;
+                  % % square means of moduluses, then subtract
+                  % % subSesEvData.(cell2mat(fn)).(powparam) = mean(abs(subSesEvData.(cell2mat(fn)).(fourierparam)),1).^2 - abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam)).^2;
+                  % subSesEvData.(cell2mat(fn)).(powparam) = mean(subSesEvData.(cell2mat(fn)).(param),1).^2 - data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param).^2;
                   
                 elseif strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedpow,'yes')
                   % option 2: set up evoked fourier to subtract as power
@@ -330,38 +404,46 @@ for sub = 1:length(exper.subjects)
                 % no longer need the fourierspctrm field
                   data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = rmfield(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,fourierparam);
                 elseif strcmp(cfg.rmevoked,'no')
-                  subSesEvData.(cell2mat(fn)).(powparam) = abs(subSesEvData.(cell2mat(fn)).(fourierparam)).^2;
+                  %subSesEvData.(cell2mat(fn)).(powparam) = abs(subSesEvData.(cell2mat(fn)).(fourierparam)).^2;
+                  subSesEvData.(cell2mat(fn)).(powparam) = subSesEvData.(cell2mat(fn)).(param).^2;
                 end
                 
+                % no zeros
                 subSesEvData.(cell2mat(fn)).(powparam)(subSesEvData.(cell2mat(fn)).(powparam) == 0) = eps(0);
                 % no longer need the fourierspctrm field
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),fourierparam);
+                % no longer need the modulus field
+                subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),param);
                 
                 param = powparam;
                 % TODO? tell FT that we have power?
                 % subSesEvData.(cell2mat(fn)) = ft_checkdata(subSesEvData.(cell2mat(fn)),'haspow','yes');
               elseif strcmp(cfg.output,'coh')
                 % inter-trial phase coherence
-                if strcmp(cfg.equatetrials,'yes')
-                  % get the subset of trials
-                  fprintf('Inter-trial coherence data: Equating trial counts across conditions (within a type). Randomly selecting %d (of %d) trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(fourierparam),1));
-                  subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam)(exper.randTrials{sub,ses,typ}(:,evVal),:,:,:);
-                end
+                
+                %if strcmp(cfg.equatetrials,'yes')
+                %  % get the subset of trials
+                %  fprintf('Inter-trial coherence data: Equating trial counts across conditions (within a type). Randomly selecting %d (of %d) trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(fourierparam),1));
+                %  subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam)(exper.randTrials{sub,ses,typ}(:,evVal),:,:,:);
+                %end
+                
                 subSesEvData.(cell2mat(fn)).(cohparam) = subSesEvData.(cell2mat(fn)).(fourierparam) ./ abs(subSesEvData.(cell2mat(fn)).(fourierparam));
                 subSesEvData.(cell2mat(fn)).(cohparam) = abs(squeeze(nanmean(subSesEvData.(cell2mat(fn)).(cohparam),1)));
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),fourierparam);
                 param = cohparam;
                 % change dimord
-                % TODO: can I automate this (e.g., with ft_checkdata)?
+                % TODO: can I automate this (e.g., with ft_checkdata)? or
+                % maybe ft_freqdescriptives (keeptrials='no')
                 subSesEvData.(cell2mat(fn)).dimord = 'chan_freq_time';
                 subSesEvData.(cell2mat(fn)) = rmfield(subSesEvData.(cell2mat(fn)),'trialinfo');
               elseif strcmp(cfg.output,'phase')
                 % single-trial phase
-                if strcmp(cfg.equatetrials,'yes')
-                  % get the subset of trials
-                  fprintf('Phase data: Equating trial counts across conditions (within a type). Randomly selecting %d (of %d) trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(fourierparam),1));
-                  subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam)(exper.randTrials{sub,ses,typ}(:,evVal),:,:,:);
-                end
+                
+                %if strcmp(cfg.equatetrials,'yes')
+                %  % get the subset of trials
+                %  fprintf('Phase data: Equating trial counts across conditions (within a type). Randomly selecting %d (of %d) trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(fourierparam),1));
+                %  subSesEvData.(cell2mat(fn)).(fourierparam) = subSesEvData.(cell2mat(fn)).(fourierparam)(exper.randTrials{sub,ses,typ}(:,evVal),:,:,:);
+                %end
                 
                 if isempty(cfg.phasefreq)
                   cfg.phasefreq = subSesEvData.(cell2mat(fn)).freq;
@@ -369,7 +451,7 @@ for sub = 1:length(exper.subjects)
                 
                 if ~isvector(cfg.phasefreq) || (size(cfg.phasefreq,1) == 1 && size(cfg.phasefreq,2) == 2)
                   meanfourier = nan(size(subSesEvData.(cell2mat(fn)).(fourierparam),1),length(cfg.phaseroi),size(cfg.phasefreq,1),size(subSesEvData.(cell2mat(fn)).(fourierparam),4));
-                elseif isvector(cfg.phasefreq) && size(cfg.phasefreq,2) == 1
+                elseif iscolumn(cfg.phasefreq)
                   meanfourier = nan(size(subSesEvData.(cell2mat(fn)).(fourierparam),1),length(cfg.phaseroi),length(cfg.phasefreq),size(subSesEvData.(cell2mat(fn)).(fourierparam),4));
                 end
                   
@@ -390,7 +472,7 @@ for sub = 1:length(exper.subjects)
                       freqsel = subSesEvData.(cell2mat(fn)).freq >= cfg.phasefreq(f,1) & subSesEvData.(cell2mat(fn)).freq <= cfg.phasefreq(f,2);
                       meanfourier(:,r,f,:) = nanmean(nanmean(subSesEvData.(cell2mat(fn)).(fourierparam)(:,chansel,freqsel,:),3),2);
                     end
-                  elseif isvector(cfg.phasefreq) && size(cfg.phasefreq,2) == 1
+                  elseif iscolumn(cfg.phasefreq)
                     meanfourier(:,r,:,:) = nanmean(subSesEvData.(cell2mat(fn)).(fourierparam)(:,chansel,:,:),2);
                   end
                 end
@@ -444,29 +526,33 @@ for sub = 1:length(exper.subjects)
                   end % f
                 end % r
                 
-              end
-            end
+              end % cfg.output
+            end % fftflg
             
             % normalize
             if ~isempty(cfg.normalize)
               fprintf('Doing a %s normalization.\n',cfg.normalize);
               if strcmp(cfg.normalize,'dB')
-                if strcmp(cfg.baselinetype,'relative') || strcmp(cfg.baselinetype,'relchange')
-                  fprintf('Dividing entire trial by mean([%.2f %.2f] pre-stimulus) (baseline correcting) before normalizing.\n',cfg.baseline(1),cfg.baseline(2));
-                  nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
-                  blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
-                  blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-                  if strcmp(cfg.baselinetype,'relative')
-                    subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param) ./ blm);
-                  elseif strcmp(cfg.baselinetype,'relchange')
-                    subSesEvData.(cell2mat(fn)).(param) = 10*log10((subSesEvData.(cell2mat(fn)).(param) - blm) ./ blm);
-                  end
-                elseif isempty(cfg.baselinetype)
+                if strcmp(cfg.baselinedata,'mod')
                   subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param));
-                else
-                  % TODO: check if this could occur
-                  fprintf('Fix this normalization!\n');
-                  keyboard
+                elseif strcmp(cfg.baselinedata,'pow')
+                  if strcmp(cfg.baselinetype,'relative') || strcmp(cfg.baselinetype,'relchange')
+                    fprintf('Dividing entire trial by mean([%.2f %.2f] pre-stimulus) (baseline correcting) before normalizing.\n',cfg.baseline(1),cfg.baseline(2));
+                    nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                    blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                    blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                    if strcmp(cfg.baselinetype,'relative')
+                      subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param) ./ blm);
+                    elseif strcmp(cfg.baselinetype,'relchange')
+                      subSesEvData.(cell2mat(fn)).(param) = 10*log10((subSesEvData.(cell2mat(fn)).(param) - blm) ./ blm);
+                    end
+                  elseif isempty(cfg.baselinetype)
+                    subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param));
+                  else
+                    % TODO: check if this could occur
+                    fprintf('Fix this normalization!\n');
+                    keyboard
+                  end
                 end
               elseif strcmp(cfg.normalize,'vector')
                 for tr = 1:size(subSesEvData.(cell2mat(fn)).(param),1)
@@ -502,62 +588,64 @@ for sub = 1:length(exper.subjects)
               subSesEvData.(cell2mat(fn)).(powparam) = subSesEvData.(cell2mat(fn)).(powparam) - evoked_data;
             end
             
-            % baseline
-            if ~isempty(cfg.baselinetype) && ~strcmp(cfg.normalize,'dB')
-              if strcmp(cfg.baselinetype,'zscore') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
-                fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
-                blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
-                
-                nTrl = size(subSesEvData.(cell2mat(fn)).(param),1);
-                %nFrq = size(subSesEvData.(cell2mat(fn)).(param),3);
-                nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
-                
-                blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-                blstd = repmat(nanmean(nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,1),4),[nTrl,1,1,nSmp]);
-                subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blstd;
-                
-              elseif (strcmp(cfg.baselinetype,'absolute') || strcmp(cfg.baselinetype,'relative') || strcmp(cfg.baselinetype,'relchange')) && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
-                blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
-                
-                nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
-                
-                blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-                
-                if strcmp(cfg.baselinetype,'absolute')
-                  fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
-                  subSesEvData.(cell2mat(fn)).(param) = subSesEvData.(cell2mat(fn)).(param) - blm;
-                elseif strcmp(cfg.baselinetype,'relative')
-                  error('relative baseline is not working');
-                  %fprintf('Dividing power by mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
-                  %subSesEvData.(cell2mat(fn)).(param) = subSesEvData.(cell2mat(fn)).(param) ./ blm;
-                elseif strcmp(cfg.baselinetype,'relchange')
-                  error('relchange baseline is not working');
-                  %fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by the mean.\n',cfg.baseline(1),cfg.baseline(2));
-                  %subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blm;
+            % baseline correct power
+            if strcmp(cfg.baselinedata,'pow')
+              if ~isempty(cfg.baselinetype) && ~strcmp(cfg.normalize,'dB')
+                if strcmp(cfg.baselinetype,'zscore') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
+                  fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
+                  blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                  
+                  nTrl = size(subSesEvData.(cell2mat(fn)).(param),1);
+                  %nFrq = size(subSesEvData.(cell2mat(fn)).(param),3);
+                  nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                  
+                  blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                  blstd = repmat(nanmean(nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,1),4),[nTrl,1,1,nSmp]);
+                  subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blstd;
+                  
+                elseif (strcmp(cfg.baselinetype,'absolute') || strcmp(cfg.baselinetype,'relative') || strcmp(cfg.baselinetype,'relchange')) && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(cell2mat(fn)).(param)) == 4
+                  blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                  
+                  nSmp = size(subSesEvData.(cell2mat(fn)).(param),4);
+                  
+                  blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+                  
+                  if strcmp(cfg.baselinetype,'absolute')
+                    fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                    subSesEvData.(cell2mat(fn)).(param) = subSesEvData.(cell2mat(fn)).(param) - blm;
+                  elseif strcmp(cfg.baselinetype,'relative')
+                    error('relative baseline is not working');
+                    %fprintf('Dividing power by mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline(1),cfg.baseline(2));
+                    %subSesEvData.(cell2mat(fn)).(param) = subSesEvData.(cell2mat(fn)).(param) ./ blm;
+                  elseif strcmp(cfg.baselinetype,'relchange')
+                    error('relchange baseline is not working');
+                    %fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by the mean.\n',cfg.baseline(1),cfg.baseline(2));
+                    %subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm) ./ blm;
+                  end
+                  
+                elseif strcmp(cfg.baselinetype,'absolute') && strcmp(cfg.output,'coh') && ndims(subSesEvData.(cell2mat(fn)).(param)) == 3
+                  fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) coherence from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
+                  blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
+                  
+                  nSmp = size(subSesEvData.(cell2mat(fn)).(param),3);
+                  
+                  blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,blt),3),[1,1,nSmp]);
+                  subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
                 end
-                
-              elseif strcmp(cfg.baselinetype,'absolute') && strcmp(cfg.output,'coh') && ndims(subSesEvData.(cell2mat(fn)).(param)) == 3
-                fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) coherence from entire trial.\n',cfg.baseline(1),cfg.baseline(2));
-                blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline(2);
-                
-                nSmp = size(subSesEvData.(cell2mat(fn)).(param),3);
-                
-                blm = repmat(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,blt),3),[1,1,nSmp]);
-                subSesEvData.(cell2mat(fn)).(param) = (subSesEvData.(cell2mat(fn)).(param) - blm);
               end
             end
             
-%             % debug
-%             chan = 62;
-%             figure;surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
-%             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
-%             if strcmp(cfg.normalize,'dB')
-%               clim = [-5 5];
-%             else
-%               clim = [-1 1];
-%             end
-%             figure;imagesc(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)),clim);axis xy;colorbar
-%             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
+            % debug
+            chan = 62;
+            figure;surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
+            title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
+            %clim = [-1 1];
+            clim = [-3 3];
+            if strcmp(cfg.normalize,'dB')
+              clim = clim .* 10;
+            end
+            figure;imagesc(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)),clim);axis xy;colorbar
+            title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
             
             % save the data in a container struct
             fprintf('%s %s %s: ',exper.subjects{sub},sesStr,ana.eventValues{typ}{evVal});
@@ -580,16 +668,20 @@ for sub = 1:length(exper.subjects)
                 fprintf('Keeping individual trials.');
               end
               
-              if strcmp(cfg.equatetrials,'yes')
-                fprintf(' Equating trial counts across all conditions (within a type).\n');
-                fprintf('Randomly selecting %d of %d trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(powparam),1));
-                % get the subset of trials
-                cfg_fd.trials = exper.randTrials{sub,ses,typ}(:,evVal);
-              elseif strcmp(cfg.equatetrials,'no')
-                fprintf(' Using all trials.\n');
-                % use all of the trials
-                cfg_fd.trials = 'all';
-              end
+%               if strcmp(cfg.equatetrials,'yes')
+%                 fprintf(' Equating trial counts across all conditions (within a type).\n');
+%                 fprintf('Randomly selecting %d of %d trials.\n',length(exper.randTrials{sub,ses,typ}(:,evVal)),size(subSesEvData.(cell2mat(fn)).(powparam),1));
+%                 % get the subset of trials
+%                 cfg_fd.trials = exper.randTrials{sub,ses,typ}(:,evVal);
+%               elseif strcmp(cfg.equatetrials,'no')
+%                 fprintf(' Using all trials.\n');
+%                 % use all of the trials
+%                 cfg_fd.trials = 'all';
+%               end
+              
+              % TODO: do I need to update something in the FT structure now
+              % that I get the subset of trials at the start?
+              cfg_fd.trials = 'all';
               
                 % use ft_freqdescriptives to average over individual
                 % trials, if desired and the data is appropriate

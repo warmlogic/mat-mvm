@@ -218,7 +218,7 @@ adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 files.figFontName = 'Helvetica';
 %files.figPrintFormat = 'epsc2';
@@ -274,7 +274,9 @@ end
 
 %% get rid of the bad channels
 
-[data_tla] = mm_rmBadChan(exper,ana,data_tla);
+cfg = [];
+cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+[data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 

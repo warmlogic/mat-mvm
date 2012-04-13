@@ -343,7 +343,7 @@ if runLocally == 0
   job = newJob(dirs);
   
   adFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
-  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
   
   % save the original subjects array so we can set exper to have single
   % subjects, one for each task created

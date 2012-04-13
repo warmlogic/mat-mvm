@@ -297,7 +297,7 @@ end
 
 adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NT_TH_eq1/conn_scd_mtmconvol_hanning_fourier_-500_980_3_9/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,0);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,{'/data/projects/curranlab','/Volumes/curranlab/Data/TNT'});
 
 %% set up channel groups

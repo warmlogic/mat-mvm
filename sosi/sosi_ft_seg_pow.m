@@ -248,7 +248,7 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
 cfg_proc.foi = 4:1:100;
-%cfg_proc.foi = 4:1:60;
+%cfg_proc.foi = 4:1:30;
 %cfg_proc.foilim = [3 9];
 
 % log-spaced freqs
@@ -317,7 +317,7 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_
 % % multitaper
 % adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 %% set up channel groups
 
@@ -364,18 +364,29 @@ cfg.output = 'pow'; % 'pow', 'coh', 'phase'
 cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
 %cfg.normalize = 'dB'; % 'log10', 'log', 'vector', 'dB'
 %cfg.normalize = 'vector'; % 'log10', 'log', 'vector', 'dB'
-%cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
-cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
-cfg.baseline = [-0.4 -0.2];
 
-cfg.saveFile = true;
-%cfg.saveFile = false;
+% % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+%cfg.baselinetype = 'zscore';
+cfg.baselinetype = 'absolute';
+%cfg.baselinetype = 'relchange';
+%cfg.baselinetype = 'relative';
+cfg.baseline = [-0.4 -0.2];
+%cfg.baseline = [-0.2 0];
+%cfg.baselinedata = 'mod';
+cfg.baselinedata = 'pow';
+
+
+%cfg.saveFile = true;
+cfg.saveFile = false;
 
 cfg.rmevoked = 'yes';
 cfg.rmevokedfourier = 'yes';
 cfg.rmevokedpow = 'no';
 if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
   load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+  
+  % local testing
+  %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
 end
 
 if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')

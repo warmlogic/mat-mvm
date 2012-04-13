@@ -205,7 +205,7 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,1);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 % files.figFontName = 'Helvetica';
 % %files.figPrintFormat = 'epsc2';
@@ -256,7 +256,9 @@ end
 
 %% get rid of the bad channels
 
-[data_tla] = mm_rmBadChan(exper,ana,data_tla);
+cfg = [];
+cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+[data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 
@@ -384,7 +386,7 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-%% time-frequency
+%% evoked time-frequency
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -405,8 +407,8 @@ cfg_ft.toi = -0.5:0.04:1.0;
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % cfg_ft.foi = 3:freqstep:9;
 % cfg_ft.foi = 3:freqstep:60;
+cfg_ft.foi = 4:1:30;
 %cfg_ft.foi = 4:1:100;
-cfg_ft.foi = 4:1:100;
 
 baseline = [-0.4 -0.2];
 
@@ -419,28 +421,28 @@ for sub = 1:length(exper.subjects)
         if isfield(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'avg')
           data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
           
-          time = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
-          
-          % power
-          param = 'powspctrm';
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2;
-          blt = time >= baseline(1) & time <= baseline(2);
-          nSmp = size(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
-          blm = repmat(nanmean(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-          
-          % % divide by the baseline (relative), then log transform
-          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
-          % % subtract and divide by the baseline (relative change), then log transform
-          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10((data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm) ./ blm);
-          % do a log transform, then an absolute change subtraction
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - log10(blm);
-          
-          % get rid of any zeros
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) == 0) = eps(0);
-          
-          % phase
-          param = 'phasespctrm';
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = angle(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm);
+%           time = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
+%           
+%           % power
+%           param = 'powspctrm';
+%           data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2;
+%           blt = time >= baseline(1) & time <= baseline(2);
+%           nSmp = size(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
+%           blm = repmat(nanmean(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
+%           
+%           % % divide by the baseline (relative), then log transform
+%           % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
+%           % % subtract and divide by the baseline (relative change), then log transform
+%           % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10((data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm) ./ blm);
+%           % do a log transform, then an absolute change subtraction
+%           data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - log10(blm);
+%           
+%           % get rid of any zeros
+%           data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) == 0) = eps(0);
+%           
+%           % phase
+%           param = 'phasespctrm';
+%           data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = angle(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm);
         else
           warning([mfilename,':erp2freq'],'NO DATA for %s! Monving on!\n',ana.eventValues{typ}{evVal});
           data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data;
@@ -452,12 +454,12 @@ end
 
 %% save it
 
-data_evoked.SC = data_evoked.RHSC;
-data_evoked = rmfield(data_evoked,'RHSC');
-data_evoked.SI = data_evoked.RHSI;
-data_evoked = rmfield(data_evoked,'RHSI');
-data_evoked.CR = data_evoked.RCR;
-data_evoked = rmfield(data_evoked,'RCR');
+% data_evoked.SC = data_evoked.RHSC;
+% data_evoked = rmfield(data_evoked,'RHSC');
+% data_evoked.SI = data_evoked.RHSI;
+% data_evoked = rmfield(data_evoked,'RHSI');
+% data_evoked.CR = data_evoked.RCR;
+% data_evoked = rmfield(data_evoked,'RCR');
 
 save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
 
@@ -566,12 +568,12 @@ cfg_plot.excludeBadSub = 1;
 % conditions
 
 % cfg_plot.condByROI = {...
-%   {{'RCR','RH','RHSC','RHSI'}},...
-%   {{'RCR','RHSC','RHSI'}}};
+%   {{'CR','RH','SC','SI'}},...
+%   {{'CR','SC','SI'}}};
 
 %cfg_plot.condByROI = {'all','all'};
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-%cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'SC','SI','CR'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -605,8 +607,8 @@ cfg_plot.parameter = 'avg';
 % conditions
 
 % cfg_plot.condByROI = {...
-%   {'RCR','RH','RHSC','RHSI'},...
-%   {'RCR','RHSC','RHSI'}};
+%   {'CR','RH','SC','SI'},...
+%   {'CR','SC','SI'}};
 %cfg_plot.condByROI = {'all','all'};
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
@@ -643,15 +645,15 @@ end
 % % conditions
 % 
 % % cfg_plot.condByROI = {...
-% %   {{'RCR','RH','RHSC','RHSI'}},...
-% %   {{'RCR','RH','RHSC','RHSI'}},...
-% %   {{'RCR','RH','RHSC','RHSI'}},...
-% %   {{'RCR','RHSC','RHSI'}},...
-% %   {{'RCR','RHSC','RHSI'}},...
-% %   {{'RCR','RHSC','RHSI'}}};
+% %   {{'CR','RH','SC','SI'}},...
+% %   {{'CR','RH','SC','SI'}},...
+% %   {{'CR','RH','SC','SI'}},...
+% %   {{'CR','SC','SI'}},...
+% %   {{'CR','SC','SI'}},...
+% %   {{'CR','SC','SI'}}};
 % 
 % %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'SC','SI','CR'}},size(cfg_plot.rois));
 % 
 % for r = 1:length(cfg_plot.rois)
 %   cfg_plot.roi = cfg_plot.rois{r};
@@ -765,9 +767,9 @@ cfg_ft.colorbar = 'no';
 
 % comparisons to make
 %cfg_plot.conditions = {'all'};
-%cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
-cfg_plot.conditions = {{'RHSC','RCR'},{'RHSC','RHSI'},{'RHSI','RCR'}};
-%cfg_plot.conditions = {{'RHSC','RCR'}}; % {'RH','RCR'},
+%cfg_plot.conditions = {{'RH','CR'},{'SC','CR'},{'SC','SI'},{'SI','CR'}};
+cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
+%cfg_plot.conditions = {{'SC','CR'}}; % {'RH','CR'},
 %cfg_plot.conditions = {{'FSC','RSSI'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
@@ -827,14 +829,14 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 % cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
 % cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
-%cfg_ana.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
+%cfg_ana.conditions = {{'RH','CR'},{'SC','CR'},{'SI','CR'},{'SC','SI'}};
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
 cfg_ana.conditions = {'all'};
-%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-%cfg_ana.conditions = {{'RH','RCR'}}; % {'RH','RCR'},
+%cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
+%cfg_ana.conditions = {{'RH','CR'}}; % {'RH','CR'},
 
 % % late right frontal old/new
-% cfg_ana.conditions = {{'RHSC','RCR'}};
+% cfg_ana.conditions = {{'SC','CR'}};
 % cfg_ana.rois = {{'RAS'}};
 % cfg_ana.latencies = [1.2 1.4];
 
@@ -851,9 +853,9 @@ cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 1;
 % cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; 2.5 5.5];
-%cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
-cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
-cfg_plot.rename_conditions = {'Hits-SC','Hits-SI','CR'};
+%cfg_plot.plot_order = {'CR','RH','SC','SI'};
+cfg_plot.plot_order = {'SC','SI','CR'};
+%cfg_plot.rename_conditions = {'SC','SI','CR'};
 cfg_plot.xlabel = 'Condition';
 cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
@@ -883,15 +885,15 @@ cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % IV2: define the conditions tested for each set of ROIs
-%cfg_ana.condByROI = {{'RCR','RH'},{'RCR','RHSC','RHSI'}};
-cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
+%cfg_ana.condByROI = {{'CR','RH'},{'CR','SC','SI'}};
+cfg_ana.condByROI = {{'CR','SC','SI'},{'CR','SC','SI'}};
 %cfg_ana.condByROI = {exper.eventValues,exper.eventValues};
 
 % for the one-way ANOVAs
 cfg_ana.condCommonByROI = {...
   %{'CR','H'},...
-  {'CR','HSC','HSI'},...
-  {'CR','HSC','HSI'}};
+  {'CR','SC','SI'},...
+  {'CR','SC','SI'}};
 % cfg_ana.condCommonByROI = {...
 %   exper.eventValues,...
 %   exper.eventValues};
@@ -922,7 +924,7 @@ cfg_ana.roi = 'all';
 cfg_ana.latencies = [0 1.0; 1.0 2.0];
 
 cfg_ana.conditions = {'all'};
-%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+%cfg_ana.conditions = {{'CR','RH'},{'CR','SC'},{'CR','SI'},{'SC','SI'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -974,8 +976,8 @@ cfg_ana.dpTypesByROI = {...
 % for each event type; each event type cell holds two cells, one for each
 % d' type; each d' cell contains strings for its conditions
 cfg_ana.condByROI = {...
-  {{{'RCR','RH'},{'RHSC','RHSI'}}}...
-  {{{'RCR','RH'},{'RHSC','RHSI'}}}...
+  {{{'CR','RH'},{'SC','SI'}}}...
+  {{{'CR','RH'},{'SC','SI'}}}...
   };
 
 % C2 d' values
@@ -1017,11 +1019,11 @@ cfg_ft.commentpos = 'title';
 
 % create contrast
 cont_topo = [];
-cont_topo.RHvsRCR = ga_tla.RH;
-cont_topo.RHvsRCR.avg = ga_tla.RH.avg - ga_tla.RCR.avg;
-cont_topo.RHvsRCR.individual = ga_tla.RH.individual - ga_tla.RCR.individual;
+cont_topo.RHvsCR = ga_tla.RH;
+cont_topo.RHvsCR.avg = ga_tla.RH.avg - ga_tla.CR.avg;
+cont_topo.RHvsCR.individual = ga_tla.RH.individual - ga_tla.CR.individual;
 if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHvsRCR.posclusterslabelmat==1;
+  pos = stat_clus.RHvsCR.posclusterslabelmat==1;
 end
 % make a plot
 figure
@@ -1033,16 +1035,16 @@ for k = 1:length(cfg_ana.timeS)-1
     pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
     cfg_ft.highlightchannel = find(pos_int==1);
   end
-  ft_topoplotER(cfg_ft,cont_topo.RHvsRCR);
+  ft_topoplotER(cfg_ft,cont_topo.RHvsCR);
 end
 set(gcf,'Name','H - CR')
 
 % create contrast
-cont_topo.RHSCvsRHSI = ga_tla.RHSC;
-cont_topo.RHSCvsRHSI.avg = ga_tla.RHSC.avg - ga_tla.RHSI.avg;
-cont_topo.RHSCvsRHSI.individual = ga_tla.RHSC.individual - ga_tla.RHSI.individual;
+cont_topo.SCvsSI = ga_tla.SC;
+cont_topo.SCvsSI.avg = ga_tla.SC.avg - ga_tla.SI.avg;
+cont_topo.SCvsSI.individual = ga_tla.SC.individual - ga_tla.SI.individual;
 if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHSCvsRHSI.posclusterslabelmat==1;
+  pos = stat_clus.SCvsSI.posclusterslabelmat==1;
 end
 % make a plot
 figure
@@ -1054,16 +1056,16 @@ for k = 1:length(cfg_ana.timeS)-1
     pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
     cfg_ft.highlightchannel = find(pos_int==1);
   end
-  ft_topoplotER(cfg_ft,cont_topo.RHSCvsRHSI);
+  ft_topoplotER(cfg_ft,cont_topo.SCvsSI);
 end
-set(gcf,'Name','HSC - HSI')
+set(gcf,'Name','SC - SI')
 
 % create contrast
-cont_topo.RHSCvsRCR = ga_tla.RHSC;
-cont_topo.RHSCvsRCR.avg = ga_tla.RHSC.avg - ga_tla.RCR.avg;
-cont_topo.RHSCvsRCR.individual = ga_tla.RHSC.individual - ga_tla.RCR.individual;
+cont_topo.SCvsCR = ga_tla.SC;
+cont_topo.SCvsCR.avg = ga_tla.SC.avg - ga_tla.CR.avg;
+cont_topo.SCvsCR.individual = ga_tla.SC.individual - ga_tla.CR.individual;
 if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHSCvsRCR.posclusterslabelmat==1;
+  pos = stat_clus.SCvsCR.posclusterslabelmat==1;
 end
 % make a plot
 figure
@@ -1075,23 +1077,23 @@ for k = 1:length(cfg_ana.timeS)-1
     pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
     cfg_ft.highlightchannel = find(pos_int==1);
   end
-  ft_topoplotER(cfg_ft,cont_topo.RHSCvsRCR);
+  ft_topoplotER(cfg_ft,cont_topo.SCvsCR);
 end
-set(gcf,'Name','HSC - CR')
+set(gcf,'Name','SC - CR')
 
 % % mecklinger plot
 % cfg_ft.xlim = [1200 1800];
 % cfg_ft.zlim = [-2 2];
 % cfg_ft.colorbar = 'yes';
 % figure
-% ft_topoplotER(cfg_ft,cont_topo.RHSCvsRCR);
+% ft_topoplotER(cfg_ft,cont_topo.SCvsCR);
 
 % create contrast
-cont_topo.RHSIvsRCR = ga_tla.RHSI;
-cont_topo.RHSIvsRCR.avg = ga_tla.RHSI.avg - ga_tla.RCR.avg;
-cont_topo.RHSIvsRCR.individual = ga_tla.RHSI.individual - ga_tla.RCR.individual;
+cont_topo.SIvsCR = ga_tla.SI;
+cont_topo.SIvsCR.avg = ga_tla.SI.avg - ga_tla.CR.avg;
+cont_topo.SIvsCR.individual = ga_tla.SI.individual - ga_tla.CR.individual;
 if cfg_ana.include_clus_stat == 1
-  pos = stat_clus.RHSIvsRCR.posclusterslabelmat==1;
+  pos = stat_clus.SIvsCR.posclusterslabelmat==1;
 end
 % make a plot
 figure
@@ -1103,26 +1105,26 @@ for k = 1:length(cfg_ana.timeS)-1
     pos_int = mean(pos(:,cfg_ana.timeSamp(k):cfg_ana.timeSamp(k+1)),2);
     cfg_ft.highlightchannel = find(pos_int==1);
   end
-  ft_topoplotER(cfg_ft,cont_topo.RHSIvsRCR);
+  ft_topoplotER(cfg_ft,cont_topo.SIvsCR);
 end
-set(gcf,'Name','HSI - CR')
+set(gcf,'Name','SI - CR')
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % % because of a bug (might be fixed now)
-% if ~isfield(stat_clus.RHSCvsRHSIvsRCR,'negclusters') && isfield(stat_clus.RHSCvsRHSIvsRCR,'posclusters')
+% if ~isfield(stat_clus.SCvsSIvsCR,'negclusters') && isfield(stat_clus.SCvsSIvsCR,'posclusters')
 %   fprintf('No neg clusters found\n');
-%   stat_clus.RHSCvsRHSIvsRCR.negclusters.prob = .5;
-%   stat_clus.RHSCvsRHSIvsRCR.negclusters.clusterstat = 0;
-%   stat_clus.RHSCvsRHSIvsRCR.negclusterslabelmat = zeros(size(stat_clus.RHSCvsRHSIvsRCR.posclusterslabelmat));
-%   stat_clus.RHSCvsRHSIvsRCR.negdistribution = zeros(size(stat_clus.RHSCvsRHSIvsRCR.posdistribution));
+%   stat_clus.SCvsSIvsCR.negclusters.prob = .5;
+%   stat_clus.SCvsSIvsCR.negclusters.clusterstat = 0;
+%   stat_clus.SCvsSIvsCR.negclusterslabelmat = zeros(size(stat_clus.SCvsSIvsCR.posclusterslabelmat));
+%   stat_clus.SCvsSIvsCR.negdistribution = zeros(size(stat_clus.SCvsSIvsCR.posdistribution));
 % end
-% if ~isfield(stat_clus.RHSCvsRHSIvsRCR,'posclusters') && isfield(stat_clus.RHSCvsRHSIvsRCR,'negclusters')
+% if ~isfield(stat_clus.SCvsSIvsCR,'posclusters') && isfield(stat_clus.SCvsSIvsCR,'negclusters')
 %   fprintf('No pos clusters found\n');
-%   stat_clus.RHSCvsRHSIvsRCR.posclusters.prob = 1;
-%   stat_clus.RHSCvsRHSIvsRCR.posclusters.clusterstat = 0;
-%   stat_clus.RHSCvsRHSIvsRCR.posclusterslabelmat = zeros(size(stat_clus.RHSCvsRHSIvsRCR.negclusterslabelmat));
-%   stat_clus.RHSCvsRHSIvsRCR.posdistribution = zeros(size(stat_clus.RHSCvsRHSIvsRCR.negdistribution));
+%   stat_clus.SCvsSIvsCR.posclusters.prob = 1;
+%   stat_clus.SCvsSIvsCR.posclusters.clusterstat = 0;
+%   stat_clus.SCvsSIvsCR.posclusterslabelmat = zeros(size(stat_clus.SCvsSIvsCR.negclusterslabelmat));
+%   stat_clus.SCvsSIvsCR.posdistribution = zeros(size(stat_clus.SCvsSIvsCR.negdistribution));
 % end
 %
 % cfg_ft = [];
@@ -1134,4 +1136,4 @@ set(gcf,'Name','HSI - CR')
 % cfg_ft.alpha  = 0.05;
 % cfg_ft.parameter = 'stat';
 % cfg_ft.zlim = [-5 5];
-% ft_clusterplot(cfg_ft,stat_clus.RHSCvsRHSIvsRCR);
+% ft_clusterplot(cfg_ft,stat_clus.SCvsSIvsCR);

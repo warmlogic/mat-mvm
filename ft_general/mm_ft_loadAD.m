@@ -7,7 +7,7 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(filename,replace_
 %
 % filename         = full path to analysisDetails.mat
 % replace_dataroot = replace the dataroot stored in analysisDetails.mat
-%                    with the one applicable now. 1 or 0 (default = 0).
+%                    with the one applicable now. true or false (default = false).
 %                    OR
 %                    {'old_dataroot','new_dataroot'}
 %                    If using the cell option, dataroot should include
@@ -16,27 +16,24 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(filename,replace_
 % 
 
 if nargin < 2
-  replace_dataroot = 0;
+  replace_dataroot = false;
+end
+
+if ~islogical(replace_dataroot) && ~iscell(replace_dataroot)
+  error('replace_dataroot must either be logical (true or false) or a cell containing {''old_dataroot'',''new_dataroot''}');
 end
 
 % make sure replace_dataroot is in the right format
-if isnumeric(replace_dataroot)
-  if replace_dataroot ~= 1 && replace_dataroot ~= 0
-    error('replace_dataroot must either be logical (1 or 0) or a cell containing {''old_dataroot'',''new_dataroot''}');
-  elseif replace_dataroot == 1
-    do_the_replace = 1;
-  elseif replace_dataroot == 0
-    do_the_replace = 0;
+do_the_replace = false;
+if islogical(replace_dataroot)
+  if replace_dataroot
+    do_the_replace = true;
   end
-elseif ~isnumeric(replace_dataroot)
-  if ~iscell(replace_dataroot)
-    error('replace_dataroot must either be logical (1 or 0) or a cell containing {''old_dataroot'',''new_dataroot''}');
-  elseif iscell(replace_dataroot)
-    if length(replace_dataroot) ~= 2
-      error('replace_dataroot must either be logical (1 or 0) or a cell containing {''old_dataroot'',''new_dataroot''}');
-    elseif length(replace_dataroot) == 2
-      do_the_replace = 1;
-    end
+elseif ~islogical(replace_dataroot)
+  if length(replace_dataroot) ~= 2
+    error('replace_dataroot must either be logical (true or false) or a cell containing {''old_dataroot'',''new_dataroot''}');
+  elseif length(replace_dataroot) == 2
+    do_the_replace = true;
   end
 end
 
@@ -70,7 +67,7 @@ end
 
 %% process the dataroot string
 
-if isnumeric(replace_dataroot) && replace_dataroot == 1
+if islogical(replace_dataroot) && replace_dataroot
   % get the old dataroot from the data we loaded in
   old_dataroot = dirs.dataroot;
   
@@ -95,7 +92,7 @@ if isnumeric(replace_dataroot) && replace_dataroot == 1
   
   if strcmp(dirs.dataroot,new_dataroot)
     fprintf('Saved dirs.dataroot and dataroot for this location are the same (%s), nothing will be changed.\n',dirs.dataroot);
-    do_the_replace = 0;
+    do_the_replace = false;
   end
 elseif iscell(replace_dataroot)
   old_dataroot = replace_dataroot{1};
@@ -133,7 +130,7 @@ if do_the_replace
   fprintf('Done.\n');
   
   if ~exist(dirs.dataroot,'dir')
-    warning([mfilename,':newDatarootDoesNotExist'],'The new dataroot does not exist on this system. This may be OK if you are setting up files for another system.');
+    warning([mfilename,':newDatarootDoesNotExist'],'The new dataroot does not exist on this system. This may be OK, e.g. if you are setting up files for another system.');
   end
 end
 
