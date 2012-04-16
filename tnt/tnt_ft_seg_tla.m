@@ -47,20 +47,23 @@ exper.eventValues = sort({'B1of2','B2of2','NT1of2For','NT1of2Rec','NT2of2For','N
 
 % combine some events into higher-level categories
 exper.eventValuesExtra.toCombine = {...
-  {'B1of2','B2of2'},...
-  {'NT1of2For','NT2of2For','NT1of2Rec','NT2of2Rec'},...
-  {'T1of2For','T2of2For','T1of2Rec','T2of2Rec'}...
-%   {'NT1of2For','NT1of2Rec'},{'NT2of2For','NT2of2Rec'}...
-%   {'T1of2For','T1of2Rec'},{'T2of2For','T2of2Rec'}...
+%   {'B1of2','B2of2'}...
+%   {'NT1of2For','NT2of2For','NT1of2Rec','NT2of2Rec'},...
+%   {'T1of2For','T2of2For','T1of2Rec','T2of2Rec'}...
+  {'B1of2'},{'B2of2'}...
+  {'NT1of2For','NT1of2Rec'},{'NT2of2For','NT2of2Rec'}...
+  {'T1of2For','T1of2Rec'},{'T2of2For','T2of2Rec'}...
 %   {'NT1of2For','NT2of2For'},{'NT1of2Rec','NT2of2Rec'}...
 %   {'T1of2For','T2of2For'},{'T1of2Rec','T2of2Rec'}...
   };
+
 exper.eventValuesExtra.newValue = {...
-  {'B'},...
-  {'NT'},...
-  {'TH'}...
-%   {'NT1'},{'NT2'}...
-%   {'TH1'},{'TH2'}...
+%   {'B'}...
+%   {'NT'}...
+%   {'TH'}...
+  {'B1'},{'B2'}...
+  {'NT1'},{'NT2'}...
+  {'T1'},{'T2'}...
 %   {'NTF'},{'NTR'}...
 %   {'THF'},{'THR'}...
   };
@@ -158,14 +161,15 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figPrintFormat = 'png';
-%files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'png';
+files.figPrintFormat = 'epsc2';
 
 %% Convert the data to FieldTrip structs
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_timelockanalysis';
-ana.artifact.type = {'nsAuto','ftManual'};
+%ana.artifact.type = {'nsAuto','ftManual'};
+ana.artifact.type = {'nsAuto'};
 
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
@@ -173,17 +177,22 @@ ana.ftype = 'tla';
 % any preprocessing?
 cfg_pp = [];
 % single precision to save space
-cfg_pp.precision = 'single';
+%cfg_pp.precision = 'single';
+
+% % do a baseline correction
+% cfg_pp.demean = 'yes';
+% cfg_pp.baselinewindow = [-0.2 0];
 
 cfg_proc = [];
 % do we want to keep the individual trials?
 cfg_proc.keeptrials = 'no';
 
 % set the save directories; final argument is prefix of save directory
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,ana.ftype);
+[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,cfg_proc,exper,dirs,files);
+[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
@@ -218,7 +227,15 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/NT_TH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/analysisDetails.mat';
+% power
+%adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/NT_TH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/analysisDetails.mat';
+
+% ERP: T/NT x 1/2 x R/F
+%adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1of2_B2of2_NT1of2For_NT1of2Rec_NT2of2For_NT2of2Rec_T1of2For_T1of2Rec_T2of2For_T2of2Rec_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+
+% ERP: T/NT/B x 1/2
+adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1_B2_NT1_NT2_T1_T2_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 %% set up channel groups
@@ -319,6 +336,8 @@ cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_tla';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
+ga_tla = struct;
+
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sessions)
@@ -348,12 +367,12 @@ cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = {...
 %   {{'TH','NT','B'}},...
 %   {{'TH','NT','B'}}};
 
-%cfg_plot.condByROI = {'all','all'};
+cfg_plot.condByROI = {'all','all'};
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -496,6 +515,92 @@ for r = 1:length(cfg_ana.rois)
   cfg_plot.ylim = cfg_plot.ylims(r,:);
   
   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
+end
+
+%% 3-way ANOVA: T/NT vs 1/2 vs R/F
+
+cfg_ana = [];
+cfg_ana.alpha = 0.05;
+cfg_ana.showtable = 1;
+cfg_ana.printTable_tex = 0;
+
+% define which regions to average across for the test
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+
+% define the times that correspond to each set of ROIs
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+% % IV2: define the conditions tested for each set of ROIs
+% %cfg_ana.condByROI = {{'RH','RCR'},{'RCR','RHSC','RHSI'}};
+% cfg_ana.condByROI = {{'TH','NT','B'},{'TH','NT','B'}};
+
+cfg_ana.condByROI = {...
+  {'NT1of2For', 'NT1of2Rec', 'NT2of2For', 'NT2of2Rec', 'T1of2For', 'T1of2Rec', 'T2of2For', 'T2of2Rec'},...
+  {'NT1of2For', 'NT1of2Rec', 'NT2of2For', 'NT2of2Rec', 'T1of2For', 'T1of2Rec', 'T2of2For', 'T2of2Rec'}};
+
+% Define the IVs (type: event, roi, latency)
+cfg_ana.IV1.name = 'T/NT';
+cfg_ana.IV1.cond = {'T','NT'};
+cfg_ana.IV1.type = 'event';
+
+cfg_ana.IV2.name = 'ExperHalf';
+cfg_ana.IV2.cond = {'1of2','2of2'};
+cfg_ana.IV2.type = 'event';
+
+cfg_ana.IV3.name = 'MemoryAcc';
+cfg_ana.IV3.cond = {'Rec','For'};
+cfg_ana.IV3.type = 'event';
+
+cfg_ana.parameter = 'avg';
+
+for r = 1:length(cfg_ana.rois)
+  cfg_ana.roi = cfg_ana.rois{r};
+  cfg_ana.conditions = cfg_ana.condByROI{r};
+  cfg_ana.latency = cfg_ana.latencies(r,:);
+  
+  mm_ft_rmaov33ER_cond(cfg_ana,exper,ana,data_tla);
+end
+
+%% 2-way ANOVA: Condition x Half
+
+cfg_ana = [];
+cfg_ana.alpha = 0.05;
+cfg_ana.showtable = 1;
+cfg_ana.printTable_tex = 0;
+
+% define which regions to average across for the test
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+
+% define the times that correspond to each set of ROIs
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+% % IV2: define the conditions tested for each set of ROIs
+% %cfg_ana.condByROI = {{'RH','RCR'},{'RCR','RHSC','RHSI'}};
+% cfg_ana.condByROI = {{'TH','NT','B'},{'TH','NT','B'}};
+
+cfg_ana.condByROI = {...
+%   {'NT1of2', 'NT2of2', 'T1of2', 'T2of2', 'B1of2', 'B2of2'},...
+%   {'NT1of2', 'NT2of2', 'T1of2', 'T2of2', 'B1of2', 'B2of2'}};
+  {'NT1', 'NT2', 'T1', 'T2', 'B1', 'B2'},...
+  {'NT1', 'NT2', 'T1', 'T2', 'B1', 'B2'}};
+
+% Define the IVs (type: event, roi, latency)
+cfg_ana.IV1.name = 'T/NT/B';
+cfg_ana.IV1.cond = {'T','NT','B'};
+cfg_ana.IV1.type = 'event';
+
+cfg_ana.IV2.name = 'ExperHalf';
+cfg_ana.IV2.cond = {'1','2'};
+cfg_ana.IV2.type = 'event';
+
+cfg_ana.parameter = 'avg';
+
+for r = 1:length(cfg_ana.rois)
+  cfg_ana.roi = cfg_ana.rois{r};
+  cfg_ana.conditions = cfg_ana.condByROI{r};
+  cfg_ana.latency = cfg_ana.latencies(r,:);
+  
+  mm_ft_rmaov2ER_cond(cfg_ana,exper,ana,data_tla);
 end
 
 %% 2-way ANOVA: Hemisphere x Condition
