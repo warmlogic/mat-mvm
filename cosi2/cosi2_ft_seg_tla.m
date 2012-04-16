@@ -44,27 +44,25 @@ exper.eventValues = sort({...
 %exper.eventValuesExtra.newValue = {{'RCR'},{'RH'},{'RHSC'},{'RHSI'}};
 %exper.eventValuesExtra.toCombine = {{'CF','SF'},{'CN','SN'},{'CRO','SRO'},{'CRS','SRS'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
-
-
 %exper.eventValuesExtra.toCombine = {{'CNS','CNM'},{'SNS','SNM'}};
 %exper.eventValuesExtra.newValue = {{'CN'},{'SN'}};
 
-% exper.eventValuesExtra.toCombine = {...
-%   {'CFSC','CFSI'},{'CNS','CNM'},{'CROSC','CROSI'},{'CRSSC','CRSSI'},...
-%   {'SFSC','SFSI'},{'SNS','SNM'},{'SROSC','SROSI'},{'SRSSC','SRSSI'}};
-% exper.eventValuesExtra.newValue = {...
-%   {'CF'},{'CN'},{'CRO'},{'CRS'},...
-%   {'FF'},{'FN'},{'FRO'},{'FRS'}};
-
 exper.eventValuesExtra.toCombine = {...
-  {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
-  {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
+  {'CFSC','CFSI'},{'CNS','CNM'},{'CROSC','CROSI'},{'CRSSC','CRSSI'},...
+  {'SFSC','SFSI'},{'SNS','SNM'},{'SROSC','SROSI'},{'SRSSC','SRSSI'}};
 exper.eventValuesExtra.newValue = {...
-  {'CCR'},{'CSC'},{'CSI'},...
-  {'SCR'},{'SSC'},{'SSI'}};
+  {'CF'},{'CN'},{'CRO'},{'CRS'},...
+  {'SF'},{'SN'},{'SRO'},{'SRS'}};
+
+% exper.eventValuesExtra.toCombine = {...
+%   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
+%   {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
+% exper.eventValuesExtra.newValue = {...
+%   {'CCR'},{'CSC'},{'CSI'},...
+%   {'SCR'},{'SSC'},{'SSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
+exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -247,6 +245,11 @@ end
 
 % eppp
 %adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+
+% % CR SC SI
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+
+% F N RO RS
 adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
@@ -275,10 +278,20 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 % list the values separated by types: Color, Side
-ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+%ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
+
+% all possible categories
+ana.eventValues = {...
+  {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
+  {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
+
+% % F N RO RS
+% ana.eventValues = {...
+%   {'CF','CN','CRO','CRS'},...
+%   {'SF','SN','SRO','SRS'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -292,11 +305,11 @@ end
 
 [data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
-%% get rid of the bad channels
-
-cfg = [];
-cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-[data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+% %% get rid of the bad channels
+% 
+% cfg = [];
+% cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% [data_tla,ana] = mm_rmBadChan(cfg,exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 
@@ -370,26 +383,29 @@ end
 
 % Subjects with bad behavior
 %exper.badBehSub = {};
-exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2037','COSI2038'}; % ,'COSI2035'
+exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2011','COSI2014','COSI2031','COSI2041'}; % ,'COSI2035','COSI2037'
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
 % 11, 14, 31, 41: no session_1
 
-% 16, 29 have fewer than 15 trials for Side-SI
-
+% 16, 29 have fewer than 15 trials for Side-SI;
 % 39 has fewer than 15 trials for Color-SI
 
-% 38: potentially bad session_1 (puker)
+% 38: bad session_1 (puker)
 
-% 37 has too many bad channels (25) - relevant ROIs?
+%%%%%
+% not using as a basis for exclusion
+%%%%%
+
+% 37 has too many bad channels (25) - a relevant ROI has >=20% bad channels
 
 % 35 and 38 have noisy ERPs
 
 % 40 session_0 has noisy EEG (NS file)
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper,ana] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 

@@ -96,6 +96,11 @@ for r = 1:length(cfg_ana.roi)
           % get the right channels (on an individual subject basis)
           if ismember(cfg_ana.roi,ana.elecGroupsStr)
             cfg_ana.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.roi(r))});
+            
+            % all good channels for this subject
+            cfg_ana.chansel = ismember(data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.label,cfg_ana.channel);
+            
+            % common good channels
             cfg_ana.chansel = ismember(data.(cfg_ana.cond{c}).sub(sub).ses(ses).data.label,cfg_ana.channel);
           else
             % find the channel indices for averaging

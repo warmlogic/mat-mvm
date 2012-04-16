@@ -1,7 +1,7 @@
-function [data] = mm_rmBadChan(cfg,exper,ana,data)
+function [data,ana] = mm_rmBadChan(cfg,exper,ana,data)
 %MM_RMBADCHAN - Remove bad channels from individual subject data
 %
-% [data] = mm_rmBadChan(cfg,exper,ana,data)
+% [data,ana] = mm_rmBadChan(cfg,exper,ana,data)
 %
 % Input:
 %   cfg     = configuration struct
@@ -45,8 +45,8 @@ if ~isfield(cfg,'printBadChan')
 end
 
 % find the channels that are common across subjects; start with full set
-cfg_all = [];
-cfg_all.channel = ana.elec.label;
+cfg_com = [];
+cfg_com.channel = ana.elec.label;
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
@@ -55,7 +55,7 @@ for sub = 1:length(exper.subjects)
     subChan = eval(sprintf('{''all'' ''-Fid*''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses})));
     
     % whittle down to common channels
-    cfg_all.channel = ft_channelselection(subChan,cfg_all.channel);
+    cfg_com.channel = ft_channelselection(subChan,cfg_com.channel);
     
     cfg_sd = [];
     cfg_sd.channel = ft_channelselection(subChan,data.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.label);
@@ -120,13 +120,13 @@ if cfg.printBadChan
   end
   
   % find common channels across all subjects
-  %channels = ft_channelselection(cfg_all.channel,ana.elec.label);
-  if 1 - (length(cfg_all.channel) / length(ana.elec.label)) >= cfg.badChanThresh
+  %channels = ft_channelselection(cfg_com.channel,ana.elec.label);
+  if 1 - (length(cfg_com.channel) / length(ana.elec.label)) >= cfg.badChanThresh
     low_str = '<';
   else
     low_str = '';
   end
-  common_str = sprintf('\t%d%s',length(cfg_all.channel),low_str);
+  common_str = sprintf('\t%d%s',length(cfg_com.channel),low_str);
   roi_split = regexp(roi_str,'\t','split');
   for r = 1:length(cfg.printRoi)
     if length(roi_split{r+1}) > 7
@@ -136,7 +136,7 @@ if cfg.printBadChan
     end
     if ~strcmp(cfg.printRoi{r},'all')
       chansel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.printRoi{r})});
-      channels = ft_channelselection(chansel,cfg_all.channel);
+      channels = ft_channelselection(chansel,cfg_com.channel);
       if 1 - (length(channels) / length(chansel)) >= cfg.badChanThresh
         low_str = '<';
       else
@@ -187,7 +187,7 @@ if cfg.printBadChan
       fprintf('%s\n',sub_str);
     end
   end
-  fprintf('< inducates # of remaining channels is <%.1f%% of full ROI.\n',cfg.badChanThresh*100);
+  fprintf('< inducates # of remaining channels is <=%.1f%% of full ROI.\n',cfg.badChanThresh*100);
 end
 
 end
