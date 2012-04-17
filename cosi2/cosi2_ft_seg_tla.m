@@ -246,11 +246,11 @@ end
 % eppp
 %adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % CR SC SI
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% CR SC SI
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
-% F N RO RS (including x C/I)
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSSC_SRSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% % F N RO RS (including x C/I)
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSSC_SRSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -277,8 +277,8 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-% list the values separated by types: Color, Side
-%ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+% % list the values separated by types: Color, Side
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
@@ -288,10 +288,10 @@ ana = mm_ft_elecGroups(ana);
 %   {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
 %   {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
 
-% F N RO RS
-ana.eventValues = {...
-  {'CF','CN','CRO','CRS'},...
-  {'SF','SN','SRO','SRS'}};
+% % F N RO RS
+% ana.eventValues = {...
+%   {'CF','CN','CRO','CRS'},...
+%   {'SF','SN','SRO','SRS'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -815,15 +815,15 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 cfg_ana = [];
 % define which regions to average across for the test
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-%cfg_ana.rois = {{'LAS'},{'LPS'}};
+%cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.rois = {{'LAS'},{'LPS'}};
 % define the times that correspond to each set of ROIs
-%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+%cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
-cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
-%cfg_ana.conditions = {{'all_within_types'}};
+%cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+cfg_ana.conditions = {{'all_within_types'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
