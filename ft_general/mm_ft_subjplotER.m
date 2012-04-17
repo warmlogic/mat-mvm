@@ -19,7 +19,7 @@ if ~isfield(cfg_plot,'numCols')
   cfg_plot.numCols = 5;
 end
 if ~isfield(cfg_plot,'colors')
-  cfg_plot.colors = 'rbkgcmy';
+  cfg_plot.colors = 'rbkgcmyrbkgcmyrbkgcmy';
 end
 
 % make sure conditions are set correctly

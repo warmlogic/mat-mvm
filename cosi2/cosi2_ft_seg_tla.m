@@ -682,7 +682,6 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
@@ -756,7 +755,9 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.types = cfg_plot.typesByROI{r};
   %cfg_plot.conditions = cfg_plot.condByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
-  cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+  if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
+    cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+  end
   if cfg_plot.plotLegend
     cfg_plot.legendloc = cfg_plot.legendlocs{r};
   end

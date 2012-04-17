@@ -231,10 +231,10 @@ end
 %adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/NT_TH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/analysisDetails.mat';
 
 % ERP: T/NT x 1/2 x R/F
-%adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1of2_B2of2_NT1of2For_NT1of2Rec_NT2of2For_NT2of2Rec_T1of2For_T1of2Rec_T2of2For_T2of2Rec_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1of2_B2of2_NT1of2For_NT1of2Rec_NT2of2For_NT2of2Rec_T1of2For_T1of2Rec_T2of2For_T2of2Rec_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
 
 % ERP: T/NT/B x 1/2
-adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1_B2_NT1_NT2_T1_T2_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1_B2_NT1_NT2_T1_T2_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -355,11 +355,13 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.3 1.7];
+%cfg_ft.xlim = [-.3 1.7];
+cfg_ft.xlim = [-.2 0.4];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'E64'},{'E95'}};
 cfg_plot.ylims = [-4 4; -1 6];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
@@ -372,7 +374,8 @@ cfg_plot.is_ga = 1;
 %   {{'TH','NT','B'}},...
 %   {{'TH','NT','B'}}};
 
-cfg_plot.condByROI = {'all','all'};
+%cfg_plot.condByROI = {'all','all'};
+cfg_plot.condByROI = {{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'},{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}};
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -421,28 +424,77 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-%cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4 3; -4 3; -4 3; -1 6; -1 6; -1 6];
-% vertical solid lines to plot
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 1;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 1;
-
 cfg_plot.is_ga = 1;
-% outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% for each event type; each event type cell holds strings for its
-% conditions
-cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
+cfg_plot.excludeBadSub = 1;
+
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% %cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4 3; -4 3; -4 3; -1 6; -1 6; -1 6];
+% % vertical solid lines to plot
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 1;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.plotTitle = 1;
+% 
+% cfg_plot.xlabel = 'Time (s)';
+% cfg_plot.ylabel = 'Voltage (\muV)';
+% cfg_plot.xlabel = '';
+% cfg_plot.ylabel = '';
+
+% cfg_plot.ftFxn = 'ft_topoplotER';
+% cfg_plot.plotLegend = 0;
+% cfg_plot.plotTitle = 1;
+% cfg_plot.ylims = [-6 6];
+% %cfg_plot.ylims = 'maxmin';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% %cfg_ft.comment = 'no';
+% cfg_plot.rois = {'all'};
+% %cfg_ft.xlim = [0 1.2]; % time
+% cfg_ft.xlim = [0 0.3]; % time
+% cfg_plot.subplot = 1;
+% % cfg_plot.rois = {{'LAS'}};
+% % cfg_ft.xlim = [0.3 0.5]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [0.5 0.8]; % time
+% %cfg_plot.rois = {{'LPS'}};
+% %cfg_ft.xlim = [1.0 1.5]; % time
+
+cfg_plot.ftFxn = 'ft_multiplotER';
+cfg_plot.plotLegend = 0;
+cfg_plot.plotTitle = 1;
+cfg_ft.showlabels = 'yes';
+cfg_ft.interactive = 'yes';
+cfg_ft.comment = '';
+cfg_ft.xlim = [-0.1 0.2];
+%cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'FS'},{'PS'}};
+%cfg_plot.rois = {'E71'};
+cfg_plot.rois = {'all'};
+cfg_plot.ylims = [-1 5]; % voltage in multiplot
+%cfg_plot.ylims = repmat('maxmin',size(cfg_plot.rois,2),1); % voltage in multiplot
+
+% INSTRUCTIONS: outermost cell holds one cell for each ROI; each ROI cell
+% holds one cell for each event type; each event type cell holds strings
+% for its conditions
+
+%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
-  cfg_plot.legendloc = cfg_plot.legendlocs{r};
-  cfg_ft.ylim = cfg_plot.ylims(r,:);
-  cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
   cfg_plot.conditions = cfg_plot.condByROI{r};
-  
+  cfg_ft.ylim = cfg_plot.ylims(r,:);
+  if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
+    cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+  end
+  if cfg_plot.plotLegend
+    cfg_plot.legendloc = cfg_plot.legendlocs{r};
+  end
+
   mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 end
 
@@ -452,7 +504,7 @@ cfg_plot = [];
 cfg_plot.plotTitle = 1;
 
 % comparisons to make
-cfg_plot.conditions = {{'TH','NT'},{'TH','B'},{'NT','B'}};
+cfg_plot.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
 %cfg_plot.conditions = {'all'};
 
 cfg_ft = [];
@@ -467,10 +519,10 @@ cfg_ft.zlim = [-2 2]; % volt
 cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
-cfg_ft.xlim = [0.5 0.8]; % time
-%cfg_plot.subplot = 1;
+%cfg_ft.xlim = [0.5 0.8]; % time
+cfg_plot.subplot = 1;
 %cfg_ft.xlim = [0 1.0]; % time
-%cfg_ft.xlim = (0:0.05:1.0); % time
+cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
@@ -493,7 +545,7 @@ cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-cfg_ana.conditions = {{'TH','NT'},{'TH','B'},{'NT','B'}};
+cfg_ana.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -558,7 +610,7 @@ for r = 1:length(cfg_ana.rois)
   cfg_ana.conditions = cfg_ana.condByROI{r};
   cfg_ana.latency = cfg_ana.latencies(r,:);
   
-  mm_ft_rmaov33ER_cond(cfg_ana,exper,ana,data_tla);
+  mm_ft_rmaov33ER_spec(cfg_ana,exper,ana,data_tla);
 end
 
 %% 2-way ANOVA: Condition x Half
@@ -600,7 +652,7 @@ for r = 1:length(cfg_ana.rois)
   cfg_ana.conditions = cfg_ana.condByROI{r};
   cfg_ana.latency = cfg_ana.latencies(r,:);
   
-  mm_ft_rmaov2ER_cond(cfg_ana,exper,ana,data_tla);
+  mm_ft_rmaov2ER_spec(cfg_ana,exper,ana,data_tla);
 end
 
 %% 2-way ANOVA: Hemisphere x Condition
@@ -640,11 +692,20 @@ cfg_ft.avgovertime = 'no';
 cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
-cfg_ana.roi = 'all';
-cfg_ana.latencies = [0 1.0; 1.0 1.7];
+% cfg_ana.roi = 'all';
+% cfg_ana.latencies = [0 1.0; 1.0 1.7];
+cfg_ana.roi = {'posterior'};
+cfg_ana.latencies = [0.1 0.3];
 
-cfg_ana.conditions = {{'TH','NT'},{'TH','B'},{'NT','B'}};
+%cfg_ana.conditions = {{'TH','NT'},{'TH','B'},{'NT','B'}};
 %cfg_ana.conditions = {'all'};
+
+cfg_ana.conditions = {...
+  {'T1of2Rec', 'T1of2For'}, {'T2of2Rec', 'T2of2For'}, {'NT1of2Rec', 'NT1of2For'},{'NT2of2Rec', 'NT2of2For'}...
+  {'T1of2Rec', 'NT1of2Rec'},{'T1of2For', 'NT1of2For'}, {'T2of2Rec', 'NT2of2Rec'},{'T2of2For', 'NT2of2For'}...
+  {'T1of2Rec', 'B1of2'},{'T1of2For', 'B1of2'}, {'T2of2Rec', 'B2of2'},{'T2of2For', 'B2of2'}...
+  {'NT1of2Rec', 'B1of2'},{'NT1of2For', 'B1of2'}, {'NT2of2Rec', 'B2of2'},{'NT2of2For', 'B2of2'}...
+  };
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -657,7 +718,7 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = 0.1;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;
@@ -666,7 +727,7 @@ cfg_plot.conditions = cfg_ana.conditions;
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
   
-  mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs,stat_clus);
+  mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs);
 end
 
 %% correlations
