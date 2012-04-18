@@ -304,6 +304,20 @@ if cfg_plot.individ_plots == 1
 end
 
 if cfg_plot.line_plots == 1
+  if ~isfield(cfg_plot,'linespec')
+    cfg_plot.linespec = 'k--o';
+  end
+  if ~isfield(cfg_plot,'markcolor')
+    cfg_plot.markcolor = 'w';
+  end
+  
+  if ~isfield(cfg_plot,'plotLegend')
+    cfg_plot.plotLegend = 0;
+  elseif isfield(cfg_plot,'plotLegend') && cfg_plot.plotLegend
+    if ~isfield(cfg_plot,'legendtext')
+      cfg_plot.legendtext = {'Data'};
+    end
+  end
   % do the mean amplitude line plots
   if ~isfield(cfg_plot,'ylim')
     cfg_plot.ylim = eval(sprintf('[floor(min([%s])) ceil(max([%s]))]',sprintf(repmat('mean(cfg_ana.values.%s,1) ',1,length(allConds)),allConds{:}),sprintf(repmat('mean(cfg_ana.values.%s,1) ',1,length(allConds)),allConds{:})));
@@ -314,8 +328,6 @@ if cfg_plot.line_plots == 1
   % set up how the lines will look
   cfg_plot.linewidth = 2;
   cfg_plot.marksize = 10;
-  cfg_plot.linespec = 'k--o';
-  cfg_plot.markcolor = 'w';
   cfg_plot.errwidth = 1;
   cfg_plot.errBarEndMarkerInd = [4 5 7 8];
   cfg_plot.removeErrBarEnds = 1;
@@ -339,8 +351,12 @@ if cfg_plot.line_plots == 1
       set(h,'Children',chil);
     end
     % plot the markers
-    plot(c,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_plot.linespec,'LineWidth',cfg_plot.linewidth,'MarkerSize',cfg_plot.marksize,'MarkerFaceColor',cfg_plot.markcolor);
+    h = plot(c,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_plot.linespec,'LineWidth',cfg_plot.linewidth,'MarkerSize',cfg_plot.marksize,'MarkerFaceColor',cfg_plot.markcolor);
   end
+  if cfg_plot.plotLegend
+    legend(h,cfg_plot.legendtext);
+  end
+
   hold off
   
   set(gcf,'Name',sprintf('%s, %.1fs--%.1f s',strrep(cfg_plot.chan_str,'_',' '),cfg_ft.latency(1),cfg_ft.latency(2)))

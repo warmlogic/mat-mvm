@@ -676,8 +676,8 @@ end
 %% plot the conditions
 
 cfg_ft = [];
-%cfg_ft.xlim = [-0.2 1.5];
-cfg_ft.xlim = [-0.2 1.0];
+cfg_ft.xlim = [-0.2 1.5];
+% cfg_ft.xlim = [-0.2 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
@@ -693,10 +693,10 @@ cfg_plot.plotLegend = 0;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 cfg_plot.plotTitle = 0;
 
-cfg_plot.xlabel = 'Time (s)';
-cfg_plot.ylabel = 'Voltage (\muV)';
-% cfg_plot.xlabel = '';
-% cfg_plot.ylabel = '';
+% cfg_plot.xlabel = 'Time (s)';
+% cfg_plot.ylabel = 'Voltage (\muV)';
+cfg_plot.xlabel = '';
+cfg_plot.ylabel = '';
 
 % cfg_plot.ftFxn = 'ft_topoplotER';
 % cfg_plot.ylims = [-6 6];
@@ -771,7 +771,6 @@ cfg_plot = [];
 cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1]; % time
 cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
@@ -783,30 +782,32 @@ cfg_ft.colorbar = 'no';
 cfg_plot.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_ft.zlim = [-1 1]; % volt
+cfg_ft.zlim = [-1.5 1.5]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 
-cfg_plot.roi = {'LAS','RAS'};
-cfg_ft.xlim = [0.3 0.5]; % time
-% cfg_plot.roi = {'LPS','RPS'};
-% cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_plot.roi = {'LAS','RAS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
+cfg_plot.roi = {'LPS','RPS'};
+cfg_ft.xlim = [0.5 0.8]; % time
 
 cfg_ft.comment = 'no';
 
-cfg_ft.xlim = [0 1.0]; % time
-%cfg_ft.xlim = (0:0.05:1.0); % time
-cfg_plot.subplot = 1;
+% cfg_ft.xlim = [0 1.0]; % time
+% %cfg_ft.xlim = (0:0.05:1.0); % time
+% cfg_plot.subplot = 1;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.comment = '';
+% cfg_ft.xlim = [-0.2 1]; % time
 % cfg_ft.ylim = [-1 1]; % volt
 
 % cfg_plot.ftFxn = 'ft_singleplotER';
 % cfg_plot.roi = {'LPS'};
 % cfg_ft.showlabels = 'yes';
+% cfg_ft.xlim = [-0.2 1]; % time
 % cfg_ft.ylim = [-1 1]; % volt
 
 mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
@@ -815,16 +816,17 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
-%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_ana.rois = {{'LAS'},{'LPS'}};
+% cfg_ana.rois = {{'LAS'},{'LPS'}};
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-%cfg_ana.conditions = {{'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},{'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'}};
 %cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
-cfg_ana.conditions = {{'all_within_types'}};
+cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'}};
+% cfg_ana.conditions = {{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+% cfg_ana.conditions = {{'all_within_types'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -836,10 +838,24 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
-%cfg_plot.ylims = [-4 -1; 1 4];
-cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4];
-%cfg_plot.plot_order = {'CCR','CH','CHSC','CHSI','SCR','SH','SHSC','SHSI'};
+cfg_plot.line_plots = 1;
+%cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4];
+cfg_plot.ylims = [-4 -1; 1 4];
+%cfg_plot.plot_order = {'CSC','CSI','CCR','SSC','SSI','SCR'};
+cfg_plot.plot_order = {'CSC','CSI','CCR'};
+% cfg_plot.plot_order = {'SSC','SSI','SCR'};
+cfg_plot.rename_conditions = {'SC','SI','CR'};
+% cfg_plot.xlabel = 'Condition';
+% cfg_plot.ylabel = 'Voltage (\muV)';
+cfg_plot.xlabel = '';
+cfg_plot.ylabel = '';
+
+cfg_plot.linespec = 'k--o';
+cfg_plot.plotLegend = 1;
+cfg_plot.legendtext = {'Color'};
+cfg_plot.markcolor = 'w';
+% cfg_plot.legendtext = {'Location'};
+% cfg_plot.markcolor = 'k';
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};

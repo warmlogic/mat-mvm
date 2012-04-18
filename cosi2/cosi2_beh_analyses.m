@@ -78,17 +78,17 @@ exper.(expName).subjects = {...
 %   };
 
 % exclude for a number of reasons
-exper.(expName).badSub = {'COSI2008','COSI2009', 'COSI2016','COSI2020','COSI2025', 'COSI2029', 'COSI2038', 'COSI2039', 'COSI2011', 'COSI2014', 'COSI2031', 'COSI2041'};
+exper.(expName).badSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2011','COSI2014','COSI2031','COSI2041','COSI2016','COSI2029','COSI2039'};
 
 % % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
 % % 11, 14, 31, 41: no session_1
 
+% % 38: potentially bad session_1 (puker)
+
 % % 16, 29 have fewer than 15 trials for Side-SI
 
 % % 39 has fewer than 15 trials for Color-SI
-
-% % 38: potentially bad session_1 (puker)
 
 % % exclude based on automatic equating of accuracy
 % exper.(expName).color.badSub = exper.(expName).subjects(~ismember(exper.(expName).subjects,exper.(expName).color.goodSub));
@@ -287,8 +287,8 @@ axis([0.5 3.5 0 1]);
 publishfig(gcf,0,[],[],[]);
 hold on
 plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
-print(gcf,'-dpng','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
-%print(gcf,'-depsc2','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+%print(gcf,'-dpng','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+print(gcf,'-depsc2','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
 
 
 %% plot DP
@@ -307,8 +307,8 @@ h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_co
 set(h.legend,'Location','NorthEast');
 axis([0.5 2.5 0 2.5]);
 publishfig(gcf,0,[],[],[]);
-print(gcf,'-dpng','~/Desktop/COSI2_color_side_item_source_DP');
-%print(gcf,'-depsc2','~/Desktop/COSI2_color_side_item_source_DP');
+%print(gcf,'-dpng','~/Desktop/COSI2_color_side_item_source_DP');
+print(gcf,'-depsc2','~/Desktop/COSI2_color_side_item_source_DP');
 
 %% plot HR
 
@@ -326,8 +326,8 @@ h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_co
 set(h.legend,'Location','NorthEast');
 axis([0.5 2.5 0 1]);
 publishfig(gcf,0,[],[],[]);
-print(gcf,'-dpng','~/Desktop/COSI2_color_side_item_source_HR');
-%print(gcf,'-depsc2','~/Desktop/COSI2_color_side_item_source_HR');
+%print(gcf,'-dpng','~/Desktop/COSI2_color_side_item_source_HR');
+print(gcf,'-depsc2','~/Desktop/COSI2_color_side_item_source_HR');
 
 %% try to equate
 
