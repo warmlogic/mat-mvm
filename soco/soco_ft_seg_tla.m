@@ -221,8 +221,8 @@ adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 files.figFontName = 'Helvetica';
-%files.figPrintFormat = 'epsc2';
-files.figPrintFormat = 'png';
+files.figPrintFormat = 'epsc2';
+%files.figPrintFormat = 'png';
 files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
@@ -272,11 +272,11 @@ end
 
 [data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
-%% get rid of the bad channels
-
-cfg = [];
-cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-[data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+% %% get rid of the bad channels
+% 
+% cfg = [];
+% cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 
@@ -350,10 +350,10 @@ end
 % Subjects with bad behavior
 %exper.badBehSub = {};
 % huge response bias to say "new": 18, 26
-%exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
+exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
 
-% 10 and 20 had few F responses
-exper.badBehSub = {'SOCO018','SOCO026','SOCO010','SOCO020'};
+% % 10 and 20 had few F responses
+% exper.badBehSub = {'SOCO018','SOCO026','SOCO010','SOCO020'};
 
 % % equating d' 15 subjects
 % exper.badBehSub = {'SOCO018','SOCO026','SOCO022','SOCO001','SOCO006','SOCO029','SOCO024','SOCO012','SOCO015','SOCO030','SOCO028','SOCO020','SOCO014','SOCO013','SOCO017'};
@@ -852,11 +852,11 @@ cfg_ana = [];
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'},{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
 
-cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+% cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -868,7 +868,9 @@ cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
+cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
 
 %cfg_ana.conditions = {{'all'}};
 %cfg_ana.conditions = {{'all_within_types'}};
@@ -884,18 +886,19 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
+cfg_plot.line_plots = 1;
 %cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
-cfg_plot.ylims = [-5 -2; -5 -2; -5 -2; 1.5 4.5; 1.5 4.5;];
-%cfg_plot.ylims = [-5 -2; 1.5 4.5];
+% cfg_plot.ylims = [-5 -2; -5 -2; -5 -2; 1.5 4.5; 1.5 4.5;];
+cfg_plot.ylims = [-5 -2; 1.5 4.5];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 %cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
-%cfg_plot.rename_conditions = {'Hits-SC','Hits-SI','CR'};
-cfg_plot.xlabel = 'Condition';
-cfg_plot.ylabel = 'Voltage (\muV)';
-% cfg_plot.xlabel = '';
-% cfg_plot.ylabel = '';
+cfg_plot.plot_order = {'SC','SI','CR'};
+%cfg_plot.rename_conditions = {'SC','SI','CR'};
+% cfg_plot.xlabel = 'Condition';
+% cfg_plot.ylabel = 'Voltage (\muV)';
+cfg_plot.xlabel = '';
+cfg_plot.ylabel = '';
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};

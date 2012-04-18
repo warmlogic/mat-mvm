@@ -254,11 +254,11 @@ end
 
 [data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
 
-%% get rid of the bad channels
-
-cfg = [];
-cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-[data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+% %% get rid of the bad channels
+% 
+% cfg = [];
+% cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
 
 %% Test plots to make sure data look ok
 
@@ -856,10 +856,13 @@ cfg_plot.ylims = [-4 -1; 2.5 5.5];
 %cfg_plot.plot_order = {'CR','RH','SC','SI'};
 cfg_plot.plot_order = {'SC','SI','CR'};
 %cfg_plot.rename_conditions = {'SC','SI','CR'};
-cfg_plot.xlabel = 'Condition';
-cfg_plot.ylabel = 'Voltage (\muV)';
-% cfg_plot.xlabel = '';
-% cfg_plot.ylabel = '';
+% cfg_plot.xlabel = 'Condition';
+% cfg_plot.ylabel = 'Voltage (\muV)';
+cfg_plot.xlabel = '';
+cfg_plot.ylabel = '';
+
+cfg_plot.linespec = 'k--o';
+cfg_plot.markcolor = 'k';
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
