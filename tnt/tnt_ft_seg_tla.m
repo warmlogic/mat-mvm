@@ -584,21 +584,15 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 
-% % define which regions to average across for the test
-% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% % define the times that correspond to each set of ROIs
-% cfg_ana.latencies = [0.3 0.4; 0.5 0.8];
-
-cfg_ana.rois = {{'LAS','RAS'}};
-cfg_ana.latencies = [0.3 0.4];
-
-cfg_ana.rois = {{'LPS','RPS'}};
+% define which regions to average across for the test
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.5 0.8];
+cfg_ana.latencies = [0.3 0.4; 0.5 0.8];
 
 %cfg_ana.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
 
-cfg_ana.conditions = {{'TR','TF'},{'NTR','NTF'},{'TR','NTR'},{'TF','NTF'},{'TR','B'},{'NTR','B'},{'TF','B'},{'NTF','B'}};
+%cfg_ana.conditions = {{'TR','TF'},{'NTR','NTF'},{'TR','NTR'},{'TF','NTF'},{'TR','B'},{'NTR','B'},{'TF','B'},{'NTF','B'}};
+cfg_ana.conditions = {'all'};
 
 % set parameters for the statistical test
 cfg_ft = [];
