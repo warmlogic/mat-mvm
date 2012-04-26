@@ -46,27 +46,42 @@ exper.eventValues = sort({'B1of2','B2of2','NT1of2For','NT1of2Rec','NT2of2For','N
 %exper.eventValues = sort({'NT1of2Rec','T1of2Rec'});
 
 % combine some events into higher-level categories
+
+% B and T/NT x 1/2 (collapse across R/F)
 exper.eventValuesExtra.toCombine = {...
-%   {'B1of2','B2of2'}...
-%   {'NT1of2For','NT2of2For','NT1of2Rec','NT2of2Rec'},...
-%   {'T1of2For','T2of2For','T1of2Rec','T2of2Rec'}...
   {'B1of2'},{'B2of2'}...
   {'NT1of2For','NT1of2Rec'},{'NT2of2For','NT2of2Rec'}...
   {'T1of2For','T1of2Rec'},{'T2of2For','T2of2Rec'}...
-%   {'NT1of2For','NT2of2For'},{'NT1of2Rec','NT2of2Rec'}...
-%   {'T1of2For','T2of2For'},{'T1of2Rec','T2of2Rec'}...
   };
-
 exper.eventValuesExtra.newValue = {...
-%   {'B'}...
-%   {'NT'}...
-%   {'TH'}...
   {'B1'},{'B2'}...
   {'NT1'},{'NT2'}...
   {'T1'},{'T2'}...
-%   {'NTF'},{'NTR'}...
-%   {'THF'},{'THR'}...
   };
+
+% % B and T/NT x R/F (collapse across 1/2)
+% exper.eventValuesExtra.toCombine = {...
+%   {'B1of2','B2of2'}...
+%   {'NT1of2For','NT2of2For'},{'NT1of2Rec','NT2of2Rec'}...
+%   {'T1of2For','T2of2For'},{'T1of2Rec','T2of2Rec'}...
+%   };
+% exper.eventValuesExtra.newValue = {...
+%   {'B'}...
+%   {'NTF'},{'NTR'}...
+%   {'TF'},{'TR'}...
+%   };
+
+% % B, NT, T (collapse across 1/2 and R/F)
+% exper.eventValuesExtra.toCombine = {...
+%   {'B1of2','B2of2'}...
+%   {'NT1of2For','NT2of2For','NT1of2Rec','NT2of2Rec'},...
+%   {'T1of2For','T2of2For','T1of2Rec','T2of2Rec'}...
+%   };
+% exper.eventValuesExtra.newValue = {...
+%   {'B'}...
+%   {'NT'}...
+%   {'T'}...
+%   };
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
@@ -179,9 +194,9 @@ cfg_pp = [];
 % single precision to save space
 %cfg_pp.precision = 'single';
 
-% % do a baseline correction
-% cfg_pp.demean = 'yes';
-% cfg_pp.baselinewindow = [-0.2 0];
+% do a baseline correction
+cfg_pp.demean = 'yes';
+cfg_pp.baselinewindow = [-0.2 0];
 
 cfg_proc = [];
 % do we want to keep the individual trials?
@@ -230,11 +245,14 @@ end
 % power
 %adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/NT_TH_eq1/pow_mtmconvol_hanning_pow_-500_980_3_9_avg/analysisDetails.mat';
 
-% ERP: T/NT x 1/2 x R/F
-adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1of2_B2of2_NT1of2For_NT1of2Rec_NT2of2For_NT2of2Rec_T1of2For_T1of2Rec_T2of2For_T2of2Rec_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+% % ERP: T/NT/B x 1/2 x R/F
+% adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1of2_B2of2_NT1of2For_NT1of2Rec_NT2of2For_NT2of2Rec_T1of2For_T1of2Rec_T2of2For_T2of2Rec_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
 
 % ERP: T/NT/B x 1/2
-%adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1_B2_NT1_NT2_T1_T2_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B1_B2_NT1_NT2_T1_T2_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+
+% % ERP: T/NT/B x R/F
+% adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NTF_NTR_TF_TR_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -355,15 +373,25 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-%cfg_ft.xlim = [-.3 1.7];
-cfg_ft.xlim = [-.2 0.4];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'E64'},{'E95'}};
+
+% recognition memory effects
+%cfg_ft.xlim = [-1.0 1.7];
+cfg_ft.xlim = [-0.5 1.0];
+cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.ylims = [-4 4; -1 6];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-4 4; -4 4; -1 6; -1 6];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','NorthWest','NorthWest'};
+
+% % N170
+% cfg_ft.xlim = [-.2 0.4];
+% cfg_plot.rois = {{'E64'},{'E95'}};
+% cfg_plot.ylims = [-4 4; -1 6];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -374,8 +402,8 @@ cfg_plot.is_ga = 1;
 %   {{'TH','NT','B'}},...
 %   {{'TH','NT','B'}}};
 
-%cfg_plot.condByROI = {'all','all'};
-cfg_plot.condByROI = {{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'},{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}};
+cfg_plot.condByROI = repmat({{'all'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -390,6 +418,7 @@ end
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'LAS','RAS'}};
 %cfg_plot.roi = {'E124'};
 %cfg_plot.roi = {'RAS'};
 %cfg_plot.roi = {'LPS','RPS'};
@@ -397,14 +426,15 @@ cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-.2 1.0];
-cfg_plot.ylim = [-10 10];
+cfg_plot.ylim = [-8 3];
 
 cfg_plot.parameter = 'avg';
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'all'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = {...
 %   {{'TH','NT','B'}},...
 %   {{'TH','NT','B'}}};
@@ -427,16 +457,16 @@ cfg_plot = [];
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-% cfg_plot.ftFxn = 'ft_singleplotER';
-% %cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-% cfg_plot.ylims = [-4 3; -4 3; -4 3; -1 6; -1 6; -1 6];
-% % vertical solid lines to plot
-% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-% cfg_plot.plotLegend = 1;
-% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-% cfg_plot.plotTitle = 1;
-% 
+cfg_plot.ftFxn = 'ft_singleplotER';
+%cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+cfg_plot.ylims = [-4 1; -4 1; -4 1; -1.5 3.5; -1.5 3.5; -1.5 3.5];
+% vertical solid lines to plot
+cfg_plot.x_bounds = [0.3 0.4; 0.3 0.4; 0.3 0.4; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+cfg_plot.plotLegend = 1;
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+%cfg_plot.plotTitle = 1;
+
 % cfg_plot.xlabel = 'Time (s)';
 % cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
@@ -462,27 +492,28 @@ cfg_plot.excludeBadSub = 1;
 % %cfg_plot.rois = {{'LPS'}};
 % %cfg_ft.xlim = [1.0 1.5]; % time
 
-cfg_plot.ftFxn = 'ft_multiplotER';
-cfg_plot.plotLegend = 0;
-cfg_plot.plotTitle = 1;
-cfg_ft.showlabels = 'yes';
-cfg_ft.interactive = 'yes';
-cfg_ft.comment = '';
-cfg_ft.xlim = [-0.1 0.2];
-%cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_plot.rois = {{'FS'},{'PS'}};
-%cfg_plot.rois = {'E71'};
-cfg_plot.rois = {'all'};
-cfg_plot.ylims = [-1 5]; % voltage in multiplot
-%cfg_plot.ylims = repmat('maxmin',size(cfg_plot.rois,2),1); % voltage in multiplot
+% cfg_plot.ftFxn = 'ft_multiplotER';
+% cfg_plot.plotLegend = 0;
+% cfg_plot.plotTitle = 1;
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.interactive = 'yes';
+% cfg_ft.comment = '';
+% cfg_ft.xlim = [-0.1 0.6];
+% %cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
+% %cfg_plot.rois = {{'FS'},{'PS'}};
+% %cfg_plot.rois = {'E71'};
+% cfg_plot.rois = {'all'};
+% cfg_plot.ylims = [-4 4]; % voltage in multiplot
+% %cfg_plot.ylims = repmat('maxmin',size(cfg_plot.rois,2),1); % voltage in multiplot
 
 % INSTRUCTIONS: outermost cell holds one cell for each ROI; each ROI cell
 % holds one cell for each event type; each event type cell holds strings
 % for its conditions
 
-%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'B','TR'}},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -504,48 +535,70 @@ cfg_plot = [];
 cfg_plot.plotTitle = 1;
 
 % comparisons to make
-cfg_plot.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
+%cfg_plot.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
+cfg_plot.conditions = {{'TR','TF'},{'NTR','NTF'},{'TR','NTR'},{'TF','NTF'},{'TR','B'},{'TF','B'},{'NTR','B'},{'NTF','B'}};
+%cfg_plot.conditions = {{'T1','T2'},{'NT1','NT2'},{'T1','NT1'},{'T2','NT2'},{'T1','B1'},{'T2','B2'},{'NT1','B1'},{'NT2','B2'}};
+%cfg_plot.conditions = {{'TR','NTF'}};
 %cfg_plot.conditions = {'all'};
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1]; % time
 cfg_ft.parameter = 'avg';
-cfg_ft.interactive = 'yes';
+cfg_ft.interactive = 'no';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'yes';
 
 cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_ft.zlim = [-2 2]; % volt
-cfg_ft.marker = 'labels';
-cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
-%cfg_ft.xlim = [0.5 0.8]; % time
+cfg_ft.zlim = [-1.5 1.5]; % volt
+cfg_ft.marker = 'on';
+%cfg_ft.markerfontsize = 9;
+
+%cfg_ft.comment = 'no';
+cfg_plot.roi = {'LAS','RAS'};
+cfg_ft.xlim = [0.3 0.4]; % time
+cfg_ft.xlim = [0.2 0.6]; % time
+% cfg_plot.roi = {'LPS','RPS'};
+% cfg_ft.xlim = [0.5 0.8]; % time
+
 cfg_plot.subplot = 1;
-%cfg_ft.xlim = [0 1.0]; % time
-cfg_ft.xlim = (0:0.05:1.0); % time
-%cfg_plot.roi = {'PS'};
+% cfg_ft.fontsize = 6;
+% cfg_ft.xlim = [0 1.0]; % time
+% %cfg_ft.xlim = (0:0.05:1.0); % time
+% %cfg_plot.roi = {'PS'};
+cfg_plot.numCols = 3;
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.comment = '';
-% cfg_ft.ylim = [-1 1]; % volt
+% cfg_ft.ylim = [-1.5 1.5]; % volt
 
 % cfg_plot.ftFxn = 'ft_singleplotER';
 % cfg_plot.roi = {'LPS'};
 % cfg_ft.showlabels = 'yes';
-% cfg_ft.ylim = [-2 2]; % volt
+% cfg_ft.xlim = [-0.2 1]; % time
+% cfg_ft.ylim = [-1.5 1.5]; % volt
 
 mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 %% descriptive statistics: ttest
 
 cfg_ana = [];
-% define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-cfg_ana.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
+% % define which regions to average across for the test
+% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% % define the times that correspond to each set of ROIs
+% cfg_ana.latencies = [0.3 0.4; 0.5 0.8];
+
+cfg_ana.rois = {{'LAS','RAS'}};
+cfg_ana.latencies = [0.3 0.4];
+
+cfg_ana.rois = {{'LPS','RPS'}};
+% define the times that correspond to each set of ROIs
+cfg_ana.latencies = [0.5 0.8];
+
+%cfg_ana.conditions = {{'T','NT'},{'T','B'},{'NT','B'}};
+
+cfg_ana.conditions = {{'TR','TF'},{'NTR','NTF'},{'TR','NTR'},{'TF','NTF'},{'TR','B'},{'NTR','B'},{'TF','B'},{'NTF','B'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -624,26 +677,26 @@ cfg_ana.printTable_tex = 0;
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.latencies = [0.3 0.4; 0.5 0.8];
 
-% % IV2: define the conditions tested for each set of ROIs
-% %cfg_ana.condByROI = {{'RH','RCR'},{'RCR','RHSC','RHSI'}};
-% cfg_ana.condByROI = {{'TH','NT','B'},{'TH','NT','B'}};
-
-cfg_ana.condByROI = {...
-%   {'NT1of2', 'NT2of2', 'T1of2', 'T2of2', 'B1of2', 'B2of2'},...
-%   {'NT1of2', 'NT2of2', 'T1of2', 'T2of2', 'B1of2', 'B2of2'}};
-  {'NT1', 'NT2', 'T1', 'T2', 'B1', 'B2'},...
-  {'NT1', 'NT2', 'T1', 'T2', 'B1', 'B2'}};
-
+%cfg_ana.condByROI = repmat({{'NT1of2', 'NT2of2', 'T1of2', 'T2of2', 'B1of2', 'B2of2'}},size(cfg_ana.rois));
+cfg_ana.condByROI = repmat({{'NT1', 'NT2', 'T1', 'T2', 'B1', 'B2'}},size(cfg_ana.rois));
 % Define the IVs (type: event, roi, latency)
 cfg_ana.IV1.name = 'T/NT/B';
 cfg_ana.IV1.cond = {'T','NT','B'};
 cfg_ana.IV1.type = 'event';
-
 cfg_ana.IV2.name = 'ExperHalf';
 cfg_ana.IV2.cond = {'1','2'};
 cfg_ana.IV2.type = 'event';
+
+% cfg_ana.condByROI = repmat({{'TR', 'TF', 'NTR', 'NTF'}},size(cfg_ana.rois));
+% % Define the IVs (type: event, roi, latency)
+% cfg_ana.IV1.name = 'T/NT';
+% cfg_ana.IV1.cond = {'T','NT'};
+% cfg_ana.IV1.type = 'event';
+% cfg_ana.IV2.name = 'R/F';
+% cfg_ana.IV2.cond = {'R','F'};
+% cfg_ana.IV2.type = 'event';
 
 cfg_ana.parameter = 'avg';
 
@@ -694,18 +747,22 @@ cfg_ft.parameter = 'avg';
 cfg_ana = [];
 % cfg_ana.roi = 'all';
 % cfg_ana.latencies = [0 1.0; 1.0 1.7];
-cfg_ana.roi = {'posterior'};
-cfg_ana.latencies = [0.1 0.3];
+cfg_ana.roi = {'anterior'};
+cfg_ana.latencies = [0.2 0.6];
 
 %cfg_ana.conditions = {{'TH','NT'},{'TH','B'},{'NT','B'}};
 %cfg_ana.conditions = {'all'};
 
-cfg_ana.conditions = {...
-  {'T1of2Rec', 'T1of2For'}, {'T2of2Rec', 'T2of2For'}, {'NT1of2Rec', 'NT1of2For'},{'NT2of2Rec', 'NT2of2For'}...
-  {'T1of2Rec', 'NT1of2Rec'},{'T1of2For', 'NT1of2For'}, {'T2of2Rec', 'NT2of2Rec'},{'T2of2For', 'NT2of2For'}...
-  {'T1of2Rec', 'B1of2'},{'T1of2For', 'B1of2'}, {'T2of2Rec', 'B2of2'},{'T2of2For', 'B2of2'}...
-  {'NT1of2Rec', 'B1of2'},{'NT1of2For', 'B1of2'}, {'NT2of2Rec', 'B2of2'},{'NT2of2For', 'B2of2'}...
-  };
+% cfg_ana.conditions = {...
+%   {'T1of2Rec', 'T1of2For'}, {'T2of2Rec', 'T2of2For'}, {'NT1of2Rec', 'NT1of2For'},{'NT2of2Rec', 'NT2of2For'}...
+%   {'T1of2Rec', 'NT1of2Rec'},{'T1of2For', 'NT1of2For'}, {'T2of2Rec', 'NT2of2Rec'},{'T2of2For', 'NT2of2For'}...
+%   {'T1of2Rec', 'B1of2'},{'T1of2For', 'B1of2'}, {'T2of2Rec', 'B2of2'},{'T2of2For', 'B2of2'}...
+%   {'NT1of2Rec', 'B1of2'},{'NT1of2For', 'B1of2'}, {'NT2of2Rec', 'B2of2'},{'NT2of2For', 'B2of2'}...
+%   };
+
+%cfg_ana.conditions = {{'T1of2Rec', 'NT1of2For'}, {'T2of2Rec', 'NT2of2For'}};
+
+cfg_ana.conditions = {{'TR','TF'},{'NTR','NTF'},{'TR','NTR'},{'TF','NTF'},{'TR','B'},{'NTR','B'},{'TF','B'},{'NTF','B'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);

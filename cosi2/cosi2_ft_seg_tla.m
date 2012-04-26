@@ -787,12 +787,11 @@ cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 
+cfg_ft.comment = 'no';
 % cfg_plot.roi = {'LAS','RAS'};
 % cfg_ft.xlim = [0.3 0.5]; % time
 cfg_plot.roi = {'LPS','RPS'};
 cfg_ft.xlim = [0.5 0.8]; % time
-
-cfg_ft.comment = 'no';
 
 % cfg_ft.xlim = [0 1.0]; % time
 % %cfg_ft.xlim = (0:0.05:1.0); % time
