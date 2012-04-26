@@ -32,7 +32,7 @@ function mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
 %   MM_FT_CHECKCONDITIONS, MM_FT_PLOTERP
 
 if ~isfield(cfg_ft,'parameter')
-  error('Must define cfg_ft.parameter (e.g., ''avg'')');
+  error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''avg'')');
 end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotER','');
@@ -83,6 +83,7 @@ if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
     cfg_ft.linestyle = {'-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.'};
   end
 end
+% not sure if this gets used
 if ~isfield(cfg_plot,'excludeBadSub')
   cfg_plot.excludeBadSub = 1;
 end
@@ -105,6 +106,10 @@ if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
       % not allowed
       cfg_ft = rmfield(cfg_ft,'showlabels');
     end
+    % not sure fontsize does anything
+    if ~isfield(cfg_ft,'fontsize')
+      cfg_ft.fontsize = 10;
+    end
     if ~isfield(cfg_ft,'markerfontsize')
       cfg_ft.markerfontsize = 9;
     end
@@ -124,6 +129,10 @@ if ~isfield(cfg_plot,'condMethod')
   end
 end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+% make sure conditions are set up for the for loop
+if ~isfield(cfg_plot,'types')
+  cfg_plot.types = repmat({''},size(cfg_plot.conditions));
+end
 
 if cfg_plot.plotLegend == 1
   % for the legend labels in line plots
@@ -139,11 +148,6 @@ if ~isfield(data,cfg_ft.parameter)
   cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
   error('Cannot have more than one condition if data is only one evVal');
-end
-
-% make sure conditions are set up for the for loop
-if ~isfield(cfg_plot,'types')
-  cfg_plot.types = repmat({''},size(cfg_plot.conditions));
 end
 
 % % get the label info for this data struct
@@ -232,7 +236,9 @@ if isfield(cfg_plot,'subplot')
       cfg_ft.commentpos = 'title';
       cfg_ft.colorbar = 'no';
       cfg_ft.marker = 'on';
-      cfg_ft.fontsize = 10;
+      if ~isfield(cfg_ft,'fontsize')
+        cfg_ft.fontsize = 10;
+      end
       if isfield(cfg_ft,'markerfontsize')
         cfg_ft = rmfield(cfg_ft,'markerfontsize');
       end

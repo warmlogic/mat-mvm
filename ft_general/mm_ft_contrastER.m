@@ -40,9 +40,57 @@ cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotER','');
 cfg_plot.screenXY = get(0,'ScreenSize');
 cfg_plot.screenXY = cfg_plot.screenXY(3:4);
 
+if ~isfield(cfg_plot,'plotTitle')
+  cfg_plot.plotTitle = 0;
+end
+% check on the labels
+if ~isfield(cfg_plot,'xlabel')
+  cfg_plot.xlabel = 'Time (s)';
+end
+if ~isfield(cfg_plot,'ylabel')
+  cfg_plot.ylabel = 'Voltage (\muV)';
+end
+cfg_plot.label_str = '';
+if isfield(cfg_plot,'xlabel') && ~isempty(cfg_plot.xlabel)
+  cfg_plot.label_str = cat(2,cfg_plot.label_str,'x');
+end
+if isfield(cfg_plot,'ylabel') && ~isempty(cfg_plot.ylabel)
+  cfg_plot.label_str = cat(2,cfg_plot.label_str,'y');
+end
+if ~isempty(cfg_plot.label_str)
+  cfg_plot.label_str = cat(2,'_',cfg_plot.label_str,'label');
+end
+
+if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
+  if ~isfield(cfg_ft,'fontsize')
+    cfg_ft.fontsize = 9;
+  end
+  if ~isfield(cfg_ft,'linewidth')
+    if strcmp(cfg_plot.type,'single')
+      cfg_ft.linewidth = 2;
+    elseif strcmp(cfg_plot.type,'multi')
+      cfg_ft.linewidth = 1;
+    end
+  end
+  if ~isfield(cfg_ft,'graphcolor')
+    cfg_ft.graphcolor = 'rbkgcmyrbkgcmyrbkgcmy';
+  end
+  if ~isfield(cfg_ft,'linestyle')
+    cfg_ft.linestyle = {'-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.'};
+  end
+end
+% not sure if this gets used
+if ~isfield(cfg_plot,'excludeBadSub')
+  cfg_plot.excludeBadSub = 1;
+end
+
 if (strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo'))
   % need a layout if doing a topo or multi plot
-  cfg_ft.layout = ft_prepare_layout([],ana);
+  if isfield(ana,'elec')
+    cfg_ft.layout = ft_prepare_layout([],ana);
+  else
+    error('''ana'' struct must have ''elec'' field');
+  end
   
   if ~isfield(cfg_plot,'roi')
     % use all channels in a topo or multi plot
@@ -54,6 +102,7 @@ if (strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo'))
       % not allowed
       cfg_ft = rmfield(cfg_ft,'showlabels');
     end
+    % not sure fontsize does anything
     if ~isfield(cfg_ft,'fontsize')
       cfg_ft.fontsize = 10;
     end
@@ -121,7 +170,7 @@ elseif isfield(cfg_plot,'roi')
   end
 end
 
-% time
+% time - get this info for the figure name
 if isfield(cfg_ft,'xlim')
   if strcmp(cfg_ft.xlim,'maxmin')
     cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
@@ -249,8 +298,10 @@ for typ = 1:length(cfg_plot.conditions)
   if ~isfield(files,'figFontName')
     files.figFontName = 'Helvetica';
   end
-  publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
-  
+  if ~cfg_plot.subplot
+    publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
+  end
+
   if files.saveFigs
     % make a string indicating the z-limits; change the decimal to a p for
     % "point" because print.m and LaTeX won't find the right extension when
