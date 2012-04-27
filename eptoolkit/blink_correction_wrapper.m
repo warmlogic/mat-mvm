@@ -173,8 +173,12 @@ end
 
 %% set up analysis parameters
 
-% calculate the baseline in samples
-exper.baseline_samp = abs(exper.prepost(1) * exper.sampleRate) + [((exper.baseline_ms(1) / (1000/exper.sampleRate)) + 1) (exper.baseline_ms(2) / (1000/exper.sampleRate))];
+if ~isempty(exper.baseline_ms)
+  % calculate the baseline in samples
+  exper.baseline_samp = abs(exper.prepost(1) * exper.sampleRate) + [((exper.baseline_ms(1) / (1000/exper.sampleRate)) + 1) (exper.baseline_ms(2) / (1000/exper.sampleRate))];
+elseif isempty(exper.baseline_ms)
+  exper.baseline_samp = [];
+end
 % struct for ep_readData, which gets called by ep_artifactCorrection
 exper.textPrefs_struct = struct('firstRow',1,'firstCol',1,'lastCol',0,'orientation',1);
 
