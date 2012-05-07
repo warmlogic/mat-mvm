@@ -405,7 +405,7 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2
 % 40 session_0 has noisy EEG (NS file)
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,15);
+[exper,ana] = mm_threshSubs(exper,ana,5);
 
 %% get the grand average
 
@@ -582,9 +582,12 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-%cfg_plot.rois = {{'RAS'},{'LPS'}};
 cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -4.5 2.4; -2 5; -2 5];
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+% cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -2 5];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -815,17 +818,18 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 
 cfg_ana = [];
 % define which regions to average across for the test
+% and define the times that correspond to each set of ROIs
+
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % cfg_ana.rois = {{'LAS'},{'LPS'}};
-% define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+%cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
-cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'}};
+% cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'}};
 % cfg_ana.conditions = {{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
-% cfg_ana.conditions = {{'all_within_types'}};
+cfg_ana.conditions = {{'all_within_types'}};
 
 % set parameters for the statistical test
 cfg_ft = [];
@@ -837,7 +841,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4];
 cfg_plot.ylims = [-4 -1; 1 4];
 %cfg_plot.plot_order = {'CSC','CSI','CCR','SSC','SSI','SCR'};

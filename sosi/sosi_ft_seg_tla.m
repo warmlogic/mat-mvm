@@ -42,11 +42,11 @@ exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 %exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 
-exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'}};
-exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
+% exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'}};
+% exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
-% keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
+% % keep only the combined (extra) events and throw out the original events?
+% exper.eventValuesExtra.onlyKeepExtras = 1;
 
 exper.subjects = {
   'SOSI001';
@@ -205,6 +205,9 @@ adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+
+%adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/FSC_FSI_NM_NS_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 % files.figFontName = 'Helvetica';
@@ -538,7 +541,7 @@ ylabel('Frequency');
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 2.0];
+cfg_ft.xlim = [-.2 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
@@ -819,6 +822,7 @@ cfg_ana = [];
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'LAS'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
@@ -850,7 +854,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 % cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; 2.5 5.5];
 %cfg_plot.plot_order = {'CR','RH','SC','SI'};
