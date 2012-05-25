@@ -499,16 +499,6 @@ fprintf('SOSI RO+F WIR (M=%.2f) vs chance: t(%d)=%.4f, p=%.10f\n',mean(SOSI_RO_F
 [h,p,ci,stats] = ttest2(SOSI_RO_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_RO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
 fprintf('RO+F WIR: SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_RO_F_WIR(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_RO_F_WIR(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% mix and match subjects from each experiment to equate source d' but
-% differ on F accuracy
-
-%% initialize randomness
-
-rng('shuffle','twister');
-
 %% more data
 
 % d'
@@ -522,6 +512,70 @@ SOSI_SOURCE_DP = [2.6106, 1.2027, 1.515, 1.6033, 1.3849, 1.0842, -0.0091, 1.8163
 % % 19 and 20 in correct order
 % SOSI_ITEM_DP = [2.4055, 1.0515, 1.9568, 1.3392, 0.875, 1.2222, 0.185, 1.9591, 1.9172, 1.1959, 2.4869, 0.9108, 1.0227, 1.705, 1.5148, 0.9685, 0.8106, 2.0084, 1.1812, 1.3761, 1.1057, 1.1521, 2.297, 0.4484, 1.4344, 1.5941, 1.398, 1.7473, 1.5984, 1.2503];
 % SOSI_SOURCE_DP = [2.6106, 1.2027, 1.515, 1.6033, 1.3849, 1.0842, -0.0091, 1.8163, 2.6303, 1.1873, 2.3238, 1.3773, 1.6582, 1.5506, 1.6074, 0.8615, 1.5816, 2.6045, 1.1413, 1.1, 1.4382, 0.8814, 2.1249, 1.0363, 1.6679, 1.5655, 2.2779, 2.1689, 1.6759, 1.6488];
+
+% response bias
+SOCO_ITEM_C = [-0.5915, -0.2024, -1.0839, -0.4808, -0.0479, -0.1114, 0.1114, -0.3802, -0.5772, 0.3453, -0.2225, -0.609, -0.3023, -0.1068, -0.2592, -0.6199, -0.1064, 1.1569, 0.1382, -0.8133, -0.0161, 0.1712, 0.0229, -0.1677, -0.4024, 0.7109, 0.4445, -0.6735, -0.1396, -0.0719];
+SOCO_SOURCE_C = [-0.3196, -0.245, -0.0832, -0.0179, -0.0403, -0.0626, -0.231, -0.2677, -0.1783, 0.128, -0.1683, -0.1723, -0.1488, -0.1191, -0.2937, 0.1208, 0.0541, 0.0466, -0.1624, 0.3533, -0.0809, -0.2229, -0.1294, 0.0087, -0.3034, -0.426, 0.2808, -0.0599, 0.0777, 0.1782];
+
+SOSI_ITEM_C = [-0.6091, 0.2464, 0.9816, 0.2458, -0.4186, -0.0282, -0.7053, -0.1235, 0.3229, 0.1207, 0.1288, -0.1499, -0.1395, -0.4855, -0.6821, 0.3396, 0.2536, -0.1446, 0.2362, -0.4142, -0.2605, -0.1084, -0.8561, 0.6688, -0.5079, 0.3293, -0.5409, -0.0176, 0.4273, -0.7256];
+SOSI_SOURCE_C = [0.1518, -0.1634, -0.3268, -0.2707, -0.1447, -0.1485, -0.0598, 0.1957, -0.3433, 0.0536, -0.218, 0.1723, -0.2209, -0.2229, -0.0029, -0.1235, 0.1766, 0.1119, 0.2809, -0.1177, -0.118, -0.2956, -0.228, 0.1352, -0.0861, -0.0071, 0.0919, 0.0322, 0.1459, 0.045];
+
+
+%% everyone
+
+fprintf('\n');
+
+% item d'
+
+% between experiments
+[h,p,ci,stats] = ttest2(SOSI_ITEM_DP(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_ITEM_DP(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
+fprintf('ttest2: Item d'': SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_ITEM_DP(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_ITEM_DP(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+% source d'
+
+% between experiments
+[h,p,ci,stats] = ttest2(SOSI_SOURCE_DP(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_SOURCE_DP(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
+fprintf('ttest2: Source d'': SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_SOURCE_DP(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_SOURCE_DP(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+fprintf('\n');
+
+% Item response bias (c)
+
+% between experiments
+[h,p,ci,stats] = ttest2(SOSI_ITEM_C(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_ITEM_C(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
+fprintf('ttest2: Item response bias (c): SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_ITEM_C(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_ITEM_C(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+% within experiment
+[h,p,ci,stats] = ttest(SOCO_ITEM_C(~ismember(exper.soco.subjects,exper.soco.badSub)),zeros(1,sum(~ismember(exper.soco.subjects,exper.soco.badSub))),0.05,'both');
+fprintf('ttest: SOCO Item response bias (c) (M=%.2f) vs zero: t(%d)=%.4f, p=%.10f\n',mean(SOCO_ITEM_C(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(SOSI_ITEM_C(~ismember(exper.sosi.subjects,exper.sosi.badSub)),zeros(1,sum(~ismember(exper.sosi.subjects,exper.sosi.badSub))),0.05,'both');
+fprintf('ttest: SOSI Item response bias (c) (M=%.2f) vs zero: t(%d)=%.4f, p=%.10f\n',mean(SOSI_ITEM_C(~ismember(exper.sosi.subjects,exper.sosi.badSub))),stats.df,stats.tstat,p);
+
+% Source response bias (c)
+
+% between experiments
+[h,p,ci,stats] = ttest2(SOSI_SOURCE_C(~ismember(exper.sosi.subjects,exper.sosi.badSub)),SOCO_SOURCE_C(~ismember(exper.soco.subjects,exper.soco.badSub)),0.05,'both');
+fprintf('ttest2: Source response bias (c): SOSI (M=%.2f) vs SOCO (M=%.2f): t(%d)=%.4f, p=%.10f\n',mean(SOSI_SOURCE_C(~ismember(exper.sosi.subjects,exper.sosi.badSub))),mean(SOCO_SOURCE_C(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+% within experiment
+[h,p,ci,stats] = ttest(SOCO_SOURCE_C(~ismember(exper.soco.subjects,exper.soco.badSub)),zeros(1,sum(~ismember(exper.soco.subjects,exper.soco.badSub))),0.05,'both');
+fprintf('ttest: SOCO Source response bias (c) (M=%.2f) vs zero: t(%d)=%.4f, p=%.10f\n',mean(SOCO_SOURCE_C(~ismember(exper.soco.subjects,exper.soco.badSub))),stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(SOSI_SOURCE_C(~ismember(exper.sosi.subjects,exper.sosi.badSub)),zeros(1,sum(~ismember(exper.sosi.subjects,exper.sosi.badSub))),0.05,'both');
+fprintf('ttest: SOSI Source response bias (c) (M=%.2f) vs zero: t(%d)=%.4f, p=%.10f\n',mean(SOSI_SOURCE_C(~ismember(exper.sosi.subjects,exper.sosi.badSub))),stats.df,stats.tstat,p);
+
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% mix and match subjects from each experiment to equate source d' but
+% differ on F accuracy
+
+
+%% initialize randomness
+
+rng('shuffle','twister');
 
 %% try to equate
 
