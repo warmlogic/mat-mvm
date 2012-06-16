@@ -29,8 +29,10 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 % ARTIFACT INFORMATION:
 %
 % ana.artifact.type can be 'none', 'nsAuto', 'zeroVar', 'preRejManual',
-% 'ftManual', 'ftICA', 'badChanManual', 'badChanEP', and/or 'rmBadChan'
-% it can be one of those strings or a cell array of multiple strings (e.g.,
+% 'ftManual', 'ftICA', 'badChanManual', 'badChanEP', and/or 'rmBadChan'.
+% Default is {'none'}.
+%
+% It can be one of those strings or a cell array of multiple strings (e.g.,
 % {'nsAuto','preRejManual'} to do both Net Station artifact rejection and
 % FieldTrip manual ("visual") rejection). 'ftICA' also includes manual
 % rejection after manually assessing components. Though it is not prohibited,
@@ -81,13 +83,14 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 %
 % For the badChan methods, 'rmBadChan' gives the option to delete those
 % channels from the data (if you edit mm_ft_artifact you can turn those
-% channels into NaNs, or jsut do that later on your own).
+% channels into NaNs, or do that later on your own).
 %
 % !!!EXTREMELY IMPORTANT!!!
 % Do not reject ICA components from data that has already had
-% ICA components rejected. Also, be very very very wary about rejecting ICA
+% ICA components rejected. Also, be very wary about rejecting ICA
 % components if you want to do phase analyses; I think ICA screws up phase
-% information. See this PDF for more details:
+% information, but I need to gather more information on this. See this PDF
+% for more details:
 % http://www.appliedneuroscience.com/Tutorial%20on%20ICA%20Phase%20Adulteration.pdf
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

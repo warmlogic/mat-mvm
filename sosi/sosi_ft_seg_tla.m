@@ -141,7 +141,8 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+%ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -364,7 +365,7 @@ exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for publication; also 001 h
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
 
-%% get the grand average
+%% get the grand average ERPs
 
 % set up strings to put in grand average function
 cfg_ana = [];
@@ -389,7 +390,7 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-%% evoked time-frequency
+%% Time-Frequency: evoked (run on average ERP)
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -455,7 +456,7 @@ for sub = 1:length(exper.subjects)
   end
 end
 
-%% save it
+%% Time-Frequency: save it
 
 % data_evoked.SC = data_evoked.RHSC;
 % data_evoked = rmfield(data_evoked,'RHSC');
@@ -466,7 +467,7 @@ end
 
 save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
 
-%% plot some TF stuff
+%% Time-Frequency: plots
 
 %chan=11; % Fz
 %chan=62; % Pz
@@ -621,54 +622,6 @@ for r = 1:length(cfg_plot.rois)
   
   mm_ft_subjplotER(cfg_plot,ana,exper,data_tla);
 end
-
-% %% plot the conditions
-% 
-% cfg_ft = [];
-% cfg_ft.xlim = [-0.2 1.5];
-% cfg_ft.parameter = 'avg';
-% 
-% cfg_plot = [];
-% 
-% %cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% cfg_plot.rois = {{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-% cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6; -1 6];
-% % vertical solid lines to plot
-% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-% 
-% cfg_plot.plotLegend = 0;
-% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-% cfg_plot.plotTitle = 0;
-% 
-% cfg_plot.is_ga = 1;
-% cfg_plot.excludeBadSub = 1;
-% 
-% % outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% % for each event type; each event type cell holds strings for its
-% % conditions
-% 
-% % cfg_plot.condByROI = {...
-% %   {{'CR','RH','SC','SI'}},...
-% %   {{'CR','RH','SC','SI'}},...
-% %   {{'CR','RH','SC','SI'}},...
-% %   {{'CR','SC','SI'}},...
-% %   {{'CR','SC','SI'}},...
-% %   {{'CR','SC','SI'}}};
-% 
-% %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'SC','SI','CR'}},size(cfg_plot.rois));
-% 
-% for r = 1:length(cfg_plot.rois)
-%   cfg_plot.roi = cfg_plot.rois{r};
-%   cfg_plot.conditions = cfg_plot.condByROI{r};
-%   cfg_ft.ylim = cfg_plot.ylims(r,:);
-%   cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
-%   if cfg_plot.plotLegend
-%     cfg_plot.legendloc = cfg_plot.legendlocs{r};
-%   end
-%   
-%   mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
-% end
 
 %% make some GA plots
 

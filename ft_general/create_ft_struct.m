@@ -11,18 +11,19 @@ function [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files)
 % will be kept separate.
 %
 % ana.artifact.type = the type of artifact info to use: 'none', 'nsAuto',
-%                     'zeroVar', 'preRejManual','ftManual', or 'ftICA'.
+% 'zeroVar', 'preRejManual', ftManual', 'ftICA', 'badChanManual',
+% 'badChanEP', and/or 'rmBadChan'.
 %
 %                     Some types can be combined.
 %                     
-%                     If nsAuto, SEG2FT expects to find a NS bci metadata
+%                     If 'nsAuto', SEG2FT expects to find a NS bci metadata
 %                     file. This file denotes the reject artifact trials.
 %                     Use the File Export tool to export Metadata > Segment
 %                     Information; put it in a 'ns_bci' directory in
 %                     dataroot/session.
 %                     
-%                     See SEG2FT for more information.
-%                     (default = 'none')
+%                     See SEG2FT for more artifact information.
+%                     (default = {'none'})
 %
 % ana.overwrite.raw = prevent overwriting of raw data, and load in existing
 %                     raw data (any otherFxns will be run). Binary.
