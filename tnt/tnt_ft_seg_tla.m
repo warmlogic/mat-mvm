@@ -198,6 +198,15 @@ cfg_pp = [];
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
 
+% % do a bandstop filter
+% cfg_pp.bsfilter = 'yes';
+% % delta
+% cfg_pp.bsfreq = [1 3];
+% % % theta
+% % cfg_pp.bsfreq = [3 8];
+% % % alpha
+% % cfg_pp.bsfreq = [8 12];
+
 % do a lowpass filter
 cfg_pp.lpfilter = 'yes';
 cfg_pp.lpfreq = 40;
@@ -347,7 +356,7 @@ end
 exper.badBehSub = {};
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper,ana] = mm_threshSubs(exper,ana,15,false);
 
 %% get the grand average
 
@@ -385,7 +394,8 @@ cfg_plot = [];
 %cfg_ft.xlim = [-1.0 1.7];
 cfg_ft.xlim = [-0.5 1.0];
 cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4 4; -1 6];
+%cfg_plot.ylims = [-4 4; -1 6];
+cfg_plot.ylims = [-4 4; -1.5 3.5];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 % cfg_plot.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % cfg_plot.ylims = [-4 4; -4 4; -1 6; -1 6];

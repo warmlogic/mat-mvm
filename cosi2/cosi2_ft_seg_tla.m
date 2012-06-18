@@ -246,11 +246,11 @@ end
 % eppp
 %adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% CR SC SI
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% % CR SC SI
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % F N RO RS (including x C/I)
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSSC_SRSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% F N RO RS (including x C/I)
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSSC_SRSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -278,15 +278,23 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 % % list the values separated by types: Color, Side
-ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 
-% % all possible categories (F N RO RS x S/I)
-% ana.eventValues = {...
-%   {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
-%   {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
+% all possible categories (F N RO RS x S/I)
+ana.eventValues = {...
+  {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
+  {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
+
+ana.eventValues = {...
+  {'CFSC','CFSI','CNS','CNM','CRSSC','CRSSI'},...
+  {'SFSC','SFSI','SNS','SNM','SRSSC','SRSSI'}};
+
+ana.eventValues = {...
+  {'CFSC','CFSI','CN','CRSSC'},...
+  {'SFSC','SFSI','SN','SRSSC'}};
 
 % % F N RO RS
 % ana.eventValues = {...
@@ -405,7 +413,7 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2
 % 40 session_0 has noisy EEG (NS file)
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,5);
+[exper,ana] = mm_threshSubs(exper,ana,13);
 
 %% get the grand average
 
@@ -577,17 +585,19 @@ ylabel('Frequency');
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.5];
+%cfg_ft.xlim = [-0.5 1.5];
+cfg_ft.xlim = [-0.0 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -4.5 2.4; -2 5; -2 5];
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-% cfg_plot.rois = {{'LAS'},{'LPS'}};
-% cfg_plot.ylims = [-4.5 2.5; -2 5];
-% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -4.5 2.4; -2 5; -2 5];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+cfg_plot.rois = {{'LAS'},{'LPS'}};
+cfg_plot.ylims = [-5.5 2.5; -2 5];
+cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -821,7 +831,7 @@ cfg_ana = [];
 % and define the times that correspond to each set of ROIs
 
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg_ana.rois = {{'LAS'},{'LPS'}};
+%cfg_ana.rois = {{'LAS'},{'LPS'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
@@ -830,6 +840,7 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 % cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'}};
 % cfg_ana.conditions = {{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 cfg_ana.conditions = {{'all_within_types'}};
+%cfg_ana.conditions = {{'CFSC','CFSI'},{'SFSC','SFSI'},{'CFSC','CNS'},{'CFSI','CNS'},{'SFSC','SNS'},{'SFSI','SNS'}};
 
 % set parameters for the statistical test
 cfg_ft = [];

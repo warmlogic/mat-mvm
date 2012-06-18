@@ -1,7 +1,7 @@
-function [exper,ana] = mm_threshSubs(exper,ana,thresh)
+function [exper,ana] = mm_threshSubs(exper,ana,thresh,commonGoodChan)
 %MM_THRESHSUBS Mark subjects as bad when they have fewer than X events
 %
-%   [exper,ana] = mm_threshSubs(exper,ana,thresh)
+%   [exper,ana] = mm_threshSubs(exper,ana,thresh,commonGoodChan)
 %
 %   If one event in ana.eventValues has fewer than 'thresh' trials, then
 %   the subject is marked bad for all events values for that session
@@ -11,21 +11,26 @@ function [exper,ana] = mm_threshSubs(exper,ana,thresh)
 %  ana    = ana struct containing eventValues of interest
 %  thresh = the event count threshold below (<) which a subject will be
 %           counted as having a too low trial count
+%  commonGoodChan = true/false, whether to find the common good channels
+%                   across the good subjects
 %
 % Output:
 %  exper.badSub         = overall, who's bad for any reason
 %  exper.nTrials.lowNum = subjects with a low number of trials
-%  exper.elecCommon     = the common good channels across good subjects
+%  ana.elecCommon       = the common good channels across good subjects
+%                         (only if commonGoodChan=true)
 %
 
 %% setup
 
 % make sure thresh is set; save it in exper struct
-if nargin < 3
-  error('Must specify ''thresh'' for the event count threshold');
-else
-  exper.nTrials.thresh = thresh;
+if nargin < 4
+  commonGoodChan = false;
+  if nargin < 3
+    error('Must specify ''thresh'' for the event count threshold');
+  end
 end
+exper.nTrials.thresh = thresh;
 
 if ~isfield(exper,'badBehSub')
   exper.badBehSub = {};
@@ -117,23 +122,28 @@ for evVal = 1:length(eventValues)
 end
 
 % find the channels that are common across subjects; start with full set
-cfg_com = [];
-cfg_com.channel = ana.elec.label;
-fprintf('Finding the common good channels for good subjects');
-for sub = 1:length(exper.subjects)
-  fprintf('.');
-  for ses = 1:length(exper.sessions)
-    if ~exper.badSub(sub,ses)
-      % this subject's channels
-      subChan = eval(sprintf('{''all'' ''-Fid*''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses})));
-      % whittle down to common channels
-      cfg_com.channel = ft_channelselection(subChan,cfg_com.channel);
+if commonGoodChan
+  cfg_com = [];
+  cfg_com.channel = ana.elec.label;
+  fprintf('Finding the common good channels for good subjects');
+  for sub = 1:length(exper.subjects)
+    fprintf('.');
+    for ses = 1:length(exper.sessions)
+      if ~exper.badSub(sub,ses)
+        % this subject's channels
+        subChan = eval(sprintf('{''all'' ''-Fid*''%s};',sprintf(repmat(' ''-E%d''',1,length(exper.badChan{sub,ses})),exper.badChan{sub,ses})));
+        % whittle down to common channels
+        cfg_com.channel = ft_channelselection(subChan,cfg_com.channel);
+      end
     end
   end
+  fprintf('Done.\n');
+  % save the common good channels
+  ana.elecCommon = cfg_com.channel;
+else
+  % return all normal channels
+  ana.elecCommon = ft_channelselection({'all' '-Fid*'},ana.elec.label);
 end
-fprintf('Done.\n');
-% save the common good channels
-ana.elecCommon = cfg_com.channel;
 
 end
 
