@@ -200,16 +200,23 @@ cfg_pp.baselinewindow = [-0.2 0];
 
 % % do a bandstop filter
 % cfg_pp.bsfilter = 'yes';
-% % delta
-% cfg_pp.bsfreq = [1 3];
+% % % delta
+% % cfg_pp.bsfreq = [1 3];
 % % % theta
 % % cfg_pp.bsfreq = [3 8];
 % % % alpha
 % % cfg_pp.bsfreq = [8 12];
+% % all
+% cfg_pp.bsfreq = [1 12];
+
+% % do a bandpass filter
+% cfg_pp.bpfilter = 'yes';
+% cfg_pp.bpfreq = [1 40];
 
 % do a lowpass filter
 cfg_pp.lpfilter = 'yes';
 cfg_pp.lpfreq = 40;
+%cfg_pp.lpfreq = 1;
 
 cfg_proc = [];
 % do we want to keep the individual trials?
