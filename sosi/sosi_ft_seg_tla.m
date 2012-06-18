@@ -36,8 +36,10 @@ exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 % exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
 % exper.eventValuesExtra.newValue = {{'RH'}};
 
-%exper.eventValuesExtra.toCombine = {{'NS','NM'}};
-%exper.eventValuesExtra.newValue = {{'N'}};
+exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'},...
+  {'ROSC','RSSC'},{'ROSI','RSSI'}};
+exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'},...
+  {'RSC'},{'RSI'}};
 
 %exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
@@ -45,8 +47,9 @@ exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 % exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'}};
 % exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
-% % keep only the combined (extra) events and throw out the original events?
-% exper.eventValuesExtra.onlyKeepExtras = 1;
+% keep only the combined (extra) events and throw out the original events?
+exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
   'SOSI001';

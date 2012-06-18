@@ -359,19 +359,30 @@ cfg.keeptrials = 'no';
 %cfg.keeptrials = 'yes';
 cfg.equatetrials = 'no';
 %cfg.equatetrials = 'yes';
-cfg.ftype = 'fourier';
-cfg.output = 'pow'; % 'pow', 'coh', 'phase'
-cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
-%cfg.normalize = 'dB'; % 'log10', 'log', 'vector', 'dB'
-%cfg.normalize = 'vector'; % 'log10', 'log', 'vector', 'dB'
 
+% type of input (used in the filename to load)
+cfg.ftype = 'fourier';
+
+% type of output: 'pow', 'coh', 'phase'
+cfg.output = 'pow';
+
+% normalization type: 'log10', 'log', 'vector', 'dB'
+cfg.normalize = 'log10'; 
+%cfg.normalize = 'dB';
+%cfg.normalize = 'vector';
+
+% baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 %cfg.baselinetype = 'zscore';
 cfg.baselinetype = 'absolute';
 %cfg.baselinetype = 'relchange';
 %cfg.baselinetype = 'relative';
+
+% baseline period
 cfg.baseline = [-0.4 -0.2];
 %cfg.baseline = [-0.2 0];
+
+% at what data stage should it be baseline corrected?
 %cfg.baselinedata = 'mod';
 cfg.baselinedata = 'pow';
 
@@ -379,6 +390,7 @@ cfg.baselinedata = 'pow';
 %cfg.saveFile = true;
 cfg.saveFile = false;
 
+% only keep induced data by removing evoked?
 cfg.rmevoked = 'yes';
 cfg.rmevokedfourier = 'yes';
 cfg.rmevokedpow = 'no';
