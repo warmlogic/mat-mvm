@@ -1006,13 +1006,6 @@ thisBLtype = 'logp_evok';
 thisBL = [-0.4 -0.2];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
-if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [4 100];
-else
-  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
-  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-end
-
 if strcmp(cfg_ft.avgovertime,'no')
   cfg_ana.latencies = [0 1.0];
   %cfg_ana.latencies = [0 0.5; 0.5 1.0];
@@ -1021,6 +1014,19 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
   %cfg_ana.latencies = [-0.2 0; 0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
   %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
   cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]';
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
+end
+
+if strcmp(cfg_ft.avgoverfreq,'no')
+  cfg_ana.frequencies = [4 100];
+elseif strcmp(cfg_ft.avgoverfreq,'yes')
+  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
+  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
+end
+
+if strcmp(cfg_ft.avgoverchan,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
 end
 
 for lat = 1:size(cfg_ana.latencies,1)

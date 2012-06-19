@@ -172,7 +172,8 @@ files.figPrintRes = 150;
 ana.segFxn = 'seg2ft';
 
 % eppp
-ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+%ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+ana.artifact.type = {'zeroVar'};
 % % nspp
 % ana.artifact.type = {'nsAuto'};
 
@@ -250,7 +251,10 @@ end
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 % F N RO RS (including x C/I)
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSSC_SRSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+%adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSSC_SRSSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+
+% F/N/RO/RS x SC/SI complete
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -283,18 +287,30 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 
-% all possible categories (F N RO RS x S/I)
-ana.eventValues = {...
-  {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
-  {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
+% % all possible categories (F N RO RS x S/I)
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
+%   {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
+% 
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CNS','CNM','CRSSC','CRSSI'},...
+%   {'SFSC','SFSI','SNS','SNM','SRSSC','SRSSI'}};
+% 
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CN','CRSSC'},...
+%   {'SFSC','SFSI','SN','SRSSC'}};
+% 
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CN','CRSC','CRSI'},...
+%   {'SFSC','SFSI','SN','SRSC','SRSI'}};
+
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CN'},...
+%   {'SFSC','SFSI','SN'}};
 
 ana.eventValues = {...
-  {'CFSC','CFSI','CNS','CNM','CRSSC','CRSSI'},...
-  {'SFSC','SFSI','SNS','SNM','SRSSC','SRSSI'}};
-
-ana.eventValues = {...
-  {'CFSC','CFSI','CN','CRSSC'},...
-  {'SFSC','SFSI','SN','SRSSC'}};
+  {'CFSC','CFSI'},...
+  {'SFSC','SFSI'}};
 
 % % F N RO RS
 % ana.eventValues = {...
@@ -413,7 +429,7 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2
 % 40 session_0 has noisy EEG (NS file)
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,13);
+[exper,ana] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
@@ -440,7 +456,7 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-%% time-frequency
+%% Time-Frequency: evoked (run on average ERP)
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -506,11 +522,11 @@ for sub = 1:length(exper.subjects)
   end
 end
 
-%% save TF
+%% Time-Frequency: save it
 
 save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
 
-%% plot some TF stuff
+%% Time-Frequency: plots
 
 %chan=11; % Fz
 %chan=62; % Pz
@@ -586,7 +602,7 @@ ylabel('Frequency');
 
 cfg_ft = [];
 %cfg_ft.xlim = [-0.5 1.5];
-cfg_ft.xlim = [-0.0 1.0];
+cfg_ft.xlim = [-0.2 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
@@ -595,7 +611,9 @@ cfg_plot = [];
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -4.5 2.4; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'LAS'},{'LPS'}};
+%cfg_plot.rois = {{'LAS'},{'LPS'}};
+%cfg_plot.rois = {{'FS'}};
+cfg_plot.rois = {{'C'}};
 cfg_plot.ylims = [-5.5 2.5; -2 5];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
@@ -698,35 +716,37 @@ cfg_plot = [];
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 0;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.plotTitle = 0;
+% 
+% % cfg_plot.xlabel = 'Time (s)';
+% % cfg_plot.ylabel = 'Voltage (\muV)';
+% cfg_plot.xlabel = '';
+% cfg_plot.ylabel = '';
+
+cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_plot.plotLegend = 0;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.plotTitle = 0;
-
-% cfg_plot.xlabel = 'Time (s)';
-% cfg_plot.ylabel = 'Voltage (\muV)';
-cfg_plot.xlabel = '';
-cfg_plot.ylabel = '';
-
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-6 6];
-% %cfg_plot.ylims = 'maxmin';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% %cfg_ft.comment = 'no';
-% % cfg_plot.rois = {'all'};
-% % cfg_ft.xlim = [0 1.2]; % time
-% % cfg_plot.subplot = 1;
-% cfg_plot.rois = {{'LAS'}};
-% cfg_ft.xlim = [0.3 0.5]; % time
-% %cfg_plot.rois = {{'LPS'}};
-% %cfg_ft.xlim = [0.5 0.8]; % time
-% %cfg_plot.rois = {{'LPS'}};
-% %cfg_ft.xlim = [1.0 1.5]; % time
+cfg_plot.ylims = [-6 6];
+%cfg_plot.ylims = 'maxmin';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+%cfg_ft.comment = 'no';
+% cfg_plot.rois = {'all'};
+% cfg_ft.xlim = [0 1.2]; % time
+% cfg_plot.subplot = 1;
+%cfg_plot.rois = {{'LAS'}};
+cfg_plot.rois = {{'FS'}};
+cfg_ft.xlim = [0.3 0.5]; % time
+%cfg_plot.rois = {{'LPS'}};
+%cfg_ft.xlim = [0.5 0.8]; % time
+%cfg_plot.rois = {{'LPS'}};
+%cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -755,12 +775,13 @@ cfg_plot.ylabel = '';
 %cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
 
-%cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByTypeByROI = repmat({{{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}}},size(cfg_plot.rois));
-
+cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 cfg_plot.typesByROI = repmat({{'Color','Side'}},size(cfg_plot.condByTypeByROI));
+cfg_plot.rename_condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
-cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+% cfg_plot.condByTypeByROI = repmat({{{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}}},size(cfg_plot.rois));
+% cfg_plot.typesByROI = repmat({{'Color','Side'}},size(cfg_plot.condByTypeByROI));
+% cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -830,7 +851,8 @@ cfg_ana = [];
 % define which regions to average across for the test
 % and define the times that correspond to each set of ROIs
 
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'C'}};
 %cfg_ana.rois = {{'LAS'},{'LPS'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
@@ -1035,7 +1057,8 @@ end
 %% cluster statistics
 
 cfg_ft = [];
-cfg_ft.avgovertime = 'no';
+%cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
 cfg_ft.avgoverchan = 'no';
 
 cfg_ft.parameter = 'avg';
@@ -1043,16 +1066,34 @@ cfg_ft.parameter = 'avg';
 cfg_ana = [];
 cfg_ana.roi = 'all';
 %cfg_ana.latencies = [0 1.0; 1.0 2.0];
-cfg_ana.latencies = [0 1.0];
+%cfg_ana.latencies = [0 1.0];
+%cfg_ana.latencies = [0.2 0.6];
+cfg_ana.latencies = [0.3 0.5];
+
+cfg_ft.numrandomization = 500;
+% cfg_ft.clusteralpha = 0.05;
+cfg_ft.clusteralpha = 0.1;
+cfg_ft.alpha = 0.05;
+
+% extra directory info
+cfg_ana.dirStr = '';
+if strcmp(cfg_ft.avgovertime,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
+end
+if strcmp(cfg_ft.avgoverchan,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
+end
 
 % cfg_ana.conditions = {...
 %   {'CCR','CH'},{'CCR','CHSC'},{'CCR','CHSI'},{'CHSC','CHSI'},...
 %   {'SCR','SH'},{'SCR','SHSC'},{'SCR','SHSI'},{'SHSC','SHSI'},...
 %   {'CCR','SCR'},{'CH','SH'},{'CHSC','SHSC'},{'CHSI','SHSI'}};
-%cfg_ana.conditions = {'all_within_types'};
-cfg_ana.conditions = {...
-  {'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},...
-  {'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+
+% cfg_ana.conditions = {...
+%   {'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},...
+%   {'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+
+cfg_ana.conditions = {'all_within_types'};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -1065,11 +1106,12 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = 0.1;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.conditions = cfg_ana.conditions;
+cfg_plot.dirStr = cfg_ana.dirStr;
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);

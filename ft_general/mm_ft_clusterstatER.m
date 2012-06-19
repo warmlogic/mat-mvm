@@ -43,6 +43,7 @@ if ~isfield(cfg_ft,'avgovertime')
   cfg_ft.avgovertime = 'no';
 end
 
+% set up spatial channel information
 cfg_ft.elec = ana.elec;
 if strcmp(cfg_ft.avgoverchan,'no')
   cfg_ft.method = 'distance';
@@ -62,8 +63,9 @@ end
 % alpha level of the permutation test per tail (statistics_montecarlo
 % default = .05)
 if ~isfield(cfg_ft,'alpha')
+  % we correct for two-tailed tests below if doing a two-tailed test, so
+  % use 0.05
   cfg_ft.alpha = 0.05;
-  %cfg_ft.alpha = 0.025;
 end
 % number of draws from the permutation distribution
 if ~isfield(cfg_ft,'numrandomization')
@@ -73,11 +75,17 @@ end
 % sample to be included in the clustering algorithm (FT default in
 % fieldtrip/private/clusterstat = 0)
 if ~isfield(cfg_ft,'minnbchan')
-  cfg_ft.minnbchan = 1;
+  cfg_ft.minnbchan = 0;
+  %cfg_ft.minnbchan = 1;
 end
 
 % exclude the bad subjects from the subject count
 cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub);
+
+% extra identification in directory name when saving results
+if ~isfield(cfg_ana,'dirStr')
+  cfg_ana.dirStr = '';
+end
 
 % make sure cfg_ana.conditions is set correctly
 if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
@@ -94,10 +102,12 @@ end
 cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
 
 % set the saving directory
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_ana.dirStr));
 if ~exist(dirs.saveDirClusStat,'dir')
   mkdir(dirs.saveDirClusStat)
 end
+
+fprintf('Finding clusters...\n');
 
 for cnd = 1:length(cfg_ana.conditions)
   % initialize for storing the cluster statistics
@@ -148,6 +158,11 @@ for cnd = 1:length(cfg_ana.conditions)
     % test tails: -1 = left tail, 0 = two tail, 1 = right tail
     cfg_ft.tail = 0;
     cfg_ft.clustertail = 0;
+    % need to correct for doing a two-tailed test
+    if ~isfield(cfg_ft,'correcttail')
+      %cfg_ft.correcttail = 'alpha'; % divides cfg_ft.alpha by 2
+      cfg_ft.correcttail = 'prob'; % multiplies p-values by 2
+    end
   elseif cfg_ana.numConds > 2
     cfg_ft.statistic = 'depsamplesF';
     % test tails: -1 = left tail, 0 = two tail, 1 = right tail
@@ -178,5 +193,6 @@ for cnd = 1:length(cfg_ana.conditions)
   save(saveFile,'stat_clus');
 end
 
-end
+fprintf('Done.\n');
 
+end

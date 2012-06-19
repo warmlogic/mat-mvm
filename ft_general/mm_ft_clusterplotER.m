@@ -3,6 +3,7 @@ function mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs)
 %    
 
 close all
+fprintf('Plotting clusters...\n');
 
 % p-val markers; default ['*','x','+','o','.'], p < [0.01 0.05 0.1 0.2 0.3]
 cfg_ft.highlightsymbolseries = ['*','x','+','o','.'];
@@ -33,8 +34,13 @@ if ~isfield(cfg_plot,'condMethod')
 end
 cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
+% extra identification in directory name when saving results
+if ~isfield(cfg_plot,'dirStr')
+  cfg_plot.dirStr = '';
+end
+
 % set the directory to load the file from
-dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)));
+dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_plot.dirStr));
 
 for cnd = 1:length(cfg_plot.conditions)
   % set the number of conditions that we're testing
@@ -116,7 +122,7 @@ for cnd = 1:length(cfg_plot.conditions)
             
             cfg_plot.figfilename = sprintf('tla_clus_ga_%s_%d_%d_fig%d',vs_str,round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),f);
             
-            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000)),vs_str);
+            dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_plot.dirStr),vs_str);
             %dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,'tla_stat_clus',vs_str);
             if ~exist(dirs.saveDirFigsClus,'dir')
               mkdir(dirs.saveDirFigsClus)
@@ -143,5 +149,7 @@ for cnd = 1:length(cfg_plot.conditions)
   end % if isfield
   
 end % for cnd
+
+fprintf('Done.\n');
 
 end

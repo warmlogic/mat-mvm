@@ -46,6 +46,7 @@ if ~isfield(cfg_ft,'avgoverfreq')
   cfg_ft.avgoverfreq = 'no';
 end
 
+% set up spatial channel information
 cfg_ft.elec = ana.elec;
 if strcmp(cfg_ft.avgoverchan,'no')
   cfg_ft.method = 'distance';
@@ -65,8 +66,9 @@ end
 % alpha level of the permutation test per tail (statistics_montecarlo
 % default = .05)
 if ~isfield(cfg_ft,'alpha')
+  % we correct for two-tailed tests below if doing a two-tailed test, so
+  % use 0.05
   cfg_ft.alpha = 0.05;
-  %cfg_ft.alpha = 0.025;
 end
 % number of draws from the permutation distribution
 if ~isfield(cfg_ft,'numrandomization')
@@ -76,7 +78,8 @@ end
 % sample to be included in the clustering algorithm (FT default in
 % fieldtrip/private/clusterstat = 0)
 if ~isfield(cfg_ft,'minnbchan')
-  cfg_ft.minnbchan = 1;
+  cfg_ft.minnbchan = 0;
+  %cfg_ft.minnbchan = 1;
 end
 
 % exclude the bad subjects from the subject count
@@ -106,6 +109,8 @@ dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s'
 if ~exist(dirs.saveDirClusStat,'dir')
   mkdir(dirs.saveDirClusStat)
 end
+
+fprintf('Finding clusters...\n');
 
 for cnd = 1:length(cfg_ana.conditions)
   % initialize for storing the cluster statistics
@@ -156,6 +161,11 @@ for cnd = 1:length(cfg_ana.conditions)
     % test tails: -1 = left tail, 0 = two tail, 1 = right tail
     cfg_ft.tail = 0;
     cfg_ft.clustertail = 0;
+    % need to correct for doing a two-tailed test
+    if ~isfield(cfg_ft,'correcttail')
+      %cfg_ft.correcttail = 'alpha'; % divides cfg_ft.alpha by 2
+      cfg_ft.correcttail = 'prob'; % multiplies p-values by 2
+    end
   elseif cfg_ana.numConds > 2
     cfg_ft.statistic = 'depsamplesF';
     % test tails: -1 = left tail, 0 = two tail, 1 = right tail
@@ -185,5 +195,7 @@ for cnd = 1:length(cfg_ana.conditions)
   fprintf('Saving %s\n',saveFile);
   save(saveFile,'stat_clus');
 end
+
+fprintf('Done.\n');
 
 end

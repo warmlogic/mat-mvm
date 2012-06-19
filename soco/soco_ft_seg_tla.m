@@ -156,7 +156,8 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
-ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+%ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -215,8 +216,11 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% all combos
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
+% % 3 from publication
+% adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
@@ -262,13 +266,16 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {{'RCR','RHSC','RHSI'}};
 
-ana.eventValues = {exper.eventValues};
+%ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
+
+%ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
+ana.eventValues = {{'FSC','FSI','N'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -413,7 +420,7 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-%% time-frequency
+%% Time-Frequency: evoked (run on average ERP)
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -479,7 +486,7 @@ for sub = 1:length(exper.subjects)
   end
 end
 
-%% save it
+%% Time-Frequency: save it
 
 data_evoked.SC = data_evoked.RHSC;
 data_evoked = rmfield(data_evoked,'RHSC');
@@ -490,7 +497,7 @@ data_evoked = rmfield(data_evoked,'RCR');
 
 save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
 
-%% plot some TF stuff
+%% Time-Frequency: plots
 
 %chan=11; % Fz
 %chan=62; % Pz
@@ -565,14 +572,20 @@ ylabel('Frequency');
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 2.0];
+cfg_ft.xlim = [-0.2 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+% %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+cfg_plot.rois = {{'FS'},{'LPS'}};
+cfg_plot.rois = {{'C'}};
+cfg_plot.ylims = [-5 2; -1 6];
+cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -1054,14 +1067,31 @@ end
 %% cluster statistics
 
 cfg_ft = [];
-cfg_ft.avgovertime = 'no';
+%cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
 cfg_ft.avgoverchan = 'no';
 
 cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
-cfg_ana.latencies = [0 1.0; 1.0 2.0];
+%cfg_ana.latencies = [0 1.0; 1.0 2.0];
+%cfg_ana.latencies = [0.2 0.6];
+cfg_ana.latencies = [0.3 0.5];
+
+cfg_ft.numrandomization = 500;
+% cfg_ft.clusteralpha = 0.05;
+cfg_ft.clusteralpha = 0.1;
+cfg_ft.alpha = 0.05;
+
+% extra directory info
+cfg_ana.dirStr = '';
+if strcmp(cfg_ft.avgovertime,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
+end
+if strcmp(cfg_ft.avgoverchan,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
+end
 
 % cfg_ana.conditions = {...
 %   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
@@ -1081,11 +1111,12 @@ end
 %files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = 0.1;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.conditions = cfg_ana.conditions;
+cfg_plot.dirStr = cfg_ana.dirStr;
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);

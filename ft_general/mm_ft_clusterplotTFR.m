@@ -34,6 +34,7 @@ if isequal(cfg_plot.mask,'yes')
 end
 
 close all
+fprintf('Plotting clusters...\n');
 
 % p-val markers; default ['*','x','+','o','.'], p < [0.01 0.05 0.1 0.2 0.3]
 cfg_ft.highlightsymbolseries = ['*','x','+','o','.'];
@@ -199,5 +200,7 @@ for cnd = 1:length(cfg_plot.conditions)
   end % if isfield
   
 end % for cnd
+
+fprintf('Done.\n');
 
 end

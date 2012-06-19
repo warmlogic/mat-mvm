@@ -203,8 +203,11 @@ end
 
 %% load the analysis details
 
+% all combos
+adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% % 3 categories
+% adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
@@ -248,6 +251,10 @@ ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'FSC','FSI','N','RSSC'}};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
+
+%ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
+%ana.eventValues = {{'FSC','FSI','N'}};
+ana.eventValues = {{'FSC','FSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -545,18 +552,19 @@ ylabel('Frequency');
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-.2 1.0];
+cfg_ft.xlim = [-0.2 1.0];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
-cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6];
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-5 2; -5 2; -5 2; -1 6; -1 6];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_plot.rois = {{'RAS'},{'LPS'}};
-%cfg_plot.ylims = [-5 2; -1 6];
-%cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+cfg_plot.rois = {{'FS'},{'LPS'}};
+cfg_plot.ylims = [-5 2; -1 6];
+cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 %cfg_plot.rois = {{'FS'},{'FI'}};
 %cfg_plot.ylims = [-5 2; -5 2];
@@ -651,33 +659,33 @@ cfg_plot.excludeBadSub = 1;
 % Type of plot
 %%%%%%%%%%%%%%%
 
-cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 0;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.ftFxn = 'ft_singleplotER';
+% cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -1 6; -1 6; -1 6];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.plotLegend = 0;
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% 
+% cfg_plot.xlabel = 'Time (s)';
+% cfg_plot.ylabel = 'Voltage (\muV)';
+% % cfg_plot.xlabel = '';
+% % cfg_plot.ylabel = '';
 
-cfg_plot.xlabel = 'Time (s)';
-cfg_plot.ylabel = 'Voltage (\muV)';
-% cfg_plot.xlabel = '';
-% cfg_plot.ylabel = '';
-
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-6 6];
-% %cfg_plot.ylims = 'maxmin';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% %cfg_ft.comment = 'no';
-% %cfg_plot.rois = {'all'};
-% cfg_plot.subplot = 0;
-% cfg_plot.rois = {{'FS'}};
-% cfg_ft.xlim = [0.3 0.5]; % time
-% % cfg_plot.rois = {{'LPS'}};
-% % cfg_ft.xlim = [0.5 0.8]; % time
-% %cfg_plot.rois = {{'LPS'}};
-% %cfg_ft.xlim = [1.0 1.5]; % time
+cfg_plot.ftFxn = 'ft_topoplotER';
+cfg_plot.ylims = [-6 6];
+%cfg_plot.ylims = 'maxmin';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+%cfg_ft.comment = 'no';
+%cfg_plot.rois = {'all'};
+cfg_plot.subplot = 0;
+cfg_plot.rois = {{'FS'}};
+cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_plot.rois = {{'LPS'}};
+% cfg_ft.xlim = [0.5 0.8]; % time
+%cfg_plot.rois = {{'LPS'}};
+%cfg_ft.xlim = [1.0 1.5]; % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.showlabels = 'yes';
@@ -692,9 +700,10 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-%cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -877,14 +886,31 @@ end
 %% run the cluster statistics
 
 cfg_ft = [];
-cfg_ft.avgovertime = 'no';
+%cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
 cfg_ft.avgoverchan = 'no';
 
 cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
-cfg_ana.latencies = [0 1.0; 1.0 2.0];
+%cfg_ana.latencies = [0 1.0; 1.0 2.0];
+%cfg_ana.latencies = [0.2 0.6];
+cfg_ana.latencies = [0.3 0.5];
+
+cfg_ft.numrandomization = 500;
+% cfg_ft.clusteralpha = 0.05;
+cfg_ft.clusteralpha = 0.1;
+cfg_ft.alpha = 0.05;
+
+% extra directory info
+cfg_ana.dirStr = '';
+if strcmp(cfg_ft.avgovertime,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
+end
+if strcmp(cfg_ft.avgoverchan,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
+end
 
 cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'CR','RH'},{'CR','SC'},{'CR','SI'},{'SC','SI'}};
@@ -900,11 +926,12 @@ end
 files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = 0.1;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.conditions = cfg_ana.conditions;
+cfg_plot.dirStr = cfg_ana.dirStr;
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
