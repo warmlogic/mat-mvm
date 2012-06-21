@@ -22,8 +22,8 @@ if ~isfield(cfg_ana,'printTable_tex')
 end
 
 % get the label info for this data struct
-if isfield(data.(exper.eventValues{1}).sub(1).ses(1).data,'label');
-  lab = data.(exper.eventValues{1}).sub(1).ses(1).data.label;
+if isfield(data.(cfg_ana.conditions{1}).sub(1).ses(1).data,'label');
+  lab = data.(cfg_ana.conditions{1}).sub(1).ses(1).data.label;
 else
   error('label information not found in data struct');
 end

@@ -967,20 +967,11 @@ cfg_ana.rois = {{'FC'}};
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.3 0.5];
 
-cfg_ana.condByROI = repmat({{'FSC', 'FSI', 'CR'}},size(cfg_ana.rois));
+cfg_ana.condByROI = repmat({{'FSC', 'FSI', 'N'}},size(cfg_ana.rois));
 % Define the IVs (type: event, roi, latency)
 cfg_ana.IV1.name = 'FSC/FSI/CR';
-cfg_ana.IV1.cond = {'FSC', 'FSI', 'CR'};
+cfg_ana.IV1.cond = {'FSC', 'FSI', 'N'};
 cfg_ana.IV1.type = 'event';
-
-% cfg_ana.condByROI = repmat({{'TR', 'TF', 'NTR', 'NTF'}},size(cfg_ana.rois));
-% % Define the IVs (type: event, roi, latency)
-% cfg_ana.IV1.name = 'T/NT';
-% cfg_ana.IV1.cond = {'T','NT'};
-% cfg_ana.IV1.type = 'event';
-% cfg_ana.IV2.name = 'R/F';
-% cfg_ana.IV2.cond = {'R','F'};
-% cfg_ana.IV2.type = 'event';
 
 cfg_ana.parameter = 'avg';
 
@@ -989,7 +980,7 @@ for r = 1:length(cfg_ana.rois)
   cfg_ana.conditions = cfg_ana.condByROI{r};
   cfg_ana.latency = cfg_ana.latencies(r,:);
   
-  mm_ft_rmaov2ER_spec(cfg_ana,exper,ana,data_tla);
+  mm_ft_rmaov1ER_spec(cfg_ana,exper,ana,data_tla);
 end
 
 %% run the cluster statistics
