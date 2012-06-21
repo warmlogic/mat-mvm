@@ -242,7 +242,7 @@ if rejArt_nsAuto
     end
     
     % read in the NS artifact file
-    format_str = ['%s%d8%d8%s',repmat('%d8',[1,nChan_summary*2]),'%s'];
+    format_str = ['%s%d%d%s',repmat('%d',[1,nChan_summary*2]),'%s'];
     fid = fopen(summaryFile,'r');
     sesSummary = textscan(fid,format_str,'Headerlines',1,'delimiter','\t');
     fclose(fid);
@@ -250,15 +250,26 @@ if rejArt_nsAuto
     error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
   end
   
-  % find the bad trials for this event
-  %thisEv = find(ismember(sesSummary{1},eventValue));
-  badEv = strcmp(sesSummary{4},'bad');
-  % make sure we only have data for the bad events for this event value
-  badEv = badEv(ismember(sesSummary{1},eventValue));
-  %goodEv = strcmp(sesSummary{4},'good');
-  %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
+  % sort the events by StartTime offset in the bci file
+  [startTimeSorted,startTimeInd] = sort(sesSummary{2});
+  badSorted = sesSummary{4}(startTimeInd);
+  eventValueSorted = sesSummary{1}(startTimeInd);
   
-  % old method: remove trials with artifacts from the trl matrix
+  % find the bad trials for this event
+  badEv = strcmp(badSorted,'bad');
+  % make sure we only have data for the bad events for this event value
+  badEv = badEv(ismember(eventValueSorted,eventValue));
+  
+  % old method
+  %   % find the bad trials for this event
+  %   %thisEv = find(ismember(sesSummary{1},eventValue));
+  %   badEv = strcmp(sesSummary{4},'bad');
+  %   % make sure we only have data for the bad events for this event value
+  %   badEv = badEv(ismember(sesSummary{1},eventValue));
+  %   %goodEv = strcmp(sesSummary{4},'good');
+  %   %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
+  
+  % oldest method: remove trials with artifacts from the trl matrix
   %cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
   
   if ~isempty(find(badEv,1))

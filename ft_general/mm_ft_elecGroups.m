@@ -6,6 +6,8 @@ function ana = mm_ft_elecGroups(ana,layoutStr,elecGroupsExtra,elecGroupsStrExtra
 %   ana = mm_ft_elecGroups(ana,layoutStr,elecGroupsExtra,elecGroupsStrExtra)
 %
 %  Input:
+%    ana                = the ana struct
+%
 %    layoutStr          = the layout to use (default: 'HCGSN129')
 %
 %    elecGroupsExtra    = Optional. Muse be a cell array containing cell
@@ -92,6 +94,7 @@ if strcmp('HCGSN129',layoutStr)
     {'E77','E78','E84','E85','E86','E91','E92'},... % RPS2
     {'E4','E10','E11','E15','E16','E18','E19'},... % Frontal Inferior
     {'E4','E5','E6','E11','E12','E13','E19','E112'},... % Frontal Superior
+    {'E5','E6','E7','E12','E13','E106','E112'},... % Frontal Superior2
     {'E7','E31','E55','E80','E106','E129'},... % Central (central)
     {'E54','E61','E62','E67','E72','E77','E78','E79'},... % Posterior Superior
     {'E70','E71','E74','E75','E76','E82','E83'},... % Posterior Inferior
@@ -129,6 +132,7 @@ if strcmp('HCGSN129',layoutStr)
     'RPS2',...
     'FI',...
     'FS',...
+    'FC',...
     'C',...
     'PS',...
     'PI',...

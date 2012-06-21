@@ -216,11 +216,11 @@ end
 
 %% load the analysis details
 
-% all combos
-adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+% % F/N/RO/RS x SC/SI all combos
+% adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % 3 from publication
-% adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% CR SC SI (with bad chan info), use this
+adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOCO/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
@@ -266,7 +266,8 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {{'RCR','RHSC','RHSI'}};
 
-%ana.eventValues = {exper.eventValues};
+ana.eventValues = {exper.eventValues};
+
 %ana.eventValues = {{'RHSC','RHSI','RCR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
@@ -274,8 +275,8 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
 
-%ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
-ana.eventValues = {{'FSC','FSI','N'}};
+% ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
+% ana.eventValues = {{'FSC','FSI','N'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -392,8 +393,34 @@ exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
 % % plot bad
 % exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
 
+% subsample of subjects (thresh=14) to remove for Familiar contrasts;
+% should have 9 subjects left over
+exper.badBehSub = {
+  'SOCO001'
+  'SOCO002'
+  'SOCO003'
+  'SOCO004'
+  'SOCO005'
+  'SOCO006'
+  'SOCO007'
+  'SOCO008'
+  'SOCO009'
+  'SOCO010'
+  'SOCO014'
+  'SOCO016'
+  'SOCO018'
+  'SOCO019'
+  'SOCO020'
+  'SOCO021'
+  'SOCO022'
+  'SOCO024'
+  'SOCO025'
+  'SOCO026'
+  'SOCO027'
+  };
+
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper,ana] = mm_threshSubs(exper,ana,14);
 
 %% get the grand average
 
@@ -583,7 +610,7 @@ cfg_plot = [];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.rois = {{'FS'},{'LPS'}};
-cfg_plot.rois = {{'C'}};
+cfg_plot.rois = {{'FC'}};
 cfg_plot.ylims = [-5 2; -1 6];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
@@ -879,6 +906,7 @@ cfg_ana = [];
 % cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_ana.rois = {{'FC'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
@@ -909,7 +937,7 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 1;
+cfg_plot.line_plots = 0;
 %cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 % cfg_plot.ylims = [-5 -2; -5 -2; -5 -2; 1.5 4.5; 1.5 4.5;];

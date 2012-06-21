@@ -27,28 +27,29 @@ exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-%exper.eventValues = sort({'RCR','RHSC','RHSI'});
+%exper.eventValues = sort({'CR','SC','SI'});
 %exper.eventValues = sort({'F','N','RO','RS'});
+
 exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 
 % combine some events into higher-level categories
 
-% exper.eventValuesExtra.toCombine = {{'RHSC','RHSI'}};
+% exper.eventValuesExtra.toCombine = {{'SC','SI'}};
 % exper.eventValuesExtra.newValue = {{'RH'}};
 
-exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'},...
-  {'ROSC','RSSC'},{'ROSI','RSSI'}};
-exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'},...
-  {'RSC'},{'RSI'}};
+% exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'},...
+%   {'ROSC','RSSC'},{'ROSI','RSSI'}};
+% exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'},...
+%   {'RSC'},{'RSI'}};
 
 %exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 
-% exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'}};
-% exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
+exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'},{'FSC','ROSC','RSSC','FSI','ROSI','RSSI'}};
+exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'},{'H'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -203,11 +204,14 @@ end
 
 %% load the analysis details
 
-% all combos
+% F/N/RO/RS x SC/SI all combos
 adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % 3 categories
+% % CR SC SI (with bad chan info), use this
 % adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+
+% % CR SC SI H
+% adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_H_SC_SI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
@@ -243,8 +247,9 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'RHSC','RHSI','RCR'}};
+% ana.eventValues = {exper.eventValues};
+
+%ana.eventValues = {{'CR','SC','SI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
@@ -252,9 +257,10 @@ ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'F','N','RO','RS'}};
 %ana.eventValues = {{'FSC','RSSI'}};
 
-%ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
-%ana.eventValues = {{'FSC','FSI','N'}};
-ana.eventValues = {{'FSC','FSI'}};
+ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
+% ana.eventValues = {{'FSC','FSI','N'}};
+
+%ana.eventValues = {{'FSC','FSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -372,8 +378,45 @@ exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for publication; also 001 h
 % plot bad
 %exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
 
+% % subsample of subjects (thresh=14) to remove for Familiar contrasts;
+% % should have 17 subjects left over
+% exper.badBehSub = {
+%   'SOSI001'
+%   'SOSI003'
+%   'SOSI005'
+%   'SOSI007'
+%   'SOSI009'
+%   'SOSI011'
+%   'SOSI012'
+%   'SOSI017'
+%   'SOSI018'
+%   'SOSI022'
+%   'SOSI023'
+%   'SOSI024'
+%   'SOSI030'
+%   };
+
+% subsample of subjects (thresh=15) to remove for Familiar contrasts;
+% should have 16 subjects left over
+exper.badBehSub = {
+  'SOSI001'
+  'SOSI003'
+  'SOSI005'
+  'SOSI007'
+  'SOSI009'
+  'SOSI011'
+  'SOSI012'
+  'SOSI017'
+  'SOSI018'
+  'SOSI022'
+  'SOSI023'
+  'SOSI024'
+  'SOSI029'
+  'SOSI030'
+  };
+
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,15);
+[exper,ana] = mm_threshSubs(exper,ana,5);
 
 %% get the grand average ERPs
 
@@ -562,8 +605,10 @@ cfg_plot = [];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'FS'},{'LPS'}};
-cfg_plot.ylims = [-5 2; -1 6];
+% cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.ylims = [-5 2; -1 6];
+cfg_plot.rois = {{'FC'}};
+cfg_plot.ylims = [-5 2; -5 2];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 %cfg_plot.rois = {{'FS'},{'FI'}};
@@ -721,6 +766,30 @@ for r = 1:length(cfg_plot.rois)
   mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
 end
 
+%% find the max difference between conditions
+
+cfg = [];
+
+cfg.contrast = {'FSC','FSI'};
+
+% cfg.contrast = {'SC','SI'};
+% cfg.contrast = {'SC','CR'};
+% cfg.contrast = {'SI','CR'};
+cfg.latency = [0.3 0.5];
+
+%cfg.roi = {'LAS'};
+%cfg.roi = {'FS'};
+cfg.roi = {'all129'};
+
+cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
+cfg.chansel = ismember(ft_channelselection({'all','-Fid*'},ana.elec.label),cfg.channel);
+cfg.timesel = find(ga_tla.(cfg.contrast{1}).time >= cfg.latency(1) & ga_tla.(cfg.contrast{1}).time <= cfg.latency(2));
+
+chanDiff = mean(ga_tla.(cfg.contrast{1}).avg(cfg.chansel,cfg.timesel),2) - mean(ga_tla.(cfg.contrast{2}).avg(cfg.chansel,cfg.timesel),2);
+
+[vSort,cSort] = sort(chanDiff);
+cfg.channel(cSort)
+
 %% plot the contrasts
 
 cfg_plot = [];
@@ -739,6 +808,7 @@ cfg_ft.colorbar = 'no';
 cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
 %cfg_plot.conditions = {{'SC','CR'}}; % {'RH','CR'},
 %cfg_plot.conditions = {{'FSC','RSSI'}};
+cfg_plot.conditions = {{'H','CR'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 %cfg_ft.zlim = 'maxmin'; % volt
@@ -788,6 +858,7 @@ cfg_ana = [];
 
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_ana.rois = {{'LAS'}};
+cfg_ana.rois = {{'FC'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
@@ -881,6 +952,44 @@ for r = 1:length(cfg_ana.rois)
   cfg_ana.condCommon = cfg_ana.condCommonByROI{r};
   
   mm_ft_rmaov2ER(cfg_ana,exper,ana,data_tla);
+end
+
+%% 1-way ANOVA: Condition
+
+cfg_ana = [];
+cfg_ana.alpha = 0.05;
+cfg_ana.showtable = 1;
+cfg_ana.printTable_tex = 0;
+
+% define which regions to average across for the test
+cfg_ana.rois = {{'FC'}};
+
+% define the times that correspond to each set of ROIs
+cfg_ana.latencies = [0.3 0.5];
+
+cfg_ana.condByROI = repmat({{'FSC', 'FSI', 'CR'}},size(cfg_ana.rois));
+% Define the IVs (type: event, roi, latency)
+cfg_ana.IV1.name = 'FSC/FSI/CR';
+cfg_ana.IV1.cond = {'FSC', 'FSI', 'CR'};
+cfg_ana.IV1.type = 'event';
+
+% cfg_ana.condByROI = repmat({{'TR', 'TF', 'NTR', 'NTF'}},size(cfg_ana.rois));
+% % Define the IVs (type: event, roi, latency)
+% cfg_ana.IV1.name = 'T/NT';
+% cfg_ana.IV1.cond = {'T','NT'};
+% cfg_ana.IV1.type = 'event';
+% cfg_ana.IV2.name = 'R/F';
+% cfg_ana.IV2.cond = {'R','F'};
+% cfg_ana.IV2.type = 'event';
+
+cfg_ana.parameter = 'avg';
+
+for r = 1:length(cfg_ana.rois)
+  cfg_ana.roi = cfg_ana.rois{r};
+  cfg_ana.conditions = cfg_ana.condByROI{r};
+  cfg_ana.latency = cfg_ana.latencies(r,:);
+  
+  mm_ft_rmaov2ER_spec(cfg_ana,exper,ana,data_tla);
 end
 
 %% run the cluster statistics
