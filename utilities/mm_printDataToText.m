@@ -55,9 +55,26 @@ elseif isfield(cfg_ana,'excludeBadSub') && cfg_ana.excludeBadSub ~= 1
   cfg_ana.excludeBadSub = 1;
 end
 
+% make sure cfg_ana.conditions is set correctly
+if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
+  if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
+    cfg_ana.condMethod = 'pairwise';
+  elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
+    cfg_ana.condMethod = 'pairwise';
+  elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
+    cfg_ana.condMethod = 'pairwise';
+  else
+    cfg_ana.condMethod = [];
+  end
+end
+cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
+
+% collect all conditions into one cell
+allConds = unique(cat(2,cfg_ana.conditions{:}));
+
 % get the label info for this data struct
-if isfield(data.(exper.eventValues{1}).sub(1).ses(1).data,'label');
-  lab = data.(exper.eventValues{1}).sub(1).ses(1).data.label;
+if isfield(data.(allConds{1}).sub(1).ses(1).data,'label');
+  lab = data.(allConds{1}).sub(1).ses(1).data.label;
 else
   error('label information not found in data struct');
 end
@@ -94,23 +111,6 @@ end
 % exclude the bad subjects from the subject count
 cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub);
 
-% make sure cfg_ana.conditions is set correctly
-if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
-  if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  else
-    cfg_ana.condMethod = [];
-  end
-end
-cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
-
-% collect all conditions into one cell
-allConds = unique(cat(2,cfg_ana.conditions{:}));
-
 % some settings for plotting
 if cfg_plot.line_plots == 1
   if ~isfield(cfg_plot,'plot_order')
@@ -142,7 +142,7 @@ for evVal = 1:length(allConds)
   end % sub
   cfg_ana.sem.(ev) = std(cfg_ana.values.(ev))/sqrt(length(cfg_ana.values.(ev)));
   
-  fprintf(cfg_ana.fid,'%s\t%s%s\n',ev,cfg_ana.roi{:},sprintf(repmat('\t%.4f',1,length(cfg_ana.values.(ev))),cfg_ana.values.(ev)));
+  fprintf(cfg_ana.fid,'%s\t%s\t%.3f-%.3f%s\n',ev,cfg_ana.roi{:},cfg_ft.latency(1),cfg_ft.latency(2),sprintf(repmat('\t%.4f',1,length(cfg_ana.values.(ev))),cfg_ana.values.(ev)));
   
 end % evVal
 

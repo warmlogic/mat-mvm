@@ -48,10 +48,10 @@ end
 
 % set up spatial channel information
 cfg_ft.elec = ana.elec;
-if strcmp(cfg_ft.avgoverchan,'no')
-  cfg_ft.method = 'distance';
-  cfg_ft.neighbours = ft_prepare_neighbours(cfg_ft);
-end
+%if strcmp(cfg_ft.avgoverchan,'no')
+cfg_ft.method = 'distance';
+cfg_ft.neighbours = ft_prepare_neighbours(cfg_ft);
+%end
 
 % use the Monte Carlo Method to calculate the significance probability
 cfg_ft.method = 'montecarlo';
