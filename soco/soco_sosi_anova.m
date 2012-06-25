@@ -339,9 +339,9 @@ fclose(fid);
 
 %% write it out for SPSS
 
-exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
-exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
-%exper.badSub.soco = [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+% exper.badSub.sosi = [1 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1];
+% exper.badSub.soco = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
+% % exper.badSub.soco = [1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0];
 
 %nSub = sum(~exper.badSub.soco) + sum(~exper.badSub.sosi);
 
@@ -357,7 +357,7 @@ anova_write = [];
 for e = 1:length(exper.name)
   goodSubInd = 0;
   for s = 1:length(exper.badSub.(exper.name{e}))
-    if exper.badSub.(exper.name{e})(s) == 0
+    if ~ismember(exper.(exper.name{e}).subjects(s),exper.(exper.name{e}).badSub)
       goodSubInd = goodSubInd + 1;
       %anova_write = [anova_write; goodSubInd sprintf('exp%d',e) sprintf('roi%d',r) sprintf('cnd%d',c) volt.(exper.name{e}).(exper.cond{c}).(exper.roi{r})(s)];
       anova_write = [anova_write; goodSubInd, e,...

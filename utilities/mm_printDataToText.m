@@ -1,76 +1,28 @@
-function [cfg_ana] = mm_printDataToText(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data)
+function mm_printDataToText(cfg,exper,ana,dirs,data)
 %mm_printDataToText - print data (e.g., voltages) to a file
-% 
+%
 % See also:
 %   MM_FT_CHECKCONDITIONS
 
-if ~isfield(cfg_ft,'parameter')
-  error('Must specify cfg_ft.parameter, denoting the data to test (e.g., ''avg'' or ''individual'')');
+if ~isfield(cfg,'parameter')
+  error('Must specify cfg.parameter, denoting the data to test (e.g., ''avg'' or ''individual'')');
 end
 
-cfg_ft.method = 'analytic';
-cfg_ft.statistic = 'depsamplesT';
-cfg_ft.computestat = 'yes';
-cfg_ft.computecritval = 'yes';
-cfg_ft.computeprob = 'yes';
-if ~isfield(cfg_ft,'tail')
-  cfg_ft.tail = 0; % -1=left, 0=both, 1=right
-end
-if ~isfield(cfg_ft,'alpha')
-  cfg_ft.alpha = 0.05;
-end
-if ~isfield(cfg_ft,'correctm')
-  cfg_ft.correctm = 'no';
+if ~isfield(cfg,'direction')
+  error('Must specify cfg.direction, denoting whether the data should be in ''columns'' or ''rows''.');
 end
 
-if ~isfield(cfg_plot,'individ_plots')
-  cfg_plot.individ_plots = 0;
-end
-if ~isfield(cfg_plot,'line_plots')
-  cfg_plot.line_plots = 0;
-end
+allROIs = cellflat(cfg.rois);
+allROIs_str = sprintf(repmat('_%s',1,length(allROIs)),allROIs{:});
+allConds = unique(cellflat(cfg.condByROI));
+allConds_str = sprintf(repmat('_%s',1,length(allConds)),allConds{:});
 
-% check on the labels
-if ~isfield(cfg_plot,'xlabel')
-  cfg_plot.xlabel = 'Conditions';
+if ~isfield(cfg,'excludeBadSub')
+  cfg.excludeBadSub = 1;
+elseif isfield(cfg,'excludeBadSub') && cfg.excludeBadSub ~= 1
+  fprintf('Must exclude bad subjects. Setting cfg.excludeBadSub = 1;');
+  cfg.excludeBadSub = 1;
 end
-if ~isfield(cfg_plot,'ylabel')
-  cfg_plot.ylabel = 'Voltage (\muV)';
-end
-cfg_plot.label_str = '';
-if isfield(cfg_plot,'xlabel') && ~isempty(cfg_plot.xlabel)
-  cfg_plot.label_str = cat(2,cfg_plot.label_str,'x');
-end
-if isfield(cfg_plot,'ylabel') && ~isempty(cfg_plot.ylabel)
-  cfg_plot.label_str = cat(2,cfg_plot.label_str,'y');
-end
-if ~isempty(cfg_plot.label_str)
-  cfg_plot.label_str = cat(2,'_',cfg_plot.label_str,'label');
-end
-
-if ~isfield(cfg_ana,'excludeBadSub')
-  cfg_ana.excludeBadSub = 1;
-elseif isfield(cfg_ana,'excludeBadSub') && cfg_ana.excludeBadSub ~= 1
-  fprintf('Must exclude bad subjects. Setting cfg_ana.excludeBadSub = 1;');
-  cfg_ana.excludeBadSub = 1;
-end
-
-% make sure cfg_ana.conditions is set correctly
-if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
-  if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  else
-    cfg_ana.condMethod = [];
-  end
-end
-cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
-
-% collect all conditions into one cell
-allConds = unique(cat(2,cfg_ana.conditions{:}));
 
 % get the label info for this data struct
 if isfield(data.(allConds{1}).sub(1).ses(1).data,'label');
@@ -79,73 +31,178 @@ else
   error('label information not found in data struct');
 end
 
-% set the channel information
-if ~isfield(cfg_ana,'roi')
-  error('Must specify either ROI names or channel names in cfg_ana.roi');
-elseif isfield(cfg_ana,'roi')
-  if ismember(cfg_ana.roi,ana.elecGroupsStr)
-    % if it's in the predefined ROIs, get the channel numbers
-    cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.roi)});
-    % find the channel indices for averaging
-    cfg_ana.chansel = ismember(lab,cfg_ft.channel);
-    % set the string for the filename
-    cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_ana.roi)),cfg_ana.roi{:});
-  else
-    % otherwise it should be the channel number(s) or 'all'
-    if ~iscell(cfg_ana.roi)
-      cfg_ana.roi = {cfg_ana.roi};
-    end
-    cfg_ft.channel = cfg_ana.roi;
+% find out which were the good subjects
+cfg.goodSub = exper.subjects(~exper.badSub);
+
+if strcmp(cfg.direction,'columns')
+  f_suf = '_col';
+elseif strcmp(cfg.direction,'rows')
+  f_suf = '_row';
+end
+
+outfile = fullfile(dirs.saveDirProc,sprintf('%s%s%s%s.txt',exper.name,allConds_str,allROIs_str,f_suf));
+% open the file
+fid = fopen(outfile,'w+');
+
+if strcmp(cfg.direction,'columns')
+  % print the main header
+  fprintf(fid,'Experiment\tSubject\tSubject Index\tROI_Cond_Latency\n');
+  
+  fprintf(fid,'\t\t');
+  for r = 1:length(cfg.rois)
+    cfg.roi = cfg.rois{r};
     
-    % find the channel indices for averaging
-    if strcmp(cfg_ft.channel,'all')
-      cfg_ana.chansel = ismember(lab,ft_channelselection(cfg_ft.channel,lab));
+    % set the channel information
+    if ismember(cfg.roi,ana.elecGroupsStr)
+      % set the string
+      cfg.chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
     else
-      cfg_ana.chansel = ismember(lab,cfg_ft.channel);
+      % otherwise it should be the channel number(s) or 'all'
+      if ~iscell(cfg.roi)
+        cfg.roi = {cfg.roi};
+      end
+      % set the string
+      cfg.chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
     end
-    % set the string for the filename
-    cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_ft.channel)),cfg_ft.channel{:});
+    
+    cfg.conditions = cfg.condByROI{r};
+    cfg.latency = cfg.latencies(r,:);
+    for evVal = 1:length(cfg.conditions)
+      fprintf(fid,'\t%s%s_%d_%d',cfg.chan_str,cfg.conditions{evVal},cfg.latency(1)*1000,cfg.latency(2)*1000);
+    end
   end
-end
-
-% exclude the bad subjects from the subject count
-cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub);
-
-% some settings for plotting
-if cfg_plot.line_plots == 1
-  if ~isfield(cfg_plot,'plot_order')
-    cfg_plot.plot_order = allConds;
-  end
-  % for the x-tick labels in the line plots
-  if ~isfield(cfg_plot,'rename_conditions')
-    cfg_plot.rename_conditions = cfg_plot.plot_order;
-  end
-end
-
-% get times, data, SEM
-for evVal = 1:length(allConds)
-  ev = allConds{evVal};
-  cfg_ana.values.(ev) = nan(cfg_ana.numSub,length(exper.sessions));
-  goodSubInd = 0;
+  fprintf(fid,'\n');
+  
+  ses = 1;
+  goodSubjInd = 0;
   for sub = 1:length(exper.subjects)
-    ses = 1;
-    %for ses = 1:length(exper.sessions)
-    if exper.badSub(sub,ses)
+    if ismember(exper.subjects{sub},cfg.goodSub)
+      goodSubjInd = goodSubjInd + 1;
+      % print the experiment name
+      fprintf(fid,'%s\t',exper.name);
+      fprintf(fid,'%s\t',exper.subjects{sub});
+      fprintf(fid,'%d',goodSubjInd);
+      
+      for r = 1:length(cfg.rois)
+        cfg.roi = cfg.rois{r};
+        
+        % set the channel information
+        if ismember(cfg.roi,ana.elecGroupsStr)
+          % if it's in the predefined ROIs, get the channel numbers
+          cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
+          % find the channel indices for averaging
+          cfg.chansel = ismember(lab,cfg.channel);
+          % % set the string for the filename
+          % cfg.chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+        else
+          % otherwise it should be the channel number(s) or 'all'
+          if ~iscell(cfg.roi)
+            cfg.roi = {cfg.roi};
+          end
+          cfg.channel = cfg.roi;
+          
+          % find the channel indices for averaging
+          if strcmp(cfg.channel,'all')
+            cfg.chansel = ismember(lab,ft_channelselection(cfg.channel,lab));
+          else
+            cfg.chansel = ismember(lab,cfg.channel);
+          end
+          % % set the string for the filename
+          % cfg.chan_str = sprintf(repmat('%s_',1,length(cfg.channel)),cfg.channel{:});
+        end
+        
+        cfg.conditions = cfg.condByROI{r};
+        cfg.latency = cfg.latencies(r,:);
+        
+        for evVal = 1:length(cfg.conditions)
+          ev = cfg.conditions{evVal};
+          
+          timesel = find(data.(ev).sub(sub).ses(ses).data.time >= cfg.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg.latency(2));
+          voltage = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg.parameter)(cfg.chansel,timesel),1),2);
+          fprintf(fid,'\t%.4f',voltage);
+          
+        end % c
+      end % r
+      fprintf(fid,'\n');
+      
+    else
       fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
       continue
-    else
-      goodSubInd = goodSubInd + 1;
-      cfg_ana.timesel.(ev) = find(data.(ev).sub(sub).ses(ses).data.time >= cfg_ft.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg_ft.latency(2));
-      cfg_ana.values.(ev)(goodSubInd,ses) = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
-    end
-    %end % ses
+    end % if good
   end % sub
-  cfg_ana.sem.(ev) = std(cfg_ana.values.(ev))/sqrt(length(cfg_ana.values.(ev)));
   
-  fprintf(cfg_ana.fid,'%s\t%s\t%.3f-%.3f%s\n',ev,cfg_ana.roi{:},cfg_ft.latency(1),cfg_ft.latency(2),sprintf(repmat('\t%.4f',1,length(cfg_ana.values.(ev))),cfg_ana.values.(ev)));
+elseif strcmp(cfg.direction,'rows')
+  fprintf(fid,'Experiment\t%s\n',exper.name);
   
-end % evVal
+  % exclude the bad subjects from the subject count
+  cfg.numSub = length(exper.subjects) - sum(exper.badSub);
+  
+  fprintf(fid,'Cond_ROI_Latency%s\n',sprintf(repmat('\t%s',1,length(cfg.goodSub)),cfg.goodSub{:}));
+  
+  for r = 1:length(cfg.rois)
+    cfg.roi = cfg.rois{r};
+    cfg.latency = cfg.latencies(r,:);
+    cfg.conditions = cfg.condByROI{r};
+    
+    % set the channel information
+    if ~isfield(cfg,'roi')
+      error('Must specify either ROI names or channel names in cfg.roi');
+    elseif isfield(cfg,'roi')
+      if ismember(cfg.roi,ana.elecGroupsStr)
+        % if it's in the predefined ROIs, get the channel numbers
+        cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
+        % find the channel indices for averaging
+        cfg.chansel = ismember(lab,cfg.channel);
+        % set the string for the filename
+        cfg.chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+      else
+        % otherwise it should be the channel number(s) or 'all'
+        if ~iscell(cfg.roi)
+          cfg.roi = {cfg.roi};
+        end
+        cfg.channel = cfg.roi;
+        
+        % find the channel indices for averaging
+        if strcmp(cfg.channel,'all')
+          cfg.chansel = ismember(lab,ft_channelselection(cfg.channel,lab));
+        else
+          cfg.chansel = ismember(lab,cfg.channel);
+        end
+        % set the string for the filename
+        cfg.chan_str = sprintf(repmat('%s_',1,length(cfg.channel)),cfg.channel{:});
+      end
+    end
+    
+    
+    % get times, data, SEM
+    for evVal = 1:length(cfg.conditions)
+      ev = cfg.conditions{evVal};
+      cfg.values.(ev) = nan(cfg.numSub,length(exper.sessions));
+      goodSubInd = 0;
+      for sub = 1:length(exper.subjects)
+        ses = 1;
+        %for ses = 1:length(exper.sessions)
+        if exper.badSub(sub,ses)
+          fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
+          continue
+        else
+          goodSubInd = goodSubInd + 1;
+          cfg.timesel.(ev) = find(data.(ev).sub(sub).ses(ses).data.time >= cfg.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg.latency(2));
+          cfg.values.(ev)(goodSubInd,ses) = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg.parameter)(cfg.chansel,cfg.timesel.(ev)),1),2);
+        end
+        %end % ses
+      end % sub
+      %cfg.sem.(ev) = std(cfg.values.(ev))/sqrt(length(cfg.values.(ev)));
+      
+      fprintf(fid,'%s%s_%d_%d%s\n',cfg.chan_str,ev,cfg.latency(1)*1000,cfg.latency(2)*1000,sprintf(repmat('\t%.4f',1,length(cfg.values.(ev))),cfg.values.(ev)));
+      
+    end % evVal
+    
+  end % r
+end % direction
 
+fprintf('Saving %s\n',fullfile(dirs.saveDirProc,sprintf('%s%s%s%s.txt',exper.name,allConds_str,allROIs_str,f_suf)));
+fclose(fid);
 
 
 end

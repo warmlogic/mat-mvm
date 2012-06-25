@@ -248,14 +248,14 @@ end
 % % old - CR SC SI
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % C/S x CR SC SI - with badChan info (use this)
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% C/S x CR SC SI - with badChan info (use this)
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 % % C/S x CR SC SI H
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CH_CSC_CSI_SCR_SH_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% F/N/RO/RS x SC/SI all combos
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+% % F/N/RO/RS x SC/SI all combos
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -284,7 +284,7 @@ ana = mm_ft_elecGroups(ana);
 
 % % list the values separated by types: Color, Side
 
-% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 % ana.eventValues = {{'CCR','CSC','CSI','CH'},{'SCR','SSC','SSI','SH'}};
 
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
@@ -308,9 +308,9 @@ ana = mm_ft_elecGroups(ana);
 %   {'CFSC','CFSI','CN','CRSC','CRSI'},...
 %   {'SFSC','SFSI','SN','SRSC','SRSI'}};
 
-ana.eventValues = {...
-  {'CFSC','CFSI','CN'},...
-  {'SFSC','SFSI','SN'}};
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CN'},...
+%   {'SFSC','SFSI','SN'}};
 
 % ana.eventValues = {...
 %   {'CFSC','CFSI'},...
@@ -1002,25 +1002,26 @@ for r = 1:length(cfg_ana.rois)
   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
 end
 
-% % output some values
-% cfg_ana.rois_flat = cellflat(cfg_ana.rois);
-% cfg_ana.rois_str = sprintf(repmat('_%s',1,length(cfg_ana.rois_flat)),cfg_ana.rois_flat{:});
-% cfg_ana.conditions_flat = unique(cellflat(cfg_ana.conditions));
-% cfg_ana.conditions_str = sprintf(repmat('_%s',1,length(cfg_ana.conditions_flat)),cfg_ana.conditions_flat{:});
-% % start the file
-% [cfg_ana.fid] = fopen(fullfile(dirs.saveDirProc,sprintf('%s%s%s.txt',exper.name,cfg_ana.conditions_str,cfg_ana.rois_str)),'w+');
-% fprintf(cfg_ana.fid,'%s\n',exper.name);
-% cfg_ana.goodSub = exper.subjects(~exper.badSub);
-% fprintf(cfg_ana.fid,'\t%s\n',sprintf(repmat('\t%s',1,length(cfg_ana.goodSub)),cfg_ana.goodSub{:}));
-% for r = 1:length(cfg_ana.rois)
-%   cfg_ana.roi = cfg_ana.rois{r};
-%   cfg_ft.latency = cfg_ana.latencies(r,:);
-%   cfg_plot.ylim = cfg_plot.ylims(r,:);
-%   
-%   mm_printDataToText(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
-% end
-% fclose(cfg_ana.fid);
+%% output some values
 
+cfg = [];
+
+% cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg.latencies = [0.3 0.5; 0.5 0.8];
+cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+% cfg.rois = {{'FC'}};
+% cfg.latencies = [0.3 0.5];
+
+cfg.condByROI = repmat({{'CSC','CSI','CCR','SSC','SSI','SCR'}},size(cfg.rois));
+% cfg.condByROI = repmat({{'CFSC','CFSI','CN','SFSC','SFSI','SN'}},size(cfg.rois));
+
+cfg.parameter = 'avg';
+
+cfg.direction = 'columns';
+% cfg.direction = 'rows';
+
+mm_printDataToText(cfg,exper,ana,dirs,data_tla);
 
 %% 3-way ANOVA: Hemisphere x Block Type x Condition
 
