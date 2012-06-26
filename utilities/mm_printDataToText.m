@@ -12,16 +12,19 @@ if ~isfield(cfg,'direction')
   error('Must specify cfg.direction, denoting whether the data should be in ''columns'' or ''rows''.');
 end
 
-allROIs = cellflat(cfg.rois);
-allROIs_str = sprintf(repmat('_%s',1,length(allROIs)),allROIs{:});
+% allROIs = cellflat(cfg.rois);
+% allROIs_str = sprintf(repmat('_%s',1,length(allROIs)),allROIs{:});
+allROIs_str = '';
+for i = 1:length(cfg.rois)
+  allROIs_str = sprintf('%s_%s',allROIs_str,sprintf(repmat('%s',1,length(cfg.rois{i})),cfg.rois{i}{:}));
+end
 allConds = unique(cellflat(cfg.condByROI));
 allConds_str = sprintf(repmat('_%s',1,length(allConds)),allConds{:});
 
+% do we want to exclude the bad guys?
 if ~isfield(cfg,'excludeBadSub')
-  cfg.excludeBadSub = 1;
-elseif isfield(cfg,'excludeBadSub') && cfg.excludeBadSub ~= 1
-  fprintf('Must exclude bad subjects. Setting cfg.excludeBadSub = 1;');
-  cfg.excludeBadSub = 1;
+  warning([mfilename,':excludeBadSub'],'Did not specify whether to exclude bad subjects. Setting cfg.excludeBadSub = true;\n');
+  cfg.excludeBadSub = true;
 end
 
 % get the label info for this data struct
@@ -31,13 +34,22 @@ else
   error('label information not found in data struct');
 end
 
+f_suf = '';
 % find out which were the good subjects
-cfg.goodSub = exper.subjects(~exper.badSub);
+if cfg.excludeBadSub
+  fprintf('Excluding bad subjects.\n');
+  cfg.goodSub = exper.subjects(~exper.badSub);
+  f_suf = sprintf('%s_goodSub',f_suf);
+elseif ~cfg.excludeBadSub
+  fprintf('Including all subjects.\n');
+  cfg.goodSub = exper.subjects;
+  f_suf = sprintf('%s_allSub',f_suf);
+end
 
 if strcmp(cfg.direction,'columns')
-  f_suf = '_col';
+  f_suf = sprintf('%s_col',f_suf);
 elseif strcmp(cfg.direction,'rows')
-  f_suf = '_row';
+  f_suf = sprintf('%s_row',f_suf);
 end
 
 outfile = fullfile(dirs.saveDirProc,sprintf('%s%s%s%s.txt',exper.name,allConds_str,allROIs_str,f_suf));
@@ -45,10 +57,13 @@ outfile = fullfile(dirs.saveDirProc,sprintf('%s%s%s%s.txt',exper.name,allConds_s
 fid = fopen(outfile,'w+');
 
 if strcmp(cfg.direction,'columns')
-  % print the main header
-  fprintf(fid,'Experiment\tSubject\tSubject Index\tROI_Cond_Latency\n');
+  % % print the main header
+  % fprintf(fid,'Experiment\tSubject\tSubject_Index\tROI_Cond_Latency\n');
+  % fprintf(fid,'\t\t');
   
-  fprintf(fid,'\t\t');
+  % print a single line header
+  fprintf(fid,'Experiment\tSubject\tSubject_Index');
+  
   for r = 1:length(cfg.rois)
     cfg.roi = cfg.rois{r};
     
@@ -137,7 +152,7 @@ elseif strcmp(cfg.direction,'rows')
   % exclude the bad subjects from the subject count
   cfg.numSub = length(exper.subjects) - sum(exper.badSub);
   
-  fprintf(fid,'Cond_ROI_Latency%s\n',sprintf(repmat('\t%s',1,length(cfg.goodSub)),cfg.goodSub{:}));
+  fprintf(fid,'ROI_Cond_Latency%s\n',sprintf(repmat('\t%s',1,length(cfg.goodSub)),cfg.goodSub{:}));
   
   for r = 1:length(cfg.rois)
     cfg.roi = cfg.rois{r};
@@ -182,13 +197,17 @@ elseif strcmp(cfg.direction,'rows')
       for sub = 1:length(exper.subjects)
         ses = 1;
         %for ses = 1:length(exper.sessions)
-        if exper.badSub(sub,ses)
+        if ismember(exper.subjects{sub},cfg.goodSub)
+          goodSubInd = goodSubInd + 1;
+          if isfield(data.(ev).sub(sub).ses(ses).data,'time')
+            cfg.timesel.(ev) = find(data.(ev).sub(sub).ses(ses).data.time >= cfg.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg.latency(2));
+            cfg.values.(ev)(goodSubInd,ses) = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg.parameter)(cfg.chansel,cfg.timesel.(ev)),1),2);
+          else
+            cfg.values.(ev)(goodSubInd,ses) = NaN;
+          end
+        else
           fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
           continue
-        else
-          goodSubInd = goodSubInd + 1;
-          cfg.timesel.(ev) = find(data.(ev).sub(sub).ses(ses).data.time >= cfg.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg.latency(2));
-          cfg.values.(ev)(goodSubInd,ses) = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg.parameter)(cfg.chansel,cfg.timesel.(ev)),1),2);
         end
         %end % ses
       end % sub

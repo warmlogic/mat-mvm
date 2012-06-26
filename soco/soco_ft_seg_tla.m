@@ -266,9 +266,9 @@ ana = mm_ft_elecGroups(ana);
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
 %ana.eventValues = {{'RCR','RHSC','RHSI'}};
 
-ana.eventValues = {exper.eventValues};
+% ana.eventValues = {exper.eventValues};
 
-%ana.eventValues = {{'RHSC','RHSI','RCR'}};
+ana.eventValues = {{'SC','SI','CR'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
@@ -969,20 +969,22 @@ end
 
 cfg = [];
 
-% cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg.latencies = [0.3 0.5; 0.5 0.8];
-cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg.latencies = [0.3 0.5; 0.5 0.8];
+% cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
+
 % cfg.rois = {{'FC'}};
 % cfg.latencies = [0.3 0.5];
-
-cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
 % cfg.condByROI = repmat({{'FSC','FSI','N'}},size(cfg.rois));
 
 cfg.parameter = 'avg';
 
-cfg.direction = 'columns';
-% cfg.direction = 'rows';
+cfg.excludeBadSub = false;
+
+%cfg.direction = 'columns';
+cfg.direction = 'rows';
 
 mm_printDataToText(cfg,exper,ana,dirs,data_tla);
 

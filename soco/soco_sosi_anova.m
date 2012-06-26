@@ -5,6 +5,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % SOSI019 and SOSI020 are out of order, but it's OK because of how we index
+% in the excel spreadsheet. if we're getting voltages from anywhere else
+% then they need to be in order.
 
 exper.sosi.subjects = {
   'SOSI001';

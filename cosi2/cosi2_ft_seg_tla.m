@@ -248,14 +248,14 @@ end
 % % old - CR SC SI
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% C/S x CR SC SI - with badChan info (use this)
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% % C/S x CR SC SI - with badChan info (use this)
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 % % C/S x CR SC SI H
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CH_CSC_CSI_SCR_SH_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % F/N/RO/RS x SC/SI all combos
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+% F/N/RO/RS x SC/SI all combos
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -284,7 +284,7 @@ ana = mm_ft_elecGroups(ana);
 
 % % list the values separated by types: Color, Side
 
-ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 % ana.eventValues = {{'CCR','CSC','CSI','CH'},{'SCR','SSC','SSI','SH'}};
 
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
@@ -308,9 +308,9 @@ ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 %   {'CFSC','CFSI','CN','CRSC','CRSI'},...
 %   {'SFSC','SFSI','SN','SRSC','SRSI'}};
 
-% ana.eventValues = {...
-%   {'CFSC','CFSI','CN'},...
-%   {'SFSC','SFSI','SN'}};
+ana.eventValues = {...
+  {'CFSC','CFSI','CN'},...
+  {'SFSC','SFSI','SN'}};
 
 % ana.eventValues = {...
 %   {'CFSC','CFSI'},...
@@ -1006,15 +1006,17 @@ end
 
 cfg = [];
 
-% cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg.latencies = [0.3 0.5; 0.5 0.8];
-cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
-% cfg.rois = {{'FC'}};
-% cfg.latencies = [0.3 0.5];
+% % cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% % cfg.latencies = [0.3 0.5; 0.5 0.8];
+% cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+% cfg.condByROI = repmat({{'CSC','CSI','CCR','SSC','SSI','SCR'}},size(cfg.rois));
 
-cfg.condByROI = repmat({{'CSC','CSI','CCR','SSC','SSI','SCR'}},size(cfg.rois));
-% cfg.condByROI = repmat({{'CFSC','CFSI','CN','SFSC','SFSI','SN'}},size(cfg.rois));
+cfg.rois = {{'FC'}};
+cfg.latencies = [0.3 0.5];
+cfg.condByROI = repmat({{'CFSC','CFSI','CN','SFSC','SFSI','SN'}},size(cfg.rois));
+
+cfg.excludeBadSub = false;
 
 cfg.parameter = 'avg';
 
@@ -1050,8 +1052,13 @@ cfg_ana.typesByROI = {...
 %   {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}}};
 
 cfg_ana.condByTypeByROI = {...
-  {{'CF','CN','CRO','CRS'},{'SF','SN','SRO','SRS'}},...
-  {{'CF','CN','CRO','CRS'},{'SF','SN','SRO','SRS'}}};
+  %{{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
+  {{'CSC','CSI'},{'SSC','SSI'}},...
+  {{'CSC','CSI'},{'SSC','SSI'}}};
+
+% cfg_ana.condByTypeByROI = {...
+%   {{'CF','CN','CRO','CRS'},{'SF','SN','SRO','SRS'}},...
+%   {{'CF','CN','CRO','CRS'},{'SF','SN','SRO','SRS'}}};
 
 % For each ROI, what's common among the conditions in each type
 
@@ -1061,10 +1068,14 @@ cfg_ana.condByTypeByROI = {...
 %   {'CR','SC','SI'}};
 
 cfg_ana.condCommonByROI = {...
-  {'F','N','RO','RS'},...
-  {'F','N','RO','RS'}};
+  {'SC','SI'},...
+  {'SC','SI'}};
 
-cfg_ana.IV_names = {'ROI','Block Type','Condition'};
+% cfg_ana.condCommonByROI = {...
+%   {'F','N','RO','RS'},...
+%   {'F','N','RO','RS'}};
+
+cfg_ana.IV_names = {'ROI','Source Condition','Trial Condition'};
 
 cfg_ana.parameter = 'avg';
 
