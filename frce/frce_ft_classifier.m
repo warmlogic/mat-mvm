@@ -30,7 +30,7 @@ ana.eventValues = {{'Aud','Vis'}};
 ana = mm_ft_elecGroups(ana);
 
 % redefine which subjects to load
-%exper.subjects = {'FRCE 05'};
+exper.subjects = {'FRCE 05'};
 
 [data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
@@ -41,7 +41,7 @@ equatetrials = false;
 
 addtrials = false; %double number of trials in condition that starts out most frequent
 
-subtract_trials = true; % subtract auditory trials to simulate skewed classes
+subtract_trials = false; % subtract auditory trials to simulate skewed classes
 
 %% beh: accuracy
 
@@ -129,7 +129,7 @@ cfg_ana.latency = [0 1.0];
 cfg_ana.chanStr = {'center91'};
 
 accuracy = nan(length(exper.subjects),1);
-pval = nan(length(exper.subjects),1);
+binomial = nan(length(exper.subjects),1);
 continTab = cell(length(exper.subjects),1);
 
 cfg = [];
@@ -204,13 +204,14 @@ for sub = 1:length(exper.subjects)
   
   stat = ft_timelockstatistics(cfg,data1,data2);
   
-  accuracy(sub) = stat.performance;
-  pval(sub) = stat.pvalue;
-  continTab{sub} = stat.cv.performance('contingency');
+  accuracy(sub) = stat.statistic.accuracy;
+  binomial(sub) = stat.statistic.binomial;
+  %continTab{sub} = stat.cv.performance('contingency');
+  continTab{sub} = stat.statistic.contingency;
   
   % print out some performance info
-  fprintf('\n%s\naccuracy = %.2f%%, p = %.4f',exper.subjects{sub},accuracy(sub)*100,pval(sub));
-  if pval(sub) < .05
+  fprintf('\n%s\naccuracy = %.2f%%, p = %.4f',exper.subjects{sub},accuracy(sub)*100,binomial(sub));
+  if binomial(sub) < .05
     fprintf(' ***\n');
   else
     fprintf('\n');
@@ -268,7 +269,7 @@ fprintf(fid,'\n');
 % print p-values
 fprintf(fid,'p-values\n');
 for sub = 1:length(exper.subjects)
-  fprintf(fid,'%s%s\n',exper.subjects{sub},sprintf(repmat('\t%f',1,size(pval,2)),pval(sub,:)));
+  fprintf(fid,'%s%s\n',exper.subjects{sub},sprintf(repmat('\t%f',1,size(binomial,2)),binomial(sub,:)));
 end
 
 fclose(fid);
@@ -521,6 +522,7 @@ for sub = 1:length(exper.subjects)
     end
   end
 end
+fprintf('Done.\n');
 
 %% Time-Frequency: classification
 
@@ -564,10 +566,13 @@ cfg = [];
 cfg.parameter = 'powspctrm';
 cfg.layout = 'GSN-HydroCel-129.sfp';
 cfg.method = 'crossvalidate';
-cfg.nfolds = 10;
-%cfg.nfolds = 5;
+% cfg.nfolds = 10;
+cfg.nfolds = 5;
 %cfg.nfolds = Inf;
 %cfg.nfolds = 0.8;
+
+cfg.statistic = {'accuracy' 'binomial' 'contingency'};
+%cfg.statistic = {'accuracy' 'binomial'};
 
 %cfg.latency = [-0.2 0];
 %cfg.latency = [0 1.0];
@@ -578,8 +583,8 @@ cfg.nfolds = 10;
 
 cfg.avgoverchan = 'no';
 cfg.avgovertime = 'no';
-cfg.avgoverfreq = 'no';
-%cfg.avgoverfreq = 'yes';
+%cfg.avgoverfreq = 'no';
+cfg.avgoverfreq = 'yes';
 
 if length(cfg_ana.chanStr) == 1
   cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{1})}));
@@ -639,7 +644,9 @@ end
 % lam=0.1 and 0.05 performs well
 % lambda=0.2 doesn't perform well
 
-cfg.mva = {dml.standardizer dml.glmnet('alpha',1,'family','binomial')};
+% cfg.mva = {dml.standardizer dml.graphnet('family','binomial','L1',0.1)};
+cfg.mva = {dml.standardizer dml.enet('family','binomial','alpha',1)};
+% cfg.mva = {dml.standardizer dml.glmnet('family','binomial','alpha',1)};
 cfg_ana.method = 'L1regLog-av_sub-skew_resample';
 
 %cfg_ana.method = 'L1regLogRLamN100';
@@ -680,31 +687,31 @@ cfg_ana.method = 'L1regLog-av_sub-skew_resample';
 % lumping all trials in one category, really bad performance
 
 
-%%%%%%%%% testing
-cfg_ana.method = 'L1regLogRLam01';
-obj = ft_mv_analysis({ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')});
-
-obj = obj.train(X,Y);
-
-%%%%%%%%%%%%%%%%%
-
-gn = ft_mv_glmnet('validator',ft_mv_crossvalidator('nfolds',5),'family','gaussian');
-
-cv = ft_mv_crossvalidator('mva',{ft_mv_standardizer ft_mv_svm},'nfolds',10,'metric','accuracy');
-cv = cv.train(X,Y);
-% display classification accuracy
-cv.metric = 'accuracy';
-disp(cv.performance);
-% display outcome of mcnemar test
-cv.sigtest = 'mcnemar';
-disp(cv.significance);
-
-% investigate 'trainfolds' (or 'testfolds') property
-
-%%%%%%%%%%%%%%%%
-
-ft_mv_hmm;
-%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%% testing
+% cfg_ana.method = 'L1regLogRLam01';
+% obj = ft_mv_analysis({ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')});
+% 
+% obj = obj.train(X,Y);
+% 
+% %%%%%%%%%%%%%%%%%
+% 
+% gn = ft_mv_glmnet('validator',ft_mv_crossvalidator('nfolds',5),'family','gaussian');
+% 
+% cv = ft_mv_crossvalidator('mva',{ft_mv_standardizer ft_mv_svm},'nfolds',10,'metric','accuracy');
+% cv = cv.train(X,Y);
+% % display classification accuracy
+% cv.metric = 'accuracy';
+% disp(cv.performance);
+% % display outcome of mcnemar test
+% cv.sigtest = 'mcnemar';
+% disp(cv.significance);
+% 
+% % investigate 'trainfolds' (or 'testfolds') property
+% 
+% %%%%%%%%%%%%%%%%
+% 
+% ft_mv_hmm;
+% %%%%%%%%%%%%%%%%%%%%%
 
 
 for typ = 1:length(ana.eventValues)
@@ -716,7 +723,7 @@ for typ = 1:length(ana.eventValues)
   
   % initialize some values
   accuracy = nan(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
-  pval = nan(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
+  binomial = nan(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
   continTab = cell(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
   stat_all = struct([]);
   
@@ -746,14 +753,15 @@ for typ = 1:length(ana.eventValues)
           stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
           
           % store some values
-          accuracy(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.performance;
-          pval(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.pvalue;
-          continTab{sub,chn,lat,frq} = stat_all(sub,chn,lat,frq).stat.cv.performance('contingency');
+          accuracy(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.statistic.accuracy;
+          binomial(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.statistic.binomial;
+          continTab{sub,chn,lat,frq} = stat_all(sub,chn,lat,frq).stat.statistic.contingency;
           
           % print out some performance info
           fprintf('\n%s, %s, %s (%d chans), %.1f-%.1f s, %.1f-%.1f Hz\n',exper.subjects{sub},vsStr,chanStr(1:end-1),cfg_ana.nChan,cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2));
-          fprintf('accuracy = %.2f%%, p = %.4f',stat_all(sub,chn,lat,frq).stat.performance*100,stat_all(sub,chn,lat,frq).stat.pvalue);
-          if stat_all(sub,chn,lat,frq).stat.pvalue < .05
+          fprintf('accuracy = %.2f%%',stat_all(sub,chn,lat,frq).stat.statistic.accuracy*100);
+          fprintf('binomial = %.4f',stat_all(sub,chn,lat,frq).stat.statistic.binomial);
+          if stat_all(sub,chn,lat,frq).stat.statistic.binomial < .05
             fprintf(' ***\n');
           else
             fprintf('\n');
@@ -879,7 +887,7 @@ for typ = 1:length(ana.eventValues)
       fprintf(fid,'%s',exper.subjects{sub});
       for lat = 1:size(cfg_ana.latencies,1)
         % p-values for each subject, latency, and frequnecy band
-        fprintf(fid,'\t%.1f-%.1fs%s\n',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%f',1,size(cfg_ana.freqs,1)),pval(sub,chn,lat,:)));
+        fprintf(fid,'\t%.1f-%.1fs%s\n',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),sprintf(repmat('\t%f',1,size(cfg_ana.freqs,1)),binomial(sub,chn,lat,:)));
       end
     end
     
@@ -951,7 +959,7 @@ for chn = 1:length(cfg_ana.chanStr)
       for frqband = 1:size(cfg_ana.freqs,1)
         
         % only plot if the p-value was reasonable
-        if stat_all(sub,chn,lat,frqband).stat.pvalue < 0.05
+        if stat_all(sub,chn,lat,frqband).stat.statistic.binomial < 0.05
           if strcmp(cfg_plot.plotstyle,'topo') || strcmp(cfg_plot.plotstyle,'F-TxC')
             figure;
             count = 0;
@@ -1056,7 +1064,7 @@ for chn = 1:length(cfg_ana.chanStr)
               
             end
           end
-          set(gcf,'Name',sprintf('%s %.1f-%.1f s, %.1f-%.1f Hz: acc=%.1f%%, p=%.3f',exper.subjects{sub},cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),stat_all(sub,chn,lat,frqband).stat.freq(1),stat_all(sub,chn,lat,frqband).stat.freq(end),stat_all(sub,chn,lat,frqband).stat.performance*100,stat_all(sub,chn,lat,frqband).stat.pvalue));
+          set(gcf,'Name',sprintf('%s %.1f-%.1f s, %.1f-%.1f Hz: acc=%.1f%%, p=%.3f',exper.subjects{sub},cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),stat_all(sub,chn,lat,frqband).stat.freq(1),stat_all(sub,chn,lat,frqband).stat.freq(end),stat_all(sub,chn,lat,frqband).stat.performance*100,stat_all(sub,chn,lat,frqband).stat.statistic.binomial));
           pos = get(gcf, 'Position');
           set(gcf, 'Units', 'pixels', 'Position', [pos(1), pos(2), figsize(2), figsize(1)]);
         end
