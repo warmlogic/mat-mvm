@@ -63,6 +63,7 @@ phaseparam = 'powspctrm';
 % keep individual trials?
 if ~isfield(cfg,'keeptrials')
   cfg.keeptrials = 'no';
+  fprintf('Not keeping individual trials.\n');
 elseif isfield(cfg,'keeptrials')
   if ~strcmp(cfg.keeptrials,'yes') && ~strcmp(cfg.keeptrials,'no')
     error('cfg.keeptrials must be set to ''yes'' or ''no''.');
@@ -72,6 +73,7 @@ end
 % equate trial counts?
 if ~isfield(cfg,'equatetrials')
   cfg.equatetrials = 'no';
+  fprintf('Not equating trials across conditions.\n');
 elseif isfield(cfg,'equatetrials')
   if ~strcmp(cfg.equatetrials,'yes') && ~strcmp(cfg.equatetrials,'no')
     error('cfg.equatetrials must be set to ''yes'' or ''no''.');
@@ -175,12 +177,13 @@ elseif strcmp(cfg.ftype,'fourier')
   end
 else
   % we haven't defined additional cases
-  powflg = false;
-  csdflg = false;
-  fftflg = false;
-  if ~isfield(cfg,'output')
-    cfg.output = '???';
-  end
+  error('We haven''t defined additional cases.');
+%   powflg = false;
+%   csdflg = false;
+%   fftflg = false;
+%   if ~isfield(cfg,'output')
+%     cfg.output = '???';
+%   end
 end
 
 %% make sure some fields are set (correctly)
@@ -331,10 +334,10 @@ for sub = 1:length(exper.subjects)
                 %% get the modulus of the whole data and evoked data
                 param = 'modulus';
                 
-                % whole
+                % get the modulus for whole data
                 subSesEvData.(cell2mat(fn)).(param) = abs(subSesEvData.(cell2mat(fn)).(fourierparam));
                 
-                % evoked
+                % get the modulus for evoked data
                 if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedfourier,'yes')
                   data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(fourierparam));
                 end
@@ -606,7 +609,7 @@ for sub = 1:length(exper.subjects)
                     keyboard
                   end
                 end
-              elseif strcmp(cfg.normalize,'vector')
+              elseif strcmp(cfg.normalize,'vec')
                 for tr = 1:size(subSesEvData.(cell2mat(fn)).(param),1)
                   for ch = 1:size(subSesEvData.(cell2mat(fn)).(param),2)
                     % doesn't ignore NaNs, but is way faster

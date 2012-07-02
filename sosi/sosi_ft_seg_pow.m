@@ -301,10 +301,10 @@ end
 %adFile = saveFile;
 
 % local, testing 1 subject; fourier
-%adFile = '/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_60/analysisDetails.mat';
+adFile = '/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_30/analysisDetails.mat';
 
-% fourier 4-100 Hz
-adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+% % fourier 4-100 Hz
+% adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
@@ -350,7 +350,139 @@ end
 
 %[data_pow] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
-%[data_pow] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,cfg_proc.output);
+[data_pow] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,cfg_proc.output);
+
+%% testing ft_freqdescriptives
+
+% can it convert from fourier to power? yes
+
+conds = {'SC','SI','CR'};
+sub=1;
+ses=1;
+chan=55;
+%cond = 'SC';
+
+cfg = [];
+cfg.variance = 'no';
+cfg.jackknife = 'no';
+cfg.keeptrials = 'yes';
+
+% calculate power
+for cnd = 1:length(conds)
+  data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg,data_fourier.(conds{cnd}).sub(sub).ses(ses).data);
+end
+cnd=1;
+figure;
+surf(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(:,chan,:,:),1)));
+shading interp;view([0,90]);axis tight;
+title(sprintf('%s: straightup power',conds{cnd}));
+
+% log power
+data_pow_log = data_pow;
+for cnd = 1:length(conds)
+  data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.powspctrm = log10(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm);
+end
+cnd=1;
+figure;
+surf(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(:,chan,:,:),1)));
+shading interp;view([0,90]);axis tight;
+title(sprintf('%s: straightup log power',conds{cnd}));
+
+% baseline normalize
+cfg = [];
+cfg.baseline = [-0.3 -0.1];
+cfg.baselinetype = 'absolute';
+for cnd = 1:length(conds)
+  data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqbaseline(cfg,data_pow.(conds{cnd}).sub(sub).ses(ses).data);
+end
+cnd=1;
+figure;
+surf(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(:,chan,:,:),1)));
+shading interp;view([0,90]);axis tight;
+title(sprintf('%s: baseline normalized power',conds{cnd}));
+
+% cfg = [];
+% cfg.channel = 'E55';
+% cfg.latency = [0.3 0.5];
+% cfg.frequency = [8 12];
+% cfg.avgovertime = 'yes';
+% cfg.avgoverfreq = 'yes';
+% cfg.parameter = 'powspctrm';
+% stat = ft_freqstatistics(cfg,data_pow.(conds{1}).sub(sub).ses(ses).data,data_pow.(conds{2}).sub(sub).ses(ses).data);
+
+cfg = [];
+cfg.latency = [0.3 0.5];
+cfg.frequency = [8 14];
+timesel = data_pow.(conds{1}).sub(sub).ses(ses).data.time >= cfg.latency(1) & data_pow.(conds{1}).sub(sub).ses(ses).data.time <= cfg.latency(2);
+freqsel = data_pow.(conds{1}).sub(sub).ses(ses).data.freq >= cfg.frequency(1) & data_pow.(conds{1}).sub(sub).ses(ses).data.freq <= cfg.frequency(2);
+cond1 = squeeze(mean(mean(data_pow.(conds{1}).sub(sub).ses(ses).data.powspctrm(:,chan,freqsel,timesel),4),3));
+cond2 = squeeze(mean(mean(data_pow.(conds{2}).sub(sub).ses(ses).data.powspctrm(:,chan,freqsel,timesel),4),3));
+cond3 = squeeze(mean(mean(data_pow.(conds{3}).sub(sub).ses(ses).data.powspctrm(:,chan,freqsel,timesel),4),3));
+[h,p,ci,stats] = ttest2(cond1,cond2,0.05,'both');
+fprintf('cond1 vs cond2: t(%d)=%.3f, p=%.4f\n',stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest2(cond1,cond3,0.05,'both');
+fprintf('cond1 vs cond3: t(%d)=%.3f, p=%.4f\n',stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest2(cond2,cond3,0.05,'both');
+fprintf('cond2 vs cond3: t(%d)=%.3f, p=%.4f\n',stats.df,stats.tstat,p);
+
+% log: baseline normalize
+cfg = [];
+cfg.baseline = [-0.3 -0.1];
+cfg.baselinetype = 'absolute';
+for cnd = 1:length(conds)
+  data_pow_log.(conds{cnd}).sub(sub).ses(ses).data = ft_freqbaseline(cfg,data_pow_log.(conds{cnd}).sub(sub).ses(ses).data);
+end
+cnd=1;
+figure;
+surf(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(mean(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(:,chan,:,:),1)));
+shading interp;view([0,90]);axis tight;
+title(sprintf('%s: baseline normalized log power',conds{cnd}));
+
+cfg = [];
+cfg.latency = [0.3 0.5];
+cfg.frequency = [8 14];
+chansel = 55;
+timesel = data_pow_log.(conds{1}).sub(sub).ses(ses).data.time >= cfg.latency(1) & data_pow_log.(conds{1}).sub(sub).ses(ses).data.time <= cfg.latency(2);
+freqsel = data_pow_log.(conds{1}).sub(sub).ses(ses).data.freq >= cfg.frequency(1) & data_pow_log.(conds{1}).sub(sub).ses(ses).data.freq <= cfg.frequency(2);
+cond1 = squeeze(mean(mean(data_pow_log.(conds{1}).sub(sub).ses(ses).data.powspctrm(:,chansel,freqsel,timesel),4),3));
+cond2 = squeeze(mean(mean(data_pow_log.(conds{2}).sub(sub).ses(ses).data.powspctrm(:,chansel,freqsel,timesel),4),3));
+cond3 = squeeze(mean(mean(data_pow_log.(conds{3}).sub(sub).ses(ses).data.powspctrm(:,chansel,freqsel,timesel),4),3));
+[h,p,ci,stats] = ttest2(cond1,cond2,0.05,'both');
+fprintf('log cond1 vs cond2: t(%d)=%.3f, p=%.4f\n',stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest2(cond1,cond3,0.05,'both');
+fprintf('log cond1 vs cond3: t(%d)=%.3f, p=%.4f\n',stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest2(cond2,cond3,0.05,'both');
+fprintf('log cond2 vs cond3: t(%d)=%.3f, p=%.4f\n',stats.df,stats.tstat,p);
+
+
+
+
+
+
+
+
+% figure;
+% surf(data_pow.(cond).sub(sub).ses(ses).data.time,data_pow.(cond).sub(sub).ses(ses).data.freq,squeeze(mean(data_pow.(cond).sub(sub).ses(ses).data.powspctrm(:,chan,:,:),1)));
+% shading interp;view([0,90]);axis tight;
+% title('straightup power');
+% 
+% cfg = [];
+% cfg.baseline = [-0.3 -0.1];
+% cfg.baselinetype = 'absolute';
+% data_pow_new_bl = ft_freqbaseline(cfg,data_pow_new);
+% figure;
+% surf(data_pow.(cond).sub(sub).ses(ses).data.time,data_pow.(cond).sub(sub).ses(ses).data.freq,squeeze(data_pow_new_bl.powspctrm(chan,:,:)));
+% shading interp;view([0,90]);axis tight;
+% title('baseline corrected');
+% 
+% pow_norm_11 = qnorm(data_pow_new_bl.powspctrm,[1,1],'vec');
+% pow_norm_21 = qnorm(data_pow_new_bl.powspctrm,[2,1],'vec');
+% pow_norm_22 = qnorm(data_pow_new_bl.powspctrm,[2,2],'vec');
+% pow_norm = pow_norm_22;
+% figure;
+% surf(data_pow.(cond).sub(sub).ses(ses).data.time,data_pow.(cond).sub(sub).ses(ses).data.freq,squeeze(pow_norm(chan,:,:)));
+% shading interp;view([0,90]);axis tight;
+% title('norm 22');
 
 %% new loading workflow - pow
 
@@ -366,34 +498,37 @@ cfg.ftype = 'fourier';
 % type of output: 'pow', 'coh', 'phase'
 cfg.output = 'pow';
 
-% normalization type: 'log10', 'log', 'vector', 'dB'
+% normalization type: 'log10', 'log', 'vec', 'dB'
 cfg.normalize = 'log10'; 
 %cfg.normalize = 'dB';
-%cfg.normalize = 'vector';
+%cfg.normalize = 'vec';
 
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 %cfg.baselinetype = 'zscore';
 cfg.baselinetype = 'absolute';
-%cfg.baselinetype = 'relchange';
-%cfg.baselinetype = 'relative';
+% cfg.baselinetype = 'relchange';
+% cfg.baselinetype = 'relative';
 
 % baseline period
 cfg.baseline = [-0.4 -0.2];
 %cfg.baseline = [-0.2 0];
 
 % at what data stage should it be baseline corrected?
-%cfg.baselinedata = 'mod';
-cfg.baselinedata = 'pow';
+cfg.baselinedata = 'mod';
+% cfg.baselinedata = 'pow';
 
 
 %cfg.saveFile = true;
 cfg.saveFile = false;
 
 % only keep induced data by removing evoked?
-cfg.rmevoked = 'yes';
-cfg.rmevokedfourier = 'yes';
+cfg.rmevoked = 'no';
+cfg.rmevokedfourier = 'no';
 cfg.rmevokedpow = 'no';
+% cfg.rmevoked = 'yes';
+% cfg.rmevokedfourier = 'yes';
+% cfg.rmevokedpow = 'no';
 if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
   load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
   
@@ -423,7 +558,11 @@ if exist(saveFile,'file')
   load(saveFile);
 else
   fprintf('Running mm_ft_loadData\n');
-  [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana,data_evoked);
+  if exist('data_evoked','var')
+    [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana,data_evoked);
+  else
+    [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana);
+  end
   if cfg.saveFile
     fprintf('Saving %s...\n',saveFile);
     save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
@@ -751,9 +890,9 @@ end
 
 cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
-%cfg_fb.baselinetype = 'absolute'; % maybe this
+cfg_fb.baselinetype = 'absolute'; % maybe this
 %cfg_fb.baselinetype = 'relative';
-cfg_fb.baselinetype = 'relchange'; % or this
+%cfg_fb.baselinetype = 'relchange'; % or this
 
 %data_pow_orig = data_pow;
 

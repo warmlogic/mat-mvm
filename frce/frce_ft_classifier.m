@@ -21,10 +21,10 @@ adFile = fullfile(dataroot,'analysisDetails.mat');
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
 %ana.eventValues = {{'AudForg','AudReca'}};
-ana.eventValues = {{'VisForg','VisReca'}};
+% ana.eventValues = {{'VisForg','VisReca'}};
 %ana.eventValues = {{'VisForg','VisReca'},{'AudForg','AudReca'}};
 %ana.eventValues = {{'Forg','Reca'}};
-%ana.eventValues = {{'Aud','Vis'}};
+ana.eventValues = {{'Aud','Vis'}};
 
 % pre-defined ROIs in this function
 ana = mm_ft_elecGroups(ana);
@@ -36,7 +36,12 @@ ana = mm_ft_elecGroups(ana);
 
 %[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
 
-equatetrials = true;
+%equatetrials = true;
+equatetrials = false;
+
+addtrials = false; %double number of trials in condition that starts out most frequent
+
+subtract_trials = true; % subtract auditory trials to simulate skewed classes
 
 %% beh: accuracy
 
@@ -371,6 +376,85 @@ for typ = 1:length(ana.eventValues)
   end
 end
 
+
+%% Add trials to simulate skewed classes.
+
+if addtrials
+  
+  ana.addtrials = true;
+  
+  ses=1;
+  
+  % initialize random number generator
+  rng('shuffle','twister');
+  
+  for typ = 1:length(ana.eventValues)
+    % find the highest number of trials within each subject
+    highEvNum = zeros(length(exper.subjects),1);
+    
+    for sub = 1:length(exper.subjects)
+      for i = 1:length(ana.eventValues{typ})
+        if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) > highEvNum(sub)
+          highEvNum(sub) = size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1);
+        end
+      end
+      for i = 1:length(ana.eventValues{typ})
+        % if we're working on the smaller event, get a random sub-selection
+        if size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1) == highEvNum(sub)
+            
+            
+            data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm((highEvNum(sub)+1):(highEvNum(sub)*2),:,:,:) = data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm(1:(highEvNum(sub)),:,:,:);
+            data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.cumtapcnt((highEvNum(sub)+1):(highEvNum(sub)*2),:) = data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.cumtapcnt(1:(highEvNum(sub)),:);
+            data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trialinfo((highEvNum(sub)+1):(highEvNum(sub)*2),:) = data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.trialinfo(1:(highEvNum(sub)),:);
+    
+%           fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{typ}{i});
+%           evNums = randperm(size(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data.powspctrm,1));
+%           % old version
+%           data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
+%           % new version, rpt selection doesn't work as of ft-20120116
+%           %cfg = [];
+%           %cfg.rpt = sort(evNums(1:lowEvNum(sub)));
+%           %data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data = ft_selectdata(cfg,data_freq.(ana.eventValues{typ}{i}).sub(sub).ses(ses).data);
+        end
+      end % i
+    end % sub
+    
+  end % typ
+else
+  ana.addtrials = false;
+end
+
+%% subtract auditory trials to simulate skewed classes
+
+if subtract_trials 
+  
+  ana.subtract_trials = true;
+  
+  ses=1;
+  
+  % initialize random number generator
+  rng('shuffle','twister');
+  
+  typ = 1;  %auditory 
+  
+  lowEvNum = zeros(length(exper.subjects));
+    
+    for sub = 1:length(exper.subjects)
+          lowEvNum(sub) = size(data_freq.(ana.eventValues{1}{2}).sub(sub).ses(ses).data.trialinfo,1)/2;%set low number equal to half the visual trials
+           
+%         lowEvNum(sub) = size(data_freq.Vis.sub.ses.data.trialinfo,1)/2;%set low number equal to half the visual trials
+       
+          fprintf('%s: Subselecting %d (of %d) trials for %s...\n',exper.subjects{sub},lowEvNum(sub),size(data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.powspctrm,1),ana.eventValues{1}{1});
+          evNums = randperm(size(data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data.powspctrm,1));
+          data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data = ft_selectdata(data_freq.(ana.eventValues{1}{1}).sub(sub).ses(ses).data,'rpt',sort(evNums(1:lowEvNum(sub))));
+          
+    end % sub
+    
+else
+  ana.equateTrials = false;
+end
+
+
 %% Time-Frequency: if data is already processed but not equated
 
 % TODO: can happen automatically in ft_mv_crossvalidator ('balance',true)
@@ -421,8 +505,8 @@ end
 
 cfg_fb = [];
 cfg_fb.baseline = [-0.3 -0.1];
-%cfg_fb.baselinetype = 'absolute';
-cfg_fb.baselinetype = 'relative';
+cfg_fb.baselinetype = 'absolute';
+%cfg_fb.baselinetype = 'relative';
 
 ana.blc = true;
 ana.blc_method = cfg_fb.baselinetype;
@@ -469,8 +553,8 @@ cfg_ana.latencies = [0 0.5; 0.5 1.0];
 
 %cfg_ana.chanStr = {{'right'}};
 %cfg_ana.chanStr = {{'center74'}};
-%cfg_ana.chanStr = {{'center91'}};
-cfg_ana.chanStr = {{'center74'},{'center91'}};
+cfg_ana.chanStr = {{'center91'}};
+% cfg_ana.chanStr = {{'center74'},{'center91'}};
 %cfg_ana.chanStr = {{'center74'},{'center91'},{'midline'},{'left'},{'right'},{'anterior'},{'posterior'}};
 %cfg_ana.chanStr = {{'LAS'},{'RAS'},{'LPS'},{'RPS'},{'LAI'},{'RAI'},{'LPI'},{'RPI'},{'FI'},{'FS'},{'PS'},{'PI'}};
 %cfg_ana.chanStr = {{'center74'},{'center91'},{'midline'},{'left'},{'right'},{'anterior'},{'posterior'},{'LAS'},{'RAS'},{'LPS'},{'RPS'},{'LAI'},{'RAI'},{'LPI'},{'RPI'},{'FI'},{'FS'},{'PS'},{'PI'}};
@@ -547,13 +631,16 @@ end
 % not working
 
 % L1 regularized logistic regression
-cfg_ana.method = 'L1regLogRLam01';
-cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
+% cfg_ana.method = 'L1regLogRLam01';
+% cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
 %cfg_ana.method = 'L1regLogRLam01_ns';
 %cfg.mva = {ft_mv_glmnet('alpha',1,'lambda',0.1,'family','binomial')};
 % lam=1 doesn't perform very well
 % lam=0.1 and 0.05 performs well
 % lambda=0.2 doesn't perform well
+
+cfg.mva = {dml.standardizer dml.glmnet('alpha',1,'family','binomial')};
+cfg_ana.method = 'L1regLog-av_sub-skew_resample';
 
 %cfg_ana.method = 'L1regLogRLamN100';
 %cfg.mva = {ft_mv_standardizer ft_mv_glmnet('alpha',1,'lambda',[],'nlambda',100,'lambda_min',0.05,'family','binomial')};

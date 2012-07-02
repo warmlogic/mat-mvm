@@ -274,6 +274,9 @@ end
 % ERP: T/NT/B x R/F
 adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NTF_NTR_TF_TR_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
 
+% % ERP: T/NT/B
+% adFile = '/Volumes/curranlab/Data/TNT/TNT_matt/eeg/-1000_1700/ft_data/B_NT_T_eq0_art_nsAuto/tla_-1000_1700_avg/analysisDetails.mat';
+
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
 %% set up channel groups
@@ -389,6 +392,30 @@ for ses = 1:length(exper.sessions)
     end
   end
 end
+
+%% write out some data
+
+cfg = [];
+
+% cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg.latencies = [0.3 0.5; 0.5 0.8];
+% cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+
+% cfg.rois = {{'LPS'},{'RPS'}};
+% cfg.latencies = [0.5 0.8; 0.5 0.8];
+cfg.rois = {{'LPS','RPS'}};
+cfg.latencies = [0.5 0.8];
+cfg.condByROI = repmat(ana.eventValues,size(cfg.rois));
+
+cfg.parameter = 'avg';
+
+cfg.excludeBadSub = true;
+
+cfg.direction = 'columns';
+%cfg.direction = 'rows';
+
+mm_printDataToText(cfg,exper,ana,dirs,data_tla);
 
 %% plot the conditions - simple
 
