@@ -526,6 +526,18 @@ fprintf('Done.\n');
 
 %% Time-Frequency: classification
 
+% TODO:
+%
+% use ft_selectdata (old or new?) to pull the data out of the ft struct
+%
+% use DMLT's functions to do more nuanced classification than FT can do
+%
+% understand the binomial test results
+%
+% low and high alpha? what were the differences?
+%
+% normalized power? (use my mm_ft_loadData)
+
 if ~isfield(ana,'blc')
   ana.blc = false;
 end
@@ -760,7 +772,7 @@ for typ = 1:length(ana.eventValues)
           % print out some performance info
           fprintf('\n%s, %s, %s (%d chans), %.1f-%.1f s, %.1f-%.1f Hz\n',exper.subjects{sub},vsStr,chanStr(1:end-1),cfg_ana.nChan,cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2));
           fprintf('accuracy = %.2f%%',stat_all(sub,chn,lat,frq).stat.statistic.accuracy*100);
-          fprintf('binomial = %.4f',stat_all(sub,chn,lat,frq).stat.statistic.binomial);
+          fprintf(', binomial = %.4f',stat_all(sub,chn,lat,frq).stat.statistic.binomial);
           if stat_all(sub,chn,lat,frq).stat.statistic.binomial < .05
             fprintf(' ***\n');
           else
@@ -773,6 +785,9 @@ for typ = 1:length(ana.eventValues)
           fprintf('True\t%s\t%d\t%d\n',ana.eventValues{typ}{1},continTab{sub,chn,lat,frq}(1,1),continTab{sub,chn,lat,frq}(1,2));
           fprintf('\t%s\t%d\t%d\n',ana.eventValues{typ}{2},continTab{sub,chn,lat,frq}(2,1),continTab{sub,chn,lat,frq}(2,2));
           fprintf('\n');
+          
+          % debug
+          keyboard
         end % frq
       end % lat
     end % sub
@@ -881,7 +896,7 @@ for typ = 1:length(ana.eventValues)
     fprintf(fid,'\n');
     
     % print p-values
-    fprintf(fid,'p-values\n');
+    fprintf(fid,'binomial test values\n');
     fprintf(fid,'\t%s\n',sprintf(repmat('\t%.1f-%.1f Hz',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
     for sub = 1:length(exper.subjects)
       fprintf(fid,'%s',exper.subjects{sub});
@@ -895,32 +910,37 @@ for typ = 1:length(ana.eventValues)
     % statistics
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % t-test to see if accuracies are above 50%. within a frequency band,
-    % within a time region, test accuracy vs 0.5.
+    % t-test to see if accuracies across subjects are above 50%. within a
+    % frequency band, within a time region, test accuracy vs 0.5.
     
-    chance50 = 0.5*ones(size(exper.subjects));
-    alpha = 0.05;
-    
-    fprintf(fid,'\nVersus chance\n');
-    fprintf(fid,'%s\n',sprintf(repmat('\t%.1f-%.1f Hz\t',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
-    fprintf(fid,'%s\n',sprintf(repmat('\tp\tt(%d)',1,size(cfg_ana.freqs,1)),(size(exper.subjects,1)-1)*ones(size(cfg_ana.freqs,1),1)));
-    
-    for lat = 1:size(cfg_ana.latencies,1)
-      fprintf(fid,'%.1f-%.1fs',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2));
-      for frq = 1:size(cfg_ana.freqs,1)
-        [h,p,ci,stats] = ttest(squeeze(accuracy(:,chn,lat,frq)),chance50,alpha,'both');
-        fprintf('%s, %.1f-%.1f s,\t%.1f-%.1f Hz,\tavg=%.2f%%:\t',chanStr(1:end-1),stat_all(1,chn,lat,frq).stat.time(1),stat_all(1,chn,lat,frq).stat.time(end),stat_all(1,chn,lat,frq).stat.freq(1),stat_all(1,chn,lat,frq).stat.freq(end),mean(accuracy(:,chn,lat,frq),1)*100);
-        fprintf('p=%.4f, t(%d)=%.4f',p,stats.df,stats.tstat);
-        if h == 1
-          fprintf(' <---');
+    if length(exper.subjects) > 1
+      chance50 = 0.5*ones(size(exper.subjects));
+      alpha = 0.05;
+      
+      fprintf(fid,'\nVersus chance\n');
+      fprintf(fid,'%s\n',sprintf(repmat('\t%.1f-%.1f Hz\t',1,size(cfg_ana.freqs,1)),cfg_ana.freqs'));
+      fprintf(fid,'%s\n',sprintf(repmat('\tp\tt(%d)',1,size(cfg_ana.freqs,1)),(size(exper.subjects,1)-1)*ones(size(cfg_ana.freqs,1),1)));
+      
+      for lat = 1:size(cfg_ana.latencies,1)
+        fprintf(fid,'%.1f-%.1f s',cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2));
+        for frq = 1:size(cfg_ana.freqs,1)
+          [h,p,ci,stats] = ttest(squeeze(accuracy(:,chn,lat,frq)),chance50,alpha,'both');
+          fprintf('%s, %.1f-%.1f s,\t%.1f-%.1f Hz,\tavg=%.2f%%:\t',chanStr(1:end-1),cfg_ana.latencies(lat,1),cfg_ana.latencies(lat,2),cfg_ana.freqs(frq,1),cfg_ana.freqs(frq,2),mean(accuracy(:,chn,lat,frq),1)*100);
+          fprintf('p=%.4f, t(%d)=%.4f',p,stats.df,stats.tstat);
+          if h == 1
+            fprintf(' <---');
+          end
+          fprintf('\n');
+          
+          fprintf(fid,'\t%.4f\t%.4f',p,stats.tstat);
+          
         end
         fprintf('\n');
-        
-        fprintf(fid,'\t%.4f\t%.4f',p,stats.tstat);
-        
+        fprintf(fid,'\n');
       end
-      fprintf('\n');
-      fprintf(fid,'\n');
+    else
+      fprintf(fid,'Only 1 subject, cannot compare to chance-level classification performance.\n');
+      fprintf('Only 1 subject, cannot compare to chance-level classification performance.\n');
     end
     
     % close the file
