@@ -759,8 +759,74 @@ for typ = 1:length(ana.eventValues)
         for frq = 1:size(cfg_ana.freqs,1)
           cfg.frequency = cfg_ana.freqs(frq,:);
           
-          cfg.design = [ones(size(data1.powspctrm,1),1); 2*ones(size(data2.powspctrm,1),1)]';
+          cfg.design = [ones(size(data1.(cfg.parameter),1),1); 2*ones(size(data2.(cfg.parameter),1),1)]';
           
+          % debug
+          keyboard
+          
+          data = ft_selectdata_old(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data,data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data,...
+            'param',cfg.parameter,...
+            'foilim',cfg_ana.freqs(frq,:),...
+            'toilim',cfg_ana.latencies(lat,:),...
+            'channel',cfg.channel,...
+            'avgoverchan',cfg.avgoverchan,...
+            'avgoverfreq',cfg.avgoverfreq,...
+            'avgovertime',cfg.avgovertime);
+          
+          if any(isinf(data.(cfg.parameter)(:)))
+            warning('Inf encountered; replacing by zeros');
+            data.(cfg.parameter)(isinf(data.(cfg.parameter)(:))) = 0;
+          end
+          
+          if any(isnan(data.(cfg.parameter)(:)))
+            warning('Nan encountered; replacing by zeros');
+            data.(cfg.parameter)(isnan(data.(cfg.parameter)(:))) = 0;
+          end
+          
+          reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3) * size(data.(cfg.parameter),4))];
+          
+          m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',dml.svm('restart',false)),'vars','C','vals',fliplr(logspace(-4,1,5)),'verbose',true);
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          %m.statistic % doesn't work for gridsearch, not sure how to evaluate
+          
+          m = dml.crossvalidator('mva',{dml.standardizer dml.naive},'stat',{'accuracy','binomial','contingency'},'verbose',true);
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m.statistic
+          
+          m = dml.graphnet('family','binomial','L1',0.1);
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m.statistic
+          
+          % search through L1 parameters
+          v = dml.graphnet.lambdapath(reshape(data.(cfg.parameter),reshapevec),cfg.design','binomial',50,1e-2);
+          m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',dml.graphnet('family','binomial','restart',false)),'vars','L1','vals',v);
+          tic;
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          toc
+          m.statistic
+          figure;
+          plot(m.configs,m.outcome); xlabel('L1'); ylabel('accuracy');
+          
+          % elastic net
+          m = dml.enet;
+          tic;
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          toc;
+          figure;
+          bar(m.model.weights);
+          
+          % resample
+          m = dml.crossvalidator('mva',{dml.standardizer dml.naive},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true);
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m.statistic
+          
+          % same as fieldtrip defaults
+          m = dml.crossvalidator('mva',dml.analysis({dml.standardizer('verbose',true) dml.svm('verbose',true)}),...
+            'stat',{'accuracy','binomial','contingency'},...
+            'type','nfold','folds',5);
+          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m.statistic
+
           % run it
           stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
           
@@ -786,8 +852,6 @@ for typ = 1:length(ana.eventValues)
           fprintf('\t%s\t%d\t%d\n',ana.eventValues{typ}{2},continTab{sub,chn,lat,frq}(2,1),continTab{sub,chn,lat,frq}(2,2));
           fprintf('\n');
           
-          % debug
-          keyboard
         end % frq
       end % lat
     end % sub
