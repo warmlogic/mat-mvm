@@ -109,7 +109,7 @@ if ~isfield(cfg,'graphcolor')
   cfg.graphcolor = 'rbkgcmy';
 end
 if ~isfield(cfg,'linestyle')
-  cfg.linestyle = {'-','--','-.','-','--','-.','-'};
+  cfg.linestyle = {'-','--',':','-','--',':','-'};
 end
 
 % cluster significance stuff

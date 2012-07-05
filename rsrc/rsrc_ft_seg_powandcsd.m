@@ -795,7 +795,7 @@ ft_topoplotTFR(cfg_ft,ga_freq_RHSCvsRHSI);
 % cfg_ft.elec = ga_freq.elec;
 % cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% cfg_ft.linestyle = {'-','--','-.'};
+% cfg_ft.linestyle = {'-','--',':'};
 % 
 % cfg_plot = [];
 % %cfg_plot.fillcolor = [.8,.8,.8];

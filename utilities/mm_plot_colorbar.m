@@ -9,7 +9,8 @@ function mm_plot_colorbar(minmax,orient,label,filename,cmap,figPrintFormat,figPr
 %  label          = 'Voltage (\muV)' (default)
 %  filename       = 'colorbar' (pwd; default); or e.g.,'~/Desktop/colorbar'
 %                   % no extension necessary
-%  cmap           = the colormap to use; 'jet' (default); or, e.g., 'hot'
+%  cmap           = the colormap to use; 'jet' (default); or, e.g., 'hot',
+%                   or jet(64), hot(64), hot(128), etc.
 %                   % see COLORMAP
 %  figPrintFormat = 'epsc2' (default) % don't include '-d'; see PRINT
 %  figPrintRes    = figure resolution; 150 (default) % see PRINT

@@ -803,7 +803,7 @@ for typ = 1:length(ana.eventValues)
           tic;
           m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
           toc
-          m.statistic
+          %m.statistic
           figure;
           plot(m.configs,m.outcome); xlabel('L1'); ylabel('accuracy');
           

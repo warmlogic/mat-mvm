@@ -76,7 +76,7 @@ if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
     cfg_ft.graphcolor = 'rbkgcmyrbkgcmyrbkgcmy';
   end
   if ~isfield(cfg_ft,'linestyle')
-    cfg_ft.linestyle = {'-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.'};
+    cfg_ft.linestyle = {'-','--',':','-','--',':','-','--',':','-','--',':','-','--',':','-','--',':','-','--',':'};
   end
 end
 % not sure if this gets used
@@ -106,8 +106,11 @@ if (strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo'))
     if ~isfield(cfg_ft,'fontsize')
       cfg_ft.fontsize = 10;
     end
-    if isfield(cfg_ft,'markerfontsize')
+    if ~isfield(cfg_ft,'markerfontsize')
       cfg_ft.markerfontsize = 9;
+    end
+    if ~isfield(cfg_ft,'colormap')
+      cfg_ft.colormap = hot(64);
     end
   end
 end

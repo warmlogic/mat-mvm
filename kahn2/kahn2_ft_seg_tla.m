@@ -160,7 +160,7 @@ end
 % cfg_ft.channel = {'e20'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--','-.'};
+% %cfg_ft.linestyle = {'-','--',':'};
 % cfg_ft.xlim = [-0.2 1.0];
 % %figure
 % %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
@@ -376,7 +376,7 @@ cfg_ft.fontsize = 9;
 cfg_ft.xlim = [-.2 1.0];
 cfg_ft.linewidth = 2;
 cfg_ft.graphcolor = 'rbk';
-cfg_ft.linestyle = {'-','--','-.'};
+cfg_ft.linestyle = {'-','--',':'};
 
 for pa = 1:length(ana.pa_evVal)
   % FN400
@@ -411,7 +411,7 @@ if cfg_plot.excludeBadSub
 else
   cfg_plot.numRows = ceil((length(exper.subjects)) / cfg_plot.numCols);
 end
-cfg_plot.colors = 'rbkgcmy';
+cfg_plot.graphcolor = 'rbkgcmy';
 
 for pa = 1:length(ana.pa_evVal)
   figure
@@ -420,7 +420,7 @@ for pa = 1:length(ana.pa_evVal)
     evStr = [];
     for evVal = 1:length(ana.pa_evVal{pa})
       evStr = cat(2,evStr,sprintf(' %s:%d',strrep(ana.pa_evVal{pa}{evVal},'_',''),numEv.(ana.pa_evVal{pa}{evVal})(sub)));
-      plot(data_tla.(ana.pa_evVal{pa}{evVal}).sub(sub).ses(ses).data.time,mean(data_tla.(ana.pa_evVal{pa}{evVal}).sub(sub).ses(ses).data.avg(cfg_plot.chan,:),1),cfg_plot.colors(evVal));
+      plot(data_tla.(ana.pa_evVal{pa}{evVal}).sub(sub).ses(ses).data.time,mean(data_tla.(ana.pa_evVal{pa}{evVal}).sub(sub).ses(ses).data.avg(cfg_plot.chan,:),1),cfg_plot.graphcolor(evVal));
       hold on
     end
     if exper.badSub(sub,ses)
@@ -437,7 +437,7 @@ for pa = 1:length(ana.pa_evVal)
   text(0.5,0.9,sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}),'color','k');
   ycoord = 0.7;
   for evVal = 1:length(ana.pa_evVal{pa})
-    text(0.5,ycoord,strrep(ana.pa_evVal{pa}{evVal},'_',''),'color',cfg_plot.colors(evVal));
+    text(0.5,ycoord,strrep(ana.pa_evVal{pa}{evVal},'_',''),'color',cfg_plot.graphcolor(evVal));
     ycoord = ycoord - 0.2;
   end
   axis off
@@ -451,7 +451,7 @@ cfg_ft.fontsize = 9;
 cfg_ft.elec = ga_tla.elec;
 cfg_ft.linewidth = 2;
 cfg_ft.graphcolor = 'rbk';
-cfg_ft.linestyle = {'-','--','-.'};
+cfg_ft.linestyle = {'-','--',':'};
 
 cfg_plot = [];
 %cfg_plot.fillcolor = [.8,.8,.8];

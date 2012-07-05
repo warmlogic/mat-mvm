@@ -15,7 +15,7 @@ if ~isfield(cfg_ft,'graphcolor')
   cfg_ft.graphcolor = 'rbkgcmyrbkgcmyrbkgcmy';
 end
 if ~isfield(cfg_ft,'linestyle')
-  cfg_ft.linestyle = {'-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.'};
+  cfg_ft.linestyle = {'-','--',':','-','--',':','-','--',':','-','--',':','-','--',':','-','--',':','-','--',':'};
 end
 if ~isfield(cfg_plot,'excludeBadSub')
   cfg_plot.excludeBadSub = 1;

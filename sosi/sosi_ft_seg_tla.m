@@ -306,7 +306,7 @@ end
 % cfg_ft.channel = {'E26'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--','-.'};
+% %cfg_ft.linestyle = {'-','--',':'};
 % figure
 % ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
 % legend((exper.eventValues{1}),(exper.eventValues{2}),(exper.eventValues{3}),'Location','SouthEast');
@@ -653,6 +653,10 @@ cfg_plot.excludeBadSub = 1;
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'SC','SI','CR'}},size(cfg_plot.rois));
 
+% cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--',':'};
+% cfg_ft.linewidth = 3;
+
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.legendloc = cfg_plot.legendlocs{r};
@@ -830,7 +834,7 @@ cfg_ft.colorbar = 'no';
 cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
 %cfg_plot.conditions = {{'SC','CR'}}; % {'RH','CR'},
 %cfg_plot.conditions = {{'FSC','RSSI'}};
-cfg_plot.conditions = {{'H','CR'}};
+% cfg_plot.conditions = {{'H','CR'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 %cfg_ft.zlim = 'maxmin'; % volt

@@ -5,7 +5,7 @@ function mm_plot_legend(label,linestyle,linewidth,filename,figPrintFormat,figPri
 %
 % Input:
 %  label          = {'a','b','c'} (required) % see LEGEND
-%  linestyle      = {'r-','b--','k-.','g-','c--','m-.','y-'} (default) % see PLOT
+%  linestyle      = {'r-','b--','k:','g-','c--','m:','y-'} (default) % see PLOT
 %  linewidth      = 1.0 (default) % see PLOT
 %  filename       = 'legend' (default); or, e.g., '~/Desktop/legend';
 %                   % no extension necessary
@@ -51,7 +51,7 @@ if ~exist('label','var') || isempty(label)
   error('Must set label variable');
 end
 if ~exist('linestyle','var') || isempty(linestyle)
-  linestyle = {'r-','b--','k-.','g-','c--','m-.','y-'};
+  linestyle = {'r-','b--','k:','g-','c--','m:','y-'};
   %error('Must set label linestyle');
 end
 

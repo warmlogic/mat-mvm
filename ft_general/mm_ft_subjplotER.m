@@ -18,8 +18,8 @@ end
 if ~isfield(cfg_plot,'numCols')
   cfg_plot.numCols = 5;
 end
-if ~isfield(cfg_plot,'colors')
-  cfg_plot.colors = 'rbkgcmyrbkgcmyrbkgcmy';
+if ~isfield(cfg_plot,'graphcolor')
+  cfg_plot.graphcolor = 'rbkgcmyrbkgcmyrbkgcmy';
 end
 
 % make sure conditions are set correctly
@@ -103,7 +103,7 @@ for typ = 1:length(cfg_plot.conditions)
       for evVal = 1:length(cfg_plot.conditions{typ})
         evStr = cat(2,evStr,sprintf(' %s:%d',strrep(cfg_plot.conditions{typ}{evVal},'_',''),exper.nTrials.(cfg_plot.conditions{typ}{evVal})(sub)));
         if isfield(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data,cfg_plot.parameter)
-          plot(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.time,mean(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.(cfg_plot.parameter)(cfg_plot.chansel,:),1),cfg_plot.colors(evVal));
+          plot(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.time,mean(data.(cfg_plot.conditions{typ}{evVal}).sub(sub).ses(ses).data.(cfg_plot.parameter)(cfg_plot.chansel,:),1),cfg_plot.graphcolor(evVal));
         end
       end
       
@@ -129,7 +129,7 @@ for typ = 1:length(cfg_plot.conditions)
   text(0.5,ycoord,sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}),'color','k');
   ycoord = ycoord - vertTextLoc;
   for evVal = 1:length(cfg_plot.conditions{typ})
-    text(0.5,ycoord,strrep(cfg_plot.conditions{typ}{evVal},'_',''),'color',cfg_plot.colors(evVal));
+    text(0.5,ycoord,strrep(cfg_plot.conditions{typ}{evVal},'_',''),'color',cfg_plot.graphcolor(evVal));
     ycoord = ycoord - vertTextLoc;
   end
   axis off
