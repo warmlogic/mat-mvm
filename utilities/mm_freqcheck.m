@@ -4,18 +4,25 @@ function cfg = mm_freqcheck(exper,cfg,baseline,plotit)
 % cfg = mm_freqcheck(exper,cfg,baseline,plotit)
 %
 % Input:
-%   exper      = exper struct
-%   cfg        = cfg that will go into FT_FREQANALYSIS
+%   exper      = exper struct; only needs prepost and sampleRate fields
+%   cfg        = cfg that will go into FT_FREQANALYSIS; only needs fields:
+%                method, foi (or foilim), toi, and output fields, plus
+%                fields relevant to the method (e.g., width for wavelet)
 %   baseline   = e.g., [-1.0 -0.75]
 %   plotit     = whether to plot some info (default: true)
 %
 % Output:
-%   cfg        = same cfg with some defaults set if you didn't set them
-%                (optional)
+%   cfg        = same cfg with some parameters/defaults set if you didn't
+%                set them (optional)
 %
 % NB: I think this is correct, but the FieldTrip tutorials do not pay such
 %     close attention to baseline periods. This is at least a conservative
 %     approach.
+%
+% NB: if you just want to figure out how much time a given wavelet will
+%     occupy, the equation is
+%     (sample rate * width) / 2;
+%     so: ((1 second / frequency of interest) * width) / 2;
 %
 % See also: FT_FREQANALYSIS
 %
@@ -104,20 +111,22 @@ elseif strcmp(cfg.output,'powandcsd') && ~isfield(cfg,'channelcmb')
   cfg.channelcmb = {'all','all'};
 end
 
-% % some test parameters
+% % some test parameters for debugging
 
 % % wavelet
 % cfg = [];
-% cfg.foi = 4:1:8;
+% % cfg.foi = 4:1:8;
+% cfg.foilim = [4 8];
 % cfg.toi = -1.0:0.04:2.0;
-% baseline = [-1.0 -0.75];
+% baseline = [-0.3 -0.1];
 % cfg.method = 'wavelet';
 % cfg.width = 6;
 % cfg.output = 'pow';
 
 % % multitaper - hanning taper
 % cfg = [];
-% cfg.foi = 2:2:30;
+% % cfg.foi = 2:2:30;
+% cfg.foilim = [2 30];
 % cfg.toi = -1.0:0.04:2.0;
 % baseline = [-0.3 -0.1];
 % cfg.method = 'mtmconvol';
@@ -127,7 +136,8 @@ end
 
 % % multitaper - slepian tapers
 % cfg = [];
-% cfg.foi = 2:2:30;
+% % cfg.foi = 2:2:30;
+% cfg.foilim = [2 30];
 % cfg.toi = -1.0:0.04:2.0;
 % baseline = [-0.3 -0.1];
 % cfg.method = 'mtmconvol';
