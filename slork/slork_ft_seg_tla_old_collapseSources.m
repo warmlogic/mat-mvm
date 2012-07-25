@@ -592,7 +592,7 @@ cfg.fontsize = 9;
 cfg.xlim = [-.2 2.0];
 cfg.linewidth = 2;
 cfg.graphcolor = 'krb';
-cfg.linestyle = {'-','--',':'};
+cfg.linestyle = {'-','--','-.'};
 % FN400
 cfg.ylim = [-4 3];
 cfg.channel = cat(2,elecGroups{ismember(elecGroupsStr,{'LAS','RAS'})});
@@ -665,7 +665,7 @@ plotLegend = 1;
 
 cfg.linewidth = 2;
 cfg.graphcolor = 'krb';
-cfg.linestyle = {'-','--',':'};
+cfg.linestyle = {'-','--','-.'};
 
 plot_rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'},{'LAS','RAS'},{'LPS','RPS'}};
 %plot_rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};

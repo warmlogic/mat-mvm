@@ -365,7 +365,7 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s...',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        fprintf('%s, %s, %s...',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
         data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
       end
     end

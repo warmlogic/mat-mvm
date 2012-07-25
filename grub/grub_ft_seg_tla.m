@@ -288,7 +288,7 @@ end
 % cfg_ft.channel = {'E42'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % figure
 % ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
 % legend((exper.eventValues{1}),(exper.eventValues{2}),(exper.eventValues{3}),'Location','SouthEast');

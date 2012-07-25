@@ -306,7 +306,7 @@ end
 % cfg_ft.channel = {'E26'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % figure
 % ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
 % legend((exper.eventValues{1}),(exper.eventValues{2}),(exper.eventValues{3}),'Location','SouthEast');
@@ -413,7 +413,7 @@ exper.badBehSub = {'SOSI011','SOSI030','SOSI007'}; % for publication; also 001 h
 %   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,14);
+[exper,ana] = mm_threshSubs(exper,ana,15);
 
 % thresholds = [5:18];
 % sumOfAvgs = zeros(1,length(thresholds));
@@ -653,8 +653,8 @@ cfg_plot.excludeBadSub = 1;
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'SC','SI','CR'}},size(cfg_plot.rois));
 
-% cfg_ft.linestyle = {'-','--',':'};
-% %cfg_ft.linestyle = {'-','--',':'};
+% cfg_ft.linestyle = {'-','--','-.'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % cfg_ft.linewidth = 3;
 
 for r = 1:length(cfg_plot.rois)
@@ -716,6 +716,8 @@ cfg_ft.xlim = [-0.2 1.5]; % time
 
 cfg_ft.parameter = 'avg';
 
+%cfg_ft.linewidth = 2;
+
 cfg_plot = [];
 cfg_plot.plotTitle = 0;
 
@@ -771,10 +773,12 @@ cfg_plot.ylabel = '';
 % conditions
 % cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{'FSC','FSI','N'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'FSC','FSI','CR'}}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
-% cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{{'FSC','FSI','N'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'FSC','FSI','CR'}}},size(cfg_plot.rois));
+
+cfg_plot.condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};

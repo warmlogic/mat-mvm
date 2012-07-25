@@ -71,21 +71,25 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 %
 % 'badChanManual' requires a tab-delimited file titled
 % [exper.name,'_badChan.txt'] to reside in
-% fullfile(dirs.dataroot,dirs.dataDir). The three tab sections are subject
+% fullfile(dirs.dataroot,dirs.dataDir). The three tab columns are subject
 % name (e.g., EXPER001), session name (e.g., session_0), and bad channel
-% numbers listed as integers in brackets (e.g., [56 93]).
+% numbers listed as integers in brackets (e.g., [56 93]). Using this option
+% does not modify the data.
 %
 % 'badChanEP' requires the Artifact_Correction_Log output from EP Toolkit
 % artifact processing, and must reside in a directory labeled with the
 % session name (from exper.sessions) which is in a directory called
 % 'ep_art' in fullfile(dirs.dataroot,dirs.dataDir). This will only look for
-% channels listed as being globally bad.
+% channels listed as being globally bad. Using this option does not modify
+% the data.
 %
 % For the badChan methods, 'rmBadChan' gives the option to delete those
-% channels from the data (if you edit mm_ft_artifact you can turn those
-% channels into NaNs, or do that later on your own).
+% channels from the data using ft_rejectvisual. Using this option will
+% return the data without the bad channels.
+% NB: If you edit mm_ft_artifact you can turn those channels into NaNs, or
+% do that later on your own.
 %
-% !!!EXTREMELY IMPORTANT!!!
+% !!!EXTREMELY IMPORTANT!!! (Disclaimer: I'm not 100% about this)
 % Do not reject ICA components from data that has already had
 % ICA components rejected. Also, be very wary about rejecting ICA
 % components if you want to do phase analyses; I think ICA screws up phase
@@ -104,7 +108,7 @@ function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,ele
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % See also: CREATE_FT_STRUCT, MM_FT_ARTIFACT, PROCESS_FT_DATA,
-% FT_CHANNELREPAIR
+% FT_CHANNELREPAIR, FT_REJECTVISUAL
 %
 
 %% set the artifact processing parameters

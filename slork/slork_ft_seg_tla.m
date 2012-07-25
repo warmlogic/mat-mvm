@@ -330,7 +330,7 @@ end
 % cfg_ft.channel = {'E20'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % cfg_ft.xlim = [-0.2 1.0];
 % %figure
 % %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);

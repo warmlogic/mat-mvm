@@ -20,7 +20,7 @@ if ~isfield(cfg_ft,'graphcolor')
   cfg_ft.graphcolor = 'rbkgcmy';
 end
 if ~isfield(cfg_ft,'linestyle')
-  cfg_ft.linestyle = {'-','--',':','-','--',':','-'};
+  cfg_ft.linestyle = {'-','--','-.','-','--','-.','-'};
 end
 if ~isfield(cfg_plot,'plotTitle')
   cfg_plot.plotTitle = 0;

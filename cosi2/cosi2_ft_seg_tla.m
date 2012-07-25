@@ -248,14 +248,14 @@ end
 % % old - CR SC SI
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% % C/S x CR SC SI - with badChan info (use this)
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% C/S x CR SC SI - with badChan info (use this)
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 % % C/S x CR SC SI H
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CH_CSC_CSI_SCR_SH_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% F/N/RO/RS x SC/SI all combos
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+% % F/N/RO/RS x SC/SI all combos
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -284,7 +284,7 @@ ana = mm_ft_elecGroups(ana);
 
 % % list the values separated by types: Color, Side
 
-% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 % ana.eventValues = {{'CCR','CSC','CSI','CH'},{'SCR','SSC','SSI','SH'}};
 
 %ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
@@ -308,9 +308,9 @@ ana = mm_ft_elecGroups(ana);
 %   {'CFSC','CFSI','CN','CRSC','CRSI'},...
 %   {'SFSC','SFSI','SN','SRSC','SRSI'}};
 
-ana.eventValues = {...
-  {'CFSC','CFSI','CN'},...
-  {'SFSC','SFSI','SN'}};
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CN'},...
+%   {'SFSC','SFSI','SN'}};
 
 % ana.eventValues = {...
 %   {'CFSC','CFSI'},...
@@ -360,7 +360,7 @@ end
 % cfg_ft.channel = {'E20'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % cfg_ft.xlim = [-0.2 1.0];
 % %figure
 % %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
@@ -487,7 +487,7 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2
 %   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,14);
+[exper,ana] = mm_threshSubs(exper,ana,15);
 
 % fprintf('Color: sum([mean(FSC),mean(FSI)]) = %.1f\n',sum([mean(exper.nTrials.CFSC(~exper.badSub)), mean(exper.nTrials.CFSI(~exper.badSub))]));
 % fprintf('Side: sum([mean(FSC),mean(FSI)]) = %.1f\n',sum([mean(exper.nTrials.SFSC(~exper.badSub)), mean(exper.nTrials.SFSI(~exper.badSub))]));
@@ -912,7 +912,7 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.conditions = {{'all_across_types'}};
 %cfg_plot.condMethod = 'pairwise';
 cfg_plot.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
-cfg_plot.conditions = {{'CH','CCR'},{'SH','SCR'}};
+%cfg_plot.conditions = {{'CH','CCR'},{'SH','SCR'}};
 
 cfg_plot.ftFxn = 'ft_topoplotER';
 cfg_ft.zlim = [-1.5 1.5]; % volt
@@ -921,10 +921,12 @@ cfg_ft.marker = 'on';
 cfg_ft.markerfontsize = 9;
 
 cfg_ft.comment = 'no';
-cfg_plot.roi = {'LAS','RAS'};
-cfg_ft.xlim = [0.3 0.5]; % time
-% cfg_plot.roi = {'LPS','RPS'};
-% cfg_ft.xlim = [0.5 0.8]; % time
+
+% cfg_plot.roi = {'LAS','RAS'};
+% cfg_ft.xlim = [0.3 0.5]; % time
+
+cfg_plot.roi = {'LPS','RPS'};
+cfg_ft.xlim = [0.5 0.8]; % time
 
 % cfg_ft.xlim = [0 1.0]; % time
 % %cfg_ft.xlim = (0:0.05:1.0); % time

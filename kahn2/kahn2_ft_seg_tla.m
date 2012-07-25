@@ -160,7 +160,7 @@ end
 % cfg_ft.channel = {'e20'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % cfg_ft.xlim = [-0.2 1.0];
 % %figure
 % %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
@@ -376,7 +376,7 @@ cfg_ft.fontsize = 9;
 cfg_ft.xlim = [-.2 1.0];
 cfg_ft.linewidth = 2;
 cfg_ft.graphcolor = 'rbk';
-cfg_ft.linestyle = {'-','--',':'};
+cfg_ft.linestyle = {'-','--','-.'};
 
 for pa = 1:length(ana.pa_evVal)
   % FN400
@@ -451,7 +451,7 @@ cfg_ft.fontsize = 9;
 cfg_ft.elec = ga_tla.elec;
 cfg_ft.linewidth = 2;
 cfg_ft.graphcolor = 'rbk';
-cfg_ft.linestyle = {'-','--',':'};
+cfg_ft.linestyle = {'-','--','-.'};
 
 cfg_plot = [];
 %cfg_plot.fillcolor = [.8,.8,.8];

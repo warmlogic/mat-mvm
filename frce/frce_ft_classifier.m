@@ -516,7 +516,7 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sessions{ses},ana.eventValues{typ}{evVal});
+        fprintf('%s, %s, %s, ',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
         data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
       end
     end
@@ -759,11 +759,6 @@ for typ = 1:length(ana.eventValues)
         for frq = 1:size(cfg_ana.freqs,1)
           cfg.frequency = cfg_ana.freqs(frq,:);
           
-          cfg.design = [ones(size(data1.(cfg.parameter),1),1); 2*ones(size(data2.(cfg.parameter),1),1)]';
-          
-          % debug
-          keyboard
-          
           data = ft_selectdata_old(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data,data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data,...
             'param',cfg.parameter,...
             'foilim',cfg_ana.freqs(frq,:),...
@@ -772,6 +767,8 @@ for typ = 1:length(ana.eventValues)
             'avgoverchan',cfg.avgoverchan,...
             'avgoverfreq',cfg.avgoverfreq,...
             'avgovertime',cfg.avgovertime);
+          
+          %data = ft_selectdata_new(cfg,data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data,data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data);
           
           if any(isinf(data.(cfg.parameter)(:)))
             warning('Inf encountered; replacing by zeros');
@@ -783,50 +780,78 @@ for typ = 1:length(ana.eventValues)
             data.(cfg.parameter)(isnan(data.(cfg.parameter)(:))) = 0;
           end
           
+          % make the data 2D
+          cfg.design = [ones(size(data1.(cfg.parameter),1),1); 2*ones(size(data2.(cfg.parameter),1),1)]';
           reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3) * size(data.(cfg.parameter),4))];
           
-          m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',dml.svm('restart',false)),'vars','C','vals',fliplr(logspace(-4,1,5)),'verbose',true);
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
-          %m.statistic % doesn't work for gridsearch, not sure how to evaluate
+          % % do we need to make the data 3D?
+          % cfg.design = repmat(cfg.design',[1,1,size(data.time,2)]);
+          % reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3)), size(data.(cfg.parameter),4)];
           
-          m = dml.crossvalidator('mva',{dml.standardizer dml.naive},'stat',{'accuracy','binomial','contingency'},'verbose',true);
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
-          m.statistic
+          % debug
+          keyboard
           
-          m = dml.graphnet('family','binomial','L1',0.1);
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
-          m.statistic
+          X = reshape(data.(cfg.parameter),reshapevec);
+          Y = cfg.design';
+          
+          m = dml.standardizer;
+          m = m.train(X);
+          Z = m.test(X);
           
           % search through L1 parameters
-          v = dml.graphnet.lambdapath(reshape(data.(cfg.parameter),reshapevec),cfg.design','binomial',50,1e-2);
-          m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',dml.graphnet('family','binomial','restart',false)),'vars','L1','vals',v);
+          v = dml.graphnet.lambdapath(Z,Y,'binomial',50,1e-2);
+          m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',{dml.standardizer dml.graphnet('family','binomial','restart',false)}),'vars','L1','vals',v,'verbose',true);
           tic;
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m = m.train(X,Y);
           toc
           %m.statistic
           figure;
           plot(m.configs,m.outcome); xlabel('L1'); ylabel('accuracy');
+          Z2 = m.test(X);
           
-          % elastic net
+          m = dml.crossvalidator('mva',{dml.standardizer dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'verbose',true);
+          m = m.train(X,Y);
+          Z2 = m.test(X);
+          
+          % gridsearch SVM for best C
+          m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',{dml.standardizer dml.svm('restart',false)}),'vars','C','vals',fliplr(logspace(-4,1,6)),'verbose',true);
+          m = m.train(X,Y);
+          Z2 = m.test(X);
+          %m.statistic % doesn't work for gridsearch, not sure how to evaluate
+          
+          % Naive Bayes
+          m = dml.crossvalidator('mva',{dml.standardizer dml.naive},'stat',{'accuracy','binomial','contingency'},'verbose',true);
+          m = m.train(X,Y);
+          m.statistic
+          
+          % simple elastic net
+          m = dml.graphnet('family','binomial','L1',0.1);
+          m = m.train(X,Y);
+          m.statistic
+          
+          % faster elastic net; no params: finds best lambda
           m = dml.enet;
           tic;
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m = m.train(X,Y);
           toc;
           figure;
           bar(m.model.weights);
+          figure;
+          imagesc(data.time,1:size(data.label,1),squeeze(reshape(m.model.weights,[size(data.(cfg.parameter),2), size(data.(cfg.parameter),3), size(data.(cfg.parameter),4)])));
+          axis xy
           
-          % resample
+          % resample Naive Bayes
           m = dml.crossvalidator('mva',{dml.standardizer dml.naive},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true);
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m = m.train(X,Y);
           m.statistic
           
           % same as fieldtrip defaults
           m = dml.crossvalidator('mva',dml.analysis({dml.standardizer('verbose',true) dml.svm('verbose',true)}),...
             'stat',{'accuracy','binomial','contingency'},...
             'type','nfold','folds',5);
-          m = m.train(reshape(data.(cfg.parameter),reshapevec),cfg.design');
+          m = m.train(X,Y);
           m.statistic
-
+          
           % run it
           stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
           

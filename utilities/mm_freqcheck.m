@@ -113,11 +113,15 @@ end
 
 % % some test parameters for debugging
 
+% exper = [];
+% exper.prepost = [-1 1.25];
+% exper.sampleRate = 500;
+
 % % wavelet
 % cfg = [];
 % % cfg.foi = 4:1:8;
 % cfg.foilim = [4 8];
-% cfg.toi = -1.0:0.04:2.0;
+% cfg.toi = -1.0:0.04:1.25;
 % baseline = [-0.3 -0.1];
 % cfg.method = 'wavelet';
 % cfg.width = 6;
@@ -356,19 +360,19 @@ elseif baseline(end) > -1 * min_baseline_s(1)
     cycleStr = 'time window';
   end
   fprintf('At the current setting of ending at %.2f s, the baseline period %s overlaps with ''%s'' calculation for the stimulus period.\n',baseline(end),cycleStr,cfg.output);
-  fprintf('(Yeah, it takes a lot of data to process low frequencies properly.)\n');
+  fprintf('(Yeah, it takes a long chunk of data to process low frequencies properly.)\n');
 end
 
 fprintf('\nTo summarize:\n');
 fprintf('The lowest frequency is %.2f Hz.\n',cfg.foi(1));
 fprintf('To properly baseline correct at %.1f Hz, the baseline period must end at least %.4f s prior to stimulus onset.\n',cfg.foi(1),min_baseline_s(1));
-fprintf('Thus, if you want to use data at %.1f Hz with a %.2f s average baseline correction:\n',cfg.foi(1),diff(baseline));
+fprintf('Thus, if you want to use data at %.1f Hz with this [%.2f %.2f] baseline correction (averaged across %.2f s):\n',cfg.foi(1),baseline(1),baseline(end),diff(baseline));
 fprintf('\t- start processing at %.4f seconds (or earlier).\n',-2*min_baseline_s(1) - diff(baseline));
 fprintf('\t- set the baseline to [%.4f %.4f].\n',-1*min_baseline_s(1) - diff(baseline),-1*min_baseline_s(1));
 
 fprintf('When processing the data out to %.2f s, ''%s'' will be calculated out to %.4f s at %.2f Hz.\n',cfg.toi(end),cfg.output,cfg.toi(end) - min_baseline_s(1),cfg.foi(1));
 fprintf('\t- If you want more usable ''%s'' data at %.2f Hz, take the last timepoint you want and add %.4f.\n',cfg.output,cfg.foi(1),min_baseline_s(1));
 
-fprintf('\nNB: I think this is correct, but the FieldTrip tutorials do not pay such close attention to baseline periods.\n');
+fprintf('\nNB: I think this is correct, but the FieldTrip tutorials do not pay such close attention to baseline periods.\nNeither do many published papers, and ultimately it probably doesn''t matter so much.\n');
 end
 

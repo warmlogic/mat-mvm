@@ -316,7 +316,7 @@ end
 % cfg_ft.channel = {'E20'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--',':'};
+% %cfg_ft.linestyle = {'-','--','-.'};
 % cfg_ft.xlim = [-0.2 1.0];
 % %figure
 % %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
@@ -420,7 +420,7 @@ exper.badBehSub = {'SOCO018','SOCO026'}; % for publication
 %   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,14);
+[exper,ana] = mm_threshSubs(exper,ana,15);
 
 %% get the grand average
 
@@ -856,7 +856,7 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.condMethod = 'pairwise';
 %cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
 %cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
-cfg_plot.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
+cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
 %cfg_plot.conditions = {{'RHSC','RHSI'}};
 %cfg_plot.conditions = {{'FSC','RSSI'}};
 
