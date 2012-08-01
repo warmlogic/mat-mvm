@@ -9,12 +9,16 @@ function mm_printDataToText(cfg,exper,ana,dirs,data)
 % % Get data for multiple ROIs
 % cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
-% cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
 %
 % % Or you can combine ROIs
 % cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg.latencies = [0.3 0.5; 0.5 0.8];
-% 
+%
+% % specify what conditions you want; this is generalized to get all
+% % conditions for all ROIs but can be constructed to get specific
+% % conditions for each ROI
+% cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
+%
 % % Set FieldTrip data field ('avg' for voltage, 'powspctrm' for power)
 % cfg.parameter = 'avg';
 % 
