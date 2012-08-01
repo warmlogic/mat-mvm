@@ -14,7 +14,7 @@ function mm_printDataToText(cfg,exper,ana,dirs,data)
 % cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg.latencies = [0.3 0.5; 0.5 0.8];
 %
-% % specify what conditions you want; this is generalized to get all
+% % specify what conditions you want; this is generalized to get these
 % % conditions for all ROIs but can be constructed to get specific
 % % conditions for each ROI
 % cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
@@ -25,8 +25,10 @@ function mm_printDataToText(cfg,exper,ana,dirs,data)
 % % include (false) or exclude (true) bad subjects (default=true)
 % cfg.excludeBadSub = false;
 % 
-% % Direction you want the data in ('columns' or 'rows' ; e.g., SPSS uses
-% % column data)
+% % Direction in which data for each ROI, condition, and latency is
+% % arranged ('columns' or 'rows'). For 'rows', subjects will be the
+% % columns; for 'columns', subjects will be the rows.
+% % (use 'columns' for SPSS)
 % cfg.direction = 'columns';
 % %cfg.direction = 'rows';
 % 
@@ -79,10 +81,16 @@ elseif ~cfg.excludeBadSub
   f_suf = sprintf('%s_allSub',f_suf);
 end
 
-if strcmp(cfg.direction,'columns')
-  f_suf = sprintf('%s_col',f_suf);
-elseif strcmp(cfg.direction,'rows')
-  f_suf = sprintf('%s_row',f_suf);
+if ~isempty(cfg.direction)
+  if strcmp(cfg.direction,'columns')
+    f_suf = sprintf('%s_col',f_suf);
+  elseif strcmp(cfg.direction,'rows')
+    f_suf = sprintf('%s_row',f_suf);
+  else
+    error('cfg.direction not properly specified, see help. (Must be ''columns'' or ''rows''.)');
+  end
+else
+  error('cfg.direction not specified, see help. (Must be ''columns'' or ''rows''.)');
 end
 
 outfile = fullfile(dirs.saveDirProc,sprintf('%s%s%s%s.txt',exper.name,allConds_str,allROIs_str,f_suf));
