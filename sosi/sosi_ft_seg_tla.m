@@ -967,8 +967,8 @@ cfg.parameter = 'avg';
 
 cfg.excludeBadSub = false;
 
-%cfg.direction = 'columns';
-cfg.direction = 'rows';
+cfg.direction = 'columns';
+%cfg.direction = 'rows';
 
 mm_printDataToText(cfg,exper,ana,dirs,data_tla);
 

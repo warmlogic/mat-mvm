@@ -1,6 +1,35 @@
 function mm_printDataToText(cfg,exper,ana,dirs,data)
 %mm_printDataToText - print data (e.g., voltages) to a file
 %
+% mm_printDataToText(cfg,exper,ana,dirs,data)
+%
+% % Example using voltage:
+% cfg = [];
+% 
+% % Get data for multiple ROIs
+% cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+% cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
+%
+% % Or you can combine ROIs
+% cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg.latencies = [0.3 0.5; 0.5 0.8];
+% 
+% % Set FieldTrip data field ('avg' for voltage, 'powspctrm' for power)
+% cfg.parameter = 'avg';
+% 
+% % include (false) or exclude (true) bad subjects (default=true)
+% cfg.excludeBadSub = false;
+% 
+% % Direction you want the data in ('columns' or 'rows' ; e.g., SPSS uses
+% % column data)
+% cfg.direction = 'columns';
+% %cfg.direction = 'rows';
+% 
+% mm_printDataToText(cfg,exper,ana,dirs,data_tla);
+%
+% NB: Saves to dirs.saveDirProc
+%
 % See also:
 %   MM_FT_CHECKCONDITIONS
 
