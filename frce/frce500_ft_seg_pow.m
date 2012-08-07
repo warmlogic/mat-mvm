@@ -154,12 +154,17 @@ cfg_pp.baselinewindow = [-0.2 0];
 % % cfg_pp.bsfreq = [58 62; 118 122; 178 182];
 % % cfg_pp.lpfilter = 'yes';
 % % cfg_pp.lpfreq = [35];
-    
+
 cfg_proc = [];
-cfg_proc.output = 'pow';
 cfg_proc.pad = 'maxperlen';
+% cfg_proc.output = 'pow';
+% % cfg_proc.output = 'powandcsd';
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.keeptapers = 'no';
+
+cfg_proc.output = 'fourier';
 cfg_proc.keeptrials = 'yes';
-cfg_proc.keeptapers = 'no';
+cfg_proc.keeptapers = 'yes';
 
 % % MTM FFT
 % cfg_proc.method = 'mtmfft';
@@ -217,7 +222,7 @@ cfg_proc.keeptapers = 'no';
 cfg_proc.method = 'wavelet';
 cfg_proc.width = 5;
 cfg_proc.toi = (-0.5:0.04:1.0);
- cfg_proc.foi = (4:1:100);
+cfg_proc.foi = (4:1:100);
 %cfg_proc.foilim = [4 8];
 %cfg_proc.foi = (2^(1/8)).^(16:53);
 
@@ -265,8 +270,14 @@ end
 
 %% load the analysis details
 
-% wavelet
-adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_pow_-500_980_4_8/analysisDetails.mat';
+% % wavelet 4-8
+% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_pow_-500_980_4_8/analysisDetails.mat';
+
+% % wavelet 4-100
+% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_pow_-500_980_4_100/analysisDetails.mat';
+
+% fourier 4-100
+adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -301,10 +312,96 @@ end
 
 %% load some data
 
-[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
 % % load the average
 % [data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow',0);
+
+%% new loading workflow - pow
+
+cfg = [];
+cfg.keeptrials = 'no';
+%cfg.keeptrials = 'yes';
+cfg.equatetrials = 'no';
+%cfg.equatetrials = 'yes';
+
+% type of input (used in the filename to load)
+cfg.ftype = 'fourier';
+% cfg.ftype = 'pow';
+
+% type of output: 'pow', 'coh', 'phase'
+cfg.output = 'pow';
+
+% % normalization type: 'log10', 'log', 'vec', 'dB'
+% cfg.normalize = 'log10';
+% % cfg.normalize = 'dB'; % relative baseline
+% %cfg.normalize = 'vec';
+
+% baseline type
+% % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baselinetype = 'zscore';
+% cfg.baselinetype = 'absolute';
+% cfg.baselinetype = 'relchange';
+% cfg.baselinetype = 'relative';
+
+% baseline period
+cfg.baseline = [-0.4 -0.1];
+%cfg.baseline = [-0.2 0];
+
+% at what data stage should it be baseline corrected?
+% cfg.baselinedata = 'mod';
+cfg.baselinedata = 'pow';
+
+%cfg.saveFile = true;
+cfg.saveFile = false;
+
+% only keep induced data by removing evoked?
+cfg.rmevoked = 'no';
+cfg.rmevokedfourier = 'no';
+cfg.rmevokedpow = 'no';
+% cfg.rmevoked = 'yes';
+% cfg.rmevokedfourier = 'yes';
+% cfg.rmevokedpow = 'no';
+if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
+  %load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+  
+  % local testing
+  %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
+end
+
+if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
+  eq_str = '_eq';
+else
+  eq_str = '';
+end
+if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
+  kt_str = '_trials';
+else
+  kt_str = '_avg';
+end
+if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
+  indu_str = '_induced';
+else
+  indu_str = '_whole';
+end
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
+
+if exist(saveFile,'file')
+  fprintf('Loading saved file: %s\n',saveFile);
+  load(saveFile);
+else
+  fprintf('Running mm_ft_loadData\n');
+  if exist('data_evoked','var')
+    [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana,data_evoked);
+  else
+    [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana);
+  end
+  if cfg.saveFile
+    fprintf('Saving %s...\n',saveFile);
+    save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
+  end
+end
+fprintf('Done.\n');
 
 %% Test plots to make sure data look ok
 
@@ -335,19 +432,35 @@ end
 cfg_ft = [];
 cfg_ft.channel = {'E124'};
 % %cfg_ft.channel = {'E117'};
-cfg_ft.baseline = [-0.3 -0.1];
-cfg_ft.baselinetype = 'absolute';
-% if strcmp(cfg_ft.baselinetype,'absolute')
-%   %cfg_ft.zlim = [-2 2];
-%   cfg_ft.zlim = [-500 500];
-% elseif strcmp(cfg_ft.baselinetype,'relative')
-%   cfg_ft.zlim = [0 1.5];
-% end
+
+% cfg_ft.baseline = [-0.4 -0.1];
+% cfg_ft.baselinetype = 'absolute';
+% % if strcmp(cfg_ft.baselinetype,'absolute')
+% %   %cfg_ft.zlim = [-2 2];
+% %   cfg_ft.zlim = [-500 500];
+% % elseif strcmp(cfg_ft.baselinetype,'relative')
+% %   cfg_ft.zlim = [0 1.5];
+% % end
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.colorbar = 'yes';
 % cfg_ft.ylim = [4 8];
-figure
-ft_singleplotTFR(cfg_ft,data_freq.(exper.eventValues{1}).sub(1).ses(1).data);
+
+%cfg_ft.zlim = [-150 150];
+%cfg_ft.zlim = [-300 300];
+
+cfg_ft.zlim = [-.30 .30];
+% cfg_ft.zlim = [-.15 .15];
+
+%cfg_ft.zlim = [-2 2];
+
+
+sub=1;
+ses=1;
+for i = 1:length(ana.eventValues{1})
+  figure
+  ft_singleplotTFR(cfg_ft,data_pow.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 %% Change in freq relative to baseline using absolute power
 

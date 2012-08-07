@@ -694,18 +694,18 @@ for sub = 1:length(exper.subjects)
             end
             
             %% debug
-            chan = 62;
-            figure;surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
-            title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
-            %clim = [-1 1];
-            clim = [-3 3];
-            if strcmp(cfg.normalize,'dB')
-              clim = clim .* 10;
-            end
-            figure;imagesc(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)),clim);axis xy;colorbar
-            title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
+%             chan = 62;
+%             figure;surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
+%             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
+%             %clim = [-1 1];
+%             clim = [-3 3];
+%             if strcmp(cfg.normalize,'dB')
+%               clim = clim .* 10;
+%             end
+%             figure;imagesc(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)),clim);axis xy;colorbar
+%             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
             
-            % save the data in a container struct
+            %% save the data in a container struct
             fprintf('%s %s %s: ',exper.subjects{sub},sesStr,ana.eventValues{typ}{evVal});
             if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData.(cell2mat(fn)),powparam) && ndims(subSesEvData.(cell2mat(fn)).(powparam)) == 4
               fprintf('Power data: ');
