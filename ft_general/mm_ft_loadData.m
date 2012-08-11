@@ -320,7 +320,8 @@ for sub = 1:length(exper.subjects)
             if fftflg
               
               % TODO: do I need to update something in the FT structure now
-              % that I get the subset of trials at the start?
+              % that I get the subset of trials at the start? maybe use
+              % ft_selectdata?
               %
               % equate the trial counts
               if strcmp(cfg.equatetrials,'yes')

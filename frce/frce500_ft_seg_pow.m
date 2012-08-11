@@ -340,15 +340,16 @@ cfg.output = 'pow';
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baselinetype = 'zscore';
-% cfg.baselinetype = 'absolute';
-% cfg.baselinetype = 'relchange';
-% cfg.baselinetype = 'relative';
+% cfg.baselinetype = 'absolute'; % subtract
+% cfg.baselinetype = 'relchange'; % subtract and divide
+% cfg.baselinetype = 'relative'; % divide
 
 % baseline period
 cfg.baseline = [-0.4 -0.1];
 %cfg.baseline = [-0.2 0];
 
-% at what data stage should it be baseline corrected?
+% at what data stage should it be baseline corrected? (mod probably
+% shouldn't be an option)
 % cfg.baselinedata = 'mod';
 cfg.baselinedata = 'pow';
 
@@ -535,7 +536,7 @@ cfg_ft = [];
 %cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
-cfg_ft.zlim = [0 3.0];
+cfg_ft.zlim = [-0.2 0.2];
 %end
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -554,11 +555,12 @@ end
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'FS'},{'PS'}};
-%cfg_plot.roi = {'E124'};
-%cfg_plot.roi = {'RAS'};
-%cfg_plot.roi = {'LPS','RPS'};
-%cfg_plot.roi = {'LPS'};
-cfg_plot.excludeBadSub = 0;
+%cfg_plot.rois = {'E124'};
+%cfg_plot.rois = {'E25'};
+%cfg_plot.rois = {'RAS'};
+%cfg_plot.rois = {'LPS','RPS'};
+%cfg_plot.rois = {'LPS'};
+cfg_plot.excludeBadSub = 1;
 cfg_plot.numCols = 5;
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -589,12 +591,13 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
 %cfg_ft.xlim = [.5 1.0]; % time
-cfg_ft.ylim = [3 8]; % freq
+cfg_ft.ylim = [4 100]; % freq
 %cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 %cfg_ft.zlim = [-100 100]; % pow
 cfg_ft.zlim = [-1 1]; % pow
+cfg_ft.zlim = [-0.25 0.25]; % pow
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -645,9 +648,8 @@ cfg_plot = [];
 cfg_plot.plotTitle = 1;
 
 % comparisons to make
-%cfg_plot.conditions = {'all'};
-%cfg_plot.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
-cfg_plot.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'AudForg','VisForg'},{'AudReca','VisReca'},{'Forg','Reca'}};
+cfg_plot.conditions = {'all'};
+%cfg_plot.conditions = ana.eventValues;
 
 cfg_ft = [];
 %cfg_ft.xlim = [.5 .8]; % time
@@ -659,7 +661,7 @@ cfg_ft.parameter = 'powspctrm';
 cfg_ft.zlim = [-1 1]; % pow
 
 cfg_ft.interactive = 'yes';
-%cfg_ft.colormap = 'hot';
+cfg_ft.colormap = 'jet';
 cfg_ft.colorbar = 'yes';
 
 %%%%%%%%%%%%%%%
@@ -672,9 +674,10 @@ cfg_plot.ftFxn = 'ft_topoplotTFR';
 cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
+cfg_ft.xlim = [0.3 0.5]; % time
 %cfg_ft.xlim = [0.5 0.8]; % time
-cfg_plot.subplot = 1;
-cfg_ft.xlim = [0 1.0]; % time
+cfg_plot.subplot = 0;
+%cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 
@@ -694,8 +697,8 @@ cfg_ana.latencies = [0.2 0.4; 0.6 1.0; 0.5 0.8; 0.5 1.0; 0.5 1.0];
 % define the frequencies that correspond to each set of ROIs
 cfg_ana.frequencies = [3 8; 3 8; 3 8; 3 8; 8 12];
 
-cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
-%cfg_ana.conditions = {'all'};
+%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+cfg_ana.conditions = {'all'};
 
 % set parameters for the statistical test
 cfg_ft = [];
