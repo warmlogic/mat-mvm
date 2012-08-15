@@ -505,9 +505,11 @@ if rejArt_ftAuto
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 30;
-  cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-  cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.cutoff = 20;
+  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.trlpadding = 0;
+  cfg.artfctdef.zvalue.artpadding = 0;
   cfg.artfctdef.zvalue.fltpadding = 0;
   
   % algorithmic parameters
@@ -517,43 +519,52 @@ if rejArt_ftAuto
   cfg.artfctdef.zvalue.absdiff = 'yes';
   
   % feedback (artifact viewer)
-  cfg.artfctdef.zvalue.feedback = 'yes';
+  %cfg.artfctdef.zvalue.feedback = 'yes';
+  cfg.artfctdef.zvalue.interactive = 'yes';
   
   [cfg,artifact_jump] = ft_artifact_zvalue(cfg,data);
   
-%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   % look for muscle artifacts - doesn't work
-%   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   
-%   cfg = [];
-%   cfg.trl = trl;
-%   cfg.padding = 0;
-%   cfg.continuous = 'no';
-%   
-%   % cutoff and padding
-%   % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
-%   cfg.artfctdef.zvalue.channel = 'all';
-%   cfg.artfctdef.zvalue.cutoff      = 4;
-%   cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
-%   cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
-%   cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
-%   
-%   % algorithmic parameters
-%   cfg.artfctdef.zvalue.bpfilter    = 'yes';
-%   if data.fsample/2 < 140
-%     cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
-%   else
-%     cfg.artfctdef.zvalue.bpfreq      = [110 140];
-%   end
-%   cfg.artfctdef.zvalue.bpfiltord   = 9;
-%   cfg.artfctdef.zvalue.bpfilttype  = 'but';
-%   cfg.artfctdef.zvalue.hilbert     = 'yes';
-%   cfg.artfctdef.zvalue.boxcar      = 0.2;
-%   
-%   % feedback
-%   cfg.artfctdef.zvalue.feedback = 'yes';
-%   
-%   [cfg,artifact_muscle] = ft_artifact_zvalue(cfg,data);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % look for muscle artifacts - doesn't work???
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.trl = trl;
+  cfg.padding = 0;
+  cfg.continuous = 'no';
+  
+  % cutoff and padding
+  % select a set of channels on which to run the artifact detection
+  cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.cutoff      = 4;
+  %cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
+  %cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
+  %cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
+  cfg.artfctdef.zvalue.trlpadding  = 0;
+  if strcmp(cfg.continuous,'yes')
+    cfg.artfctdef.zvalue.artpadding  = 0.1;
+  elseif strcmp(cfg.continuous,'no')
+    cfg.artfctdef.zvalue.artpadding  = 0;
+  end
+  cfg.artfctdef.zvalue.fltpadding  = 0;
+  
+  % algorithmic parameters
+  cfg.artfctdef.zvalue.bpfilter    = 'yes';
+  if data.fsample/2 < 140
+    cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
+  else
+    cfg.artfctdef.zvalue.bpfreq      = [110 140];
+  end
+  cfg.artfctdef.zvalue.bpfiltord   = 9;
+  cfg.artfctdef.zvalue.bpfilttype  = 'but';
+  cfg.artfctdef.zvalue.hilbert     = 'yes';
+  cfg.artfctdef.zvalue.boxcar      = 0.2;
+  
+  % feedback
+  %cfg.artfctdef.zvalue.feedback = 'yes';
+  cfg.artfctdef.zvalue.interactive = 'yes';
+  
+  [cfg,artifact_muscle] = ft_artifact_zvalue(cfg,data);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for EOG artifacts
@@ -568,10 +579,17 @@ if rejArt_ftAuto
   % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
   %cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
-  cfg.artfctdef.zvalue.cutoff      = 6;
-  cfg.artfctdef.zvalue.trlpadding  = 0.5*cfg.padding;
-  cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
-  cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
+  cfg.artfctdef.zvalue.cutoff      = 4;
+  %cfg.artfctdef.zvalue.trlpadding  = 0.5*cfg.padding;
+  %cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
+  %cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
+  cfg.artfctdef.zvalue.trlpadding  = 0;
+  if strcmp(cfg.continuous,'yes')
+    cfg.artfctdef.zvalue.artpadding  = 0.1;
+  elseif strcmp(cfg.continuous,'no')
+    cfg.artfctdef.zvalue.artpadding  = 0;
+  end
+  cfg.artfctdef.zvalue.fltpadding  = 0;
   
   % algorithmic parameters
   cfg.artfctdef.zvalue.bpfilter   = 'yes';
@@ -581,7 +599,8 @@ if rejArt_ftAuto
   cfg.artfctdef.zvalue.hilbert    = 'yes';
   
   % feedback
-  cfg.artfctdef.zvalue.feedback = 'yes';
+  %cfg.artfctdef.zvalue.feedback = 'yes';
+  cfg.artfctdef.zvalue.interactive = 'yes';
   
   [cfg,artifact_EOG] = ft_artifact_zvalue(cfg,data);
   
@@ -592,7 +611,7 @@ if rejArt_ftAuto
   cfg = [];
   cfg.artfctdef.reject = 'complete'; % this rejects complete trials, use 'partial' if you want to do partial artifact rejection
   cfg.artfctdef.jump.artifact = artifact_jump;
-  %cfg.artfctdef.muscle.artifact = artifact_muscle;
+  cfg.artfctdef.muscle.artifact = artifact_muscle;
   cfg.artfctdef.eog.artifact = artifact_EOG;
   data = ft_rejectartifact(cfg,data);
 end
