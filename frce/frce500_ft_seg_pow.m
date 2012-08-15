@@ -278,6 +278,7 @@ end
 
 % fourier 4-100
 adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
+%adFile = '~/data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -332,34 +333,36 @@ cfg.ftype = 'fourier';
 % type of output: 'pow', 'coh', 'phase'
 cfg.output = 'pow';
 
-% % normalization type: 'log10', 'log', 'vec', 'dB'
-% cfg.normalize = 'log10';
-% % cfg.normalize = 'dB'; % relative baseline
-% %cfg.normalize = 'vec';
+% % transformation: 'log10', 'log', 'vec', 'dB'
+cfg.transform = 'log10';
+% %cfg.transform = 'vec';
+
+% normalization of single or average trials
+cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
+%cfg.norm_trials = 'average';
 
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
-cfg.baselinetype = 'zscore';
-% cfg.baselinetype = 'absolute'; % subtract
-% cfg.baselinetype = 'relchange'; % subtract and divide
-% cfg.baselinetype = 'relative'; % divide
+cfg.baseline_type = 'zscore';
+% cfg.baseline_type = 'dB'; % relative baseline
+% cfg.baseline_type = 'absolute'; % subtract baseline mean
+% cfg.baseline_type = 'relchange'; % subtract and divide by baseline mean
+% cfg.baseline_type = 'relative'; % divide by baseline mean
 
 % baseline period
-cfg.baseline = [-0.4 -0.1];
-%cfg.baseline = [-0.2 0];
+cfg.baseline_time = [-0.4 -0.1];
+%cfg.baseline_time = [-0.2 0];
 
 % at what data stage should it be baseline corrected? (mod probably
 % shouldn't be an option)
-% cfg.baselinedata = 'mod';
-cfg.baselinedata = 'pow';
+% cfg.baseline_data = 'mod';
+cfg.baseline_data = 'pow';
 
 %cfg.saveFile = true;
 cfg.saveFile = false;
 
 % only keep induced data by removing evoked?
 cfg.rmevoked = 'no';
-cfg.rmevokedfourier = 'no';
-cfg.rmevokedpow = 'no';
 % cfg.rmevoked = 'yes';
 % cfg.rmevokedfourier = 'yes';
 % cfg.rmevokedpow = 'no';
