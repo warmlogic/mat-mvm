@@ -515,8 +515,17 @@ cfg_plot.plotLegend = 1;
 cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 %cfg_plot.plotTitle = 1;
 
-% cfg_plot.xlabel = 'Time (s)';
-% cfg_plot.ylabel = 'Voltage (\muV)';
+
+cfg_plot.rois = {{'LPS','RPS'}};
+cfg_plot.ylims = [-1.5 3.5];
+% vertical solid lines to plot
+cfg_plot.x_bounds = [0.5 0.8];
+cfg_plot.legendlocs = {'NorthWest'};
+cfg_plot.plotTitle = 0;
+
+
+cfg_plot.xlabel = 'Time (s)';
+cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
 % cfg_plot.ylabel = '';
 
@@ -563,9 +572,13 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'TH','NT','B'}},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'T1of2Rec','T1of2For','NT1of2Rec','NT1of2For'}},size(cfg_plot.rois));
 
+cfg_plot.condByROI = repmat({{{'B','NTF','NTR','TF','TR'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'pB','NTF','NTR','TF','TR'}}},size(cfg_plot.rois));
+
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.rename_conditions = cfg_plot.rename_condByROI{r};
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
     cfg_plot.x_bound = cfg_plot.x_bounds(r,:);

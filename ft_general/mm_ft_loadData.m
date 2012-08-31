@@ -194,7 +194,7 @@ elseif ~isempty(cfg.transform) && strcmp(cfg.output,'coh')
   error('Normalizing cfg.output=''coh'' is not allowed.');
 end
 
-if ~isfield(cfg,'baselinetype')
+if ~isfield(cfg,'baseline_type')
   cfg.baseline_type = '';
 end
 
@@ -565,7 +565,7 @@ for sub = 1:length(exper.subjects)
                   blm = nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4);
                   
                   if strcmp(cfg.baseline_type,'zscore')
-                    fprintf('Z-transforming each trial relative to that individual trial.\n');
+                    fprintf('Z-transforming each trial using entire trial as baseline.\n');
                     % std across time
                     blstd = nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,4);
                     
@@ -573,11 +573,14 @@ for sub = 1:length(exper.subjects)
                     subSesEvData.(cell2mat(fn)).(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cell2mat(fn)).(param),blm),blstd);
                     
                   elseif strcmp(cfg.baseline_type,'dB')
-                    fprintf('Converting each trial to dB relative to that individual trial.\n');
+                    fprintf('Converting each trial to dB using entire trial as baseline.\n');
                     % divide by baseline mean and convert to dB
                     subSesEvData.(cell2mat(fn)).(param) = 10*log10(bsxfun(@rdivide,subSesEvData.(cell2mat(fn)).(param),blm));
                     
                     % mean(10*log10) is not the same as 10*log10(mean)
+                    
+                    % debug
+                    %figure;imagesc(squeeze(mean(subSesEvData.(cell2mat(fn)).(param)(:,62,:,:),1)));axis xy;colorbar
                     
                   elseif strcmp(cfg.baseline_type,'absolute')
                     fprintf('Subtracting mean(entire trial) power from entire trial.\n');
@@ -612,9 +615,9 @@ for sub = 1:length(exper.subjects)
                     % blstd = nanstd(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),0,1);
                     
                     % % concatenate all times of all events and std (equivalent std across freqs)
-                    % blstd =  squeeze(std(double(reshape(shiftdim(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3),...
-                    %   size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),1)*size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),...
-                    %   size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),2),size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3))),0,1));
+                    %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3),...
+                    %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),1)*size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),...
+                    %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),2),size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3))),0,1)),-1);
                     
                     subSesEvData.(cell2mat(fn)).(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cell2mat(fn)).(param),blm),blstd);
                     
@@ -622,7 +625,10 @@ for sub = 1:length(exper.subjects)
                     fprintf('Converting to dB relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
                     % divide by baseline mean and convert to dB
                     
-                    subSesEvData.(cell2mat(fn)).(param) = 10*log10(bsxfun(@rdivide,subSesEvData.(cell2mat(fn)).(param),blm));
+                    subSesEvData.(cell2mat(fn)).(param) = bsxfun(@rdivide,subSesEvData.(cell2mat(fn)).(param),blm);
+                    if ~strcmp(cfg.norm_trials,'single')
+                      subSesEvData.(cell2mat(fn)).(param) = 10*log10(subSesEvData.(cell2mat(fn)).(param));
+                    end
                     
                     % TODO: mean(10*log10) is not the same as 10*log10(mean)
                     
@@ -698,15 +704,26 @@ for sub = 1:length(exper.subjects)
             
             %% debug
 %             chan = 62;
-%             figure;surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
-%             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
-%             %clim = [-1 1];
-%             clim = [-3 3];
+%             chan = 25;
+%             clim = [-1 1];
+%             %clim = [-3 3];
 %             if strcmp(cfg.transform,'dB')
 %               clim = clim .* 10;
 %             end
+%             figure;surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
+%             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
+%             caxis(clim)
 %             figure;imagesc(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(mean(subSesEvData.(cell2mat(fn)).(powparam)(:,chan,:,:),1)),clim);axis xy;colorbar
 %             title(sprintf('chan %d: rmevokedfourier: %s; rmevokedpow: %s',chan,cfg.rmevokedfourier,cfg.rmevokedpow));
+%             
+%             figure
+%             for tr = 1:size(subSesEvData.(cell2mat(fn)).(powparam),1)
+%               clf
+%               surf(subSesEvData.(cell2mat(fn)).time,subSesEvData.(cell2mat(fn)).freq,squeeze(subSesEvData.(cell2mat(fn)).(powparam)(tr,chan,:,:)));shading interp;view([0,90]);axis tight;colorbar;
+%               title(sprintf('chan %d: trial %d/%d',chan,tr,size(subSesEvData.(cell2mat(fn)).(powparam),1)));
+%               caxis([-3 3])
+%               keyboard
+%             end
             
             %% save the data in a container struct
             fprintf('%s %s %s: ',exper.subjects{sub},sesStr,ana.eventValues{typ}{evVal});

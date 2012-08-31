@@ -15,7 +15,7 @@ exper.name = 'FRCE500';
 exper.sampleRate = 500;
 
 % pre- and post-stimulus times to read, in seconds (pre is negative)
-exper.prepost = [-1.0 1.25];
+exper.prepost = [-1.0 1.4];
 
 dirs.eegDir = fullfile('2 Session Recall','EEG','nspp');
 
@@ -29,7 +29,6 @@ exper.eegFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-%exper.eventValues = sort({'VisForg','VisReca'});
 exper.eventValues = sort({'no_recall','recall'});
 
 % exper.eventValuesExtra.toCombine = {{'AudForg','VisForg'},{'AudReca','VisReca'},{'AudForg','AudReca'},{'VisForg','VisReca'}};
@@ -43,8 +42,8 @@ exper.subjects = {
   'FRCE500 16';
   'FRCE500 17';
   'FRCE500 18';
-  'FRCE500 19';
-  'FRCE500 21';
+%   'FRCE500 19';
+%   'FRCE500 21';
   };
 
 % 12-16 and 17-21 were different (see
@@ -222,8 +221,8 @@ cfg_proc.keeptapers = 'yes';
 cfg_proc.method = 'wavelet';
 cfg_proc.width = 5;
 cfg_proc.toi = (-0.5:0.04:1.0);
-cfg_proc.foi = (4:1:100);
-%cfg_proc.foilim = [4 8];
+%cfg_proc.foi = (4:1:100);
+cfg_proc.foilim = [4 8];
 %cfg_proc.foi = (2^(1/8)).^(16:53);
 
 % set the save directories; final argument is prefix of save directory
@@ -321,8 +320,8 @@ end
 %% new loading workflow - pow
 
 cfg = [];
-cfg.keeptrials = 'no';
-%cfg.keeptrials = 'yes';
+%cfg.keeptrials = 'no';
+cfg.keeptrials = 'yes';
 cfg.equatetrials = 'no';
 %cfg.equatetrials = 'yes';
 
@@ -344,7 +343,7 @@ cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
 cfg.baseline_type = 'zscore';
-% cfg.baseline_type = 'dB'; % relative baseline
+%cfg.baseline_type = 'dB'; % relative baseline
 % cfg.baseline_type = 'absolute'; % subtract baseline mean
 % cfg.baseline_type = 'relchange'; % subtract and divide by baseline mean
 % cfg.baseline_type = 'relative'; % divide by baseline mean
@@ -452,7 +451,8 @@ cfg_ft.channel = {'E124'};
 %cfg_ft.zlim = [-150 150];
 %cfg_ft.zlim = [-300 300];
 
-cfg_ft.zlim = [-.30 .30];
+cfg_ft.zlim = [-.6 .6];
+%cfg_ft.zlim = [-.30 .30];
 % cfg_ft.zlim = [-.15 .15];
 
 %cfg_ft.zlim = [-2 2];
@@ -494,7 +494,7 @@ fprintf('Done.\n');
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+exper.badBehSub = {'FRCE500 21'}; % 21 has noisy data
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -539,7 +539,7 @@ cfg_ft = [];
 %cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
-cfg_ft.zlim = [-0.2 0.2];
+cfg_ft.zlim = [-0.5 0.5];
 %end
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -559,7 +559,7 @@ cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'FS'},{'PS'}};
 %cfg_plot.rois = {'E124'};
-%cfg_plot.rois = {'E25'};
+cfg_plot.rois = {'E25'};
 %cfg_plot.rois = {'RAS'};
 %cfg_plot.rois = {'LPS','RPS'};
 %cfg_plot.rois = {'LPS'};
@@ -600,7 +600,7 @@ cfg_ft.ylim = [4 100]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 %cfg_ft.zlim = [-100 100]; % pow
 cfg_ft.zlim = [-1 1]; % pow
-cfg_ft.zlim = [-0.25 0.25]; % pow
+%cfg_ft.zlim = [-0.25 0.25]; % pow
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -698,7 +698,7 @@ cfg_ana.rois = {{'PS'},{'FS'},{'LPS','RPS'},{'PS'},{'PS'}};
 % define the times that correspond to each set of ROIs
 cfg_ana.latencies = [0.2 0.4; 0.6 1.0; 0.5 0.8; 0.5 1.0; 0.5 1.0];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8; 3 8; 3 8; 8 12];
+cfg_ana.frequencies = [4 8; 4 8; 4 8; 4 8; 8 12];
 
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 cfg_ana.conditions = {'all'};
@@ -777,19 +777,35 @@ cfg_ft.alpha = .025;
 cfg_ana = [];
 cfg_ana.roi = 'all';
 %cfg_ana.roi = 'center74';
+cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 %cfg_ana.conditions = {'all'};
-%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
-cfg_ana.conditions = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'}};
+cfg_ana.conditions = {{'recall','no_recall'}};
+
+cfg_ana.dirStr = '';
+
+if strcmp(cfg_ft.avgovertime,'no')
+  cfg_ana.latencies = [0 0.5];
+  %cfg_ana.latencies = [0 1.0];
+  %cfg_ana.latencies = [0 0.5; 0.5 1.0];
+elseif strcmp(cfg_ft.avgovertime,'yes')
+  %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+  cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]';
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
+end
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [4 100];
-else
+elseif strcmp(cfg_ft.avgoverfreq,'yes')
   cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 100];
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
-%cfg_ana.latencies = [0 1.5];
-cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.615];
+%cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.615];
+
+if strcmp(cfg_ft.avgoverchan,'yes')
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
+end
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -807,14 +823,13 @@ files.saveFigs = 1;
 cfg_ft = [];
 %cfg_ft.alpha = .025;
 cfg_ft.alpha = .1;
+cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
-
-%cfg_ft.avgoverfreq = 'yes';
-cfg_ft.avgoverfreq = 'no';
+cfg_plot.dirStr = cfg_ana.dirStr;
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR

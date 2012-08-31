@@ -15,9 +15,9 @@ exper.name = 'FRCE500';
 exper.sampleRate = 500;
 
 % pre- and post-stimulus times to read, in seconds (pre is negative)
-exper.prepost = [-1.15 1.25];
+exper.prepost = [-1.0 1.4];
 
-dirs.eegDir = fullfile('EEG','NS_MarkedUp','nspp');
+dirs.eegDir = fullfile('2 Session Recall','EEG','nspp');
 
 % equate the number of trials across event values?
 exper.equateTrials = 0;
@@ -29,24 +29,21 @@ exper.eegFileExt = 'egis';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
-exper.eventValues = sort({'reca','forg'});
-
-% these are stimulus presentations (following a cue) where the 1.25s before
-% stimulus is a fixation cross; visual or auditory stimuli were presented
-% for 1s. The following ISI was 2s.
+exper.eventValues = sort({'no_recall','recall'});
 
 exper.subjects = {
-  'FRCE500 01';
-  'FRCE500 02';
-  'FRCE500 03';
-  'FRCE500 04';
-  'FRCE500 05';
-%   'FRCE500 06';
-%   'FRCE500 07';
-%   'FRCE500 08';
-%   'FRCE500 09';
-%   'FRCE500 10';
+  'FRCE500 12';
+  'FRCE500 13';
+  'FRCE500 14';
+  'FRCE500 16';
+  'FRCE500 17';
+  'FRCE500 18';
+  'FRCE500 19';
+  'FRCE500 21';
   };
+
+% 12-16 and 17-21 were different (see
+% curranlab/ExperimentDesign/HeaderFiles/FRCE500 change log.docx)
 
 % The sessions that each subject ran; the strings in this cell are the
 % directories in dirs.dataDir (set below) containing the ns_egis/ns_raw
@@ -54,7 +51,7 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {'ses1'};
+exper.sessions = {{'ses1','ses2'}};
 
 %% set up file and directory handling parameters
 
@@ -135,7 +132,7 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 
 saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
 % if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
+fprintf('Saving %s...',saveFile);
 save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
 %   fprintf('Done.\n');
 % else
@@ -155,7 +152,7 @@ end
 
 %% load the analysis details
 
-adFile = '/Volumes/curranlab/Data/FRCE500/EEG/NS_MarkedUp/nspp/-1150_1250/ft_data/Aud_Forg_Reca_Vis_forg_reca_eq0_art_nsAuto/tla_-1150_1250_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -200,7 +197,7 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub=6;
+sub=1;
 ses=1;
 for i = 1:length(ana.eventValues{1})
   figure
@@ -222,8 +219,8 @@ end
 % cfg_ft.graphcolor = 'rbk';
 % %cfg_ft.linestyle = {'-','--','-.'};
 % figure
-% ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
-% legend((exper.eventValues{1}),(exper.eventValues{2}),(exper.eventValues{3}),'Location','SouthEast');
+% ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data);
+% legend((exper.eventValues{1}),(exper.eventValues{2}),'Location','SouthEast');
 % 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
@@ -261,7 +258,7 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+exper.badBehSub = {'FRCE500 21'}; % 21 has noisy data
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -578,14 +575,14 @@ cfg_ana = [];
 % define which regions to average across for the test and
 % the times that correspond to each set of ROIs
 
-% cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.rois = {{'LAS'},{'RAS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -620,8 +617,8 @@ cfg_plot.line_plots = 0;
 % cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 2.5 5.5; 2.5 5.5];
 cfg_plot.ylims = [-4 -1; 2.5 5.5];
 %cfg_plot.plot_order = {'RCR','RH','RHSC','RHSI'};
-cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
-cfg_plot.rename_conditions = {'Hits-SC','Hits-SI','CR'};
+%cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
+%cfg_plot.rename_conditions = {'Hits-SC','Hits-SI','CR'};
 cfg_plot.xlabel = 'Condition';
 cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
@@ -687,13 +684,14 @@ cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
-cfg_ana.latencies = [0 1.0; 1.0 2.0];
+%cfg_ana.latencies = [0 1.0; 1.0 2.0];
+cfg_ana.latencies = [0 1.4];
 
 %cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 
 %cfg_ana.conditions = {{'Forg','Reca'},{'Aud','Vis'}};
-cfg_ana.conditions = {{'AudForg','VisForg'},{'AudReca','VisReca'}};
+cfg_ana.conditions = {{'no_recall','recall'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
@@ -707,7 +705,7 @@ files.saveFigs = 1;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .25;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;
