@@ -221,8 +221,8 @@ cfg_proc.keeptapers = 'yes';
 cfg_proc.method = 'wavelet';
 cfg_proc.width = 5;
 cfg_proc.toi = (-0.5:0.04:1.0);
-%cfg_proc.foi = (4:1:100);
-cfg_proc.foilim = [4 8];
+cfg_proc.foi = (4:1:100);
+%cfg_proc.foilim = [4 8];
 %cfg_proc.foi = (2^(1/8)).^(16:53);
 
 % set the save directories; final argument is prefix of save directory
@@ -269,15 +269,15 @@ end
 
 %% load the analysis details
 
-% % wavelet 4-8
-% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_pow_-500_980_4_8/analysisDetails.mat';
+% % wavelet fourier 4-8
+% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_8/analysisDetails.mat';
 
-% % wavelet 4-100
-% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_pow_-500_980_4_100/analysisDetails.mat';
+% % wavelet pow 4-100
+% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_pow_-500_980_4_100/analysisDetails.mat';
 
-% fourier 4-100
-adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
-%adFile = '~/data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
+% wavelet fourier 4-100
+adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
+%adFile = '~/data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/pow_wavelet_w5_fourier_-500_980_4_100/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -319,9 +319,14 @@ end
 
 %% new loading workflow - pow
 
+if ~isfield(exper,'subjects_all')
+  exper.subjects_all = exper.subjects;
+end
+exper.subjects = {'FRCE500 12'};
+
 cfg = [];
-%cfg.keeptrials = 'no';
-cfg.keeptrials = 'yes';
+cfg.keeptrials = 'no';
+%cfg.keeptrials = 'yes';
 cfg.equatetrials = 'no';
 %cfg.equatetrials = 'yes';
 
@@ -456,6 +461,7 @@ cfg_ft.zlim = [-.6 .6];
 % cfg_ft.zlim = [-.15 .15];
 
 %cfg_ft.zlim = [-2 2];
+cfg_ft.zlim = [-1 1];
 
 
 sub=1;

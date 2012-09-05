@@ -1,6 +1,6 @@
 % FRCE500 classification
 
-dataroot = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1250/ft_data';
+dataroot = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data';
 dataroot = fullfile(dataroot,'no_recall_recall_eq0_art_nsAuto');
 
 % wavelet, 4:8
@@ -168,7 +168,8 @@ cfg_ana.freqs = [4 8; 8.1 12; 12.1 19; 19.1 28; 28.1 42; 42.1 64; 64.1 100];
 %cfg_ana.latencies = [1.0 1.45];
 %cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
 %cfg_ana.latencies = [-0.2 0.0; 0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-cfg_ana.latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6];
+cfg_ana.latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8];
+% cfg_ana.latencies = [0.0 0.8];
 
 %cfg_ana.chanStr = {{'center74'}};
 cfg_ana.chanStr = {{'center91'}};
@@ -186,7 +187,8 @@ cfg.nfolds = 5;
 cfg.statistic = {'accuracy' 'binomial' 'contingency'};
 
 cfg.avgoverchan = 'no';
-cfg.avgovertime = 'yes';
+cfg.avgovertime = 'no';
+%cfg.avgovertime = 'yes';
 %cfg.avgoverfreq = 'no';
 cfg.avgoverfreq = 'yes';
 
@@ -199,7 +201,8 @@ end
 % cfg.mva = {dml.standardizer dml.enet('family','binomial','alpha',1)};
 % cfg.mva = {dml.standardizer dml.glmnet('family','binomial','alpha',1)};
 % cfg_ana.method = 'L1regLog-av_sub-skew_resample';
-cfg.mva = {dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true)};
+
+%cfg.mva = {dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true)};
 cfg_ana.method = 'enet-alpha02-resample';
 
 exper.allsubjects = exper.subjects;
