@@ -250,24 +250,28 @@ if rejArt_nsAuto
     error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
   end
   
-  % sort the events by StartTime offset in the bci file
-  [startTimeSorted,startTimeInd] = sort(sesSummary{2});
-  badSorted = sesSummary{4}(startTimeInd);
-  eventValueSorted = sesSummary{1}(startTimeInd);
+%   % I don't remember why I implemented the sort(), but it doesn't work
+%   % right for me so I'm going back to the old method. It doesn't work
+%   % because badEv is now in a different order from data.trialinfo and
+%   % data.sampleinfo.
+%   
+%   % sort the events by StartTime offset in the bci file
+%   [startTimeSorted,startTimeInd] = sort(sesSummary{2});
+%   badSorted = sesSummary{4}(startTimeInd);
+%   eventValueSorted = sesSummary{1}(startTimeInd);
+%   
+%   % find the bad trials for this event
+%   badEv = strcmp(badSorted,'bad');
+%   % make sure we only have data for the bad events for this event value
+%   badEv = badEv(ismember(eventValueSorted,eventValue));
   
   % find the bad trials for this event
-  badEv = strcmp(badSorted,'bad');
-  % make sure we only have data for the bad events for this event value
-  badEv = badEv(ismember(eventValueSorted,eventValue));
-  
-  % old method
-  %   % find the bad trials for this event
-  %   %thisEv = find(ismember(sesSummary{1},eventValue));
-  %   badEv = strcmp(sesSummary{4},'bad');
-  %   % make sure we only have data for the bad events for this event value
-  %   badEv = badEv(ismember(sesSummary{1},eventValue));
-  %   %goodEv = strcmp(sesSummary{4},'good');
-  %   %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
+  %thisEv = find(ismember(sesSummary{1},eventValue));
+  badEv = strcmp(sesSummary{4},'bad');
+  % make sure we only have data for the bad events for the event value(s)
+  badEv = badEv(ismember(sesSummary{1},eventValue));
+  %goodEv = strcmp(sesSummary{4},'good');
+  %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
   
   % oldest method: remove trials with artifacts from the trl matrix
   %cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
