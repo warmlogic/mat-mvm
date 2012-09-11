@@ -250,32 +250,57 @@ if rejArt_nsAuto
     error('Cannot find %s*.%s file in %s. Use the File Export tool to export Metadata > Segment Information.',subject,'bci',fullfile(dataroot,'ns_bci'));
   end
   
-%   % I don't remember why I implemented the sort(), but it doesn't work
-%   % right for me so I'm going back to the old method. It doesn't work
-%   % because badEv is now in a different order from data.trialinfo and
-%   % data.sampleinfo.
-%   
-%   % sort the events by StartTime offset in the bci file
-%   [startTimeSorted,startTimeInd] = sort(sesSummary{2});
-%   badSorted = sesSummary{4}(startTimeInd);
-%   eventValueSorted = sesSummary{1}(startTimeInd);
-%   
-%   % find the bad trials for this event
-%   badEv = strcmp(badSorted,'bad');
-%   % make sure we only have data for the bad events for this event value
-%   badEv = badEv(ismember(eventValueSorted,eventValue));
-  
   % find the bad trials for this event
   %thisEv = find(ismember(sesSummary{1},eventValue));
   badEv = strcmp(sesSummary{4},'bad');
-  % make sure we only have data for the bad events for the event value(s)
+  % make sure we only have data for the bad events for this event value
   badEv = badEv(ismember(sesSummary{1},eventValue));
   %goodEv = strcmp(sesSummary{4},'good');
   %cfg.trials = logical(goodEv(min(thisEv):max(thisEv)));
   
-  % oldest method: remove trials with artifacts from the trl matrix
+  % trials in raw files aren't stored in the same order as they are
+  % listed in the bci file. raw files seem to have trials in the order
+  % they occurred in the experiment while bci files have trials in the
+  % order that they're listed in the segmentation tool, then sorted by
+  % time. the solution is to sort both, then put the bci good/bad status
+  % in the same order as the raw file. this shouldn't affect files like
+  % egis where the order is already the same.
+  
+  % put the trialinfo events in sort order
+  [tiEvSort,tiEvInd] = sort(eventValue(data.trialinfo));
+  
+  % put the bci events and statuses in sort order
+  [bciEvSort,bciEvInd] = sort(sesSummary{1}(ismember(sesSummary{1},eventValue)));
+  badEvSort = badEv(bciEvInd);
+  
+  % set indices for trialinfo events
+  tiOrigInd(tiEvInd) = 1:length(tiEvInd);
+  
+  % put badEv in order of trialinfo events
+  badEv = badEvSort(tiOrigInd);
+  
+  % % testing
+  % bciEvSort(tiOrigInd)
+  
+  % old method: remove trials with artifacts from the trl matrix
   %cfg.trl(logical(badEv(min(thisEv):max(thisEv))),:) = [];
   
+  %   % another old method
+  %   %
+  %   % I don't remember why I implemented the sort(), but it doesn't work
+  %   % right for me so I'm going back to the old method. It doesn't work
+  %   % because badEv is now in a different order from data.trialinfo and
+  %   % data.sampleinfo.
+  %
+  %   % sort the events by StartTime offset in the bci file
+  %   [startTimeSorted,startTimeInd] = sort(sesSummary{2});
+  %   badSorted = sesSummary{4}(startTimeInd);
+  %   eventValueSorted = sesSummary{1}(startTimeInd);
+  %   % find the bad trials for this event
+  %   badEv = strcmp(badSorted,'bad');
+  %   % make sure we only have data for the bad events for this event value
+  %   badEv = badEv(ismember(eventValueSorted,eventValue));
+
   if ~isempty(find(badEv,1))
     foundArt = true;
     fprintf('Automatically rejecting %d NS artifacts for%s.\n',sum(badEv),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
