@@ -258,7 +258,8 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {'FRCE500 21'}; % 21 has noisy data
+exper.badBehSub = {'FRCE500 19'}; % 19 has noisy data
+%exper.badBehSub = {};
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -705,7 +706,7 @@ files.saveFigs = 1;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
-cfg_ft.alpha = .25;
+cfg_ft.alpha = .2;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;

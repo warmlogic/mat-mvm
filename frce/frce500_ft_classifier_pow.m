@@ -19,13 +19,11 @@ ana.eventValues = {{'no_recall','recall'}};
 ana = mm_ft_elecGroups(ana);
 
 % % redefine which subjects to load
-% exper.subjects = {'FRCE500 12'};
+exper.subjects = {'FRCE500 12'};
 
 %[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
 %[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
-%equatetrials = true;
-equatetrials = false;
 
 addtrials = false; %double number of trials in condition that starts out most frequent
 
@@ -35,7 +33,10 @@ cfg_ld = [];
 %cfg_ld.keeptrials = 'no';
 cfg_ld.keeptrials = 'yes';
 cfg_ld.equatetrials = 'no';
-%cfg_ld.equatetrials = 'yes';
+% cfg_ld.equatetrials = 'yes';
+
+% equatetrials = true;
+equatetrials = false;
 
 % type of input (used in the filename to load)
 cfg_ld.ftype = 'fourier';
@@ -61,7 +62,7 @@ cfg_ld.baseline_type = 'zscore';
 % cfg_ld.baseline_type = 'relative'; % divide by baseline mean
 
 % baseline period
-cfg_ld.baseline_time = [-0.4 -0.1];
+cfg_ld.baseline_time = [-0.4 -0.2];
 %cfg_ld.baseline_time = [-0.2 0];
 
 % at what data stage should it be baseline corrected?
@@ -147,6 +148,13 @@ fprintf('Done.\n');
 %
 % normalized power? (use my mm_ft_loadData)
 
+if equatetrials
+  ana.equateTrials = true;
+  ses=1;
+else
+  ana.equateTrials = false;
+end
+
 if ~isfield(ana,'blc')
   ana.blc = false;
 end
@@ -156,41 +164,53 @@ end
 
 ses = 1;
 
+% save all subject numbers because we only load one at a time
+exper.allsubjects = exper.subjects;
+
 cfg_ana = [];
 
 %cfg_ana.freqs = [4 8; 6 10; 8 12; 10 15; 12 19; 15 25; 19 30; 25 35; 30 40; 35 64; 64 100];
-cfg_ana.freqs = [4 8; 8.1 12; 12.1 19; 19.1 28; 28.1 42; 42.1 64; 64.1 100];
+%cfg_ana.freqs = [4 8; 8.1 12; 12.1 19; 19.1 28; 28.1 42; 42.1 64; 64.1 100];
 %cfg_ana.freqs = [4 8; 6 12; 8.1 14; 12 18; 14.1 22; 18.1 28; 24.1 36; 28.1 42; 36.1 50; 42.1 64];
-%cfg_ana.freqs = [4 8];
+cfg_ana.freqs = [4 64];
 
 %cfg_ana.latencies = [0 1.0];
 % cfg_ana.latencies = [0 0.62];
 %cfg_ana.latencies = [1.0 1.45];
 %cfg_ana.latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
 %cfg_ana.latencies = [-0.2 0.0; 0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-cfg_ana.latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8];
+%cfg_ana.latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8];
+cfg_ana.latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 % cfg_ana.latencies = [0.0 0.8];
+%cfg_ana.latencies = [-0.2 0.0; 0.0 0.4; 0.4 0.8; 0.8 1.0];
 
 %cfg_ana.chanStr = {{'center74'}};
-cfg_ana.chanStr = {{'center91'}};
-%cfg_ana.chanStr = {{'all129'}};
+%cfg_ana.chanStr = {{'center91'}};
+cfg_ana.chanStr = {{'all129'}};
 
 cfg = [];
 cfg.parameter = 'powspctrm';
 cfg.layout = 'GSN-HydroCel-129.sfp';
-cfg.method = 'crossvalidate';
-% cfg.nfolds = 10;
+cfg.method = 'crossvalidate_mm';
+
+cfg.compact = false;
+cfg.verbose = true;
+
+cfg.resample = true;
+
+cfg.cvtype = 'nfold';
 cfg.nfolds = 5;
-%cfg.nfolds = Inf;
-%cfg.nfolds = 0.8;
+
+% cfg.cvtype = 'split';
+% cfg.proportion = 0.75;
 
 cfg.statistic = {'accuracy' 'binomial' 'contingency'};
 
 cfg.avgoverchan = 'no';
+% cfg.avgovertime = 'no';
 cfg.avgovertime = 'no';
-%cfg.avgovertime = 'yes';
-%cfg.avgoverfreq = 'no';
-cfg.avgoverfreq = 'yes';
+cfg.avgoverfreq = 'no';
+%cfg.avgoverfreq = 'yes';
 
 if length(cfg_ana.chanStr) == 1
   cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{1})}));
@@ -202,17 +222,35 @@ end
 % cfg.mva = {dml.standardizer dml.glmnet('family','binomial','alpha',1)};
 % cfg_ana.method = 'L1regLog-av_sub-skew_resample';
 
-%cfg.mva = {dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true)};
-cfg_ana.method = 'enet-alpha02-resample';
+cfg_ana.method = 'enet';
 
-exper.allsubjects = exper.subjects;
+if strcmp(cfg_ana.method,'enet')
+  % elastic net L1 (1) and L2 (0) mixing parameter
+  cfg.alpha = 0.8;
+  % % L1
+  % cfg.alpha = 1;
+  % % L2
+  % cfg.alpha = 0;
+  
+  cfg_ana.method = sprintf('%s-alpha%s',cfg_ana.method,strrep(num2str(cfg.alpha),'.',''));
+  
+  % elastic net
+  cfg.mva = dml.analysis({dml.enet('family','binomial','alpha',cfg.alpha)});
+end
+
+% set up the cv object
+m = dml.crossvalidator('mva',cfg.mva,'type',cfg.cvtype,cvstr,cfg.(cvfield),'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
+
+if cfg.resample
+  cfg_ana.method = sprintf('%s-resample',cfg_ana.method);
+end
 
 for typ = 1:length(ana.eventValues)
+  vsStr = sprintf(repmat('%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
+  vsStrTab = sprintf(repmat('\t%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
   if length(ana.eventValues{typ}) ~= 2
     error('Currently we can only classify 2 events, you included %d (%s)',length(ana.eventValues{typ}),vsStr);
   end
-  vsStr = sprintf(repmat('%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
-  vsStrTab = sprintf(repmat('\t%s',1,length(ana.eventValues{typ})),ana.eventValues{typ}{:});
   
   % initialize some values
   accuracy = nan(length(exper.subjects),length(cfg_ana.chanStr),size(cfg_ana.latencies,1),size(cfg_ana.freqs,1));
@@ -231,8 +269,8 @@ for typ = 1:length(ana.eventValues)
     
     %data1 = data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data;
     %data2 = data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data;
-    data1 = data_freq.(ana.eventValues{typ}{1}).sub(1).ses(ses).data;
-    data2 = data_freq.(ana.eventValues{typ}{2}).sub(1).ses(ses).data;
+    %data1 = data_freq.(ana.eventValues{typ}{1}).sub(1).ses(ses).data;
+    %data2 = data_freq.(ana.eventValues{typ}{2}).sub(1).ses(ses).data;
     
     for chn = 1:length(cfg_ana.chanStr)
       cfg.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.chanStr{chn})}));
@@ -249,8 +287,8 @@ for typ = 1:length(ana.eventValues)
         for frq = 1:size(cfg_ana.freqs,1)
           cfg.frequency = cfg_ana.freqs(frq,:);
           
-          %data = ft_selectdata_old(data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data,data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data,...
-          data = ft_selectdata_old(data1,data2,...
+          % get the data separately
+          data1 = ft_selectdata_old(data_freq.(ana.eventValues{typ}{1}).sub(1).ses(ses).data,...
             'param',cfg.parameter,...
             'foilim',cfg.frequency,...
             'toilim',cfg.latency,...
@@ -259,32 +297,71 @@ for typ = 1:length(ana.eventValues)
             'avgoverfreq',cfg.avgoverfreq,...
             'avgovertime',cfg.avgovertime);
           
-          %data = ft_selectdata_new(cfg,data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data,data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data);
-          %data = ft_selectdata_new(cfg,data1,data2);
-          
-          if any(isinf(data.(cfg.parameter)(:)))
+          if any(isinf(data1.(cfg.parameter)(:)))
             warning('Inf encountered; replacing by zeros');
-            data.(cfg.parameter)(isinf(data.(cfg.parameter)(:))) = 0;
+            data1.(cfg.parameter)(isinf(data1.(cfg.parameter)(:))) = 0;
           end
-          
-          if any(isnan(data.(cfg.parameter)(:)))
+          if any(isnan(data1.(cfg.parameter)(:)))
             warning('Nan encountered; replacing by zeros');
-            data.(cfg.parameter)(isnan(data.(cfg.parameter)(:))) = 0;
+            data1.(cfg.parameter)(isnan(data1.(cfg.parameter)(:))) = 0;
           end
           
-          % make the data 2D
+          data2 = ft_selectdata_old(data_freq.(ana.eventValues{typ}{2}).sub(1).ses(ses).data,...
+            'param',cfg.parameter,...
+            'foilim',cfg.frequency,...
+            'toilim',cfg.latency,...
+            'channel',cfg.channel,...
+            'avgoverchan',cfg.avgoverchan,...
+            'avgoverfreq',cfg.avgoverfreq,...
+            'avgovertime',cfg.avgovertime);
+          
+          if any(isinf(data2.(cfg.parameter)(:)))
+            warning('Inf encountered; replacing by zeros');
+            data2.(cfg.parameter)(isinf(data2.(cfg.parameter)(:))) = 0;
+          end
+          if any(isnan(data2.(cfg.parameter)(:)))
+            warning('Nan encountered; replacing by zeros');
+            data2.(cfg.parameter)(isnan(data2.(cfg.parameter)(:))) = 0;
+          end
+          
+%           % get the data together
+%           data = ft_selectdata_old(data_freq.(ana.eventValues{typ}{1}).sub(1).ses(ses).data,data_freq.(ana.eventValues{typ}{2}).sub(1).ses(ses).data,...
+%             'param',cfg.parameter,...
+%             'foilim',cfg.frequency,...
+%             'toilim',cfg.latency,...
+%             'channel',cfg.channel,...
+%             'avgoverchan',cfg.avgoverchan,...
+%             'avgoverfreq',cfg.avgoverfreq,...
+%             'avgovertime',cfg.avgovertime);
+%           
+%           if any(isinf(data.(cfg.parameter)(:)))
+%             warning('Inf encountered; replacing by zeros');
+%             data.(cfg.parameter)(isinf(data.(cfg.parameter)(:))) = 0;
+%           end
+%           if any(isnan(data.(cfg.parameter)(:)))
+%             warning('Nan encountered; replacing by zeros');
+%             data.(cfg.parameter)(isnan(data.(cfg.parameter)(:))) = 0;
+%           end
+          
+          % design matrix
           cfg.design = [ones(size(data1.(cfg.parameter),1),1); 2*ones(size(data2.(cfg.parameter),1),1)]';
-          reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3) * size(data.(cfg.parameter),4))];
           
-          % % do we need to make the data 3D?
-          % cfg.design = repmat(cfg.design',[1,1,size(data.time,2)]);
-          % reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3)), size(data.(cfg.parameter),4)];
+          % run it using FT
+          stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
           
-          % debug
-          %keyboard
-          
-          X = reshape(data.(cfg.parameter),reshapevec);
-          Y = cfg.design';
+%           % if we're just going to run using DMLT on its own
+%           % make the data 2D
+%           reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3) * size(data.(cfg.parameter),4))];
+%           
+%           % % do we need to make the data 3D?
+%           % cfg.design = repmat(cfg.design',[1,1,size(data.time,2)]);
+%           % reshapevec = [size(data.(cfg.parameter),1), (size(data.(cfg.parameter),2) * size(data.(cfg.parameter),3)), size(data.(cfg.parameter),4)];
+%           
+%           % debug
+%           %keyboard
+%           
+%           X = reshape(data.(cfg.parameter),reshapevec);
+%           Y = cfg.design';
           
 %           m = dml.standardizer;
 %           m = m.train(X);
@@ -302,10 +379,21 @@ for typ = 1:length(ana.eventValues)
 %           Z2 = m.test(X);
           
           %m = dml.crossvalidator('mva',{dml.standardizer dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'verbose',true);
-          m = dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true);
-          m = m.train(X,Y);
-          %m.statistic
-          %Z2 = m.test(X);
+          
+          %m = dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',0.2)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true);
+          %cfg_ana.method = 'enet-alpha02-resample';
+          
+%           % L2
+%           m = dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',0)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true);
+%           cfg_ana.method = 'enet-alpha0-resample';
+%           
+%           % L1
+%           %m = dml.crossvalidator('mva',{dml.enet('family','binomial','alpha',1)},'stat',{'accuracy','binomial','contingency'},'resample',true,'verbose',true);
+%           %cfg_ana.method = 'enet-alpha1-resample';
+%           
+%           m = m.train(X,Y);
+%           %m.statistic
+%           %Z2 = m.test(X);
           
 %           % gridsearch SVM for best C
 %           m = dml.gridsearch('validator',dml.crossvalidator('type','split','stat','accuracy','mva',{dml.standardizer dml.svm('restart',false)}),'vars','C','vals',fliplr(logspace(-4,1,6)),'verbose',true);
@@ -346,17 +434,14 @@ for typ = 1:length(ana.eventValues)
 %             'type','nfold','folds',5);
 %           m = m.train(X,Y);
 %           m.statistic
-%           
-%           % run it
-%           stat_all(sub,chn,lat,frq).stat = ft_freqstatistics(cfg,data1,data2);
           
           % store some values
-          %accuracy(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.statistic.accuracy;
-          %binomial(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.statistic.binomial;
-          %continTab{sub,chn,lat,frq} = stat_all(sub,chn,lat,frq).stat.statistic.contingency;
-          accuracy(sub,chn,lat,frq) = m.statistic('accuracy');
-          binomial(sub,chn,lat,frq) = m.statistic('binomial');
-          continTab{sub,chn,lat,frq} = m.statistic('contingency');
+          accuracy(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.statistic.accuracy;
+          binomial(sub,chn,lat,frq) = stat_all(sub,chn,lat,frq).stat.statistic.binomial;
+          continTab{sub,chn,lat,frq} = stat_all(sub,chn,lat,frq).stat.statistic.contingency;
+%           accuracy(sub,chn,lat,frq) = m.statistic('accuracy');
+%           binomial(sub,chn,lat,frq) = m.statistic('binomial');
+%           continTab{sub,chn,lat,frq} = m.statistic('contingency');
           
           % print out some performance info
           fprintf('\n%s, %s, %s (%d chans), %.1f-%.1f s, %.1f-%.1f Hz\n',exper.allsubjects{sub},vsStr,chanStr(1:end-1),cfg_ana.nChan,cfg.latency(1),cfg.latency(2),cfg.frequency(1),cfg.frequency(2));

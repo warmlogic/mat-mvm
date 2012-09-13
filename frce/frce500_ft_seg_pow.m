@@ -42,8 +42,8 @@ exper.subjects = {
   'FRCE500 16';
   'FRCE500 17';
   'FRCE500 18';
-%   'FRCE500 19';
-%   'FRCE500 21';
+  %'FRCE500 19';
+  'FRCE500 21';
   };
 
 % 12-16 and 17-21 were different (see
@@ -319,10 +319,10 @@ end
 
 %% new loading workflow - pow
 
-if ~isfield(exper,'subjects_all')
-  exper.subjects_all = exper.subjects;
-end
-exper.subjects = {'FRCE500 12'};
+% if ~isfield(exper,'subjects_all')
+%   exper.subjects_all = exper.subjects;
+% end
+% exper.subjects = {'FRCE500 12'};
 
 cfg = [];
 cfg.keeptrials = 'no';
@@ -354,7 +354,7 @@ cfg.baseline_type = 'zscore';
 % cfg.baseline_type = 'relative'; % divide by baseline mean
 
 % baseline period
-cfg.baseline_time = [-0.4 -0.1];
+cfg.baseline_time = [-0.4 -0.2];
 %cfg.baseline_time = [-0.2 0];
 
 % at what data stage should it be baseline corrected? (mod probably
@@ -500,7 +500,8 @@ fprintf('Done.\n');
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {'FRCE500 21'}; % 21 has noisy data
+%exper.badBehSub = {'FRCE500 21'}; % 21 has noisy data
+exper.badBehSub = {}; % 21 has noisy data
 
 % exclude subjects with low event counts
 [exper] = mm_threshSubs(exper,ana,15);
@@ -565,7 +566,7 @@ cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'FS'},{'PS'}};
 %cfg_plot.rois = {'E124'};
-cfg_plot.rois = {'E25'};
+%cfg_plot.rois = {'E25'};
 %cfg_plot.rois = {'RAS'};
 %cfg_plot.rois = {'LPS','RPS'};
 %cfg_plot.rois = {'LPS'};
@@ -700,11 +701,11 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_freq);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'PS'},{'FS'},{'LPS','RPS'},{'PS'},{'PS'}};
+cfg_ana.rois = {{'PS'},{'FS'},{'LPS'},{'RPS'},{'PS'},{'PS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.2 0.4; 0.6 1.0; 0.5 0.8; 0.5 1.0; 0.5 1.0];
+cfg_ana.latencies = [0.2 0.4; 0.6 1.0; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.5 1.0];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [4 8; 4 8; 4 8; 4 8; 8 12];
+cfg_ana.frequencies = [4 8; 4 8; 4 8; 4 8; 4 8; 8 12];
 
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 cfg_ana.conditions = {'all'};
@@ -767,7 +768,7 @@ end
 
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
-cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
 cfg_ft.avgoverfreq = 'yes';
 %cfg_ft.avgoverfreq = 'no';
 
