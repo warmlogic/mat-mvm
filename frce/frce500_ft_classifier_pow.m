@@ -138,13 +138,11 @@ fprintf('Done.\n');
 
 % TODO:
 %
-% use ft_selectdata (old or new?) to pull the data out of the ft struct
-%
 % use DMLT's functions to do more nuanced classification than FT can do
 %
 % understand the binomial test results
 %
-% low and high alpha? what were the differences?
+% low and high alpha freqs? what were the differences?
 %
 % normalized power? (use my mm_ft_loadData)
 
@@ -239,7 +237,7 @@ if strcmp(cfg_ana.method,'enet')
 end
 
 % set up the cv object
-m = dml.crossvalidator('mva',cfg.mva,'type',cfg.cvtype,cvstr,cfg.(cvfield),'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
+%m = dml.crossvalidator('mva',cfg.mva,'type',cfg.cvtype,cvstr,cfg.(cvfield),'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
 
 if cfg.resample
   cfg_ana.method = sprintf('%s-resample',cfg_ana.method);
