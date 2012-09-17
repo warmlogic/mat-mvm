@@ -191,7 +191,7 @@ cfg.parameter = 'powspctrm';
 cfg.layout = 'GSN-HydroCel-129.sfp';
 cfg.method = 'crossvalidate_mm';
 
-cfg.compact = false;
+cfg.compact = true;
 cfg.verbose = true;
 
 cfg.resample = true;
@@ -206,7 +206,7 @@ cfg.statistic = {'accuracy' 'binomial' 'contingency'};
 
 cfg.avgoverchan = 'no';
 % cfg.avgovertime = 'no';
-cfg.avgovertime = 'no';
+cfg.avgovertime = 'yes';
 cfg.avgoverfreq = 'no';
 %cfg.avgoverfreq = 'yes';
 
@@ -263,7 +263,7 @@ for typ = 1:length(ana.eventValues)
     
     fprintf('%s\n',exper.allsubjects{sub});
     
-    [data_freq,exper] = mm_ft_loadData(cfg_ld,exper,dirs,ana);
+    %[data_freq,exper] = mm_ft_loadData(cfg_ld,exper,dirs,ana);
     
     %data1 = data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data;
     %data2 = data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data;

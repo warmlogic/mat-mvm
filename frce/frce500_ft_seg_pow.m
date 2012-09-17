@@ -156,6 +156,7 @@ cfg_pp.baselinewindow = [-0.2 0];
 
 cfg_proc = [];
 cfg_proc.pad = 'maxperlen';
+
 % cfg_proc.output = 'pow';
 % % cfg_proc.output = 'powandcsd';
 % cfg_proc.keeptrials = 'yes';
@@ -468,7 +469,7 @@ sub=1;
 ses=1;
 for i = 1:length(ana.eventValues{1})
   figure
-  ft_singleplotTFR(cfg_ft,data_pow.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  ft_singleplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   title(ana.eventValues{1}{i});
 end
 

@@ -18,10 +18,10 @@ adFile = fullfile(dataroot,'analysisDetails.mat');
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 %ana.eventValues = {exper.eventValues};
 %ana.eventValues = {{'AudForg','AudReca'},{'VisForg','VisReca'},{'Forg','Reca'},{'Aud','Vis'}};
-%ana.eventValues = {{'AudForg','AudReca'}};
+% ana.eventValues = {{'AudForg','AudReca'}};
 % ana.eventValues = {{'VisForg','VisReca'}};
-%ana.eventValues = {{'VisForg','VisReca'},{'AudForg','AudReca'}};
-%ana.eventValues = {{'Forg','Reca'}};
+% ana.eventValues = {{'VisForg','VisReca'},{'AudForg','AudReca'}};
+% ana.eventValues = {{'Forg','Reca'}};
 ana.eventValues = {{'Aud','Vis'}};
 
 % pre-defined ROIs in this function
@@ -30,7 +30,7 @@ ana = mm_ft_elecGroups(ana);
 % redefine which subjects to load
 exper.subjects = {'FRCE 05'};
 
-%[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
 %[data_raw] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'raw');
 
@@ -168,7 +168,7 @@ end
 %data_freq_orig = data_freq;
 
 cfg_fb = [];
-cfg_fb.baseline = [-0.3 -0.1];
+cfg_fb.baseline = [-0.3 -0.2];
 cfg_fb.baselinetype = 'absolute';
 %cfg_fb.baselinetype = 'relative';
 
@@ -244,7 +244,7 @@ cfg.parameter = 'powspctrm';
 cfg.layout = 'GSN-HydroCel-129.sfp';
 cfg.method = 'crossvalidate_mm';
 
-cfg.compact = false;
+cfg.compact = true;
 cfg.verbose = true;
 
 cfg.resample = true;
@@ -313,11 +313,11 @@ for typ = 1:length(ana.eventValues)
     
     % so we only load one at a time
     exper.subjects = exper.allsubjects(sub);
-    
     fprintf('%s\n',exper.allsubjects{sub});
     
     %[data_freq,exper] = mm_ft_loadData(cfg_ld,exper,dirs,ana);
-    [data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+    
+    %[data_freq] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
     
     %data1 = data_freq.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data;
     %data2 = data_freq.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data;
@@ -745,6 +745,10 @@ for chn = 1:length(cfg_ana.chanStr)
                 
                 cfg_plot.comment = sprintf('%s, %.1f Hz',exper.subjects{sub},stat_all(sub,chn,lat,frqband).stat.freq(frq));
                 subplot(nRow,nCol,count);
+                
+                % is this correct?
+                stat_all(sub,chn,lat,frqband).stat.model1 = stat_all(sub,chn,lat,frq).stat.model{1};
+                
                 ft_topoplotTFR(cfg_plot,stat_all(sub,chn,lat,frqband).stat);
               elseif strcmp(cfg_plot.plotstyle,'F-TxC')
                 if nFreq <= 5
@@ -831,11 +835,13 @@ for chn = 1:length(cfg_ana.chanStr)
   end
 end
 
-% %% Time-Frequency: plot it
-%
-% cfg_plot             = [];
-% cfg_plot.layout = 'GSN-HydroCel-129.sfp';
-% cfg_plot.zparam      = 'model1';
-% cfg_plot.comment     = '';
-% cfg_plot.colorbar    = 'yes';
-% ft_topoplotTFR(cfg_plot,stat_all(sub,chn,lat,frqband).stat);
+%% Time-Frequency: plot it
+
+stat_all(sub,chn,lat,frq).stat.model1 = stat_all(sub,chn,lat,frq).stat.model{1};
+
+cfg_plot             = [];
+cfg_plot.layout = 'GSN-HydroCel-129.sfp';
+cfg_plot.zparam      = 'model1';
+cfg_plot.comment     = '';
+cfg_plot.colorbar    = 'yes';
+ft_topoplotTFR(cfg_plot,stat_all(sub,chn,lat,frq).stat);
