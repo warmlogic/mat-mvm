@@ -387,17 +387,36 @@ cfg.equatetrials = 'no';
 %cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'coh', 'phase'
-cfg.normalize = 'log10'; % 'log10', 'log', 'vector', 'dB'
-%cfg.baselinetype = 'zscore'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
-cfg.baselinetype = 'absolute'; % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
-cfg.baseline = [-0.4 -0.2];
+cfg.transform = 'log10'; % 'log10', 'log', 'vector', 'dB'
 
-cfg.saveFile = true;
-%cfg.saveFile = false;
+% normalization of single or average trials
+cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
+%cfg.norm_trials = 'average';
 
-cfg.rmevoked = 'yes';
-cfg.rmevokedfourier = 'yes';
-cfg.rmevokedpow = 'no';
+% baseline type
+% % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+cfg.baseline_type = 'zscore';
+%cfg.baseline_type = 'dB'; % relative baseline
+% cfg.baseline_type = 'absolute'; % subtract baseline mean
+% cfg.baseline_type = 'relchange'; % subtract and divide by baseline mean
+% cfg.baseline_type = 'relative'; % divide by baseline mean
+
+% baseline period
+cfg.baseline_time = [-0.4 -0.2];
+%cfg.baseline_time = [-0.2 0];
+
+% at what data stage should it be baseline corrected? (mod probably
+% shouldn't be an option)
+% cfg.baseline_data = 'mod';
+cfg.baseline_data = 'pow';
+
+% cfg.saveFile = true;
+cfg.saveFile = false;
+
+cfg.rmevoked = 'no';
+% cfg.rmevoked = 'yes';
+% cfg.rmevokedfourier = 'yes';
+% cfg.rmevokedpow = 'no';
 if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
   load('/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
 end
@@ -424,7 +443,11 @@ if exist(saveFile,'file')
   load(saveFile);
 else
   fprintf('Running mm_ft_loadData\n');
-  [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana,data_evoked);
+  if exist('data_evoked','var')
+    [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana,data_evoked);
+  else
+    [data_pow,exper] = mm_ft_loadData(cfg,exper,dirs,ana);
+  end
   if cfg.saveFile
     fprintf('Saving %s...\n',saveFile);
     save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
@@ -540,17 +563,18 @@ for cnd = 1:length(cond)
     title(sprintf('Z-Power: %s, sub %d, ses %d, chan %d',cond{cnd},sub,ses,chan));
   end
 end
-%elseif strcmp(cfg.output,'phase')
-param = 'powspctrm';
-clim = [0 1];
-for cnd = 1:length(cond)
-  if isfield(data_phase.(cond{cnd}).sub(sub).ses(ses).data,param)
-    figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
-    axis xy;colorbar;
-    title(sprintf('ITC - BL: %s, sub %d, ses %d, chan %d',cond{cnd},sub,ses,chan));
-  end
-end
-%end
+
+% %elseif strcmp(cfg.output,'phase')
+% param = 'powspctrm';
+% clim = [0 1];
+% for cnd = 1:length(cond)
+%   if isfield(data_phase.(cond{cnd}).sub(sub).ses(ses).data,param)
+%     figure;imagesc(data_phase.(cond{cnd}).sub(sub).ses(ses).data.time,data_phase.(cond{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_phase.(cond{cnd}).sub(sub).ses(ses).data.(param)(chan,:,:)),clim);
+%     axis xy;colorbar;
+%     title(sprintf('ITC - BL: %s, sub %d, ses %d, chan %d',cond{cnd},sub,ses,chan));
+%   end
+% end
+% %end
 
 %% Test plots to make sure data look ok
 

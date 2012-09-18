@@ -121,8 +121,10 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % figure printing options - see mm_ft_setSaveDirs for other options
 files.saveFigs = 1;
-files.figPrintFormat = 'png';
+files.figFontName = 'Helvetica';
 %files.figPrintFormat = 'epsc2';
+files.figPrintFormat = 'png';
+files.figPrintRes = 150;
 
 % %% add NS's artifact information to the event structure
 % nsEvFilters.eventValues = exper.eventValues;
@@ -144,11 +146,15 @@ files.figPrintFormat = 'png';
 
 %% Convert the data to FieldTrip structs
 
+exper.refChan = 'Cz';
+
 ana.segFxn = 'seg2ft';
-ana.ftFxn = 'ft_freqanalysis';
 ana.artifact.type = {'zeroVar'};
 %ana.artifact.type = {'nsAuto'};
 %ana.artifact.type = {'nsAuto','preRejManual','ftICA'};
+ana.overwrite.raw = 1;
+
+ana.ftFxn = 'ft_freqanalysis';
 
 % ana.otherFxn = {};
 % ana.cfg_other = [];
@@ -240,7 +246,7 @@ cfg_proc.keeptapers = 'yes';
 
 % wavelet
 cfg_proc.method = 'wavelet';
-cfg_proc.width = 6;
+cfg_proc.width = 5;
 %cfg_proc.toi = -0.8:0.04:3.0;
 cfg_proc.toi = -0.5:0.04:1.0;
 % % evenly spaced frequencies, but not as many as foilim makes

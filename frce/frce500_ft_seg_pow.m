@@ -320,10 +320,10 @@ end
 
 %% new loading workflow - pow
 
-% if ~isfield(exper,'subjects_all')
-%   exper.subjects_all = exper.subjects;
-% end
-% exper.subjects = {'FRCE500 12'};
+if ~isfield(exper,'subjects_all')
+  exper.subjects_all = exper.subjects;
+end
+exper.subjects = {'FRCE500 12'};
 
 cfg = [];
 cfg.keeptrials = 'no';
@@ -602,13 +602,14 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
 %cfg_ft.xlim = [.5 1.0]; % time
-cfg_ft.ylim = [4 100]; % freq
+% cfg_ft.ylim = [4 100]; % freq
+cfg_ft.ylim = [4 28]; % freq
 %cfg_ft.ylim = [8 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 %cfg_ft.zlim = [-100 100]; % pow
-cfg_ft.zlim = [-1 1]; % pow
-%cfg_ft.zlim = [-0.25 0.25]; % pow
+% cfg_ft.zlim = [-1 1]; % pow
+cfg_ft.zlim = [-0.5 0.5]; % pow
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -617,8 +618,8 @@ cfg_plot.plotTitle = 1;
 
 %cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
 %cfg_plot.rois = {{'FS'},{'PS'}};
-%cfg_plot.rois = {'E71'};
-cfg_plot.rois = {'all'};
+cfg_plot.rois = {'E66'};
+% cfg_plot.rois = {'all'};
 
 cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -631,7 +632,7 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % Type of plot
 %%%%%%%%%%%%%%%
 
-%cfg_plot.ftFxn = 'ft_singleplotTFR';
+cfg_plot.ftFxn = 'ft_singleplotTFR';
 
 % cfg_plot.ftFxn = 'ft_topoplotTFR';
 % %cfg_ft.marker = 'on';
@@ -642,9 +643,9 @@ cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
 
-cfg_plot.ftFxn = 'ft_multiplotTFR';
-cfg_ft.showlabels = 'yes';
-cfg_ft.comment = '';
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.comment = '';
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
