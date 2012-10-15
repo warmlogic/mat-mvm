@@ -119,7 +119,7 @@ cfg_pp.baselinewindow = [-0.2 0];
 %cfg_pp.precision = 'single';
 
 cfg_proc = [];
-cfg_proc.keeptrials = 'no';
+cfg_proc.keeptrials = 'yes';
 
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
@@ -134,7 +134,7 @@ saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
 % if ~exist(saveFile,'file')
 fprintf('Saving %s...',saveFile);
 save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-%   fprintf('Done.\n');
+fprintf('Done.\n');
 % else
 %   error('Not saving! %s already exists.\n',saveFile);
 % end
@@ -152,7 +152,11 @@ end
 
 %% load the analysis details
 
+% avg
 adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400_avg/analysisDetails.mat';
+
+% % keeptrials
+% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
