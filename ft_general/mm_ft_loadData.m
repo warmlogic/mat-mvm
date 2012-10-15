@@ -188,7 +188,7 @@ end
 
 %% make sure some fields are set (correctly)
 
-if ~isfield(cfg,'normalize')
+if ~isfield(cfg,'transform')
   cfg.transform = '';
 elseif ~isempty(cfg.transform) && strcmp(cfg.output,'coh')
   error('Normalizing cfg.output=''coh'' is not allowed.');
