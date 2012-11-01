@@ -906,9 +906,9 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.conditions = {'all'};
 %cfg_ana.conditions = {{'RH','CR'},{'SC','CR'},{'SI','CR'},{'SC','SI'}};
 %cfg_ana.conditions = {{'F','N'},{'RS','N'},{'RS','RO'},{'RS','F'},{'RO','N'},{'RO','F'}};
-%cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
+cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
 %cfg_ana.conditions = {{'RH','CR'}}; % {'RH','CR'},
-cfg_ana.conditions = {{'FSC','N'},{'FSI','N'},{'FSC','FSI'}};
+% cfg_ana.conditions = {{'FSC','N'},{'FSI','N'},{'FSC','FSI'}};
 
 % % late right frontal old/new
 % cfg_ana.conditions = {{'SC','CR'}};

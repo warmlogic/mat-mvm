@@ -226,14 +226,16 @@ cfg_pp.baselinewindow = [-0.2 0];
     
 cfg_proc = [];
 cfg_proc.pad = 'maxperlen';
-% cfg_proc.output = 'pow';
-% % cfg_proc.output = 'powandcsd';
-% cfg_proc.keeptrials = 'yes';
-% cfg_proc.keeptapers = 'no';
 
-cfg_proc.output = 'fourier';
-cfg_proc.keeptrials = 'yes';
-cfg_proc.keeptapers = 'yes';
+cfg_proc.output = 'pow';
+% cfg_proc.output = 'powandcsd';
+% cfg_proc.keeptrials = 'yes';
+cfg_proc.keeptrials = 'no';
+cfg_proc.keeptapers = 'no';
+
+% cfg_proc.output = 'fourier';
+% cfg_proc.keeptrials = 'yes';
+% cfg_proc.keeptapers = 'yes';
 
 % % MTM FFT
 % cfg_proc.method = 'mtmfft';
@@ -335,6 +337,9 @@ end
 
 %adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_hanning_pow_-500_980_2_40_avg/analysisDetails.mat';
 
+% % pow 4-100 Hz
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w6_pow_-500_980_4_100_avg/analysisDetails.mat';
+
 % fourier 4-100 Hz
 adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
@@ -376,7 +381,7 @@ end
 
 %% load some data
 
-%[data_pow] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
+% [data_pow] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'pow');
 
 %% new loading workflow - pow
 
@@ -387,11 +392,12 @@ cfg.equatetrials = 'no';
 %cfg.equatetrials = 'yes';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'coh', 'phase'
-cfg.transform = 'log10'; % 'log10', 'log', 'vector', 'dB'
+%cfg.transform = 'log10'; % 'log10', 'log', 'vector', 'dB'
+cfg.transform = ''; % 'log10', 'log', 'vector', 'dB'
 
 % normalization of single or average trials
 cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
-%cfg.norm_trials = 'average';
+% cfg.norm_trials = 'average';
 
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
@@ -402,7 +408,7 @@ cfg.baseline_type = 'zscore';
 % cfg.baseline_type = 'relative'; % divide by baseline mean
 
 % baseline period
-cfg.baseline_time = [-0.4 -0.2];
+cfg.baseline_time = [-0.3 -0.1];
 %cfg.baseline_time = [-0.2 0];
 
 % at what data stage should it be baseline corrected? (mod probably
@@ -410,8 +416,10 @@ cfg.baseline_time = [-0.4 -0.2];
 % cfg.baseline_data = 'mod';
 cfg.baseline_data = 'pow';
 
-% cfg.saveFile = true;
-cfg.saveFile = false;
+cfg.zthresh = 5;
+
+cfg.saveFile = true;
+% cfg.saveFile = false;
 
 cfg.rmevoked = 'no';
 % cfg.rmevoked = 'yes';
@@ -419,6 +427,12 @@ cfg.rmevoked = 'no';
 % cfg.rmevokedpow = 'no';
 if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
   load('/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+end
+
+if isfield(cfg,'transform') && ~isempty(cfg.transform)
+  trans_str = ['_',cfg.transform];
+else
+  trans_str = '';
 end
 
 if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
@@ -436,7 +450,7 @@ if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
 else
   indu_str = '';
 end
-saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s%s_%s.mat',cfg.output,eq_str,kt_str,indu_str,trans_str,cfg.norm_trials));
 
 if exist(saveFile,'file')
   fprintf('Loading saved file: %s\n',saveFile);
@@ -630,7 +644,7 @@ cfg_fb.baseline = [-0.3 -0.1];
 %cfg_fb.baselinetype = 'relative';
 cfg_fb.baselinetype = 'relchange'; % or this
 
-%data_pow_orig = data_pow;
+data_pow_orig = data_pow;
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
@@ -660,6 +674,9 @@ end
 % Subjects with bad behavior
 %exper.badBehSub = {};
 exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'COSI2035'
+
+% 37 has artifacts in TF for SCR, electrodes 15 and 16; not sure how to
+% investigate bad single trials
 
 % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
@@ -747,10 +764,10 @@ cfg_ft = [];
 %cfg_ft.baselinetype = 'absolute';
 %if strcmp(cfg_ft.baselinetype,'absolute')
 %cfg_ft.xlim = [0 1];
-%cfg_ft.ylim = [3 50];
-cfg_ft.ylim = [3 8];
+cfg_ft.ylim = [4 100];
+%cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
-%cfg_ft.zlim = [-1 1];
+cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
 %  cfg_ft.zlim = [0 2.0];
@@ -781,18 +798,19 @@ end
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 cfg_plot.rois = {{'FS'},{'PS'}};
-%cfg_plot.roi = {'E124'};
-%cfg_plot.roi = {'RAS'};
-%cfg_plot.roi = {'LPS','RPS'};
-%cfg_plot.roi = {'LPS'};
+%cfg_plot.rois = {'E16'};
+%cfg_plot.rois = {'RAS'};
+%cfg_plot.rois = {'LPS','RPS'};
+%cfg_plot.rois = {'LPS'};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-%cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'SCR'}},size(cfg_plot.rois));
+cfg_plot.condMethod = 'single';
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
@@ -868,8 +886,8 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  %mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
-  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_evoked);
+  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
+  %mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_evoked);
 end
 
 %% plot the contrasts
@@ -919,13 +937,14 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'PS'},{'FI'}};
+cfg_ana.rois = {{'FI'},{'PS'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.7 1.0; 0.4 0.7];
+cfg_ana.latencies = [0.6 1.0; 0.2 0.33];
 % define the frequencies that correspond to each set of ROIs
-cfg_ana.frequencies = [3 8; 3 8];
+% cfg_ana.frequencies = [3 8; 3 8];
+cfg_ana.frequencies = [4 8; 35 80];
 
-cfg_plot.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 %cfg_ana.conditions = {{'SC','SI'},{'SC','SI'}};
 %cfg_ana.conditions = {'all'};
@@ -942,7 +961,7 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-%cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
+cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
 %cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
 
 if strcmp(ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
@@ -996,9 +1015,9 @@ end
 
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
-%cfg_ft.avgovertime = 'no';
-cfg_ft.avgovertime = 'yes';
-%cfg_ft.avgoverfreq = 'no';
+cfg_ft.avgovertime = 'no';
+% cfg_ft.avgovertime = 'yes';
+% cfg_ft.avgoverfreq = 'no';
 cfg_ft.avgoverfreq = 'yes';
 
 cfg_ft.parameter = 'powspctrm';
@@ -1006,7 +1025,7 @@ cfg_ft.parameter = 'powspctrm';
 % debugging
 %cfg_ft.numrandomization = 100;
 
-cfg_ft.numrandomization = 500;
+cfg_ft.numrandomization = 1000;
 % cfg_ft.clusteralpha = .05;
 % cfg_ft.alpha = .025;
 cfg_ft.clusteralpha = .1;
@@ -1015,6 +1034,7 @@ cfg_ft.alpha = .05;
 cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
+cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
 cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
@@ -1022,12 +1042,12 @@ cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
 
-%thisBLtype = 'zpow';
+thisBLtype = 'zpow';
 %thisBLtype = 'pow_induced';
 %thisBLtype = 'zp_evok';
-thisBLtype = 'logp_evok';
+%thisBLtype = 'logp_evok';
 %thisBLtype = 'coh';
-thisBL = [-0.4 -0.2];
+thisBL = [-0.3 -0.1];
 cfg_ana.dirStr = sprintf('_%s_%d_%d',thisBLtype,thisBL(1)*1000,thisBL(2)*1000);
 
 if strcmp(cfg_ft.avgovertime,'no')
@@ -1045,7 +1065,8 @@ if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [4 100];
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
-  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
 
@@ -1077,6 +1098,7 @@ cfg_ft = [];
 %cfg_ft.alpha = .05;
 cfg_ft.alpha = .1;
 cfg_ft.avgoverfreq = cfg_ana.avgFrq;
+cfg_ft.avgovertime = cfg_ana.avgTime;
 
 cfg_plot = [];
 cfg_plot.conditions = cfg_ana.conditions;
@@ -1126,7 +1148,8 @@ cfg.parameter = 'powspctrm';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
 cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
+% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
+cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
 %cfg.freqs = [4 8];
 
 cfg.rois = {...
@@ -1159,11 +1182,11 @@ cfg.nCol = 3;
 
 cfg.types = {'color','side'};
 
-% % whole power
-% cfg.type = 'line_pow';
-% cfg.clusDirStr = '_zpow_-400_-200';
-% cfg.ylabel = 'Z-Trans Pow';
-% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+% whole power
+cfg.type = 'line_pow';
+cfg.clusDirStr = '_zpow_-300_-100_avgT_avgF';
+cfg.ylabel = 'Z-Trans Pow';
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
 % % % induced power - old
 % % cfg.type = 'line_pow_indu';
@@ -1183,11 +1206,11 @@ cfg.types = {'color','side'};
 % cfg.ylabel = 'Z-Trans Pow';
 % mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
 
-% evoked power
-cfg.type = 'line_pow_evoked';
-cfg.clusDirStr = '_logp_evok_-400_-200';
-cfg.ylabel = 'Log Pow';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
+% % evoked power
+% cfg.type = 'line_pow_evoked';
+% cfg.clusDirStr = '_logp_evok_-400_-200';
+% cfg.ylabel = 'Log Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
 
 
 % cfg.type = 'line_coh';

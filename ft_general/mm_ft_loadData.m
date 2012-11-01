@@ -123,6 +123,14 @@ if ~exist('data_evoked','var') || isempty(data_evoked)
   end
 end
 
+if ~isfield(cfg,'zthresh')
+  cfg.zthresh = [];
+else
+  if ~isnumeric(cfg.zthresh)
+    error('cfg.zthresh not correctly set');
+  end
+end
+
 %% check on input and output format
 
 if ~isfield(cfg,'ftype')
@@ -741,9 +749,9 @@ for sub = 1:length(exper.subjects)
               cfg_fd.keeptrials = cfg.keeptrials;
               
               if strcmp(cfg.keeptrials,'no')
-                fprintf('Averaging over individual trials.');
+                fprintf('Averaging over individual trials.\n');
               elseif strcmp(cfg.keeptrials,'yes')
-                fprintf('Keeping individual trials.');
+                fprintf('Keeping individual trials.\n');
               end
               
 %               if strcmp(cfg.equatetrials,'yes')
@@ -757,12 +765,25 @@ for sub = 1:length(exper.subjects)
 %                 cfg_fd.trials = 'all';
 %               end
               
-              % TODO: do I need to update something in the FT structure now
-              % that I get the subset of trials at the start?
-              cfg_fd.trials = 'all';
+              % Do a very coarse rejection for trials with artifacts
+              if ~isempty(cfg.zthresh) && strcmp(cfg.baseline_type,'zscore')
+                % reject trials with huge zscores
+                cfg_fd.trials = true(1,size(subSesEvData.(cell2mat(fn)).(param),1));
+                [tr,ch] = find(squeeze(nanmean(nanmean(subSesEvData.(cell2mat(fn)).(param),4),3)) > cfg.zthresh);
+                if ~isempty(tr)
+                  fprintf('Rejecting %d trials due to zscore > %.2f in %d channels (NB: this is a very coarse rejection).\n',length(unique(tr)),cfg.zthresh,length(unique(ch)));
+                  cfg_fd.trials(unique(tr)) = false;
+                else
+                  cfg_fd.trials = 'all';
+                end
+              else
+                % TODO: do I need to update something in the FT structure now
+                % that I get the subset of trials at the start?
+                cfg_fd.trials = 'all';
+              end
               
-                % use ft_freqdescriptives to average over individual
-                % trials, if desired and the data is appropriate
+              % use ft_freqdescriptives to average over individual
+              % trials, if desired and the data is appropriate
               data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
               
             elseif strcmp(cfg.output,'coh') && isfield(subSesEvData.(cell2mat(fn)),cohparam) && ndims(subSesEvData.(cell2mat(fn)).(cohparam)) == 3
