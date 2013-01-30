@@ -189,9 +189,9 @@ ana.artifact.type = {'zeroVar'};
 ana.otherFxn = {};
 ana.cfg_other = [];
 ana.otherFxn{1} = 'ft_resampledata';
-ana.cfg_other{1}.resamplefs = 250;
+ana.cfg_other{1}.resamplefs = 256;
 ana.cfg_other{1}.detrend = 'no';
-ana.cfg_other{1}.ftype = 'resample250';
+ana.cfg_other{1}.ftype = 'resample256';
 
 % any preprocessing?
 cfg_pp = [];
@@ -270,7 +270,6 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
 cfg_proc.foi = 4:1:100;
-cfg_proc.foi = 4:1:8;
 %cfg_proc.foi = 4:1:60;
 %cfg_proc.foilim = [3 9];
 
@@ -354,8 +353,8 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+% ana.eventValues = {exper.eventValues};
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -541,7 +540,7 @@ fprintf('Done.\n');
 
 %% plot something
 
-sub=3;
+sub=2;
 ses=1;
 
 %chan=11; % Fz
