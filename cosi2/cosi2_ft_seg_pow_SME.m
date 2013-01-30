@@ -15,14 +15,14 @@ exper.name = 'COSI2';
 exper.sampleRate = 500;
 
 % pre- and post-stimulus times to read, in seconds (pre is negative)
-exper.prepost = [-1.0 2.0];
+exper.prepost = [-1.0 2.5];
 
 % equate the number of trials across event values?
 exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.eegFileExt = 'egis';
+% exper.eegFileExt = 'egis';
 exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
@@ -55,8 +55,8 @@ exper.eventValuesExtra.toCombine = {...
   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
   {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
 exper.eventValuesExtra.newValue = {...
-  {'CCR'},{'CSC'},{'CSI'},...
-  {'SCR'},{'SSC'},{'SSI'}};
+  {'CM'},{'CSC'},{'CSI'},...
+  {'SM'},{'SSC'},{'SSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 0;
@@ -186,11 +186,27 @@ ana.artifact.type = {'zeroVar'};
 %ana.artifact.type = {'nsAuto'};
 %ana.artifact.type = {'nsAuto','preRejManual','ftICA'};
 
-ana.otherFxn = {};
-ana.cfg_other = [];
-ana.otherFxn{1} = 'ft_resampledata';
-ana.cfg_other{1}.resamplefs = 256;
-ana.cfg_other{1}.detrend = 'no';
+% ana.otherFxn = {};
+% ana.cfg_other = [];
+% ana.otherFxn{1} = 'ft_preprocessing';
+% ana.cfg_other{1}.demean = 'yes';
+% ana.cfg_other{1}.baselinewindow = [-.2 0];
+% ana.cfg_other{1}.ftype = 'demean';
+% ana.otherFxn{2} = 'ft_preprocessing';
+% ana.cfg_other{2}.detrend = 'yes';
+% ana.cfg_other{2}.ftype = 'detrend';
+% ana.otherFxn{3} = 'ft_preprocessing';
+% ana.cfg_other{3}.dftfilter = 'yes';
+% ana.cfg_other{3}.dftfreq = [60 120 180];
+% ana.cfg_other{3}.ftype = 'dft';
+% % ana.otherFxn{4} = 'ft_preprocessing';
+% % ana.cfg_other{4}.bsfilter = 'yes';
+% % ana.cfg_other{4}.bsfreq = [59 61; 119 121; 179 181];
+% % ana.cfg_other{4}.ftype = 'bs';
+% % ana.otherFxn{5} = 'ft_preprocessing';
+% % ana.cfg_other{5}.lpfilter = 'yes';
+% % ana.cfg_other{5}.lpfreq = [35];
+% % ana.cfg_other{5}.ftype = 'lp';
 
 % any preprocessing?
 cfg_pp = [];
@@ -324,8 +340,10 @@ end
 % % pow 4-100 Hz
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w6_pow_-500_980_4_100_avg/analysisDetails.mat';
 
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2500/ft_data/CM_CSC_CSI_SM_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w6_fourier_-500_980_4_100_avg/analysisDetails.mat';
+
 % fourier 4-100 Hz
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2500/ft_data/CFSC_CFSI_CM_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SFSC_SFSI_SM_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 % % wavelet
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
@@ -352,8 +370,8 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+%ana.eventValues = {exper.eventValues};
+ana.eventValues = {{'CM','CSC','CSI'},{'SM','SSC','SSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -369,17 +387,20 @@ end
 
 %% new loading workflow - pow
 
+% subject 26 isn't working, bad mat file.
+
 cfg = [];
 cfg.keeptrials = 'no';
 %cfg.keeptrials = 'yes';
 cfg.equatetrials = 'no';
 %cfg.equatetrials = 'yes';
+% cfg.ftype = 'pow';
 cfg.ftype = 'fourier';
 cfg.output = 'pow'; % 'pow', 'coh', 'phase'
 %cfg.transform = 'log10'; % 'log10', 'log', 'vector', 'dB'
 cfg.transform = ''; % 'log10', 'log', 'vector', 'dB'
 
-% normalization of single or average trials
+% % normalization of single or average trials
 % cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
 cfg.norm_trials = 'average';
 
@@ -549,7 +570,7 @@ ses=1;
 chan=53; % LPS middle
 %chan=86; % RPS middle
 
-cond = {'CCR','CSC','CSI','SCR','SSC','SSI'};
+cond = {'CM','CSC','CSI','SM','SSC','SSI'};
 
 %if strcmp(cfg.output,'pow')
 param = 'powspctrm';
@@ -792,8 +813,8 @@ cfg_plot.numCols = 5;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'SSC'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'SCR'}},size(cfg_plot.rois));
 cfg_plot.condMethod = 'single';
 
 cfg_ft = [];
@@ -1020,7 +1041,7 @@ cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+cfg_ana.conditions = {{'CSC','CM'},{'CSI','CM'},{'CSC','CSI'},{'SSC','SM'},{'SSI','SM'},{'SSC','SSI'}};
 
 % extra identifier when saving
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');

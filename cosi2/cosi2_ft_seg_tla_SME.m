@@ -15,14 +15,14 @@ exper.name = 'COSI2';
 exper.sampleRate = 500;
 
 % pre- and post-stimulus times to read, in seconds (pre is negative)
-exper.prepost = [-1.0 2.0];
+exper.prepost = [-1.0 2.5];
 
 % equate the number of trials across event values?
 exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.eegFileExt = 'egis';
+% exper.eegFileExt = 'egis';
 exper.eegFileExt = 'raw';
 
 % NB: exporting to raw because the EGIS tool won't export reference chan
@@ -33,14 +33,9 @@ exper.eegFileExt = 'raw';
 % exper.eventValues = sort({'CCR','CHSC','CHSI','SCR','SHSC','SHSI'});
 % exper.eventValues = sort({'CF','SF','CN','SN','CRO','SRO','CRS','SRS'});
 
-% exper.eventValues = sort({...
-%   'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
-%   'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
-
 exper.eventValues = sort({...
   'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
-  'LFSC','LFSI','LNM','LNS','LROSC','LROSI','LRSSC','LRSSI',...
-  'RFSC','RFSI','RNM','RNS','RROSC','RROSI','RRSSC','RRSSI'});
+  'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
 
 
 % combine some events into higher-level categories
@@ -60,24 +55,15 @@ exper.eventValues = sort({...
 %   {'CF'},{'CN'},{'CRO'},{'CRS'},{'CRSC'},{'CRSI'},...
 %   {'SF'},{'SN'},{'SRO'},{'SRS'},{'SRSC'},{'SRSI'}};
 
-% exper.eventValuesExtra.toCombine = {...
-%   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},{'CFSC','CROSC','CRSSC','CFSI','CROSI','CRSSI'},...
-%   {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'},{'SFSC','SROSC','SRSSC','SFSI','SROSI','SRSSI'}};
-% exper.eventValuesExtra.newValue = {...
-%   {'CCR'},{'CSC'},{'CSI'},{'CH'},...
-%   {'SCR'},{'SSC'},{'SSI'},{'SH'}};
-
 exper.eventValuesExtra.toCombine = {...
   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
-  {'LNS','LNM'},{'LFSC','LROSC','LRSSC'},{'LFSI','LROSI','LRSSI'},...
-  {'RNS','RNM'},{'RFSC','RROSC','RRSSC'},{'RFSI','RROSI','RRSSI'}};
+  {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
 exper.eventValuesExtra.newValue = {...
-  {'CCR'},{'CSC'},{'CSI'},...
-  {'LCR'},{'LSC'},{'LSI'},...
-  {'RCR'},{'RSC'},{'RSI'}};
+  {'CM'},{'CSC'},{'CSI'},...
+  {'SM'},{'SSC'},{'SSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
+exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -118,7 +104,7 @@ exper.subjects = {
   'COSI2035';
   'COSI2036';
   'COSI2037';
-  'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+%   'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
   'COSI2039';
   'COSI2040'; % EEG is pretty noisy overall
 %   'COSI2041'; % COSI2041: no-show, no session_1
@@ -135,7 +121,7 @@ exper.subjects = {
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
 
-%exper.sessions = {'session_0'};
+% exper.sessions = {'session_0'};
 %exper.sessions = {'session_1'};
 exper.sessions = {{'session_0','session_1'}};
 
@@ -145,7 +131,7 @@ exper.sessions = {{'session_0','session_1'}};
 %dirs.subDir = 'RK';
 dirs.subDir = '';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
-%dirs.dataDir = fullfile(exper.name,'eeg','nspp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+% dirs.dataDir = fullfile(exper.name,'eeg','nspp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
@@ -256,20 +242,26 @@ end
 
 %% load the analysis details
 
+% eppp SME
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2500/ft_data/CFSC_CFSI_CM_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SFSC_SFSI_SM_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/tla_-1000_2500_avg/analysisDetails.mat';
+
+% % nspp SME
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2500/ft_data/CFSC_CFSI_CM_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SFSC_SFSI_SM_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_nsAuto/tla_-1000_2500_avg/analysisDetails.mat';
+
 % % nspp
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2500/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_nsAuto/tla_-1000_2500_avg/analysisDetails.mat';
 
 % % old - CR SC SI
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 % % C/S x CR SC SI - with badChan info (use this)
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2500/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
 
 % % C/S x CR SC SI H
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CH_CSC_CSI_SCR_SH_SSC_SSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
-% F/N/RO/RS x SC/SI all combos
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+% % F/N/RO/RS x SC/SI all combos
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CF_CFSC_CFSI_CN_CNM_CNS_CRO_CROSC_CROSI_CRS_CRSC_CRSI_CRSSC_CRSSI_SF_SFSC_SFSI_SN_SNM_SNS_SRO_SROSC_SROSI_SRS_SRSC_SRSI_SRSSC_SRSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -307,14 +299,9 @@ ana = mm_ft_elecGroups(ana);
 
 % % all possible categories (F N RO RS x S/I)
 % ana.eventValues = {...
-%   {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI'},...
-%   {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI'}};
+%   {'CFSC','CFSI','CM','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI','CSC','CSI'},...
+%   {'SFSC','SFSI','SM','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI','SSC','SSI'}};
 
-ana.eventValues = {...
-  {'CNS','CROSC','CROSI','CRSSC'},...
-  {'SNS','SROSC','SROSI','SRSSC'}};
-
-% 
 % ana.eventValues = {...
 %   {'CFSC','CFSI','CNS','CNM','CRSSC','CRSSI'},...
 %   {'SFSC','SFSI','SNS','SNM','SRSSC','SRSSI'}};
@@ -332,8 +319,16 @@ ana.eventValues = {...
 %   {'SFSC','SFSI','SN'}};
 
 % ana.eventValues = {...
-%   {'CFSC','CFSI'},...
-%   {'SFSC','SFSI'}};
+%   {'CFSC','CFSI','CM','CROSC','CROSI','CRSSC','CRSSI'},...
+%   {'SFSC','SFSI','SM','SROSC','SROSI','SRSSC','SRSSI'}};
+
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CM','CROSC','CROSI','CRSSC'},...
+%   {'SFSC','SFSI','SM','SROSC','SROSI','SRSSC'}};
+
+ana.eventValues = {...
+  {'CFSC','CROSC','CRSSC','CSI','CM'},...
+  {'SFSC','SROSC','SRSSC','SSI','SM'}};
 
 % % F N RO RS
 % ana.eventValues = {...
@@ -687,17 +682,17 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-% cfg_plot.ylims = [-4.5 2.5; -4.5 2.4; -4.5 2.4; -2 5; -2 5];
-% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-6.5 0.5; -6.5 0.5; -6.5 0.5; -2 5; -2 5];
+cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'LAS'},{'LPS'}};
-cfg_plot.ylims = [-5.5 2.5; -2 5];
+% %cfg_plot.rois = {{'LAS'},{'LPS'}};
+% %cfg_plot.ylims = [-5.5 2.5; -2 5];
 % cfg_plot.rois = {{'LAS'},{'FC'},{'C'}};
 % %cfg_plot.rois = {{'C'}};
 % %cfg_plot.rois = {{'LAS'}};
 % cfg_plot.ylims = [-5.5 2.5; -5.5 2.5; -5.5 2.5];
-cfg_plot.legendlocs = {'SouthEast','NorthWest','NorthWest'};
+% cfg_plot.legendlocs = {'SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
@@ -715,7 +710,7 @@ cfg_plot.excludeBadSub = 1;
 %   {{'CCR','CH','CHSC','CHSI'},{'SCR','SH','SHSC','SHSI'}},...
 %   {{'CCR','CHSC','CHSI'},{'SCR','SHSC','SHSI'}}};
 cfg_plot.condByTypeByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-%cfg_plot.condByTypeByROI = repmat({{{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}}},size(cfg_plot.rois));
+% cfg_plot.condByTypeByROI = repmat({{{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -972,13 +967,13 @@ cfg_ana = [];
 % and define the times that correspond to each set of ROIs
 
 %cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'FC'}};
-cfg_ana.latencies = [0.3 0.5];
+% cfg_ana.rois = {{'FC'}};
+% cfg_ana.latencies = [0.3 0.5];
 %cfg_ana.rois = {{'E12'}};
 %cfg_ana.rois = {{'LAS'},{'LPS'}};
 %cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-%cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-%cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 %cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 % cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'}};
@@ -997,8 +992,8 @@ cfg_ft.correctm = 'fdr';
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-%cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4];
-cfg_plot.ylims = [-4 -1; 1 4];
+cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4];
+% cfg_plot.ylims = [-4 -1; 1 4];
 %cfg_plot.plot_order = {'CSC','CSI','CCR','SSC','SSI','SCR'};
 cfg_plot.plot_order = {'CSC','CSI','CCR'};
 % cfg_plot.plot_order = {'SSC','SSI','SCR'};

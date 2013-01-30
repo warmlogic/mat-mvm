@@ -22,15 +22,16 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.eegFileExt = 'egis';
-exper.eegFileExt = 'raw';
+exper.eegFileExt = 'egis';
+% exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
 
 exper.eventValues = sort({...
   'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
-  'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
+  'LFSC','LFSI','LNM','LNS','LROSC','LROSI','LRSSC','LRSSI',...
+  'RFSC','RFSI','RROSC','RROSI','RRSSC','RRSSI'});
 
 % combine some events into higher-level categories
 % exper.eventValuesExtra.toCombine = {{'CHSC','CHSI'},{'SHSC','SHSI'}};
@@ -51,15 +52,24 @@ exper.eventValues = sort({...
 %   {'CF'},{'CN'},{'CRO'},{'CRS'},...
 %   {'FF'},{'FN'},{'FRO'},{'FRS'}};
 
+% exper.eventValuesExtra.toCombine = {...
+%   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
+%   {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
+% exper.eventValuesExtra.newValue = {...
+%   {'CCR'},{'CSC'},{'CSI'},...
+%   {'SCR'},{'SSC'},{'SSI'}};
+
 exper.eventValuesExtra.toCombine = {...
   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
-  {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
+  {'LNS','LNM'},{'LFSC','LROSC','LRSSC'},{'LFSI','LROSI','LRSSI'},...
+  {'RFSC','RROSC','RRSSC'},{'RFSI','RROSI','RRSSI'}};
 exper.eventValuesExtra.newValue = {...
   {'CCR'},{'CSC'},{'CSI'},...
-  {'SCR'},{'SSC'},{'SSI'}};
+  {'SCR'},{'LSC'},{'LSI'},...
+  {'RSC'},{'RSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
+exper.eventValuesExtra.onlyKeepExtras = 1;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
@@ -124,7 +134,8 @@ exper.sessions = {{'session_0','session_1'}};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
-dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+% dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
+dirs.dataDir = fullfile(exper.name,'eeg','nspp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
 %dirs.dataDir = fullfile(exper.name,'eeg','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000));
 
 % Possible locations of the data files (dataroot)
@@ -182,15 +193,31 @@ files.figPrintFormat = 'png';
 
 ana.segFxn = 'seg2ft';
 ana.ftFxn = 'ft_freqanalysis';
-ana.artifact.type = {'zeroVar'};
-%ana.artifact.type = {'nsAuto'};
+% ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {'nsAuto'};
 %ana.artifact.type = {'nsAuto','preRejManual','ftICA'};
 
-ana.otherFxn = {};
-ana.cfg_other = [];
-ana.otherFxn{1} = 'ft_resampledata';
-ana.cfg_other{1}.resamplefs = 256;
-ana.cfg_other{1}.detrend = 'no';
+% ana.otherFxn = {};
+% ana.cfg_other = [];
+% ana.otherFxn{1} = 'ft_preprocessing';
+% ana.cfg_other{1}.demean = 'yes';
+% ana.cfg_other{1}.baselinewindow = [-.2 0];
+% ana.cfg_other{1}.ftype = 'demean';
+% ana.otherFxn{2} = 'ft_preprocessing';
+% ana.cfg_other{2}.detrend = 'yes';
+% ana.cfg_other{2}.ftype = 'detrend';
+% ana.otherFxn{3} = 'ft_preprocessing';
+% ana.cfg_other{3}.dftfilter = 'yes';
+% ana.cfg_other{3}.dftfreq = [60 120 180];
+% ana.cfg_other{3}.ftype = 'dft';
+% % ana.otherFxn{4} = 'ft_preprocessing';
+% % ana.cfg_other{4}.bsfilter = 'yes';
+% % ana.cfg_other{4}.bsfreq = [59 61; 119 121; 179 181];
+% % ana.cfg_other{4}.ftype = 'bs';
+% % ana.otherFxn{5} = 'ft_preprocessing';
+% % ana.cfg_other{5}.lpfilter = 'yes';
+% % ana.cfg_other{5}.lpfreq = [35];
+% % ana.cfg_other{5}.ftype = 'lp';
 
 % any preprocessing?
 cfg_pp = [];
@@ -268,8 +295,8 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
-cfg_proc.foi = 4:1:100;
-%cfg_proc.foi = 4:1:60;
+% cfg_proc.foi = 4:1:100;
+cfg_proc.foi = 4:1:28;
 %cfg_proc.foilim = [3 9];
 
 % log-spaced freqs
@@ -324,8 +351,11 @@ end
 % % pow 4-100 Hz
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w6_pow_-500_980_4_100_avg/analysisDetails.mat';
 
-% fourier 4-100 Hz
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+% % fourier 4-100 Hz
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+
+% fourier 4-28 Hz
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/nspp/-1000_2000/ft_data/CCR_CSC_CSI_LSC_LSI_RSC_RSI_SCR_eq0_art_nsAuto/fourier_wavelet_w6_fourier_-500_980_4_28/analysisDetails.mat';
 
 % % wavelet
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
@@ -352,8 +382,9 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-ana.eventValues = {exper.eventValues};
-%ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+%ana.eventValues = {exper.eventValues};
+% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+ana.eventValues = {{'CCR','CSC','CSI'},{'LSC','LSI'},{'RSC','RSI'},{'SCR'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -380,8 +411,8 @@ cfg.output = 'pow'; % 'pow', 'coh', 'phase'
 cfg.transform = ''; % 'log10', 'log', 'vector', 'dB'
 
 % normalization of single or average trials
-% cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
-cfg.norm_trials = 'average';
+cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
+% cfg.norm_trials = 'average';
 
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
@@ -549,7 +580,8 @@ ses=1;
 chan=53; % LPS middle
 %chan=86; % RPS middle
 
-cond = {'CCR','CSC','CSI','SCR','SSC','SSI'};
+% cond = {'CCR','CSC','CSI','SCR','SSC','SSI'};
+cond = {'CCR','CSC','CSI','LSC','LSI','RSC','RSI','SCR'};
 
 %if strcmp(cfg.output,'pow')
 param = 'powspctrm';
@@ -748,7 +780,7 @@ cfg_ft = [];
 %cfg_ft.baselinetype = 'absolute';
 %if strcmp(cfg_ft.baselinetype,'absolute')
 %cfg_ft.xlim = [0 1];
-cfg_ft.ylim = [4 100];
+cfg_ft.ylim = [4 28];
 %cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
 cfg_ft.zlim = [-1 1];
@@ -793,7 +825,7 @@ cfg_plot.numCols = 5;
 % for each event type; each event type cell holds strings for its
 % conditions
 % cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'SSC'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'SCR'}},size(cfg_plot.rois));
 cfg_plot.condMethod = 'single';
 
 cfg_ft = [];
@@ -999,8 +1031,8 @@ end
 
 cfg_ft = [];
 cfg_ft.avgoverchan = 'no';
-cfg_ft.avgovertime = 'no';
-% cfg_ft.avgovertime = 'yes';
+% cfg_ft.avgovertime = 'no';
+cfg_ft.avgovertime = 'yes';
 % cfg_ft.avgoverfreq = 'no';
 cfg_ft.avgoverfreq = 'yes';
 
@@ -1020,8 +1052,8 @@ cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
-
+% cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'LSC','LSI'},{'LSC','SCR'},{'LSI','SCR'},{'RSC','RSI'},{'RSC','SCR'},{'RSI','SCR'},{'LSC','RSC'},{'LSI','RSI'}};
 % extra identifier when saving
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
 %cfg_ana.dirStr = sprintf('_%s_%d_%d',ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),thisBL(1)*1000,thisBL(2)*1000);
@@ -1049,8 +1081,8 @@ if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [4 100];
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
-  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
+  cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+  cfg_ana.frequencies = [4 8; 8 12; 12 28];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
 
@@ -1132,8 +1164,7 @@ cfg.parameter = 'powspctrm';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
 cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
-cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
+cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
 %cfg.freqs = [4 8];
 
 cfg.rois = {...
