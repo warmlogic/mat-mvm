@@ -20,12 +20,14 @@ if ~isempty(eeglabDir)
   % remove eeglab's external directory if it was added
   eeglabExtDir = fullfile(eeglabDir,'external');
   if exist(eeglabExtDir,'dir')
+    %fprintf('Removing %s and its subdirectories from path.\n',eeglabExtDir);
     rmpath(genpath(eeglabExtDir));
   end
   
   % remove eeglab's octavefunc directory if it was added
   eeglabOctDir = fullfile(eeglabDir,'functions','octavefunc');
   if exist(eeglabOctDir,'dir')
+    %fprintf('Removing %s and its subdirectories from path because firls.m interferes with MATLAB''s version.\n',eeglabOctDir);
     rmpath(genpath(eeglabOctDir));
   end
   
@@ -57,17 +59,20 @@ if ~isempty(ftDir)
   ft_defaults;
   
   % add the peer directory
+  %fprintf('Adding %s to path.\n',fullfile(ftDir,'peer'));
   addpath(fullfile(ftDir,'peer'));
   
   % add the multivariate directory (outdated; use DMLT)
   %addpath(genpath(fullfile(ftDir,'multivariate')));
   
   % add the SPM directory
+  %fprintf('Adding %s to path.\n',fullfile(ftDir,'external','spm8'));
   %addpath(fullfile(ftDir,'external','spm8'));
   
   % % remove fieldtrip's external directory
   % ftExtDir = fullfile(ftDir,'external');
   % if ~isempty(ftExtDir)
+  %   fprintf('Removing %s and its subdirectories from path.\n',ftExtDir);
   %   rmpath(genpath(ftExtDir));
   % end
   
@@ -75,11 +80,14 @@ if ~isempty(ftDir)
   ftEeglabDir = dir(fullfile(ftDir,'external','eeglab*'));
   if ~isempty(ftEeglabDir)
     ftEeglabDir = fullfile(myMatlabDir,ftEeglabDir.name);
+    %fprintf('Removing %s and its subdirectories from path.\n',ftEeglabDir);
     rmpath(genpath(ftEeglabDir));
   end
   
-  % functions that get in the way
-  conflictFiles = {{'progress','MVPA'}}; % {{fxn, other package},{fxn, other package}}
+  % functions that get in the way; structure arguments as:
+  %
+  % conflictFiles = {{fxn, other package},{fxn, other package}};
+  conflictFiles = {{'progress','MVPA'}};
   for i = 1:length(conflictFiles)
     if exist(fullfile(ftDir,'utilities','compat',[conflictFiles{i}{1},'.m']),'file')
       fprintf('Found an old/unnecessary FieldTrip function %s.m that conflicts with %s''s function. Moving FT''s to %s_old.m.\n',conflictFiles{i}{1},conflictFiles{i}{2},conflictFiles{i}{1});
