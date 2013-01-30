@@ -19,8 +19,14 @@ if ~isempty(eeglabDir)
 
   % remove eeglab's external directory if it was added
   eeglabExtDir = fullfile(eeglabDir,'external');
-  if ~isempty(eeglabExtDir)
+  if exist(eeglabExtDir,'dir')
     rmpath(genpath(eeglabExtDir));
+  end
+  
+  % remove eeglab's octavefunc directory if it was added
+  eeglabOctDir = fullfile(eeglabDir,'functions','octavefunc');
+  if exist(eeglabOctDir,'dir')
+    rmpath(genpath(eeglabOctDir));
   end
   
   % % remove eeglab's fieldtrip directory if it was added

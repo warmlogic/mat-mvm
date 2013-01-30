@@ -189,8 +189,9 @@ ana.artifact.type = {'zeroVar'};
 ana.otherFxn = {};
 ana.cfg_other = [];
 ana.otherFxn{1} = 'ft_resampledata';
-ana.cfg_other{1}.resamplefs = 256;
+ana.cfg_other{1}.resamplefs = 250;
 ana.cfg_other{1}.detrend = 'no';
+ana.cfg_other{1}.ftype = 'resample250';
 
 % any preprocessing?
 cfg_pp = [];
@@ -269,6 +270,7 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
 cfg_proc.foi = 4:1:100;
+cfg_proc.foi = 4:1:8;
 %cfg_proc.foi = 4:1:60;
 %cfg_proc.foilim = [3 9];
 
