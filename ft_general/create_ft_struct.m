@@ -217,8 +217,10 @@ for sub = 1:length(exper.subjects)
       for i = 2:length(exper.sessions{ses})
         sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
       end
-    elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
+    elseif ~iscell(exper.sessions{ses})
       sesStr = exper.sessions{ses};
+    elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
+      sesStr = cell2mat(exper.sessions{ses});
     end
     % store the sesStr
     exper.sesStr{ses} = sesStr;
