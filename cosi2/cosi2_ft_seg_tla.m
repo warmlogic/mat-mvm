@@ -33,15 +33,9 @@ exper.eegFileExt = 'raw';
 % exper.eventValues = sort({'CCR','CHSC','CHSI','SCR','SHSC','SHSI'});
 % exper.eventValues = sort({'CF','SF','CN','SN','CRO','SRO','CRS','SRS'});
 
-% exper.eventValues = sort({...
-%   'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
-%   'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
-
 exper.eventValues = sort({...
   'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
-  'LFSC','LFSI','LNM','LNS','LROSC','LROSI','LRSSC','LRSSI',...
-  'RFSC','RFSI','RNM','RNS','RROSC','RROSI','RRSSC','RRSSI'});
-
+  'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
 
 % combine some events into higher-level categories
 % exper.eventValuesExtra.toCombine = {{'CHSC','CHSI'},{'SHSC','SHSI'}};
@@ -69,12 +63,10 @@ exper.eventValues = sort({...
 
 exper.eventValuesExtra.toCombine = {...
   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
-  {'LNS','LNM'},{'LFSC','LROSC','LRSSC'},{'LFSI','LROSI','LRSSI'},...
-  {'RNS','RNM'},{'RFSC','RROSC','RRSSC'},{'RFSI','RROSI','RRSSI'}};
+  {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
 exper.eventValuesExtra.newValue = {...
   {'CCR'},{'CSC'},{'CSI'},...
-  {'LCR'},{'LSC'},{'LSI'},...
-  {'RCR'},{'RSC'},{'RSI'}};
+  {'SCR'},{'SSC'},{'SSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 1;
@@ -118,7 +110,7 @@ exper.subjects = {
   'COSI2035';
   'COSI2036';
   'COSI2037';
-  'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+%   'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
   'COSI2039';
   'COSI2040'; % EEG is pretty noisy overall
 %   'COSI2041'; % COSI2041: no-show, no session_1
@@ -135,9 +127,10 @@ exper.subjects = {
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
 
-%exper.sessions = {'session_0'};
-%exper.sessions = {'session_1'};
+% exper.sessions = {'session_0'};
+% exper.sessions = {'session_1'};
 exper.sessions = {{'session_0','session_1'}};
+% exper.sessions = {{'session_0'},{'session_1'}};
 
 %% set up file and directory handling parameters
 
@@ -199,6 +192,13 @@ ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
 ana.overwrite.proc = 1;
+
+ana.otherFxn = {};
+ana.cfg_other = [];
+ana.otherFxn{1} = 'ft_resampledata';
+ana.cfg_other{1}.resamplefs = 256;
+ana.cfg_other{1}.detrend = 'no';
+ana.cfg_other{1}.ftype = 'resample256';
 
 % any preprocessing?
 cfg_pp = [];
