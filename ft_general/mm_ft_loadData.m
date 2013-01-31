@@ -771,9 +771,11 @@ for sub = 1:length(exper.subjects)
                 cfg_fd.trials = true(1,size(subSesEvData.(cell2mat(fn)).(param),1));
                 [tr,ch] = find(squeeze(nanmean(nanmean(subSesEvData.(cell2mat(fn)).(param),4),3)) > cfg.zthresh);
                 if ~isempty(tr)
-                  fprintf('Rejecting %d trials due to zscore > %.2f in %d channels (NB: this is a very coarse rejection).\n',length(unique(tr)),cfg.zthresh,length(unique(ch)));
+                  fprintf('Rejecting %d of %d trials due to zscore > %.2f in %d channels (NB: this is a very coarse rejection).\n',length(unique(tr)),length(cfg_fd.trials),cfg.zthresh,length(unique(ch)));
                   cfg_fd.trials(unique(tr)) = false;
+                  fprintf('Keeping %d of %d trials.\n',sum(ismember(cfg_fd.trials,1)),length(cfg_fd.trials));
                 else
+                  fprintf('Keeping all %d trials.\n',size(subSesEvData.(cell2mat(fn)).(param),1));
                   cfg_fd.trials = 'all';
                 end
               else
@@ -782,9 +784,17 @@ for sub = 1:length(exper.subjects)
                 cfg_fd.trials = 'all';
               end
               
-              % use ft_freqdescriptives to average over individual
-              % trials, if desired and the data is appropriate
-              data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
+              % make sure there are trials left to average
+              if (isvector(cfg_fd.trials) && ismember(1,cfg_fd.trials)) || (ischar(cfg_fd.trials) && strcmp(cfg_fd.trials,'all'))
+                  % use ft_freqdescriptives to average over individual
+                  % trials, if desired and the data is appropriate
+                  data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
+              else %if (isvector(cfg_fd.trials) && length(unique(cfg_fd.trials)) == 1 && unique(cfg_fd.trials) == 0)
+                  warning([mfilename,':allTrialsRejected'],'ALL TRIALS REJECTED: %s\n',ana.eventValues{typ}{evVal});
+                  fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n\n');
+                  data.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg.trl = [];
+              end % if
+
               
             elseif strcmp(cfg.output,'coh') && isfield(subSesEvData.(cell2mat(fn)),cohparam) && ndims(subSesEvData.(cell2mat(fn)).(cohparam)) == 3
               fprintf('Phase coherence data: Individual trials are lost.');
