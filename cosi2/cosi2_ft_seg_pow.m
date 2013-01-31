@@ -325,14 +325,17 @@ end
 % % pow 4-100 Hz
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w6_pow_-500_980_4_100_avg/analysisDetails.mat';
 
-% fourier 4-100 Hz
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+% % fourier 4-100 Hz
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 % % wavelet
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
 
 % % multitaper
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
+
+% dream fourier 4-100 Hz, all sub-segments
+adFile = '/data/projects/curranlab/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CFSC_CFSI_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SCR_SFSC_SFSI_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/fourier_resample256_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -354,7 +357,13 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 % ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+
+% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+
+% all possible categories (F N RO RS x S/I)
+ana.eventValues = {...
+  {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI','CCR','CSC','CSI'},...
+  {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI','SCR','SSC','SSI'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
