@@ -73,6 +73,14 @@ if ~isfield(cfg,'plotTitle')
   cfg.plotTitle = false;
 end
 
+if ~isfield(cfg,'ticFontSize')
+  cfg.ticFontSize = 20;
+end
+
+if ~isfield(cfg,'labelFontSize')
+  cfg.labelFontSize = 24;
+end
+
 if ~isfield(cfg,'xlabel')
   cfg.xlabel = 'Time (s)';
 end
@@ -282,6 +290,8 @@ for typ = 1:length(cfg.conditions)
       
       if cfg.setylim
         cfg.ylim = [(min(reshape(dataVec,[],1)) - 0.1) (max(reshape(dataVec,[],1)) + 0.1)];
+      else
+        cfg.ylim = [cfg.yminmax(1) cfg.yminmax(2)];
       end
       plot([0 0],cfg.ylim,'k--'); % vertical
       
@@ -358,7 +368,7 @@ for typ = 1:length(cfg.conditions)
           end
           
           if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
-            %fprintf('%s:\tNo positive or negative clusters\n',vs_str);
+            fprintf('%s:\tNo positive or negative clusters\n',vs_str);
             continue
           end
           
@@ -465,6 +475,7 @@ for typ = 1:length(cfg.conditions)
     end
     
     if files.saveFigs
+      %publishfig(gcf,~cfg.plotTitle,cfg.ticFontSize,cfg.labelFontSize,files.figFontName);
       if ~isempty(cfg.types{typ})
         type_str = sprintf('%s_',cfg.types{typ});
       else
@@ -494,7 +505,7 @@ for typ = 1:length(cfg.conditions)
       print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
     end
     
-    publishfig(gcf,~cfg.plotTitle,[],[],files.figFontName);
+    publishfig(gcf,~cfg.plotTitle,cfg.ticFontSize,cfg.labelFontSize,files.figFontName);
     
     % get the figure's current position and size
     cfg.pos = get(gcf, 'Position');

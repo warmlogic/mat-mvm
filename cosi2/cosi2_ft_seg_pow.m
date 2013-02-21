@@ -269,8 +269,8 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
-cfg_proc.foi = 4:1:100;
-%cfg_proc.foi = 4:1:60;
+%cfg_proc.foi = 4:1:100;
+cfg_proc.foi = 4:1:50;
 %cfg_proc.foilim = [3 9];
 
 % log-spaced freqs
@@ -325,17 +325,21 @@ end
 % % pow 4-100 Hz
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w6_pow_-500_980_4_100_avg/analysisDetails.mat';
 
-% % fourier 4-100 Hz
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
-
 % % wavelet
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_wavelet_w5_pow_-500_980_3_100_avg/analysisDetails.mat';
 
 % % multitaper
 % adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/pow_mtmconvol_dpss_pow_-500_980_3_40_avg/analysisDetails.mat';
 
+%----BASIC DIVISONS----%
+
+% % fourier 4-100 Hz
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+
+%----ALL DIVISIONS----%
+
 % dream fourier 4-100 Hz, all sub-segments
-adFile = '/data/projects/curranlab/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CFSC_CFSI_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SCR_SFSC_SFSI_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/fourier_resample256_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CFSC_CFSI_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SCR_SFSC_SFSI_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/fourier_resample256_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -360,10 +364,19 @@ ana = mm_ft_elecGroups(ana);
 
 % ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 
-% all possible categories (F N RO RS x S/I)
+% % all possible categories (F N RO RS x S/I)
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI','CCR','CSC','CSI'},...
+%   {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI','SCR','SSC','SSI'}};
+
+% % some possible categories
+% ana.eventValues = {...
+%   {'CFSC','CNS','CNM','CROSC','CRSSC','CCR','CSC','CSI'},...
+%   {'SFSC','SNS','SNM','SROSC','SRSSC','SCR','SSC','SSI'}};
+
 ana.eventValues = {...
-  {'CFSC','CFSI','CNS','CNM','CROSC','CROSI','CRSSC','CRSSI','CCR','CSC','CSI'},...
-  {'SFSC','SFSI','SNS','SNM','SROSC','SROSI','SRSSC','SRSSI','SCR','SSC','SSI'}};
+  {'CFSC','CFSI','CRSSC','CRSSI','CCR'},...
+  {'SFSC','SFSI','SRSSC','SRSSI','SCR'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -685,7 +698,10 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 % 35 and 38 have noisy ERPs
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,10);
+
+% [exper] = mm_threshSubs(exper,ana,15);
+
+[exper] = mm_threshSubs(exper,ana,7);
 
 %% for evoked TF, get rid of the trial dim
 
@@ -726,6 +742,8 @@ cfg_ana.data_str = 'data_pow';
 %cfg_ana.data_str = 'data_evoked';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
+ga_pow = struct;
+
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 
@@ -751,6 +769,21 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
+%% remove the bad subjects - for nk scripts
+
+if ~exist('data_pow_allSub','var')
+  data_pow_allSub = data_pow;
+  
+  fprintf('Removing %d subjects\n',sum(exper.badSub));
+  for ses = 1:length(exper.sesStr)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        data_pow.(ana.eventValues{typ}{evVal}).sub = data_pow.(ana.eventValues{typ}{evVal}).sub(~exper.badSub);
+      end
+    end
+  end
+end
+
 %% plot the conditions - simple
 
 cfg_ft = [];
@@ -758,7 +791,7 @@ cfg_ft = [];
 %cfg_ft.baselinetype = 'absolute';
 %if strcmp(cfg_ft.baselinetype,'absolute')
 %cfg_ft.xlim = [0 1];
-cfg_ft.ylim = [4 100];
+cfg_ft.ylim = [4 50];
 %cfg_ft.ylim = [3 8];
 %cfg_ft.ylim = [8 12];
 cfg_ft.zlim = [-1 1];
@@ -905,6 +938,7 @@ cfg_ft.interactive = 'yes';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'yes';
 
+
 %%%%%%%%%%%%%%%
 % Type of plot
 %%%%%%%%%%%%%%%
@@ -921,6 +955,17 @@ cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
 %cfg_plot.roi = {'PS'};
 
+cfg_ft.ylim = [8 10]; % freq
+cfg_ft.zlim = [-0.8 0.8];
+% cfg_ft.ylim = [12 28]; % freq
+% cfg_ft.zlim = [-0.25 0.25];
+cfg_plot.plotTitle = 0;
+cfg_plot.subplot = 0;
+cfg_ft.xlim = [0.8 1.0]; % time
+cfg_ft.colorbar = 'no';
+cfg_ft.marker = 'on';
+cfg_ft.colormap = 'jet';
+
 % cfg_plot.ftFxn = 'ft_multiplotTFR';
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.comment = '';
@@ -931,14 +976,16 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
 
 cfg_ana = [];
 % define which regions to average across for the test
-cfg_ana.rois = {{'FI'},{'PS'}};
+cfg_ana.rois = {{'LPS'},{'FC'}};
 % define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.6 1.0; 0.2 0.33];
+cfg_ana.latencies = [0.8 1.0; 0.8 1.0];
 % define the frequencies that correspond to each set of ROIs
 % cfg_ana.frequencies = [3 8; 3 8];
-cfg_ana.frequencies = [4 8; 35 80];
+cfg_ana.frequencies = [8 10; 12 28];
 
 cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+% cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'}};
+cfg_ana.conditions = {{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
 %cfg_ana.conditions = {{'SC','SI'},{'SC','SI'}};
 %cfg_ana.conditions = {'all'};
@@ -954,8 +1001,10 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
+cfg_plot.line_plots = 1;
 cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
+cfg_plot.ylims = repmat([-0.6 0.6],size(cfg_ana.rois'));
+cfg_plot.ylims = [-0.5 1.0; -0.5 0.0];
 %cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
 
 if strcmp(ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baselinetype'),'absolute')
@@ -1022,15 +1071,34 @@ cfg_ft.parameter = 'powspctrm';
 cfg_ft.numrandomization = 1000;
 % cfg_ft.clusteralpha = .05;
 % cfg_ft.alpha = .025;
-cfg_ft.clusteralpha = .1;
-cfg_ft.alpha = .05;
+% cfg_ft.clusteralpha = .1;
+cfg_ft.clusteralpha = .01;
+cfg_ft.alpha = .1;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+% cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+
+cfg_ana.conditions = {...
+  {'CFSC','CFSI'},{'CRSSC','CRSSI'},{'CRSSC','CCR'},{'CRSSI','CCR'},{'CFSC','CCR'},{'CFSI','CCR'},...
+  {'SFSC','SFSI'},{'SRSSC','SRSSI'},{'SRSSC','SCR'},{'SRSSI','SCR'},{'SFSC','SCR'},{'SFSI','SCR'}};
+% cfg_ana.conditions = {...
+%   {'CFSC','CCR'},{'CFSI','CCR'},...
+%   {'SFSC','SCR'},{'SFSI','SCR'}};
+
+
+% cfg_ana.conditions = {...
+%   {'CRSSC','CNS'},{'CRSSC','CFSC'},{'CRSSC','CROSC'},{'CRSSC','CSI'},...
+%   {'CNS','CSI'},{'CFSC','CSI'},{'CROSC','CSI'},...
+%   {'SRSSC','SNS'},{'SRSSC','SFSC'},{'SRSSC','SROSC'},{'SRSSC','SSI'},...
+%   {'SNS','SSI'},{'SFSC','SSI'},{'SROSC','SSI'}};
+  
+
+%   {'CFSC','CNS','CNM','CROSC','CRSSC','CCR','CSC','CSI'},...
+%   {'SFSC','SNS','SNM','SROSC','SRSSC','SCR','SSC','SSI'}};
 
 % extra identifier when saving
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
@@ -1056,11 +1124,13 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
 end
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [4 100];
+  %cfg_ana.frequencies = [4 100];
+  cfg_ana.frequencies = [4 50];
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
+  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50];
+  %cfg_ana.frequencies = [12 20; 20 28];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
 
@@ -1068,24 +1138,26 @@ if strcmp(cfg_ft.avgoverchan,'yes')
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
 end
 
-for lat = 1:size(cfg_ana.latencies,1)
-  cfg_ft.latency = cfg_ana.latencies(lat,:);
-  for fr = 1:size(cfg_ana.frequencies,1)
-    cfg_ft.frequency = cfg_ana.frequencies(fr,:);
-    
-    if ~isempty(strfind(cfg_ana.dirStr,'pow'))
-      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_pow);
-    elseif ~isempty(strfind(cfg_ana.dirStr,'coh'))
-      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_coh);
-    elseif ~isempty(strfind(cfg_ana.dirStr,'evok'))
-      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_evoked);
-    end
-  end
-end
+% for lat = 1:size(cfg_ana.latencies,1)
+%   cfg_ft.latency = cfg_ana.latencies(lat,:);
+%   for fr = 1:size(cfg_ana.frequencies,1)
+%     cfg_ft.frequency = cfg_ana.frequencies(fr,:);
+%     
+%     if ~isempty(strfind(cfg_ana.dirStr,'pow'))
+%       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_pow);
+%     elseif ~isempty(strfind(cfg_ana.dirStr,'coh'))
+%       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_coh);
+%     elseif ~isempty(strfind(cfg_ana.dirStr,'evok'))
+%       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_evoked);
+%     end
+%     
+%   end
+% end
 
 %% plot the cluster statistics
 
 files.saveFigs = 1;
+files.figPrintFormat = 'png';
 
 cfg_ft = [];
 %cfg_ft.alpha = .025;
@@ -1099,6 +1171,12 @@ cfg_plot.conditions = cfg_ana.conditions;
 cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.dirStr = cfg_ana.dirStr;
+
+% cfg_ft.clusnum = 1;
+% cfg_ft.conds = cfg_ana.conditions;
+cfg_plot.colors = [rgb('Green'); rgb('Red')];
+cfg_ft.maskstyle = 'opacity';
+cfg_ft.transp = 1;
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR
@@ -1117,7 +1195,22 @@ for lat = 1:size(cfg_plot.latencies,1)
   for fr = 1:size(cfg_plot.frequencies,1)
     cfg_ft.frequency = cfg_plot.frequencies(fr,:);
     
-    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
+    for cnd = 1:length(cfg_ana.conditions)
+      cfg_ft.conds = cfg_ana.conditions{cnd};
+      cfg_ft.time = [-0.3 1];
+      cfg_plot.latency = cfg_ft.latency;
+      cfg_plot.frequency = cfg_ft.frequency;
+      
+      cfg_plot.conditions = cfg_ana.conditions{cnd};
+      [stat_clus] = mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
+      
+      nk_ft_avgpowerbytime(data_pow,stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+      
+      cfg_ft.layout = ft_prepare_layout([],ana);
+      cfg_ft.parameter = 'stat';
+      nk_ft_avgclustplot(stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+    end
+    
   end
 end
 
@@ -1143,11 +1236,11 @@ cfg.parameter = 'powspctrm';
 cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
 % cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
-cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
-%cfg.freqs = [4 8];
+% cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
+cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50];
 
 cfg.rois = {...
-  {'LAS'},{'FS'},{'RAS'},...
+  {'LAS'},{'FC'},{'RAS'},...
   {'LPS'},{'PS'},{'RPS'},...
   };
 
@@ -1159,10 +1252,22 @@ cfg.rois = {...
 %   };
 
 %cfg.conditions = ana.eventValues;
-cfg.conditions = {{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}};
+% cfg.conditions = {{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}};
+
+% cfg.conditions = {{'CRSSC','CFSC','CNS','CSI'},{'SRSSC','SFSC','SNS','SSI'}};
+
+% cfg.conditions = {{'CRSSC','CRSSI','CCR'},{'SRSSC','SRSSI','SCR'},...
+%   {'CFSC','CFSI','CCR'},{'SFSC','SFSI','SCR'}};
+cfg.conditions = {{'CFSC','CFSI','CCR'},{'SFSC','SFSI','SCR'}};
+
+% cfg.conditions = {...
+%   {'CFSC','CFSI','CRSSC','CRSSI','CCR'},...
+%   {'SFSC','SFSI','SRSSC','SRSSI','SCR'}};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
+% cfg.legendloc = 'NorthWest';
+cfg.legendloc = 'SouthWest';
 
 cfg.plotClusSig = true;
 cfg.clusAlpha = 0.1;
@@ -1176,10 +1281,24 @@ cfg.nCol = 3;
 
 cfg.types = {'color','side'};
 
+% % figures for poster
+% cfg.rois = {{'LPS'}};
+% cfg.rois = {{'FC'}};
+% cfg.freqs = [8 10];
+% cfg.yminmax = [-0.2 1.0];
+% % cfg.freqs = [12 28];
+% % cfg.yminmax = [-0.5 0.2];
+% cfg.plotTitle = false;
+% cfg.plotLegend = false;
+% cfg.plotClusSig = false;
+% cfg.nCol = 1;
+% cfg.ticFontSize = 20;
+% cfg.labelFontSize = 24;
+
 % whole power
 cfg.type = 'line_pow';
 cfg.clusDirStr = '_zpow_-300_-100_avgT_avgF';
-cfg.ylabel = 'Z-Trans Pow';
+cfg.ylabel = 'Z Pow';
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
 % % % induced power - old

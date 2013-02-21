@@ -284,8 +284,8 @@ cfg_proc.toi = -0.5:0.04:1.0;
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % cfg_proc.foi = 3:freqstep:9;
 % cfg_proc.foi = 3:freqstep:60;
-cfg_proc.foi = 4:1:100;
-%cfg_proc.foi = 4:1:60;
+% cfg_proc.foi = 4:1:100;
+cfg_proc.foi = 4:1:50;
 %cfg_proc.foilim = [3 9];
 
 % log-spaced freqs
@@ -371,7 +371,11 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 %ana.eventValues = {exper.eventValues};
-ana.eventValues = {{'CM','CSC','CSI'},{'SM','SSC','SSI'}};
+% ana.eventValues = {{'CM','CSC','CSI'},{'SM','SSC','SSI'}};
+
+ana.eventValues = {...
+  {'CFSC','CFSI','CRSSC','CRSSI','CM'},...
+  {'SFSC','SFSI','SRSSC','SRSSI','SM'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -696,7 +700,10 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 % 35 and 38 have noisy ERPs
 
 % exclude subjects with low event counts
-[exper] = mm_threshSubs(exper,ana,10);
+
+% [exper] = mm_threshSubs(exper,ana,10);
+
+[exper] = mm_threshSubs(exper,ana,7);
 
 %% for evoked TF, get rid of the trial dim
 
@@ -737,6 +744,8 @@ cfg_ana.data_str = 'data_pow';
 %cfg_ana.data_str = 'data_evoked';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
+ga_pow = struct;
+
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 
@@ -760,6 +769,22 @@ for ses = 1:length(exper.sesStr)
       %toc
     end
   end
+end
+
+%% remove the bad subjects - for nk scripts
+
+if ~exist('data_pow_allSub','var')
+  data_pow_allSub = data_pow;
+  
+  fprintf('Removing %d subjects\n',sum(exper.badSub));
+  for ses = 1:length(exper.sesStr)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        data_pow.(ana.eventValues{typ}{evVal}).sub = data_pow.(ana.eventValues{typ}{evVal}).sub(~exper.badSub);
+      end
+    end
+  end
+  
 end
 
 %% plot the conditions - simple
@@ -1033,15 +1058,21 @@ cfg_ft.parameter = 'powspctrm';
 cfg_ft.numrandomization = 1000;
 % cfg_ft.clusteralpha = .05;
 % cfg_ft.alpha = .025;
-cfg_ft.clusteralpha = .1;
-cfg_ft.alpha = .05;
+% cfg_ft.clusteralpha = .1;
+% cfg_ft.alpha = .05;
+cfg_ft.clusteralpha = .01;
+cfg_ft.alpha = .1;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
-cfg_ana.conditions = {{'CSC','CM'},{'CSI','CM'},{'CSC','CSI'},{'SSC','SM'},{'SSI','SM'},{'SSC','SSI'}};
+% cfg_ana.conditions = {{'CSC','CM'},{'CSI','CM'},{'CSC','CSI'},{'SSC','SM'},{'SSI','SM'},{'SSC','SSI'}};
+
+cfg_ana.conditions = {...
+  {'CFSC','CFSI'},{'CRSSC','CRSSI'},{'CRSSC','CM'},{'CRSSI','CM'},{'CFSC','CM'},{'CFSI','CM'},...
+  {'SFSC','SFSI'},{'SRSSC','SRSSI'},{'SRSSC','SM'},{'SRSSI','SM'},{'SFSC','SM'},{'SFSI','SM'}};
 
 % extra identifier when saving
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
@@ -1071,7 +1102,7 @@ if strcmp(cfg_ft.avgoverfreq,'no')
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 40];
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
+  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
 
@@ -1079,24 +1110,25 @@ if strcmp(cfg_ft.avgoverchan,'yes')
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
 end
 
-for lat = 1:size(cfg_ana.latencies,1)
-  cfg_ft.latency = cfg_ana.latencies(lat,:);
-  for fr = 1:size(cfg_ana.frequencies,1)
-    cfg_ft.frequency = cfg_ana.frequencies(fr,:);
-    
-    if ~isempty(strfind(cfg_ana.dirStr,'pow'))
-      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_pow);
-    elseif ~isempty(strfind(cfg_ana.dirStr,'coh'))
-      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_coh);
-    elseif ~isempty(strfind(cfg_ana.dirStr,'evok'))
-      [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_evoked);
-    end
-  end
-end
+% for lat = 1:size(cfg_ana.latencies,1)
+%   cfg_ft.latency = cfg_ana.latencies(lat,:);
+%   for fr = 1:size(cfg_ana.frequencies,1)
+%     cfg_ft.frequency = cfg_ana.frequencies(fr,:);
+%     
+%     if ~isempty(strfind(cfg_ana.dirStr,'pow'))
+%       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_pow);
+%     elseif ~isempty(strfind(cfg_ana.dirStr,'coh'))
+%       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_coh);
+%     elseif ~isempty(strfind(cfg_ana.dirStr,'evok'))
+%       [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_evoked);
+%     end
+%   end
+% end
 
 %% plot the cluster statistics
 
 files.saveFigs = 1;
+files.figPrintFormat = 'png';
 
 cfg_ft = [];
 %cfg_ft.alpha = .025;
@@ -1111,6 +1143,12 @@ cfg_plot.frequencies = cfg_ana.frequencies;
 cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.dirStr = cfg_ana.dirStr;
 
+% cfg_ft.clusnum = 1;
+% cfg_ft.conds = cfg_ana.conditions;
+cfg_plot.colors = [rgb('Green'); rgb('Red')];
+cfg_ft.maskstyle = 'opacity';
+cfg_ft.transp = 1;
+
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR
   files.saveFigs = 0;
@@ -1123,12 +1161,31 @@ if strcmp(cfg_ft.avgoverfreq,'no')
   % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
 end
 
+% % debug
+% cfg_ana.conditions = {{'CSC','CM'}};
+% cfg_plot.frequencies = [8 10];
+
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
   for fr = 1:size(cfg_plot.frequencies,1)
     cfg_ft.frequency = cfg_plot.frequencies(fr,:);
     
-    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
+    for cnd = 1:length(cfg_ana.conditions)
+      cfg_ft.conds = cfg_ana.conditions{cnd};
+      cfg_ft.time = [-0.3 1];
+      cfg_plot.latency = cfg_ft.latency;
+      cfg_plot.frequency = cfg_ft.frequency;
+      
+      cfg_plot.conditions = cfg_ana.conditions{cnd};
+      [stat_clus] = mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
+      
+      nk_ft_avgpowerbytime(data_pow,stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+      
+%       cfg_ft.layout = ft_prepare_layout([],ana);
+%       cfg_ft.parameter = 'stat';
+%       nk_ft_avgclustplot(stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+    end
+    
   end
 end
 
@@ -1154,11 +1211,11 @@ cfg.parameter = 'powspctrm';
 cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
 % cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
-cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50; 50 100];
+cfg.freqs = [4 8; 8 10; 10 12; 12 28; 28 50];
 %cfg.freqs = [4 8];
 
 cfg.rois = {...
-  {'LAS'},{'FS'},{'RAS'},...
+  {'LAS'},{'FC'},{'RAS'},...
   {'LPS'},{'PS'},{'RPS'},...
   };
 
@@ -1170,7 +1227,10 @@ cfg.rois = {...
 %   };
 
 %cfg.conditions = ana.eventValues;
-cfg.conditions = {{'CSC','CSI','CCR'},{'SSC','SSI','SCR'}};
+cfg.conditions = {{'CSC','CSI','CM'},{'SSC','SSI','SM'}};
+
+% cfg.conditions = {{'CRSSC','CRSSI','CM'},{'SRSSC','SRSSI','SM'}};
+% cfg.conditions = {{'CFSC','CFSI','CM'},{'SFSC','SFSI','SM'}};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;

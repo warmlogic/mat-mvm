@@ -1,5 +1,5 @@
-function mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs)
-%mm_ft_clusterplotTFR Plot (and save) significant clusters
+function [stat_clus] = mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs)
+%[stat_clus] = mm_ft_clusterplotTFR Plot (and save) significant clusters
 %
 
 if ~isfield(cfg_ft,'avgoverfreq')
@@ -86,6 +86,9 @@ for cnd = 1:length(cfg_plot.conditions)
   if exist(savedFile,'file')
     fprintf('Loading %s\n',savedFile);
     load(savedFile);
+    
+    % debug: for running nk_ft_avgpowerbytime
+    return
   else
     warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
     continue

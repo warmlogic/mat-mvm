@@ -163,8 +163,8 @@ for cnd = 1:length(cfg_ana.conditions)
     cfg_ft.clustertail = 0;
     % need to correct for doing a two-tailed test
     if ~isfield(cfg_ft,'correcttail')
-      %cfg_ft.correcttail = 'alpha'; % divides cfg_ft.alpha by 2
-      cfg_ft.correcttail = 'prob'; % multiplies p-values by 2
+      cfg_ft.correcttail = 'alpha'; % divides cfg_ft.alpha by 2
+      %cfg_ft.correcttail = 'prob'; % multiplies p-values by 2
     end
   elseif cfg_ana.numConds > 2
     cfg_ft.statistic = 'depsamplesF';
