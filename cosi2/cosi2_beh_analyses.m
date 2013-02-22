@@ -114,7 +114,7 @@ COSI2_SFAR_side = [0.1892, 0.0778, 0.2739, 0.1149, 0.1317, 0.4302, 0.0311, 0.142
 COSI2_IDP_side = [1.829, 3.0203, 1.3043, 2.0309, 2.831, 1.4797, 3.3152, 1.1592, 0.6204, 0.7722, 3.0747, 1.1703, 0.668, 1.2499, 1.1516, 3.034, 0.8279, 2.2561, 1.2714, 2.3874, 1.3435, 2.0063, 1.4475, 1.3577, 1.4005, 2.1129, 0.8762, 1.0535, 3.479, 0.5496, 1.901, 0.4411, 1.2964, 1.5789];
 COSI2_SDP_side = [1.7697, 3.2063, 1.4826, 2.5392, 2.5688, 1.4101, 3.6724, 1.5205, 0.5383, 0.5133, 3.1705, 1.2578, 0.6185, 1.2063, 1.5154, 2.7215, 1.1305, 1.8154, 1.6792, 2.8938, 1.5142, 2.6603, 1.4934, 1.2753, 1.0709, 2.5971, 0.5229, 1.2748, 3.1693, 0.6425, 2.3447, 0.4569, 0.9257, 1.4539];
 
-% RK accuracy
+% RK accuracy for source correct vs incorrect
 COSI2_RS_color = [0.6404, 0.9988, 0.7619, 0.8486, 0.8644, 0.8431, 0.9891, 0.9195, 0.8197, 0.7692, 0.8874, 0.7993, 0.48, 0.6439, 0.73, 0.9452, 0.7356, 0.7937, 0.7143, 0.7915, 0.8841, 0.8262, 0.7163, 0.8125, 0.9041, 0.8478, 0.5906, 0.7409, 0.9403, 0.717, 0.7589, 0.6154, 0.6238, 0.7081];
 COSI2_RO_color = [0.7895, 0.9988, 0.4267, 0.5532, 0.6777, 0.5172, 0.7925, 0.5529, 0.4915, 0.4948, 0.5333, 0.4681, 0.5498, 0.4765, 0.4786, 0.5698, 0.5333, 0.5357, 0.6, 0.9167, 0.5371, 0.6364, 0.6296, 0.6135, 0.493, 0.6667, 0.9988, 0.5122, 0.0013, 0.4675, 0.6327, 0.4921, 0.5949, 0.5119];
 COSI2_F_color = [0.4667, 0.9988, 0.5545, 0.5143, 0.5333, 0.5, 0.6441, 0.5102, 0.5781, 0.449, 0.0013, 0.4231, 0.5333, 0.4375, 0.5263, 0.9988, 0.4198, 0.5278, 0.5769, 0.5352, 0.52, 0.7143, 0.4643, 0.5882, 0.4844, 0.5625, 0.5427, 0.6047, 0.75, 0.5556, 0.5392, 0.5079, 0.5, 0.5088];
@@ -122,6 +122,16 @@ COSI2_F_color = [0.4667, 0.9988, 0.5545, 0.5143, 0.5333, 0.5, 0.6441, 0.5102, 0.
 COSI2_RS_side = [0.8009, 0.9961, 0.9185, 0.984, 0.9836, 0.9744, 0.9903, 0.975, 0.6818, 0.7596, 0.9528, 0.804, 0.6176, 0.8872, 0.8732, 0.9657, 0.8866, 0.918, 0.9244, 0.9721, 0.992, 0.9315, 0.9266, 0.8833, 0.9538, 0.9643, 0.6695, 0.759, 0.9642, 0.7877, 0.981, 0.6818, 0.707, 0.8564];
 COSI2_RO_side = [0.84, 0.8276, 0.6383, 0.6429, 0.7727, 0.5556, 0.9556, 0.6842, 0.6316, 0.5496, 0.7368, 0.5135, 0.6765, 0.5732, 0.6263, 0.7947, 0.64, 0.6438, 0.8, 0.9988, 0.7184, 0.8125, 0.6667, 0.6271, 0.619, 0.9431, 0.7, 0.7143, 0.9988, 0.5152, 0.6667, 0.5254, 0.6447, 0.5781];
 COSI2_F_side = [0.9988, 0.8235, 0.5333, 0.6765, 0.5294, 0.4921, 0.7895, 0.5914, 0.5, 0.5051, 0.5, 0.5135, 0.4528, 0.5714, 0.6154, 0.9988, 0.5319, 0.5319, 0.5983, 0.62, 0.5063, 0.8, 0.5606, 0.5584, 0.4833, 0.7143, 0.5354, 0.6111, 0.625, 0.5063, 0.5873, 0.4797, 0.5405, 0.5714];
+
+% RK accuracy by "item" judgments, collapsing across SC and SI, dividing by
+% all items given a particular RK judgment (SC+SI+FA)
+COSI2_IRS_color = [0.9271, 1, 0.8855, 0.8898, 0.9893, 1, 0.8955, 0.9808, 0.9964, 0.9933, 0.9196, 0.963, 0.9557, 0.9, 0.7143, 0.9925, 0.8658, 0.9766, 0.9667, 0.9844, 0.9882, 0.9746, 0.9857, 0.9067, 0.9591, 1, 0.918, 1, 0.9892, 0.9551, 0.8131, 0.9821, 0.9408, 0.9921, 0.9912, 0.7054, 0.8434, 0.9699];
+COSI2_IRO_color = [0.9048, 0.9565, 0.7576, 0.8, 0.9592, 0.9603, 0.9605, 0.8923, 0.9636, 0.9189, 0.7375, 0.8435, 0.8491, 0.7705, 0.7932, 0.8976, 0.8239, 0.8431, 0.9146, 0.915, 0.8333, 0.9231, 0.9409, 0.973, 0.7333, 1, 0.7376, 0.9861, 0.9832, 0.8, 0.7321, NaN, 0.8415, 0.9474, 0.98, 0.6923, 0.7117, 0.9032];
+COSI2_IF_color = [0.8333, 0.9714, 0.7097, 0.4545, 0.6034, 0.9184, 0.6579, 0.4286, 0.8806, 0.5698, 0.5981, 0.5506, 0.75, 0.4685, 0.6383, 0.6957, 0.5588, 1, 0.7661, 0.6545, 0.8311, 0.8256, 0.7143, 0.75, 0.7, 0.913, 0.6581, 0.8101, 0.8205, 0.8039, 0.7963, 0.5333, 0.4219, 0.7419, 0.8361, 0.6564, 0.5607, 0.7308];
+
+COSI2_IRS_side = [0.9505, 0.9961, 0.9388, 0.8163, 1, 0.9959, 0.8873, 0.9689, 0.9935, 0.9836, 0.8029, 0.8667, 0.9783, 0.9294, 0.7473, 0.9779, 0.9261, 1, 0.9798, 0.9879, 0.9348, 0.9818, 1, 0.9841, 0.9241, 0.9732, 0.9783, 1, 1, 0.9147, 0.8469, 0.9891, 0.8249, 1, 0.9953, 0.8105, 0.8678, 0.9799];
+COSI2_IRO_side = [0.8929, 1, 0.7966, 0.7273, 0.875, 0.9706, 0.875, 0.8882, 0.9574, 0.8444, 0.7917, 0.8187, 0.8261, 0.6066, 0.8333, 0.8632, 0.7388, 0.8935, 0.8333, 0.869, 0.8333, 0.8333, 0.8512, 0.9242, 0.9143, 1, 0.7613, 0.9692, 0.9685, 1, 0.5833, 1, 0.7333, 0.973, 0.931, 0.6556, 0.7451, 0.8889];
+COSI2_IF_side = [0.5, 0.8947, 0.687, 0.7333, 0.5862, 0.8718, 0.6909, 0.5294, 0.717, 0.62, 0.6711, 0.5824, 0.3333, 0.5248, 0.5824, 0.6747, 0.4522, 0.25, 0.6763, 0.6812, 0.75, 0.5814, 0.687, 0.6909, 0.6481, 0.8148, 0.5133, 0.8333, 0.8462, 0.7216, 0.6923, 0.7742, 0.5232, 0.7692, 0.7683, 0.6212, 0.4512, 0.6269];
 
 % response bias (Macmillan & Creelman, p. 29)
 COSI2_IRB_color = [0.222, 0, -0.4016, -0.1404, 0.3131, -0.4835, -0.1069, -0.3885, -0.2346, -0.6539, -0.1228, -0.8242, -0.4157, 0.1069, -0.7633, -0.2104, 0.027, -0.2109, 0.1192, -0.3925, -0.0132, -0.1976, 0.6167, -0.9212, 0.6775, 0.2303, -0.0544, -0.5767, -0.3163, -0.7761, 0.4104, -1.0229, -0.6829, 0.1221];
@@ -132,7 +142,7 @@ COSI2_SRB_side = [-0.004, -0.183, -0.1402, -0.0689, -0.1662, -0.5291, 0.0288, 0.
 
 %% averages and SEM
 
-
+% RK accuracy for source judgments
 COSI2_RS_color_avg = mean(COSI2_RS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
 COSI2_RO_color_avg = mean(COSI2_RO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
 COSI2_F_color_avg = mean(COSI2_F_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
@@ -148,6 +158,23 @@ COSI2_F_side_avg = mean(COSI2_F_side(~ismember(exper.(expName).subjects,exper.(e
 COSI2_RS_side_sem = std(COSI2_RS_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
 COSI2_RO_side_sem = std(COSI2_RO_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
 COSI2_F_side_sem = std(COSI2_F_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+
+% RK accuracy for item judgments
+COSI2_IRS_color_avg = mean(COSI2_IRS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IRO_color_avg = mean(COSI2_IRO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IF_color_avg = mean(COSI2_IF_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+
+COSI2_IRS_color_sem = std(COSI2_IRS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IRO_color_sem = std(COSI2_IRO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IF_color_sem = std(COSI2_IF_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+
+COSI2_IRS_side_avg = mean(COSI2_IRS_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IRO_side_avg = mean(COSI2_IRO_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IF_side_avg = mean(COSI2_IF_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+
+COSI2_IRS_side_sem = std(COSI2_IRS_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IRO_side_sem = std(COSI2_IRO_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
+COSI2_IF_side_sem = std(COSI2_IF_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)))/sqrt(sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
 
 
 % DP
@@ -203,7 +230,7 @@ chanceVec = 0.5*ones(1,sum(~ismember(exper.(expName).subjects,exper.(expName).ba
 zerosVec = zeros(1,sum(~ismember(exper.(expName).subjects,exper.(expName).badSub)));
 
 % within source condition
-fprintf('\nWIR versus chance\n');
+fprintf('\nWIR source versus chance\n');
 [h,p,ci,stats] = ttest(COSI2_RS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
 fprintf('COSI2_RS_color (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_RS_color_avg,stats.df,stats.tstat,p);
 [h,p,ci,stats] = ttest(COSI2_RO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
@@ -232,7 +259,7 @@ fprintf('COSI2_SRB_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_SRB_side_avg,stat
 
 % WIR
 fprintf('\nBetween source conditions\n');
-fprintf('WIR\n');
+fprintf('WIR source\n');
 [h,p,ci,stats] = ttest(COSI2_RS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),COSI2_RS_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),0.05,'both');
 fprintf('COSI2_RS_color (M=%.2f) vs COSI2_RS_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_RS_color_avg,COSI2_RS_side_avg,stats.df,stats.tstat,p);
 [h,p,ci,stats] = ttest(COSI2_RO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),COSI2_RO_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),0.05,'both');
@@ -269,7 +296,28 @@ fprintf('COSI2_IRB_color (M=%.2f) vs COSI2_IRB_side (M=%.2f): t(%d)=%.4f, p=%.10
 fprintf('COSI2_SRB_color (M=%.2f) vs COSI2_SRB_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_SRB_color_avg,COSI2_SRB_side_avg,stats.df,stats.tstat,p);
 
 
-%% plot WIR
+%% plot WIR source
+
+bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
+bw_title = 'Proportion of Source Correct responses';
+bw_legend = {'Color','Location'};
+bw_colormap = 'gray';
+bw_data = [COSI2_RS_color_avg, COSI2_RS_side_avg; COSI2_RO_color_avg, COSI2_RO_side_avg; COSI2_F_color_avg, COSI2_F_side_avg];
+bw_errors = [COSI2_RS_color_sem, COSI2_RS_side_sem; COSI2_RO_color_sem, COSI2_RO_side_sem; COSI2_F_color_sem, COSI2_F_side_sem];
+bw_xlabel = 'RK Response';
+bw_ylabel = 'Proportion Correct';
+
+figure
+h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend);
+set(h.legend,'Location','NorthEast');
+axis([0.5 3.5 0 1]);
+publishfig(gcf,0,[],[],[]);
+hold on
+plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
+%print(gcf,'-dpng','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+print(gcf,'-depsc2','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+
+%% plot WIR item
 
 bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
 bw_title = 'Proportion of Source Correct responses';

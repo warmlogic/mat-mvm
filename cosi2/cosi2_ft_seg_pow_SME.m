@@ -371,11 +371,11 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 %ana.eventValues = {exper.eventValues};
-% ana.eventValues = {{'CM','CSC','CSI'},{'SM','SSC','SSI'}};
+ana.eventValues = {{'CM','CSC','CSI'},{'SM','SSC','SSI'}};
 
-ana.eventValues = {...
-  {'CFSC','CFSI','CRSSC','CRSSI','CM'},...
-  {'SFSC','SFSI','SRSSC','SRSSI','SM'}};
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CRSSC','CRSSI','CM'},...
+%   {'SFSC','SFSI','SRSSC','SRSSI','SM'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -701,9 +701,9 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 
 % exclude subjects with low event counts
 
-% [exper] = mm_threshSubs(exper,ana,10);
+[exper] = mm_threshSubs(exper,ana,10);
 
-[exper] = mm_threshSubs(exper,ana,7);
+% [exper] = mm_threshSubs(exper,ana,7);
 
 %% for evoked TF, get rid of the trial dim
 
@@ -1068,11 +1068,11 @@ cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
-% cfg_ana.conditions = {{'CSC','CM'},{'CSI','CM'},{'CSC','CSI'},{'SSC','SM'},{'SSI','SM'},{'SSC','SSI'}};
+cfg_ana.conditions = {{'CSC','CM'},{'CSI','CM'},{'CSC','CSI'},{'SSC','SM'},{'SSI','SM'},{'SSC','SSI'}};
 
-cfg_ana.conditions = {...
-  {'CFSC','CFSI'},{'CRSSC','CRSSI'},{'CRSSC','CM'},{'CRSSI','CM'},{'CFSC','CM'},{'CFSI','CM'},...
-  {'SFSC','SFSI'},{'SRSSC','SRSSI'},{'SRSSC','SM'},{'SRSSI','SM'},{'SFSC','SM'},{'SFSI','SM'}};
+% cfg_ana.conditions = {...
+%   {'CFSC','CFSI'},{'CRSSC','CRSSI'},{'CRSSC','CM'},{'CRSSI','CM'},{'CFSC','CM'},{'CFSI','CM'},...
+%   {'SFSC','SFSI'},{'SRSSC','SRSSI'},{'SRSSC','SM'},{'SRSSI','SM'},{'SFSC','SM'},{'SFSI','SM'}};
 
 % extra identifier when saving
 %thisBL = ft_findcfg(data_pow.(ana.eventValues{1}{1}).sub(1).ses(1).data.cfg,'baseline');
@@ -1134,6 +1134,7 @@ cfg_ft = [];
 %cfg_ft.alpha = .025;
 %cfg_ft.alpha = .05;
 cfg_ft.alpha = .1;
+cfg_ft.alpha = 0.3;
 cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 cfg_ft.avgovertime = cfg_ana.avgTime;
 
@@ -1181,9 +1182,9 @@ for lat = 1:size(cfg_plot.latencies,1)
       
       nk_ft_avgpowerbytime(data_pow,stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
       
-%       cfg_ft.layout = ft_prepare_layout([],ana);
-%       cfg_ft.parameter = 'stat';
-%       nk_ft_avgclustplot(stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+      cfg_ft.layout = ft_prepare_layout([],ana);
+      cfg_ft.parameter = 'stat';
+      nk_ft_avgclustplot(stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
     end
     
   end

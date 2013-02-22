@@ -87,7 +87,8 @@ subjects = {
 
 %sessions = {{0, 1}};
 %sessions = {{0}, {1}};
-sessions = {{0}, {1}, {0, 1}};
+%sessions = {{0}, {1}, {0, 1}};
+sessions = {{0, 1}};
 
 %% Set up the headers
 if rejectArt == 0
@@ -103,6 +104,7 @@ if rejectArt == 0
     'RH-SCor RS R','RH-SCor RO R','RH-SCor Fam R','RH-SInc RS R','RH-SInc RO R','RH-SInc Fam R','RM Sure R','RM Maybe R','RCR Sure R','RCR Maybe R','RFA RS R','RFA RO R','RFA Fam R',... % rates by confidence
     'IRK Fam','IRK Corr Fam','IRK Inc Fam',... % Independent Remember--Know Familiarity rates
     'RS-SCor WIR','RS-SInc WIR','RO-SCor WIR','RO-SInc WIR','F-SCor WIR','F-SInc WIR','RM Sure WIR','RM Maybe WIR','RCR Sure WIR','RCR Maybe WIR','RFA RS WIR','RFA RO WIR','RFA Fam WIR',... % within-response rates
+    'RS Item WIR','RO Item WIR','F Item WIR',... % rec reaction times
     'RH rt','RM rt','RCR rt','RFA rt',... % rec reaction times
     'SH rt','SM rt','SCR rt','SFA rt',... % src reaction times
     'RH-SCor rt','RH-SInc rt',... % recognition hits reaction times
@@ -713,8 +715,14 @@ for sset = 1:length(subsets)
       %irk_correct_RcO(sub,ses) = rates.rec_h_srcCor_ro(sub,ses) / (1 - (rates.rec_h_srcCor_rs(sub,ses)));
       %irk_incorrect_RcO(sub,ses) = rates.rec_h_srcInc_ro(sub,ses) / (1 - (rates.rec_h_srcInc_rs(sub,ses)));
       
-      %% within-response rates
-      %
+      %% within-response rates - item
+      
+      rates_wir.rec_item_rs(sub,ses) = (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs)) / (length(rec_h_srcCor_rs) + length(rec_h_srcInc_rs) + length(rec_fa_rs));
+      rates_wir.rec_item_ro(sub,ses) = (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro)) / (length(rec_h_srcCor_ro) + length(rec_h_srcInc_ro) + length(rec_fa_ro));
+      rates_wir.rec_item_k(sub,ses) = (length(rec_h_srcCor_k) + length(rec_h_srcInc_k)) / (length(rec_h_srcCor_k) + length(rec_h_srcInc_k) + length(rec_fa_k));
+      
+      %% within-response rates - by source
+      
       % rs
       if isempty(rec_h_srcCor_rs)
         rates_wir.rec_h_srcCor_rs(sub,ses) = 1/(2*length(rec_targEv));
@@ -983,6 +991,7 @@ for sset = 1:length(subsets)
             rates.rec_h_srcCor_rs(sub,ses),rates.rec_h_srcCor_ro(sub,ses),rates.rec_h_srcCor_k(sub,ses),rates.rec_h_srcInc_rs(sub,ses),rates.rec_h_srcInc_ro(sub,ses),rates.rec_h_srcInc_k(sub,ses),rates.rec_m_sure(sub,ses),rates.rec_m_maybe(sub,ses),rates.rec_cr_sure(sub,ses),rates.rec_cr_maybe(sub,ses),rates.rec_fa_rs(sub,ses),rates.rec_fa_ro(sub,ses),rates.rec_fa_k(sub,ses),... % rates by confidence
             rates.irk_Fam(sub,ses),rates.irk_correct_Fam(sub,ses),rates.irk_incorrect_Fam(sub,ses),... % Independent Remember--Know Familiarity rates
             rates_wir.rec_h_srcCor_rs(sub,ses),rates_wir.rec_h_srcInc_rs(sub,ses),rates_wir.rec_h_srcCor_ro(sub,ses),rates_wir.rec_h_srcInc_ro(sub,ses),rates_wir.rec_h_srcCor_k(sub,ses),rates_wir.rec_h_srcInc_k(sub,ses),rates_wir.rec_m_sure(sub,ses),rates_wir.rec_m_maybe(sub,ses),rates_wir.rec_cr_sure(sub,ses),rates_wir.rec_cr_maybe(sub,ses),rates_wir.rec_fa_rs(sub,ses),rates_wir.rec_fa_ro(sub,ses),rates_wir.rec_fa_k(sub,ses),... % within-response rates
+            rates_wir.rec_item_rs(sub,ses),rates_wir.rec_item_ro(sub,ses),rates_wir.rec_item_k(sub,ses),...
             rt.rec_h(sub,ses),rt.rec_m(sub,ses),rt.rec_cr(sub,ses),rt.rec_fa(sub,ses),... % rec reaction times
             rt.src_h(sub,ses),rt.src_m(sub,ses),rt.src_cr(sub,ses),rt.src_fa(sub,ses),... % src reaction times
             rt.rec_h_srcCor(sub,ses),rt.rec_h_srcInc(sub,ses),... % recognition hits reaction times
