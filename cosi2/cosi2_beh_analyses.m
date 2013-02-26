@@ -78,7 +78,7 @@ exper.(expName).subjects = {...
 %   };
 
 % exclude for a number of reasons
-exper.(expName).badSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2011','COSI2014','COSI2031','COSI2041','COSI2016','COSI2029','COSI2039'};
+exper.(expName).badSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038','COSI2011','COSI2014','COSI2031','COSI2041','COSI2016','COSI2029','COSI2039','COSI2043'};
 
 % % 8, 9, 20, 25: no F responses in one color/side SC/SI bin
 
@@ -245,6 +245,21 @@ fprintf('COSI2_RO_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_RO_side_avg,stats.
 [h,p,ci,stats] = ttest(COSI2_F_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
 fprintf('COSI2_F_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_F_side_avg,stats.df,stats.tstat,p);
 
+fprintf('\nWIR item versus chance\n');
+[h,p,ci,stats] = ttest(COSI2_IRS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
+fprintf('COSI2_IRS_color (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRS_color_avg,stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(COSI2_IRO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
+fprintf('COSI2_IRO_color (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRO_color_avg,stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(COSI2_IF_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
+fprintf('COSI2_IF_color (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IF_color_avg,stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(COSI2_IRS_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
+fprintf('COSI2_IRS_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRS_side_avg,stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(COSI2_IRO_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
+fprintf('COSI2_IRO_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRO_side_avg,stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(COSI2_IF_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),chanceVec,0.05,'both');
+fprintf('COSI2_IF_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IF_side_avg,stats.df,stats.tstat,p);
+
 fprintf('\nResponse bias versus zeros\n');
 [h,p,ci,stats] = ttest(COSI2_IRB_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),zerosVec,0.05,'both');
 fprintf('COSI2_IRB_color (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRB_color_avg,stats.df,stats.tstat,p);
@@ -266,6 +281,14 @@ fprintf('COSI2_RS_color (M=%.2f) vs COSI2_RS_side (M=%.2f): t(%d)=%.4f, p=%.10f\
 fprintf('COSI2_RO_color (M=%.2f) vs COSI2_RO_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_RO_color_avg,COSI2_RO_side_avg,stats.df,stats.tstat,p);
 [h,p,ci,stats] = ttest(COSI2_F_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),COSI2_F_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),0.05,'both');
 fprintf('COSI2_F_color (M=%.2f) vs COSI2_F_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_F_color_avg,COSI2_F_side_avg,stats.df,stats.tstat,p);
+
+fprintf('WIR item\n');
+[h,p,ci,stats] = ttest(COSI2_IRS_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),COSI2_IRS_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),0.05,'both');
+fprintf('COSI2_IRS_color (M=%.2f) vs COSI2_IRS_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRS_color_avg,COSI2_IRS_side_avg,stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(COSI2_IRO_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),COSI2_IRO_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),0.05,'both');
+fprintf('COSI2_IRO_color (M=%.2f) vs COSI2_IRO_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IRO_color_avg,COSI2_IRO_side_avg,stats.df,stats.tstat,p);
+[h,p,ci,stats] = ttest(COSI2_IF_color(~ismember(exper.(expName).subjects,exper.(expName).badSub)),COSI2_IF_side(~ismember(exper.(expName).subjects,exper.(expName).badSub)),0.05,'both');
+fprintf('COSI2_IF_color (M=%.2f) vs COSI2_IF_side (M=%.2f): t(%d)=%.4f, p=%.10f\n',COSI2_IF_color_avg,COSI2_IF_side_avg,stats.df,stats.tstat,p);
 
 % DP
 fprintf('DPrime\n');
@@ -313,18 +336,20 @@ set(h.legend,'Location','NorthEast');
 axis([0.5 3.5 0 1]);
 publishfig(gcf,0,[],[],[]);
 hold on
-plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
-%print(gcf,'-dpng','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
-print(gcf,'-depsc2','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+% plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
+filetype = '-dpng';
+% filetype = '-depsc2';
+%print(gcf,filetype,'~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+print(gcf,filetype,'~/Desktop/COSI2_color_side_RS_RO_F_accuracy_nochance');
 
 %% plot WIR item
 
 bw_groupnames = {'Rem. Source';'Rem. Other';'Familiar'};
-bw_title = 'Proportion of Source Correct responses';
+bw_title = 'Proportion of Item Correct responses';
 bw_legend = {'Color','Location'};
 bw_colormap = 'gray';
-bw_data = [COSI2_RS_color_avg, COSI2_RS_side_avg; COSI2_RO_color_avg, COSI2_RO_side_avg; COSI2_F_color_avg, COSI2_F_side_avg];
-bw_errors = [COSI2_RS_color_sem, COSI2_RS_side_sem; COSI2_RO_color_sem, COSI2_RO_side_sem; COSI2_F_color_sem, COSI2_F_side_sem];
+bw_data = [COSI2_IRS_color_avg, COSI2_IRS_side_avg; COSI2_IRO_color_avg, COSI2_IRO_side_avg; COSI2_IF_color_avg, COSI2_IF_side_avg];
+bw_errors = [COSI2_IRS_color_sem, COSI2_IRS_side_sem; COSI2_IRO_color_sem, COSI2_IRO_side_sem; COSI2_IF_color_sem, COSI2_IF_side_sem];
 bw_xlabel = 'RK Response';
 bw_ylabel = 'Proportion Correct';
 
@@ -334,9 +359,12 @@ set(h.legend,'Location','NorthEast');
 axis([0.5 3.5 0 1]);
 publishfig(gcf,0,[],[],[]);
 hold on
-plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
-%print(gcf,'-dpng','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
-print(gcf,'-depsc2','~/Desktop/COSI2_color_side_RS_RO_F_accuracy');
+% plot([0.5 3.5], [0.5 0.5],'r--','LineWidth',2); % horiz chance line
+filetype = '-dpng';
+% filetype = '-depsc2';
+
+%print(gcf,filetype,'~/Desktop/COSI2_color_side_item_RS_RO_F_accuracy');
+print(gcf,filetype,'~/Desktop/COSI2_color_side_item_RS_RO_F_accuracy_nochance');
 
 
 %% plot DP

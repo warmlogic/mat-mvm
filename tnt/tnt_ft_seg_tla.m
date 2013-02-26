@@ -800,10 +800,15 @@ cfg_ft.avgovertime = 'no';
 cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
-% cfg_ana.roi = 'all';
+cfg_ana.roi = 'all';
 % cfg_ana.latencies = [0 1.0; 1.0 1.7];
-cfg_ana.roi = {'anterior'};
-cfg_ana.latencies = [0.2 0.6];
+cfg_ana.latencies = [0 1.0];
+% cfg_ana.roi = {'anterior'};
+% cfg_ana.latencies = [0.2 0.6];
+
+cfg_ft.numrandomization = 1000;
+cfg_ft.clusteralpha = .01;
+cfg_ft.alpha = .1;
 
 %cfg_ana.conditions = {{'TH','NT'},{'TH','B'},{'NT','B'}};
 %cfg_ana.conditions = {'all'};
@@ -828,6 +833,7 @@ end
 %% plot the cluster statistics
 
 files.saveFigs = 1;
+files.figPrintFormat = 'png';
 
 cfg_ft = [];
 cfg_ft.alpha = 0.1;

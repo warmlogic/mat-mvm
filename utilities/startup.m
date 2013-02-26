@@ -2,12 +2,12 @@
 
 myMatlabDir = fullfile(getenv('HOME'),'Documents','MATLAB');
 
-%% set up eegToolbox path
-eegToolboxDir = dir(fullfile(myMatlabDir,'eegToolbox*'));
-if ~isempty(eegToolboxDir)
-  eegToolboxDir = fullfile(myMatlabDir,eegToolboxDir.name);
+%% set up eeg_toolbox path
+eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox*'));
+if ~isempty(eeg_toolboxDir)
+  eeg_toolboxDir = fullfile(myMatlabDir,eeg_toolboxDir.name);
   % add top folder and all subfolders
-  addpath(genpath(eegToolboxDir));
+  addpath(genpath(eeg_toolboxDir));
 end
 
 %% set up eeglab path

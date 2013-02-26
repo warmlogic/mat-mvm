@@ -333,13 +333,13 @@ end
 
 %----BASIC DIVISONS----%
 
-% % fourier 4-100 Hz
-% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+% fourier 4-100 Hz
+adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CSC_CSI_SCR_SSC_SSI_eq0_art_zeroVar/fourier_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 %----ALL DIVISIONS----%
 
-% dream fourier 4-100 Hz, all sub-segments
-adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CFSC_CFSI_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SCR_SFSC_SFSI_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/fourier_resample256_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
+% % dream fourier 4-100 Hz, all sub-segments
+% adFile = '/Volumes/curranlab/Data/COSI2/eeg/eppp/-1000_2000/ft_data/CCR_CFSC_CFSI_CNM_CNS_CROSC_CROSI_CRSSC_CRSSI_CSC_CSI_SCR_SFSC_SFSI_SNM_SNS_SROSC_SROSI_SRSSC_SRSSI_SSC_SSI_eq0_art_zeroVar/fourier_resample256_wavelet_w6_fourier_-500_980_4_100/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -362,7 +362,7 @@ ana = mm_ft_elecGroups(ana);
 
 % ana.eventValues = {exper.eventValues};
 
-% ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
+ana.eventValues = {{'CCR','CSC','CSI'},{'SCR','SSC','SSI'}};
 
 % % all possible categories (F N RO RS x S/I)
 % ana.eventValues = {...
@@ -374,9 +374,9 @@ ana = mm_ft_elecGroups(ana);
 %   {'CFSC','CNS','CNM','CROSC','CRSSC','CCR','CSC','CSI'},...
 %   {'SFSC','SNS','SNM','SROSC','SRSSC','SCR','SSC','SSI'}};
 
-ana.eventValues = {...
-  {'CFSC','CFSI','CRSSC','CRSSI','CCR'},...
-  {'SFSC','SFSI','SRSSC','SRSSI','SCR'}};
+% ana.eventValues = {...
+%   {'CFSC','CFSI','CRSSC','CRSSI','CCR'},...
+%   {'SFSC','SFSI','SRSSC','SRSSI','SCR'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -699,9 +699,9 @@ exper.badBehSub = {'COSI2008','COSI2009','COSI2020','COSI2025','COSI2038'}; % ,'
 
 % exclude subjects with low event counts
 
-% [exper] = mm_threshSubs(exper,ana,15);
+[exper] = mm_threshSubs(exper,ana,15);
 
-[exper] = mm_threshSubs(exper,ana,7);
+% [exper] = mm_threshSubs(exper,ana,7);
 
 %% for evoked TF, get rid of the trial dim
 
@@ -1080,11 +1080,12 @@ cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
-% cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
+cfg_ana.conditions = {{'CSC','CCR'},{'CSI','CCR'},{'CSC','CSI'},{'SSC','SCR'},{'SSI','SCR'},{'SSC','SSI'}};
 
-cfg_ana.conditions = {...
-  {'CFSC','CFSI'},{'CRSSC','CRSSI'},{'CRSSC','CCR'},{'CRSSI','CCR'},{'CFSC','CCR'},{'CFSI','CCR'},...
-  {'SFSC','SFSI'},{'SRSSC','SRSSI'},{'SRSSC','SCR'},{'SRSSI','SCR'},{'SFSC','SCR'},{'SFSI','SCR'}};
+% cfg_ana.conditions = {...
+%   {'CFSC','CFSI'},{'CRSSC','CRSSI'},{'CRSSC','CCR'},{'CRSSI','CCR'},{'CFSC','CCR'},{'CFSI','CCR'},...
+%   {'SFSC','SFSI'},{'SRSSC','SRSSI'},{'SRSSC','SCR'},{'SRSSI','SCR'},{'SFSC','SCR'},{'SFSI','SCR'}};
+
 % cfg_ana.conditions = {...
 %   {'CFSC','CCR'},{'CFSI','CCR'},...
 %   {'SFSC','SCR'},{'SFSI','SCR'}};
@@ -1162,7 +1163,7 @@ files.figPrintFormat = 'png';
 cfg_ft = [];
 %cfg_ft.alpha = .025;
 %cfg_ft.alpha = .05;
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .3;
 cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 cfg_ft.avgovertime = cfg_ana.avgTime;
 
@@ -1174,7 +1175,15 @@ cfg_plot.dirStr = cfg_ana.dirStr;
 
 % cfg_ft.clusnum = 1;
 % cfg_ft.conds = cfg_ana.conditions;
-cfg_plot.colors = [rgb('Green'); rgb('Red')];
+
+% % SC vs SI
+% cfg_plot.colors = [rgb('Green'); rgb('Red')];
+% % SI vs CR
+% cfg_plot.colors = [rgb('Red'); rgb('Blue')];
+% % SC vs CR
+% cfg_plot.colors = [rgb('Green'); rgb('Blue')];
+
+
 cfg_ft.maskstyle = 'opacity';
 cfg_ft.transp = 1;
 
@@ -1203,6 +1212,19 @@ for lat = 1:size(cfg_plot.latencies,1)
       
       cfg_plot.conditions = cfg_ana.conditions{cnd};
       [stat_clus] = mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
+      
+      if strcmp(cfg_ft.conds{1}(2:end),'SC') && strcmp(cfg_ft.conds{2}(2:end),'SI')
+        % SC vs SI
+        cfg_plot.colors = [rgb('Green'); rgb('Red')];
+      elseif strcmp(cfg_ft.conds{1}(2:end),'SI') && strcmp(cfg_ft.conds{2}(2:end),'CR')
+        % SI vs CR
+        cfg_plot.colors = [rgb('Red'); rgb('Blue')];
+      elseif strcmp(cfg_ft.conds{1}(2:end),'SC') && strcmp(cfg_ft.conds{2}(2:end),'CR')
+        % SC vs CR
+        cfg_plot.colors = [rgb('Green'); rgb('Blue')];
+      else
+        keyboard
+      end
       
       nk_ft_avgpowerbytime(data_pow,stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
       
