@@ -824,11 +824,11 @@ cfg_ft.alpha = .1;
 
 cfg_ana.conditions = {{'TR','TF'},{'NTR','NTF'},{'TR','NTR'},{'TF','NTF'},{'TR','B'},{'NTR','B'},{'TF','B'},{'NTF','B'}};
 
-for lat = 1:size(cfg_ana.latencies,1)
-  cfg_ft.latency = cfg_ana.latencies(lat,:);
-  
-  stat_clus = mm_ft_clusterstatER(cfg_ft,cfg_ana,exper,ana,dirs,data_tla);
-end
+% for lat = 1:size(cfg_ana.latencies,1)
+%   cfg_ft.latency = cfg_ana.latencies(lat,:);
+%   
+%   stat_clus = mm_ft_clusterstatER(cfg_ft,cfg_ana,exper,ana,dirs,data_tla);
+% end
 
 %% plot the cluster statistics
 
@@ -836,16 +836,53 @@ files.saveFigs = 1;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
-cfg_ft.alpha = 0.1;
+cfg_ft.alpha = 0.05;
 
 cfg_plot = [];
 cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.conditions = cfg_ana.conditions;
 
+cfg_plot.colors = [rgb('Green'); rgb('Red')];
+cfg_plot.noplot = true;
+cfg_ft.maskstyle = 'opacity';
+cfg_ft.transp = 1;
+
+% % debug
+% cfg_ana.conditions = {{'TR','NTR'}};
+
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
   
-  mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs);
+    for cnd = 1:length(cfg_ana.conditions)
+      cfg_ft.conds = cfg_ana.conditions{cnd};
+      cfg_ft.time = [-0.3 1];
+      cfg_plot.latency = cfg_ft.latency;
+      
+      cfg_plot.conditions = cfg_ana.conditions{cnd};
+      [stat_clus] = mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs);
+      
+      if strcmp(cfg_ft.conds{1}(1),'T')
+        % SC vs SI
+        cfg_plot.colors = rgb('Green');
+      elseif strcmp(cfg_ft.conds{2}(1),'N')
+        cfg_plot.colors = rgb('Blue');
+      end
+      if strcmp(cfg_ft.conds{2}(1),'T')
+        % SC vs SI
+        cfg_plot.colors = [cfg_plot.colors; rgb('Red')];
+      elseif strcmp(cfg_ft.conds{2}(1),'N')
+        cfg_plot.colors = [cfg_plot.colors; rgb('Red')];
+      elseif strcmp(cfg_ft.conds{2}(1),'B')
+        cfg_plot.colors = [cfg_plot.colors; rgb('Red')];
+      end
+      
+      nk_ft_avgerpbytime(data_tla,stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+      
+      cfg_ft.layout = ft_prepare_layout([],ana);
+      cfg_ft.parameter = 'stat';
+      cfg_plot.isfreq = false;
+      nk_ft_avgclustplot(stat_clus,cfg_plot,cfg_ft,dirs,files,files.saveFigs);
+    end
 end
 
 %% correlations

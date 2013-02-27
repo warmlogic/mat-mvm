@@ -1,4 +1,4 @@
-function mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs)
+function [stat_clus] = mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs)
 %MM_FT_CLUSTERPLOTER Plot (and save) significant clusters
 %    
 
@@ -39,6 +39,11 @@ if ~isfield(cfg_plot,'dirStr')
   cfg_plot.dirStr = '';
 end
 
+% for using nk plotting functions
+if ~isfield(cfg_plot,'noplot')
+  cfg_plot.noplot = false;
+end
+
 % set the directory to load the file from
 dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tla_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_plot.dirStr));
 
@@ -53,6 +58,11 @@ for cnd = 1:length(cfg_plot.conditions)
   if exist(savedFile,'file')
     fprintf('Loading %s\n',savedFile);
     load(savedFile);
+    
+    % for running nk_ft_avgpowerbytime
+    if cfg_plot.noplot
+      return
+    end
   else
     warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
     continue

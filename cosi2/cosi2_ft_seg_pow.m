@@ -1183,7 +1183,7 @@ cfg_plot.dirStr = cfg_ana.dirStr;
 % % SC vs CR
 % cfg_plot.colors = [rgb('Green'); rgb('Blue')];
 
-
+cfg_plot.noplot = true;
 cfg_ft.maskstyle = 'opacity';
 cfg_ft.transp = 1;
 

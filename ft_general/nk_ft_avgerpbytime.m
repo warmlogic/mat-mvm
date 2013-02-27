@@ -103,9 +103,9 @@ for cl = 1:length(plot_clus_str)
     cfg.clusnum = Nsig;
     
     ind = find(stat_clus.(vs_str).(sprintf('%sclusterslabelmat',plot_clus_str{cl}))==cfg.clusnum);
-    [x,y,z] = ind2sub(size(stat_clus.(vs_str).(sprintf('%sclusterslabelmat',plot_clus_str{cl}))),ind);
+    [x,y] = ind2sub(size(stat_clus.(vs_str).(sprintf('%sclusterslabelmat',plot_clus_str{cl}))),ind);
     elecs = stat_clus.(vs_str).label(unique(x));
-    sigt = stat_clus.(vs_str).time(unique(z));
+    sigt = stat_clus.(vs_str).time(unique(y));
 %     if isfield(stat_clus.(vs_str),'freq')
 %       sigf = stat_clus.(vs_str).freq(unique(y));
 %       cfg.freq = sigf;%stat_clus.(vs_str).cfg.frequency;%cfg_ana.frequencies;%[8 12];
@@ -140,7 +140,7 @@ for cl = 1:length(plot_clus_str)
         %data = ft_selectdata(timelockdata.(cond).sub(isub).ses(1).data, 'foilim',cfg.freq,'avgoverfreq','yes');
         data = ft_selectdata(timelockdata.(cond).sub(isub).ses(1).data, 'channel', cfg.elecs,'avgoverchan','yes');
         data = ft_selectdata(data, 'toilim',cfg.time,'avgovertime','no');
-        tempdata(:,isub) = squeeze(data.individual);
+        tempdata(:,isub) = squeeze(data.avg);
       end
       conddata(:,icond) = mean(tempdata,2);
       conddata_var(:,icond) = nanste(tempdata,2)';
@@ -194,7 +194,7 @@ for cl = 1:length(plot_clus_str)
       %figure(f)
       f=cfg.clusnum;
       p_str = strrep(sprintf('%.3f',p),'.','p');
-      cfg_plot.figfilename = sprintf('tla_clus_avgerp_%s_%d_%d_%s_%s%d',vs_str,round(sigt(1)*1000),round(sigt(end)*1000),p_str,plot_clus_str{cl},f);
+      cfg_plot.figfilename = sprintf('tla_clus_avgerp_%s_%s%d_%d_%d_%s',vs_str,plot_clus_str{cl},f,round(sigt(1)*1000),round(sigt(end)*1000),p_str);
       
       dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d%s',round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),cfg_plot.dirStr),vs_str);
       if ~exist(dirs.saveDirFigsClus,'dir')

@@ -1147,6 +1147,7 @@ cfg_plot.dirStr = cfg_ana.dirStr;
 % cfg_ft.clusnum = 1;
 % cfg_ft.conds = cfg_ana.conditions;
 cfg_plot.colors = [rgb('Green'); rgb('Red')];
+cfg_plot.noplot = true;
 cfg_ft.maskstyle = 'opacity';
 cfg_ft.transp = 1;
 

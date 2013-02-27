@@ -197,7 +197,7 @@ for cl = 1:length(plot_clus_str)
       %figure(f)
       f=cfg.clusnum;
       p_str = strrep(sprintf('%.3f',p),'.','p');
-      cfg_plot.figfilename = sprintf('tfr_clus_avgfreq_%s_%d_%d_%d_%d_%s_%s%d',vs_str,round(sigf(1)),round(sigf(2)),round(sigt(1)*1000),round(sigt(end)*1000),p_str,plot_clus_str{cl},f);
+      cfg_plot.figfilename = sprintf('tfr_clus_avgfreq_%s_%d_%d_%s%d_%d_%d_%s',vs_str,round(sigf(1)),round(sigf(2)),plot_clus_str{cl},f,round(sigt(1)*1000),round(sigt(end)*1000),p_str);
       
       dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),cfg_plot.dirStr),vs_str);
       if ~exist(dirs.saveDirFigsClus,'dir')

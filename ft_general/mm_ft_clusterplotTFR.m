@@ -33,6 +33,11 @@ if isequal(cfg_plot.mask,'yes')
   end
 end
 
+% for using nk plotting functions
+if ~isfield(cfg_plot,'noplot')
+  cfg_plot.noplot = false;
+end
+
 close all
 fprintf('Plotting clusters...\n');
 
@@ -87,8 +92,10 @@ for cnd = 1:length(cfg_plot.conditions)
     fprintf('Loading %s\n',savedFile);
     load(savedFile);
     
-    % debug: for running nk_ft_avgpowerbytime
-    return
+    % for running nk_ft_avgpowerbytime
+    if cfg_plot.noplot
+      return
+    end
   else
     warning([mfilename,':FileNotFound'],'No stat_clus file found for %s: %s. Going to next comparison.\n',vs_str,savedFile);
     continue
