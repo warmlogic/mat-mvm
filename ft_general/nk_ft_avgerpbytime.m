@@ -1,7 +1,7 @@
 function [outdata] = nk_ft_avgerpbytime(timelockdata,stat_clus,cfg_plot,cfg,dirs,files,savefigs)
 
-% create a 2d power as a function of time plot for selected electrodes,
-% frequencies, and conditions
+% create a 2d ERP as a function of time plot for selected electrodes,
+% conditions
 %
 % input
 %   timelockdata = ERP data for individual subjects
@@ -137,10 +137,10 @@ for cl = 1:length(plot_clus_str)
       %average condition data across subjects
       tempdata = [];
       for isub = 1:length(timelockdata.(cond).sub)
-        data = ft_selectdata(timelockdata.(cond).sub(isub).ses(1).data, 'foilim',cfg.freq,'avgoverfreq','yes');
-        data = ft_selectdata(data, 'channel', cfg.elecs,'avgoverchan','yes');
+        %data = ft_selectdata(timelockdata.(cond).sub(isub).ses(1).data, 'foilim',cfg.freq,'avgoverfreq','yes');
+        data = ft_selectdata(timelockdata.(cond).sub(isub).ses(1).data, 'channel', cfg.elecs,'avgoverchan','yes');
         data = ft_selectdata(data, 'toilim',cfg.time,'avgovertime','no');
-        tempdata(:,isub) = squeeze(data.powspctrm);
+        tempdata(:,isub) = squeeze(data.individual);
       end
       conddata(:,icond) = mean(tempdata,2);
       conddata_var(:,icond) = nanste(tempdata,2)';
@@ -151,7 +151,6 @@ for cl = 1:length(plot_clus_str)
     outdata.conds = cfg.conds;
     outdata.time = data.time;
     outdata.var = conddata_var;
-    
     
     figure('color','white');
     %plot(outdata.time,outdata.data,'linewidth',5);
@@ -166,15 +165,14 @@ for cl = 1:length(plot_clus_str)
       hold on
     end
     
-    
     set(gca,'fontsize',22);
     %xlim([-.5,max(data.time)]);
     xlim(cfg.time);
-    xlabel('Time(s)');
-    ylabel('Power');
+    xlabel('Time (s)');
+    ylabel('Voltage (\muV)');
     %outdata.conds{3} = 'pB';outdata.conds{2} = 'T';
     %legend(lh,regexprep(outdata.conds,'_',''),'location','best','fontsize',10);
-    title(sprintf('%s',['Cluster ' num2str(cfg.clusnum) ', AvgPwr' num2str(cfg.freq(1)) 'to' num2str(cfg.freq(end)) 'Hz']));
+    title(sprintf('%s',['Cluster ' num2str(cfg.clusnum) ', AvgERP']));
     if isfield(cfg,'sigt')
       plot(repmat(min(cfg.sigt),2,1),ylim,'--k','linewidth',3);
       hold on
@@ -196,17 +194,13 @@ for cl = 1:length(plot_clus_str)
       %figure(f)
       f=cfg.clusnum;
       p_str = strrep(sprintf('%.3f',p),'.','p');
-      cfg_plot.figfilename = sprintf('tfr_clus_avgfreq_%s_%d_%d_%d_%d_%s_%s%d',vs_str,round(sigf(1)),round(sigf(2)),round(sigt(1)*1000),round(sigt(end)*1000),p_str,plot_clus_str{cl},f);
+      cfg_plot.figfilename = sprintf('tla_clus_avgerp_%s_%d_%d_%s_%s%d',vs_str,round(sigt(1)*1000),round(sigt(end)*1000),p_str,plot_clus_str{cl},f);
       
-      dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tfr_stat_clus_%d_%d%s',round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),cfg_plot.dirStr),vs_str);
+      dirs.saveDirFigsClus = fullfile(dirs.saveDirFigs,sprintf('tla_stat_clus_%d_%d%s',round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),cfg_plot.dirStr),vs_str);
       if ~exist(dirs.saveDirFigsClus,'dir')
         mkdir(dirs.saveDirFigsClus)
       end
       
-      %         while exist([fullfile(dirs.saveDirFigsClus,cfg_plot.figfilename) '.' files.figPrintFormat],'file')
-      %             f=f+1;
-      %             cfg_plot.figfilename = sprintf('tfr_clus_avgclus_%s_%d_%d_%d_%d_fig%d',vs_str,round(cfg_plot.frequencies(1)),round(cfg_plot.frequencies(2)),round(cfg_plot.latencies(1)*1000),round(cfg_plot.latencies(2)*1000),f);
-      %         end
       if strcmp(files.figPrintFormat,'fig')
         saveas(gcf,fullfile(dirs.saveDirFigsClus,[cfg_plot.figfilename,'.',files.figPrintFormat]),'fig');
       else

@@ -171,7 +171,7 @@ for cl = 1:length(plot_clus_str)
     set(gca,'fontsize',22);
     %xlim([-.5,max(data.time)]);
     xlim(cfg.time);
-    xlabel('Time(s)');
+    xlabel('Time (s)');
     ylabel('Power');
     %outdata.conds{3} = 'pB';outdata.conds{2} = 'T';
     %legend(lh,regexprep(outdata.conds,'_',''),'location','best','fontsize',10);
