@@ -2,6 +2,13 @@
 
 myMatlabDir = fullfile(getenv('HOME'),'Documents','MATLAB');
 
+%% set up Psychtoolbox path
+ptbDir = fullfile(filesep,'Applications','Psychtoolbox');
+if ~isempty(ptbDir)
+  % add top folder and all subfolders
+  addpath(genpath(ptbDir));
+end
+
 %% set up eeg_toolbox path
 eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox*'));
 if ~isempty(eeg_toolboxDir)
