@@ -59,10 +59,12 @@ function [events_ses0, events_ses1] = terp_createEvents(dataroot,subject,session
 % recognition
 
 % % debug
-% % %dataroot = '/Volumes/curranlab/Data/TERP/beh/';
+% % dataroot = '/Volumes/curranlab/Data/TERP/beh/';
 % dataroot = '~/data/TERP/beh/';
-% subject = 'TERP002';
+% subject = 'TERP001';
+% % subject = 'TERP002';
 % sessions = {'session_0','session_1'};
+% nargout =2;
 
 %% error checking
 
@@ -86,8 +88,8 @@ recogAnnFile = 'recall_targets_eng_';
 retenAnnFile = 'reten_eng_';
 maxSpeakDur = 3000;
 
-% % vocalization symbol in annotation files
-% vocal = '<>';
+% vocalization symbol in annotation files
+vocal = '<>';
 
 %fnames = {'subject', 'session', 'mstime', 'msoffset', 'list', 'condition', 'trial', 'type', 'train_type', 'item_swa', 'xcoord_swa', 'ycoord_swa', 'item_eng', 'xcoord_eng', 'ycoord_eng', 'serialpos', 'rec_isTarg', 'rec_correct', 'rec_resp', 'rec_resp_rt', 'new_correct', 'new_resp', 'new_resp_rt', 'quiz_recall', 'rec_recall', 'ret_recall', 'quiz_recall_resp', 'rec_recall_resp', 'ret_recall_resp'};
 % , 'quiz_recall_rt', 'rec_recall_rt', 'ret_recall_ms'
@@ -417,17 +419,17 @@ for ses = 1:length(sessions)
       else
         noquiz = noquiz + 1;
         if noquiz <= (numLists / 2)
-          fprintf('No quiz annotation file for list %d (%s%d.ann). This is ok, only half of the lists should have them (%d of %d).\n',i,quizAnnFile,theseLists(i),noquiz,numLists);
+          fprintf('No quiz annotation file for list %d (%s%d.ann).\n\tThis is ok, only half of the lists should have them (%d of %d).\n',i,quizAnnFile,theseLists(i),noquiz,numLists);
           %continue
         elseif noquiz > (numLists / 2)
-          error('More than half of the lists are missing an annotation files. This is not ok, there are too many missing files.');
+          error('More than half of the lists are missing an annotation files.\n\tThis is not ok, there are too many missing files.');
         end
       end
       
       % get the recognition/recall annotation file
       annFile = fullfile(sesDir,[recogAnnFile,num2str(theseLists(i)),'.ann']);
       if exist(annFile,'file')
-        fprintf('Reading recognition/recall annotation file for list %d (%s%d).\n',i,recogAnnFile,theseLists(i));
+        fprintf('Reading recognition/recall annotation file for list %d (%s%d.ann).\n',i,recogAnnFile,theseLists(i));
         fid = fopen(annFile);
         ann_contents = textscan(fid, '%f%d%s', 'Delimiter', '\t', 'CommentStyle', '#');
         fclose(fid);
@@ -456,7 +458,7 @@ for ses = 1:length(sessions)
       % get the retention test annotation file
       annFile = fullfile(sesDir,[retenAnnFile,num2str(theseLists(i)),'.ann']);
       if exist(annFile,'file')
-        fprintf('Reading retention annotation file for list %d (%s%d).\n',i,retenAnnFile,theseLists(i));
+        fprintf('Reading retention annotation file for list %d (%s%d.ann).\n',i,retenAnnFile,theseLists(i));
         fid = fopen(annFile);
         ann_contents = textscan(fid, '%f%d%s', 'Delimiter', '\t', 'CommentStyle', '#');
         fclose(fid);
@@ -1044,6 +1046,9 @@ for i = 1:length(events_ses0)
         events_ses0(i).rec_recall_resp = events_ses0(tInd).rec_recall_resp;
         events_ses0(i).ret_recall = events_ses0(tInd).ret_recall;
         events_ses0(i).ret_recall_resp = events_ses0(tInd).ret_recall_resp;
+      elseif isempty(testTargEvents) && strcmp(events_ses0(i).rec_recall_resp,vocal)
+        % TODO: just some kind of intrusion or random vocalization?
+        fprintf('Might have found an intrusion or vocalization at %s %s list %d, event %d (not associated with a list?).\n',events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
       else
         keyboard
       end

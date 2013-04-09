@@ -52,7 +52,7 @@ sessions = {'session_0','session_1'};
 %matlabpool open
 
 for sub = 1:length(subjects)
-  fprintf('Getting data for %s (both sessions)...',subjects{sub});
+  fprintf('Getting data for %s (both sessions)...\n',subjects{sub});
   
   if prep_eeg == 1
     % find the bad channels for this subject and session
@@ -86,6 +86,7 @@ for sub = 1:length(subjects)
     fprintf('Saving %s...\n',eventsOutfile0_sub);
     % save each subject's events
     saveEvents(events_ses0,eventsOutfile0_sub);
+    fprintf('Saving %s...\n',eventsOutfile1_sub);
     saveEvents(events_ses1,eventsOutfile1_sub);
     
     % release the lockFile
