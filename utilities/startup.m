@@ -134,14 +134,12 @@ addpath(genpath(fullfile(myMatlabDir,'mat-mvm')));
 %% put the ~/Documents/MATLAB folder at the top of the path
 addpath(myMatlabDir);
 
-%% remove CVS, .svn, and .git directories from path
+%% remove version control directories from path (.git, .svn, CVS)
 entries = regexp(path, ['[^',pathsep,']*',pathsep], 'match');
-
-git_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.git')), entries, 'UniformOutput', false));
-svn_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.svn')), entries, 'UniformOutput', false));
-cvs_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'CVS')), entries, 'UniformOutput', false));
+% find the version control entries
+vc_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.git')) | ~isempty(strfind(x,'.svn')) | ~isempty(strfind(x,'CVS')), entries, 'UniformOutput', false));
 % remove them
-rmpath(sprintf(repmat('%s',1,sum(git_entries | svn_entries | cvs_entries)),entries{git_entries | svn_entries | cvs_entries}));
+rmpath(sprintf(repmat('%s',1,sum(vc_entries)),entries{vc_entries}));
 
 %% finish
 %cd(myMatlabDir);
