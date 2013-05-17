@@ -140,13 +140,12 @@ entries = regexp(path, ['[^',pathsep,']*',pathsep], 'match');
 git_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.git')), entries, 'UniformOutput', false));
 svn_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.svn')), entries, 'UniformOutput', false));
 cvs_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'CVS')), entries, 'UniformOutput', false));
-rmStr = sprintf(repmat('%s',1,sum(git_entries | svn_entries | cvs_entries)),entries{git_entries | svn_entries | cvs_entries});
 % remove them
-rmpath(rmStr);
+rmpath(sprintf(repmat('%s',1,sum(git_entries | svn_entries | cvs_entries)),entries{git_entries | svn_entries | cvs_entries}));
 
 %% finish
 %cd(myMatlabDir);
 
-clear *Dir *entries rmStr i entry conflictFiles
+clear *Dir *entries i entry conflictFiles
 
 %clearvars
