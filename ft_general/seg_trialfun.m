@@ -34,6 +34,10 @@ for i = 1:length(event)
         eventNumber = [];
       end
       
+      % TODO: add in a check comparing
+      % range(event(i).sample,event(i).sample + durationSamp), maybe use
+      % ft_read_data; or maybe durationSamp vs event(i).sample - event(i-1).sample
+      
       % add this trial [beginning sample, ending sample, offset, evNum]
       trl = cat(1,trl,[event(i).sample, (event(i).sample + durationSamp), offsetSamp, eventNumber]);
       
