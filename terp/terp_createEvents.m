@@ -261,13 +261,17 @@ for ses = 1:length(sessions)
         % get the reaction time
         log(i).rec_resp_rt = str2double(logData{6}{i});
         % if they didn't respond
-        if log(i).rec_resp_rt == maxTestTime
-          log(i).rec_resp = '';
+        if log(i).rec_resp_rt >= maxTestTime
+          %log(i).rec_resp = '';
           log(i).rec_correct = -1;
+          
+          log(i).new_correct = -1;
+          log(i).new_resp = '';
+          log(i).new_resp_rt = -1;
         end
         
         % get the english stimulus info, only if OLD
-        if log(i).rec_isTarg && log(i).rec_correct
+        if log(i).rec_isTarg == 1 && log(i).rec_correct == 1
           log(i).item_eng = logData{5}{i+3};
           log(i).xcoord_eng = str2num(logData{8}{i+3});
           log(i).ycoord_eng = str2num(logData{9}{i+3});
@@ -280,7 +284,7 @@ for ses = 1:length(sessions)
         
         % if it's an old item and they said "old", there's no new response;
         % if it's a new item and they said "old", there's no new response
-        if (log(i).rec_isTarg && log(i).rec_correct) || (~log(i).rec_isTarg && ~log(i).rec_correct)
+        if (log(i).rec_isTarg == 1 && log(i).rec_correct == 1) || (log(i).rec_isTarg == 0 && log(i).rec_correct == 0)
           log(i).new_correct = -1;
           log(i).new_resp = '';
           log(i).new_resp_rt = -1;
@@ -329,7 +333,7 @@ for ses = 1:length(sessions)
         % was it correct?
         log(i).new_correct = str2double(logData{8}{i});
         % if they didn't respond
-        if log(i).new_resp_rt == maxTestTime
+        if log(i).new_resp_rt >= maxTestTime
           log(i).new_resp = '';
           log(i).new_correct = -1;
         end
@@ -649,6 +653,9 @@ for i = 1:length(events_ses0)
                 if length(testTargEvents) == 1
                   events_ses0(tInd).rec_recall = events_ses0(i).rec_recall;
                   events_ses0(tInd).rec_recall_resp = events_ses0(i).rec_recall_resp;
+                elseif strcmp(events_ses0(i).rec_recall_resp,vocal)
+                  % or a vocalization occurred
+                  fprintf('There was a vocalization for test target ''%s'': %s %s list %d, event %d.\n',events_ses0(i).item_swa,events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
                 else
                   keyboard
                 end
@@ -696,7 +703,7 @@ end
 for i = 1:length(events_ses0)
   switch events_ses0(i).type
     case {'TEST_TARGET','RECOG_RESP','NEW_RESP'}
-      if events_ses0(i).rec_isTarg && isempty(events_ses0(i).item_eng)
+      if events_ses0(i).rec_isTarg == 1 && isempty(events_ses0(i).item_eng)
         [studyEvent] = filterStruct(events_ses0,'ismember(type,varargin{1}) & ismember(item_swa,varargin{2}) & ismember(condition,varargin{3}) & list == varargin{4}',{'STUDY_TARGET'},{events_ses0(i).item_swa},{'study'},events_ses0(i).list);
         events_ses0(i).item_eng = studyEvent.item_eng;
       end
@@ -792,8 +799,9 @@ for i = 1:length(events_ses0)
       if length(testEvent) > 1
         error('Found multiple events when searching for study target %s!',events_ses0(i).item_swa);
       elseif isempty(testEvent)
-        % this would only happen when they didn't finish a session
+        % this might happen when they didn't finish a session
         warning('Subject %s possibly did not finish session_0',subject);
+        fprintf('Or there was just no response for study target ''%s'': %s %s list %d, event %d.\n',events_ses0(i).item_swa,events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
         keyboard
         
         % study presentation - test info
@@ -819,14 +827,14 @@ for i = 1:length(events_ses0)
         if ~isempty(testEvent.rec_recall)
           events_ses0(i).rec_recall = testEvent.rec_recall;
           events_ses0(i).rec_recall_resp = testEvent.rec_recall_resp;
-        elseif isempty(testEvent.rec_recall) && testEvent.rec_isTarg && testEvent.rec_correct
+        elseif isempty(testEvent.rec_recall) && testEvent.rec_isTarg == 1 && testEvent.rec_correct == 1
           % if it's empty but was correctly called old then there was a
           % chance for recall
           events_ses0(i).rec_recall = 0;
           events_ses0(i).rec_recall_resp = '';
           events_ses0(tInd).rec_recall = 0;
           events_ses0(tInd).rec_recall_resp = '';
-        elseif isempty(testEvent.rec_recall) && testEvent.rec_isTarg && ~testEvent.rec_correct
+        elseif isempty(testEvent.rec_recall) && testEvent.rec_isTarg == 1 && testEvent.rec_correct == 0
           % if it's empty but was correctly called new then there was no
           % chance for recall, so it's -1
           events_ses0(i).rec_recall = -1;
@@ -962,7 +970,7 @@ for i = 1:length(events_ses0)
           keyboard
         end
         
-        if (~events_ses0(i).rec_isTarg && events_ses0(i).rec_correct) || (events_ses0(i).rec_isTarg && ~events_ses0(i).rec_correct)
+        if (events_ses0(i).rec_isTarg == 0 && events_ses0(i).rec_correct == 1) || (events_ses0(i).rec_isTarg == 1 && events_ses0(i).rec_correct == 0)
           % if it was a "new" response
           [newRespEvents,nrInd] = filterStruct(events_ses0,'ismember(type,varargin{1}) & ismember(item_swa,varargin{2}) & list == varargin{3}',{'NEW_RESP'},{events_ses0(i).item_swa},events_ses0(i).list);
           if length(newRespEvents) == 1
@@ -997,6 +1005,19 @@ for i = 1:length(events_ses0)
         events_ses0(rrInd).rec_recall_resp = events_ses0(i).ret_recall_resp;
         events_ses0(rrInd).ret_recall = events_ses0(i).ret_recall;
         events_ses0(rrInd).ret_recall_resp = events_ses0(i).ret_recall_resp;
+      elseif length(rRespEvents) > 1
+        fprintf('Found a word (''%s'') that might have been used as both a target and a lure: %s %s list %d, event %d (not associated with a list?). Setting their fields so they will not be used.\n',events_ses0(i).item_swa,events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
+        %keyboard
+        theseRepeats = find(rrInd);
+        for repEv = 1:length(rRespEvents)
+          events_ses0(theseRepeats(repEv)).train_type = '';
+          events_ses0(theseRepeats(repEv)).quiz_recall = -1;
+          events_ses0(theseRepeats(repEv)).quiz_recall_resp = '';
+          events_ses0(theseRepeats(repEv)).ret_recall = -1;
+          events_ses0(theseRepeats(repEv)).ret_recall_resp = '';
+          events_ses0(theseRepeats(repEv)).rec_recall = -1;
+          events_ses0(theseRepeats(repEv)).rec_recall_resp = '';
+        end
       else
         keyboard
       end
@@ -1047,10 +1068,13 @@ for i = 1:length(events_ses0)
         events_ses0(i).ret_recall = events_ses0(tInd).ret_recall;
         events_ses0(i).ret_recall_resp = events_ses0(tInd).ret_recall_resp;
       elseif isempty(testTargEvents) && strcmp(events_ses0(i).rec_recall_resp,vocal)
-        % TODO: just some kind of intrusion or random vocalization?
-        fprintf('Might have found an intrusion or vocalization at %s %s list %d, event %d (not associated with a list?).\n',events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
+        % TODO: just some kind of random vocalization?
+        fprintf('Found a vocalization for recalling translation of ''%s'': %s %s list %d, event %d (not associated with a list?).\n',events_ses0(i).item_swa,events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
+        %keyboard
       else
-        keyboard
+        % TODO: just some kind of intrusion?
+        fprintf('Might have found an intrusion (''%s'') for recalling translation of ''%s'': %s %s list %d, event %d (not associated with a list?).\n',events_ses0(i).rec_recall_resp,events_ses0(i).item_swa,events_ses0(i).subject,events_ses0(i).condition,events_ses0(i).list,i);
+        %keyboard
       end
   end
 end

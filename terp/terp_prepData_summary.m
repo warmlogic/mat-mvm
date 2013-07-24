@@ -35,6 +35,10 @@ end
 subjects = {
   'TERP001';
   'TERP002';
+  'TERP003';
+  'TERP004';
+  'TERP009';
+  'TERP010';
   };
 
 sessions = {'session_0','session_1'};

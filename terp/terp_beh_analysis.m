@@ -19,11 +19,39 @@ saveDir = dataroot;
 subjects = {
   'TERP001';
   'TERP002';
+  'TERP003';
+  'TERP004';
+  'TERP009';
+  'TERP010';
   };
 
 sessions = {'session_0','session_1'};
 
+resultsFile = fullfile(dataroot,sprintf('TERP_results_%dsub.txt',length(subjects)));
+%resultsFile = fullfile('~/Desktop',sprintf('TERP_results_%dsub.txt',length(subjects)));
+rf = fopen(resultsFile,'w');
+
+% legend
+fprintf(rf,'QuTr = quiz-trained\n');
+fprintf(rf,'ReTr = restudy-trained\n');
+
+fprintf(rf,'HR = hit rate\n');
+fprintf(rf,'MR = miss rate\n');
+fprintf(rf,'CRR = correct rejection rate\n');
+fprintf(rf,'FAR = false alarm rate\n');
+
+fprintf(rf,'RR = recall rate\n');
+
+fprintf(rf,'Recog = recognition\n');
+fprintf(rf,'Reten = retention\n');
+
+fprintf(rf,'\n');
+
+% header
+fprintf(rf,'subject\tQuizRecallRate\tQuTr Recog HR\tQuTr Recog MR\tReTr Recog HR\tReTr Recog MR\tRecog CRR\tRecog FAR\tQuTr Recog RR\tReTr Recog RR\tQuTr Reten RR\tReTr Reten RR\n');
+  
 for sub = 1:length(subjects)
+  fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
   fprintf('Getting data for %s (both sessions)...\n',subjects{sub});
   
   eventsDir_sub = fullfile(saveDir,subjects{sub},'events');
@@ -100,40 +128,60 @@ for sub = 1:length(subjects)
   reten_norecall_quiz = filterStruct(study_targ_quiz,'ret_recall == 0');
   reten_norecall_restudy = filterStruct(study_targ_restudy,'ret_recall == 0');
   
-  fprintf('QuizTrained quiz recall rate = (%d/%d) = %.3f\n',length(quiz_recall_quiz),length(study_targ_quiz),(length(quiz_recall_quiz) / length(study_targ_quiz)));
+  qt_qrr = (length(quiz_recall_quiz) / length(study_targ_quiz));
+  fprintf('QuizTrained quiz recall rate = (%d/%d) = %.3f\n',length(quiz_recall_quiz),length(study_targ_quiz),qt_qrr);
   %fprintf('QuizTrained quiz norecall rate = (%d/%d) = %.3f\n',length(quiz_norecall_quiz),length(study_targ_quiz),(length(quiz_norecall_quiz) / length(study_targ_quiz)));
   
   % during recogrecall
   fprintf('\n');
-  fprintf('QuizTrained recognition HR = (%d/%d) = %.3f\n',length(recog_targ_H_quiz),length(study_targ_quiz),(length(recog_targ_H_quiz) / length(study_targ_quiz)));
-  fprintf('QuizTrained recognition MR = (%d/%d) = %.3f\n',length(recog_targ_M_quiz),length(study_targ_quiz),(length(recog_targ_M_quiz) / length(study_targ_quiz)));
-  fprintf('QuizTrained recognition MR sure = (%d/%d) = %.3f\n',length(recog_targ_M_quiz_sure),length(recog_targ_M_quiz),(length(recog_targ_M_quiz_sure) / length(recog_targ_M_quiz)));
-  fprintf('QuizTrained recognition MR maybe = (%d/%d) = %.3f\n',length(recog_targ_M_quiz_maybe),length(recog_targ_M_quiz),(length(recog_targ_M_quiz_maybe) / length(recog_targ_M_quiz)));
+  qt_recog_hr = (length(recog_targ_H_quiz) / length(study_targ_quiz));
+  fprintf('QuizTrained recognition HR = (%d/%d) = %.3f\n',length(recog_targ_H_quiz),length(study_targ_quiz),qt_recog_hr);
+  qt_recog_mr = (length(recog_targ_M_quiz) / length(study_targ_quiz));
+  fprintf('QuizTrained recognition MR = (%d/%d) = %.3f\n',length(recog_targ_M_quiz),length(study_targ_quiz),qt_recog_mr);
+  qt_recog_mr_s = (length(recog_targ_M_quiz_sure) / length(recog_targ_M_quiz));
+  fprintf('QuizTrained recognition MR sure = (%d/%d) = %.3f\n',length(recog_targ_M_quiz_sure),length(recog_targ_M_quiz),qt_recog_mr_s);
+  qt_recog_mr_m = (length(recog_targ_M_quiz_maybe) / length(recog_targ_M_quiz));
+  fprintf('QuizTrained recognition MR maybe = (%d/%d) = %.3f\n',length(recog_targ_M_quiz_maybe),length(recog_targ_M_quiz),qt_recog_mr_m);
   
-  fprintf('RestudyTrained recognition HR = (%d/%d) = %.3f\n',length(recog_targ_H_restudy),length(study_targ_restudy),(length(recog_targ_H_restudy) / length(study_targ_restudy)));
-  fprintf('RestudyTrained recognition MR = (%d/%d) = %.3f\n',length(recog_targ_M_restudy),length(study_targ_restudy),(length(recog_targ_M_restudy) / length(study_targ_restudy)));
-  fprintf('RestudyTrained recognition MR sure = (%d/%d) = %.3f\n',length(recog_targ_M_restudy_sure),length(recog_targ_M_restudy),(length(recog_targ_M_restudy_sure) / length(recog_targ_M_restudy)));
-  fprintf('RestudyTrained recognition MR maybe = (%d/%d) = %.3f\n',length(recog_targ_M_restudy_maybe),length(recog_targ_M_restudy),(length(recog_targ_M_restudy_maybe) / length(recog_targ_M_restudy)));
+  rt_recog_hr = (length(recog_targ_H_restudy) / length(study_targ_restudy));
+  fprintf('RestudyTrained recognition HR = (%d/%d) = %.3f\n',length(recog_targ_H_restudy),length(study_targ_restudy),rt_recog_hr);
+  rt_recog_mr = (length(recog_targ_M_restudy) / length(study_targ_restudy));
+  fprintf('RestudyTrained recognition MR = (%d/%d) = %.3f\n',length(recog_targ_M_restudy),length(study_targ_restudy),rt_recog_mr);
+  rt_recog_mr_s = (length(recog_targ_M_restudy_sure) / length(recog_targ_M_restudy));
+  fprintf('RestudyTrained recognition MR sure = (%d/%d) = %.3f\n',length(recog_targ_M_restudy_sure),length(recog_targ_M_restudy),rt_recog_mr_s);
+  rt_recog_mr_m = (length(recog_targ_M_restudy_maybe) / length(recog_targ_M_restudy));
+  fprintf('RestudyTrained recognition MR maybe = (%d/%d) = %.3f\n',length(recog_targ_M_restudy_maybe),length(recog_targ_M_restudy),rt_recog_mr_m);
   
   fprintf('\n');
-  fprintf('Recognition CRR = (%d/%d) = %.3f\n',length(recog_lure_CR),length(recog_lure),(length(recog_lure_CR) / length(recog_lure)));
-  fprintf('Recognition CRR sure = (%d/%d) = %.3f\n',length(recog_lure_CR_sure),length(recog_lure_CR),(length(recog_lure_CR_sure) / length(recog_lure_CR)));
-  fprintf('Recognition CRR maybe = (%d/%d) = %.3f\n',length(recog_lure_CR_maybe),length(recog_lure_CR),(length(recog_lure_CR_maybe) / length(recog_lure_CR)));
-  fprintf('Recognition FAR = (%d/%d) = %.3f\n',length(recog_lure_FA),length(recog_lure),(length(recog_lure_FA) / length(recog_lure)));
+  recog_cr = (length(recog_lure_CR) / length(recog_lure));
+  fprintf('Recognition CRR = (%d/%d) = %.3f\n',length(recog_lure_CR),length(recog_lure),recog_cr);
+  recog_cr_s = (length(recog_lure_CR_sure) / length(recog_lure_CR));
+  fprintf('Recognition CRR sure = (%d/%d) = %.3f\n',length(recog_lure_CR_sure),length(recog_lure_CR),recog_cr_s);
+  recog_cr_m = (length(recog_lure_CR_maybe) / length(recog_lure_CR));
+  fprintf('Recognition CRR maybe = (%d/%d) = %.3f\n',length(recog_lure_CR_maybe),length(recog_lure_CR),recog_cr_m);
+  recog_far = (length(recog_lure_FA) / length(recog_lure));
+  fprintf('Recognition FAR = (%d/%d) = %.3f\n',length(recog_lure_FA),length(recog_lure),recog_far);
   
   fprintf('\n');
-  fprintf('QuizTrained recognition recall rate = (%d/%d) = %.3f\n',length(recog_recall_quiz),length(recog_targ_H_quiz),(length(recog_recall_quiz) / length(recog_targ_H_quiz)));
+  qt_recog_rr = (length(recog_recall_quiz) / length(recog_targ_H_quiz));
+  fprintf('QuizTrained recognition recall rate = (%d/%d) = %.3f\n',length(recog_recall_quiz),length(recog_targ_H_quiz),qt_recog_rr);
   %fprintf('QuizTrained recognition norecall rate = (%d/%d) = %.3f\n',length(recog_norecall_quiz),length(recog_targ_H_quiz),(length(recog_norecall_quiz) / length(recog_targ_H_quiz)));
-  fprintf('RestudyTrained recognition recall rate = (%d/%d) = %.3f\n',length(recog_recall_restudy),length(recog_targ_H_restudy),(length(recog_recall_restudy) / length(recog_targ_H_restudy)));
+  rt_recog_rr = (length(recog_recall_restudy) / length(recog_targ_H_restudy));
+  fprintf('RestudyTrained recognition recall rate = (%d/%d) = %.3f\n',length(recog_recall_restudy),length(recog_targ_H_restudy),rt_recog_rr);
   %fprintf('RestudyTrained recognition norecall rate = (%d/%d) = %.3f\n',length(recog_norecall_restudy),length(recog_targ_H_restudy),(length(recog_norecall_restudy) / length(recog_targ_H_restudy)));
   
   fprintf('\n');
-  fprintf('QuizTrained retention recall rate = (%d/%d) = %.3f\n',length(reten_recall_quiz),length(study_targ_quiz),(length(reten_recall_quiz) / length(study_targ_quiz)));
+  qt_reten_rr = (length(reten_recall_quiz) / length(study_targ_quiz));
+  fprintf('QuizTrained retention recall rate = (%d/%d) = %.3f\n',length(reten_recall_quiz),length(study_targ_quiz),qt_reten_rr);
   %fprintf('QuizTrained retention norecall rate = (%d/%d) = %.3f\n',length(reten_norecall_quiz),length(study_targ_quiz),(length(reten_norecall_quiz) / length(study_targ_quiz)));
-  fprintf('RestudyTrained retention recall rate = (%d/%d) = %.3f\n',length(reten_recall_restudy),length(study_targ_restudy),(length(reten_recall_restudy) / length(study_targ_restudy)));
+  rt_reten_rr = (length(reten_recall_restudy) / length(study_targ_restudy));
+  fprintf('RestudyTrained retention recall rate = (%d/%d) = %.3f\n',length(reten_recall_restudy),length(study_targ_restudy),rt_reten_rr);
   %fprintf('RestudyTrained retention norecall rate = (%d/%d) = %.3f\n',length(reten_norecall_restudy),length(study_targ_restudy),(length(reten_norecall_restudy) / length(study_targ_restudy)));
   
   fprintf('\n');
+  
+  fprintf(rf,'%s\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n',...
+    subjects{sub},qt_qrr,qt_recog_hr,qt_recog_mr,rt_recog_hr,rt_recog_mr,recog_cr,recog_far,qt_recog_rr,rt_recog_rr,qt_reten_rr,rt_reten_rr);
   
 %   %% debug
 %   
@@ -144,3 +192,4 @@ for sub = 1:length(subjects)
 %   evrs = filterStruct(events_ses0,'ismember(train_type,varargin{1}) & ismember(condition,varargin{2})',{'restudy'},{'recogrecall'});
 end
 
+fclose(rf);
