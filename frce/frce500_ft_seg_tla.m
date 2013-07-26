@@ -153,7 +153,8 @@ end
 %% load the analysis details
 
 % avg
-adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400_avg/analysisDetails.mat';
+% adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400_avg/analysisDetails.mat';
+adFile = '~/data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400_avg/analysisDetails.mat';
 
 % % keeptrials
 % adFile = '/Volumes/curranlab/Data/FRCE500/2 Session Recall/EEG/nspp/-1000_1400/ft_data/no_recall_recall_eq0_art_nsAuto/tla_-1000_1400/analysisDetails.mat';

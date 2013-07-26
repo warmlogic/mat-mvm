@@ -473,6 +473,12 @@ for s = 1:length(subsets)
         item_da = (2 / (1 + (item_z_slope^2)))^(1/2) * rec_dp2;
         %item_da = (2 / (1 + (item_z_slope^2)))^(1/2) * (rec_roc_zhr - (item_z_slope * rec_roc_zfar));
         
+        fprintf('there may be a simpler way to calculate slope!\n');
+        % % is this simpler? maybe use polyfit to use all the points to get
+        % % slope?
+        % item_z_slope = rec_roc_zhr / -rec_roc_zfar;
+        % da = (2 / (1 + (s^2)))^(1/2) * (zhr - (s*zfar));
+
 %         % plot zROC
 %         figure
 %         plot([0 0],[-3 3],'k--'); % vert
