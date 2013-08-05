@@ -9,13 +9,13 @@ if ~isempty(ptbDir)
   addpath(genpath(ptbDir));
 end
 
-%% set up eeg_toolbox path
-eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox*'));
-if ~isempty(eeg_toolboxDir)
-  eeg_toolboxDir = fullfile(myMatlabDir,eeg_toolboxDir.name);
-  % add top folder and all subfolders
-  addpath(genpath(eeg_toolboxDir));
-end
+% %% set up eeg_toolbox path
+% eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox'));
+% if ~isempty(eeg_toolboxDir)
+%   eeg_toolboxDir = fullfile(myMatlabDir,eeg_toolboxDir.name);
+%   % add top folder and all subfolders
+%   addpath(genpath(eeg_toolboxDir));
+% end
 
 %% set up eeglab path
 eeglabDir = dir(fullfile(myMatlabDir,'eeglab*'));
@@ -52,8 +52,12 @@ if exist(mvpaDir,'dir')
   % add only the top folder
   addpath(mvpaDir);
   
-  % add the subdirectories that MVPA needs
-  mvpa_add_paths;
+  % % add the subdirectories that MVPA needs
+  % mvpa_add_paths;
+  
+  % add the subdirectories for eeg_ana toolbox
+  addpath(fullfile(mvpaDir,'core','learn'));
+  addpath(fullfile(mvpaDir,'core','util'));
 end
 
 %% set up fieldtrip path
@@ -125,6 +129,22 @@ if ~isempty(epDir)
   addpath(genpath(epDir));
 end
 
+%% set up EEG Analysis Toolbox path
+eatDir = dir(fullfile(myMatlabDir,'eeg_ana_*'));
+if ~isempty(eatDir)
+  eatDir = fullfile(myMatlabDir,eatDir.name);
+  % add top folder and all subfolders
+  addpath(genpath(eatDir));
+  
+  % remove some toolboxes from eeg_ana's external directory
+  eatExtDir = fullfile(eatDir,'external');
+  if exist(eatExtDir,'dir')
+    %fprintf('Removing %s and its subdirectories from path.\n',eatExtDir);
+    rmpath(genpath(fullfile(eatExtDir,'eeglab')));
+    rmpath(genpath(fullfile(eatExtDir,'mvpa')));
+  end
+end
+
 %% add my other analysis scripts/files
 addpath(genpath(fullfile(myMatlabDir,'recogmodel_mvm')));
 
@@ -141,9 +161,27 @@ vc_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.git')) | ~isempty(strfin
 % remove them
 rmpath(sprintf(repmat('%s',1,sum(vc_entries)),entries{vc_entries}));
 
-%% finish
+%% clean up
 %cd(myMatlabDir);
 
 clear *Dir *entries i entry conflictFiles
 
 %clearvars
+
+%% set better default colors using linspecer
+
+% http://www.mathworks.com/matlabcentral/fileexchange/42673-beautiful-and-distinguishable-line-colors-+-colormap
+
+if exist('linspecer','file')
+  set(0,'DefaultFigureColormap',linspecer);
+end
+
+% Set the color order separately for each plot. Replace '8' with the number
+% of lines you have.
+% set(0,'DefaultAxesColorOrder',linspecer(8))
+
+% Increase line thickness to make nicer plots and better perceived color
+% difference.
+
+% set(0,'DefaultLineLineWidth',2);
+set(0,'DefaultLineLineWidth',1.2);
