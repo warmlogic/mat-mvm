@@ -22,9 +22,12 @@ function send_gmail(subject,mail_message,recipients,attachments)
 % Only a subject is required if you want to send mail to yourself.
 %
 % NB: You must modify send_gmail.m to inlcude your email address and
-% password and then do an encrpyted save using pcode: 'pcode send_gmail'.
-% The pcoded file takes precedence over the .m file. Be sure to remove your
-% password from the .m file after pcoding.
+% password and then do an encrpyted save using pcode ("protected" code) by
+% typing: 'pcode send_gmail'. The pcoded file takes precedence over the .m
+% file. Be sure to remove your password from the .m file after pcoding.
+%
+% See this page for more information about pcode:
+% http://www.mathworks.com/help/matlab/ref/pcode.html
 %
 % Adapted from:
 % http://www.amirwatad.com/blog/archives/2009/01/31/sending-emails-with-matlab/
