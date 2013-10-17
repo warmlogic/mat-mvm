@@ -190,4 +190,5 @@ end
 % difference.
 
 % set(0,'DefaultLineLineWidth',2);
-set(0,'DefaultLineLineWidth',1.2);
+% set(0,'DefaultLineLineWidth',1.2);
+set(0,'DefaultLineLineWidth',1.0);
