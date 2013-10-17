@@ -7,6 +7,12 @@ ptbDir = fullfile(filesep,'Applications','Psychtoolbox');
 if ~isempty(ptbDir)
   % add top folder and all subfolders
   addpath(genpath(ptbDir));
+  
+  obsoleteDir = fullfile(ptbDir,'PsychHardware','iViewXToolbox','Obsolete');
+  if exist(obsoleteDir,'dir')
+    %fprintf('Removing %s and its subdirectories from path.\n',obsoleteDir);
+    rmpath(genpath(obsoleteDir));
+  end
 end
 
 % %% set up eeg_toolbox path
