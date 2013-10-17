@@ -22,7 +22,7 @@ function blink_correction_wrapper(whichStages)
 %
 
 % check/handle arguments
-error(nargchk(0,1,nargin))
+narginchk(0,1);
 STAGES = 1;
 if nargin == 1
   STAGES = whichStages;
@@ -43,12 +43,21 @@ end
 % % baseline period (in milliseconds)
 % exper.baseline_ms = [-200 0];
 
-exper.name = 'COSI2';
-dirs.eegDir = fullfile('eeg','eppp');
+% exper.name = 'COSI2';
+% dirs.eegDir = fullfile('eeg','eppp');
+% % sampling rate of the EEG data
+% exper.sampleRate = 500;
+% % segment length created with NetStation (in seconds)
+% exper.prepost = [-1 2.5];
+% % baseline period (in milliseconds)
+% exper.baseline_ms = [-200 0];
+
+exper.name = 'SPACE';
+dirs.eegDir = fullfile('EEG','Sessions','face_house_ratings','eppp');
 % sampling rate of the EEG data
-exper.sampleRate = 500;
+exper.sampleRate = 250;
 % segment length created with NetStation (in seconds)
-exper.prepost = [-1 2.5];
+exper.prepost = [-1.0 1.0];
 % baseline period (in milliseconds)
 exper.baseline_ms = [-200 0];
 
@@ -110,7 +119,8 @@ if runLocally == 0
   %% set up for running on Dream
   
   % need to export DISPLAY to an offscreen buffer for MATLAB DCS graphics
-  sched = findResource();
+  %sched = findResource();
+  sched = parcluster();
   if strcmp(sched.Type, 'generic')
     setenv('DISPLAY', 'dream:99');
   end
