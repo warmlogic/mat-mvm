@@ -1,4 +1,4 @@
-function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
+function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
 % [ft_raw,badChan] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
@@ -263,15 +263,15 @@ for ses = 1:length(session)
     evVals{i} = allEv.event(i).value;
   end
   evVals = unique(evVals);
-  if ~ismember(eventValue,evVals)
+  if ~ismember(eventValue_orig,evVals)
     fprintf('The available event values in %s are: %s\n',infile_ns,sprintf(repmat('''%s'' ',1,length(evVals)),evVals{:}));
-    error('%s is not in the EEG file. You should redefine exper.eventValues.',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
-  elseif ismember(eventValue,evVals)
+    error('%s is not in the EEG file. You should redefine exper.eventValues.',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
+  elseif ismember(eventValue_orig,evVals)
     fprintf('You can safely ignore the warning about ''no trialfun was specified''.\n')
   end
   
   % set up for defining the trials based on file type
-  cfg.trialdef.eventvalue = eventValue;
+  cfg.trialdef.eventvalue = eventValue_orig;
   cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
   cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
@@ -283,14 +283,14 @@ for ses = 1:length(session)
   end
   % define the trials
   try
-    fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
+    fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     cfg = ft_definetrial(cfg);
   catch ME
     % if there were zero trials for this event type
     if strfind(ME.message,'no trials were defined')
-      fprintf('No %s events found!\n',sprintf(repmat('''%s'' ',1,length(eventValue)),eventValue{:}));
+      fprintf('No %s events found!\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     end
-    fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',cell2mat(eventValue));
+    fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',cell2mat(eventValue_orig));
     
     % set an empty cell and return to the calling function
     data.trial = {};
@@ -409,7 +409,7 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data);
+    [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
   end
   
   badChanAllSes = unique(cat(2,badChanAllSes,badChan));

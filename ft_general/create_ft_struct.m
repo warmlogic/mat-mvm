@@ -173,6 +173,56 @@ if ~isempty(exper.eventValuesExtra.newValue)
   end
 end
 
+%% make the field names legas
+
+% see if there are illegal characters
+illegalStructFieldChars = {' ','-'};
+eventValues_orig = exper.eventValues;
+for i = 1:length(exper.eventValues)
+  for j = 1:length(illegalStructFieldChars)
+    if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{j}))
+      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{j},'_');
+    end
+  end
+  % cannot start a struct field with a number
+  if ~isnan(str2double(exper.eventValues{i}(1)))
+    keyboard
+    exper.eventValues{i} = ['a',exper.eventValues{i}];
+  end
+end
+
+if ~isempty(exper.eventValuesExtra.newValue)
+  eventValuesWithExtra_orig = eventValuesWithExtra;
+  for i = 1:length(eventValuesWithExtra)
+    for j = 1:length(illegalStructFieldChars)
+      if ~isempty(strfind(eventValuesWithExtra{i},illegalStructFieldChars{j}))
+        eventValuesWithExtra{i} = strrep(eventValuesWithExtra{i},illegalStructFieldChars{j},'_');
+      end
+    end
+    % cannot start a struct field with a number
+    if ~isnan(str2double(eventValuesWithExtra{i}(1)))
+      keyboard
+      eventValuesWithExtra{i} = ['a',eventValuesWithExtra{i}];
+    end
+  end
+end
+
+if ~isempty(exper.eventValuesExtra.toCombine)
+  eventValuesToCombine_orig = exper.eventValuesExtra.toCombine;
+  for i = 1:length(exper.eventValuesExtra.toCombine)
+    for j = 1:length(illegalStructFieldChars)
+      if ~isempty(strfind(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j}))
+        exper.eventValuesExtra.toCombine{i} = strrep(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j},'_');
+      end
+    end
+    % cannot start a struct field with a number
+    if ~isnan(str2double(exper.eventValuesExtra.toCombine{i}(1)))
+      keyboard
+      exper.eventValuesExtra.toCombine{i} = ['a',exper.eventValuesExtra.toCombine{i}];
+    end
+  end
+end
+
 %% initialize for storing some information
 
 % store the number of events for each subject and session all of the event
@@ -261,9 +311,11 @@ for sub = 1:length(exper.subjects)
         end
       else
         eventValuesToProcess = exper.eventValues;
+        eventValuesToProcess_orig = eventValues_orig;
       end
     else
       eventValuesToProcess = exper.eventValues;
+      eventValuesToProcess_orig = eventValues_orig;
     end
     
     if isempty(eventValuesToProcess)
@@ -283,7 +335,7 @@ for sub = 1:length(exper.subjects)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,files.elecfile,ana,exper);
+      [ft_raw,badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,files.elecfile,ana,exper);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -334,7 +386,7 @@ for sub = 1:length(exper.subjects)
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
         % ft_raw
-        [ft_raw.(eventVal),badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),files.elecfile,ana,exper);
+        [ft_raw.(eventVal),badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),eventValuesToProcess_orig(evVal),files.elecfile,ana,exper);
         
         % if an extra value was defined and the current event is one of its
         % sub-values, store the current event in the toCombine field for
