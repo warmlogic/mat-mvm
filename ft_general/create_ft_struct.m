@@ -187,9 +187,9 @@ appendInFrontOfNum = 'a';
 eventValues_orig = exper.eventValues;
 for i = 1:length(exper.eventValues)
   % look for illegal characters
-  for j = 1:length(illegalStructFieldChars)
-    if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{j}))
-      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+  for ic = 1:length(illegalStructFieldChars)
+    if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{ic}))
+      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{ic},replaceIllegalCharWith);
     end
   end
   % cannot start a struct field with a number
@@ -203,9 +203,9 @@ if ~isempty(exper.eventValuesExtra.newValue)
   eventValuesWithExtra_orig = eventValuesWithExtra;
   % look for illegal characters
   for i = 1:length(eventValuesWithExtra)
-    for j = 1:length(illegalStructFieldChars)
-      if ~isempty(strfind(eventValuesWithExtra{i},illegalStructFieldChars{j}))
-        eventValuesWithExtra{i} = strrep(eventValuesWithExtra{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+    for ic = 1:length(illegalStructFieldChars)
+      if ~isempty(strfind(eventValuesWithExtra{i},illegalStructFieldChars{ic}))
+        eventValuesWithExtra{i} = strrep(eventValuesWithExtra{i},illegalStructFieldChars{ic},replaceIllegalCharWith);
       end
     end
     % cannot start a struct field with a number
@@ -220,14 +220,16 @@ if ~isempty(exper.eventValuesExtra.toCombine)
   eventValuesToCombine_orig = exper.eventValuesExtra.toCombine;
   % look for illegal characters
   for i = 1:length(exper.eventValuesExtra.toCombine)
-    for j = 1:length(illegalStructFieldChars)
-      if ~isempty(strfind(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j}))
-        exper.eventValuesExtra.toCombine{i} = strrep(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+    for j = 1:length(exper.eventValuesExtra.toCombine{i})
+      for ic = 1:length(illegalStructFieldChars)
+        if ~isempty(strfind(exper.eventValuesExtra.toCombine{i}{j},illegalStructFieldChars{ic}))
+          exper.eventValuesExtra.toCombine{i}{j} = strrep(exper.eventValuesExtra.toCombine{i}{j},illegalStructFieldChars{ic},replaceIllegalCharWith);
+        end
       end
-    end
-    % cannot start a struct field with a number
-    if isstrprop(exper.eventValuesExtra.toCombine{i}(1),'digit')
-      exper.eventValuesExtra.toCombine{i} = [appendInFrontOfNum,exper.eventValuesExtra.toCombine{i}];
+      % cannot start a struct field with a number
+      if isstrprop(exper.eventValuesExtra.toCombine{i}{j}(1),'digit')
+        exper.eventValuesExtra.toCombine{i}{j} = [appendInFrontOfNum,exper.eventValuesExtra.toCombine{i}{j}];
+      end
     end
   end
 end

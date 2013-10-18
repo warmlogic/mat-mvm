@@ -61,9 +61,9 @@ appendInFrontOfNum = 'a';
 
 for i = 1:length(exper.eventValues)
   % look for illegal characters
-  for j = 1:length(illegalStructFieldChars)
-    if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{j}))
-      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+  for ic = 1:length(illegalStructFieldChars)
+    if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{ic}))
+      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{ic},replaceIllegalCharWith);
     end
   end
   % cannot start a struct field with a number
@@ -77,14 +77,16 @@ if ~isempty(exper.eventValuesExtra.newValue)
   %eventValuesWithExtra_orig = eventValuesWithExtra;
   % look for illegal characters
   for i = 1:length(exper.eventValuesExtra.newValue)
-    for j = 1:length(illegalStructFieldChars)
-      if ~isempty(strfind(exper.eventValuesExtra.newValue{i},illegalStructFieldChars{j}))
-        exper.eventValuesExtra.newValue{i} = strrep(exper.eventValuesExtra.newValue{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+    for j = 1:length(exper.eventValuesExtra.newValue{i})
+      for ic = 1:length(illegalStructFieldChars)
+        if ~isempty(strfind(exper.eventValuesExtra.newValue{i}{j},illegalStructFieldChars{ic}))
+          exper.eventValuesExtra.newValue{i} = strrep(exper.eventValuesExtra.newValue{i}{j},illegalStructFieldChars{ic},replaceIllegalCharWith);
+        end
       end
-    end
-    % cannot start a struct field with a number
-    if isstrprop(exper.eventValuesExtra.newValue{i}(1),'digit')
-      exper.eventValuesExtra.newValue{i} = [appendInFrontOfNum,exper.eventValuesExtra.newValue{i}];
+      % cannot start a struct field with a number
+      if isstrprop(exper.eventValuesExtra.newValue{i}{j}(1),'digit')
+        exper.eventValuesExtra.newValue{i}{j} = [appendInFrontOfNum,exper.eventValuesExtra.newValue{i}{j}];
+      end
     end
   end
 end

@@ -167,7 +167,7 @@ end
 % adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 
 % CR SC SI (with bad chan info), use this
-adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/eppp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_zeroVar/tla_-1000_1000/analysisDetails.mat';
 
 %adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
 %adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
