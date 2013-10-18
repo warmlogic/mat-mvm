@@ -173,52 +173,61 @@ if ~isempty(exper.eventValuesExtra.newValue)
   end
 end
 
-%% make the field names legas
+%% make the field names legal
 
-% see if there are illegal characters
-illegalStructFieldChars = {' ','-'};
+% some of the many characters that cannot be used in a struct field, to be
+% replaced with an underscore
+illegalStructFieldChars = {' ','-','+','=','!','@','#','$','%','^','&','*','?','~','(',')','{','}','[',']'};
+replaceIllegalCharWith = '_';
+
+% appent this character in front of a field that starts with a number
+appendInFrontOfNum = 'a';
+
+% back up original field values because that is how we access the data
 eventValues_orig = exper.eventValues;
 for i = 1:length(exper.eventValues)
+  % look for illegal characters
   for j = 1:length(illegalStructFieldChars)
     if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{j}))
-      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{j},'_');
+      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{j},replaceIllegalCharWith);
     end
   end
   % cannot start a struct field with a number
-  if ~isnan(str2double(exper.eventValues{i}(1)))
-    keyboard
-    exper.eventValues{i} = ['a',exper.eventValues{i}];
+  if isstrprop(exper.eventValues{i}(1),'digit')
+    exper.eventValues{i} = [appendInFrontOfNum,exper.eventValues{i}];
   end
 end
 
 if ~isempty(exper.eventValuesExtra.newValue)
+  % back up original field values
   eventValuesWithExtra_orig = eventValuesWithExtra;
+  % look for illegal characters
   for i = 1:length(eventValuesWithExtra)
     for j = 1:length(illegalStructFieldChars)
       if ~isempty(strfind(eventValuesWithExtra{i},illegalStructFieldChars{j}))
-        eventValuesWithExtra{i} = strrep(eventValuesWithExtra{i},illegalStructFieldChars{j},'_');
+        eventValuesWithExtra{i} = strrep(eventValuesWithExtra{i},illegalStructFieldChars{j},replaceIllegalCharWith);
       end
     end
     % cannot start a struct field with a number
-    if ~isnan(str2double(eventValuesWithExtra{i}(1)))
-      keyboard
-      eventValuesWithExtra{i} = ['a',eventValuesWithExtra{i}];
+    if isstrprop(eventValuesWithExtra{i}(1),'digit')
+      eventValuesWithExtra{i} = [appendInFrontOfNum,eventValuesWithExtra{i}];
     end
   end
 end
 
 if ~isempty(exper.eventValuesExtra.toCombine)
+  % back up original field values
   eventValuesToCombine_orig = exper.eventValuesExtra.toCombine;
+  % look for illegal characters
   for i = 1:length(exper.eventValuesExtra.toCombine)
     for j = 1:length(illegalStructFieldChars)
       if ~isempty(strfind(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j}))
-        exper.eventValuesExtra.toCombine{i} = strrep(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j},'_');
+        exper.eventValuesExtra.toCombine{i} = strrep(exper.eventValuesExtra.toCombine{i},illegalStructFieldChars{j},replaceIllegalCharWith);
       end
     end
     % cannot start a struct field with a number
-    if ~isnan(str2double(exper.eventValuesExtra.toCombine{i}(1)))
-      keyboard
-      exper.eventValuesExtra.toCombine{i} = ['a',exper.eventValuesExtra.toCombine{i}];
+    if isstrprop(exper.eventValuesExtra.toCombine{i}(1),'digit')
+      exper.eventValuesExtra.toCombine{i} = [appendInFrontOfNum,exper.eventValuesExtra.toCombine{i}];
     end
   end
 end
@@ -300,12 +309,17 @@ for sub = 1:length(exper.subjects)
         if ~exper.eventValuesExtra.onlyKeepExtras
           if isempty(exper.eventValuesExtra.newValue)
             eventValuesToProcess = exper.eventValues(~ismember(exper.eventValues,rawEvents));
+            eventValuesToProcess_orig = eventValues_orig(~ismember(exper.eventValues,rawEvents));
           elseif ~isempty(exper.eventValuesExtra.newValue)
             eventValuesToProcess = eventValuesWithExtra(~ismember(eventValuesWithExtra,rawEvents));
+            eventValuesToProcess_orig = eventValuesWithExtra_orig(~ismember(eventValuesWithExtra,rawEvents));
           end
         elseif exper.eventValuesExtra.onlyKeepExtras && ~isempty(exper.eventValuesExtra.newValue)
           eventValuesToProcess = exper.eventValuesExtra.toCombine(~ismember(cat(2,exper.eventValuesExtra.newValue{:}),rawEvents));
           eventValuesToProcess = cat(2,eventValuesToProcess{:});
+          
+          eventValuesToProcess_orig = eventValuesToCombine_orig(~ismember(cat(2,exper.eventValuesExtra.newValue{:}),rawEvents));
+          eventValuesToProcess_orig = cat(2,eventValuesToProcess_orig{:});
         else
           error('eventValuesToProcess was not set correctly.');
         end
@@ -346,7 +360,7 @@ for sub = 1:length(exper.subjects)
         end
       end
       
-      % if an extra value was defined store each of its sub-values in the
+      % if an extra value was defined, store each of its sub-values in the
       % toCombine field for appending them together at a later point
       if ~isempty(exper.eventValuesExtra.newValue)
         % get the name of this event type

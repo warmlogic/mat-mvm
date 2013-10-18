@@ -49,6 +49,46 @@ elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.art
   ana.artifact.type = {ana.artifact.type};
 end
 
+%% make the field names legal
+
+% some of the many characters that cannot be used in a struct field, to be
+% replaced with an underscore
+illegalStructFieldChars = {' ','-','+','=','!','@','#','$','%','^','&','*','?','~','(',')','{','}','[',']'};
+replaceIllegalCharWith = '_';
+
+% appent this character in front of a field that starts with a number
+appendInFrontOfNum = 'a';
+
+for i = 1:length(exper.eventValues)
+  % look for illegal characters
+  for j = 1:length(illegalStructFieldChars)
+    if ~isempty(strfind(exper.eventValues{i},illegalStructFieldChars{j}))
+      exper.eventValues{i} = strrep(exper.eventValues{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+    end
+  end
+  % cannot start a struct field with a number
+  if isstrprop(exper.eventValues{i}(1),'digit')
+    exper.eventValues{i} = [appendInFrontOfNum,exper.eventValues{i}];
+  end
+end
+
+if ~isempty(exper.eventValuesExtra.newValue)
+  % back up original field values
+  %eventValuesWithExtra_orig = eventValuesWithExtra;
+  % look for illegal characters
+  for i = 1:length(exper.eventValuesExtra.newValue)
+    for j = 1:length(illegalStructFieldChars)
+      if ~isempty(strfind(exper.eventValuesExtra.newValue{i},illegalStructFieldChars{j}))
+        exper.eventValuesExtra.newValue{i} = strrep(exper.eventValuesExtra.newValue{i},illegalStructFieldChars{j},replaceIllegalCharWith);
+      end
+    end
+    % cannot start a struct field with a number
+    if isstrprop(exper.eventValuesExtra.newValue{i}(1),'digit')
+      exper.eventValuesExtra.newValue{i} = [appendInFrontOfNum,exper.eventValuesExtra.newValue{i}];
+    end
+  end
+end
+
 %% name of the folder to save the FT data in
 
 % get all the event names
