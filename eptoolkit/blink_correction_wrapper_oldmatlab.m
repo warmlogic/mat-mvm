@@ -180,7 +180,8 @@ elseif isempty(exper.baseline_ms)
   exper.baseline_samp = [];
 end
 % struct for ep_readData, which gets called by ep_artifactCorrection
-exper.textPrefs_struct = struct('firstRow',1,'firstCol',1,'lastCol',0,'orientation',1);
+exper.textPrefs_struct = struct('firstRow',1,'lastRow',0,'firstCol',1,'lastCol',0,'orientation',1);
+% exper.textPrefs_struct = struct('firstRow',1,'firstCol',1,'lastCol',0,'orientation',1);
 
 % initialize
 exper.inputFile = '';
