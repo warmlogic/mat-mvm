@@ -32,8 +32,8 @@ end
 %% MODIFY THIS STUFF
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-exper.name = 'SOSI';
-%exper.name = 'SOCO';
+% exper.name = 'SOSI';
+exper.name = 'SOCO';
 %exper.name = 'COSI';
 dirs.eegDir = fullfile('eeg','eppp');
 % sampling rate of the EEG data
