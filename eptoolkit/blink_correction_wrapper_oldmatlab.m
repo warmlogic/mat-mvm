@@ -1,5 +1,5 @@
-function blink_correction_wrapper(whichStages)
-% blink_correction_wrapper(whichStages)
+function blink_correction_wrapper_oldmatlab(whichStages)
+% blink_correction_wrapper_oldmatlab(whichStages)
 %
 % To run on dream, at the command line type: distmsub blink_correction_wrapper.m
 %
