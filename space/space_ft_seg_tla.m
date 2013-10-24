@@ -215,7 +215,7 @@ ana = mm_ft_elecGroups(ana);
 
 % ana.eventValues = {exper.eventValues};
 
-ana.eventValues = {{'SC','SI','CR'}};
+ana.eventValues = {{'Face','House'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
 %ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
@@ -313,58 +313,7 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-%exper.badBehSub = {};
-% huge response bias to say "new": 18, 26
-exper.badBehSub = {'SPACE018','SPACE026'}; % for publication
-
-% % 10 and 20 had few F responses
-% exper.badBehSub = {'SPACE018','SPACE026','SPACE010','SPACE020'};
-
-% % equating d' 15 subjects
-% exper.badBehSub = {'SPACE018','SPACE026','SPACE022','SPACE001','SPACE006','SPACE029','SPACE024','SPACE012','SPACE015','SPACE030','SPACE028','SPACE020','SPACE014','SPACE013','SPACE017'};
-% % equating d' 13 subjects
-%exper.badBehSub = {'SPACE018','SPACE026','SPACE022','SPACE001','SPACE006','SPACE029','SPACE024','SPACE012','SPACE015','SPACE030','SPACE028','SPACE020','SPACE014','SPACE013','SPACE017','SPACE027','SPACE021'};
-
-
-
-% exper.p1n1_good = {'SPACE005','SPACE006','SPACE008','SPACE010','SPACE011','SPACE013','SPACE015','SPACE022','SPACE024','SPACE027','SPACE030'};
-% exper.p1n1_ok = {'SPACE001','SPACE003','SPACE004','SPACE007','SPACE012','SPACE014','SPACE016','SPACE021','SPACE023','SPACE029'};
-% exper.p1n1_bad = {'SPACE002','SPACE009','SPACE017','SPACE018','SPACE019','SPACE020','SPACE025','SPACE026','SPACE028'};
-% 
-% % plot good
-% exper.badBehSub = unique(cat(2,exper.p1n1_ok,exper.p1n1_bad));
-% 
-% % plot ok
-% exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_bad));
-% 
-% % plot bad
-% exper.badBehSub = unique(cat(2,exper.p1n1_good,exper.p1n1_ok));
-
-% % subsample of subjects (thresh=14) to remove for Familiar contrasts;
-% % should have 9 subjects left over
-% exper.badBehSub = {
-%   'SPACE001'
-%   'SPACE002'
-%   'SPACE003'
-%   'SPACE004'
-%   'SPACE005'
-%   'SPACE006'
-%   'SPACE007'
-%   'SPACE008'
-%   'SPACE009'
-%   'SPACE010'
-%   'SPACE014'
-%   'SPACE016'
-%   'SPACE018'
-%   'SPACE019'
-%   'SPACE020'
-%   'SPACE021'
-%   'SPACE022'
-%   'SPACE024'
-%   'SPACE025'
-%   'SPACE026'
-%   'SPACE027'
-%   };
+exper.badBehSub = {};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs(exper,ana,15);
@@ -557,8 +506,8 @@ cfg_plot = [];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
 cfg_plot.rois = {{'FS'},{'LPS'}};
-cfg_plot.rois = {{'FC'}};
-cfg_plot.ylims = [-5 2; -1 6];
+% cfg_plot.rois = {{'FC'}};
+cfg_plot.ylims = [-7 2; -1 8];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -874,7 +823,7 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 %cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
-cfg_ana.conditions = {{'FSC','N'},{'FSI','N'},{'FSC','FSI'}};
+cfg_ana.conditions = {{'Face','House'}};
 
 %cfg_ana.conditions = {{'all'}};
 %cfg_ana.conditions = {{'all_within_types'}};
@@ -897,7 +846,7 @@ cfg_plot.line_plots = 0;
 cfg_plot.ylims = [-5 -2; 1.5 4.5];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 %cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
-cfg_plot.plot_order = {'SC','SI','CR'};
+% cfg_plot.plot_order = {'SC','SI','CR'};
 %cfg_plot.rename_conditions = {'SC','SI','CR'};
 % cfg_plot.xlabel = 'Condition';
 % cfg_plot.ylabel = 'Voltage (\muV)';
