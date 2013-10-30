@@ -410,9 +410,8 @@ for ses = 1:length(session)
     fprintf('Not performing any artifact rejection.\n');
   else
     [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
+    badChanAllSes = unique(cat(2,badChanAllSes,badChan));
   end
-  
-  badChanAllSes = unique(cat(2,badChanAllSes,badChan));
   
   %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1
