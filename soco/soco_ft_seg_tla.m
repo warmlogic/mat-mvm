@@ -54,12 +54,12 @@ exper.eventValues = sort({...
 %   {'RSSC'},{'RSSI'},...
 %   {'RSC'},{'RSI'}};
 
-exper.eventValuesExtra.toCombine = {...
-  {'RFA_F_2','RFA_F_6'},{'RFA_RO_2','RFA_RO_6'},{'RFA_RS_2','RFA_RS_6'},...
-  {'RM_M_2','RM_M_6'},{'RM_S_2','RM_S_6'}};
-exper.eventValuesExtra.newValue = {...
-  {'RFA_F'},{'RFA_F'},{'RFA_RO'},{'RFA_RS'},...
-  {'RM_M'},{'RM_S'}};
+% exper.eventValuesExtra.toCombine = {...
+%   {'RFA_F_2','RFA_F_6'},{'RFA_RO_2','RFA_RO_6'},{'RFA_RS_2','RFA_RS_6'},...
+%   {'RM_M_2','RM_M_6'},{'RM_S_2','RM_S_6'}};
+% exper.eventValuesExtra.newValue = {...
+%   {'RFA_F'},{'RFA_RO'},{'RFA_RS'},...
+%   {'RM_M'},{'RM_S'}};
 
 %exper.eventValuesExtra.toCombine = {{'FSC2','FSC6','FSI2','FSI6'},{'NM2','NM6','NS2','NS6'},{'ROSC2','ROSC6','ROSI2','ROSI6'},{'RSSC2','RSSC6','RSSI2','RSSI6'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
@@ -70,9 +70,9 @@ exper.eventValuesExtra.newValue = {...
 %   {'FSI2','FSI6','ROSI2','ROSI6','RSSI2','RSSI6'}};
 % exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'}};
 
-% keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
-exper.eventValuesExtra.equateExtrasSeparately = 0;
+% % keep only the combined (extra) events and throw out the original events?
+% exper.eventValuesExtra.onlyKeepExtras = 1;
+% exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
   'SOCO001';
@@ -167,7 +167,7 @@ files.figPrintRes = 150;
 % raw data
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
-ana.artifact.type = {'zeroVar'};
+% ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
