@@ -29,10 +29,14 @@ exper.eegFileExt = 'raw';
 % events in the NS files
 %exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
 %exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
-% exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','NM2','NM6','NS2','NS6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
-exper.eventValues = sort({...
-  'RFA_F_2','RFA_F_6','RFA_RO_2','RFA_RO_6','RFA_RS_2','RFA_RS_6',...
-  'RM_M_2','RM_M_6','RM_S_2','RM_S_6'});
+exper.eventValues = sort({'FSC2','FSI2','FSC6','FSI6','NM2','NM6','NS2','NS6','ROSC2','ROSI2','ROSC6','ROSI6','RSSC2','RSSI2','RSSC6','RSSI6'});
+
+% exper.eventValues = sort({...
+%   'RFA_F_2','RFA_F_6','RFA_RO_2','RFA_RO_6','RFA_RS_2','RFA_RS_6',...
+%   'RM_M_2','RM_M_6','RM_S_2','RM_S_6'});
+
+
+
 
 % combine some events into higher-level categories
 % exper.eventValuesExtra.toCombine = {{'HSC2','HSI2'},{'HSC6','HSI6'}};
