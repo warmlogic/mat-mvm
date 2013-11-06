@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.eegFileExt = 'egis';
-exper.eegFileExt = 'raw';
+exper.eegFileExt = 'egis';
+% exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -41,8 +41,12 @@ exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
   'SPACE001';
-  'SPACE002';
-  'SPACE003';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -59,7 +63,8 @@ exper.sessions = {'session_1'};
 dirs.subDir = '';
 %dirs.subDir = 'RKSCSI';
 %dirs.subDir = 'RK';
-dirs.dataDir = fullfile(exper.name,'EEG/Sessions/face_house_ratings/eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+% dirs.dataDir = fullfile(exper.name,'EEG/Sessions/face_house_ratings/eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'EEG/Sessions/face_house_ratings/ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile('/Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
@@ -103,8 +108,9 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
+ana.artifact.type = {'ftManual','ftICA'};
 %ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
-ana.artifact.type = {'zeroVar'};
+% ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -115,6 +121,10 @@ ana.overwrite.proc = 1;
 
 % any preprocessing?
 cfg_pp = [];
+% average rereference
+cfg_pp.reref = 'yes';
+cfg_pp.refchannel = 'all'; 
+cfg_pp.implicitref = 'Cz'; 
 % do a baseline correction
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
