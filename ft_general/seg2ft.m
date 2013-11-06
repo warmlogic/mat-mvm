@@ -120,7 +120,8 @@ end
 artifactOpts = {'none','nsAuto','zeroVar','badChanManual','badChanEP','rmBadChan','preRejManual','ftAuto','ftManual','ftICA'};
 
 if any(~ismember(ana.artifact.type,artifactOpts))
-  error('an artifact option was not set correctly (it was set to ''%s'')',cell2mat(ana.artifact.type(~ismember(ana.artifact.type,artifactOpts))))
+  wrongType = ana.artifact.type(~ismember(ana.artifact.type,artifactOpts));
+  error('An artifact option was not set correctly. Incorrect type(s):%s',sprintf(repmat(' %s',1,length(wrongType)),wrongType{:}));
 end
 
 % set artifact defaults
@@ -326,7 +327,9 @@ for ses = 1:length(session)
   if (nChan_data == nChan_elecfile - 1) || (nChan_data == nChan_elecfile - 4)
     % one less channel because we're checking to see if the reference
     % channel is missing
-    error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
+    
+    %error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
+    warning('This dataset is either not rereferenced or the reference channel was not exported. Let''s hope you are rereferencing in FieldTrip!');
   elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3)
     
     % grab data from all of the trials
