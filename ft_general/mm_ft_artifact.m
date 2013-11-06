@@ -407,9 +407,21 @@ if rejArt_ftManual
   
   cfg = [];
   cfg.continuous = 'no';
-  cfg.viewmode = 'butterfly';
-  %cfg.viewmode = 'vertical';
+  %cfg.viewmode = 'butterfly';
+  cfg.viewmode = 'vertical';
   
+  cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.cutoff = 20;
+  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.trlpadding = 0;
+  cfg.artfctdef.zvalue.artpadding = 0.1;
+  cfg.artfctdef.zvalue.fltpadding = 0;
+  
+  % auto mark some artifacts
+  cfg = ft_artifact_zvalue(cfg, data);
+  
+  % manual rejection
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nManual artifact rejection:\n');
   fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
@@ -423,27 +435,41 @@ if rejArt_ftManual
   % see if there were any channels to repair first
   rejArt_repair = [];
   while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-    rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+    rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''; if doing ICA, probably do not repair channels yet):\n\n');
   end
   
   if rejArt_repair
-    channelsToRepair = [];
-    while ~iscell(channelsToRepair)
-      channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
-    end
+    cfgChannelRepair = [];
+    cfgChannelRepair.viewmode = 'butterfly';
+    cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+    pause(1); % bug when calling rejectartifact right after databrowser, pause first 
+    badchannel = ft_channelselection('gui', data.label);
+    cfgChannelRepair.badchannel = badchannel;
+    cfgChannelRepair.method = 'spline';
+    cfgChannelRepair.layout = elecfile;
+    data = ft_channelrepair(cfgChannelRepair, data);
     
-    if ~isempty(channelsToRepair)
-      data.elec = elec;
-      
-      cfg_repair = [];
-      cfg_repair.badchannel = channelsToRepair;
-      
-      data = ft_channelrepair(cfg_repair,data);
-    end
+%     channelsToRepair = [];
+%     while ~iscell(channelsToRepair)
+%       channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+%     end
+%     
+%     if ~isempty(channelsToRepair)
+%       data.elec = elec;
+%       
+%       cfg_repair = [];
+%       cfg_repair.badchannel = channelsToRepair;
+%       
+%       % bug when calling rejectartifact right after databrowser, pause first
+%       pause(1);
+%       data = ft_channelrepair(cfg_repair,data);
+%     end
   end
   
   % reject the artifacts (complete or parial rejection)
   cfg.artfctdef.reject = 'complete';
+  % bug when calling rejectartifact right after databrowser, pause first
+  pause(1);
   data = ft_rejectartifact(cfg,data);
 end
 
@@ -455,11 +481,13 @@ if rejArt_ftICA
   %
   % look for eye blink, heart beat, and other artifacts
   %
-  % you should not run ICA on data that has already rejected ICA components
+  % Questionable claim: you should not run ICA on data that has already
+  % rejected ICA components
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
   cfg.channel = 'all';
+  cfg.method = 'runica';
   
   data_ic = ft_componentanalysis(cfg,data);
   
@@ -475,7 +503,9 @@ if rejArt_ftICA
   cfg = [];
   cfg.viewmode = 'component';
   cfg.continuous = 'yes';
-  cfg.blocksize = 10;
+  % number of seconds to display
+  cfg.blocksize = 30;
+  %cfg.blocksize = 10;
   cfg.channels = 1:nComponents;
   cfg.layout = elecfile;
   ft_databrowser(cfg,data_ic);
@@ -490,30 +520,70 @@ if rejArt_ftICA
   if ~isempty(componentsToReject)
     cfg = [];
     cfg.component = str2double(componentsToReject);
-    data_ic_cleaned = ft_rejectcomponent(cfg,data_ic);
-    
-    % another manual search of the data for artifacts
-    cfg = [];
-    cfg.viewmode = 'butterfly';
-    %cfg.viewmode = 'vertical';
-    cfg.continuous = 'no';
-    
-    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-    fprintf('\n\nManual artifact rejection:\n');
-    fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-    fprintf('Use arrows to move to next trial.\n');
-    fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-    fprintf('Use the ''q'' key to quit the data browser when finished.\n');
-    fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
-    
-    cfg = ft_databrowser(cfg,data_ic_cleaned);
-    
-    % and reject
-    cfg.artfctdef.remove = 'complete';
-    data = ft_rejectartifact(cfg,data_ic_cleaned);
-  else
-    data = data_ic;
+    % bug when calling rejectartifact right after databrowser, pause first 
+    pause(1);
+    data_ic = ft_rejectcomponent(cfg,data_ic);
   end
+  
+  % another manual search of the data for artifacts
+  cfg = [];
+  %cfg.viewmode = 'butterfly';
+  cfg.viewmode = 'vertical';
+  cfg.continuous = 'no';
+  
+  fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+  fprintf('\n\nManual artifact rejection:\n');
+  fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
+  fprintf('Use arrows to move to next trial.\n');
+  fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
+  fprintf('Use the ''q'' key to quit the data browser when finished.\n');
+  fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  
+  cfg = ft_databrowser(cfg,data_ic);
+  
+  % reject the artifacts (complete or parial rejection)
+  cfg.artfctdef.remove = 'complete';
+  % bug when calling rejectartifact right after databrowser, pause first
+  pause(1);
+  % and reject
+  data = ft_rejectartifact(cfg,data_ic);
+  
+  % see if there were any channels to repair first
+  rejArt_repair = [];
+  while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+    rejArt_repair = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+  end
+  
+  if rejArt_repair
+    cfgChannelRepair = [];
+    cfgChannelRepair.viewmode = 'butterfly';
+    cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+    pause(1); % bug when calling rejectartifact right after databrowser, pause first 
+    badchannel = ft_channelselection('gui', data.label);
+    cfgChannelRepair.badchannel = badchannel;
+    cfgChannelRepair.method = 'spline';
+    cfgChannelRepair.layout = elecfile;
+    data = ft_channelrepair(cfgChannelRepair, data);
+    
+%     channelsToRepair = [];
+%     while ~iscell(channelsToRepair)
+%       channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+%     end
+%     
+%     if ~isempty(channelsToRepair)
+%       data.elec = elec;
+%       
+%       cfg_repair = [];
+%       cfg_repair.badchannel = channelsToRepair;
+%       
+%       % bug when calling rejectartifact right after databrowser, pause first
+%       pause(1);
+%       data = ft_channelrepair(cfg_repair,data);
+%     end
+  end
+  
+  
+  %data = data_ic;
 end
 
 %% run FieldTrip's automatic artifact detection on the data
@@ -538,7 +608,7 @@ if rejArt_ftAuto
   %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
   %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
   cfg.artfctdef.zvalue.trlpadding = 0;
-  cfg.artfctdef.zvalue.artpadding = 0;
+  cfg.artfctdef.zvalue.artpadding = 0.1;
   cfg.artfctdef.zvalue.fltpadding = 0;
   
   % algorithmic parameters
@@ -573,7 +643,7 @@ if rejArt_ftAuto
   if strcmp(cfg.continuous,'yes')
     cfg.artfctdef.zvalue.artpadding  = 0.1;
   elseif strcmp(cfg.continuous,'no')
-    cfg.artfctdef.zvalue.artpadding  = 0;
+    cfg.artfctdef.zvalue.artpadding  = 0.1;
   end
   cfg.artfctdef.zvalue.fltpadding  = 0;
   
@@ -616,7 +686,7 @@ if rejArt_ftAuto
   if strcmp(cfg.continuous,'yes')
     cfg.artfctdef.zvalue.artpadding  = 0.1;
   elseif strcmp(cfg.continuous,'no')
-    cfg.artfctdef.zvalue.artpadding  = 0;
+    cfg.artfctdef.zvalue.artpadding  = 0.1;
   end
   cfg.artfctdef.zvalue.fltpadding  = 0;
   
