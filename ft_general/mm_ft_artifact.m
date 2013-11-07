@@ -364,6 +364,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   cfg.continuous = 'no';
   cfg.viewmode = 'butterfly';
   %cfg.viewmode = 'vertical';
+  cfg.ylim = [-10 10];
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nManual artifact rejection (NS artifacts are marked):\n');
@@ -387,6 +388,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
     cfgChannelRepair = [];
     cfgChannelRepair.continuous = 'no';
     cfgChannelRepair.viewmode = 'butterfly';
+    cfgChannelRepair.ylim = [-10 10];
     if strcmp(cfgChannelRepair.viewmode,'butterfly')
       fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
     end
@@ -493,6 +495,7 @@ if rejArt_ftManual
   %cfg.viewmode = 'butterfly';
   cfg.viewmode = 'vertical';
   cfg.plotlabels = 'some';
+  cfg.ylim = [-10 10];
   
   % manual rejection
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
@@ -540,6 +543,7 @@ if rejArt_ftManual
     cfgChannelRepair = [];
     cfgChannelRepair.continuous = 'no';
     cfgChannelRepair.viewmode = 'butterfly';
+    cfgChannelRepair.ylim = [-10 10];
     if strcmp(cfgChannelRepair.viewmode,'butterfly')
       fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
     end
@@ -593,6 +597,7 @@ if rejArt_ftICA
   %cfg.channels = 1:nComponents;
   cfg.plotlabels = 'yes';
   cfg.layout = elecfile;
+  cfg.ylim = [-10 10];
   ft_databrowser(cfg,comp);
   % bug when calling rejectartifact right after databrowser, pause first
   pause(1);
@@ -716,6 +721,7 @@ if rejArt_ftICA
     cfgChannelRepair = [];
     cfgChannelRepair.continuous = 'no';
     cfgChannelRepair.viewmode = 'butterfly';
+    cfgChannelRepair.ylim = [-10 10];
     if strcmp(cfgChannelRepair.viewmode,'butterfly')
       fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
     end
