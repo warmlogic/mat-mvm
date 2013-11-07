@@ -175,21 +175,9 @@ end
 
 %% load the analysis details
 
-% % F/N/RO/RS x SC/SI all combos
-% adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/F_FSC_FSI_N_NM_NS_RO_ROSC_ROSI_RS_RSC_RSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 
-% CR SC SI (with bad chan info), use this
-adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/eppp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_zeroVar/tla_-1000_1000/analysisDetails.mat';
-
-%adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/CR2_CR6_H2_H6_HSC2_HSC6_HSI2_HSI6_eq0_art_nsAuto/tla_-1000_2000_avg/analysisDetails.mat';
-
-%adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-
-%adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-
-%adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/F_N_RO_RS_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
-%adFile = '/Volumes/curranlab/Data/SPACE/eeg/eppp/-1000_2000/ft_data/FSC_FSI_N_ROSC_ROSI_RSSC_RSSI_eq0_art_zeroVar/tla_-1000_2000_avg/analysisDetails.mat';
+% adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/eppp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_zeroVar/tla_-1000_1000/analysisDetails.mat';
 
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 
@@ -263,13 +251,22 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub=2;
+sub=1;
 ses=1;
-for i = 1:2
+for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
   title(ana.eventValues{1}{i});
 end
+
+% cfg_ft = [];
+% cfg_ft.channel = {'E20'};
+% %cfg_ft.linewidth = 2;
+% cfg_ft.graphcolor = 'rbk';
+% %cfg_ft.linestyle = {'-','--','-.'};
+% cfg_ft.xlim = [-0.2 1.0];
+% figure
+% ft_singleplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{2}).sub(1).ses(1).data);
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E20'};
