@@ -365,9 +365,11 @@ end
 % if we want to inspect manually
 if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   foundArt = true;
+  %cfg.viewmode = 'butterfly';
+  cfg.viewmode = 'vertical';
   cfg.continuous = 'no';
-  cfg.viewmode = 'butterfly';
-  %cfg.viewmode = 'vertical';
+  cfg.elecfile = elecfile;
+  cfg.plotlabels = 'some';
   cfg.ylim = [-10 10];
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
@@ -381,51 +383,71 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   cfg = ft_databrowser(cfg,data);
   % bug when calling rejectartifact right after databrowser, pause first
   pause(1);
-
-  % see if there were any channels to repair first
-  rejArt_repair = [];
-  while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-    rejArt_repair = input('\n\nDo you want to see whether there channels to repair? (0 or 1, then press ''return''):\n\n');
-  end
   
-  if rejArt_repair
-    cfgChannelRepair = [];
-    cfgChannelRepair.continuous = 'no';
-    cfgChannelRepair.viewmode = 'butterfly';
-    if strcmp(cfgChannelRepair.viewmode,'butterfly')
-      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
-    end
-    fprintf('\tUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
-    cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
-    % bug when calling rejectartifact right after databrowser, pause first
-    pause(1);
-    
-    rejArt_repair_really = [];
-    while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-      rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+  keepRepairingChannels = true;
+  while keepRepairingChannels
+    % see if there were any channels to repair first
+    rejArt_repair = [];
+    while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (0 or 1, then press ''return''):\n\n');
     end
     
-    if rejArt_repair_really
-      badchannel = ft_channelselection('gui', data.label);
+    if rejArt_repair
+      cfgChannelRepair = [];
+      cfgChannelRepair.continuous = 'no';
+      cfgChannelRepair.elecfile = elecfile;
+      cfgChannelRepair.viewmode = 'butterfly';
       
-      cfgChannelRepair.badchannel = badchannel;
-      cfgChannelRepair.method = 'spline';
-      cfgChannelRepair.layout = elecfile;
-      data = ft_channelrepair(cfgChannelRepair, data);
+      % subset?
+      repair_chanNum = [];
+      while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
+        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+      end
+      if repair_chanNum
+        channel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = channel;
+      else
+        cfgChannelRepair.channel = 'all';
+      end
       
-      %     channelsToRepair = [];
-      %     while ~iscell(channelsToRepair)
-      %       channelsToRepair = input('\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
-      %     end
-      %
-      %     if ~isempty(channelsToRepair)
-      %       data.elec = elec;
-      %
-      %       cfg_repair = [];
-      %       cfg_repair.badchannel = channelsToRepair;
-      %
-      %       data = ft_channelrepair(cfg_repair,data);
-      %     end
+      if strcmp(cfgChannelRepair.viewmode,'butterfly')
+        fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+      end
+      fprintf('\tUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+      
+      rejArt_repair_really = [];
+      while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
+        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+      end
+      
+      if rejArt_repair_really
+        badchannel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = 'all';
+        cfgChannelRepair.badchannel = badchannel;
+        cfgChannelRepair.method = 'spline';
+        cfgChannelRepair.elecfile = elecfile;
+        fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
+        data = ft_channelrepair(cfgChannelRepair, data);
+        
+        %     channelsToRepair = [];
+        %     while ~iscell(channelsToRepair)
+        %       channelsToRepair = input('\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+        %     end
+        %
+        %     if ~isempty(channelsToRepair)
+        %       data.elec = elec;
+        %
+        %       cfg_repair = [];
+        %       cfg_repair.badchannel = channelsToRepair;
+        %
+        %       data = ft_channelrepair(cfg_repair,data);
+        %     end
+      end
+    else
+      keepRepairingChannels = false;
     end
   end
 end
@@ -439,6 +461,58 @@ end
 %% visual artifact inspection (manual)
 
 if rejArt_ftManual
+  keepRepairingChannels = true;
+  while keepRepairingChannels
+    % see if there were any channels to repair first
+    rejArt_repair = [];
+    while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+      rejArt_repair = input('\n\nDo you want to see whether there are any really bad channels to repair? (0 or 1, then press ''return''):\n\n');
+    end
+    
+    if rejArt_repair
+      cfgChannelRepair = [];
+      cfgChannelRepair.continuous = 'no';
+      cfgChannelRepair.elecfile = elecfile;
+      cfgChannelRepair.viewmode = 'butterfly';
+      
+      % subset?
+      repair_chanNum = [];
+      while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
+        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+      end
+      if repair_chanNum
+        channel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = channel;
+      else
+        cfgChannelRepair.channel = 'all';
+      end
+      
+      if strcmp(cfgChannelRepair.viewmode,'butterfly')
+        fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+      end
+      fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+      
+      rejArt_repair_really = [];
+      while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
+        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+      end
+      if rejArt_repair_really
+        badchannel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = 'all';
+        cfgChannelRepair.badchannel = badchannel;
+        cfgChannelRepair.method = 'spline';
+        cfgChannelRepair.elecfile = elecfile;
+        fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
+        data = ft_channelrepair(cfgChannelRepair, data);
+      end
+    else
+      keepRepairingChannels = false;
+    end
+  end
+  
   if rejArt_ftICA
     fprintf('Before running ICA, you must manually reject artifacts that are not consistent across trials. Do not reject blinks! Please do this now.\n');
   end
@@ -448,8 +522,6 @@ if rejArt_ftManual
   % use the q key to quit the data browser
   
   cfg = [];
-  
-  fprintf('Checking for artifacts...\n');
   cfg.continuous = 'no';
   %cfg.padding = 0;
   % get the trial definition for automated FT artifact rejection
@@ -466,11 +538,12 @@ if rejArt_ftManual
   
   %cfg.artfctdef.zvalue.interactive = 'yes';
   
+  fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+  
   % auto mark some artifacts
   cfg = ft_artifact_zvalue(cfg, data);
   
   % search for muscle artifacts
-  fprintf('Checking for muscle artifacts...\n');
   cfg.continuous = 'no';
   %cfg.padding = 0;
   % get the trial definition for automated FT artifact rejection
@@ -502,12 +575,15 @@ if rejArt_ftManual
   
   %cfg.artfctdef.zvalue.interactive = 'yes';
   
+  fprintf('Checking for muscle artifacts at z=%d...\n',cfg.artfctdef.muscle.cutoff);
+  
   % auto mark some artifacts
   [cfg] = ft_artifact_muscle(cfg,data);
   
   cfg.continuous = 'no';
   %cfg.viewmode = 'butterfly';
   cfg.viewmode = 'vertical';
+  cfg.elecfile = elecfile;
   cfg.plotlabels = 'some';
   cfg.ylim = [-10 10];
   
@@ -546,35 +622,55 @@ if rejArt_ftManual
   cfg.artfctdef.reject = 'complete';
   data = ft_rejectartifact(cfg,data);
   
-  % see if there were any channels to repair first
-  rejArt_repair = [];
-  while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-    rejArt_repair = input('\n\nDo you want to see whether there channels to repair? (0 or 1, then press ''return''):\n\n');
-  end
-  
-  if rejArt_repair
-    cfgChannelRepair = [];
-    cfgChannelRepair.continuous = 'no';
-    cfgChannelRepair.viewmode = 'butterfly';
-    if strcmp(cfgChannelRepair.viewmode,'butterfly')
-      fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+  keepRepairingChannels = true;
+  while keepRepairingChannels
+    % see if there were any channels to repair first
+    rejArt_repair = [];
+    while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (0 or 1, then press ''return''):\n\n');
     end
-    fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
-    cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
-    % bug when calling rejectartifact right after databrowser, pause first
-    pause(1);
     
-    rejArt_repair_really = [];
-    while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-      rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
-    end
-    if rejArt_repair_really
-      badchannel = ft_channelselection('gui', data.label);
+    if rejArt_repair
+      cfgChannelRepair = [];
+      cfgChannelRepair.continuous = 'no';
+      cfgChannelRepair.elecfile = elecfile;
+      cfgChannelRepair.viewmode = 'butterfly';
       
-      cfgChannelRepair.badchannel = badchannel;
-      cfgChannelRepair.method = 'spline';
-      cfgChannelRepair.layout = elecfile;
-      data = ft_channelrepair(cfgChannelRepair, data);
+      % subset?
+      repair_chanNum = [];
+      while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
+        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+      end
+      if repair_chanNum
+        channel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = channel;
+      else
+        cfgChannelRepair.channel = 'all';
+      end
+      
+      if strcmp(cfgChannelRepair.viewmode,'butterfly')
+        fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+      end
+      fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+      
+      rejArt_repair_really = [];
+      while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
+        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+      end
+      if rejArt_repair_really
+        badchannel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = 'all';
+        cfgChannelRepair.badchannel = badchannel;
+        cfgChannelRepair.method = 'spline';
+        cfgChannelRepair.elecfile = elecfile;
+        fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
+        data = ft_channelrepair(cfgChannelRepair, data);
+      end
+    else
+      keepRepairingChannels = false;
     end
   end
 end
@@ -614,7 +710,7 @@ if rejArt_ftICA
   %cfg.blocksize = 10;
   %cfg.channels = 1:nComponents;
   cfg.plotlabels = 'yes';
-  cfg.layout = elecfile;
+  cfg.elecfile = elecfile;
   cfg.ylim = [-10 10];
   ft_databrowser(cfg,comp);
   % bug when calling rejectartifact right after databrowser, pause first
@@ -627,14 +723,21 @@ if rejArt_ftICA
   fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
   fprintf('\t\tComponents may not be numbered, so keep track of where you are (top component has the lowest number). Note component numbers for rejection.\n');
   fprintf('\t2. Manually close the components window when finished browsing.\n');
-  % prompt the user for the component numbers to reject
-  componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'', even if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
   
-  % reject the bad components
-  if ~isempty(componentsToReject)
-    cfg = [];
-    cfg.component = str2double(regexp(componentsToReject,'\d*','match')');
-    data = ft_rejectcomponent(cfg, comp, data);
+  rej_comp = [];
+  while isempty(rej_comp) || (rej_comp ~= 0 && rej_comp ~= 1)
+    rej_comp = input('Were there components to reject? (0 or 1, then press ''return''):\n\n');
+  end
+  if rej_comp
+    % prompt the user for the component numbers to reject
+    componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'', even if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
+    
+    % reject the bad components
+    if ~isempty(componentsToReject)
+      cfg = [];
+      cfg.component = str2double(regexp(componentsToReject,'\d*','match')');
+      data = ft_rejectcomponent(cfg, comp, data);
+    end
   end
   
   % another auto search for artifacts
@@ -644,19 +747,20 @@ if rejArt_ftICA
   % use the q key to quit the data browser
   
   cfg = [];
-  
   cfg.continuous = 'no';
   %cfg.padding = 0;
   % get the trial definition for automated FT artifact rejection
   cfg.trl = ft_findcfg(data.cfg,'trl');
   
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 30;
+  cfg.artfctdef.zvalue.cutoff = 28;
   cfg.artfctdef.zvalue.trlpadding = 0;
   cfg.artfctdef.zvalue.artpadding = 0.1;
   cfg.artfctdef.zvalue.fltpadding = 0;
   
   %cfg.artfctdef.zvalue.interactive = 'yes';
+  
+  fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
   
   % auto mark some artifacts
   cfg = ft_artifact_zvalue(cfg, data);
@@ -666,6 +770,7 @@ if rejArt_ftICA
   %cfg.viewmode = 'butterfly';
   cfg.viewmode = 'vertical';
   cfg.continuous = 'no';
+  cfg.elecfile = elecfile;
   cfg.plotlabels = 'some';
   cfg.ylim = [-10 10];
   
@@ -740,35 +845,55 @@ if rejArt_ftICA
   % and reject
   data = ft_rejectartifact(cfg,data);
   
-  % see if there were any channels to repair first
-  rejArt_repair = [];
-  while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-    rejArt_repair = input('\n\nDo you want to see whether there channels to repair? (0 or 1, then press ''return''):\n\n');
-  end
-  
-  if rejArt_repair
-    cfgChannelRepair = [];
-    cfgChannelRepair.continuous = 'no';
-    cfgChannelRepair.viewmode = 'butterfly';
-    if strcmp(cfgChannelRepair.viewmode,'butterfly')
-      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+  keepRepairingChannels = true;
+  while keepRepairingChannels
+    % see if there were any channels to repair first
+    rejArt_repair = [];
+    while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (0 or 1, then press ''return''):\n\n');
     end
-    fprintf('\tUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
-    cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
-    % bug when calling rejectartifact right after databrowser, pause first
-    pause(1);
     
-    rejArt_repair_really = [];
-    while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-      rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
-    end
-    if rejArt_repair_really
-      badchannel = ft_channelselection('gui', data.label);
+    if rejArt_repair
+      cfgChannelRepair = [];
+      cfgChannelRepair.continuous = 'no';
+      cfgChannelRepair.elecfile = elecfile;
+      cfgChannelRepair.viewmode = 'butterfly';
       
-      cfgChannelRepair.badchannel = badchannel;
-      cfgChannelRepair.method = 'spline';
-      cfgChannelRepair.layout = elecfile;
-      data = ft_channelrepair(cfgChannelRepair, data);
+      % subset?
+      repair_chanNum = [];
+      while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
+        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+      end
+      if repair_chanNum
+        channel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = channel;
+      else
+        cfgChannelRepair.channel = 'all';
+      end
+      
+      if strcmp(cfgChannelRepair.viewmode,'butterfly')
+        fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+      end
+      fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+      
+      rejArt_repair_really = [];
+      while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
+        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+      end
+      if rejArt_repair_really
+        badchannel = ft_channelselection('gui', data.label);
+        cfgChannelRepair.channel = 'all';
+        cfgChannelRepair.badchannel = badchannel;
+        cfgChannelRepair.method = 'spline';
+        cfgChannelRepair.elecfile = elecfile;
+        fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
+        data = ft_channelrepair(cfgChannelRepair, data);
+      end
+    else
+      keepRepairingChannels = false;
     end
   end
 end
