@@ -378,7 +378,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   fprintf('\tUse arrows to move to next trial.\n');
   fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
   fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
   
   cfg = ft_databrowser(cfg,data);
   % bug when calling rejectartifact right after databrowser, pause first
@@ -466,7 +466,7 @@ if rejArt_ftManual
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-      rejArt_repair = input('\n\nDo you want to see whether there are any really bad channels to repair? (0 or 1, then press ''return''):\n\n');
+      rejArt_repair = input('\n\nDo you want to see whether there are any REALLY BAD channels to repair? (0 or 1, then press ''return''):\n\n');
     end
     
     if rejArt_repair
@@ -514,7 +514,7 @@ if rejArt_ftManual
   end
   
   if rejArt_ftICA
-    fprintf('Before running ICA, you must manually reject artifacts that are not consistent across trials. Do not reject blinks! Please do this now.\n');
+    warning('Before running ICA, you must manually reject artifacts that are not consistent across trials. Do not reject blinks if you want to remove them with ICA! Please do this now.\n');
   end
   
   % use cursor drag and click to mark artifacts;
@@ -596,7 +596,7 @@ if rejArt_ftManual
     fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
   end
   fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
   
   cfg = ft_databrowser(cfg,data);
   % bug when calling rejectartifact right after databrowser, pause first
@@ -782,7 +782,7 @@ if rejArt_ftICA
     fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
   end
   fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
   
   cfg = ft_databrowser(cfg,data);
   % bug when calling rejectartifact right after databrowser, pause first
