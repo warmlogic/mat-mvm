@@ -84,6 +84,14 @@ if ~isfield(ana,'segFxn')
   ana.segFxn = 'seg2ft';
 end
 
+if ~isfield(ana,'trialFxn');
+  ana.trialFxn = 'seg_trialfun';
+end
+
+if ~isfield(ana,'continuous')
+  ana.continuous = 'no';
+end
+
 % need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
@@ -250,6 +258,8 @@ end
 
 % store the bad channel information
 exper.badChan = cell(length(exper.subjects),length(exper.sessions));
+% store the bad event information
+exper.badEv = cell(length(exper.subjects),length(exper.sessions));
 
 %% Store the raw data in FieldTrip format
 
@@ -351,7 +361,7 @@ for sub = 1:length(exper.subjects)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,files.elecfile,ana,exper);
+      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,files.elecfile,ana,exper);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -402,7 +412,7 @@ for sub = 1:length(exper.subjects)
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
         % ft_raw
-        [ft_raw.(eventVal),badChan] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),eventValuesToProcess_orig(evVal),files.elecfile,ana,exper);
+        [ft_raw.(eventVal),badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),eventValuesToProcess_orig(evVal),files.elecfile,ana,exper);
         
         % if an extra value was defined and the current event is one of its
         % sub-values, store the current event in the toCombine field for
@@ -419,6 +429,8 @@ for sub = 1:length(exper.subjects)
     
     % store the bad channel information
     exper.badChan{sub,ses} = badChan;
+    % store the bad event information
+    exper.badEv{sub,ses} = badEv;
     
     % check on any empty events
     for evVal = 1:length(eventValuesToProcess)

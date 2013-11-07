@@ -1,4 +1,4 @@
-function [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
+function [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
 % [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %
@@ -12,6 +12,8 @@ function [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana
 % EOGH_left = 128;
 % EOGH_right = 125;
 % eog = {[25 127], [8 126]}; % left, right
+
+badEv = [];
 
 %% set the artifact processing parameters
 
@@ -68,6 +70,10 @@ else
 end
 if ismember('ftICA',ana.artifact.type)
   rejArt_ftICA = true;
+  % manual artifact rejection is required before ICA
+  if ~rejArt_ftManual
+    rejArt_ftManual = true;
+  end
 else
   rejArt_ftICA = false;
 end
@@ -361,14 +367,16 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nManual artifact rejection (NS artifacts are marked):\n');
-  fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-  fprintf('Use arrows to move to next trial.\n');
-  fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-  fprintf('Use the ''q'' key to quit the data browser when finished.\n');
-  fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+  fprintf('\tUse arrows to move to next trial.\n');
+  fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+  fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
   
   cfg = ft_databrowser(cfg,data);
-  
+  % bug when calling rejectartifact right after databrowser, pause first
+  pause(1);
+
   % see if there were any channels to repair first
   rejArt_repair = [];
   while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
@@ -376,19 +384,37 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   end
   
   if rejArt_repair
-    channelsToRepair = [];
-    while ~iscell(channelsToRepair)
-      channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+    cfgChannelRepair = [];
+    cfgChannelRepair.continuous = 'no';
+    cfgChannelRepair.viewmode = 'butterfly';
+    if strcmp(cfgChannelRepair.viewmode,'butterfly')
+      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
     end
+    fprintf('\tUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+    cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
+    % bug when calling rejectartifact right after databrowser, pause first
+    pause(1);
     
-    if ~isempty(channelsToRepair)
-      data.elec = elec;
-      
-      cfg_repair = [];
-      cfg_repair.badchannel = channelsToRepair;
-      
-      data = ft_channelrepair(cfg_repair,data);
-    end
+    badchannel = ft_channelselection('gui', data.label);
+    
+    cfgChannelRepair.badchannel = badchannel;
+    cfgChannelRepair.method = 'spline';
+    cfgChannelRepair.layout = elecfile;
+    data = ft_channelrepair(cfgChannelRepair, data);
+    
+%     channelsToRepair = [];
+%     while ~iscell(channelsToRepair)
+%       channelsToRepair = input('\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
+%     end
+%     
+%     if ~isempty(channelsToRepair)
+%       data.elec = elec;
+%       
+%       cfg_repair = [];
+%       cfg_repair.badchannel = channelsToRepair;
+%       
+%       data = ft_channelrepair(cfg_repair,data);
+%     end
   end
 end
 
@@ -401,36 +427,108 @@ end
 %% visual artifact inspection (manual)
 
 if rejArt_ftManual
+  if rejArt_ftICA
+    fprintf('Before running ICA, you must manually reject artifacts that are not consistent across trials. Do not reject blinks! Please do this now.\n');
+  end
+  
   % use cursor drag and click to mark artifacts;
   % use arrows to advance to next trial;
   % use the q key to quit the data browser
   
   cfg = [];
+  
+  fprintf('Checking for jump artifacts...\n');
   cfg.continuous = 'no';
-  %cfg.viewmode = 'butterfly';
-  cfg.viewmode = 'vertical';
+  %cfg.padding = 0;
+  % get the trial definition for automated FT artifact rejection
+  cfg.trl = ft_findcfg(data.cfg,'trl');
   
   cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.cutoff = 20;
-  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
   cfg.artfctdef.zvalue.trlpadding = 0;
   cfg.artfctdef.zvalue.artpadding = 0.1;
   cfg.artfctdef.zvalue.fltpadding = 0;
   
+  % algorithmic parameters
+  cfg.artfctdef.zvalue.absdiff = 'yes';
+  
   % auto mark some artifacts
   cfg = ft_artifact_zvalue(cfg, data);
+  
+  % search for muscle artifacts
+  fprintf('Checking for muscle artifacts...\n');
+  cfg.continuous = 'no';
+  %cfg.padding = 0;
+  % get the trial definition for automated FT artifact rejection
+  cfg.trl = ft_findcfg(data.cfg,'trl');
+  
+  % cutoff and padding
+  % select a set of channels on which to run the artifact detection
+  cfg.artfctdef.muscle.channel = 'all';
+  cfg.artfctdef.muscle.cutoff      = 40;
+  cfg.artfctdef.muscle.trlpadding  = 0;
+  if strcmp(cfg.continuous,'yes')
+    cfg.artfctdef.muscle.artpadding  = 0.1;
+  elseif strcmp(cfg.continuous,'no')
+    cfg.artfctdef.muscle.artpadding  = 0.1;
+  end
+  cfg.artfctdef.muscle.fltpadding  = 0;
+  
+  % algorithmic parameters
+  cfg.artfctdef.muscle.bpfilter    = 'yes';
+  if data.fsample/2 < 140
+    cfg.artfctdef.muscle.bpfreq      = [110 (data.fsample/2 - 1)];
+  else
+    cfg.artfctdef.muscle.bpfreq      = [110 140];
+  end
+  cfg.artfctdef.muscle.bpfiltord   = 6;
+  cfg.artfctdef.muscle.bpfilttype  = 'but';
+  cfg.artfctdef.muscle.hilbert     = 'yes';
+  cfg.artfctdef.muscle.boxcar      = 0.2;
+  
+  % auto mark some artifacts
+  [cfg] = ft_artifact_muscle(cfg,data);
+  
+  cfg.continuous = 'no';
+  %cfg.viewmode = 'butterfly';
+  cfg.viewmode = 'vertical';
+  cfg.plotlabels = 'some';
   
   % manual rejection
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nManual artifact rejection:\n');
-  fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-  fprintf('Use arrows to move to next trial.\n');
-  fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-  fprintf('Use the ''q'' key to quit the data browser when finished.\n');
-  fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+  fprintf('\tUse arrows to move to next trial.\n');
+  if strcmp(cfg.viewmode,'butterfly')
+    fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+  end
+  fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
   
   cfg = ft_databrowser(cfg,data);
+  % bug when calling rejectartifact right after databrowser, pause first
+  pause(1);
+  
+  % TODO: save a list of trials with artifact status
+  %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
+  badEv = zeros(size(data.sampleinfo,1), 1);
+  artFields = {'zvalue','visual'};
+  for i = 1:length(artFields)
+    if isfield(cfg.artfctdef,artFields{i})
+      for j = 1:size(cfg.artfctdef.(artFields{i}).artifact,1)
+        for k = 1:size(badEv,1)
+          if cfg.artfctdef.(artFields{i}).artifact(j,1) >= data.sampleinfo(k,1) && cfg.artfctdef.(artFields{i}).artifact(j,2) <= data.sampleinfo(k,2)
+            %badEv(k,2) = 1;
+            badEv(k,1) = 1;
+          end
+        end
+      end
+    end
+  end
+  
+  % reject the artifacts (complete or parial rejection)
+  cfg.artfctdef.reject = 'complete';
+  data = ft_rejectartifact(cfg,data);
   
   % see if there were any channels to repair first
   rejArt_repair = [];
@@ -440,37 +538,23 @@ if rejArt_ftManual
   
   if rejArt_repair
     cfgChannelRepair = [];
+    cfgChannelRepair.continuous = 'no';
     cfgChannelRepair.viewmode = 'butterfly';
+    if strcmp(cfgChannelRepair.viewmode,'butterfly')
+      fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+    end
+    fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
     cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
-    pause(1); % bug when calling rejectartifact right after databrowser, pause first 
+    % bug when calling rejectartifact right after databrowser, pause first
+    pause(1);
+    
     badchannel = ft_channelselection('gui', data.label);
+    
     cfgChannelRepair.badchannel = badchannel;
     cfgChannelRepair.method = 'spline';
     cfgChannelRepair.layout = elecfile;
     data = ft_channelrepair(cfgChannelRepair, data);
-    
-%     channelsToRepair = [];
-%     while ~iscell(channelsToRepair)
-%       channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
-%     end
-%     
-%     if ~isempty(channelsToRepair)
-%       data.elec = elec;
-%       
-%       cfg_repair = [];
-%       cfg_repair.badchannel = channelsToRepair;
-%       
-%       % bug when calling rejectartifact right after databrowser, pause first
-%       pause(1);
-%       data = ft_channelrepair(cfg_repair,data);
-%     end
   end
-  
-  % reject the artifacts (complete or parial rejection)
-  cfg.artfctdef.reject = 'complete';
-  % bug when calling rejectartifact right after databrowser, pause first
-  pause(1);
-  data = ft_rejectartifact(cfg,data);
 end
 
 %% ICA artifact detection
@@ -489,64 +573,133 @@ if rejArt_ftICA
   cfg.channel = 'all';
   cfg.method = 'runica';
   
-  data_ic = ft_componentanalysis(cfg,data);
+  comp = ft_componentanalysis(cfg,data);
   
-  % % OLD METHOD - view the first 20 components
+  % % OLD METHOD - view the first 30 components
   % cfg = [];
-  % cfg.component = 1:20; % specify the component(s) that should be plotted
+  % cfg.component = 1:30; % specify the component(s) that should be plotted
   % cfg.layout = elecfile; % specify the layout file that should be used for plotting
   % cfg.comment = 'no';
-  % ft_topoplotIC(cfg,data_ic);
+  % ft_topoplotIC(cfg,comp);
   
-  % view 10 components (aka channels) at a time
-  nComponents = 10;
+  % view some components (aka channels) with time course
+  %nComponents = 10;
   cfg = [];
   cfg.viewmode = 'component';
   cfg.continuous = 'yes';
   % number of seconds to display
   cfg.blocksize = 30;
   %cfg.blocksize = 10;
-  cfg.channels = 1:nComponents;
+  %cfg.channels = 1:nComponents;
+  cfg.plotlabels = 'yes';
   cfg.layout = elecfile;
-  ft_databrowser(cfg,data_ic);
+  ft_databrowser(cfg,comp);
+  % bug when calling rejectartifact right after databrowser, pause first
+  pause(1);
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  fprintf('\n\nViewing the first %d components.\n',nComponents);
-  fprintf('\nLook for patterns that are indicative of artifacts.\n');
+  %fprintf('\n\nViewing the first %d components.\n',nComponents);
+  fprintf('ICA component browsing:\n');
+  fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
+  fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
+  fprintf('\t\tComponents may not be numbered, so keep track of where you are (top component has the lowest number). Note component numbers for rejection.\n');
+  fprintf('\t2. Manually close the components window when finished browsing.\n');
   % prompt the user for the component numbers to reject
-  componentsToReject = input('\n\nType component numbers to reject (on a single line) and press ''return'', even if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n','s');
+  componentsToReject = input('\t3. Type component numbers to reject (on a single line) and press ''return'', even if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n','s');
   
   % reject the bad components
   if ~isempty(componentsToReject)
     cfg = [];
-    cfg.component = str2double(componentsToReject);
-    % bug when calling rejectartifact right after databrowser, pause first 
-    pause(1);
-    data_ic = ft_rejectcomponent(cfg,data_ic);
+    cfg.component = str2double(regexp(componentsToReject,'\d*','match')');
+    data = ft_rejectcomponent(cfg, comp, data);
   end
   
-  % another manual search of the data for artifacts
+  % another auto search for artifacts
+  
+  % use cursor drag and click to mark artifacts;
+  % use arrows to advance to next trial;
+  % use the q key to quit the data browser
+  
   cfg = [];
+  
+  cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.cutoff = 17;
+  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.trlpadding = 0;
+  cfg.artfctdef.zvalue.artpadding = 0.1;
+  cfg.artfctdef.zvalue.fltpadding = 0;
+  
+  % auto mark some artifacts
+  cfg = ft_artifact_zvalue(cfg, data);
+  
+  % another manual search of the data for artifacts
+  
   %cfg.viewmode = 'butterfly';
   cfg.viewmode = 'vertical';
   cfg.continuous = 'no';
+  cfg.plotlabels = 'some';
+  cfg.ylim = [-10 10];
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  fprintf('\n\nManual artifact rejection:\n');
-  fprintf('Drag mouse to select artifact area; click area to mark an artifact.\n');
-  fprintf('Use arrows to move to next trial.\n');
-  fprintf('Use the ''i'' key and mouse to identify channels in the data browser.\n');
-  fprintf('Use the ''q'' key to quit the data browser when finished.\n');
-  fprintf('Press / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
+  fprintf('\n\nFinal round of manual artifact rejection:\n');
+  fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+  fprintf('\tUse arrows to move to next trial.\n');
+  if strcmp(cfg.viewmode,'butterfly')
+    fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+  end
+  fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n\n');
   
-  cfg = ft_databrowser(cfg,data_ic);
+  cfg = ft_databrowser(cfg,data);
+  % bug when calling rejectartifact right after databrowser, pause first
+  pause(1);
+  
+  % TODO: save a list of trials with artifact status
+  if ~exist('badEv','var') || isempty(badEv)
+    combineArtLists = false;
+    %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
+    badEv = zeros(size(data.sampleinfo,1), 1);
+  else
+    combineArtLists = true;
+  end
+  %remainEv = badEv(badEv(:,2) == 0,:);
+  remainEv = badEv(badEv == 0);
+  artFields = {'visual'};
+  for i = 1:length(artFields)
+    if isfield(cfg.artfctdef,artFields{i})
+      for j = 1:size(cfg.artfctdef.(artFields{i}).artifact,1)
+        for k = 1:size(remainEv,1)
+          if cfg.artfctdef.(artFields{i}).artifact(j,1) >= data.sampleinfo(k,1) && cfg.artfctdef.(artFields{i}).artifact(j,2) <= data.sampleinfo(k,2)
+            %remainEv(k,2) = 1;
+            remainEv(k,1) = 1;
+          end
+        end
+      end
+    end
+  end
+  if combineArtLists
+    % put the new artifacts into the old list
+    rCount = 0;
+    for i = 1:size(badEv,1)
+      %if badEv(i,2) == 0
+      if badEv(i) == 0
+        rCount = rCount + 1;
+        %if remainEv(rCount,2) == 1
+        if remainEv(rCount) == 1
+          %badEv(i,2) = 1;
+          badEv(i) = 1;
+        end
+      end
+    end
+  else
+    badEv = remainEv;
+  end
   
   % reject the artifacts (complete or parial rejection)
   cfg.artfctdef.remove = 'complete';
-  % bug when calling rejectartifact right after databrowser, pause first
-  pause(1);
   % and reject
-  data = ft_rejectartifact(cfg,data_ic);
+  data = ft_rejectartifact(cfg,data);
   
   % see if there were any channels to repair first
   rejArt_repair = [];
@@ -556,34 +709,23 @@ if rejArt_ftICA
   
   if rejArt_repair
     cfgChannelRepair = [];
+    cfgChannelRepair.continuous = 'no';
     cfgChannelRepair.viewmode = 'butterfly';
+    if strcmp(cfgChannelRepair.viewmode,'butterfly')
+      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+    end
+    fprintf('\tUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
     cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
-    pause(1); % bug when calling rejectartifact right after databrowser, pause first 
+    % bug when calling rejectartifact right after databrowser, pause first
+    pause(1);
+    
     badchannel = ft_channelselection('gui', data.label);
+    
     cfgChannelRepair.badchannel = badchannel;
     cfgChannelRepair.method = 'spline';
     cfgChannelRepair.layout = elecfile;
     data = ft_channelrepair(cfgChannelRepair, data);
-    
-%     channelsToRepair = [];
-%     while ~iscell(channelsToRepair)
-%       channelsToRepair = input('\n\nType channel labels to repair (on a single line) and press ''return'' (cell array of strings, e.g., {''E1'',''E4'',''E11''}). If no, type {}.\n\n');
-%     end
-%     
-%     if ~isempty(channelsToRepair)
-%       data.elec = elec;
-%       
-%       cfg_repair = [];
-%       cfg_repair.badchannel = channelsToRepair;
-%       
-%       % bug when calling rejectartifact right after databrowser, pause first
-%       pause(1);
-%       data = ft_channelrepair(cfg_repair,data);
-%     end
   end
-  
-  
-  %data = data_ic;
 end
 
 %% run FieldTrip's automatic artifact detection on the data
@@ -624,18 +766,18 @@ if rejArt_ftAuto
   [cfg,artifact_jump] = ft_artifact_zvalue(cfg,data);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % look for muscle artifacts - doesn't work???
+  % look for muscle artifacts - mess with bpfiltord
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
-  cfg.trl = trl;
+  %cfg.trl = trl;
   cfg.padding = 0;
   cfg.continuous = 'no';
   
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff      = 4;
+  cfg.artfctdef.zvalue.cutoff      = 40;
   %cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
   %cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
   %cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
@@ -654,7 +796,8 @@ if rejArt_ftAuto
   else
     cfg.artfctdef.zvalue.bpfreq      = [110 140];
   end
-  cfg.artfctdef.zvalue.bpfiltord   = 9;
+  %cfg.artfctdef.zvalue.bpfiltord   = 9;
+  cfg.artfctdef.zvalue.bpfiltord   = 6;
   cfg.artfctdef.zvalue.bpfilttype  = 'but';
   cfg.artfctdef.zvalue.hilbert     = 'yes';
   cfg.artfctdef.zvalue.boxcar      = 0.2;

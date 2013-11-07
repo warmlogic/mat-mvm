@@ -1,7 +1,7 @@
-function [ft_raw,badChanAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper)
+function [ft_raw,badChanAllSes,badEvAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
+% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
@@ -182,6 +182,7 @@ elec.label = ft_channelselection({'all','-Fid*'},elec.label);
 nChan_elecfile = size(elec.label,1);
 
 badChanAllSes = [];
+badEvAllSes = [];
 
 %% for each session, read in the EEG file
 
@@ -240,7 +241,24 @@ for ses = 1:length(session)
     cfg.dataformat = ftype;
     cfg.headerformat = ftype;
   end
-  cfg.continuous = 'no';
+  cfg.continuous = ana.continuous;
+  
+  if strcmp(cfg.continuous,'yes')
+    cfg_cont = cfg;
+    cfg_cont.demean = 'yes';
+    cfg_cont.baselinewindow = [-0.2 0];
+    %cfg_cont.detrend = 'yes';
+    cfg_cont.lpfilter = 'yes';
+    cfg_cont.lpfreq = 100;
+    cfg_cont.hpfilter = 'yes';
+    cfg_cont.hpfreq = 0.1;
+    %cfg_cont.bsfilter = 'yes';
+    %cfg_cont.bsfreq = 59:61;
+    cfg_cont.dftfilter = 'yes';
+    cfg_cont.dftfreq = [60 120 180];
+    
+    data = ft_preprocessing(cfg_cont);
+  end
   
   % % debug
   % data = ft_preprocessing(cfg);
@@ -255,28 +273,32 @@ for ses = 1:length(session)
   
   % find out which events are in infile_ns and throw an error if eventValue
   % is not one of these
-  cfg_noEv = [];
-  cfg_noEv.dataset = infile_ns;
-  cfg_noEv.trialdef.eventtype = '?';
-  allEv = ft_definetrial(cfg_noEv);
-  evVals = cell(size(allEv.event));
-  for i = 1:length(allEv.event)
-    evVals{i} = allEv.event(i).value;
-  end
-  evVals = unique(evVals);
-  if ~ismember(eventValue_orig,evVals)
-    fprintf('The available event values in %s are: %s\n',infile_ns,sprintf(repmat('''%s'' ',1,length(evVals)),evVals{:}));
-    error('%s is not in the EEG file. You should redefine exper.eventValues.',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
-  elseif ismember(eventValue_orig,evVals)
-    fprintf('You can safely ignore the warning about ''no trialfun was specified''.\n')
+  if strcmp(cfg.continuous,'no')
+    cfg_noEv = [];
+    cfg_noEv.dataset = infile_ns;
+    cfg_noEv.trialdef.eventtype = '?';
+    allEv = ft_definetrial(cfg_noEv);
+    evVals = cell(size(allEv.event));
+    for i = 1:length(allEv.event)
+      evVals{i} = allEv.event(i).value;
+    end
+    evVals = unique(evVals);
+    if ~ismember(eventValue_orig,evVals)
+      fprintf('The available event values in %s are: %s\n',infile_ns,sprintf(repmat('''%s'' ',1,length(evVals)),evVals{:}));
+      error('%s is not in the EEG file. You should redefine exper.eventValues.',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
+    elseif ismember(eventValue_orig,evVals)
+      fprintf('You can safely ignore the warning about ''no trialfun was specified''.\n')
+    end
   end
   
   % set up for defining the trials based on file type
-  cfg.trialdef.eventvalue = eventValue_orig;
+  if strcmp(cfg.continuous,'no')
+    cfg.trialdef.eventvalue = eventValue_orig;
+  end
   cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
   cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
-    cfg.trialfun = 'seg_trialfun';
+    cfg.trialfun = ana.trialFxn;
     cfg.trialdef.eventtype = 'trial';
   elseif strcmpi(exper.eegFileExt,'set')
     cfg.trialfun = 'trialfun_general';
@@ -412,8 +434,9 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
+    [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
     badChanAllSes = unique(cat(2,badChanAllSes,badChan));
+    badEvAllSes = unique(cat(1,badEvAllSes,badEv));
   end
   
   %% if we're combining multiple sessions, add the data to the append struct

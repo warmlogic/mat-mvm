@@ -107,7 +107,9 @@ files.figPrintRes = 150;
 %% Convert the data to FieldTrip structs
 
 % raw data
+ana.continuous = 'no';
 ana.segFxn = 'seg2ft';
+ana.trialFxn = 'seg_trialfun';
 ana.artifact.type = {'ftManual','ftICA'};
 %ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
 % ana.artifact.type = {'zeroVar'};
