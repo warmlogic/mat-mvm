@@ -437,7 +437,7 @@ if rejArt_ftManual
   
   cfg = [];
   
-  fprintf('Checking for jump artifacts...\n');
+  fprintf('Checking for artifacts...\n');
   cfg.continuous = 'no';
   %cfg.padding = 0;
   % get the trial definition for automated FT artifact rejection
@@ -622,6 +622,11 @@ if rejArt_ftICA
   
   cfg = [];
   
+  cfg.continuous = 'no';
+  %cfg.padding = 0;
+  % get the trial definition for automated FT artifact rejection
+  cfg.trl = ft_findcfg(data.cfg,'trl');
+  
   cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.cutoff = 17;
   %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
@@ -770,7 +775,7 @@ if rejArt_ftAuto
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
-  %cfg.trl = trl;
+  cfg.trl = trl;
   cfg.padding = 0;
   cfg.continuous = 'no';
   
