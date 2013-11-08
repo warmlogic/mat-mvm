@@ -287,19 +287,19 @@ for ses = 1:length(session)
     
     % do some initial processing of raw data
     cfg_cont = cfg;
-%     cfg_cont.demean = 'yes';
-%     cfg_cont.baselinewindow = [-0.2 0];
-%     %cfg_cont.detrend = 'yes';
-%     cfg_cont.lpfilter = 'yes';
-%     cfg_cont.lpfreq = 100;
-%     cfg_cont.hpfilter = 'yes';
-%     cfg_cont.hpfreq = 0.1;
-%     cfg_cont.hpfilttype = 'but';
-%     cfg_cont.hpfiltord = 4;
-%     %cfg_cont.bsfilter = 'yes';
-%     %cfg_cont.bsfreq = 59:61;
-%     cfg_cont.dftfilter = 'yes';
-%     cfg_cont.dftfreq = [60 120 180];
+    cfg_cont.demean = 'yes';
+    cfg_cont.baselinewindow = [-0.2 0];
+    %cfg_cont.detrend = 'yes';
+    cfg_cont.lpfilter = 'yes';
+    cfg_cont.lpfreq = 100;
+    cfg_cont.hpfilter = 'yes';
+    cfg_cont.hpfreq = 0.1;
+    cfg_cont.hpfilttype = 'but';
+    cfg_cont.hpfiltord = 4;
+    %cfg_cont.bsfilter = 'yes';
+    %cfg_cont.bsfreq = 59:61;
+    cfg_cont.dftfilter = 'yes';
+    cfg_cont.dftfreq = [60 120 180];
     
     data = ft_preprocessing(cfg_cont);
   end
@@ -336,9 +336,9 @@ for ses = 1:length(session)
   end
   
   % set up for defining the trials based on file type
-  if strcmp(cfg.continuous,'no')
-    cfg.trialdef.eventvalue = eventValue_orig;
-  end
+  %if strcmp(cfg.continuous,'no')
+  cfg.trialdef.eventvalue = eventValue_orig;
+  %end
   cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
   cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
@@ -372,7 +372,11 @@ for ses = 1:length(session)
   %% Get the data and process it if necessary
   
   % get the actual data
-  data = ft_preprocessing(cfg);
+  if strcmp(cfg.continuous,'no')
+    data = ft_preprocessing(cfg);
+  else
+    data = ft_redefinetrial(cfg, data);
+  end
   
   % find out how many channels are in the data
   nChan_data = length(data.label);
