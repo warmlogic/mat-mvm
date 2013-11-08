@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.eegFileExt = 'egis';
-% exper.eegFileExt = 'raw';
+% exper.eegFileExt = 'egis';
+exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files
@@ -107,11 +107,13 @@ files.figPrintRes = 150;
 %% Convert the data to FieldTrip structs
 
 % raw data
-ana.continuous = 'no';
 ana.segFxn = 'seg2ft';
-ana.trialFxn = 'seg_trialfun';
-ana.artifact.type = {'ftManual','ftICA'};
-%ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
+% ana.continuous = 'no';
+% ana.trialFxn = 'seg_trialfun';
+ana.continuous = 'yes';
+ana.trialFxn = 'space_trialfun';
+ana.artifact.type = {'ftManual', 'ftICA'};
+%ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
 % ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
@@ -121,7 +123,7 @@ ana.ftFxn = 'ft_timelockanalysis';
 ana.ftype = 'tla';
 ana.overwrite.proc = 1;
 
-% any preprocessing?
+% any preprocessing? (run after processing artifacts)
 cfg_pp = [];
 % average rereference
 cfg_pp.reref = 'yes';
