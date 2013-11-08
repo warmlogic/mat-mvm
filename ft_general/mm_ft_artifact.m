@@ -78,10 +78,6 @@ else
   rejArt_ftICA = false;
 end
 
-if rejArt_ftAuto || rejArt_ftManual || rejArt_ftICA
-  ft_artTypes = {'clip','ecg','eog','jump','manual','muscle','threshold','tms','zvalue','visual'};
-end
-
 % if rejArt_nsAuto && rejArt_zeroVar
 %   error('Cannot reject both NS artifacts (''nsAuto'') and trials with zero variance (''zeroVar''). Choose one or the other.')
 % end
@@ -389,7 +385,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (0 or 1, then press ''return''):\n\n');
+      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
     end
     
     if rejArt_repair
@@ -401,13 +397,13 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       % subset?
       repair_chanNum = [];
       while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
-        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+        repair_chanNum = input('\n\nDo you want to plot all channels (1) or a particular subset of channels (0)? (1 or 0, then press ''return''):\n\n');
       end
       if repair_chanNum
+        cfgChannelRepair.channel = 'all';
+      else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
-      else
-        cfgChannelRepair.channel = 'all';
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -420,7 +416,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       
       rejArt_repair_really = [];
       while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+        rejArt_repair_really = input('\n\nWere there channels to repair? (1 or 0, then press ''return''):\n\n');
       end
       
       if rejArt_repair_really
@@ -463,10 +459,14 @@ end
 if rejArt_ftManual
   keepRepairingChannels = true;
   while keepRepairingChannels
+    if rejArt_ftICA
+      fprintf('NB: ICA seems to screw up if you repair peripheral channels and then include those in ICA. So, it is ok to repair bad channels, but do not include them in ICA.\n');
+    end
+    
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-      rejArt_repair = input('\n\nDo you want to see whether there are any REALLY BAD channels to repair? (0 or 1, then press ''return''):\n\n');
+      rejArt_repair = input('\n\nDo you want to see whether there are any REALLY BAD channels to repair? (1 or 0, then press ''return''):\n\n');
     end
     
     if rejArt_repair
@@ -478,13 +478,13 @@ if rejArt_ftManual
       % subset?
       repair_chanNum = [];
       while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
-        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+        repair_chanNum = input('\n\nDo you want to plot all channels (1) or a particular subset of channels (0)? (1 or 0, then press ''return''):\n\n');
       end
       if repair_chanNum
+        cfgChannelRepair.channel = 'all';
+      else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
-      else
-        cfgChannelRepair.channel = 'all';
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -497,7 +497,7 @@ if rejArt_ftManual
       
       rejArt_repair_really = [];
       while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+        rejArt_repair_really = input('\n\nWere there channels to repair? (1 or 0, then press ''return''):\n\n');
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
@@ -512,14 +512,6 @@ if rejArt_ftManual
       keepRepairingChannels = false;
     end
   end
-  
-  if rejArt_ftICA
-    warning('Before running ICA, you must manually reject artifacts that are not consistent across trials. Do not reject blinks if you want to remove them with ICA! Please do this now.\n');
-  end
-  
-  % use cursor drag and click to mark artifacts;
-  % use arrows to advance to next trial;
-  % use the q key to quit the data browser
   
   cfg = [];
   cfg.continuous = 'no';
@@ -587,6 +579,10 @@ if rejArt_ftManual
   cfg.plotlabels = 'some';
   cfg.ylim = [-10 10];
   
+  % use cursor drag and click to mark artifacts;
+  % use arrows to advance to next trial;
+  % use the q key to quit the data browser
+  
   % manual rejection
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nManual artifact rejection:\n');
@@ -598,22 +594,37 @@ if rejArt_ftManual
   fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
   fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
   
+  if rejArt_ftICA
+    fprintf('NB: Before running ICA, you must manually reject artifacts that are not consistent across trials. Do not reject blinks if you want to remove them with ICA! Please do this now.\n');
+  end
+  
   cfg = ft_databrowser(cfg,data);
   % bug when calling rejectartifact right after databrowser, pause first
   pause(1);
   
-  % save a list of trials with artifact status
-  %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
+  % initialize to store whether there was an artifact for each trial
   badEv = zeros(size(data.sampleinfo,1), 1);
-  for i = 1:length(ft_artTypes)
-    if isfield(cfg.artfctdef,ft_artTypes{i})
-      for j = 1:size(cfg.artfctdef.(ft_artTypes{i}).artifact,1)
-        for k = 1:size(badEv,1)
-          if cfg.artfctdef.(ft_artTypes{i}).artifact(j,1) >= data.sampleinfo(k,1) && cfg.artfctdef.(ft_artTypes{i}).artifact(j,2) <= data.sampleinfo(k,2)
-            %badEv(k,2) = 1;
-            badEv(k,1) = 1;
-          end
-        end
+  % find out what kind of artifacts we're dealing with
+  fn = fieldnames(cfg.artfctdef);
+  theseArt = {};
+  for i = 1:length(fn)
+    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+      theseArt = cat(2,theseArt,fn{i});
+    end
+  end
+  % find out which samples were marked as artifacts
+  if ~isempty(theseArt)
+    artSamp = zeros(data.sampleinfo(end,2),1);
+    for i = 1:length(theseArt)
+      for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
+        % mark that it was a particular type of artifact
+        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{2}));
+      end
+    end
+    % save a list of trials with artifact status
+    for k = 1:size(data.sampleinfo,1)
+      if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
+        badEv(k,1) = 1;
       end
     end
   end
@@ -624,28 +635,44 @@ if rejArt_ftManual
   
   keepRepairingChannels = true;
   while keepRepairingChannels
+    if rejArt_ftICA
+      fprintf('NB: ICA seems to screw up if you repair peripheral channels and then include those in ICA. So, it is ok to repair bad channels, but do not include them in ICA.\n');
+    end
+    
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (0 or 1, then press ''return''):\n\n');
+      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
     end
     
     if rejArt_repair
       cfgChannelRepair = [];
       cfgChannelRepair.continuous = 'no';
       cfgChannelRepair.elecfile = elecfile;
-      cfgChannelRepair.viewmode = 'butterfly';
+      %cfgChannelRepair.viewmode = 'butterfly';
+      
+      % viewmode?
+      repair_viewmode = [];
+      while isempty(repair_viewmode) || (repair_viewmode ~= 0 && repair_viewmode ~= 1)
+        repair_viewmode = input('\n\nDo you want to plot in butterfly (1) or vertical (0) mode? (1 or 0, then press ''return''):\n\n');
+      end
+      if repair_viewmode
+        cfgChannelRepair.viewmode = 'butterfly';
+      else
+        cfgChannelRepair.viewmode = 'vertical';
+        cfgChannelRepair.ylim = [-10 10];
+      end
       
       % subset?
       repair_chanNum = [];
       while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
-        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+        repair_chanNum = input('\n\nDo you want to plot all channels (1) or a particular subset of channels (0)? (1 or 0, then press ''return''):\n\n');
       end
       if repair_chanNum
+        cfgChannelRepair.channel = 'all';
+      else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
-      else
-        cfgChannelRepair.channel = 'all';
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -658,7 +685,7 @@ if rejArt_ftManual
       
       rejArt_repair_really = [];
       while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+        rejArt_repair_really = input('\n\nWere there channels to repair? (1 or 0, then press ''return''):\n\n');
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
@@ -688,8 +715,22 @@ if rejArt_ftICA
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
-  cfg.channel = 'all';
   cfg.method = 'runica';
+  %cfg.channel = 'all';
+  
+  fprintf('If you still have a really bad peripheral channel, or have repaired a peripheral channel, it is probably a good idea to exclude it from ICA.\n');
+  fprintf('Run ICA on a subset of channels. Then in the channel selector, add all channels to the right-side list and remove the bad peripheral channel from that list.\n');
+  
+  ica_chanNum = [];
+  while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
+    ica_chanNum = input('\nDo you only want to run ICA on a subset of channels (1) or all channels (0)? (1 or 0, then press ''return''):\n\n');
+  end
+  if ica_chanNum
+    channel = ft_channelselection('gui', data.label);
+    cfg.channel = channel;
+  else
+    cfg.channel = 'all';
+  end
   
   comp = ft_componentanalysis(cfg,data);
   
@@ -710,6 +751,7 @@ if rejArt_ftICA
   %cfg.blocksize = 10;
   %cfg.channels = 1:nComponents;
   cfg.plotlabels = 'yes';
+  cfg.layout = elecfile;
   cfg.elecfile = elecfile;
   cfg.ylim = [-10 10];
   ft_databrowser(cfg,comp);
@@ -726,7 +768,7 @@ if rejArt_ftICA
   
   rej_comp = [];
   while isempty(rej_comp) || (rej_comp ~= 0 && rej_comp ~= 1)
-    rej_comp = input('Were there components to reject? (0 or 1, then press ''return''):\n\n');
+    rej_comp = input('Were there components to reject? (1 or 0, then press ''return''):\n\n');
   end
   if rej_comp
     % prompt the user for the component numbers to reject
@@ -788,7 +830,7 @@ if rejArt_ftICA
   % bug when calling rejectartifact right after databrowser, pause first
   pause(1);
   
-  % save a list of trials with artifact status
+  % initialize to store whether there was an artifact for each trial
   if ~exist('badEv','var') || isempty(badEv)
     combineArtLists = false;
     %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
@@ -796,43 +838,54 @@ if rejArt_ftICA
   else
     combineArtLists = true;
   end
-  %postIcaEv = badEv(badEv(:,2) == 0,:);
-  %postIcaEv = badEv(badEv == 0);
-  %postIcaEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
   postIcaEv = zeros(size(data.sampleinfo,1), 1);
   
-  % is size(data.sampleinfo,1) == size(postIcaEv,1)
-  % is size(badEv(badEv == 0),1) == size(postIcaEv,1)
-  % is size(badEv(badEv == 0),1) == size(data.sampleinfo,1)
-  %
-  % these should be the same size
-  if size(badEv(badEv == 0),1) ~= size(data.sampleinfo,1)
-    keyboard
-  end
+  %   % debug
+  %   % is size(data.sampleinfo,1) == size(postIcaEv,1)
+  %   % is size(badEv(badEv == 0),1) == size(postIcaEv,1)
+  %   % is size(badEv(badEv == 0),1) == size(data.sampleinfo,1)
+  %   %
+  %   % these should be the same size
+  %   if size(badEv(badEv == 0),1) ~= size(data.sampleinfo,1)
+  %     keyboard
+  %   end
   
-  for i = 1:length(ft_artTypes)
-    if isfield(cfg.artfctdef,ft_artTypes{i})
-      for j = 1:size(cfg.artfctdef.(ft_artTypes{i}).artifact,1)
-        for k = 1:size(postIcaEv,1)
-          if cfg.artfctdef.(ft_artTypes{i}).artifact(j,1) >= data.sampleinfo(k,1) && cfg.artfctdef.(ft_artTypes{i}).artifact(j,2) <= data.sampleinfo(k,2)
-            %postIcaEv(k,2) = 1;
-            postIcaEv(k,1) = 1;
-          end
-        end
+  % find out what kind of artifacts we're dealing with
+  fn = fieldnames(cfg.artfctdef);
+  theseArt = {};
+  for i = 1:length(fn)
+    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+      theseArt = cat(2,theseArt,fn{i});
+    end
+  end
+  % find out which samples were marked as artifacts
+  if ~isempty(theseArt)
+    artSamp = zeros(data.sampleinfo(end,2),1);
+    for i = 1:length(theseArt)
+      for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
+        % mark that it was a particular type of artifact
+        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{2}));
+      end
+    end
+    % save a list of trials with artifact status
+    for k = 1:size(data.sampleinfo,1)
+      if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
+        postIcaEv(k,1) = 1;
       end
     end
   end
+  
   if combineArtLists
     % put the new artifacts into the old list
     rCount = 0;
     for i = 1:size(badEv,1)
       %if badEv(i,2) == 0
-      if badEv(i) == 0
+      if badEv(i,1) == 0
         rCount = rCount + 1;
         %if postIcaEv(rCount,2) == 1
         if postIcaEv(rCount) == 1
           %badEv(i,2) = 1;
-          badEv(i) = 1;
+          badEv(i,1) = 1;
         end
       end
     end
@@ -850,7 +903,7 @@ if rejArt_ftICA
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (0 or 1, then press ''return''):\n\n');
+      rejArt_repair = input('\n\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
     end
     
     if rejArt_repair
@@ -862,13 +915,13 @@ if rejArt_ftICA
       % subset?
       repair_chanNum = [];
       while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
-        repair_chanNum = input('\n\nDo you want to plot a particular subset of channels (1) or all channels (0)? (0 or 1, then press ''return''):\n\n');
+        repair_chanNum = input('\n\nDo you want to plot all channels (1) or a particular subset of channels (0)? (1 or 0, then press ''return''):\n\n');
       end
       if repair_chanNum
+        cfgChannelRepair.channel = 'all';
+      else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
-      else
-        cfgChannelRepair.channel = 'all';
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -881,7 +934,7 @@ if rejArt_ftICA
       
       rejArt_repair_really = [];
       while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
-        rejArt_repair_really = input('\n\nWere there channels to repair? (0 or 1, then press ''return''):\n\n');
+        rejArt_repair_really = input('\n\nWere there channels to repair? (1 or 0, then press ''return''):\n\n');
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
