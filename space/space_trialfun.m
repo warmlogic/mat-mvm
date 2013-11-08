@@ -16,11 +16,10 @@ offsetSamp = round(-cfg.trialdef.prestim*hdr.Fs);
 durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
 % TODO: should this be ceil instead of round?
 
+evt = cfg.trialdef.evt;
+
 % initialize the trl matrix
 trl = [];
-%trl = nan(length(ismember({event(:).value},cfg.trialdef.eventvalue)),4);
-
-evtCount = 0;
 
 cols = [];
 cols.sub = 7;
@@ -40,54 +39,86 @@ cols.resp_str = 35;
 cols.rt = 39;
 cols.keypress = 41;
 
+% keep track of how many real evt events we have counted
+ec = 0;
+
 for i = 1:length(event)
   if strcmp(event(i).type,cfg.trialdef.eventtype)
-    %if ~isempty(intersect(event(i).value, cfg.trialdef.eventvalue))
-    %keyboard
-    %if strcmp(deblank(event(i).value),cfg.trialdef.eventvalue)
-    
-    evtCount = evtCount + 1;
-    
     switch event(i).value
-      
       case 'STIM'
+        ec = ec + 1;
         
-        
+        if strcmp(evt{cols.isExp}(ec),'expt') && strcmp(evt{cols.isExp+1}(ec),'true') &&...
+            strcmp(evt{cols.phase}(ec),'phas') && strcmp(evt{cols.phase+1}(ec),'expo') &&...
+            strcmp(evt{cols.type}(ec),'type') && strcmp(evt{cols.type+1}(ec),'image') &&...
+            strcmp(evt{cols.icat_str}(ec),'icts') &&...
+            strcmp(evt{cols.resp_str}(ec),'rsps') &&...
+            strcmp(evt{cols.keypress}(ec),'keyp')
+          
+          if strcmp(evt{cols.icat_str+1}(ec),'Faces')
+            category = 'Face';
+          elseif strcmp(evt{cols.icat_str+1}(ec),'HouseInside')
+            category = 'House';
+          end
+          catNum = str2double(evt{cols.icat_num+1}(ec));
+          
+          targ = str2double(evt{cols.targ+1}(ec));
+          
+          if strcmp(evt{cols.spaced+1}(ec),'true')
+            spaced = 1;
+          elseif strcmp(evt{cols.spaced+1}(ec),'false')
+            spaced = 0;
+          end
+          
+          lag = str2double(evt{cols.lag+1}(ec));
+          
+          if strcmp(evt{cols.resp_str+1}(ec),'v_appeal')
+            response = 4;
+            rating = ' VA';
+          elseif strcmp(evt{cols.resp_str+1}(ec),'s_appeal')
+            response = 3;
+            rating = ' SA';
+          elseif strcmp(evt{cols.resp_str+1}(ec),'s_unappeal')
+            response = 2;
+            rating = ' SU';
+          elseif strcmp(evt{cols.resp_str+1}(ec),'v_unappeal')
+            response = 1;
+            rating = ' VU';
+          else
+            response = -1;
+            rating = '';
+          end
+          
+          if strcmp(evt{cols.keypress+1}(ec),'true')
+            keypress = 1;
+          elseif strcmp(evt{cols.keypress+1}(ec),'false')
+            keypress = 0;
+          end
+          
+          rt = str2double(evt{cols.rt+1}(ec));
+          
+          % Critical: set up the event string to match eventValues
+          evVal = sprintf('%s%s',category,rating);
+          eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+          if isempty(eventNumber)
+            eventNumber = -1;
+          end
+          
+          % add it to the trial definition
+          trl = cat(1,trl,[event(i).sample, (event(i).sample + durationSamp), offsetSamp, eventNumber catNum targ spaced lag response keypress rt]);
+        end
         
       case 'RESP'
-        
-        
+        ec = ec + 1;
+      case 'FIXT'
+        ec = ec + 1;
+      case 'PROM'
+        ec = ec + 1;
+      case 'REST'
+        ec = ec + 1;
+      case 'REND'
+        ec = ec + 1;
     end
-    
-    
-    
-    if ismember(deblank(event(i).value),cfg.trialdef.eventvalue)
-      
-      % get the type of event for the trialinfo field
-      if length(cfg.trialdef.eventvalue) > 1
-        eventNumber = find(ismember(cfg.trialdef.eventvalue,deblank(event(i).value)));
-      else
-        eventNumber = [];
-      end
-      
-      % TODO: add in a check comparing
-      % range(event(i).sample,event(i).sample + durationSamp), maybe use
-      % ft_read_data; or maybe durationSamp vs event(i).sample - event(i-1).sample
-      
-      % add this trial [beginning sample, ending sample, offset, evNum]
-      trl = cat(1,trl,[event(i).sample, (event(i).sample + durationSamp), offsetSamp, eventNumber]);
-      
-%       % add this trial
-%       %
-%       % beginning sample
-%       trl(i,1) = event(i).sample;
-%       % ending sample
-%       trl(i,2) = event(i).sample + durationSamp;
-%       % offset
-%       trl(i,3) = offsetSamp;
-%       % type of trial
-%       trl(i,4) = eventNumber;
-      
-    end
+
   end
 end
