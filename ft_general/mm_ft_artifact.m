@@ -723,13 +723,13 @@ if rejArt_ftICA
   
   ica_chanNum = [];
   while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
-    ica_chanNum = input('\nDo you only want to run ICA on a subset of channels (1) or all channels (0)? (1 or 0, then press ''return''):\n\n');
+    ica_chanNum = input('\nDo you only want to run ICA on all channels (1) or a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
   end
   if ica_chanNum
+    cfg.channel = 'all';
+  else
     channel = ft_channelselection('gui', data.label);
     cfg.channel = channel;
-  else
-    cfg.channel = 'all';
   end
   
   comp = ft_componentanalysis(cfg,data);
