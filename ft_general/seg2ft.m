@@ -244,18 +244,62 @@ for ses = 1:length(session)
   cfg.continuous = ana.continuous;
   
   if strcmp(cfg.continuous,'yes')
+    % read the file with information about all events
+    evtDir = 'ns_evt';
+    % find the evt file
+    evtfile = dir(fullfile(dataroot,sesName,evtDir,[subject,'*.evt']));
+    if isempty(evtfile)
+      error('Cannot find %s*.evt file in %s',subject,fullfile(dataroot,sesName,evtDir));
+    elseif length(evtfile) > 1
+      error('More than one %s*.evt file found in %s',subject,fullfile(dataroot,sesName,evtDir));
+    elseif length(evtfile) == 1
+      infile_evt = fullfile(dataroot,sesName,evtDir,evtfile.name);
+    end
+    % figure out how many columns there are
+    fid = fopen(infile_evt,'r');
+    maxNumCols = -Inf;
+    while 1
+      % get each line of the file
+      tline = fgetl(fid);
+      if ischar(tline)
+        if strcmp(tline(end),sprintf('\t'))
+          tline = tline(1:end-1);
+        end
+        try
+        % since it's tab delimited, split it and count the length
+        numCols = length(regexp(tline,'\t','split'));
+        catch
+          keyboard
+        end
+        % change the max number
+        if numCols > maxNumCols
+          maxNumCols = numCols;
+        end
+      else
+        break
+      end
+    end
+    fclose(fid);
+    % read the evt file
+    fid = fopen(infile_evt,'r');
+    ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
+    fclose(fid);
+    
+    % do some initial processing of raw data
     cfg_cont = cfg;
-    cfg_cont.demean = 'yes';
-    cfg_cont.baselinewindow = [-0.2 0];
-    %cfg_cont.detrend = 'yes';
-    cfg_cont.lpfilter = 'yes';
-    cfg_cont.lpfreq = 100;
-    cfg_cont.hpfilter = 'yes';
-    cfg_cont.hpfreq = 0.1;
-    %cfg_cont.bsfilter = 'yes';
-    %cfg_cont.bsfreq = 59:61;
-    cfg_cont.dftfilter = 'yes';
-    cfg_cont.dftfreq = [60 120 180];
+%     cfg_cont.demean = 'yes';
+%     cfg_cont.baselinewindow = [-0.2 0];
+%     %cfg_cont.detrend = 'yes';
+%     cfg_cont.lpfilter = 'yes';
+%     cfg_cont.lpfreq = 100;
+%     cfg_cont.hpfilter = 'yes';
+%     cfg_cont.hpfreq = 0.1;
+%     cfg_cont.hpfilttype = 'but';
+%     cfg_cont.hpfiltord = 4;
+%     %cfg_cont.bsfilter = 'yes';
+%     %cfg_cont.bsfreq = 59:61;
+%     cfg_cont.dftfilter = 'yes';
+%     cfg_cont.dftfreq = [60 120 180];
     
     data = ft_preprocessing(cfg_cont);
   end
@@ -299,7 +343,12 @@ for ses = 1:length(session)
   cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
     cfg.trialfun = ana.trialFxn;
-    cfg.trialdef.eventtype = 'trial';
+    if strcmp(cfg.continuous,'no')
+      cfg.trialdef.eventtype = 'trial';
+    else
+      cfg.trialdef.evt = ns_evt;
+      cfg.trialdef.eventtype = 'trigger';
+    end
   elseif strcmpi(exper.eegFileExt,'set')
     cfg.trialfun = 'trialfun_general';
     cfg.trialdef.eventtype = 'trigger';
@@ -436,7 +485,9 @@ for ses = 1:length(session)
   else
     [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
     badChanAllSes = unique(cat(2,badChanAllSes,badChan));
-    badEvAllSes = unique(cat(1,badEvAllSes,badEv));
+    % Concatenate sessions together if they're getting combined (appended).
+    % Otherwise cat() won't make any difference.
+    badEvAllSes = cat(1,badEvAllSes,badEv);
   end
   
   %% if we're combining multiple sessions, add the data to the append struct
