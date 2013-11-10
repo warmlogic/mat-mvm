@@ -460,8 +460,9 @@ if rejArt_ftManual
   keepRepairingChannels = true;
   while keepRepairingChannels
     if rejArt_ftICA
-      fprintf('IMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA. So, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
-      fprintf('See more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
+      fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
+      fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
+      fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
     end
     
     % see if there were any channels to repair first
@@ -596,7 +597,8 @@ if rejArt_ftManual
   fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
   
   if rejArt_ftICA
-    fprintf('NB: Before running ICA, you must manually reject artifacts that are not consistent across trials.\nDO NOT reject blinks if you want to remove them with ICA!\nPlease reject inconsistent artifacts now.\n');
+    fprintf('\nNB: Before running ICA, you must manually reject artifacts that are not consistent across trials.\n');
+    fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n');
   end
   
   cfg = ft_databrowser(cfg,data);
@@ -619,7 +621,7 @@ if rejArt_ftManual
     for i = 1:length(theseArt)
       for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{2}));
+        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
       end
     end
     % save a list of trials with artifact status
@@ -637,8 +639,9 @@ if rejArt_ftManual
   keepRepairingChannels = true;
   while keepRepairingChannels
     if rejArt_ftICA
-      fprintf('IMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA. So, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
-      fprintf('See more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
+      fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
+      fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
+      fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
     end
     
     % see if there were any channels to repair first
@@ -720,8 +723,11 @@ if rejArt_ftICA
   cfg.method = 'runica';
   %cfg.channel = 'all';
   
-  fprintf('If you still have a really bad peripheral channel, or have repaired a peripheral channel, it is probably a good idea to exclude it from ICA.\n');
-  fprintf('Run ICA on a subset of channels. Then in the channel selector, add all channels to the right-side list and remove the bad peripheral channel from that list.\n');
+  fprintf('If you still have a really bad (peripheral) channel, or have repaired a channel, you must exclude it from ICA.\n');
+  fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+  fprintf('\tOnce you choose this option (0) and you see the channel selector:\n');
+  fprintf('\t\t1. Add all channels to the right-side list.\n');
+  fprintf('\t\t2. Remove the bad channel from that list.\n');
   
   ica_chanNum = [];
   while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
@@ -774,7 +780,7 @@ if rejArt_ftICA
   end
   if rej_comp
     % prompt the user for the component numbers to reject
-    componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'', even if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
+    componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'',\n\teven if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
     
     % reject the bad components
     if ~isempty(componentsToReject)
@@ -866,7 +872,7 @@ if rejArt_ftICA
     for i = 1:length(theseArt)
       for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{2}));
+        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
       end
     end
     % save a list of trials with artifact status
