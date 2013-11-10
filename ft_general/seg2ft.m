@@ -1,7 +1,7 @@
-function [ft_raw,badChanAllSes,badEvAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper)
+function [ft_raw,badChanAllSes,badEvAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,elecfile,ana,exper)
+% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
@@ -244,6 +244,29 @@ for ses = 1:length(session)
   cfg.continuous = ana.continuous;
   
   if strcmp(cfg.continuous,'yes')
+    
+    %if strcmp(ana.trialFxn(end-6:end),'events')
+    %behData = 'events';
+    
+    % read the events file
+    eventsFile = fullfile(dirs.dataroot,dirs.behDir,subject,'events','events.mat');
+    if exist(eventsFile,'file')
+      subEvents = load(eventsFile,'events');
+    else
+      error('Cannot find events file: %s\n',eventsFile)
+    end
+    
+    % read the experiment parameters file
+    expParamFile = fullfile(dirs.dataroot,dirs.behDir,subject,'experimentParams.mat');
+    if exist(expParamFile,'file')
+      load(expParamFile,'expParam');
+    else
+      error('Cannot find experiment parameters file: %s\n',expParamFile)
+    end
+    
+    %elseif strcmp(ana.trialFxn(end-6:end),'ns_evt')
+    %behData = 'ns_evt';
+    
     % read the file with information about all events
     evtDir = 'ns_evt';
     % find the evt file
@@ -265,12 +288,8 @@ for ses = 1:length(session)
         if strcmp(tline(end),sprintf('\t'))
           tline = tline(1:end-1);
         end
-        try
         % since it's tab delimited, split it and count the length
         numCols = length(regexp(tline,'\t','split'));
-        catch
-          keyboard
-        end
         % change the max number
         if numCols > maxNumCols
           maxNumCols = numCols;
@@ -284,6 +303,7 @@ for ses = 1:length(session)
     fid = fopen(infile_evt,'r');
     ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
     fclose(fid);
+    %end
     
     % do some initial processing of raw data
     cfg_cont = cfg;
@@ -346,7 +366,12 @@ for ses = 1:length(session)
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
     else
+      %if strcmp(behData,'ns_evt')
       cfg.trialdef.evt = ns_evt;
+      %elseif strcmp(behData,'events')
+      cfg.trialdef.events = subEvents.events;
+      cfg.trialdef.expParam = expParam;
+      %end
       cfg.trialdef.eventtype = 'trigger';
     end
   elseif strcmpi(exper.eegFileExt,'set')
@@ -364,8 +389,10 @@ for ses = 1:length(session)
     end
     fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',cell2mat(eventValue_orig));
     
+    keyboard
+    
     % set an empty cell and return to the calling function
-    data.trial = {};
+    ft_raw.data.trial = {};
     return
   end
   
