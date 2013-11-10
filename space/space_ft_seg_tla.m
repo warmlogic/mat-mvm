@@ -40,11 +40,11 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SPACE001';
+%   'SPACE001';
 %   'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
-%   'SPACE005';
+  'SPACE005';
 %   'SPACE006';
 %   'SPACE007';
   };
@@ -160,13 +160,47 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 
 % overwrite if it already exists
 saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
-% if ~exist(saveFile,'file')
-fprintf('Saving analysis details: %s...',saveFile);
-save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-fprintf('Done.\n');
-% else
-%   error('Not saving! %s already exists.\n',saveFile);
-% end
+if ~exist(saveFile,'file')
+  fprintf('Saving analysis details: %s...',saveFile);
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+  fprintf('Done.\n');
+else
+  % combine them
+  fprintf('Combining these analysis details with previous runs: %s...',saveFile);
+  
+  old_anaDetails = load(saveFile);
+  
+  % debug
+  keyboard
+  
+  if all(ismember(old_anaDetails.exper.eventValues,exper.eventValues))
+    subjects_all = cat(1,old_anaDetails.exper.subjects,exper.subjects);
+    
+    nTrials_all = old_anaDetails.exper.nTrials;
+    nTr_fn = fieldnames(nTrials_all);
+    for i = 1:length(nTr_fn)
+      for j = 1:length(exper.subjects)
+        nTr_thisSub = exper.nTrials(nTr_fn{i});
+        nTrials_all(nTr_fn{i}) = cat(2,nTrials_all(nTr_fn{i}),nTr_thisSub(j,:));
+      end
+    end
+    
+    badChan_all = cat(1,old_anaDetails.exper.badChan,exper.badChan);
+    badEv_all = cat(1,old_anaDetails.exper.badEv,exper.badEv);
+    
+    % add the combined info into the struct we want to save
+    exper.subjects = subjects_all;
+    exper.nTrials = nTrials_all;
+    exper.badChan = badChan_all;
+    exper.badEv = badEv_all;
+  else
+    fprintf('exper.eventValues does not match up between old and new subjects!\n');
+  end
+  
+  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+  %error('Not saving! %s already exists.\n',saveFile);
+  fprintf('Done.\n');
+end
 
 %% let me know that it's done
 emailme = 1;
