@@ -308,7 +308,7 @@ for ses = 1:length(session)
     % do some initial processing of raw data
     cfg_cont = cfg;
     cfg_cont.demean = 'yes';
-    cfg_cont.baselinewindow = [-0.2 0];
+    cfg_cont.baselinewindow = 'all';
     %cfg_cont.detrend = 'yes';
     cfg_cont.lpfilter = 'yes';
     cfg_cont.lpfreq = 100;
