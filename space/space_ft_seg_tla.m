@@ -63,25 +63,26 @@ exper.sessions = {'session_1'};
 dirs.subDir = '';
 %dirs.subDir = 'RKSCSI';
 %dirs.subDir = 'RK';
-% dirs.dataDir = fullfile(exper.name,'EEG/Sessions/face_house_ratings/eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
-dirs.dataDir = fullfile(exper.name,'EEG/Sessions/face_house_ratings/ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+% dirs.dataDir = fullfile(exper.name,'EEG','Sessions','face_house_ratings','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.behDir = fullfile(exper.name,'Behavioral','Sessions',dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'EEG','Sessions','face_house_ratings','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
-dirs.serverDir = fullfile('/Volumes','curranlab','Data');
-dirs.serverLocalDir = fullfile('/Volumes','RAID','curranlab','Data');
-dirs.dreamDir = fullfile('/data','projects','curranlab');
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
 
 % pick the right dirs.dataroot
-if exist(dirs.serverDir,'dir')
+if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
   %runLocally = 1;
-elseif exist(dirs.serverLocalDir,'dir')
+elseif isfield(dirs,'serverLocalDir') && exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
   %runLocally = 1;
-elseif exist(dirs.dreamDir,'dir')
+elseif isfield(dirs,'dreamDir') && exist(dirs.dreamDir,'dir')
   dirs.dataroot = dirs.dreamDir;
   %runLocally = 0;
-elseif exist(dirs.localDir,'dir')
+elseif isfield(dirs,'localDir') && exist(dirs.localDir,'dir')
   dirs.dataroot = dirs.localDir;
   %runLocally = 1;
 else
@@ -108,10 +109,13 @@ files.figPrintRes = 150;
 
 % raw data
 ana.segFxn = 'seg2ft';
+
 % ana.continuous = 'no';
 % ana.trialFxn = 'seg_trialfun';
+
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
+
 ana.artifact.type = {'ftManual', 'ftICA'};
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
 % ana.artifact.type = {'zeroVar'};
