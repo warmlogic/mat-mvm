@@ -181,7 +181,7 @@ end
 elec.label = ft_channelselection({'all','-Fid*'},elec.label);
 nChan_elecfile = size(elec.label,1);
 
-badChanAllSes = [];
+badChanAllSes = {};
 badEvAllSes = [];
 
 %% for each session, read in the EEG file
@@ -397,7 +397,7 @@ for ses = 1:length(session)
     fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',...
       sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     
-    % debug
+    % something is wrong, figure it out; or dbcont
     keyboard
     
     % set an empty cell and return to the calling function
@@ -524,7 +524,7 @@ for ses = 1:length(session)
     fprintf('Not performing any artifact rejection.\n');
   else
     [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
-    badChanAllSes = unique(cat(2,badChanAllSes,badChan));
+    badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
@@ -576,7 +576,7 @@ if length(eventValue) > 1
       fprintf('No trials found for %s!\n',eventValue{evVal});
       ft_raw.(eventValue{evVal}).trial = {};
       
-      % debug
+      % something is wrong, figure it out; or dbcont
       keyboard
     end
   end

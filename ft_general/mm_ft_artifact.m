@@ -14,6 +14,8 @@ function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,even
 % eog = {[25 127], [8 126]}; % left, right
 
 badEv = [];
+badChan = [];
+badChan_str = {};
 
 %% set the artifact processing parameters
 
@@ -209,9 +211,9 @@ if rejArt_badChanManual || rejArt_badChanEP
   for i = 1:length(badChan)
     badChan_str{i} = sprintf('E%d',badChan(i));
   end
-else
-  badChan = [];
-  badChan_str = {};
+% else
+%   badChan = [];
+%   badChan_str = {};
 end
 
 if rejArt_rmBadChan && ~isempty(badChan)
@@ -535,18 +537,19 @@ if rejArt_ftManual
   while ft_autoCheckArt
     ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
     if ft_autoCheckArtNum > 1
-      fprintf('\nThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
       ft_autoCheckArt_prompt = [];
       while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
-        ft_autoCheckArt_prompt = input('\tDo you want to run FieldTrip artifact auto-check again? (1 or 0, then press ''return''):\n\n');
+        ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? (1 or 0, then press ''return''):\n\n'));
       end
-      if ft_autoCheckArt_prompt == 0
+      if ft_autoCheckArt_prompt
+        fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+      else
         %ft_autoCheckArt = false;
         break
       end
     end
     
-    basic_art_z_default = 20;
+    basic_art_z_default = 22;
     muscle_art_z_default = 40;
     jump_art_z_default = 50;
     
@@ -574,7 +577,7 @@ if rejArt_ftManual
       
       jump_art_z = -1;
       while jump_art_z <= 0
-        jump_art_z = input(sprintf('\nAt what z-value do you want to check JUMP artifacts (default=%d)?\n\n',muscle_art_z_default));
+        jump_art_z = input(sprintf('\nAt what z-value do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_default));
       end
       if isempty(jump_art_z)
         jump_art_z = jump_art_z_default;
@@ -710,44 +713,41 @@ if rejArt_ftManual
     cfg.artfctdef.zvalue.artifact = artifact_zvalue; %
     cfg.artfctdef.muscle.artifact = artifact_muscle;
     cfg.artfctdef.jump.artifact = artifact_jump;
+    
+    % get the trial definition for automated FT artifact rejection
+    cfg.trl = ft_findcfg(data.cfg,'trl');
+    
+    cfg.continuous = 'no';
+    %cfg.viewmode = 'butterfly';
+    cfg.viewmode = 'vertical';
+    cfg.elecfile = elecfile;
+    cfg.plotlabels = 'some';
+    cfg.ylim = [-10 10];
+    
+    % use cursor drag and click to mark artifacts;
+    % use arrows to advance to next trial;
+    % use the q key to quit the data browser
+    
+    % manual rejection
+    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+    fprintf('\n\nManual artifact rejection:\n');
+    fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+    fprintf('\tUse arrows to move to next trial.\n');
+    if strcmp(cfg.viewmode,'butterfly')
+      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+    end
+    fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+    fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
+    
+    if rejArt_ftICA
+      fprintf('\nNB: Before running ICA, you must manually reject artifacts that are not consistent across trials.\n');
+      fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n\n');
+    end
+    
+    cfg = ft_databrowser(cfg,data);
+    % bug when calling rejectartifact right after databrowser, pause first
+    pause(1);
   end
-  
-  % get the trial definition for automated FT artifact rejection
-  cfg.trl = ft_findcfg(data.cfg,'trl');
-  
-  cfg.continuous = 'no';
-  %cfg.viewmode = 'butterfly';
-  cfg.viewmode = 'vertical';
-  cfg.elecfile = elecfile;
-  cfg.plotlabels = 'some';
-  cfg.ylim = [-10 10];
-  
-  % use cursor drag and click to mark artifacts;
-  % use arrows to advance to next trial;
-  % use the q key to quit the data browser
-  
-  % manual rejection
-  fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  fprintf('\n\nManual artifact rejection:\n');
-  fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
-  fprintf('\tUse arrows to move to next trial.\n');
-  if strcmp(cfg.viewmode,'butterfly')
-    fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
-  end
-  fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
-  
-  if rejArt_ftICA
-    fprintf('\nNB: Before running ICA, you must manually reject artifacts that are not consistent across trials.\n');
-    fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n\n');
-  end
-  
-  cfg = ft_databrowser(cfg,data);
-  % bug when calling rejectartifact right after databrowser, pause first
-  pause(1);
-  
-  % debug
-  keyboard
   
   % initialize to store whether there was an artifact for each trial
   badEv = zeros(size(data.sampleinfo,1), 1);
