@@ -88,6 +88,8 @@ if rejArt_preRejManual && ~rejArt_nsAuto && ~rejArt_zeroVar
   error('To manually inspect prerejected artifacts (''preRejManual''), you must also use either ''nsAuto'' or ''zeroVar''. Otherwise, just use ''ftManual'')');
 end
 
+vert_ylim = [-10 10];
+
 %% check on predefined trial numbers, NS, and zero variance artifacts;
 % manual inspection option will show which have been rejected
 
@@ -373,7 +375,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   cfg.continuous = 'no';
   cfg.elecfile = elecfile;
   cfg.plotlabels = 'some';
-  cfg.ylim = [-10 10];
+  cfg.ylim = vert_ylim;
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nManual artifact rejection (NS artifacts are marked):\n');
@@ -722,7 +724,7 @@ if rejArt_ftManual
     cfg.viewmode = 'vertical';
     cfg.elecfile = elecfile;
     cfg.plotlabels = 'some';
-    cfg.ylim = [-10 10];
+    cfg.ylim = vert_ylim;
     
     % use cursor drag and click to mark artifacts;
     % use arrows to advance to next trial;
@@ -813,7 +815,7 @@ if rejArt_ftManual
         cfgChannelRepair.viewmode = 'butterfly';
       else
         cfgChannelRepair.viewmode = 'vertical';
-        cfgChannelRepair.ylim = [-10 10];
+        cfgChannelRepair.ylim = vert_ylim;
       end
       
       % subset?
@@ -921,7 +923,7 @@ if rejArt_ftICA
   cfg.plotlabels = 'yes';
   cfg.layout = elecfile;
   cfg.elecfile = elecfile;
-  cfg.ylim = [-10 10];
+  cfg.ylim = vert_ylim;
   ft_databrowser(cfg,comp);
   % bug when calling rejectartifact right after databrowser, pause first
   pause(1);
@@ -1017,7 +1019,7 @@ if rejArt_ftICA
   cfg.continuous = 'no';
   cfg.elecfile = elecfile;
   cfg.plotlabels = 'some';
-  cfg.ylim = [-10 10];
+  cfg.ylim = vert_ylim;
   
   fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   fprintf('\n\nFinal round of manual artifact rejection:\n');
