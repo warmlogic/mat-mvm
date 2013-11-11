@@ -84,8 +84,8 @@ for i = 1:length(event)
             );
           
           if length(this_event) ~= 1
-            keyboard
             warning('More than one event found! Fix this script before continuing analysis.')
+            keyboard
           end
           
           if strcmp(this_event.i_catStr,'Faces')
