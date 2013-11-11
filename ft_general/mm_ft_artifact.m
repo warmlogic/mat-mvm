@@ -956,6 +956,40 @@ if rejArt_ftICA
   % use arrows to advance to next trial;
   % use the q key to quit the data browser
   
+  fprintf('\n\nFinal round of manual artifact rejection:\n');
+  basic_art_z_default = 25;
+  
+  ft_customZvals_prompt = [];
+  while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
+    ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+  end
+  
+  if ft_customZvals_prompt
+    basic_art_z = -1;
+    while basic_art_z <= 0
+      basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+    end
+    if isempty(basic_art_z)
+      basic_art_z = basic_art_z_default;
+    end
+  else
+    basic_art_z = basic_art_z_default;
+  end
+  
+  ft_autoCheckArt_interactive_default = 'no';
+  ft_autoCheckArt_interactive = -1;
+  while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
+    ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
+    if isempty(ft_autoCheckArt_interactive)
+      break
+    end
+  end
+  if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
+    ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
+  elseif ft_autoCheckArt_interactive == 1
+    ft_autoCheckArt_interactive = 'yes';
+  end
+  
   cfg = [];
   cfg.continuous = 'no';
   %cfg.padding = 0;
@@ -963,13 +997,13 @@ if rejArt_ftICA
   cfg.trl = ft_findcfg(data.cfg,'trl');
   
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 28;
+  cfg.artfctdef.zvalue.cutoff = basic_art_z;
   cfg.artfctdef.zvalue.trlpadding = 0;
   cfg.artfctdef.zvalue.artpadding = 0.1;
   cfg.artfctdef.zvalue.fltpadding = 0;
   
   % interactive artifact viewer
-  %cfg.artfctdef.zvalue.interactive = 'yes';
+  cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
   
   fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
   
