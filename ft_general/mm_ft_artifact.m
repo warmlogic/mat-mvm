@@ -526,7 +526,7 @@ if rejArt_ftManual
   cfg.trl = ft_findcfg(data.cfg,'trl');
   
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 20;
+  cfg.artfctdef.zvalue.cutoff = 22;
   cfg.artfctdef.zvalue.trlpadding = 0;
   cfg.artfctdef.zvalue.artpadding = 0.1;
   cfg.artfctdef.zvalue.fltpadding = 0;
@@ -599,7 +599,7 @@ if rejArt_ftManual
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 25;
+  cfg.artfctdef.zvalue.cutoff = 26;
   %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
   %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
   cfg.artfctdef.zvalue.trlpadding = 0;
