@@ -382,8 +382,6 @@ for ses = 1:length(session)
     fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     cfg = ft_definetrial(cfg);
     
-    keyboard
-    
     % remove these fields or the cfg will get way too big
     if isfield(cfg,'eventinfo')
       cfg = rmfield(cfg,'eventinfo');
