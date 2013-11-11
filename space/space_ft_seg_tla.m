@@ -41,9 +41,9 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-%   'SPACE001';
+  'SPACE001';
   'SPACE002';
-%   'SPACE003';
+  'SPACE003';
 %   'SPACE004';
 %   'SPACE005';
 %   'SPACE006';
