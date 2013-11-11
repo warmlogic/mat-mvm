@@ -25,7 +25,21 @@ events_all = cfg.trialdef.events;
 % initialize the trl matrix
 trl = [];
 
-% exposure phase
+% possible sessions and phases
+sessions = {'oneDay'};
+phases = {'expo', 'multistudy', 'distract_math', 'cued_recall'};
+
+%% process the exposure phase
+
+sesName = 'oneDay';
+sesType = find(ismember(sessions,sesName));
+% sesType = find(ismember(expParam.sesTypes,sesName));
+phaseName = 'expo';
+phaseType = find(ismember(phases,phaseName));
+% phaseType = find(ismember(expParam.session.(sesName).phases,phaseName));
+
+expo_events = events_all.(sesName).(phaseName).data;
+
 cols = [];
 cols.sub = 7;
 cols.ses = 9;
@@ -44,27 +58,16 @@ cols.resp_str = 35;
 cols.rt = 39;
 cols.keypress = 41;
 
-sessions = {'oneDay'};
-phases = {'expo', 'multistudy', 'distract_math', 'cued_recall'};
-
-sesName = 'oneDay';
-sesType = find(ismember(sessions,sesName));
-% sesType = find(ismember(expParam.sesTypes,sesName));
-phaseName = 'expo';
-phaseType = find(ismember(phases,phaseName));
-% phaseType = find(ismember(expParam.session.(sesName).phases,phaseName));
-
-events = events_all.(sesName).(phaseName).data;
-
 % keep track of how many real evt events we have counted
 ec = 0;
 
 for i = 1:length(event)
   if strcmp(event(i).type,cfg.trialdef.eventtype)
+    % found a trigger in the evt file; increment index.
+    ec = ec + 1;
+    
     switch event(i).value
       case 'STIM'
-        ec = ec + 1;
-        
         if strcmp(evt{cols.isExp}(ec),'expt') && strcmpi(evt{cols.isExp+1}(ec),'true') &&...
             strcmp(evt{cols.phase}(ec),'phas') && strcmp(evt{cols.phase+1}(ec),phaseName) &&...
             strcmp(evt{cols.type}(ec),'type') && strcmp(evt{cols.type+1}(ec),'image') &&...
@@ -72,12 +75,12 @@ for i = 1:length(event)
             strcmp(evt{cols.icat_str}(ec),'icts')
           
           % find the entry in the event struct
-          this_event = events(...
-            [events.isExp] == 1 &...
-            ismember({events.type},{'EXPO_IMAGE'}) &...
-            ismember({events.phaseName},{phaseName}) &...
-            [events.phaseCount] == str2double(evt{cols.phasenum+1}(ec)) &...
-            [events.trial] == str2double(evt{cols.trial+1}(ec))...
+          this_event = expo_events(...
+            [expo_events.isExp] == 1 &...
+            ismember({expo_events.type},{'EXPO_IMAGE'}) &...
+            ismember({expo_events.phaseName},{phaseName}) &...
+            [expo_events.phaseCount] == str2double(evt{cols.phasenum+1}(ec)) &...
+            [expo_events.trial] == str2double(evt{cols.trial+1}(ec))...
             );
           
           if length(this_event) ~= 1
@@ -86,7 +89,7 @@ for i = 1:length(event)
           end
           
           if strcmp(this_event.i_catStr,'Faces')
-            category = 'House';
+            category = 'Face';
           elseif strcmp(this_event.i_catStr,'HouseInside')
             category = 'House';
           end
@@ -98,26 +101,29 @@ for i = 1:length(event)
           response = this_event.resp;
           
           keypress = 1;
-          if response == 4
-            rating = ' VA';
-          elseif response == 3
-            rating = ' SA';
-          elseif response == 2
-            rating = ' SU';
-          elseif response == 1
-            rating = ' VU';
-          elseif response == -1
-            rating = '';
+          if response == -1
             keypress = 0;
-          %else
-          %  rating = '';
-          %  keypress = 0;
+%             rating = '';
+%           elseif response == 4
+%             rating = ' VA';
+%           elseif response == 3
+%             rating = ' SA';
+%           elseif response == 2
+%             rating = ' SU';
+%           elseif response == 1
+%             rating = ' VU';
+%             %else
+%             %  rating = '';
+%             %  keypress = 0;
           end
           
           rt = this_event.rt;
           
           % Critical: set up the event string to match eventValues
-          evVal = sprintf('%s%s',category,rating);
+          %evVal = sprintf('%s%s',category,rating);
+          evVal = category;
+          
+          % find where this event type occurs in the list
           eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
           if isempty(eventNumber)
             eventNumber = -1;
@@ -128,15 +134,15 @@ for i = 1:length(event)
         end
         
       case 'RESP'
-        ec = ec + 1;
+        
       case 'FIXT'
-        ec = ec + 1;
+        
       case 'PROM'
-        ec = ec + 1;
+        
       case 'REST'
-        ec = ec + 1;
+        
       case 'REND'
-        ec = ec + 1;
+        
     end
 
   end

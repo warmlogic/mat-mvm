@@ -26,14 +26,15 @@ exper.equateTrials = 0;
 exper.eegFileExt = 'raw';
 
 % types of events to find in the NS file; these must be the same as the
-% events in the NS files
-%exper.eventValues = sort({'CR2','HSC2','HSI2','CR6','HSC6','HSI6'});
-%exper.eventValues = sort({'F2','F6','N2','N6','RO2','RO6','RS2','RS6'});
-exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
+% events in the NS files; or space_trialfun.m must be set up to find the
+% corrct events
+exper.eventValues = sort({'Face', 'House'});
 
-% combine some events into higher-level categories
-exper.eventValuesExtra.toCombine = {{'Face VA','Face SA','Face SU','Face VU'},{'House VA','House SA','House SU','House VU'}};
-exper.eventValuesExtra.newValue = {{'Face'},{'House'}};
+% exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
+% 
+% % combine some events into higher-level categories
+% exper.eventValuesExtra.toCombine = {{'Face VA','Face SA','Face SU','Face VU'},{'House VA','House SA','House SU','House VU'}};
+% exper.eventValuesExtra.newValue = {{'Face'},{'House'}};
 
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 0;
