@@ -92,6 +92,10 @@ if ~isfield(ana,'continuous')
   ana.continuous = 'no';
 end
 
+if ~isfield(ana,'checksize')
+  ana.checksize = 1e5;
+end
+
 % need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
