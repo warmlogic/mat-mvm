@@ -515,6 +515,10 @@ if rejArt_ftManual
     end
   end
   
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % look for zvalue artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
   cfg = [];
   cfg.continuous = 'no';
   %cfg.padding = 0;
@@ -530,14 +534,20 @@ if rejArt_ftManual
   % algorithmic parameters
   cfg.artfctdef.zvalue.absdiff = 'yes';
   
+  % feedback (artifact viewer)
+  %cfg.artfctdef.zvalue.feedback = 'yes';
   %cfg.artfctdef.zvalue.interactive = 'yes';
   
   fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
   
-  % auto mark some artifacts
-  cfg = ft_artifact_zvalue(cfg, data);
+  % auto mark zvalue artifacts
+  [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
   
-  % search for muscle artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % look for muscle artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
   cfg.continuous = 'no';
   %cfg.padding = 0;
   % get the trial definition for automated FT artifact rejection
@@ -545,34 +555,83 @@ if rejArt_ftManual
   
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
-  cfg.artfctdef.muscle.channel = 'all';
-  cfg.artfctdef.muscle.cutoff      = 40;
-  cfg.artfctdef.muscle.trlpadding  = 0;
+  cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.cutoff      = 40;
+  cfg.artfctdef.zvalue.trlpadding  = 0;
   if strcmp(cfg.continuous,'yes')
-    cfg.artfctdef.muscle.artpadding  = 0.1;
+    cfg.artfctdef.zvalue.artpadding  = 0.1;
   elseif strcmp(cfg.continuous,'no')
-    cfg.artfctdef.muscle.artpadding  = 0.1;
+    cfg.artfctdef.zvalue.artpadding  = 0.1;
   end
-  cfg.artfctdef.muscle.fltpadding  = 0;
+  cfg.artfctdef.zvalue.fltpadding  = 0;
   
   % algorithmic parameters
-  cfg.artfctdef.muscle.bpfilter    = 'yes';
+  cfg.artfctdef.zvalue.bpfilter    = 'yes';
   if data.fsample/2 < 140
-    cfg.artfctdef.muscle.bpfreq      = [110 (data.fsample/2 - 1)];
+    cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
   else
-    cfg.artfctdef.muscle.bpfreq      = [110 140];
+    cfg.artfctdef.zvalue.bpfreq      = [110 140];
   end
-  cfg.artfctdef.muscle.bpfiltord   = 6;
-  cfg.artfctdef.muscle.bpfilttype  = 'but';
-  cfg.artfctdef.muscle.hilbert     = 'yes';
-  cfg.artfctdef.muscle.boxcar      = 0.2;
+  cfg.artfctdef.zvalue.bpfiltord   = 6;
+  cfg.artfctdef.zvalue.bpfilttype  = 'but';
+  cfg.artfctdef.zvalue.hilbert     = 'yes';
+  cfg.artfctdef.zvalue.boxcar      = 0.2;
   
+  % feedback (artifact viewer)
+  %cfg.artfctdef.zvalue.feedback = 'yes';
   %cfg.artfctdef.zvalue.interactive = 'yes';
   
-  fprintf('Checking for muscle artifacts at z=%d...\n',cfg.artfctdef.muscle.cutoff);
+  fprintf('Checking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
   
-  % auto mark some artifacts
-  [cfg] = ft_artifact_muscle(cfg,data);
+  % auto mark muscle artifacts
+  [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % look for jump artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.continuous = 'no';
+  %cfg.padding = 0;
+  % get the trial definition for automated FT artifact rejection
+  cfg.trl = ft_findcfg(data.cfg,'trl');
+  
+  % cutoff and padding
+  % select a set of channels on which to run the artifact detection
+  cfg.artfctdef.zvalue.channel = 'all';
+  cfg.artfctdef.zvalue.cutoff = 25;
+  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+  cfg.artfctdef.zvalue.trlpadding = 0;
+  cfg.artfctdef.zvalue.artpadding = 0.1;
+  cfg.artfctdef.zvalue.fltpadding = 0;
+  
+  % algorithmic parameters
+  cfg.artfctdef.zvalue.cumulative = 'yes';
+  cfg.artfctdef.zvalue.medianfilter = 'yes';
+  cfg.artfctdef.zvalue.medianfiltord = 9;
+  cfg.artfctdef.zvalue.absdiff = 'yes';
+  
+  % feedback (artifact viewer)
+  %cfg.artfctdef.zvalue.feedback = 'yes';
+  %cfg.artfctdef.zvalue.interactive = 'yes';
+  
+  fprintf('Checking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+  
+  % auto mark jump artifacts
+  [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % manual inspection of artifacts
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.artfctdef.zvalue.artifact = artifact_zvalue; %
+  cfg.artfctdef.muscle.artifact = artifact_muscle;
+  cfg.artfctdef.jump.artifact = artifact_jump;
+  
+  % get the trial definition for automated FT artifact rejection
+  cfg.trl = ft_findcfg(data.cfg,'trl');
   
   cfg.continuous = 'no';
   %cfg.viewmode = 'butterfly';
@@ -994,10 +1053,10 @@ if rejArt_ftAuto
   %cfg.artfctdef.zvalue.feedback = 'yes';
   cfg.artfctdef.zvalue.interactive = 'yes';
   
-  [cfg,artifact_jump] = ft_artifact_zvalue(cfg,data);
+  [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % look for muscle artifacts - mess with bpfiltord
+  % look for muscle artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
@@ -1027,7 +1086,6 @@ if rejArt_ftAuto
   else
     cfg.artfctdef.zvalue.bpfreq      = [110 140];
   end
-  %cfg.artfctdef.zvalue.bpfiltord   = 9;
   cfg.artfctdef.zvalue.bpfiltord   = 6;
   cfg.artfctdef.zvalue.bpfilttype  = 'but';
   cfg.artfctdef.zvalue.hilbert     = 'yes';
@@ -1037,7 +1095,7 @@ if rejArt_ftAuto
   %cfg.artfctdef.zvalue.feedback = 'yes';
   cfg.artfctdef.zvalue.interactive = 'yes';
   
-  [cfg,artifact_muscle] = ft_artifact_zvalue(cfg,data);
+  [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for EOG artifacts
@@ -1075,7 +1133,7 @@ if rejArt_ftAuto
   %cfg.artfctdef.zvalue.feedback = 'yes';
   cfg.artfctdef.zvalue.interactive = 'yes';
   
-  [cfg,artifact_EOG] = ft_artifact_zvalue(cfg,data);
+  [cfg, artifact_EOG] = ft_artifact_zvalue(cfg,data);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % reject the automatically defined artifacts
