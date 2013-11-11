@@ -63,8 +63,12 @@ ec = 0;
 
 for i = 1:length(event)
   if strcmp(event(i).type,cfg.trialdef.eventtype)
-    % found a trigger in the evt file; increment index.
-    ec = ec + 1;
+    % found a trigger in the evt file; increment index if value is correct.
+    
+    %if ~ismember(event(i).value,{'epoc'})
+    if ismember(event(i).value,{'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'})
+      ec = ec + 1;
+    end
     
     switch event(i).value
       case 'STIM'
