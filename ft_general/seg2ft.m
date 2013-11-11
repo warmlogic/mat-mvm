@@ -242,6 +242,7 @@ for ses = 1:length(session)
     cfg.headerformat = ftype;
   end
   cfg.continuous = ana.continuous;
+  cfg.checksize = ana.checksize;
   
   if strcmp(cfg.continuous,'yes')
     
@@ -307,19 +308,19 @@ for ses = 1:length(session)
     
     % do some initial processing of raw data
     cfg_cont = cfg;
-    cfg_cont.demean = 'yes';
-    cfg_cont.baselinewindow = 'all';
-    %cfg_cont.detrend = 'yes';
-    cfg_cont.lpfilter = 'yes';
-    cfg_cont.lpfreq = 100;
-    cfg_cont.hpfilter = 'yes';
-    cfg_cont.hpfreq = 0.1;
-    cfg_cont.hpfilttype = 'but';
-    cfg_cont.hpfiltord = 4;
-    %cfg_cont.bsfilter = 'yes';
-    %cfg_cont.bsfreq = 59:61;
-    cfg_cont.dftfilter = 'yes';
-    cfg_cont.dftfreq = [60 120 180];
+%     cfg_cont.demean = 'yes';
+%     cfg_cont.baselinewindow = 'all';
+%     %cfg_cont.detrend = 'yes';
+%     cfg_cont.lpfilter = 'yes';
+%     cfg_cont.lpfreq = 100;
+%     cfg_cont.hpfilter = 'yes';
+%     cfg_cont.hpfreq = 0.1;
+%     cfg_cont.hpfilttype = 'but';
+%     cfg_cont.hpfiltord = 4;
+%     %cfg_cont.bsfilter = 'yes';
+%     %cfg_cont.bsfreq = 59:61;
+%     cfg_cont.dftfilter = 'yes';
+%     cfg_cont.dftfreq = [60 120 180];
     
     data = ft_preprocessing(cfg_cont);
   end
@@ -366,12 +367,10 @@ for ses = 1:length(session)
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
     else
-      %if strcmp(behData,'ns_evt')
-      cfg.trialdef.evt = ns_evt;
-      %elseif strcmp(behData,'events')
-      cfg.trialdef.events = subEvents.events;
-      cfg.trialdef.expParam = expParam;
-      %end
+      cfg.eventinfo.evt = ns_evt;
+      cfg.eventinfo.events = subEvents.events;
+      %cfg.eventinfo.expParam = expParam;
+      
       cfg.trialdef.eventtype = 'trigger';
     end
   elseif strcmpi(exper.eegFileExt,'set')
@@ -382,12 +381,23 @@ for ses = 1:length(session)
   try
     fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     cfg = ft_definetrial(cfg);
+    
+    keyboard
+    
+    % remove these fields or the cfg will get way too big
+    if isfield(cfg,'eventinfo')
+      cfg = rmfield(cfg,'eventinfo');
+    end
+    if isfield(cfg.callinfo.usercfg,'eventinfo')
+      cfg.callinfo.usercfg = rmfield(cfg.callinfo.usercfg,'eventinfo');
+    end
   catch ME
     % if there were zero trials for this event type
     if strfind(ME.message,'no trials were defined')
       fprintf('No %s events found!\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     end
-    fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',cell2mat(eventValue_orig));
+    fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',...
+      sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     
     % debug
     keyboard
@@ -567,6 +577,7 @@ if length(eventValue) > 1
     else
       fprintf('No trials found for %s!\n',eventValue{evVal});
       ft_raw.(eventValue{evVal}).trial = {};
+      
       % debug
       keyboard
     end
