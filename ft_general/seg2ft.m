@@ -547,12 +547,16 @@ end
 % initialize the struct to return
 ft_raw = struct;
 
+% event number column comes from the trialfun function when the trl gets
+% created
+trialinfo_eventNumCol = 1;
+
 if length(eventValue) > 1
   for evVal = 1:length(eventValue)
     
     cfg = [];
     % select the correct trials for this event value
-    cfg.trials = data.trialinfo == evVal;
+    cfg.trials = data.trialinfo(:,trialinfo_eventNumCol) == evVal;
     
     if sum(cfg.trials) > 0
       fprintf('Selecting %d trials for %s...\n',sum(cfg.trials),eventValue{evVal});
@@ -562,7 +566,8 @@ if length(eventValue) > 1
     else
       fprintf('No trials found for %s!\n',eventValue{evVal});
       ft_raw.(eventValue{evVal}).trial = {};
-      %keyboard
+      % debug
+      keyboard
     end
   end
 elseif length(eventValue) == 1
