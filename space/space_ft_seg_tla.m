@@ -41,8 +41,8 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SPACE001';
-%   'SPACE002';
+%   'SPACE001';
+  'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
 %   'SPACE005';
@@ -116,6 +116,12 @@ ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
+% possible sessions and phases
+ana.sessionNames = {'oneDay'};
+ana.phaseNames = {'expo', 'multistudy', 'distract_math', 'cued_recall'};
+% types of event info to store in trialinfo field
+% ana.expo_trl_order = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+ana.expo_trl_order = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
 
 ana.artifact.type = {'ftManual', 'ftICA'};
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
@@ -198,7 +204,6 @@ else
       exper.badEv = badEv_all;
       
       save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-      %error('Not saving! %s already exists.\n',saveFile);
       fprintf('Done.\n');
     else
       fprintf('There are no new subjects in exper.subjects (everyone is already in the old analysisDetails.mat).  Not saving new analysisDetails.mat.\n');
@@ -221,11 +226,13 @@ end
 
 %% load the analysis details
 
-adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+% adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 
 % adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/eppp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_zeroVar/tla_-1000_1000/analysisDetails.mat';
 
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
+%[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
 files.figFontName = 'Helvetica';
 files.figPrintFormat = 'epsc2';

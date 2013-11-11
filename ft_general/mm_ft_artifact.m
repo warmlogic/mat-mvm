@@ -541,7 +541,7 @@ if rejArt_ftManual
     if ft_autoCheckArtNum > 1
       ft_autoCheckArt_prompt = [];
       while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
-        ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? (1 or 0, then press ''return''):\n\n'));
+        ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
       end
       if ft_autoCheckArt_prompt
         fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
@@ -958,82 +958,100 @@ if rejArt_ftICA
   % use arrows to advance to next trial;
   % use the q key to quit the data browser
   
-  fprintf('\n\nFinal round of manual artifact rejection:\n');
-  basic_art_z_default = 25;
-  
-  ft_customZvals_prompt = [];
-  while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
-    ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
-  end
-  
-  if ft_customZvals_prompt
-    basic_art_z = -1;
-    while basic_art_z <= 0
-      basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+  ft_autoCheckArt = true;
+  ft_autoCheckArtNum = 0;
+  while ft_autoCheckArt
+    ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
+    if ft_autoCheckArtNum > 1
+      ft_autoCheckArt_prompt = [];
+      while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
+        ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
+      end
+      if ft_autoCheckArt_prompt
+        fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+      else
+        %ft_autoCheckArt = false;
+        break
+      end
     end
-    if isempty(basic_art_z)
+    
+    fprintf('\n\nFinal round of manual artifact rejection:\n');
+    basic_art_z_default = 25;
+    
+    ft_customZvals_prompt = [];
+    while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
+      ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+    end
+    
+    if ft_customZvals_prompt
+      basic_art_z = -1;
+      while basic_art_z <= 0
+        basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+      end
+      if isempty(basic_art_z)
+        basic_art_z = basic_art_z_default;
+      end
+    else
       basic_art_z = basic_art_z_default;
     end
-  else
-    basic_art_z = basic_art_z_default;
-  end
-  
-  ft_autoCheckArt_interactive_default = 'no';
-  ft_autoCheckArt_interactive = -1;
-  while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
-    ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
-    if isempty(ft_autoCheckArt_interactive)
-      break
+    
+    ft_autoCheckArt_interactive_default = 'no';
+    ft_autoCheckArt_interactive = -1;
+    while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
+      ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
+      if isempty(ft_autoCheckArt_interactive)
+        break
+      end
     end
+    if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
+      ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
+    elseif ft_autoCheckArt_interactive == 1
+      ft_autoCheckArt_interactive = 'yes';
+    end
+    
+    cfg = [];
+    cfg.continuous = 'no';
+    %cfg.padding = 0;
+    % get the trial definition for automated FT artifact rejection
+    cfg.trl = ft_findcfg(data.cfg,'trl');
+    
+    cfg.artfctdef.zvalue.channel = 'all';
+    cfg.artfctdef.zvalue.cutoff = basic_art_z;
+    cfg.artfctdef.zvalue.trlpadding = 0;
+    cfg.artfctdef.zvalue.artpadding = 0.1;
+    cfg.artfctdef.zvalue.fltpadding = 0;
+    
+    % interactive artifact viewer
+    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+    
+    fprintf('Checking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+    
+    % auto mark some artifacts
+    cfg = ft_artifact_zvalue(cfg, data);
+    
+    % another manual search of the data for artifacts
+    
+    %cfg.viewmode = 'butterfly';
+    cfg.viewmode = 'vertical';
+    cfg.continuous = 'no';
+    cfg.elecfile = elecfile;
+    cfg.plotlabels = 'some';
+    cfg.ylim = vert_ylim;
+    
+    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+    fprintf('\n\nFinal round of manual artifact rejection:\n');
+    fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+    fprintf('\tUse arrows to move to next trial.\n');
+    if strcmp(cfg.viewmode,'butterfly')
+      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+    end
+    fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+    fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
+    
+    cfg = ft_databrowser(cfg,data);
+    % bug when calling rejectartifact right after databrowser, pause first
+    pause(1);
   end
-  if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
-    ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
-  elseif ft_autoCheckArt_interactive == 1
-    ft_autoCheckArt_interactive = 'yes';
-  end
-  
-  cfg = [];
-  cfg.continuous = 'no';
-  %cfg.padding = 0;
-  % get the trial definition for automated FT artifact rejection
-  cfg.trl = ft_findcfg(data.cfg,'trl');
-  
-  cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = basic_art_z;
-  cfg.artfctdef.zvalue.trlpadding = 0;
-  cfg.artfctdef.zvalue.artpadding = 0.1;
-  cfg.artfctdef.zvalue.fltpadding = 0;
-  
-  % interactive artifact viewer
-  cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
-  
-  fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-  
-  % auto mark some artifacts
-  cfg = ft_artifact_zvalue(cfg, data);
-  
-  % another manual search of the data for artifacts
-  
-  %cfg.viewmode = 'butterfly';
-  cfg.viewmode = 'vertical';
-  cfg.continuous = 'no';
-  cfg.elecfile = elecfile;
-  cfg.plotlabels = 'some';
-  cfg.ylim = vert_ylim;
-  
-  fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  fprintf('\n\nFinal round of manual artifact rejection:\n');
-  fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
-  fprintf('\tUse arrows to move to next trial.\n');
-  if strcmp(cfg.viewmode,'butterfly')
-    fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
-  end
-  fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-  fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
-  
-  cfg = ft_databrowser(cfg,data);
-  % bug when calling rejectartifact right after databrowser, pause first
-  pause(1);
   
   % initialize to store whether there was an artifact for each trial
   if ~exist('badEv','var') || isempty(badEv)

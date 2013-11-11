@@ -20,22 +20,20 @@ durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
 
 evt = cfg.eventinfo.evt;
 events_all = cfg.eventinfo.events;
-% expParam = cfg.trialdef.expParam;
+sessionNames = cfg.eventinfo.sessionNames;
+phaseNames = cfg.eventinfo.phaseNames;
+% expParam = cfg.eventinfo.expParam;
 
 % initialize the trl matrix
 trl = [];
 
-% possible sessions and phases
-sessions = {'oneDay'};
-phases = {'expo', 'multistudy', 'distract_math', 'cued_recall'};
-
 %% process the exposure phase
 
 sesName = 'oneDay';
-sesType = find(ismember(sessions,sesName));
+sesType = find(ismember(sessionNames,sesName));
 % sesType = find(ismember(expParam.sesTypes,sesName));
 phaseName = 'expo';
-phaseType = find(ismember(phases,phaseName));
+phaseType = find(ismember(phaseNames,phaseName));
 % phaseType = find(ismember(expParam.session.(sesName).phases,phaseName));
 
 expo_events = events_all.(sesName).(phaseName).data;
@@ -57,6 +55,8 @@ cols.lag = 33;
 cols.resp_str = 35;
 cols.rt = 39;
 cols.keypress = 41;
+
+expo_trl_order = cfg.eventinfo.expo_trl_order;
 
 % keep track of how many real evt events we have counted
 ec = 0;
@@ -98,15 +98,18 @@ for i = 1:length(event)
             category = 'House';
           end
           
+          phaseCount = this_event.phaseCount;
+          trial = this_event.trial;
+          stimNum = this_event.stimNum;
           i_catNum = this_event.i_catNum;
           targ = this_event.targ;
           spaced = this_event.spaced;
           lag = this_event.lag;
-          response = this_event.resp;
+          expo_response = this_event.resp;
           
-          keypress = 1;
-          if response == -1
-            keypress = 0;
+          expo_keypress = 1;
+          if expo_response == -1
+            expo_keypress = 0;
 %             rating = '';
 %           elseif response == 4
 %             rating = ' VA';
@@ -134,7 +137,32 @@ for i = 1:length(event)
           end
           
           % add it to the trial definition
-          trl = cat(1,trl,double([event(i).sample, (event(i).sample + durationSamp), offsetSamp, eventNumber sesType phaseType i_catNum targ spaced lag response keypress rt]));
+          this_trl = nan(1, 3 + length(expo_trl_order));
+          
+          this_trl(1) = event(i).sample;
+          this_trl(2) = (event(i).sample + durationSamp);
+          this_trl(3) = offsetSamp;
+          
+          for to = 1:length(expo_trl_order)
+            thisInd = find(ismember(expo_trl_order,expo_trl_order{to}));
+            if ~isempty(thisInd)
+              if exist(expo_trl_order{to},'var')
+                this_trl(thisInd) = eval(expo_trl_order{to});
+              else
+                fprintf('variable %s does not exist!\n',expo_trl_order{to});
+                keyboard
+              end
+            end
+          end
+          
+          % put all the trials together
+          trl = cat(1,trl,double(this_trl));
+          
+          % trl = cat(1,trl,double([event(i).sample, (event(i).sample + durationSamp), offsetSamp,...
+          %   eventNumber, sesType, phaseType, phaseCount, trial, stimNum, i_catNum, targ, spaced, lag, expo_response, expo_keypress, rt]));
+          %
+          % %{'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+
         end
         
       case 'RESP'

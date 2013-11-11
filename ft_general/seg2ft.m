@@ -246,9 +246,6 @@ for ses = 1:length(session)
   
   if strcmp(cfg.continuous,'yes')
     
-    %if strcmp(ana.trialFxn(end-6:end),'events')
-    %behData = 'events';
-    
     % read the events file
     eventsFile = fullfile(dirs.dataroot,dirs.behDir,subject,'events','events.mat');
     if exist(eventsFile,'file')
@@ -264,9 +261,6 @@ for ses = 1:length(session)
     else
       error('Cannot find experiment parameters file: %s\n',expParamFile)
     end
-    
-    %elseif strcmp(ana.trialFxn(end-6:end),'ns_evt')
-    %behData = 'ns_evt';
     
     % read the file with information about all events
     evtDir = 'ns_evt';
@@ -367,8 +361,13 @@ for ses = 1:length(session)
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
     else
+      % put in extra info used in creating trialinfo, but be sure to remove
+      % it or the cfg will take up way too much disk space
       cfg.eventinfo.evt = ns_evt;
       cfg.eventinfo.events = subEvents.events;
+      cfg.eventinfo.expo_evt_order = ana.expo_evt_order;
+      cfg.eventinfo.sessionNames = ana.sessionNames;
+      cfg.eventinfo.phaseNames = ana.phaseNames;
       %cfg.eventinfo.expParam = expParam;
       
       cfg.trialdef.eventtype = 'trigger';
@@ -382,7 +381,7 @@ for ses = 1:length(session)
     fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     cfg = ft_definetrial(cfg);
     
-    % remove these fields or the cfg will get way too big
+    % remove these fields or the cfg will take up way too much disk space
     if isfield(cfg,'eventinfo')
       cfg = rmfield(cfg,'eventinfo');
     end
