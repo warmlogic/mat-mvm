@@ -1,4 +1,4 @@
-function [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
+function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
 % [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %
@@ -205,8 +205,13 @@ if rejArt_badChanManual || rejArt_badChanEP
     badChanEP = [];
   end
   badChan = unique(cat(2,badChanManual,badChanEP));
+  badChan_str = cell(length(badChan,1));
+  for i = 1:length(badChan)
+    badChan_str{i} = sprintf('E%d',badChan(i));
+  end
 else
   badChan = [];
+  badChan_str = {};
 end
 
 if rejArt_rmBadChan && ~isempty(badChan)
@@ -306,7 +311,7 @@ if rejArt_nsAuto
   %   badEv = strcmp(badSorted,'bad');
   %   % make sure we only have data for the bad events for this event value
   %   badEv = badEv(ismember(eventValueSorted,eventValue));
-
+  
   if ~isempty(find(badEv,1))
     foundArt = true;
     fprintf('Automatically rejecting %d NS artifacts for%s.\n',sum(badEv),sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
@@ -382,6 +387,10 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   
   keepRepairingChannels = true;
   while keepRepairingChannels
+    if ~exist('badChan_str','var')
+      badChan_str = {};
+    end
+    
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
@@ -407,9 +416,9 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
-        fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+        fprintf('\nUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
       end
-      fprintf('\tUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
       cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
@@ -421,6 +430,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
         cfgChannelRepair.method = 'spline';
@@ -459,6 +469,10 @@ end
 if rejArt_ftManual
   keepRepairingChannels = true;
   while keepRepairingChannels
+    if ~exist('badChan_str','var')
+      badChan_str = {};
+    end
+    
     if rejArt_ftICA
       fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
       fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
@@ -490,7 +504,7 @@ if rejArt_ftManual
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
-        fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+        fprintf('\nUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
       end
       fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
       cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
@@ -503,6 +517,7 @@ if rejArt_ftManual
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
         cfgChannelRepair.method = 'spline';
@@ -515,120 +530,187 @@ if rejArt_ftManual
     end
   end
   
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % look for zvalue artifacts
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  cfg = [];
-  cfg.continuous = 'no';
-  %cfg.padding = 0;
-  % get the trial definition for automated FT artifact rejection
-  cfg.trl = ft_findcfg(data.cfg,'trl');
-  
-  cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 22;
-  cfg.artfctdef.zvalue.trlpadding = 0;
-  cfg.artfctdef.zvalue.artpadding = 0.1;
-  cfg.artfctdef.zvalue.fltpadding = 0;
-  
-  % algorithmic parameters
-  cfg.artfctdef.zvalue.absdiff = 'yes';
-  
-  % feedback (artifact viewer)
-  %cfg.artfctdef.zvalue.feedback = 'yes';
-  %cfg.artfctdef.zvalue.interactive = 'yes';
-  
-  fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-  
-  % auto mark zvalue artifacts
-  [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
-  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % look for muscle artifacts
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  cfg = [];
-  cfg.continuous = 'no';
-  %cfg.padding = 0;
-  % get the trial definition for automated FT artifact rejection
-  cfg.trl = ft_findcfg(data.cfg,'trl');
-  
-  % cutoff and padding
-  % select a set of channels on which to run the artifact detection
-  cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff      = 40;
-  cfg.artfctdef.zvalue.trlpadding  = 0;
-  if strcmp(cfg.continuous,'yes')
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
-  elseif strcmp(cfg.continuous,'no')
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
+  ft_autoCheckArt = true;
+  ft_autoCheckArtNum = 0;
+  while ft_autoCheckArt
+    ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
+    if ft_autoCheckArtNum > 1
+      fprintf('\nThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+      ft_autoCheckArt_prompt = [];
+      while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
+        ft_autoCheckArt_prompt = input('\tDo you want to run FieldTrip artifact auto-check again? (1 or 0, then press ''return''):\n\n');
+      end
+      if ft_autoCheckArt_prompt == 0
+        %ft_autoCheckArt = false;
+        break
+      end
+    end
+    
+    basic_art_z_default = 20;
+    muscle_art_z_default = 40;
+    jump_art_z_default = 50;
+    
+    ft_customZvals_prompt = [];
+    while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
+      ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+    end
+    
+    if ft_customZvals_prompt
+      basic_art_z = -1;
+      while basic_art_z <= 0
+        basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+      end
+      if isempty(basic_art_z)
+        basic_art_z = basic_art_z_default;
+      end
+      
+      muscle_art_z = -1;
+      while muscle_art_z <= 0
+        muscle_art_z = input(sprintf('\nAt what z-value do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_default));
+      end
+      if isempty(muscle_art_z)
+        muscle_art_z = muscle_art_z_default;
+      end
+      
+      jump_art_z = -1;
+      while jump_art_z <= 0
+        jump_art_z = input(sprintf('\nAt what z-value do you want to check JUMP artifacts (default=%d)?\n\n',muscle_art_z_default));
+      end
+      if isempty(jump_art_z)
+        jump_art_z = jump_art_z_default;
+      end
+    else
+      basic_art_z = basic_art_z_default;
+      muscle_art_z = muscle_art_z_default;
+      jump_art_z = jump_art_z_default;
+    end
+    
+    ft_autoCheckArt_interactive_default = 'no';
+    ft_autoCheckArt_interactive = -1;
+    while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
+      ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
+      if isempty(ft_autoCheckArt_interactive)
+        break
+      end
+    end
+    if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
+      ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
+    elseif ft_autoCheckArt_interactive == 1
+      ft_autoCheckArt_interactive = 'yes';
+    end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % look for zvalue artifacts
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    cfg = [];
+    cfg.continuous = 'no';
+    %cfg.padding = 0;
+    % get the trial definition for automated FT artifact rejection
+    cfg.trl = ft_findcfg(data.cfg,'trl');
+    
+    cfg.artfctdef.zvalue.channel = 'all';
+    cfg.artfctdef.zvalue.cutoff = basic_art_z;
+    cfg.artfctdef.zvalue.trlpadding = 0;
+    cfg.artfctdef.zvalue.artpadding = 0.1;
+    cfg.artfctdef.zvalue.fltpadding = 0;
+    
+    % algorithmic parameters
+    cfg.artfctdef.zvalue.absdiff = 'yes';
+    
+    % interactive artifact viewer
+    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+    
+    fprintf('\nChecking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+    
+    % auto mark zvalue artifacts
+    [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % look for muscle artifacts
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    cfg = [];
+    cfg.continuous = 'no';
+    %cfg.padding = 0;
+    % get the trial definition for automated FT artifact rejection
+    cfg.trl = ft_findcfg(data.cfg,'trl');
+    
+    % cutoff and padding
+    % select a set of channels on which to run the artifact detection
+    cfg.artfctdef.zvalue.channel = 'all';
+    cfg.artfctdef.zvalue.cutoff      = muscle_art_z;
+    cfg.artfctdef.zvalue.trlpadding  = 0;
+    if strcmp(cfg.continuous,'yes')
+      cfg.artfctdef.zvalue.artpadding  = 0.1;
+    elseif strcmp(cfg.continuous,'no')
+      cfg.artfctdef.zvalue.artpadding  = 0.1;
+    end
+    cfg.artfctdef.zvalue.fltpadding  = 0;
+    
+    % algorithmic parameters
+    cfg.artfctdef.zvalue.bpfilter    = 'yes';
+    if data.fsample/2 < 140
+      cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
+    else
+      cfg.artfctdef.zvalue.bpfreq      = [110 140];
+    end
+    cfg.artfctdef.zvalue.bpfiltord   = 6;
+    cfg.artfctdef.zvalue.bpfilttype  = 'but';
+    cfg.artfctdef.zvalue.hilbert     = 'yes';
+    cfg.artfctdef.zvalue.boxcar      = 0.2;
+    
+    % interactive artifact viewer
+    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+    
+    fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+    
+    % auto mark muscle artifacts
+    [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % look for jump artifacts
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    cfg = [];
+    cfg.continuous = 'no';
+    %cfg.padding = 0;
+    % get the trial definition for automated FT artifact rejection
+    cfg.trl = ft_findcfg(data.cfg,'trl');
+    
+    % cutoff and padding
+    % select a set of channels on which to run the artifact detection
+    cfg.artfctdef.zvalue.channel = 'all';
+    cfg.artfctdef.zvalue.cutoff = jump_art_z;
+    %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+    %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+    cfg.artfctdef.zvalue.trlpadding = 0;
+    cfg.artfctdef.zvalue.artpadding = 0.1;
+    cfg.artfctdef.zvalue.fltpadding = 0;
+    
+    % algorithmic parameters
+    cfg.artfctdef.zvalue.cumulative = 'yes';
+    cfg.artfctdef.zvalue.medianfilter = 'yes';
+    cfg.artfctdef.zvalue.medianfiltord = 9;
+    cfg.artfctdef.zvalue.absdiff = 'yes';
+    
+    % interactive artifact viewer
+    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+    
+    fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+    
+    % auto mark jump artifacts
+    [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % manual inspection of artifacts
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    cfg = [];
+    cfg.artfctdef.zvalue.artifact = artifact_zvalue; %
+    cfg.artfctdef.muscle.artifact = artifact_muscle;
+    cfg.artfctdef.jump.artifact = artifact_jump;
   end
-  cfg.artfctdef.zvalue.fltpadding  = 0;
-  
-  % algorithmic parameters
-  cfg.artfctdef.zvalue.bpfilter    = 'yes';
-  if data.fsample/2 < 140
-    cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
-  else
-    cfg.artfctdef.zvalue.bpfreq      = [110 140];
-  end
-  cfg.artfctdef.zvalue.bpfiltord   = 6;
-  cfg.artfctdef.zvalue.bpfilttype  = 'but';
-  cfg.artfctdef.zvalue.hilbert     = 'yes';
-  cfg.artfctdef.zvalue.boxcar      = 0.2;
-  
-  % feedback (artifact viewer)
-  %cfg.artfctdef.zvalue.feedback = 'yes';
-  %cfg.artfctdef.zvalue.interactive = 'yes';
-  
-  fprintf('Checking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-  
-  % auto mark muscle artifacts
-  [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
-  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % look for jump artifacts
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  cfg = [];
-  cfg.continuous = 'no';
-  %cfg.padding = 0;
-  % get the trial definition for automated FT artifact rejection
-  cfg.trl = ft_findcfg(data.cfg,'trl');
-  
-  % cutoff and padding
-  % select a set of channels on which to run the artifact detection
-  cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = 28;
-  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
-  cfg.artfctdef.zvalue.trlpadding = 0;
-  cfg.artfctdef.zvalue.artpadding = 0.1;
-  cfg.artfctdef.zvalue.fltpadding = 0;
-  
-  % algorithmic parameters
-  cfg.artfctdef.zvalue.cumulative = 'yes';
-  cfg.artfctdef.zvalue.medianfilter = 'yes';
-  cfg.artfctdef.zvalue.medianfiltord = 9;
-  cfg.artfctdef.zvalue.absdiff = 'yes';
-  
-  % feedback (artifact viewer)
-  %cfg.artfctdef.zvalue.feedback = 'yes';
-  %cfg.artfctdef.zvalue.interactive = 'yes';
-  
-  fprintf('Checking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-  
-  % auto mark jump artifacts
-  [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
-  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % manual inspection of artifacts
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  cfg = [];
-  cfg.artfctdef.zvalue.artifact = artifact_zvalue; %
-  cfg.artfctdef.muscle.artifact = artifact_muscle;
-  cfg.artfctdef.jump.artifact = artifact_jump;
   
   % get the trial definition for automated FT artifact rejection
   cfg.trl = ft_findcfg(data.cfg,'trl');
@@ -657,12 +739,15 @@ if rejArt_ftManual
   
   if rejArt_ftICA
     fprintf('\nNB: Before running ICA, you must manually reject artifacts that are not consistent across trials.\n');
-    fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n');
+    fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n\n');
   end
   
   cfg = ft_databrowser(cfg,data);
   % bug when calling rejectartifact right after databrowser, pause first
   pause(1);
+  
+  % debug
+  keyboard
   
   % initialize to store whether there was an artifact for each trial
   badEv = zeros(size(data.sampleinfo,1), 1);
@@ -697,6 +782,10 @@ if rejArt_ftManual
   
   keepRepairingChannels = true;
   while keepRepairingChannels
+    if ~exist('badChan_str','var')
+      badChan_str = {};
+    end
+    
     if rejArt_ftICA
       fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
       fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
@@ -740,9 +829,9 @@ if rejArt_ftManual
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
-        fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+        fprintf('\nUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
       end
-      fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      fprintf('\nUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
       cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
@@ -753,6 +842,7 @@ if rejArt_ftManual
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
         cfgChannelRepair.method = 'spline';
@@ -778,17 +868,28 @@ if rejArt_ftICA
   % rejected ICA components
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
+  if ~exist('badChan_str','var')
+    badChan_str = {};
+  end
+  
   cfg = [];
   cfg.method = 'runica';
   %cfg.channel = 'all';
   
-  fprintf('If you still have a really bad (peripheral) channel, or have repaired a channel, you must exclude it from ICA.\n');
-  fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-  fprintf('\tOnce you choose this option (0) and you see the channel selector:\n');
+  fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
+  if ~isempty(badChan_str)
+    fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+    ica_chanNum = 0;
+    fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+  else
+    ica_chanNum = [];
+    fprintf('\tIf that is the case, you must run ICA on a subset of channels (option ''0'').\n');
+  end
+  fprintf('\tOnce you see the channel selector:\n');
   fprintf('\t\t1. Add all channels to the right-side list.\n');
   fprintf('\t\t2. Remove the bad channel from that list.\n');
   
-  ica_chanNum = [];
+  %ica_chanNum = [];
   while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
     ica_chanNum = input('\nDo you only want to run ICA on all channels (1) or a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
   end
@@ -867,6 +968,7 @@ if rejArt_ftICA
   cfg.artfctdef.zvalue.artpadding = 0.1;
   cfg.artfctdef.zvalue.fltpadding = 0;
   
+  % interactive artifact viewer
   %cfg.artfctdef.zvalue.interactive = 'yes';
   
   fprintf('Checking for zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
@@ -967,6 +1069,10 @@ if rejArt_ftICA
   
   keepRepairingChannels = true;
   while keepRepairingChannels
+    if ~exist('badChan_str','var')
+      badChan_str = {};
+    end
+    
     % see if there were any channels to repair first
     rejArt_repair = [];
     while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
@@ -992,9 +1098,9 @@ if rejArt_ftICA
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
-        fprintf('Use the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+        fprintf('\nUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
       end
-      fprintf('Use the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+      fprintf('\nUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
       cfgChannelRepair = ft_databrowser(cfgChannelRepair, data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
@@ -1005,6 +1111,7 @@ if rejArt_ftICA
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
         cfgChannelRepair.method = 'spline';
@@ -1049,8 +1156,7 @@ if rejArt_ftAuto
   cfg.artfctdef.zvalue.medianfiltord = 9;
   cfg.artfctdef.zvalue.absdiff = 'yes';
   
-  % feedback (artifact viewer)
-  %cfg.artfctdef.zvalue.feedback = 'yes';
+  % interactive artifact viewer
   cfg.artfctdef.zvalue.interactive = 'yes';
   
   [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
@@ -1091,9 +1197,8 @@ if rejArt_ftAuto
   cfg.artfctdef.zvalue.hilbert     = 'yes';
   cfg.artfctdef.zvalue.boxcar      = 0.2;
   
-  % feedback
-  %cfg.artfctdef.zvalue.feedback = 'yes';
-  cfg.artfctdef.zvalue.interactive = 'yes';
+  % interactive artifact viewer
+  %cfg.artfctdef.zvalue.interactive = 'yes';
   
   [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
   
@@ -1129,9 +1234,8 @@ if rejArt_ftAuto
   cfg.artfctdef.zvalue.bpfiltord  = 4;
   cfg.artfctdef.zvalue.hilbert    = 'yes';
   
-  % feedback
-  %cfg.artfctdef.zvalue.feedback = 'yes';
-  cfg.artfctdef.zvalue.interactive = 'yes';
+  % interactive artifact viewer
+  %cfg.artfctdef.zvalue.interactive = 'yes';
   
   [cfg, artifact_EOG] = ft_artifact_zvalue(cfg,data);
   
