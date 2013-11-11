@@ -18,8 +18,8 @@ offsetSamp = round(-cfg.trialdef.prestim*hdr.Fs);
 durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
 % TODO: should this be ceil instead of round?
 
-evt = cfg.trialdef.evt;
-events_all = cfg.trialdef.events;
+evt = cfg.eventinfo.evt;
+events_all = cfg.eventinfo.events;
 % expParam = cfg.trialdef.expParam;
 
 % initialize the trl matrix

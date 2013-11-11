@@ -171,36 +171,41 @@ else
   
   old_anaDetails = load(saveFile);
   
-  % debug
-  keyboard
-  
   if all(ismember(old_anaDetails.exper.eventValues,exper.eventValues))
-    subjects_all = cat(1,old_anaDetails.exper.subjects,exper.subjects);
+    subjects_new = ~ismember(exper.subjects,old_anaDetails.exper.subjects);
     
-    nTrials_all = old_anaDetails.exper.nTrials;
-    nTr_fn = fieldnames(nTrials_all);
-    for i = 1:length(nTr_fn)
-      for j = 1:length(exper.subjects)
-        nTr_thisSub = exper.nTrials(nTr_fn{i});
-        nTrials_all(nTr_fn{i}) = cat(2,nTrials_all(nTr_fn{i}),nTr_thisSub(j,:));
+    if any(subjects_new)
+      subjects_all = cat(1,old_anaDetails.exper.subjects,exper.subjects(subjects_new));
+      
+      newSubInd = find(subjects_new);
+      
+      nTrials_all = old_anaDetails.exper.nTrials;
+      nTr_fn = fieldnames(nTrials_all);
+      for i = 1:length(nTr_fn)
+        for j = 1:length(newSubInd)
+          nTr_thisSub = exper.nTrials.(nTr_fn{i});
+          nTrials_all.(nTr_fn{i}) = cat(1,nTrials_all.(nTr_fn{i}),nTr_thisSub(newSubInd(j),:));
+        end
       end
+      
+      badChan_all = cat(1,old_anaDetails.exper.badChan,exper.badChan(newSubInd,:));
+      badEv_all = cat(1,old_anaDetails.exper.badEv,exper.badEv(newSubInd,:));
+      
+      % add the combined info into the struct we want to save
+      exper.subjects = subjects_all;
+      exper.nTrials = nTrials_all;
+      exper.badChan = badChan_all;
+      exper.badEv = badEv_all;
+      
+      save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+      %error('Not saving! %s already exists.\n',saveFile);
+      fprintf('Done.\n');
+    else
+      fprintf('There are no new subjects in exper.subjects (everyone is already in the old analysisDetails.mat).  Not saving new analysisDetails.mat.\n');
     end
-    
-    badChan_all = cat(1,old_anaDetails.exper.badChan,exper.badChan);
-    badEv_all = cat(1,old_anaDetails.exper.badEv,exper.badEv);
-    
-    % add the combined info into the struct we want to save
-    exper.subjects = subjects_all;
-    exper.nTrials = nTrials_all;
-    exper.badChan = badChan_all;
-    exper.badEv = badEv_all;
   else
-    fprintf('exper.eventValues does not match up between old and new subjects!\n');
+    fprintf('exper.eventValues does not match up between old and new subjects! Not saving new analysisDetails.mat.\n');
   end
-  
-  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-  %error('Not saving! %s already exists.\n',saveFile);
-  fprintf('Done.\n');
 end
 
 %% let me know that it's done
