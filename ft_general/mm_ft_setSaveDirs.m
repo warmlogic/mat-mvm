@@ -72,7 +72,7 @@ for i = 1:length(exper.eventValues)
   end
 end
 
-if isfield(exper,'eventValuesExtra')
+if isfield(exper,'eventValuesExtra') && isfield(exper.eventValuesExtra,'newValue') && ~isempty(exper.eventValuesExtra.newValue) && isfield(exper.eventValuesExtra,'toCombine') && ~isempty(exper.eventValuesExtra.toCombine)
   if ~isempty(exper.eventValuesExtra.newValue)
     % back up original field values
     %eventValuesWithExtra_orig = eventValuesWithExtra;

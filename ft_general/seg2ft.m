@@ -389,6 +389,7 @@ for ses = 1:length(session)
     end
     fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',cell2mat(eventValue_orig));
     
+    % debug
     keyboard
     
     % set an empty cell and return to the calling function
