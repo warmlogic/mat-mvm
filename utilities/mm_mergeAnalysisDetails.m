@@ -23,11 +23,14 @@ if all(ismember(orig_anaDetails.exper.eventValues,add_anaDetails.exper.eventValu
   subjects_new = ~ismember(add_anaDetails.exper.subjects,orig_anaDetails.exper.subjects);
   
   if any(subjects_new)
+    addSub_str = add_anaDetails.exper.subjects(subjects_new);
+    fprintf('Concatenating%s after%s...\n',sprintf(repmat(' %s',1,sum(subjects_new)),addSub_str{:}),sprintf(repmat(' %s',1,sum(subjects_new)),orig_anaDetails.exper.subjects{:}));
+    
     % don't backup until we're sure we're going to re-save the file
     if backup_orig_AD
       [pathstr,name,ext] = fileparts(orig_anaDetails_file);
-      orig_AD_backup_file = fullfile(pathstr,sprintf('%s_backup',name),ext);
-      fprintf('Backing up original analysisDetails file to %s...\n',orig_AD_backup_file);
+      orig_AD_backup_file = fullfile(pathstr,sprintf('%s_backup%s',name,ext));
+      fprintf('Backing up original analysisDetails file to %s... ',orig_AD_backup_file);
       s = unix(sprintf('cp %s %s',orig_anaDetails_file,orig_AD_backup_file));
       if s ~= 0
         error('Could not back up original AD file using the unix command!');
@@ -67,10 +70,10 @@ if all(ismember(orig_anaDetails.exper.eventValues,add_anaDetails.exper.eventValu
     cfg_pp = orig_anaDetails.cfg_pp;
     
     save(orig_anaDetails_file,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-    fprintf('Done.\n');
+    fprintf('Done re-saving analysis details.\n');
   else
-    fprintf('There are no new subjects in exper.subjects (everyone is already in the old analysisDetails.mat).  Not re-saving analysisDetails.mat.\n');
+    fprintf('There are no new subjects in exper.subjects (everyone is already in the original analysisDetails.mat).  Not re-saving analysisDetails.mat.\n');
   end
 else
-  fprintf('exper.eventValues does not match up between old and new subjects! Not re-saving analysisDetails.mat.\n');
+  fprintf('exper.eventValues does not match up between original and additional subjects! Not re-saving analysisDetails.mat.\n');
 end

@@ -165,7 +165,7 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 
 % save the analysis details
 
-% overwrite if it already exists
+% concatenate the additional ones onto the existing ones
 saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
 if ~exist(saveFile,'file')
   fprintf('Saving analysis details: %s...',saveFile);
@@ -173,19 +173,22 @@ if ~exist(saveFile,'file')
   fprintf('Done.\n');
 else
   % combine them
-  fprintf('Combining these analysis details with previous runs: %s...',saveFile);
+  fprintf('Concatenating these analysis details onto the end of the previous runs, which were saved here: %s...',saveFile);
   
-  old_anaDetails = load(saveFile);
+  orig_anaDetails = load(saveFile);
   
-  if all(ismember(old_anaDetails.exper.eventValues,exper.eventValues))
-    subjects_new = ~ismember(exper.subjects,old_anaDetails.exper.subjects);
+  if all(ismember(orig_anaDetails.exper.eventValues,exper.eventValues))
+    subjects_new = ~ismember(exper.subjects,orig_anaDetails.exper.subjects);
     
     if any(subjects_new)
-      subjects_all = cat(1,old_anaDetails.exper.subjects,exper.subjects(subjects_new));
+      addSub_str = exper.subjects(subjects_new);
+      fprintf('Concatenating%s after%s...\n',sprintf(repmat(' %s',1,sum(subjects_new)),addSub_str{:}),sprintf(repmat(' %s',1,sum(subjects_new)),orig_anaDetails.exper.subjects{:}));
+      
+      subjects_all = cat(1,orig_anaDetails.exper.subjects,exper.subjects(subjects_new));
       
       newSubInd = find(subjects_new);
       
-      nTrials_all = old_anaDetails.exper.nTrials;
+      nTrials_all = orig_anaDetails.exper.nTrials;
       nTr_fn = fieldnames(nTrials_all);
       for i = 1:length(nTr_fn)
         for j = 1:length(newSubInd)
@@ -194,8 +197,8 @@ else
         end
       end
       
-      badChan_all = cat(1,old_anaDetails.exper.badChan,exper.badChan(newSubInd,:));
-      badEv_all = cat(1,old_anaDetails.exper.badEv,exper.badEv(newSubInd,:));
+      badChan_all = cat(1,orig_anaDetails.exper.badChan,exper.badChan(newSubInd,:));
+      badEv_all = cat(1,orig_anaDetails.exper.badEv,exper.badEv(newSubInd,:));
       
       % add the combined info into the struct we want to save
       exper.subjects = subjects_all;
@@ -229,7 +232,10 @@ end
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 
-% adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/eppp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_zeroVar/tla_-1000_1000/analysisDetails.mat';
+server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+if exist(server_adFile,'file')
+  mm_mergeAnalysisDetails(adFile,server_adFile,true);
+end
 
 %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
