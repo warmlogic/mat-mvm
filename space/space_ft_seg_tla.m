@@ -232,10 +232,10 @@ end
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 
-server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
-if exist(server_adFile,'file')
-  mm_mergeAnalysisDetails(adFile,server_adFile,true);
-end
+% server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+% if exist(server_adFile,'file')
+%   mm_mergeAnalysisDetails(adFile,server_adFile,true);
+% end
 
 %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
@@ -266,23 +266,9 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-% list the values separated by types: 2Colors, 6Colors
-%ana.eventValues = {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}};
-%ana.eventValues = {{'HSC2','HSI2','CR2'},{'HSC6','HSI6','CR6'}};
-%ana.eventValues = {{'RCR','RH','RHSC','RHSI'}};
-%ana.eventValues = {{'RCR','RHSC','RHSI'}};
-
 % ana.eventValues = {exper.eventValues};
 
 ana.eventValues = {{'Face','House'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI','ROSC','ROSI'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','RSSI'}};
-%ana.eventValues = {{'FSC','FSI','N','RSSC','ROSC'}};
-%ana.eventValues = {{'F','N','RO','RS'}};
-%ana.eventValues = {{'FSC','RSSI'}};
-
-% ana.eventValues = {{'FSC','FSI','N','RSC','RSI'}};
-% ana.eventValues = {{'FSC','FSI','N'}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -310,8 +296,8 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub=1;
-ses=1;
+sub = 1;
+ses = 1;
 for i = 1:length(ana.eventValues{1})
   figure
   ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
@@ -411,154 +397,25 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-%% Time-Frequency: evoked (run on average ERP)
+% turn keeptrial data into average for statistical functions
 
-cfg_ft = [];
-cfg_ft.pad = 'maxperlen';
-% cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-% cfg_ft.keeptrials = 'no';
-% cfg_ft.keeptapers = 'no';
-cfg_ft.output = 'fourier';
-cfg_ft.keeptrials = 'yes';
-cfg_ft.keeptapers = 'yes';
+data_tla_avg = struct;
 
-% wavelet
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 6;
-%cfg_ft.toi = -0.8:0.04:3.0;
-cfg_ft.toi = -0.5:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-% % cfg_ft.foi = 3:freqstep:9;
-% cfg_ft.foi = 3:freqstep:60;
-%cfg_ft.foi = 4:1:100;
-cfg_ft.foi = 4:1:100;
+cfg = [];
+cfg.keeptrials = 'no';
 
-baseline = [-0.4 -0.2];
-
-data_evoked = struct;
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     for typ = 1:length(ana.eventValues)
       for evVal = 1:length(ana.eventValues{typ})
         fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
         if isfield(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'avg')
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-          
-          time = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
-          
-          % power
-          param = 'powspctrm';
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = abs(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2;
-          blt = time >= baseline(1) & time <= baseline(2);
-          nSmp = size(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
-          blm = repmat(nanmean(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-          
-          % % divide by the baseline (relative), then log transform
-          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
-          % % subtract and divide by the baseline (relative change), then log transform
-          % data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10((data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm) ./ blm);
-          % do a log transform, then an absolute change subtraction
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - log10(blm);
-          
-          % get rid of any zeros
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) == 0) = eps(0);
-          
-          % phase
-          param = 'phasespctrm';
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = angle(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm);
-        else
-          warning([mfilename,':erp2freq'],'NO DATA for %s! Monving on!\n',ana.eventValues{typ}{evVal});
-          data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data;
+          data_tla_avg.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_timelockanalysis(cfg,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
         end
       end
     end
   end
 end
-
-%% Time-Frequency: save it
-
-data_evoked.SC = data_evoked.RHSC;
-data_evoked = rmfield(data_evoked,'RHSC');
-data_evoked.SI = data_evoked.RHSI;
-data_evoked = rmfield(data_evoked,'RHSI');
-data_evoked.CR = data_evoked.RCR;
-data_evoked = rmfield(data_evoked,'RCR');
-
-save(fullfile(dirs.saveDirProc,'data_evoked.mat'),'data_evoked');
-
-%% Time-Frequency: plots
-
-%chan=11; % Fz
-%chan=62; % Pz
-%chan=20; % LAS middle
-%chan=118; % RAS middle
-chan=53; % LPS middle
-%chan=86; % RPS middle
-
-sub=1;
-ses=1;
-typ=1;
-evVal = 2;
-
-freq = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.freq;
-time = data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time;
-
-figure
-
-subplot(3,1,1)
-plot(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.time,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.avg(chan,:));
-title(sprintf('ERP, %s, chan %d',ana.eventValues{typ}{evVal},chan));
-xlabel('Time (s)');
-ylabel('Voltage (\muV)');
-
-param = 'powspctrm';
-% %pow = squeeze(abs(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm).^2);
-% blt = time >= baseline(1) & time <= baseline(2);
-% %nTrl = size(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),1);
-% nSmp = size(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param),4);
-% blm = repmat(nanmean(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
-% data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm);
-% 
-% %blm = repmat(nanmean(log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt)),4),[1,1,1,nSmp]);
-% 
-% % % blstd = repmat(nanmean(nanstd(log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,:,:,blt)),0,1),4),[nTrl,1,1,nSmp]);
-% 
-% %data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = (log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - blm);
-% %data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) - blm);
-% 
-% %data_pow_blc = (log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)) - blm);
-% data_pow_blc = log10(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param) ./ blm);
-% 
-% %data_pow_blc = (10.^(data_pow_blc/10)-1)*100;
-
-%figure
-subplot(3,1,2)
-%surf(time,freq,squeeze(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
-%shading interp;view([0,90]);axis tight;
-imagesc(time,freq,squeeze(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)),[-2 2]);
-axis xy
-%colorbar
-title(sprintf('Power, %s, chan %d',ana.eventValues{typ}{evVal},chan));
-xlabel('Time (s)');
-ylabel('Frequency');
-
-%phase = squeeze(angle(data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm));
-%figure
-param = 'phasespctrm';
-subplot(3,1,3)
-surf(time,freq,squeeze(data_evoked.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.(param)(:,chan,:,:)));
-shading interp;view([0,90]);axis tight;
-%colorbar
-title(sprintf('Phase, %s, chan %d',ana.eventValues{typ}{evVal},chan));
-xlabel('Time (s)');
-ylabel('Frequency');
-
-% coh = squeeze(data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm ./ abs(data_pow.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data.fourierspctrm));
-% figure;
-% surf(time,freq,abs(squeeze(coh(chan,:,:))));
-% shading interp;view([0,90]);axis tight;
 
 %% plot the conditions - simple
 
@@ -573,9 +430,9 @@ cfg_plot = [];
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'FS'},{'LPS'}};
-% cfg_plot.rois = {{'FC'}};
-cfg_plot.ylims = [-7 2; -1 8];
+% cfg_plot.rois = {{'FS'},{'LPS'}};
+cfg_plot.rois = {{'posterior'}};
+cfg_plot.ylims = [-4 4; -5 5];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -926,7 +783,7 @@ for r = 1:length(cfg_ana.rois)
   cfg_ft.latency = cfg_ana.latencies(r,:);
   cfg_plot.ylim = cfg_plot.ylims(r,:);
   
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
+  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg);
 end
 
 %% output some values
