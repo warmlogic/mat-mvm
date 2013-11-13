@@ -246,59 +246,64 @@ for ses = 1:length(session)
   
   if strcmp(cfg.continuous,'yes')
     
-    % read the events file
-    eventsFile = fullfile(dirs.dataroot,dirs.behDir,subject,'events','events.mat');
-    if exist(eventsFile,'file')
-      subEvents = load(eventsFile,'events');
-    else
-      error('Cannot find events file: %s\n',eventsFile)
-    end
-    
-    % read the experiment parameters file
-    expParamFile = fullfile(dirs.dataroot,dirs.behDir,subject,'experimentParams.mat');
-    if exist(expParamFile,'file')
-      load(expParamFile,'expParam');
-    else
-      error('Cannot find experiment parameters file: %s\n',expParamFile)
-    end
-    
-    % read the file with information about all events
-    evtDir = 'ns_evt';
-    % find the evt file
-    evtfile = dir(fullfile(dataroot,sesName,evtDir,[subject,'*.evt']));
-    if isempty(evtfile)
-      error('Cannot find %s*.evt file in %s',subject,fullfile(dataroot,sesName,evtDir));
-    elseif length(evtfile) > 1
-      error('More than one %s*.evt file found in %s',subject,fullfile(dataroot,sesName,evtDir));
-    elseif length(evtfile) == 1
-      infile_evt = fullfile(dataroot,sesName,evtDir,evtfile.name);
-    end
-    % figure out how many columns there are
-    fid = fopen(infile_evt,'r');
-    maxNumCols = -Inf;
-    while 1
-      % get each line of the file
-      tline = fgetl(fid);
-      if ischar(tline)
-        if strcmp(tline(end),sprintf('\t'))
-          tline = tline(1:end-1);
-        end
-        % since it's tab delimited, split it and count the length
-        numCols = length(regexp(tline,'\t','split'));
-        % change the max number
-        if numCols > maxNumCols
-          maxNumCols = numCols;
-        end
+    if ana.useEvents
+      % read the events file
+      eventsFile = fullfile(dirs.dataroot,dirs.behDir,subject,'events','events.mat');
+      if exist(eventsFile,'file')
+        subEvents = load(eventsFile,'events');
       else
-        break
+        error('Cannot find events file: %s\n',eventsFile)
       end
     end
-    fclose(fid);
-    % read the evt file
-    fid = fopen(infile_evt,'r');
-    ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
-    fclose(fid);
-    %end
+    
+    if ana.useExpParam
+      % read the experiment parameters file
+      expParamFile = fullfile(dirs.dataroot,dirs.behDir,subject,'experimentParams.mat');
+      if exist(expParamFile,'file')
+        load(expParamFile,'expParam');
+      else
+        error('Cannot find experiment parameters file: %s\n',expParamFile)
+      end
+    end
+    
+    if ana.useEvt
+      % read the file with information about all events
+      evtDir = 'ns_evt';
+      % find the evt file
+      evtfile = dir(fullfile(dataroot,sesName,evtDir,[subject,'*.evt']));
+      if isempty(evtfile)
+        error('Cannot find %s*.evt file in %s',subject,fullfile(dataroot,sesName,evtDir));
+      elseif length(evtfile) > 1
+        error('More than one %s*.evt file found in %s',subject,fullfile(dataroot,sesName,evtDir));
+      elseif length(evtfile) == 1
+        infile_evt = fullfile(dataroot,sesName,evtDir,evtfile.name);
+      end
+      % figure out how many columns there are
+      fid = fopen(infile_evt,'r');
+      maxNumCols = -Inf;
+      while 1
+        % get each line of the file
+        tline = fgetl(fid);
+        if ischar(tline)
+          if strcmp(tline(end),sprintf('\t'))
+            tline = tline(1:end-1);
+          end
+          % since it's tab delimited, split it and count the length
+          numCols = length(regexp(tline,'\t','split'));
+          % change the max number
+          if numCols > maxNumCols
+            maxNumCols = numCols;
+          end
+        else
+          break
+        end
+      end
+      fclose(fid);
+      % read the evt file
+      fid = fopen(infile_evt,'r');
+      ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
+      fclose(fid);
+    end
     
     % do some initial processing of raw data
     cfg_cont = cfg;
@@ -361,14 +366,24 @@ for ses = 1:length(session)
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
     else
-      % put in extra info used in creating trialinfo, but be sure to remove
-      % it or the cfg will take up way too much disk space
-      cfg.eventinfo.evt = ns_evt;
-      cfg.eventinfo.events = subEvents.events;
-      cfg.eventinfo.expo_evt_order = ana.expo_evt_order;
-      cfg.eventinfo.sessionNames = ana.sessionNames;
-      cfg.eventinfo.phaseNames = ana.phaseNames;
-      %cfg.eventinfo.expParam = expParam;
+      % put in extra info used for creating trialinfo into cfg.eventinfo
+      % field, but be sure to remove it or the cfg will take up way too
+      % much disk space (this happens automatically after running
+      % ft_definetrial)
+      if ana.useEvents
+        cfg.eventinfo.events = subEvents.events;
+      end
+      if ana.useExpParam
+        cfg.eventinfo.expParam = expParam;
+      end
+      if ana.useNsEvt
+        cfg.eventinfo.evt = ns_evt;
+      end
+      if ana.useExpInfo
+        cfg.eventinfo.trl_order = ana.trl_order;
+        cfg.eventinfo.sessionNames = ana.sessionNames;
+        cfg.eventinfo.phaseNames = ana.phaseNames;
+      end
       
       cfg.trialdef.eventtype = 'trigger';
     end

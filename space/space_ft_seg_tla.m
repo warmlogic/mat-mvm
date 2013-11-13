@@ -116,12 +116,20 @@ ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
-% possible sessions and phases
-ana.sessionNames = {'oneDay'};
-ana.phaseNames = {'expo', 'multistudy', 'distract_math', 'cued_recall'};
-% types of event info to store in trialinfo field
-% ana.expo_trl_order = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
-ana.expo_trl_order = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+% files used when adding metadata to segmented trials
+ana.useEvents = true;
+ana.useExpParam = false;
+ana.useEvt = true;
+ana.useExpInfo = true;
+if ana.useExpInfo
+  % possible sessions and phases
+  ana.sessionNames = {'oneDay'};
+  % phases occur within a session
+  ana.phaseNames = {{'expo', 'multistudy', 'distract_math', 'cued_recall'}};
+  % types of event info to store in trialinfo field
+  % ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+  ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+end
 
 ana.artifact.type = {'ftManual', 'ftICA'};
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
@@ -138,8 +146,8 @@ ana.overwrite.proc = 1;
 cfg_pp = [];
 % average rereference
 cfg_pp.reref = 'yes';
-cfg_pp.refchannel = 'all'; 
-cfg_pp.implicitref = 'Cz'; 
+cfg_pp.refchannel = 'all';
+cfg_pp.implicitref = 'Cz';
 % do a baseline correction
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
@@ -783,7 +791,7 @@ for r = 1:length(cfg_ana.rois)
   cfg_ft.latency = cfg_ana.latencies(r,:);
   cfg_plot.ylim = cfg_plot.ylims(r,:);
   
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg);
+  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
 end
 
 %% output some values

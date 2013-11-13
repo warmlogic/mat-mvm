@@ -33,7 +33,7 @@ sesName = 'oneDay';
 sesType = find(ismember(sessionNames,sesName));
 % sesType = find(ismember(expParam.sesTypes,sesName));
 phaseName = 'expo';
-phaseType = find(ismember(phaseNames,phaseName));
+phaseType = find(ismember(phaseNames{sesType},phaseName));
 % phaseType = find(ismember(expParam.session.(sesName).phases,phaseName));
 
 expo_events = events_all.(sesName).(phaseName).data;
@@ -56,7 +56,7 @@ cols.resp_str = 35;
 cols.rt = 39;
 cols.keypress = 41;
 
-expo_trl_order = cfg.eventinfo.expo_trl_order;
+trl_order_expo = cfg.eventinfo.trl_order.expo;
 
 % keep track of how many real evt events we have counted
 ec = 0;
@@ -137,19 +137,19 @@ for i = 1:length(event)
           end
           
           % add it to the trial definition
-          this_trl = nan(1, 3 + length(expo_trl_order));
+          this_trl = nan(1, 3 + length(trl_order_expo));
           
           this_trl(1) = event(i).sample;
           this_trl(2) = (event(i).sample + durationSamp);
           this_trl(3) = offsetSamp;
           
-          for to = 1:length(expo_trl_order)
-            thisInd = find(ismember(expo_trl_order,expo_trl_order{to}));
+          for to = 1:length(trl_order_expo)
+            thisInd = find(ismember(trl_order_expo,trl_order_expo{to}));
             if ~isempty(thisInd)
-              if exist(expo_trl_order{to},'var')
-                this_trl(thisInd) = eval(expo_trl_order{to});
+              if exist(trl_order_expo{to},'var')
+                this_trl(thisInd) = eval(trl_order_expo{to});
               else
-                fprintf('variable %s does not exist!\n',expo_trl_order{to});
+                fprintf('variable %s does not exist!\n',trl_order_expo{to});
                 keyboard
               end
             end
@@ -158,6 +158,7 @@ for i = 1:length(event)
           % put all the trials together
           trl = cat(1,trl,double(this_trl));
           
+          % hardcoded old method
           % trl = cat(1,trl,double([event(i).sample, (event(i).sample + durationSamp), offsetSamp,...
           %   eventNumber, sesType, phaseType, phaseCount, trial, stimNum, i_catNum, targ, spaced, lag, expo_response, expo_keypress, rt]));
           %

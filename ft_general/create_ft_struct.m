@@ -92,8 +92,23 @@ if ~isfield(ana,'continuous')
   ana.continuous = 'no';
 end
 
+% maximum size of FieldTrip cfg struct
 if ~isfield(ana,'checksize')
   ana.checksize = 1e5;
+end
+
+% for adding metadata; false by default
+if ~isfield(ana,'useEvents')
+  ana.useEvents = false;
+end
+if ~isfield(ana,'useEvt')
+  ana.useEvt = false;
+end
+if ~isfield(ana,'useExpParam')
+  ana.useExpParam = false;
+end
+if ~isfield(ana,'useExpInfo')
+  ana.useExpInfo = false;
 end
 
 % need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
