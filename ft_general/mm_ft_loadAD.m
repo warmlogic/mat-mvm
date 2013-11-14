@@ -10,9 +10,13 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(filename,replace_
 %                    with the one applicable now. true or false (default = false).
 %                    OR
 %                    {'old_dataroot','new_dataroot'}
-%                    If using the cell option, dataroot should include
+%
+%                    If using the cell option, dataroot usually includes
 %                    everything before 'ft_data', something like:
 %                    /path/to/ExpName/eeg/-1000_2000
+%
+%                    but also may simply be an old string to be replaced by
+%                    a new string!
 % 
 
 if nargin < 2
@@ -98,17 +102,28 @@ elseif iscell(replace_dataroot)
   old_dataroot = replace_dataroot{1};
   new_dataroot = replace_dataroot{2};
   
+  if isempty(old_dataroot)
+    error('First replacement string cannot be empty!')
+  end
+  
   % make sure the strings will replace each other correctly
-  if strcmp(old_dataroot(end),filesep) && ~strcmp(new_dataroot(end),filesep)
+  if strcmp(old_dataroot(end),filesep) && ~isempty(new_dataroot) && ~strcmp(new_dataroot(end),filesep)
     old_dataroot = old_dataroot(1:end-1);
-  elseif ~strcmp(old_dataroot(end),filesep) && strcmp(new_dataroot(end),filesep)
+  elseif ~strcmp(old_dataroot(end),filesep) && ~isempty(new_dataroot) && strcmp(new_dataroot(end),filesep)
     new_dataroot = new_dataroot(1:end-1);
   end
+  
+%   if strcmp(old_dataroot(end),filesep) && ~strcmp(new_dataroot(end),filesep)
+%     old_dataroot = old_dataroot(1:end-1);
+%   elseif ~strcmp(old_dataroot(end),filesep) && strcmp(new_dataroot(end),filesep)
+%     new_dataroot = new_dataroot(1:end-1);
+%   end
 end
 
 % do the replacement
 if do_the_replace
-  fprintf('Replacing saved dirs.dataroot (%s) with dataroot for this location (%s)...',old_dataroot,new_dataroot);
+  %fprintf('Replacing saved dirs.dataroot (%s) with dataroot for this location (%s)...',old_dataroot,new_dataroot);
+  fprintf('Replacing strings in the dirs struct containing ''%s'' with ''%s''...',old_dataroot,new_dataroot);
   
   % backwards compatibility, we no longer make the "saveDir" field
   if ~isfield(dirs,'saveDirProc') && isfield(dirs,'saveDir')
@@ -121,12 +136,18 @@ if do_the_replace
     end
   end
   
-  % replace the old directories with the new
-  dirs.saveDirProc = strrep(dirs.saveDirProc,old_dataroot,new_dataroot);
-  dirs.saveDirRaw = strrep(dirs.saveDirRaw,old_dataroot,new_dataroot);
-  dirs.saveDirFigs = strrep(dirs.saveDirFigs,old_dataroot,new_dataroot);
-  % setting the new dataroot must go last
-  dirs.dataroot = new_dataroot;
+  % simply replace the old string with the new string in all fields
+  fn_dir = fieldnames(dirs);
+  for i = 1:length(fn_dir)
+    dirs.(fn_dir{i}) = strrep(dirs.(fn_dir{i}),old_dataroot,new_dataroot);
+  end
+  
+%   % replace the old directories with the new
+%   dirs.saveDirProc = strrep(dirs.saveDirProc,old_dataroot,new_dataroot);
+%   dirs.saveDirRaw = strrep(dirs.saveDirRaw,old_dataroot,new_dataroot);
+%   dirs.saveDirFigs = strrep(dirs.saveDirFigs,old_dataroot,new_dataroot);
+%   % setting the new dataroot must go last
+%   dirs.dataroot = new_dataroot;
   fprintf('Done.\n');
   
   if ~exist(dirs.dataroot,'dir')
