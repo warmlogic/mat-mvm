@@ -101,8 +101,8 @@ end
 if ~isfield(ana,'useEvents')
   ana.useEvents = false;
 end
-if ~isfield(ana,'useEvt')
-  ana.useEvt = false;
+if ~isfield(ana,'useNsEvt')
+  ana.useNsEvt = false;
 end
 if ~isfield(ana,'useExpParam')
   ana.useExpParam = false;
