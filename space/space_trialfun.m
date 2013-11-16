@@ -59,7 +59,27 @@ cols.multistudy.trial = 17;
 cols.multistudy.type_image = 19;
 cols.multistudy.type_word = 27;
 
-cols.multistudy.lag = 32;
+%% set up the math distractor phase
+
+cols.distract_math = [];
+cols.distract_math.sub = 7;
+cols.distract_math.ses = 9;
+cols.distract_math.phase = 11;
+cols.distract_math.phaseCount = 13;
+cols.distract_math.isExp = 15;
+cols.distract_math.trial = 17;
+
+%% set up the cued recall phase
+
+cols.cued_recall = [];
+cols.cued_recall.sub = 7;
+cols.cued_recall.ses = 9;
+cols.cued_recall.phase = 11;
+cols.cued_recall.phaseCount = 13;
+cols.cued_recall.isExp = 15;
+
+cols.cued_recall.type = 17;
+cols.cued_recall.trial = 19;
 
 %% go through the events
 
@@ -103,13 +123,15 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                   % type is not actually necessary; I don't think icat_str
                   % is either
                   
+                  stimType = 'EXPO_IMAGE';
+                  
                   % find the entry in the event struct
                   this_event = events_all.(sesName).(phaseName).data(...
                     [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                    ismember({events_all.(sesName).(phaseName).data.type},{'EXPO_IMAGE'}) &...
                     ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
                     [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec))...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
                     );
                   
                   if length(this_event) > 1
@@ -118,12 +140,16 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                     %elseif isempty(this_event)
                     %  warning('No event found! Fix this script before continuing analysis.')
                     %  keyboard
-                  else
+                  elseif length(this_event) == 1
                     
-                    if strcmp(this_event.i_catStr,'Faces')
-                      category = 'Face';
-                    elseif strcmp(this_event.i_catStr,'HouseInside')
-                      category = 'House';
+                    if ~isempty(this_event.i_catStr)
+                      if strcmp(this_event.i_catStr,'Faces')
+                        category = 'expo_face';
+                      elseif strcmp(this_event.i_catStr,'HouseInside')
+                        category = 'expo_house';
+                      end
+                    else
+                      category = '';
                     end
                     
                     phaseCount = this_event.phaseCount;
@@ -254,11 +280,11 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                   
                   this_event = events_all.(sesName).(phaseName).data(...
                     [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
                     ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
                     [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
                     [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) &...
-                    [events_all.(sesName).(phaseName).data.lag] ~= 1 ...
+                    [events_all.(sesName).(phaseName).data.lag] ~= -1 ...
                     );
                   
                   if length(this_event) > 1
@@ -267,7 +293,7 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                     %elseif isempty(this_event)
                     %  warning('No event found! Fix this script before continuing analysis.')
                     %  keyboard
-                  else
+                  elseif length(this_event) == 1
                     %                   if ~isempty(this_event.catStr) && strcmp(stimType,'STUDY_IMAGE')
                     %                     if strcmp(this_event.catStr,'Faces')
                     %                       category = 'Face';
@@ -337,50 +363,247 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
           end
         end
         
+      case {'distract_math'}
+        
+        %% process the math distractor phase phase
+        
+        % keep track of how many real evt events we have counted
+        ec = 0;
+        
+        for i = 1:length(ft_event)
+          if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
+            % found a trigger in the evt file; increment index if value is correct.
+            
+            %if ~ismember(event(i).value,{'epoc'})
+            if ismember(ft_event(i).value,{'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'})
+              ec = ec + 1;
+            end
+            
+            switch ft_event(i).value
+              case 'STIM'
+                if strcmp(ns_evt{cols.(phaseName).isExp}(ec),'expt') && strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
+                    strcmp(ns_evt{cols.(phaseName).phase}(ec),'phas') && strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName) &&...
+                    strcmp(ns_evt{cols.(phaseName).phaseCount}(ec),'pcou')
+                  
+                  % Critical: set up the stimulus type, as well as the
+                  % event string to match eventValues
+                  evVal = 'distract_math_stim';
+                  stimType = 'MATH_PROB';
+                  
+                  % find the entry in the event struct; not buffers (lag~=-1)
+                  
+                  this_event = events_all.(sesName).(phaseName).data(...
+                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
+                    );
+                  
+                  if length(this_event) > 1
+                    warning('More than one event found! Fix this script before continuing analysis.')
+                    keyboard
+                    %elseif isempty(this_event)
+                    %  warning('No event found! Fix this script before continuing analysis.')
+                    %  keyboard
+                  elseif length(this_event) == 1
+                    
+                    phaseCount = this_event.phaseCount;
+                    trial = this_event.trial;
+                    response = this_event.resp;
+                    acc = this_event.acc;
+                    rt = this_event.rt;
+                    
+                    % find where this event type occurs in the list
+                    eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                    if isempty(eventNumber)
+                      eventNumber = -1;
+                    end
+                    
+                    % how many time columns are there?
+                    timeCols = 3;
+                    % add it to the trial definition
+                    this_trl = nan(1, timeCols + length(cfg.eventinfo.trl_order.(phaseName)));
+                    
+                    this_trl(1) = ft_event(i).sample;
+                    this_trl(2) = (ft_event(i).sample + durationSamp);
+                    this_trl(3) = offsetSamp;
+                    
+                    for to = 1:length(cfg.eventinfo.trl_order.(phaseName))
+                      thisInd = find(ismember(cfg.eventinfo.trl_order.(phaseName),cfg.eventinfo.trl_order.(phaseName){to}));
+                      if ~isempty(thisInd)
+                        if exist(cfg.eventinfo.trl_order.(phaseName){to},'var')
+                          this_trl(timeCols + thisInd) = eval(cfg.eventinfo.trl_order.(phaseName){to});
+                        else
+                          fprintf('variable %s does not exist!\n',cfg.eventinfo.trl_order.(phaseName){to});
+                          keyboard
+                        end
+                      end
+                    end
+                    
+                    % put all the trials together
+                    trl = cat(1,trl,double(this_trl));
+                    
+                  end % check the event struct
+                end % check the evt event
+                
+              case 'RESP'
+                
+              case 'FIXT'
+                
+              case 'PROM'
+                
+              case 'REST'
+                
+              case 'REND'
+                
+            end
+            
+          end
+        end
+        
+      case {'cued_recall'}
+        
+        %% process the cued recall phase
+        
+        recog_responses = {'old', 'new'};
+        new_responses = {'sure', 'maybe'};
+        
+        % keep track of how many real evt events we have counted
+        ec = 0;
+        
+        for i = 1:length(ft_event)
+          if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
+            % found a trigger in the evt file; increment index if value is correct.
+            
+            %if ~ismember(event(i).value,{'epoc'})
+            if ismember(ft_event(i).value,{'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'})
+              ec = ec + 1;
+            end
+            
+            switch ft_event(i).value
+              case 'STIM'
+                if strcmp(ns_evt{cols.(phaseName).isExp}(ec),'expt') && strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
+                    strcmp(ns_evt{cols.(phaseName).phase}(ec),'phas') && strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName) &&...
+                    strcmp(ns_evt{cols.(phaseName).phaseCount}(ec),'pcou')
+                  
+                  % Critical: set up the stimulus type, as well as the
+                  % event string to match eventValues
+                  if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'recognition')
+                    stimType = 'RECOGTEST_STIM';
+                    evVal = 'cued_recall_stim';
+                  end
+                  
+                  % find the entry in the event struct; excluding buffers
+                  % (lag~=-1) and NO_RESPONSE trials.
+                  this_event = events_all.(sesName).(phaseName).data(...
+                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.recog_resp},{'old', 'new'}) &...
+                    ismember({events_all.(sesName).(phaseName).data.new_resp},{'sure', 'maybe', ''}) ...
+                    );
+                  
+                  if length(this_event) > 1
+                    warning('More than one event found! Fix this script before continuing analysis.')
+                    keyboard
+                    %elseif isempty(this_event)
+                    %  warning('No event found! Fix this script before continuing analysis.')
+                    %  keyboard
+                  elseif length(this_event) == 1
+%                     if ~isempty(this_event.i_catStr) && strcmp(stimType,'RECOGTEST_STIM')
+%                       if strcmp(this_event.i_catStr,'Faces')
+%                         category = 'Face';
+%                       elseif strcmp(this_event.i_catStr,'HouseInside')
+%                         category = 'House';
+%                       end
+%                     else
+%                       category = '';
+%                     end
+                    
+                    phaseCount = this_event.phaseCount;
+                    trial = this_event.trial;
+                    stimNum = this_event.stimNum;
+                    i_catNum = this_event.i_catNum;
+                    targ = this_event.targ;
+                    spaced = this_event.spaced;
+                    lag = this_event.lag;
+                    pairNum = this_event.pairNum;
+                    
+                    if ~isempty(this_event.recog_resp) && ismember(this_event.recog_resp,recog_responses)
+                      recog_resp = find(ismember(recog_responses,this_event.recog_resp));
+                    else
+                      recog_resp = 0;
+                    end
+                    recog_acc = this_event.recog_acc;
+                    recog_rt = this_event.recog_rt;
+                    
+                    if ~isempty(this_event.new_resp) && ismember(this_event.new_resp,new_responses)
+                      new_resp = find(ismember(new_responses,this_event.new_resp));
+                    else
+                      new_resp = 0;
+                    end
+                    new_acc = this_event.new_acc;
+                    new_rt = this_event.new_rt;
+                    
+                    if ~isempty(this_event.recall_resp) && ~ismember(this_event.recall_resp,{'NO_RESPONSE'})
+                      recall_resp = 1;
+                    else
+                      recall_resp = 0;
+                    end
+                    recall_spellCorr = this_event.recall_spellCorr;
+                    recall_rt = this_event.recall_rt;
+            
+                    % find where this event type occurs in the list
+                    eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                    if isempty(eventNumber)
+                      eventNumber = -1;
+                    end
+                    
+                    % how many time columns are there?
+                    timeCols = 3;
+                    % add it to the trial definition
+                    this_trl = nan(1, timeCols + length(cfg.eventinfo.trl_order.(phaseName)));
+                    
+                    this_trl(1) = ft_event(i).sample;
+                    this_trl(2) = (ft_event(i).sample + durationSamp);
+                    this_trl(3) = offsetSamp;
+                    
+                    for to = 1:length(cfg.eventinfo.trl_order.(phaseName))
+                      thisInd = find(ismember(cfg.eventinfo.trl_order.(phaseName),cfg.eventinfo.trl_order.(phaseName){to}));
+                      if ~isempty(thisInd)
+                        if exist(cfg.eventinfo.trl_order.(phaseName){to},'var')
+                          this_trl(timeCols + thisInd) = eval(cfg.eventinfo.trl_order.(phaseName){to});
+                        else
+                          fprintf('variable %s does not exist!\n',cfg.eventinfo.trl_order.(phaseName){to});
+                          keyboard
+                        end
+                      end
+                    end
+                    
+                    % put all the trials together
+                    trl = cat(1,trl,double(this_trl));
+                    
+                  end % check the event struct
+                end % check the evt event
+                
+              case 'RESP'
+                
+              case 'FIXT'
+                
+              case 'PROM'
+                
+              case 'REST'
+                
+              case 'REND'
+                
+            end
+            
+          end
+        end
+        
     end % switch phase
   end % pha
 end % ses
-
-%% old
-
-%           if strcmp(evt{cols.icat_str+1}(ec),'Faces')
-%             category = 'Face';
-%           elseif strcmp(evt{cols.icat_str+1}(ec),'HouseInside')
-%             category = 'House';
-%           end
-%           catNum = str2double(evt{cols.icat_num+1}(ec));
-%
-%           targ = str2double(evt{cols.targ+1}(ec));
-%
-%           if strcmp(evt{cols.spaced+1}(ec),'true')
-%             spaced = 1;
-%           elseif strcmp(evt{cols.spaced+1}(ec),'false')
-%             spaced = 0;
-%           end
-%
-%           lag = str2double(evt{cols.lag+1}(ec));
-%
-%           if strcmp(evt{cols.resp_str+1}(ec),'v_appeal')
-%             response = 4;
-%             rating = ' VA';
-%           elseif strcmp(evt{cols.resp_str+1}(ec),'s_appeal')
-%             response = 3;
-%             rating = ' SA';
-%           elseif strcmp(evt{cols.resp_str+1}(ec),'s_unappeal')
-%             response = 2;
-%             rating = ' SU';
-%           elseif strcmp(evt{cols.resp_str+1}(ec),'v_unappeal')
-%             response = 1;
-%             rating = ' VU';
-%           else
-%             response = -1;
-%             rating = '';
-%           end
-%
-%           if strcmp(evt{cols.keypress+1}(ec),'true')
-%             keypress = 1;
-%           elseif strcmp(evt{cols.keypress+1}(ec),'false')
-%             keypress = 0;
-%           end
-%
-%           rt = str2double(evt{cols.rt+1}(ec));
