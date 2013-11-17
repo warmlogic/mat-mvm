@@ -25,6 +25,17 @@ events_all = cfg.eventinfo.events;
 % initialize the trl matrix
 trl = [];
 
+% all trls need to have the same length
+maxTrl = -Inf;
+fn_trl_ord = fieldnames(cfg.eventinfo.trl_order);
+for fn = 1:length(fn_trl_ord)
+  if length(cfg.eventinfo.trl_order.(fn_trl_ord{fn})) > maxTrl
+    maxTrl = length(cfg.eventinfo.trl_order.(fn_trl_ord{fn}));
+  end
+end
+timeCols = 3;
+trl_ini = -1 * ones(1, timeCols + maxTrl);
+
 %% set up the exposure phase
 
 cols.expo = [];
@@ -87,14 +98,16 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
   sesName = cfg.eventinfo.sessionNames{ses};
   sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
   
-  for pha = 1:length(cfg.eventinfo.phaseNames)
+  for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
     phaseName = cfg.eventinfo.phaseNames{sesType}{pha};
     phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},cfg.eventinfo.phaseNames{sesType}{pha}));
     
     switch phaseName
       
-      case {'expo'}
+      case {'expo', 'prac_expo'}
         %% process the exposure phase
+        
+        fprintf('Processing %s...\n',phaseName);
         
         %expo_events = events_all.(sessionNames{ses}).(phaseName).data;
         
@@ -164,28 +177,12 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                     cr_recall_resp = this_event.cr_recall_resp;
                     cr_recall_spellCorr = this_event.cr_recall_spellCorr;
                     
-                    expo_keypress = 1;
-                    if expo_response == -1
-                      expo_keypress = 0;
-                      %             rating = '';
-                      %           elseif response == 4
-                      %             rating = ' VA';
-                      %           elseif response == 3
-                      %             rating = ' SA';
-                      %           elseif response == 2
-                      %             rating = ' SU';
-                      %           elseif response == 1
-                      %             rating = ' VU';
-                      %             %else
-                      %             %  rating = '';
-                      %             %  keypress = 0;
-                    end
-                    
                     rt = this_event.rt;
                     
                     % Critical: set up the event string to match eventValues
                     %evVal = sprintf('%s%s',category,rating);
-                    evVal = category;
+                    %evVal = category;
+                    evVal = 'expo_stim';
                     
                     % find where this event type occurs in the list
                     eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
@@ -193,10 +190,8 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                       eventNumber = -1;
                     end
                     
-                    % how many time columns are there?
-                    timeCols = 3;
                     % add it to the trial definition
-                    this_trl = nan(1, timeCols + length(cfg.eventinfo.trl_order.(phaseName)));
+                    this_trl = trl_ini;
                     
                     this_trl(1) = ft_event(i).sample;
                     this_trl(2) = (ft_event(i).sample + durationSamp);
@@ -239,9 +234,11 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
           end
         end
         
-      case {'multistudy'}
+      case {'multistudy', 'prac_multistudy'}
         
         %% process the multistudy phase
+        
+        fprintf('Processing %s...\n',phaseName);
         
         %multistudy_events = events_all.(sesName).(phaseName).data;
         
@@ -327,10 +324,8 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                       eventNumber = -1;
                     end
                     
-                    % how many time columns are there?
-                    timeCols = 3;
                     % add it to the trial definition
-                    this_trl = nan(1, timeCols + length(cfg.eventinfo.trl_order.(phaseName)));
+                    this_trl = trl_ini;
                     
                     this_trl(1) = ft_event(i).sample;
                     this_trl(2) = (ft_event(i).sample + durationSamp);
@@ -369,9 +364,11 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
           end
         end
         
-      case {'distract_math'}
+      case {'distract_math', 'prac_distract_math'}
         
         %% process the math distractor phase phase
+        
+        fprintf('Processing %s...\n',phaseName);
         
         % keep track of how many real evt events we have counted
         ec = 0;
@@ -426,10 +423,8 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                       eventNumber = -1;
                     end
                     
-                    % how many time columns are there?
-                    timeCols = 3;
                     % add it to the trial definition
-                    this_trl = nan(1, timeCols + length(cfg.eventinfo.trl_order.(phaseName)));
+                    this_trl = trl_ini;
                     
                     this_trl(1) = ft_event(i).sample;
                     this_trl(2) = (ft_event(i).sample + durationSamp);
@@ -468,9 +463,11 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
           end
         end
         
-      case {'cued_recall'}
+      case {'cued_recall', 'prac_cued_recall'}
         
         %% process the cued recall phase
+        
+        fprintf('Processing %s...\n',phaseName);
         
         recog_responses = {'old', 'new'};
         new_responses = {'sure', 'maybe'};
@@ -568,10 +565,8 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                       eventNumber = -1;
                     end
                     
-                    % how many time columns are there?
-                    timeCols = 3;
                     % add it to the trial definition
-                    this_trl = nan(1, timeCols + length(cfg.eventinfo.trl_order.(phaseName)));
+                    this_trl = trl_ini;
                     
                     this_trl(1) = ft_event(i).sample;
                     this_trl(2) = (ft_event(i).sample + durationSamp);
