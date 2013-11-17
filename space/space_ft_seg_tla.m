@@ -28,10 +28,12 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-% exper.eventValues = sort({'expo_face', 'expo_house'});
-% exper.eventValues = sort({'study_image', 'study_word'});
+% % exper.eventValues = sort({'expo_face', 'expo_house'});
+% exper.eventValues = sort({'expo_stim'});
+% exper.eventValues = sort({'multistudy_image', 'multistudy_word'});
+% exper.eventValues = sort({'distract_math_stim'});
 % exper.eventValues = sort({'cued_recall_stim'});
-exper.eventValues = sort({'distract_math_stim'});
+exper.eventValues = sort({'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'});
 
 % exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
 % 
@@ -129,14 +131,15 @@ if ana.useExpInfo
   ana.sessionNames = {'oneDay'};
   % phases occur within a session
   %ana.phaseNames = {{'expo', 'multistudy', 'distract_math', 'cued_recall'}};
-  %ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
-  ana.phaseNames = {{'multistudy'}};
+  ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
+  %ana.phaseNames = {{'expo'}};
+  %ana.phaseNames = {{'multistudy'}};
   %ana.phaseNames = {{'distract_math'}};
   %ana.phaseNames = {{'cued_recall'}};
   % types of event info to store in trialinfo field
-  ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_acc'};
+  ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
   % ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
-  ana.trl_order.multistudy = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_acc'};
+  ana.trl_order.multistudy = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
   ana.trl_order.distract_math = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
   ana.trl_order.cued_recall = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
 end
@@ -172,9 +175,6 @@ cfg_proc.keeptrials = 'yes';
 
 % create the raw and processed structs for each sub, ses, & event value
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
-
-%% continue processing
-
 process_ft_data(ana,cfg_proc,exper,dirs);
 
 % %% get the bad channel information
