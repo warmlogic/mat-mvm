@@ -28,7 +28,10 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-exper.eventValues = sort({'Face', 'House'});
+% exper.eventValues = sort({'expo_face', 'expo_house'});
+% exper.eventValues = sort({'study_image', 'study_word'});
+% exper.eventValues = sort({'cued_recall_stim'});
+exper.eventValues = sort({'distract_math_stim'});
 
 % exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
 % 
@@ -41,9 +44,9 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SPACE001';
+%   'SPACE001';
   'SPACE002';
-  'SPACE003';
+%   'SPACE003';
 %   'SPACE004';
 %   'SPACE005';
 %   'SPACE006';
@@ -66,7 +69,7 @@ dirs.subDir = '';
 %dirs.subDir = 'RK';
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','face_house_ratings','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 dirs.behDir = fullfile(exper.name,'Behavioral','Sessions',dirs.subDir);
-dirs.dataDir = fullfile(exper.name,'EEG','Sessions','face_house_ratings','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
@@ -119,16 +122,23 @@ ana.trialFxn = 'space_trialfun';
 % files used when adding metadata to segmented trials
 ana.useEvents = true;
 ana.useExpParam = false;
-ana.useEvt = true;
+ana.useNsEvt = true;
 ana.useExpInfo = true;
 if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'oneDay'};
   % phases occur within a session
-  ana.phaseNames = {{'expo', 'multistudy', 'distract_math', 'cued_recall'}};
+  %ana.phaseNames = {{'expo', 'multistudy', 'distract_math', 'cued_recall'}};
+  %ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
+  ana.phaseNames = {{'multistudy'}};
+  %ana.phaseNames = {{'distract_math'}};
+  %ana.phaseNames = {{'cued_recall'}};
   % types of event info to store in trialinfo field
-  % ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
-  ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+  ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_acc'};
+  % ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+  ana.trl_order.multistudy = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_acc'};
+  ana.trl_order.distract_math = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
+  ana.trl_order.cued_recall = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
 end
 
 ana.artifact.type = {'ftManual', 'ftICA'};
@@ -162,6 +172,9 @@ cfg_proc.keeptrials = 'yes';
 
 % create the raw and processed structs for each sub, ses, & event value
 [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+
+%% continue processing
+
 process_ft_data(ana,cfg_proc,exper,dirs);
 
 % %% get the bad channel information
@@ -237,10 +250,10 @@ end
 
 %% load the analysis details
 
-% adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
-adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+% adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 
-% server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+% server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 % if exist(server_adFile,'file')
 %   mm_mergeAnalysisDetails(adFile,server_adFile,true);
 % end
@@ -248,10 +261,10 @@ adFile = '/Users/matt/data/SPACE/EEG/Sessions/face_house_ratings/ftpp/-1000_1000
 %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
-files.figFontName = 'Helvetica';
-files.figPrintFormat = 'epsc2';
-%files.figPrintFormat = 'png';
-files.figPrintRes = 150;
+% files.figFontName = 'Helvetica';
+% files.figPrintFormat = 'epsc2';
+% %files.figPrintFormat = 'png';
+% files.figPrintRes = 150;
 
 %files.figPrintFormat = 'tiff';
 %files.figPrintRes = 1000;
@@ -405,7 +418,8 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-% turn keeptrial data into average for statistical functions
+% turn keeptrial data into average for statistical functions because proper
+% processing of dimord is currently broken
 
 data_tla_avg = struct;
 
@@ -791,7 +805,9 @@ for r = 1:length(cfg_ana.rois)
   cfg_ft.latency = cfg_ana.latencies(r,:);
   cfg_plot.ylim = cfg_plot.ylims(r,:);
   
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla);
+  % use data_tla_avg because FieldTrip doesn't deal with dimord properly
+  % when single-trials exist
+  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg);
 end
 
 %% output some values
