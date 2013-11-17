@@ -160,6 +160,9 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                     spaced = this_event.spaced;
                     lag = this_event.lag;
                     expo_response = this_event.resp;
+                    cr_recog_acc = this_event.cr_recog_acc;
+                    cr_recall_resp = this_event.cr_recall_resp;
+                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
                     
                     expo_keypress = 1;
                     if expo_response == -1
@@ -314,6 +317,9 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                     presNum = this_event.presNum;
                     pairOrd = this_event.pairOrd;
                     pairNum = this_event.pairNum;
+                    cr_recog_acc = this_event.cr_recog_acc;
+                    cr_recall_resp = this_event.cr_recall_resp;
+                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
                     
                     % find where this event type occurs in the list
                     eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
