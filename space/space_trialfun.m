@@ -273,10 +273,10 @@ for ses = 1:length(cfg.eventinfo.sessionNames)
                   % event string to match eventValues
                   if strcmp(ns_evt{cols.(phaseName).type_word+1}(ec),'word')
                     stimType = 'STUDY_WORD';
-                    evVal = 'study_word';
+                    evVal = 'multistudy_word';
                   elseif strcmp(ns_evt{cols.(phaseName).type_image+1}(ec),'image')
                     stimType = 'STUDY_IMAGE';
-                    evVal = 'study_image';
+                    evVal = 'multistudy_image';
                   end
                   
                   % find the entry in the event struct; not buffers (lag~=-1)
