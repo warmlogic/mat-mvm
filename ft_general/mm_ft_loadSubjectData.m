@@ -91,12 +91,36 @@ for sub = 1:length(exper.subjects)
           if length(fn) == 1
             data_fn = cell2mat(fn);
             if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) == 4
-              % use ft_freqdescriptives to average over individual trials
-              % if desired and the data is appropriate
-              fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
-              cfg_fd = [];
-              cfg_fd.keeptrials = 'no';
-              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+              if strcmp(loadMethod,'seg')
+                % use ft_freqdescriptives to average over individual trials
+                % if desired and the data is appropriate
+                fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
+                cfg_fd = [];
+                cfg_fd.keeptrials = 'no';
+                data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+              elseif strcmp(loadMethod,'trialinfo')
+                trl_order = ana.trl_order.(eventValues{typ}{evVal});
+                
+                for es = 1:length(ana.eventValuesSplit{typ})
+                  fprintf('Selecting %s trials...\n',ana.eventValuesSplit{typ}{es});
+                  
+                  expr = ana.trlExpr{typ}{es};
+                  
+                  for to = 1:length(trl_order)
+                    fieldNum = find(ismember(trl_order,trl_order{to}));
+                    
+                    r_exp = ['\<' trl_order{to} '\>'];
+                    r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
+                    
+                    expr = regexprep(expr,r_exp,r_str);
+                  end
+                  
+                  cfg_fd = [];
+                  cfg_fd.keeptrials = 'no';
+                  cfg_fd.trials = eval(expr);
+                  data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                end % es
+              end
             elseif keeptrials == 0 && ~strcmp(ftype,'pow')
               error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ftype);
             elseif keeptrials == 0 && ~isfield(subSesEvData.(data_fn),'powspctrm')
@@ -107,7 +131,6 @@ for sub = 1:length(exper.subjects)
               if strcmp(loadMethod,'seg')
                 data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(data_fn);
               elseif strcmp(loadMethod,'trialinfo')
-                
                 trl_order = ana.trl_order.(eventValues{typ}{evVal});
                 
                 for es = 1:length(ana.eventValuesSplit{typ})
@@ -127,10 +150,9 @@ for sub = 1:length(exper.subjects)
                   cfg = [];
                   cfg.trials = eval(expr);
                   data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
-                end
-                
-              end
-            end
+                end % es
+              end % loadMethod
+            end % keeptrials
           else
             error('More than one field in data struct! There should only be one.\n');
           end
@@ -141,7 +163,13 @@ for sub = 1:length(exper.subjects)
         else
           warning([mfilename,':noFileFound'],'NOT FOUND: %s\n',inputfile);
           fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n');
-          data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg.trl = [];
+          if strcmp(loadMethod,'seg')
+            data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data.cfg.trl = [];
+          elseif strcmp(loadMethod,'trialinfo')
+            for es = 1:length(ana.eventValuesSplit{typ})
+              data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data.cfg.trl = [];
+            end
+          end
         end % if
       end % for evVal
     end % for typ
