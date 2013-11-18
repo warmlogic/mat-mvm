@@ -14,8 +14,8 @@ exper.name = 'SPACE';
 
 exper.sampleRate = 250;
 
-% pre- and post-stimulus times to read, in seconds (pre is negative)
-exper.prepost = [-1.0 1.0];
+% % pre- and post-stimulus times to read, in seconds (pre is negative)
+% exper.prepost = [-1.0 1.0];
 
 % equate the number of trials across event values?
 exper.equateTrials = 0;
@@ -33,7 +33,17 @@ exper.eegFileExt = 'raw';
 % exper.eventValues = sort({'multistudy_image', 'multistudy_word'});
 % exper.eventValues = sort({'distract_math_stim'});
 % exper.eventValues = sort({'cued_recall_stim'});
-exper.eventValues = sort({'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'});
+[exper.eventValues, evInd] = sort({'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'});
+
+% pre- and post-stimulus times to read, in seconds (pre is negative);
+% because they get sorted, must correspond to the order listed in
+% exper.eventValues
+exper.prepost = [...
+  -1.0 1.0; ...
+  -1.0 1.0; ...
+  -1.0 1.0; ...
+  -1.0 2.0];
+exper.prepost = exper.prepost(evInd,:);
 
 % exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
 % 
@@ -67,11 +77,10 @@ exper.sessions = {'session_1'};
 
 % directory where the data to read is located
 dirs.subDir = '';
-%dirs.subDir = 'RKSCSI';
-%dirs.subDir = 'RK';
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','face_house_ratings','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 dirs.behDir = fullfile(exper.name,'Behavioral','Sessions',dirs.subDir);
-dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+% dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',dirs.subDir);
 % Possible locations of the data files (dataroot)
 dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
@@ -129,19 +138,22 @@ ana.useExpInfo = true;
 if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'oneDay'};
-  % phases occur within a session
-  %ana.phaseNames = {{'expo', 'multistudy', 'distract_math', 'cued_recall'}};
+  
+  % phases occur within a session; for dealing with events.mat
   ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
   %ana.phaseNames = {{'expo'}};
   %ana.phaseNames = {{'multistudy'}};
   %ana.phaseNames = {{'distract_math'}};
   %ana.phaseNames = {{'cued_recall'}};
-  % types of event info to store in trialinfo field
-  ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
-  % ana.trl_order.expo = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
-  ana.trl_order.multistudy = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
-  ana.trl_order.distract_math = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
-  ana.trl_order.cued_recall = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
+  
+  % types of event info to store in trialinfo field; must correspond to
+  % values listed in exper.eventValues
+  ana.trl_order.expo_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
+  % % ana.trl_order.expo_stim = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
+  ana.trl_order.multistudy_image = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
+  ana.trl_order.multistudy_word = ana.trl_order.multistudy_image;
+  %ana.trl_order.distract_math_stim = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
+  ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
 end
 
 ana.artifact.type = {'ftManual', 'ftICA'};

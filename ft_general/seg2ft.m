@@ -307,19 +307,19 @@ for ses = 1:length(session)
     
     % do some initial processing of raw data
     cfg_cont = cfg;
-    cfg_cont.demean = 'yes';
-    cfg_cont.baselinewindow = 'all';
-    %cfg_cont.detrend = 'yes';
-    cfg_cont.lpfilter = 'yes';
-    cfg_cont.lpfreq = 100;
-    cfg_cont.hpfilter = 'yes';
-    cfg_cont.hpfreq = 0.1;
-    cfg_cont.hpfilttype = 'but';
-    cfg_cont.hpfiltord = 4;
-    %cfg_cont.bsfilter = 'yes';
-    %cfg_cont.bsfreq = 59:61;
-    cfg_cont.dftfilter = 'yes';
-    cfg_cont.dftfreq = [60 120 180];
+%     cfg_cont.demean = 'yes';
+%     cfg_cont.baselinewindow = 'all';
+%     %cfg_cont.detrend = 'yes';
+%     cfg_cont.lpfilter = 'yes';
+%     cfg_cont.lpfreq = 100;
+%     cfg_cont.hpfilter = 'yes';
+%     cfg_cont.hpfreq = 0.1;
+%     cfg_cont.hpfilttype = 'but';
+%     cfg_cont.hpfiltord = 4;
+%     %cfg_cont.bsfilter = 'yes';
+%     %cfg_cont.bsfreq = 59:61;
+%     cfg_cont.dftfilter = 'yes';
+%     cfg_cont.dftfreq = [60 120 180];
     
     data = ft_preprocessing(cfg_cont);
   end
@@ -359,13 +359,15 @@ for ses = 1:length(session)
   %if strcmp(cfg.continuous,'no')
   cfg.trialdef.eventvalue = eventValue_orig;
   %end
-  cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
-  cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
+  
+  %cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
+  %cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
+  
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
     cfg.trialfun = ana.trialFxn;
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
-    else
+    elseif strcmp(cfg.continuous,'yes')
       % put in extra info used for creating trialinfo into cfg.eventinfo
       % field, but be sure to remove it or the cfg will take up way too
       % much disk space (this happens automatically after running
@@ -382,7 +384,10 @@ for ses = 1:length(session)
       if ana.useExpInfo
         cfg.eventinfo.trl_order = ana.trl_order;
         cfg.eventinfo.sessionNames = ana.sessionNames;
+        cfg.eventinfo.sessionNum = ses;
         cfg.eventinfo.phaseNames = ana.phaseNames;
+        cfg.eventinfo.eventValues = exper.eventValues;
+        cfg.eventinfo.prepost = exper.prepost;
       end
       
       cfg.trialdef.eventtype = 'trigger';
@@ -424,7 +429,7 @@ for ses = 1:length(session)
   % get the actual data
   if strcmp(cfg.continuous,'no')
     data = ft_preprocessing(cfg);
-  else
+  elseif strcmp(cfg.continuous,'yes')
     data = ft_redefinetrial(cfg, data);
   end
   
@@ -577,14 +582,19 @@ trialinfo_eventNumCol = 1;
 if length(eventValue) > 1
   for evVal = 1:length(eventValue)
     
-    cfg = [];
+    cfg_split = [];
     % select the correct trials for this event value
-    cfg.trials = data.trialinfo(:,trialinfo_eventNumCol) == evVal;
+    cfg_split.trials = data.trialinfo(:,trialinfo_eventNumCol) == evVal;
     
-    if sum(cfg.trials) > 0
-      fprintf('Selecting %d trials for %s...\n',sum(cfg.trials),eventValue{evVal});
+    if sum(cfg_split.trials) > 0
+      fprintf('Selecting %d trials for %s...\n',sum(cfg_split.trials),eventValue{evVal});
       % get the data for only this event value
-      ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg,data);
+      ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
+      
+      % remove the buffer trialinfo -1s; those were set because the cfg.trl
+      % matrix needed to hold all eventValues
+      ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
+      
       fprintf('Done.\n');
     else
       fprintf('No trials found for %s!\n',eventValue{evVal});
@@ -596,6 +606,9 @@ if length(eventValue) > 1
   end
 elseif length(eventValue) == 1
   ft_raw.(eventValue) = data;
+  % remove the buffer trialinfo -1s; those were set because the cfg.trl
+  % matrix needed to hold all eventValues
+  ft_raw.(eventValue).trialinfo = ft_raw.(eventValue).trialinfo(:,1:length(ana.trl_order.(eventValue)));
 end
 
 end
