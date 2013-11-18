@@ -144,7 +144,8 @@ if strcmp(ana.ftFxn,'ft_timelockanalysis')
     prefix = [prefix,add_prefix];
   end
   
-  infoDir = sprintf('%s_%d_%d',prefix,exper.prepost(1)*1000,exper.prepost(2)*1000);
+  %infoDir = sprintf('%s_%d_%d',prefix,exper.prepost(1)*1000,exper.prepost(2)*1000);
+  infoDir = sprintf('%s',prefix);
   
 elseif strcmp(ana.ftFxn,'ft_freqanalysis')
   if isempty(prefix)
@@ -172,9 +173,11 @@ elseif strcmp(ana.ftFxn,'ft_freqanalysis')
   end
   
   if isfield(cfg,'foi')
-    infoDir = sprintf('%s_%s%s_%s_%d_%d_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.toi(1)*1000),round(cfg.toi(end)*1000),round(cfg.foi(1)),round(cfg.foi(end)));
+    %infoDir = sprintf('%s_%s%s_%s_%d_%d_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.toi(1)*1000),round(cfg.toi(end)*1000),round(cfg.foi(1)),round(cfg.foi(end)));
+    infoDir = sprintf('%s_%s%s_%s_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.foi(1)),round(cfg.foi(end)));
   elseif isfield(cfg,'foilim')
-    infoDir = sprintf('%s_%s%s_%s_%d_%d_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.toi(1)*1000),round(cfg.toi(end)*1000),round(cfg.foilim(1)),round(cfg.foilim(end)));
+    %infoDir = sprintf('%s_%s%s_%s_%d_%d_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.toi(1)*1000),round(cfg.toi(end)*1000),round(cfg.foilim(1)),round(cfg.foilim(end)));
+    infoDir = sprintf('%s_%s%s_%s_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.foilim(1)),round(cfg.foilim(end)));
   end
 else
   error('mm_ft_setSaveDirs:unknownFtFxn','Unsure of how to name the saving directory for %s',ana.ftFxn);
