@@ -307,19 +307,19 @@ for ses = 1:length(session)
     
     % do some initial processing of raw data
     cfg_cont = cfg;
-%     cfg_cont.demean = 'yes';
-%     cfg_cont.baselinewindow = 'all';
-%     %cfg_cont.detrend = 'yes';
-%     cfg_cont.lpfilter = 'yes';
-%     cfg_cont.lpfreq = 100;
-%     cfg_cont.hpfilter = 'yes';
-%     cfg_cont.hpfreq = 0.1;
-%     cfg_cont.hpfilttype = 'but';
-%     cfg_cont.hpfiltord = 4;
-%     %cfg_cont.bsfilter = 'yes';
-%     %cfg_cont.bsfreq = 59:61;
-%     cfg_cont.dftfilter = 'yes';
-%     cfg_cont.dftfreq = [60 120 180];
+    cfg_cont.demean = 'yes';
+    cfg_cont.baselinewindow = 'all';
+    %cfg_cont.detrend = 'yes';
+    cfg_cont.lpfilter = 'yes';
+    cfg_cont.lpfreq = 100;
+    cfg_cont.hpfilter = 'yes';
+    cfg_cont.hpfreq = 0.1;
+    cfg_cont.hpfilttype = 'but';
+    cfg_cont.hpfiltord = 4;
+    %cfg_cont.bsfilter = 'yes';
+    %cfg_cont.bsfreq = 59:61;
+    cfg_cont.dftfilter = 'yes';
+    cfg_cont.dftfreq = [60 120 180];
     
     data = ft_preprocessing(cfg_cont);
   end
