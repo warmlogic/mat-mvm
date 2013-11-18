@@ -57,12 +57,12 @@ exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
   'SPACE001';
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -263,7 +263,8 @@ end
 %% load the analysis details
 
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
-adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+% adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 
 % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 % if exist(server_adFile,'file')
@@ -300,8 +301,25 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 % ana.eventValues = {exper.eventValues};
+% ana.eventValues = {{'Face','House'}};
 
-ana.eventValues = {{'Face','House'}};
+ana.eventValues = {{'expo_stim'}};
+ana.eventValuesSplit = {{'Face','House'}};
+ana.trlExpr = {...
+  {sprintf('eventNumber == %d & targ == 1 & i_catNum == 1',find(ismember(exper.eventValues,'expo_stim'))), ...
+  sprintf('eventNumber == %d & targ == 1 & i_catNum == 2',find(ismember(exper.eventValues,'expo_stim')))}};
+
+% ana.eventValues = {{'expo_stim'}};
+% ana.eventValuesSplit = {{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}};
+% ana.trlExpr = {...
+%   {sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 1',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 2',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 3',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 4',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 1',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 2',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 3',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 4',find(ismember(exper.eventValues,'expo_stim')))}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -313,7 +331,7 @@ end
 
 %% load in the subject data
 
-[data_tla] = mm_ft_loadSubjectData(exper,dirs,ana.eventValues,'tla');
+[data_tla] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
 
 % %% get rid of the bad channels
 % 

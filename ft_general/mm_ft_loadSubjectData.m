@@ -1,18 +1,21 @@
-function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
+function [data] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
 %MM_FT_LOADSUBJECTDATA Load subject data into a full struct
 %
 % NB: THIS FUNCTION WILL BE REPLACED WITH MM_FT_LOADDATA
 %
-% [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
+% [data] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
 %
 % exper       = the exper struct
 % dirs        = the dirs struct, with the field saveDirProc (or saveDirRaw)
-% eventValues = a cell of the event values to load (e.g., ana.eventValues)
+% ana         = a struct containing a cell of the event values to load (e.g., ana, with ana.eventValues)
 % ftype       = string included in the filename to load (e.g., 'tla' in
 %               'data_tla_CR.mat'); can be 'raw' to load the raw data.
 % keeptrials  = optional; default=1. If loading powspctrm data created with
 %               keeptrials='yes', set to 0 to return averaged data.
 %               NB: uses ft_freqdescriptives
+% loadMethod  = string defining how to load different event types; can be
+%               'seg' or 'trialinfo' (segmented or FT's trialinfo); see
+%               space_ft_seg_tla.m for an example of trialinfo.
 
 % % make sure eventValues is set up correctly
 % if isfield(exper,'eventValuesExtra') && isfield(exper.eventValuesExtra,'newValue') && ~isempty(exper.eventValuesExtra.newValue)
@@ -36,6 +39,17 @@ function [data] = mm_ft_loadSubjectData(exper,dirs,eventValues,ftype,keeptrials)
 
 if ~exist('keeptrials','var') || isempty(keeptrials)
   keeptrials = 1;
+end
+
+if ~exist('loadMethod','var') || isempty(loadMethod)
+  loadMethod = 'seg';
+end
+
+if isstruct(ana)
+  eventValues = ana.eventValues;
+elseif iscell(ana)
+  warning('The setup for %s has changed, please input ana instead of eventValues!',mfilename);
+  eventValues = ana;
 end
 
 if iscell(eventValues)
@@ -75,21 +89,47 @@ for sub = 1:length(exper.subjects)
           fn = fieldnames(subSesEvData);
           % rename the field to 'data'
           if length(fn) == 1
-            if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) == 4
+            data_fn = cell2mat(fn);
+            if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) == 4
               % use ft_freqdescriptives to average over individual trials
               % if desired and the data is appropriate
               fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
               cfg_fd = [];
               cfg_fd.keeptrials = 'no';
-              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(cell2mat(fn)));
+              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
             elseif keeptrials == 0 && ~strcmp(ftype,'pow')
               error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ftype);
-            elseif keeptrials == 0 && ~isfield(subSesEvData.(cell2mat(fn)),'powspctrm')
+            elseif keeptrials == 0 && ~isfield(subSesEvData.(data_fn),'powspctrm')
               error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal});
-            elseif keeptrials == 0 && isfield(subSesEvData.(cell2mat(fn)),'powspctrm') && ndims(subSesEvData.(cell2mat(fn)).powspctrm) ~= 4
-              error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(cell2mat(fn)).powspctrm));
+            elseif keeptrials == 0 && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) ~= 4
+              error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ndims(subSesEvData.(data_fn).powspctrm));
             else
-              data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(cell2mat(fn));
+              if strcmp(loadMethod,'seg')
+                data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(data_fn);
+              elseif strcmp(loadMethod,'trialinfo')
+                
+                trl_order = ana.trl_order.(eventValues{typ}{evVal});
+                
+                for es = 1:length(ana.eventValuesSplit{typ})
+                  fprintf('Selecting %s trials...\n',ana.eventValuesSplit{typ}{es});
+                  
+                  expr = ana.trlExpr{typ}{es};
+                  
+                  for to = 1:length(trl_order)
+                    fieldNum = find(ismember(trl_order,trl_order{to}));
+                    
+                    r_exp = ['\<' trl_order{to} '\>'];
+                    r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
+                    
+                    expr = regexprep(expr,r_exp,r_str);
+                  end
+                  
+                  cfg = [];
+                  cfg.trials = eval(expr);
+                  data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                end
+                
+              end
             end
           else
             error('More than one field in data struct! There should only be one.\n');
@@ -108,4 +148,4 @@ for sub = 1:length(exper.subjects)
   end % for ses
 end % for sub
 
-end
+end % function
