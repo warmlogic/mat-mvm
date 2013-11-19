@@ -937,185 +937,197 @@ if rejArt_ftICA
     badChan_str = {};
   end
   
-  cfg = [];
-  cfg.method = 'runica';
-  %cfg.channel = 'all';
-  
-  fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
-  if ~isempty(badChan_str)
-    fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-    ica_chanNum = 0;
-    fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-  else
-    ica_chanNum = [];
-    fprintf('We believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-    fprintf('\tBut if that somehow is the case, you must run ICA on a subset of channels (option ''0'').\n');
-  end
-  
-  %ica_chanNum = [];
-  while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
-    ica_chanNum = input('\nDo you only want to run ICA on all channels (1) or a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
-  end
-  if ica_chanNum
-    cfg.channel = 'all';
-  else
-    fprintf('\tOnce you see the channel selector:\n');
-    fprintf('\t\t1. Add all channels to the right-side list.\n');
-    fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
-    fprintf('\t\t3. Manually close any empty figure windows.\n');
-    channel = ft_channelselection('gui', data.label);
-    cfg.channel = channel;
-  end
-  
-  comp = ft_componentanalysis(cfg,data);
-  
-  % % OLD METHOD - view the first 30 components
-  % cfg = [];
-  % cfg.component = 1:30; % specify the component(s) that should be plotted
-  % cfg.layout = elecfile; % specify the layout file that should be used for plotting
-  % cfg.comment = 'no';
-  % ft_topoplotIC(cfg,comp);
-  
-  % view some components (aka channels) with time course
-  %nComponents = 10;
-  cfg = [];
-  cfg.viewmode = 'component';
-  cfg.continuous = 'yes';
-  % number of seconds to display
-  cfg.blocksize = 30;
-  %cfg.blocksize = 10;
-  %cfg.channels = 1:nComponents;
-  cfg.plotlabels = 'yes';
-  cfg.layout = elecfile;
-  cfg.elecfile = elecfile;
-  cfg.ylim = vert_ylim;
-  ft_databrowser(cfg,comp);
-  % bug when calling rejectartifact right after databrowser, pause first
-  pause(1);
-  
-  fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-  %fprintf('\n\nViewing the first %d components.\n',nComponents);
-  fprintf('ICA component browsing:\n');
-  fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
-  fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
-  fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
-  fprintf('\t2. Manually close the components window when finished browsing.\n');
-  
-  rej_comp = [];
-  while isempty(rej_comp) || (rej_comp ~= 0 && rej_comp ~= 1)
-    rej_comp = input('Were there components to reject? (1 or 0, then press ''return''):\n\n');
-  end
-  if rej_comp
-    % prompt the user for the component numbers to reject
-    componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'',\n\teven if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
-    
-    % reject the bad components
-    if ~isempty(componentsToReject)
-      cfg = [];
-      cfg.component = str2double(regexp(componentsToReject,'\d*','match')');
-      data = ft_rejectcomponent(cfg, comp, data);
-    end
-  end
-  
-  % another auto search for artifacts
-  
-  % use cursor drag and click to mark artifacts;
-  % use arrows to advance to next trial;
-  % use the q key to quit the data browser
-  
-  ft_autoCheckArt = true;
-  ft_autoCheckArtNum = 0;
-  while ft_autoCheckArt
-    ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
-    if ft_autoCheckArtNum > 1
-      ft_autoCheckArt_prompt = [];
-      while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
-        ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
-      end
-      if ft_autoCheckArt_prompt
-        fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
-      else
-        %ft_autoCheckArt = false;
-        break
-      end
-    end
-    
-    fprintf('\n\nFinal round of manual artifact rejection:\n');
-    basic_art_z_default = 25;
-    
-    ft_customZvals_prompt = [];
-    while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
-      ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
-    end
-    
-    if ft_customZvals_prompt
-      basic_art_z = -1;
-      while basic_art_z <= 0
-        basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
-      end
-      if isempty(basic_art_z)
-        basic_art_z = basic_art_z_default;
-      end
-    else
-      basic_art_z = basic_art_z_default;
-    end
-    
-    ft_autoCheckArt_interactive_default = 'no';
-    ft_autoCheckArt_interactive = -1;
-    while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
-      ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
-      if isempty(ft_autoCheckArt_interactive)
-        break
-      end
-    end
-    if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
-      ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
-    elseif ft_autoCheckArt_interactive == 1
-      ft_autoCheckArt_interactive = 'yes';
-    end
-    
+  keepCheckingICA = true;
+  while keepCheckingICA
     cfg = [];
-    cfg.continuous = 'no';
-    %cfg.padding = 0;
-    % get the trial definition for automated FT artifact rejection
-    cfg.trl = ft_findcfg(data.cfg,'trl');
+    cfg.method = 'runica';
+    %cfg.channel = 'all';
     
-    cfg.artfctdef.zvalue.channel = 'all';
-    cfg.artfctdef.zvalue.cutoff = basic_art_z;
-    cfg.artfctdef.zvalue.trlpadding = 0;
-    cfg.artfctdef.zvalue.artpadding = 0.1;
-    cfg.artfctdef.zvalue.fltpadding = 0;
-    
-    % interactive artifact viewer
-    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
-    
-    fprintf('Checking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-    
-    % auto mark some artifacts
-    cfg = ft_artifact_zvalue(cfg, data);
-    
-    % another manual search of the data for artifacts
-    
-    %cfg.viewmode = 'butterfly';
-    cfg.viewmode = 'vertical';
-    cfg.continuous = 'no';
-    cfg.elecfile = elecfile;
-    cfg.plotlabels = 'some';
-    cfg.ylim = vert_ylim;
-    
-    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
-    fprintf('\n\nFinal round of manual artifact rejection:\n');
-    fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
-    fprintf('\tUse arrows to move to next trial.\n');
-    if strcmp(cfg.viewmode,'butterfly')
-      fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+    fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
+    if ~isempty(badChan_str)
+      fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+      ica_chanNum = 0;
+      fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+    else
+      ica_chanNum = [];
+      fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+      fprintf('\tBut if that somehow is the case, you must run ICA on a subset of channels (option ''0'').\n');
     end
-    fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-    fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
     
-    cfg = ft_databrowser(cfg,data);
+    %ica_chanNum = [];
+    while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
+      ica_chanNum = input('\nDo you only want to run ICA on all channels (1) or a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+    end
+    if ica_chanNum
+      cfg.channel = 'all';
+    else
+      fprintf('\tOnce you see the channel selector:\n');
+      fprintf('\t\t1. Add all channels to the right-side list.\n');
+      fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
+      fprintf('\t\t3. Manually close any empty figure windows.\n');
+      channel = ft_channelselection('gui', data.label);
+      cfg.channel = channel;
+    end
+    
+    comp = ft_componentanalysis(cfg,data);
+    
+    % % OLD METHOD - view the first 30 components
+    % cfg = [];
+    % cfg.component = 1:30; % specify the component(s) that should be plotted
+    % cfg.layout = elecfile; % specify the layout file that should be used for plotting
+    % cfg.comment = 'no';
+    % ft_topoplotIC(cfg,comp);
+    
+    % view some components (aka channels) with time course
+    %nComponents = 10;
+    cfg = [];
+    cfg.viewmode = 'component';
+    cfg.continuous = 'yes';
+    % number of seconds to display
+    cfg.blocksize = 30;
+    %cfg.blocksize = 10;
+    %cfg.channels = 1:nComponents;
+    cfg.plotlabels = 'yes';
+    cfg.layout = elecfile;
+    cfg.elecfile = elecfile;
+    cfg.ylim = vert_ylim;
+    ft_databrowser(cfg,comp);
     % bug when calling rejectartifact right after databrowser, pause first
     pause(1);
+    
+    fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+    %fprintf('\n\nViewing the first %d components.\n',nComponents);
+    fprintf('ICA component browsing:\n');
+    fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
+    fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
+    fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
+    fprintf('\t2. Manually close the components window when finished browsing.\n');
+    
+    rej_comp = [];
+    while isempty(rej_comp) || (rej_comp ~= 0 && rej_comp ~= 1)
+      rej_comp = input('Were there components to reject? (1 or 0, then press ''return''):\n\n');
+    end
+    if rej_comp
+      % prompt the user for the component numbers to reject
+      componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'',\n\teven if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
+      
+      % reject the bad components
+      if ~isempty(componentsToReject)
+        cfg = [];
+        cfg.component = str2double(regexp(componentsToReject,'\d*','match')');
+        data_ica_rej = ft_rejectcomponent(cfg, comp, data);
+      end
+    end
+    
+    % another auto search for artifacts
+    
+    % use cursor drag and click to mark artifacts;
+    % use arrows to advance to next trial;
+    % use the q key to quit the data browser
+    
+    ft_autoCheckArt = true;
+    ft_autoCheckArtNum = 0;
+    while ft_autoCheckArt
+      ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
+      if ft_autoCheckArtNum > 1
+        ft_autoCheckArt_prompt = [];
+        while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
+          ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
+        end
+        if ft_autoCheckArt_prompt
+          fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+        else
+          %ft_autoCheckArt = false;
+          break
+        end
+      end
+      
+      fprintf('\n\nFinal round of manual artifact rejection:\n');
+      basic_art_z_default = 25;
+      
+      ft_customZvals_prompt = [];
+      while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
+        ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+      end
+      
+      if ft_customZvals_prompt
+        basic_art_z = -1;
+        while basic_art_z <= 0
+          basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+        end
+        if isempty(basic_art_z)
+          basic_art_z = basic_art_z_default;
+        end
+      else
+        basic_art_z = basic_art_z_default;
+      end
+      
+      ft_autoCheckArt_interactive_default = 'no';
+      ft_autoCheckArt_interactive = -1;
+      while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
+        ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
+        if isempty(ft_autoCheckArt_interactive)
+          break
+        end
+      end
+      if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
+        ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
+      elseif ft_autoCheckArt_interactive == 1
+        ft_autoCheckArt_interactive = 'yes';
+      end
+      
+      cfg = [];
+      cfg.continuous = 'no';
+      %cfg.padding = 0;
+      % get the trial definition for automated FT artifact rejection
+      cfg.trl = ft_findcfg(data_ica_rej.cfg,'trl');
+      
+      cfg.artfctdef.zvalue.channel = 'all';
+      cfg.artfctdef.zvalue.cutoff = basic_art_z;
+      cfg.artfctdef.zvalue.trlpadding = 0;
+      cfg.artfctdef.zvalue.artpadding = 0.1;
+      cfg.artfctdef.zvalue.fltpadding = 0;
+      
+      % interactive artifact viewer
+      cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+      
+      fprintf('Checking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      
+      % auto mark some artifacts
+      cfg = ft_artifact_zvalue(cfg, data_ica_rej);
+      
+      % another manual search of the data for artifacts
+      
+      %cfg.viewmode = 'butterfly';
+      cfg.viewmode = 'vertical';
+      cfg.continuous = 'no';
+      cfg.elecfile = elecfile;
+      cfg.plotlabels = 'some';
+      cfg.ylim = vert_ylim;
+      
+      fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+      fprintf('\n\nFinal round of manual artifact rejection:\n');
+      fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+      fprintf('\tUse arrows to move to next trial.\n');
+      if strcmp(cfg.viewmode,'butterfly')
+        fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+      end
+      fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+      fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
+      
+      cfg = ft_databrowser(cfg,data_ica_rej);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+    end
+    done_with_ica = [];
+    while isempty(done_with_ica) || (done_with_ica ~= 0 && done_with_ica ~= 1)
+      done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to rerun ICA and artifact detection. (1 or 0, then press ''return''):\n\n');
+    end
+    
+    if done_with_ica
+      data = data_ica_rej;
+      keepCheckingICA = false;
+    end
   end
   
   % initialize to store whether there was an artifact for each trial
