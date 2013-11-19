@@ -417,6 +417,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
+        fprintf('(Manually close any empty figure windows.)\n');
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -434,6 +435,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        fprintf('(Manually close any empty figure windows.)\n');
         badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
@@ -505,6 +507,7 @@ if rejArt_ftManual
       else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
+        fprintf('(Manually close any empty figure windows.)\n');
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -521,6 +524,7 @@ if rejArt_ftManual
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        fprintf('(Manually close any empty figure windows.)\n');
         badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
@@ -828,6 +832,7 @@ if rejArt_ftManual
       else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
+        fprintf('(Manually close any empty figure windows.)\n');
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -844,6 +849,7 @@ if rejArt_ftManual
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        fprintf('(Manually close any empty figure windows.)\n');
         badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
@@ -885,11 +891,9 @@ if rejArt_ftICA
     fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
   else
     ica_chanNum = [];
-    fprintf('\tIf that is the case, you must run ICA on a subset of channels (option ''0'').\n');
+    fprintf('We believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+    fprintf('\tBut if that somehow is the case, you must run ICA on a subset of channels (option ''0'').\n');
   end
-  fprintf('\tOnce you see the channel selector:\n');
-  fprintf('\t\t1. Add all channels to the right-side list.\n');
-  fprintf('\t\t2. Remove the bad channel from that list.\n');
   
   %ica_chanNum = [];
   while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
@@ -898,6 +902,10 @@ if rejArt_ftICA
   if ica_chanNum
     cfg.channel = 'all';
   else
+    fprintf('\tOnce you see the channel selector:\n');
+    fprintf('\t\t1. Add all channels to the right-side list.\n');
+    fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
+    fprintf('\t\t3. Manually close any empty figure windows.\n');
     channel = ft_channelselection('gui', data.label);
     cfg.channel = channel;
   end
@@ -933,7 +941,7 @@ if rejArt_ftICA
   fprintf('ICA component browsing:\n');
   fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
   fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
-  fprintf('\t\tComponents may not be numbered, so keep track of where you are (top component has the lowest number). Note component numbers for rejection.\n');
+  fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
   fprintf('\t2. Manually close the components window when finished browsing.\n');
   
   rej_comp = [];
@@ -1149,6 +1157,7 @@ if rejArt_ftICA
       else
         channel = ft_channelselection('gui', data.label);
         cfgChannelRepair.channel = channel;
+        fprintf('(Manually close any empty figure windows.)\n');
       end
       
       if strcmp(cfgChannelRepair.viewmode,'butterfly')
@@ -1165,6 +1174,7 @@ if rejArt_ftICA
       end
       if rejArt_repair_really
         badchannel = ft_channelselection('gui', data.label);
+        fprintf('(Manually close any empty figure windows.)\n');
         badChan_str = cat(1,badChan_str,badchannel);
         cfgChannelRepair.channel = 'all';
         cfgChannelRepair.badchannel = badchannel;
