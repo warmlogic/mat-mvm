@@ -497,6 +497,16 @@ if rejArt_ftManual
     end
   end
   
+  if ~isfield(ana.artifact,'trlpadding')
+    ana.artifact.trlpadding = 0;
+  end
+  if ~isfield(ana.artifact,'artpadding')
+    ana.artifact.artpadding = 0.1;
+  end
+  if ~isfield(ana.artifact,'fltpadding')
+    ana.artifact.fltpadding = 0;
+  end
+  
   keepRepairingChannels = true;
   while keepRepairingChannels
     if ~exist('badChan_str','var')
@@ -639,15 +649,14 @@ if rejArt_ftManual
       
       cfg = [];
       cfg.continuous = 'no';
-      %cfg.padding = 0;
       % get the trial definition for automated FT artifact rejection
       cfg.trl = ft_findcfg(data.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
       cfg.artfctdef.zvalue.cutoff = basic_art_z;
-      cfg.artfctdef.zvalue.trlpadding = 0;
-      cfg.artfctdef.zvalue.artpadding = 0.1;
-      cfg.artfctdef.zvalue.fltpadding = 0;
+      cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
+      cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
+      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.absdiff = 'yes';
@@ -666,7 +675,6 @@ if rejArt_ftManual
       
       cfg = [];
       cfg.continuous = 'no';
-      %cfg.padding = 0;
       % get the trial definition for automated FT artifact rejection
       cfg.trl = ft_findcfg(data.cfg,'trl');
       
@@ -708,7 +716,6 @@ if rejArt_ftManual
       
       cfg = [];
       cfg.continuous = 'no';
-      %cfg.padding = 0;
       % get the trial definition for automated FT artifact rejection
       cfg.trl = ft_findcfg(data.cfg,'trl');
       
@@ -716,11 +723,9 @@ if rejArt_ftManual
       % select a set of channels on which to run the artifact detection
       cfg.artfctdef.zvalue.channel = 'all';
       cfg.artfctdef.zvalue.cutoff = jump_art_z;
-      %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-      %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
-      cfg.artfctdef.zvalue.trlpadding = 0;
-      cfg.artfctdef.zvalue.artpadding = 0.1;
-      cfg.artfctdef.zvalue.fltpadding = 0;
+      cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
+      cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
+      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.cumulative = 'yes';
@@ -937,6 +942,16 @@ if rejArt_ftICA
     badChan_str = {};
   end
   
+  if ~isfield(ana.artifact,'trlpadding')
+    ana.artifact.trlpadding = 0;
+  end
+  if ~isfield(ana.artifact,'artpadding')
+    ana.artifact.artpadding = 0.1;
+  end
+  if ~isfield(ana.artifact,'fltpadding')
+    ana.artifact.fltpadding = 0;
+  end
+  
   keepCheckingICA = true;
   while keepCheckingICA
     cfg = [];
@@ -1078,15 +1093,14 @@ if rejArt_ftICA
       
       cfg = [];
       cfg.continuous = 'no';
-      %cfg.padding = 0;
       % get the trial definition for automated FT artifact rejection
       cfg.trl = ft_findcfg(data_ica_rej.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
       cfg.artfctdef.zvalue.cutoff = basic_art_z;
-      cfg.artfctdef.zvalue.trlpadding = 0;
-      cfg.artfctdef.zvalue.artpadding = 0.1;
-      cfg.artfctdef.zvalue.fltpadding = 0;
+      cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
+      cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
+      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
       
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
@@ -1261,6 +1275,16 @@ end
 %% run FieldTrip's automatic artifact detection on the data
 
 if rejArt_ftAuto
+  if ~isfield(ana.artifact,'trlpadding')
+    ana.artifact.trlpadding = 0;
+  end
+  if ~isfield(ana.artifact,'artpadding')
+    ana.artifact.artpadding = 0.1;
+  end
+  if ~isfield(ana.artifact,'fltpadding')
+    ana.artifact.fltpadding = 0;
+  end
+  
   % get the trial definition for automated FT artifact rejection
   trl = ft_findcfg(data.cfg,'trl');
   
@@ -1270,18 +1294,15 @@ if rejArt_ftAuto
   
   cfg = [];
   cfg.trl = trl;
-  cfg.padding = 0;
   cfg.continuous = 'no';
   
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.cutoff = 20;
-  %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-  %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
-  cfg.artfctdef.zvalue.trlpadding = 0;
-  cfg.artfctdef.zvalue.artpadding = 0.1;
-  cfg.artfctdef.zvalue.fltpadding = 0;
+  cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
+  cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
+  cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
   
   % algorithmic parameters
   cfg.artfctdef.zvalue.cumulative = 'yes';
@@ -1300,16 +1321,12 @@ if rejArt_ftAuto
   
   cfg = [];
   cfg.trl = trl;
-  cfg.padding = 0;
   cfg.continuous = 'no';
   
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.cutoff      = 40;
-  %cfg.artfctdef.zvalue.trlpadding  = 0.1*cfg.padding;
-  %cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
-  %cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
   cfg.artfctdef.zvalue.trlpadding  = 0;
   if strcmp(cfg.continuous,'yes')
     cfg.artfctdef.zvalue.artpadding  = 0.1;
@@ -1341,7 +1358,6 @@ if rejArt_ftAuto
   
   cfg = [];
   cfg.trl = trl;
-  cfg.padding = 0;
   cfg.continuous = 'no';
   
   % cutoff and padding
@@ -1349,9 +1365,6 @@ if rejArt_ftAuto
   %cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
   cfg.artfctdef.zvalue.cutoff      = 4;
-  %cfg.artfctdef.zvalue.trlpadding  = 0.5*cfg.padding;
-  %cfg.artfctdef.zvalue.artpadding  = 0.1*cfg.padding;
-  %cfg.artfctdef.zvalue.fltpadding  = 0.1*cfg.padding;
   cfg.artfctdef.zvalue.trlpadding  = 0;
   if strcmp(cfg.continuous,'yes')
     cfg.artfctdef.zvalue.artpadding  = 0.1;
