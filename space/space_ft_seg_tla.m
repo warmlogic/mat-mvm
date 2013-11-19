@@ -56,13 +56,13 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-%   'SPACE001';
+  'SPACE001';
   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -267,7 +267,7 @@ end
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 
-% server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
+% server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 % if exist(server_adFile,'file')
 %   mm_mergeAnalysisDetails(adFile,server_adFile,true);
 % end
