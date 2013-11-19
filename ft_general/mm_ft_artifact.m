@@ -545,13 +545,18 @@ if rejArt_ftManual
   end
   
   if ana.artifact.resumeManArtFT
-    % load the manually processed artifacts
-    fprintf('Loading manually marked artifacts from %s...\n',resumeManArtFT_file);
-    load(resumeManArtFT_file,'cfg_manArt');
-    
-    % make sure number of trials in data.cfg and cfg_manArt match
-    if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
-      warning('Manually loaded artifacts do not match the number of segments in data! Starting artifact checking over.');
+    if exist(resumeManArtFT_file,'file')
+      % load the manually processed artifacts
+      fprintf('Loading resumable artifacts file: %s...\n',resumeManArtFT_file);
+      load(resumeManArtFT_file,'cfg_manArt');
+      
+      % make sure number of trials in data.cfg and cfg_manArt match
+      if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
+        warning('Manually loaded artifacts do not match the number of segments in data!\nStarting artifact checking over.');
+        ana.artifact.resumeManArtFT = false;
+      end
+    else
+      warning('Resumable artifacts file does not exist! %s\nStarting artifact checking over.',resumeManArtFT_file);
       ana.artifact.resumeManArtFT = false;
     end
   end
