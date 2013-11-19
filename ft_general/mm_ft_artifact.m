@@ -656,7 +656,8 @@ if rejArt_ftManual
       cfg.artfctdef.zvalue.cutoff = basic_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
-      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+      %cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+      cfg.artfctdef.zvalue.fltpadding = 0;
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.absdiff = 'yes';
@@ -682,13 +683,13 @@ if rejArt_ftManual
       % select a set of channels on which to run the artifact detection
       cfg.artfctdef.zvalue.channel = 'all';
       cfg.artfctdef.zvalue.cutoff      = muscle_art_z;
-      cfg.artfctdef.zvalue.trlpadding  = 0;
+      cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       if strcmp(cfg.continuous,'yes')
-        cfg.artfctdef.zvalue.artpadding  = 0.1;
+        cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       elseif strcmp(cfg.continuous,'no')
-        cfg.artfctdef.zvalue.artpadding  = 0.1;
+        cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       end
-      cfg.artfctdef.zvalue.fltpadding  = 0;
+      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.bpfilter    = 'yes';
@@ -725,7 +726,8 @@ if rejArt_ftManual
       cfg.artfctdef.zvalue.cutoff = jump_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
-      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+      %cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+      cfg.artfctdef.zvalue.fltpadding = 0;
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.cumulative = 'yes';
@@ -1100,7 +1102,8 @@ if rejArt_ftICA
       cfg.artfctdef.zvalue.cutoff = basic_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
-      cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+      %cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+      cfg.artfctdef.zvalue.fltpadding = 0;
       
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
@@ -1302,7 +1305,8 @@ if rejArt_ftAuto
   cfg.artfctdef.zvalue.cutoff = 20;
   cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
   cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
-  cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+  %cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
+  cfg.artfctdef.zvalue.fltpadding = 0;
   
   % algorithmic parameters
   cfg.artfctdef.zvalue.cumulative = 'yes';
@@ -1327,13 +1331,13 @@ if rejArt_ftAuto
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.cutoff      = 40;
-  cfg.artfctdef.zvalue.trlpadding  = 0;
+  cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
   if strcmp(cfg.continuous,'yes')
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
+    cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   elseif strcmp(cfg.continuous,'no')
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
+    cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   end
-  cfg.artfctdef.zvalue.fltpadding  = 0;
+  cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
   
   % algorithmic parameters
   cfg.artfctdef.zvalue.bpfilter    = 'yes';
@@ -1365,13 +1369,13 @@ if rejArt_ftAuto
   %cfg.artfctdef.zvalue.channel = 'all';
   cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
   cfg.artfctdef.zvalue.cutoff      = 4;
-  cfg.artfctdef.zvalue.trlpadding  = 0;
+  cfg.artfctdef.zvalue.trlpadding = ana.artifact.artpadding;
   if strcmp(cfg.continuous,'yes')
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
+    cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   elseif strcmp(cfg.continuous,'no')
-    cfg.artfctdef.zvalue.artpadding  = 0.1;
+    cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   end
-  cfg.artfctdef.zvalue.fltpadding  = 0;
+  cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
   
   % algorithmic parameters
   cfg.artfctdef.zvalue.bpfilter   = 'yes';
