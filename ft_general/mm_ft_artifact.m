@@ -479,6 +479,24 @@ if rejArt_ftManual
     ana.artifact.resumeManArtFT = false;
   end
   
+  if ana.artifact.resumeManArtFT
+    if exist(resumeManArtFT_file,'file')
+      % load the manually processed artifacts
+      fprintf('Loading resumable artifacts file: %s...\n',resumeManArtFT_file);
+      fprintf('\nIMPORTANT: You must repair the same channels as last time or artifacts will be different!\n');
+      load(resumeManArtFT_file,'cfg_manArt');
+      
+      % make sure number of trials in data.cfg and cfg_manArt match
+      if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
+        warning('Resumable artifacts file does not match the number of trials in current data!\nStarting artifact checking over.');
+        ana.artifact.resumeManArtFT = false;
+      end
+    else
+      warning('Resumable artifacts file does not exist! %s\nStarting artifact checking over.',resumeManArtFT_file);
+      ana.artifact.resumeManArtFT = false;
+    end
+  end
+  
   keepRepairingChannels = true;
   while keepRepairingChannels
     if ~exist('badChan_str','var')
@@ -541,23 +559,6 @@ if rejArt_ftManual
       end
     else
       keepRepairingChannels = false;
-    end
-  end
-  
-  if ana.artifact.resumeManArtFT
-    if exist(resumeManArtFT_file,'file')
-      % load the manually processed artifacts
-      fprintf('Loading resumable artifacts file: %s...\n',resumeManArtFT_file);
-      load(resumeManArtFT_file,'cfg_manArt');
-      
-      % make sure number of trials in data.cfg and cfg_manArt match
-      if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
-        warning('Manually loaded artifacts do not match the number of segments in data!\nStarting artifact checking over.');
-        ana.artifact.resumeManArtFT = false;
-      end
-    else
-      warning('Resumable artifacts file does not exist! %s\nStarting artifact checking over.',resumeManArtFT_file);
-      ana.artifact.resumeManArtFT = false;
     end
   end
   
@@ -777,6 +778,8 @@ if rejArt_ftManual
       cfg_manArt = ft_databrowser(cfg_manArt,data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
+      fprintf('Backing up artifact data to %s.\n',resumeManArtFT_file);
+      fprintf('\tIf MATLAB crashes before finishing, you can resume without re-checking artifacts by setting ana.artifact.resumeManArtFT=true in your main file.\n');
       save(resumeManArtFT_file,'cfg_manArt');
     end
   else
@@ -800,9 +803,12 @@ if rejArt_ftManual
       fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n\n');
     end
     
+    fprintf('\nIMPORTANT:\n\tYou loaded saved artifact data. You can exit the artifact browser and the artifacts you marked last time will be rejected.\n');
     cfg_manArt = ft_databrowser(cfg_manArt,data);
     % bug when calling rejectartifact right after databrowser, pause first
     pause(1);
+    fprintf('\nBacking up artifact data to %s.\n',resumeManArtFT_file);
+    fprintf('\tIf MATLAB crashes before finishing, you can resume without re-checking artifacts by setting ana.artifact.resumeManArtFT=true in your main file.\n');
     save(resumeManArtFT_file,'cfg_manArt');
   end
   
