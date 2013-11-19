@@ -1,9 +1,9 @@
-function [data] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
+function [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
 %MM_FT_LOADSUBJECTDATA Load subject data into a full struct
 %
 % NB: THIS FUNCTION WILL BE REPLACED WITH MM_FT_LOADDATA
 %
-% [data] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
+% [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
 %
 % exper       = the exper struct
 % dirs        = the dirs struct, with the field saveDirProc (or saveDirRaw)
@@ -116,9 +116,11 @@ for sub = 1:length(exper.subjects)
                   end
                   
                   cfg_fd = [];
-                  cfg_fd.keeptrials = 'no';
                   cfg_fd.trials = eval(expr);
+                  cfg_fd.keeptrials = 'no';
                   data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                  % put in the trial counts
+                  exper.nTrials.(ana.eventValuesSplit{typ}{es})(sub,ses) = sum(cfg.trials);
                 end % es
               end
             elseif keeptrials == 0 && ~strcmp(ftype,'pow')
@@ -149,7 +151,12 @@ for sub = 1:length(exper.subjects)
                   
                   cfg = [];
                   cfg.trials = eval(expr);
-                  data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                  cfg.keeptrials = 'yes';
+                  data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
+                  %data.(ana.eventValuesSplit{typ}{es}).sub(sub).ses(ses).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                  
+                  % put in the trial counts
+                  exper.nTrials.(ana.eventValuesSplit{typ}{es})(sub,ses) = sum(cfg.trials);
                 end % es
               end % loadMethod
             end % keeptrials
