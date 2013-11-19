@@ -39,9 +39,9 @@ exper.eegFileExt = 'raw';
 % because they get sorted, must correspond to the order listed in
 % exper.eventValues
 exper.prepost = [...
-  -1.0 1.0; ...
-  -1.0 1.0; ...
-  -1.0 1.0; ...
+  -1.0 2.0; ...
+  -1.0 2.0; ...
+  -1.0 2.0; ...
   -1.0 2.0];
 exper.prepost = exper.prepost(evInd,:);
 
@@ -56,8 +56,8 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SPACE001';
-%   'SPACE002';
+%   'SPACE001';
+  'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
 %   'SPACE005';
@@ -157,6 +157,7 @@ if ana.useExpInfo
 end
 
 ana.artifact.type = {'ftManual', 'ftICA'};
+ana.artifact.resumeManArtFT = false;
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
 % ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;

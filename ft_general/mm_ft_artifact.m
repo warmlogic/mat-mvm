@@ -1,6 +1,6 @@
 function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
-% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
+% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,cfg_manArt)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -473,6 +473,12 @@ end
 %% visual artifact inspection (manual)
 
 if rejArt_ftManual
+  % set the file to save after checking artifacts, in case MATLAB crashes
+  resumeManArtFT_file = fullfile(dataroot,sprintf('%s_%s_manArtFT%s.mat',subject,sesName,sprintf(repmat('_%s',1,length(eventValue)),eventValue{:})));
+  if ~isfield(ana.artifact,'resumeManArtFT')
+    ana.artifact.resumeManArtFT = false;
+  end
+  
   keepRepairingChannels = true;
   while keepRepairingChannels
     if ~exist('badChan_str','var')
@@ -538,198 +544,226 @@ if rejArt_ftManual
     end
   end
   
-  ft_autoCheckArt = true;
-  ft_autoCheckArtNum = 0;
-  while ft_autoCheckArt
-    ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
-    if ft_autoCheckArtNum > 1
-      ft_autoCheckArt_prompt = [];
-      while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
-        ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
+  if ~ana.artifact.resumeManArtFT
+    ft_autoCheckArt = true;
+    ft_autoCheckArtNum = 0;
+    while ft_autoCheckArt
+      ft_autoCheckArtNum = ft_autoCheckArtNum + 1;
+      if ft_autoCheckArtNum > 1
+        ft_autoCheckArt_prompt = [];
+        while isempty(ft_autoCheckArt_prompt) || (ft_autoCheckArt_prompt ~= 0 && ft_autoCheckArt_prompt ~= 1)
+          ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
+        end
+        if ft_autoCheckArt_prompt
+          fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+        else
+          %ft_autoCheckArt = false;
+          break
+        end
       end
-      if ft_autoCheckArt_prompt
-        fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+      
+      basic_art_z_default = 22;
+      muscle_art_z_default = 40;
+      jump_art_z_default = 50;
+      
+      ft_customZvals_prompt = [];
+      while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
+        ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+      end
+      
+      if ft_customZvals_prompt
+        basic_art_z = -1;
+        while basic_art_z <= 0
+          basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+        end
+        if isempty(basic_art_z)
+          basic_art_z = basic_art_z_default;
+        end
+        
+        muscle_art_z = -1;
+        while muscle_art_z <= 0
+          muscle_art_z = input(sprintf('\nAt what z-value do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_default));
+        end
+        if isempty(muscle_art_z)
+          muscle_art_z = muscle_art_z_default;
+        end
+        
+        jump_art_z = -1;
+        while jump_art_z <= 0
+          jump_art_z = input(sprintf('\nAt what z-value do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_default));
+        end
+        if isempty(jump_art_z)
+          jump_art_z = jump_art_z_default;
+        end
       else
-        %ft_autoCheckArt = false;
-        break
-      end
-    end
-    
-    basic_art_z_default = 22;
-    muscle_art_z_default = 40;
-    jump_art_z_default = 50;
-    
-    ft_customZvals_prompt = [];
-    while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
-      ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
-    end
-    
-    if ft_customZvals_prompt
-      basic_art_z = -1;
-      while basic_art_z <= 0
-        basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
-      end
-      if isempty(basic_art_z)
         basic_art_z = basic_art_z_default;
-      end
-      
-      muscle_art_z = -1;
-      while muscle_art_z <= 0
-        muscle_art_z = input(sprintf('\nAt what z-value do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_default));
-      end
-      if isempty(muscle_art_z)
         muscle_art_z = muscle_art_z_default;
-      end
-      
-      jump_art_z = -1;
-      while jump_art_z <= 0
-        jump_art_z = input(sprintf('\nAt what z-value do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_default));
-      end
-      if isempty(jump_art_z)
         jump_art_z = jump_art_z_default;
       end
-    else
-      basic_art_z = basic_art_z_default;
-      muscle_art_z = muscle_art_z_default;
-      jump_art_z = jump_art_z_default;
-    end
-    
-    ft_autoCheckArt_interactive_default = 'no';
-    ft_autoCheckArt_interactive = -1;
-    while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
-      ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
-      if isempty(ft_autoCheckArt_interactive)
-        break
+      
+      ft_autoCheckArt_interactive_default = 'no';
+      ft_autoCheckArt_interactive = -1;
+      while ft_autoCheckArt_interactive < 0 || (ft_autoCheckArt_interactive ~= 0 && ft_autoCheckArt_interactive ~= 1)
+        ft_autoCheckArt_interactive = input('\nDo you want to run FieldTrip artifact auto-check in interactive mode (default=0)? (1 or 0, then press ''return''):\n\n');
+        if isempty(ft_autoCheckArt_interactive)
+          break
+        end
       end
+      if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
+        ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
+      elseif ft_autoCheckArt_interactive == 1
+        ft_autoCheckArt_interactive = 'yes';
+      end
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % look for zvalue artifacts
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
+      cfg = [];
+      cfg.continuous = 'no';
+      %cfg.padding = 0;
+      % get the trial definition for automated FT artifact rejection
+      cfg.trl = ft_findcfg(data.cfg,'trl');
+      
+      cfg.artfctdef.zvalue.channel = 'all';
+      cfg.artfctdef.zvalue.cutoff = basic_art_z;
+      cfg.artfctdef.zvalue.trlpadding = 0;
+      cfg.artfctdef.zvalue.artpadding = 0.1;
+      cfg.artfctdef.zvalue.fltpadding = 0;
+      
+      % algorithmic parameters
+      cfg.artfctdef.zvalue.absdiff = 'yes';
+      
+      % interactive artifact viewer
+      cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+      
+      fprintf('\nChecking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      
+      % auto mark zvalue artifacts
+      [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % look for muscle artifacts
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
+      cfg = [];
+      cfg.continuous = 'no';
+      %cfg.padding = 0;
+      % get the trial definition for automated FT artifact rejection
+      cfg.trl = ft_findcfg(data.cfg,'trl');
+      
+      % cutoff and padding
+      % select a set of channels on which to run the artifact detection
+      cfg.artfctdef.zvalue.channel = 'all';
+      cfg.artfctdef.zvalue.cutoff      = muscle_art_z;
+      cfg.artfctdef.zvalue.trlpadding  = 0;
+      if strcmp(cfg.continuous,'yes')
+        cfg.artfctdef.zvalue.artpadding  = 0.1;
+      elseif strcmp(cfg.continuous,'no')
+        cfg.artfctdef.zvalue.artpadding  = 0.1;
+      end
+      cfg.artfctdef.zvalue.fltpadding  = 0;
+      
+      % algorithmic parameters
+      cfg.artfctdef.zvalue.bpfilter    = 'yes';
+      if data.fsample/2 < 140
+        cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
+      else
+        cfg.artfctdef.zvalue.bpfreq      = [110 140];
+      end
+      cfg.artfctdef.zvalue.bpfiltord   = 6;
+      cfg.artfctdef.zvalue.bpfilttype  = 'but';
+      cfg.artfctdef.zvalue.hilbert     = 'yes';
+      cfg.artfctdef.zvalue.boxcar      = 0.2;
+      
+      % interactive artifact viewer
+      cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+      
+      fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      
+      % auto mark muscle artifacts
+      [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % look for jump artifacts
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
+      cfg = [];
+      cfg.continuous = 'no';
+      %cfg.padding = 0;
+      % get the trial definition for automated FT artifact rejection
+      cfg.trl = ft_findcfg(data.cfg,'trl');
+      
+      % cutoff and padding
+      % select a set of channels on which to run the artifact detection
+      cfg.artfctdef.zvalue.channel = 'all';
+      cfg.artfctdef.zvalue.cutoff = jump_art_z;
+      %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
+      %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
+      cfg.artfctdef.zvalue.trlpadding = 0;
+      cfg.artfctdef.zvalue.artpadding = 0.1;
+      cfg.artfctdef.zvalue.fltpadding = 0;
+      
+      % algorithmic parameters
+      cfg.artfctdef.zvalue.cumulative = 'yes';
+      cfg.artfctdef.zvalue.medianfilter = 'yes';
+      cfg.artfctdef.zvalue.medianfiltord = 9;
+      cfg.artfctdef.zvalue.absdiff = 'yes';
+      
+      % interactive artifact viewer
+      cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
+      
+      fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      
+      % auto mark jump artifacts
+      [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % manual inspection of artifacts
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
+      cfg_manArt = [];
+      cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue; %
+      cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
+      cfg_manArt.artfctdef.jump.artifact = artifact_jump;
+      
+      % get the trial definition for automated FT artifact rejection
+      cfg_manArt.trl = ft_findcfg(data.cfg,'trl');
+      
+      cfg_manArt.continuous = 'no';
+      %cfg_manArt.viewmode = 'butterfly';
+      cfg_manArt.viewmode = 'vertical';
+      cfg_manArt.elecfile = elecfile;
+      cfg_manArt.plotlabels = 'some';
+      cfg_manArt.ylim = vert_ylim;
+      
+      % use cursor drag and click to mark artifacts;
+      % use arrows to advance to next trial;
+      % use the q key to quit the data browser
+      
+      % manual rejection
+      fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
+      fprintf('\n\nManual artifact rejection:\n');
+      fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+      fprintf('\tUse arrows to move to next trial.\n');
+      if strcmp(cfg_manArt.viewmode,'butterfly')
+        fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+      end
+      fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+      fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
+      
+      if rejArt_ftICA
+        fprintf('\nNB: Before running ICA, you must manually reject artifacts that are not consistent across trials.\n');
+        fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n\n');
+      end
+      
+      cfg_manArt = ft_databrowser(cfg_manArt,data);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+      save(resumeManArtFT_file,'cfg_manArt');
     end
-    if isempty(ft_autoCheckArt_interactive) || ft_autoCheckArt_interactive == 0
-      ft_autoCheckArt_interactive = ft_autoCheckArt_interactive_default;
-    elseif ft_autoCheckArt_interactive == 1
-      ft_autoCheckArt_interactive = 'yes';
-    end
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % look for zvalue artifacts
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    cfg = [];
-    cfg.continuous = 'no';
-    %cfg.padding = 0;
-    % get the trial definition for automated FT artifact rejection
-    cfg.trl = ft_findcfg(data.cfg,'trl');
-    
-    cfg.artfctdef.zvalue.channel = 'all';
-    cfg.artfctdef.zvalue.cutoff = basic_art_z;
-    cfg.artfctdef.zvalue.trlpadding = 0;
-    cfg.artfctdef.zvalue.artpadding = 0.1;
-    cfg.artfctdef.zvalue.fltpadding = 0;
-    
-    % algorithmic parameters
-    cfg.artfctdef.zvalue.absdiff = 'yes';
-    
-    % interactive artifact viewer
-    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
-    
-    fprintf('\nChecking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-    
-    % auto mark zvalue artifacts
-    [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % look for muscle artifacts
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    cfg = [];
-    cfg.continuous = 'no';
-    %cfg.padding = 0;
-    % get the trial definition for automated FT artifact rejection
-    cfg.trl = ft_findcfg(data.cfg,'trl');
-    
-    % cutoff and padding
-    % select a set of channels on which to run the artifact detection
-    cfg.artfctdef.zvalue.channel = 'all';
-    cfg.artfctdef.zvalue.cutoff      = muscle_art_z;
-    cfg.artfctdef.zvalue.trlpadding  = 0;
-    if strcmp(cfg.continuous,'yes')
-      cfg.artfctdef.zvalue.artpadding  = 0.1;
-    elseif strcmp(cfg.continuous,'no')
-      cfg.artfctdef.zvalue.artpadding  = 0.1;
-    end
-    cfg.artfctdef.zvalue.fltpadding  = 0;
-    
-    % algorithmic parameters
-    cfg.artfctdef.zvalue.bpfilter    = 'yes';
-    if data.fsample/2 < 140
-      cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
-    else
-      cfg.artfctdef.zvalue.bpfreq      = [110 140];
-    end
-    cfg.artfctdef.zvalue.bpfiltord   = 6;
-    cfg.artfctdef.zvalue.bpfilttype  = 'but';
-    cfg.artfctdef.zvalue.hilbert     = 'yes';
-    cfg.artfctdef.zvalue.boxcar      = 0.2;
-    
-    % interactive artifact viewer
-    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
-    
-    fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-    
-    % auto mark muscle artifacts
-    [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % look for jump artifacts
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    cfg = [];
-    cfg.continuous = 'no';
-    %cfg.padding = 0;
-    % get the trial definition for automated FT artifact rejection
-    cfg.trl = ft_findcfg(data.cfg,'trl');
-    
-    % cutoff and padding
-    % select a set of channels on which to run the artifact detection
-    cfg.artfctdef.zvalue.channel = 'all';
-    cfg.artfctdef.zvalue.cutoff = jump_art_z;
-    %cfg.artfctdef.zvalue.trlpadding = 0.5*cfg.padding;
-    %cfg.artfctdef.zvalue.artpadding = 0.5*cfg.padding;
-    cfg.artfctdef.zvalue.trlpadding = 0;
-    cfg.artfctdef.zvalue.artpadding = 0.1;
-    cfg.artfctdef.zvalue.fltpadding = 0;
-    
-    % algorithmic parameters
-    cfg.artfctdef.zvalue.cumulative = 'yes';
-    cfg.artfctdef.zvalue.medianfilter = 'yes';
-    cfg.artfctdef.zvalue.medianfiltord = 9;
-    cfg.artfctdef.zvalue.absdiff = 'yes';
-    
-    % interactive artifact viewer
-    cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
-    
-    fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
-    
-    % auto mark jump artifacts
-    [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % manual inspection of artifacts
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    cfg = [];
-    cfg.artfctdef.zvalue.artifact = artifact_zvalue; %
-    cfg.artfctdef.muscle.artifact = artifact_muscle;
-    cfg.artfctdef.jump.artifact = artifact_jump;
-    
-    % get the trial definition for automated FT artifact rejection
-    cfg.trl = ft_findcfg(data.cfg,'trl');
-    
-    cfg.continuous = 'no';
-    %cfg.viewmode = 'butterfly';
-    cfg.viewmode = 'vertical';
-    cfg.elecfile = elecfile;
-    cfg.plotlabels = 'some';
-    cfg.ylim = vert_ylim;
-    
+  else
+    load(resumeManArtFT_file,'cfg_manArt');
     % use cursor drag and click to mark artifacts;
     % use arrows to advance to next trial;
     % use the q key to quit the data browser
@@ -739,7 +773,7 @@ if rejArt_ftManual
     fprintf('\n\nManual artifact rejection:\n');
     fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
     fprintf('\tUse arrows to move to next trial.\n');
-    if strcmp(cfg.viewmode,'butterfly')
+    if strcmp(cfg_manArt.viewmode,'butterfly')
       fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
     end
     fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
@@ -750,18 +784,19 @@ if rejArt_ftManual
       fprintf('\tDO NOT reject blinks if you want to remove them with ICA!\n\tPlease reject inconsistent artifacts now.\n\n');
     end
     
-    cfg = ft_databrowser(cfg,data);
+    cfg_manArt = ft_databrowser(cfg_manArt,data);
     % bug when calling rejectartifact right after databrowser, pause first
     pause(1);
+    save(resumeManArtFT_file,'cfg_manArt');
   end
   
   % initialize to store whether there was an artifact for each trial
   badEv = zeros(size(data.sampleinfo,1), 1);
   % find out what kind of artifacts we're dealing with
-  fn = fieldnames(cfg.artfctdef);
+  fn = fieldnames(cfg_manArt.artfctdef);
   theseArt = {};
   for i = 1:length(fn)
-    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+    if isstruct(cfg_manArt.artfctdef.(fn{i})) && isfield(cfg_manArt.artfctdef.(fn{i}),'artifact') && ~isempty(cfg_manArt.artfctdef.(fn{i}).artifact)
       theseArt = cat(2,theseArt,fn{i});
     end
   end
@@ -769,9 +804,9 @@ if rejArt_ftManual
   if ~isempty(theseArt)
     artSamp = zeros(data.sampleinfo(end,2),1);
     for i = 1:length(theseArt)
-      for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
+      for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+        artSamp(cfg_manArt.artfctdef.(theseArt{i}).artifact(j,1):cfg_manArt.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
       end
     end
     % save a list of trials with artifact status
@@ -783,8 +818,8 @@ if rejArt_ftManual
   end
   
   % reject the artifacts (complete or parial rejection)
-  cfg.artfctdef.reject = 'complete';
-  data = ft_rejectartifact(cfg,data);
+  cfg_manArt.artfctdef.reject = 'complete';
+  data = ft_rejectartifact(cfg_manArt,data);
   
   keepRepairingChannels = true;
   while keepRepairingChannels
