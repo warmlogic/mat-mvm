@@ -1,6 +1,6 @@
 function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %MM_FT_ARTIFACT reject artifacts
-% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,cfg_manArt)
+% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -544,6 +544,18 @@ if rejArt_ftManual
     end
   end
   
+  if ana.artifact.resumeManArtFT
+    % load the manually processed artifacts
+    fprintf('Loading manually marked artifacts from %s...\n',resumeManArtFT_file);
+    load(resumeManArtFT_file,'cfg_manArt');
+    
+    % make sure number of trials in data.cfg and cfg_manArt match
+    if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
+      warning('Manually loaded artifacts do not match the number of segments in data! Starting artifact checking over.');
+      ana.artifact.resumeManArtFT = false;
+    end
+  end
+  
   if ~ana.artifact.resumeManArtFT
     ft_autoCheckArt = true;
     ft_autoCheckArtNum = 0;
@@ -763,7 +775,6 @@ if rejArt_ftManual
       save(resumeManArtFT_file,'cfg_manArt');
     end
   else
-    load(resumeManArtFT_file,'cfg_manArt');
     % use cursor drag and click to mark artifacts;
     % use arrows to advance to next trial;
     % use the q key to quit the data browser
