@@ -158,6 +158,9 @@ end
 
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
+ana.artifact.trlpadding = -0.2;
+ana.artifact.artpadding = 0.1;
+ana.artifact.fltpadding = 0;
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
 % ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
@@ -304,23 +307,26 @@ ana = mm_ft_elecGroups(ana);
 % ana.eventValues = {exper.eventValues};
 % ana.eventValues = {{'Face','House'}};
 
+% expo
+%
+% can include targ==-1 because those are simply buffers for multistudy
 ana.eventValues = {{'expo_stim'}};
 ana.eventValuesSplit = {{'Face','House'}};
 ana.trlExpr = {...
-  {sprintf('eventNumber == %d & targ == 1 & i_catNum == 1',find(ismember(exper.eventValues,'expo_stim'))), ...
-  sprintf('eventNumber == %d & targ == 1 & i_catNum == 2',find(ismember(exper.eventValues,'expo_stim')))}};
+  {sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+  sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
 
 % ana.eventValues = {{'expo_stim'}};
 % ana.eventValuesSplit = {{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}};
 % ana.trlExpr = {...
-%   {sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 1',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 2',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 3',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 1 & expo_response == 4',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 1',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 2',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 3',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & targ == 1 & i_catNum == 2 & expo_response == 4',find(ismember(exper.eventValues,'expo_stim')))}};
+%   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim')))}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -332,13 +338,16 @@ end
 
 %% load in the subject data
 
-[data_tla] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+[data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
 
 % %% get rid of the bad channels
 % 
 % cfg = [];
 % cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+
+% overwrite ana.eventValues with the new split events
+ana.eventValues = ana.eventValuesSplit;
 
 %% Test plots to make sure data look ok
 
@@ -348,7 +357,7 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub = 1;
+sub = 2;
 ses = 1;
 for i = 1:length(ana.eventValues{1})
   figure
@@ -485,7 +494,8 @@ cfg_plot = [];
 
 % cfg_plot.rois = {{'FS'},{'LPS'}};
 cfg_plot.rois = {{'posterior'}};
-cfg_plot.ylims = [-4 4; -5 5];
+cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-4 4; -4 4];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
