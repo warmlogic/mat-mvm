@@ -56,13 +56,13 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SPACE001';
+%   'SPACE001';
   'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -157,7 +157,7 @@ if ana.useExpInfo
 end
 
 ana.artifact.type = {'ftManual', 'ftICA'};
-ana.artifact.resumeManArtFT = false;
+ana.artifact.resumeManArtFT = true;
 ana.artifact.trlpadding = -0.2;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
@@ -200,7 +200,9 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 % cfg.badChanEP = true;
 % [exper] = mm_getBadChan(cfg,exper,dirs);
 
-% save the analysis details
+%% save the analysis details
+
+replaceOrig = true;
 
 % concatenate the additional ones onto the existing ones
 saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
@@ -216,6 +218,7 @@ else
   
   if all(ismember(orig_anaDetails.exper.eventValues,exper.eventValues))
     subjects_new = ~ismember(exper.subjects,orig_anaDetails.exper.subjects);
+    subjects_exist = ismember(orig_anaDetails.exper.subjects,exper.subjects);
     
     if any(subjects_new)
       addSub_str = exper.subjects(subjects_new);
@@ -248,6 +251,38 @@ else
     else
       fprintf('There are no new subjects in exper.subjects (everyone is already in the old analysisDetails.mat).  Not saving new analysisDetails.mat.\n');
     end
+    
+    if replaceOrig && any(subjects_exist)
+      % get the original data
+      nTrials_orig = orig_anaDetails.exper.nTrials;
+      nTr_fn = fieldnames(nTrials_orig);
+      badChan_orig = orig_anaDetails.exper.badChan;
+      badEv_orig = orig_anaDetails.exper.badEv;
+      
+      for os = 1:length(orig_anaDetails.exper.subjects)
+        if subjects_exist(os)
+          fprintf('Replacing %s in original data...\n',orig_anaDetails.exper.subjects{os});
+          replSubInd = find(ismember(exper.subjects,orig_anaDetails.exper.subjects(os)));
+          % move nTrials
+          for fn = 1:length(nTr_fn)
+            nTrials_orig.(nTr_fn{fn})(os) = exper.nTrials.(nTr_fn{fn})(replSubInd);
+          end
+          % move badChan
+          badChan_orig{os} = exper.badChan{replSubInd,:};
+          % move badEv
+          badEv_orig{os} = exper.badEv{replSubInd,:};
+        end
+      end
+      
+      % add the combined info into the struct we want to save
+      exper.subjects = orig_anaDetails.exper.subjects;
+      exper.nTrials = nTrials_orig;
+      exper.badChan = badChan_orig;
+      exper.badEv = badEv_orig;
+      
+      save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+      fprintf('Done.\n');
+    end
   else
     fprintf('exper.eventValues does not match up between old and new subjects! Not saving new analysisDetails.mat.\n');
   end
@@ -270,9 +305,9 @@ end
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 
-% server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+% % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 % if exist(server_adFile,'file')
-%   mm_mergeAnalysisDetails(adFile,server_adFile,true);
+%   mm_mergeAnalysisDetails(adFile,server_adFile,true,false);
 % end
 
 %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
