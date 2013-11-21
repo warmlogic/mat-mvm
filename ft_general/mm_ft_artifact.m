@@ -785,7 +785,7 @@ if rejArt_ftManual
       cfg_manArt = ft_databrowser(cfg_manArt,data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
-      fprintf('Backing up artifact data to %s.\n',resumeManArtFT_file);
+      fprintf('\nBacking up artifact data to %s.\n',resumeManArtFT_file);
       fprintf('\tIf MATLAB crashes before finishing, you can resume without re-checking artifacts by setting ana.artifact.resumeManArtFT=true in your main file.\n');
       save(resumeManArtFT_file,'cfg_manArt');
     end
@@ -968,7 +968,7 @@ if rejArt_ftICA
     else
       ica_chanNum = [];
       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-      fprintf('\tBut if that somehow is the case, you must run ICA on a subset of channels (option ''0'').\n');
+      fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
     end
     
     %ica_chanNum = [];
