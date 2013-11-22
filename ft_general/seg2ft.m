@@ -231,24 +231,16 @@ for ses = 1:length(session)
   % event = ft_read_event(infile_ns,'eventformat',ftype,'dataformat',ftype,'headerformat',ftype);
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % Initial parameters for reading the data
+  % Read in external data, if wanted
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  cfg = [];
-  cfg.dataset = infile_ns;
-  cfg.headerfile = infile_ns;
-  if ~isempty(ftype)
-    cfg.dataformat = ftype;
-    cfg.headerformat = ftype;
-  end
-  cfg.continuous = ana.continuous;
-  cfg.checksize = ana.checksize;
   
   if ana.useEvents
     % read the events file
     eventsFile = fullfile(dirs.dataroot,dirs.behDir,subject,'events','events.mat');
     if exist(eventsFile,'file')
+      fprintf('Loading events file: %s...',eventsFile);
       subEvents = load(eventsFile,'events');
+      fprintf('Done.\n');
     else
       error('Cannot find events file: %s\n',eventsFile)
     end
@@ -258,7 +250,9 @@ for ses = 1:length(session)
     % read the experiment parameters file
     expParamFile = fullfile(dirs.dataroot,dirs.behDir,subject,'experimentParams.mat');
     if exist(expParamFile,'file')
+      fprintf('Loading experiment parameters file: %s...',expParamFile);
       load(expParamFile,'expParam');
+      fprintf('Done.\n');
     else
       error('Cannot find experiment parameters file: %s\n',expParamFile)
     end
@@ -274,10 +268,11 @@ for ses = 1:length(session)
     elseif length(evtfile) > 1
       error('More than one %s*.evt file found in %s',subject,fullfile(dataroot,sesName,evtDir));
     elseif length(evtfile) == 1
-      infile_evt = fullfile(dataroot,sesName,evtDir,evtfile.name);
+      evtfile = fullfile(dataroot,sesName,evtDir,evtfile.name);
     end
+    fprintf('Reading evt file: %s...',evtfile);
     % figure out how many columns there are
-    fid = fopen(infile_evt,'r');
+    fid = fopen(evtfile,'r');
     maxNumCols = -Inf;
     while 1
       % get each line of the file
@@ -298,29 +293,65 @@ for ses = 1:length(session)
     end
     fclose(fid);
     % read the evt file
-    fid = fopen(infile_evt,'r');
+    fid = fopen(evtfile,'r');
     ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
     fclose(fid);
+    fprintf('Done.\n');
   end
   
-  if strcmp(cfg.continuous,'yes')
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Initial parameters for reading the data
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  cfg = [];
+  cfg.dataset = infile_ns;
+  cfg.headerfile = infile_ns;
+  if ~isempty(ftype)
+    cfg.dataformat = ftype;
+    cfg.headerformat = ftype;
+  end
+  cfg.continuous = ana.continuous;
+  cfg.checksize = ana.checksize;
+  
+  if strcmp(ana.continuous,'yes')
     % do some initial processing of raw data
-    cfg_cont = cfg;
-    cfg_cont.demean = 'yes';
-    cfg_cont.baselinewindow = 'all';
-    %cfg_cont.detrend = 'yes';
-    cfg_cont.lpfilter = 'yes';
-    cfg_cont.lpfreq = 100;
-    cfg_cont.hpfilter = 'yes';
-    cfg_cont.hpfreq = 0.1;
-    cfg_cont.hpfilttype = 'but';
-    cfg_cont.hpfiltord = 4;
-    %cfg_cont.bsfilter = 'yes';
-    %cfg_cont.bsfreq = 59:61;
-    cfg_cont.dftfilter = 'yes';
-    cfg_cont.dftfreq = [60 120 180];
     
+    % combine the initial cfg and the continuous data preprocessing
+    % settings from ana.cfg_cont
+    if isfield(ana,'cfg_cont')
+      fn_cfg = fieldnames(cfg);
+      fn_cfg_pre = fieldnames(ana.cfg_cont);
+      fn = [fn_cfg; fn_cfg_pre];
+      
+      if length(fn) == unique(length(fn))
+        c1 = struct2cell(cfg);
+        c2 = struct2cell(ana.cfg_cont);
+        c = [c1; c2];
+        cfg_cont = cell2struct(c,fn,1);
+      else
+        fprintf('Non-unique field names in ana.cfg_cont!\n');
+        keyboard
+      end
+    else
+      cfg_cont = cfg;
+      % set some reasoable defaults
+      %cfg_cont.demean = 'yes';
+      %cfg_cont.baselinewindow = 'all';
+      %cfg_cont.detrend = 'yes';
+      cfg_cont.lpfilter = 'yes';
+      cfg_cont.lpfreq = 100;
+      cfg_cont.hpfilter = 'yes';
+      cfg_cont.hpfreq = 0.1;
+      cfg_cont.hpfilttype = 'but';
+      cfg_cont.hpfiltord = 4;
+      cfg_cont.bsfilter = 'yes';
+      cfg_cont.bsfreq = 59:61;
+      %cfg_cont.dftfilter = 'yes';
+      %cfg_cont.dftfreq = [60 120 180];
+    end
+    fprintf('Preprocessing continuous data...');
     data = ft_preprocessing(cfg_cont);
+    fprintf('Done.\n');
   end
   
   % % debug
@@ -598,36 +629,36 @@ ft_raw = struct;
 % created
 trialinfo_eventNumCol = 1;
 
-if length(eventValue) > 1
-  for evVal = 1:length(eventValue)
+% if length(eventValue) > 1
+for evVal = 1:length(eventValue)
+  
+  cfg_split = [];
+  % select the correct trials for this event value
+  cfg_split.trials = data.trialinfo(:,trialinfo_eventNumCol) == evVal;
+  
+  if sum(cfg_split.trials) > 0
+    fprintf('Selecting %d trials for %s...\n',sum(cfg_split.trials),eventValue{evVal});
+    % get the data for only this event value
+    ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
     
-    cfg_split = [];
-    % select the correct trials for this event value
-    cfg_split.trials = data.trialinfo(:,trialinfo_eventNumCol) == evVal;
+    % remove the buffer trialinfo -1s; those were set because the cfg.trl
+    % matrix needed to hold all eventValues
+    ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
     
-    if sum(cfg_split.trials) > 0
-      fprintf('Selecting %d trials for %s...\n',sum(cfg_split.trials),eventValue{evVal});
-      % get the data for only this event value
-      ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
-      
-      % remove the buffer trialinfo -1s; those were set because the cfg.trl
-      % matrix needed to hold all eventValues
-      ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
-      
-      fprintf('Done.\n');
-    else
-      fprintf('No trials found for %s!\n',eventValue{evVal});
-      ft_raw.(eventValue{evVal}).trial = {};
-      
-      % something is wrong, figure it out; or dbcont
-      keyboard
-    end
+    fprintf('Done.\n');
+  else
+    fprintf('No trials found for %s!\n',eventValue{evVal});
+    ft_raw.(eventValue{evVal}).trial = {};
+    
+    % something is wrong, figure it out; or dbcont
+    keyboard
   end
-elseif length(eventValue) == 1
-  ft_raw.(eventValue) = data;
-  % remove the buffer trialinfo -1s; those were set because the cfg.trl
-  % matrix needed to hold all eventValues
-  ft_raw.(eventValue).trialinfo = ft_raw.(eventValue).trialinfo(:,1:length(ana.trl_order.(eventValue)));
 end
+% elseif length(eventValue) == 1
+%   ft_raw.(eventValue{1}) = data;
+%   % remove the buffer trialinfo -1s; those were set because the cfg.trl
+%   % matrix needed to hold all eventValues
+%   ft_raw.(eventValue{1}).trialinfo = ft_raw.(eventValue{1}).trialinfo(:,1:length(ana.trl_order.(eventValue{1})));
+% end
 
 end
