@@ -479,6 +479,16 @@ if rejArt_ftManual
     ana.artifact.resumeManArtFT = false;
   end
   
+  if ~isfield(ana.artifact,'basic_art_z')
+    ana.artifact.basic_art_z = 22;
+  end
+  if ~isfield(ana.artifact,'muscle_art_z')
+    ana.artifact.muscle_art_z = 40;
+  end
+  if ~isfield(ana.artifact,'jump_art_z')
+    ana.artifact.jump_art_z = 50;
+  end
+  
   if ana.artifact.resumeManArtFT
     if exist(resumeManArtFT_file,'file')
       % load the manually processed artifacts
@@ -590,10 +600,6 @@ if rejArt_ftManual
         end
       end
       
-      basic_art_z_default = 22;
-      muscle_art_z_default = 40;
-      jump_art_z_default = 50;
-      
       ft_customZvals_prompt = [];
       while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
         ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
@@ -602,31 +608,30 @@ if rejArt_ftManual
       if ft_customZvals_prompt
         basic_art_z = -1;
         while basic_art_z <= 0
-          basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',ana.artifact.basic_art_z));
         end
         if isempty(basic_art_z)
-          basic_art_z = basic_art_z_default;
+          basic_art_z = ana.artifact.basic_art_z;
         end
+        ana.artifact.basic_art_z = basic_art_z;
         
         muscle_art_z = -1;
         while muscle_art_z <= 0
-          muscle_art_z = input(sprintf('\nAt what z-value do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_default));
+          muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',ana.artifact.muscle_art_z));
         end
         if isempty(muscle_art_z)
-          muscle_art_z = muscle_art_z_default;
+          muscle_art_z = ana.artifact.muscle_art_z;
         end
+        ana.artifact.muscle_art_z = muscle_art_z;
         
         jump_art_z = -1;
         while jump_art_z <= 0
-          jump_art_z = input(sprintf('\nAt what z-value do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_default));
+          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',ana.artifact.jump_art_z));
         end
         if isempty(jump_art_z)
-          jump_art_z = jump_art_z_default;
+          jump_art_z = ana.artifact.jump_art_z;
         end
-      else
-        basic_art_z = basic_art_z_default;
-        muscle_art_z = muscle_art_z_default;
-        jump_art_z = jump_art_z_default;
+        ana.artifact.jump_art_z = jump_art_z;
       end
       
       ft_autoCheckArt_interactive_default = 'no';
@@ -653,7 +658,7 @@ if rejArt_ftManual
       cfg.trl = ft_findcfg(data.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = basic_art_z;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -682,7 +687,7 @@ if rejArt_ftManual
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff      = muscle_art_z;
+      cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       if strcmp(cfg.continuous,'yes')
         cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
@@ -723,7 +728,7 @@ if rejArt_ftManual
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = jump_art_z;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -954,11 +959,15 @@ if rejArt_ftICA
     ana.artifact.fltpadding = 0;
   end
   
+  if ~isfield(ana.artifact,'basic_art_z_postICA')
+    ana.artifact.basic_art_z_postICA = 23;
+  end
+  
   keepCheckingICA = true;
   while keepCheckingICA
-    cfg = [];
-    cfg.method = 'runica';
-    %cfg.channel = 'all';
+    cfg_ica = [];
+    cfg_ica.method = 'runica';
+    %cfg_ica.demean = 'no';
     
     fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
     if ~isempty(badChan_str)
@@ -976,17 +985,17 @@ if rejArt_ftICA
       ica_chanNum = input('\nDo you only want to run ICA on all channels (1) or a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
     end
     if ica_chanNum
-      cfg.channel = 'all';
+      cfg_ica.channel = 'all';
     else
       fprintf('\tOnce you see the channel selector:\n');
       fprintf('\t\t1. Add all channels to the right-side list.\n');
       fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
       fprintf('\t\t3. Manually close any empty figure windows.\n');
       channel = ft_channelselection('gui', data.label);
-      cfg.channel = channel;
+      cfg_ica.channel = channel;
     end
     
-    comp = ft_componentanalysis(cfg,data);
+    comp = ft_componentanalysis(cfg_ica,data);
     
     % % OLD METHOD - view the first 30 components
     % cfg = [];
@@ -1060,7 +1069,6 @@ if rejArt_ftICA
       end
       
       fprintf('\n\nFinal round of manual artifact rejection:\n');
-      basic_art_z_default = 25;
       
       ft_customZvals_prompt = [];
       while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
@@ -1070,13 +1078,12 @@ if rejArt_ftICA
       if ft_customZvals_prompt
         basic_art_z = -1;
         while basic_art_z <= 0
-          basic_art_z = input(sprintf('\nAt what z-value do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
+          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',ana.artifact.basic_art_z));
         end
         if isempty(basic_art_z)
-          basic_art_z = basic_art_z_default;
+          basic_art_z = ana.artifact.basic_art_z;
         end
-      else
-        basic_art_z = basic_art_z_default;
+        ana.artifact.basic_art_z = basic_art_z;
       end
       
       ft_autoCheckArt_interactive_default = 'no';
@@ -1099,7 +1106,7 @@ if rejArt_ftICA
       cfg.trl = ft_findcfg(data_ica_rej.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = basic_art_z;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
