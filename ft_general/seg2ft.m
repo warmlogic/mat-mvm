@@ -335,9 +335,6 @@ for ses = 1:length(session)
     else
       cfg_cont = cfg;
       % set some reasoable defaults
-      %cfg_cont.demean = 'yes';
-      %cfg_cont.baselinewindow = 'all';
-      %cfg_cont.detrend = 'yes';
       cfg_cont.lpfilter = 'yes';
       cfg_cont.lpfreq = 100;
       cfg_cont.hpfilter = 'yes';

@@ -28,11 +28,11 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-% % exper.eventValues = sort({'expo_face', 'expo_house'});
-% exper.eventValues = sort({'expo_stim'});
-% exper.eventValues = sort({'multistudy_image', 'multistudy_word'});
-% exper.eventValues = sort({'distract_math_stim'});
-% exper.eventValues = sort({'cued_recall_stim'});
+% % [exper.eventValues, evInd] = sort({'expo_face', 'expo_house'});
+% [exper.eventValues, evInd] = sort({'expo_stim'});
+% [exper.eventValues, evInd] = sort({'multistudy_image', 'multistudy_word'});
+% [exper.eventValues, evInd] = sort({'distract_math_stim'});
+% [exper.eventValues, evInd] = sort({'cued_recall_stim'});
 [exper.eventValues, evInd] = sort({'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'});
 
 % pre- and post-stimulus times to read, in seconds (pre is negative);
@@ -43,6 +43,8 @@ exper.prepost = [...
   -1.0 2.0; ...
   -1.0 2.0; ...
   -1.0 2.0];
+% exper.prepost = [-1.0 2.0];
+% exper.prepost = [-0.2 1.0];
 exper.prepost = exper.prepost(evInd,:);
 
 % exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
@@ -56,13 +58,13 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-%   'SPACE001';
+  'SPACE001';
   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -126,7 +128,8 @@ files.figPrintRes = 150;
 ana.segFxn = 'seg2ft';
 
 % ana.continuous = 'no';
-% ana.trialFxn = 'seg_trialfun';
+% ana.trialFxn = 'space_trialfun';
+% % ana.trialFxn = 'seg_trialfun';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
@@ -156,11 +159,29 @@ if ana.useExpInfo
   ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
 end
 
+% preprocess continuous data in these ways
+ana.cfg_cont.lpfilter = 'yes';
+ana.cfg_cont.lpfreq = 100;
+ana.cfg_cont.hpfilter = 'yes';
+ana.cfg_cont.hpfreq = 0.1;
+ana.cfg_cont.hpfilttype = 'but';
+ana.cfg_cont.hpfiltord = 4;
+ana.cfg_cont.bsfilter = 'yes';
+ana.cfg_cont.bsfreq = 59:61;
+% ana.cfg_cont.dftfilter = 'yes';
+% ana.cfg_cont.dftfreq = [60 120 180];
+
+% artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
-ana.artifact.resumeManArtFT = true;
-ana.artifact.trlpadding = -0.2;
+ana.artifact.resumeManArtFT = false;
+% negative trlpadding: don't check that time (on both sides) for artifacts
+ana.artifact.trlpadding = -0.5;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
+ana.artifact.basic_art_z = 22;
+ana.artifact.muscle_art_z = 40;
+ana.artifact.jump_art_z = 50;
+ana.artifact.basic_art_z_postICA = 23;
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
 % ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
@@ -202,6 +223,7 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
+% whether to overwite existing subjects in the struct
 replaceOrig = true;
 
 % concatenate the additional ones onto the existing ones
@@ -305,6 +327,10 @@ end
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 
+%adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/expo_stim_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+
+%adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+
 % % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 % if exist(server_adFile,'file')
 %   mm_mergeAnalysisDetails(adFile,server_adFile,true,false);
@@ -342,26 +368,50 @@ ana = mm_ft_elecGroups(ana);
 % ana.eventValues = {exper.eventValues};
 % ana.eventValues = {{'Face','House'}};
 
-% expo
-%
-% can include targ==-1 because those are simply buffers for multistudy
-ana.eventValues = {{'expo_stim'}};
-ana.eventValuesSplit = {{'Face','House'}};
-ana.trlExpr = {...
-  {sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
-  sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
-
+% % expo
+% %
+% % can include targ==-1 because those are simply buffers for multistudy
 % ana.eventValues = {{'expo_stim'}};
-% ana.eventValuesSplit = {{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}};
+% ana.eventValuesSplit = {{'Face','House'}};
 % ana.trlExpr = {...
-%   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim')))}};
+%   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
+
+% % ana.eventValues = {{'expo_stim'}};
+% % ana.eventValuesSplit = {{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}};
+% % ana.trlExpr = {...
+% %   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
+% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim')))}};
+
+% multistudy events
+% 
+% ana.trl_order.multistudy_image = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
+% 
+% ana.eventValues = {{'multistudy_image','multistudy_word'}};
+% ana.eventValuesSplit = {{'Hit','CorRej'}};
+% ana.trlExpr = {...
+%   {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & new_resp ~= 0 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim')))}};
+
+% recognition events
+
+% ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
+
+ana.eventValues = {{'cued_recall_stim'}};
+ana.eventValuesSplit = {{'Hit','CorRej'}};
+ana.trlExpr = {...
+  {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+  sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & new_resp ~= 0 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim')))}};
+
+ana.eventValuesSplit = {{'cued_recall_stim'}};
+ana.trlExpr = {...
+  {sprintf('eventNumber == %d',find(ismember(exper.eventValues,'cued_recall_stim')))}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -392,7 +442,7 @@ cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
 cfg_ft.layout = ft_prepare_layout([],ana);
-sub = 2;
+sub = 1;
 ses = 1;
 for i = 1:length(ana.eventValues{1})
   figure
@@ -527,9 +577,9 @@ cfg_plot = [];
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-% cfg_plot.rois = {{'FS'},{'LPS'}};
-cfg_plot.rois = {{'posterior'}};
-cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'FS'},{'LPS'}};
+% cfg_plot.rois = {{'posterior'}};
+% cfg_plot.rois = {{'LPS'},{'RPS'}};
 cfg_plot.ylims = [-4 4; -4 4];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
