@@ -10,10 +10,25 @@ end
 hdr = ft_read_header(cfg.dataset);
 event = ft_read_event(cfg.dataset);
 
+% IMPORTANT: the way offsetSamp, durationSamp, and event(i).sample get
+% combined in this function are a special case for processing pre-segmented
+% data. It differs from the normal continuous data segmentation described
+% here:
+% http://fieldtrip.fcdonders.nl/example/making_your_own_trialfun_for_conditional_trial_definition
+%
+% This is because when using cfg.trialdef.eventtype='trial' (as we do here)
+% the event tag in the pre-segmented file is at the beginning of the
+% segment that we want to demarcate with a particular sample, meaning it
+% likely already has some pre-stimulus period built in (if you segmented it
+% this way). This is in contrast to the typical FT setup using
+% cfg.trialdef.eventtype='trigger', where the event we want to segment
+% around is actually at that trigger, and so the prestim perior needs to be
+% subtracted from the event's sample location.
+
 % offset should be negative
-offsetSamp = round(-cfg.trialdef.prestim*hdr.Fs);
+offsetSamp = -round(cfg.trialdef.prestim * hdr.Fs);
 % duration should be 1 sample less than the whole length of an event
-durationSamp = round((cfg.trialdef.poststim+cfg.trialdef.prestim)*hdr.Fs) - 1;
+durationSamp = round((cfg.trialdef.poststim + cfg.trialdef.prestim) * hdr.Fs) - 1;
 % TODO: should this be ceil instead of round?
 
 % initialize the trl matrix
