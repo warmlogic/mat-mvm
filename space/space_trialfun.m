@@ -105,14 +105,14 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 end
                 
                 if length(eventNumber) == 1 && eventNumber ~= -1
-                  prestim = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststim = cfg.eventinfo.prepost(eventNumber,2);
+                  % set the times we need to segment before and after the
+                  % trigger
+                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
                   
-                  % offset should be negative
-                  offsetSamp = round(-prestim * ft_hdr.Fs);
-                  % duration should be 1 sample less than the whole length of an event
-                  durationSamp = round((poststim + prestim) * ft_hdr.Fs) - 1;
-                  % TODO: should this be ceil instead of round?
+                  % prestimulus period should be negative
+                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                  poststimSamp = round(poststimMS * ft_hdr.Fs);
                 else
                   fprintf('event number not found for %s!\n',evVal);
                   keyboard
@@ -152,9 +152,12 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   % add it to the trial definition
                   this_trl = trl_ini;
                   
-                  this_trl(1) = ft_event(i).sample;
-                  this_trl(2) = (ft_event(i).sample + durationSamp);
-                  this_trl(3) = offsetSamp;
+                  % prestimulus sample
+                  this_trl(1) = ft_event(i).sample + prestimSamp;
+                  % poststimulus sample
+                  this_trl(2) = ft_event(i).sample + poststimSamp;
+                  % offset in samples
+                  this_trl(3) = prestimSamp;
                   
                   for to = 1:length(trl_order)
                     thisInd = find(ismember(trl_order,trl_order{to}));
@@ -249,14 +252,14 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 end
                 
                 if length(eventNumber) == 1 && eventNumber ~= -1
-                  prestim = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststim = cfg.eventinfo.prepost(eventNumber,2);
+                  % set the times we need to segment before and after the
+                  % trigger
+                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
                   
-                  % offset should be negative
-                  offsetSamp = round(-prestim * ft_hdr.Fs);
-                  % duration should be 1 sample less than the whole length of an event
-                  durationSamp = round((poststim + prestim) * ft_hdr.Fs) - 1;
-                  % TODO: should this be ceil instead of round?
+                  % prestimulus period should be negative
+                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                  poststimSamp = round(poststimMS * ft_hdr.Fs);
                 else
                   fprintf('event number not found for %s!\n',evVal);
                   keyboard
@@ -298,9 +301,12 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   % add it to the trial definition
                   this_trl = trl_ini;
                   
-                  this_trl(1) = ft_event(i).sample;
-                  this_trl(2) = (ft_event(i).sample + durationSamp);
-                  this_trl(3) = offsetSamp;
+                  % prestimulus sample
+                  this_trl(1) = ft_event(i).sample + prestimSamp;
+                  % poststimulus sample
+                  this_trl(2) = ft_event(i).sample + poststimSamp;
+                  % offset in samples
+                  this_trl(3) = prestimSamp;
                   
                   for to = 1:length(trl_order)
                     thisInd = find(ismember(trl_order,trl_order{to}));
@@ -389,14 +395,14 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 end
                 
                 if length(eventNumber) == 1 && eventNumber ~= -1
-                  prestim = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststim = cfg.eventinfo.prepost(eventNumber,2);
+                  % set the times we need to segment before and after the
+                  % trigger
+                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
                   
-                  % offset should be negative
-                  offsetSamp = round(-prestim * ft_hdr.Fs);
-                  % duration should be 1 sample less than the whole length of an event
-                  durationSamp = round((poststim + prestim) * ft_hdr.Fs) - 1;
-                  % TODO: should this be ceil instead of round?
+                  % prestimulus period should be negative
+                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                  poststimSamp = round(poststimMS * ft_hdr.Fs);
                 else
                   fprintf('event number not found for %s!\n',evVal);
                   keyboard
@@ -428,9 +434,12 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   % add it to the trial definition
                   this_trl = trl_ini;
                   
-                  this_trl(1) = ft_event(i).sample;
-                  this_trl(2) = (ft_event(i).sample + durationSamp);
-                  this_trl(3) = offsetSamp;
+                  % prestimulus sample
+                  this_trl(1) = ft_event(i).sample + prestimSamp;
+                  % poststimulus sample
+                  this_trl(2) = ft_event(i).sample + poststimSamp;
+                  % offset in samples
+                  this_trl(3) = prestimSamp;
                   
                   for to = 1:length(trl_order)
                     thisInd = find(ismember(trl_order,trl_order{to}));
@@ -527,14 +536,14 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 end
                 
                 if length(eventNumber) == 1 && eventNumber ~= -1
-                  prestim = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststim = cfg.eventinfo.prepost(eventNumber,2);
+                  % set the times we need to segment before and after the
+                  % trigger
+                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
                   
-                  % offset should be negative
-                  offsetSamp = round(-prestim * ft_hdr.Fs);
-                  % duration should be 1 sample less than the whole length of an event
-                  durationSamp = round((poststim + prestim) * ft_hdr.Fs) - 1;
-                  % TODO: should this be ceil instead of round?
+                  % prestimulus period should be negative
+                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                  poststimSamp = round(poststimMS * ft_hdr.Fs);
                 else
                   fprintf('event number not found for %s!\n',evVal);
                   keyboard
@@ -597,9 +606,12 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   % add it to the trial definition
                   this_trl = trl_ini;
                   
-                  this_trl(1) = ft_event(i).sample;
-                  this_trl(2) = (ft_event(i).sample + durationSamp);
-                  this_trl(3) = offsetSamp;
+                  % prestimulus sample
+                  this_trl(1) = ft_event(i).sample + prestimSamp;
+                  % poststimulus sample
+                  this_trl(2) = ft_event(i).sample + poststimSamp;
+                  % offset in samples
+                  this_trl(3) = prestimSamp;
                   
                   for to = 1:length(trl_order)
                     thisInd = find(ismember(trl_order,trl_order{to}));
