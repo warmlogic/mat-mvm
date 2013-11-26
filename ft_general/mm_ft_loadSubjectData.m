@@ -104,12 +104,19 @@ for sub = 1:length(exper.subjects)
                 for es = 1:length(ana.eventValuesSplit{typ})
                   fprintf('Selecting %s trials...\n',ana.eventValuesSplit{typ}{es});
                   
-                  expr = ana.trlExpr{typ}{es};
+                  expr = ana.trl_expr{typ}{es};
                   
                   for to = 1:length(trl_order)
+                    % replace the field name in the logical expression
+                    % ana.trl_expr{typ}{es} with the column number found in
+                    % ana.trl_order.(eventValues{typ}{evVal})
+                    
+                    % find the column number
                     fieldNum = find(ismember(trl_order,trl_order{to}));
                     
+                    % set up the string to be replaced
                     r_exp = ['\<' trl_order{to} '\>'];
+                    % set up the replacement string
                     r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
                     
                     expr = regexprep(expr,r_exp,r_str);
@@ -138,12 +145,19 @@ for sub = 1:length(exper.subjects)
                 for es = 1:length(ana.eventValuesSplit{typ})
                   fprintf('Selecting %s trials...\n',ana.eventValuesSplit{typ}{es});
                   
-                  expr = ana.trlExpr{typ}{es};
+                  expr = ana.trl_expr{typ}{es};
                   
                   for to = 1:length(trl_order)
+                    % replace the field name in the logical expression
+                    % ana.trl_expr{typ}{es} with the column number found in
+                    % ana.trl_order.(eventValues{typ}{evVal})
+                    
+                    % find the column number
                     fieldNum = find(ismember(trl_order,trl_order{to}));
                     
+                    % set up the string to be replaced
                     r_exp = ['\<' trl_order{to} '\>'];
+                    % set up the replacement string
                     r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
                     
                     expr = regexprep(expr,r_exp,r_str);
