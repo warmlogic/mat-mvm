@@ -59,12 +59,12 @@ exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
   'SPACE001';
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -175,7 +175,8 @@ ana.cfg_cont.bsfreq = 59:61;
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts
-ana.artifact.trlpadding = -0.5;
+%ana.artifact.trlpadding = -0.5;
+ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.basic_art_z = 22;
@@ -368,26 +369,26 @@ ana = mm_ft_elecGroups(ana);
 % ana.eventValues = {exper.eventValues};
 % ana.eventValues = {{'Face','House'}};
 
-% % expo
-% %
-% % can include targ==-1 because those are simply buffers for multistudy
-% ana.eventValues = {{'expo_stim'}};
-% ana.eventValuesSplit = {{'Face','House'}};
-% ana.trlExpr = {...
-%   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
-%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
+% expo
+%
+% can include targ==-1 because those are simply buffers for multistudy
+ana.eventValues = {{'expo_stim'}};
+ana.eventValuesSplit = {{'Face','House'}};
+ana.trlExpr = {...
+  {sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+  sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
 
-% % ana.eventValues = {{'expo_stim'}};
-% % ana.eventValuesSplit = {{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}};
-% % ana.trlExpr = {...
-% %   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 1 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 4000',find(ismember(exper.eventValues,'expo_stim'))), ...
-% %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 4000',find(ismember(exper.eventValues,'expo_stim')))}};
+% ana.eventValues = {{'expo_stim'}};
+% ana.eventValuesSplit = {{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}};
+% ana.trlExpr = {...
+%   {sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 1 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 2 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 3 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 1 & expo_response == 4 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 1 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
+%   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
 
 % multistudy events
 % 
@@ -403,15 +404,11 @@ ana = mm_ft_elecGroups(ana);
 
 % ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
 
-ana.eventValues = {{'cued_recall_stim'}};
-ana.eventValuesSplit = {{'Hit','CorRej'}};
-ana.trlExpr = {...
-  {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
-  sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & new_resp ~= 0 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim')))}};
-
-ana.eventValuesSplit = {{'cued_recall_stim'}};
-ana.trlExpr = {...
-  {sprintf('eventNumber == %d',find(ismember(exper.eventValues,'cued_recall_stim')))}};
+% ana.eventValues = {{'cued_recall_stim'}};
+% ana.eventValuesSplit = {{'Hit','CorRej'}};
+% ana.trlExpr = {...
+%   {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & new_resp ~= 0 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim')))}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -441,6 +438,7 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
+cfg_ft.ylim = [-15 15];
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub = 1;
 ses = 1;
@@ -510,6 +508,78 @@ end
 %   end
 % end
 
+%% tf test
+
+cfg_ft = [];
+
+cfg_ft.output = 'pow';
+% % cfg_ft.output = 'powandcsd';
+cfg_ft.keeptrials = 'yes';
+
+cfg_ft.method = 'wavelet';
+cfg_ft.width = 5;
+cfg_ft.toi = -0.2:0.04:1.0;
+% cfg_ft.foi = 4:1:30;
+cfg_ft.foilim = [4 30];
+% cfg_ft.foi = 4:1:9;
+
+% % multi-taper method - Usually to up 30 Hz
+% cfg_ft.method = 'mtmconvol';
+% cfg_ft.taper = 'hanning';
+% % cfg_ft.taper = 'dpss';
+% 
+% cfg_ft.toi = -0.2:0.04:1.0;
+% cfg_ft.foi = 4:1:9;
+% % temporal smoothing
+% cfg_ft.t_ftimwin = 4 ./ cfg_ft.foi;
+% % frequency smoothing (tapsmofrq) is not used for hanning taper
+% 
+% % % % frequency smoothing (tapsmofrq) is used for dpss
+% % cfg_ft.tapsmofrq = 0.3 .* cfg_ft.foi;
+
+
+cfg_ft.pad = 'maxperlen';
+cfg_ft.padtype = 'zero';
+face_pow = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
+
+cfg_ft.pad = 2;
+cfg_ft.padtype = 'zero';
+face_pow_pad2 = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
+
+cfg_ft.pad = 10;
+cfg_ft.padtype = 'zero';
+face_pow_pad5 = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
+
+% %%
+% 
+% cfg_ft.pad = 5;
+% cfg_ft.padtype = 'edge';
+% face_pow_pad5e = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
+
+% plot something
+
+chan = 70;
+
+figure
+imagesc(face_pow.time,face_pow.freq,squeeze(mean(face_pow.powspctrm(:,chan,:,:),1)));
+axis xy;
+title('pad=maxperlen');
+
+figure
+imagesc(face_pow_pad2.time,face_pow_pad2.freq,squeeze(mean(face_pow_pad2.powspctrm(:,chan,:,:),1)));
+axis xy;
+title('pad=2');
+
+figure
+imagesc(face_pow_pad5.time,face_pow_pad5.freq,squeeze(mean(face_pow_pad5.powspctrm(:,chan,:,:),1)));
+axis xy;
+title('pad=5');
+
+figure
+imagesc(face_pow_pad5e.time,face_pow_pad5e.freq,squeeze(mean(face_pow_pad5e.powspctrm(:,chan,:,:),1)));
+axis xy;
+title('pad=5edge');
+
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
@@ -577,7 +647,7 @@ cfg_plot = [];
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'FS'},{'LPS'}};
+cfg_plot.rois = {{'LAS'},{'LPS'}};
 % cfg_plot.rois = {{'posterior'}};
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
 cfg_plot.ylims = [-4 4; -4 4];
@@ -586,10 +656,10 @@ cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-% cfg_ft.xlim = [-.2 1.0];
-% cfg_plot.rois = {{'E83'}};
-% cfg_plot.ylims = [-10 10];
-% cfg_plot.legendlocs = {'NorthEast'};
+cfg_ft.xlim = [-.2 1.0];
+cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.ylims = [-10 10; -10 10];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -817,6 +887,7 @@ cfg_plot.plotTitle = 0;
 cfg_ft = [];
 cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'no';
+cfg_ft.colormap = 'jet';
 %cfg_ft.colormap = 'hot';
 cfg_ft.colorbar = 'no';
 
@@ -825,21 +896,22 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.condMethod = 'pairwise';
 %cfg_plot.conditions = {{'HSC2','CR2'},{'HSI2','CR2'},{'HSC2','HSI2'},{'HSC6','CR6'},{'HSI6','CR6'},{'HSC6','HSI6'}}; % {'H2','CR2'}, {'H6','CR6'},
 %cfg_plot.conditions = {{'RH','RCR'},{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}};
-cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
+% cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
 %cfg_plot.conditions = {{'RHSC','RHSI'}};
 %cfg_plot.conditions = {{'FSC','RSSI'}};
+cfg_plot.conditions = {{'Face','House'}};
 
 
 cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_ft.zlim = [-1.5 1.5]; % volt
+cfg_ft.zlim = [-5.5 5.5]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
 
-cfg_plot.roi = {'LAS','RAS'};
+cfg_plot.roi = {'E73'};
 %cfg_plot.roi = {'LAS'};
-cfg_ft.xlim = [0.3 0.5]; % time
+% cfg_ft.xlim = [0.01 0.8]; % time
 
 % cfg_plot.roi = {'LPS','RPS'};
 % cfg_ft.xlim = [0.5 0.8]; % time
@@ -851,7 +923,7 @@ cfg_ft.xlim = [0.3 0.5]; % time
 
 % cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
-% %cfg_ft.xlim = (0:0.05:1.0); % time
+cfg_ft.xlim = (0:0.05:1.0); % time
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.xlim = [-0.2 1.5]; % time
