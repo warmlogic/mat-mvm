@@ -334,11 +334,11 @@ end
 % cfg_ft.xlim = [-0.2 1.0];
 % %figure
 % %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
-% %legend(strrep(exper.eventValues,'_',''),'Location','SouthEast');
+% %legend(strrep(exper.eventValues,'_','-'),'Location','SouthEast');
 % figure
 % cfg_ft.graphcolor = 'b';
 % ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data);
-% legend(strrep(exper.eventValues{1},'_',''),'Location','SouthEast');
+% legend(strrep(exper.eventValues{1},'_','-'),'Location','SouthEast');
 % hold on
 % plot([cfg_ft.xlim(1) cfg_ft.xlim(2)],[0 0],'k--'); % horizontal
 % plot([0 0],[-5 5],'k--'); % vertical

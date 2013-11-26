@@ -57,7 +57,7 @@ for typ = 1:length(cfg_plot.conditions)
   
   figure
   eval(sprintf('ft_singleplotER(cfg_ft,%s);',ana_str));
-  legend(strrep(cfg_plot.conditions{typ},'_',''),'Location',cfg_plot.legendloc);
+  legend(strrep(cfg_plot.conditions{typ},'_','-'),'Location',cfg_plot.legendloc);
   set(gcf,'Name',sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}));
   
   plot([cfg_ft.xlim(1) cfg_ft.xlim(2)],[0 0],'k--'); % horizontal

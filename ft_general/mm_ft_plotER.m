@@ -366,7 +366,7 @@ for typ = 1:length(cfg_plot.conditions)
       plot([0 0],[voltmin voltmax],'k--'); % vertical
       
       if cfg_plot.plotLegend
-        legend(strrep(cfg_plot.rename_conditions{typ},'_',''),'Location',cfg_plot.legendloc);
+        legend(strrep(cfg_plot.rename_conditions{typ},'_','-'),'Location',cfg_plot.legendloc);
       end
       
       % can't save EPS files with alpha so plot the bounds lines instead

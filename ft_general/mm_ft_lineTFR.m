@@ -325,7 +325,7 @@ for typ = 1:length(cfg.conditions)
       end
       
       if cfg.plotLegend && r == nROIs
-        legend(h(r,:),strrep(cfg.rename_conditions{typ},'_',''),'Location',cfg.legendloc);
+        legend(h(r,:),strrep(cfg.rename_conditions{typ},'_','-'),'Location',cfg.legendloc);
         cfg.legend_str = '_legend';
       else
         cfg.legend_str = '';
