@@ -346,7 +346,7 @@ for ses = 1:length(session)
       %cfg_cont.dftfilter = 'yes';
       %cfg_cont.dftfreq = [60 120 180];
     end
-    fprintf('Preprocessing continuous data...');
+    fprintf('Preprocessing continuous data: %s...\n',infile_ns);
     data = ft_preprocessing(cfg_cont);
     fprintf('Done.\n');
   end
