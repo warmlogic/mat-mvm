@@ -61,7 +61,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       
       for i = 1:length(ft_event)
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-          % found a trigger in the evt file; increment index if value is correct.
+          % found a trigger in the EEG file events; increment index if
+          % value is correct.
           
           %if ~ismember(event(i).value,{'epoc'})
           if ismember(ft_event(i).value,space_triggers)
@@ -70,112 +71,119 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           
           switch ft_event(i).value
             case 'STIM'
-              % set column types because Net Station evt files can vary
-              ns_evt_cols = {};
-              for ns = 1:size(ns_evt,2)
-                ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-              end
-              cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-              cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-              if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                keyboard
-              end
-              
-              if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                  strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
+              if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
                 % set column types because Net Station evt files can vary
-                cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                ns_evt_cols = {};
+                for ns = 1:size(ns_evt,2)
+                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
+                end
+                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
+                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
+                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
                   keyboard
                 end
                 
-                % Critical: set up the stimulus type, as well as the event
-                % string to match eventValues
-                stimType = 'EXPO_IMAGE';
-                evVal = 'expo_stim';
-                trl_order = cfg.eventinfo.trl_order.(evVal);
-                
-                % find where this event type occurs in the list
-                eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                if isempty(eventNumber)
-                  eventNumber = -1;
-                end
-                
-                if length(eventNumber) == 1 && eventNumber ~= -1
-                  % set the times we need to segment before and after the
-                  % trigger
-                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                if strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName) &&...
+                    strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true')
                   
-                  % prestimulus period should be negative
-                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
-                  poststimSamp = round(poststimMS * ft_hdr.Fs);
-                else
-                  fprintf('event number not found for %s!\n',evVal);
-                  keyboard
-                end
-                
-                % find the entry in the event struct
-                this_event = events_all.(sesName).(phaseName).data(...
-                  [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                  ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                  [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                  ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                  [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                  );
-                
-                if length(this_event) > 1
-                  warning('More than one event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif isempty(this_event)
-                  warning('No event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif length(this_event) == 1
-                  
-                  phaseCount = this_event.phaseCount;
-                  trial = this_event.trial;
-                  stimNum = this_event.stimNum;
-                  i_catNum = this_event.i_catNum;
-                  targ = this_event.targ;
-                  spaced = this_event.spaced;
-                  lag = this_event.lag;
-                  expo_response = this_event.resp;
-                  cr_recog_acc = this_event.cr_recog_acc;
-                  cr_recall_resp = this_event.cr_recall_resp;
-                  cr_recall_spellCorr = this_event.cr_recall_spellCorr;
-                  
-                  rt = this_event.rt;
-                  
-                  % add it to the trial definition
-                  this_trl = trl_ini;
-                  
-                  % prestimulus sample
-                  this_trl(1) = ft_event(i).sample + prestimSamp;
-                  % poststimulus sample
-                  this_trl(2) = ft_event(i).sample + poststimSamp;
-                  % offset in samples
-                  this_trl(3) = prestimSamp;
-                  
-                  for to = 1:length(trl_order)
-                    thisInd = find(ismember(trl_order,trl_order{to}));
-                    if ~isempty(thisInd)
-                      if exist(trl_order{to},'var')
-                        this_trl(timeCols + thisInd) = eval(trl_order{to});
-                      else
-                        fprintf('variable %s does not exist!\n',trl_order{to});
-                        keyboard
-                      end
-                    end
+                  % set column types because Net Station evt files can vary
+                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
+                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
+                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
+                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                    keyboard
                   end
                   
-                  % put all the trials together
-                  trl = cat(1,trl,double(this_trl));
+                  % Critical: set up the stimulus type, as well as the event
+                  % string to match eventValues
+                  stimType = 'EXPO_IMAGE';
+                  evVal = 'expo_stim';
+                  trl_order = cfg.eventinfo.trl_order.(evVal);
                   
-                end % check the event struct
-              end % check the evt event
+                  % find where this event type occurs in the list
+                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                  if isempty(eventNumber)
+                    eventNumber = -1;
+                  end
+                  
+                  if length(eventNumber) == 1 && eventNumber ~= -1
+                    % set the times we need to segment before and after the
+                    % trigger
+                    prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                    poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                    
+                    % prestimulus period should be negative
+                    prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                    poststimSamp = round(poststimMS * ft_hdr.Fs);
+                  else
+                    fprintf('event number not found for %s!\n',evVal);
+                    keyboard
+                  end
+                  
+                  % find the entry in the event struct
+                  this_event = events_all.(sesName).(phaseName).data(...
+                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
+                    );
+                  
+                  if length(this_event) > 1
+                    warning('More than one event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif isempty(this_event)
+                    warning('No event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif length(this_event) == 1
+                    
+                    phaseCount = this_event.phaseCount;
+                    trial = this_event.trial;
+                    stimNum = this_event.stimNum;
+                    i_catNum = this_event.i_catNum;
+                    targ = this_event.targ;
+                    spaced = this_event.spaced;
+                    lag = this_event.lag;
+                    expo_response = this_event.resp;
+                    cr_recog_acc = this_event.cr_recog_acc;
+                    cr_recall_resp = this_event.cr_recall_resp;
+                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
+                    
+                    rt = this_event.rt;
+                    
+                    % add it to the trial definition
+                    this_trl = trl_ini;
+                    
+                    % prestimulus sample
+                    this_trl(1) = ft_event(i).sample + prestimSamp;
+                    % poststimulus sample
+                    this_trl(2) = ft_event(i).sample + poststimSamp;
+                    % offset in samples
+                    this_trl(3) = prestimSamp;
+                    
+                    for to = 1:length(trl_order)
+                      thisInd = find(ismember(trl_order,trl_order{to}));
+                      if ~isempty(thisInd)
+                        if exist(trl_order{to},'var')
+                          this_trl(timeCols + thisInd) = eval(trl_order{to});
+                        else
+                          fprintf('variable %s does not exist!\n',trl_order{to});
+                          keyboard
+                        end
+                      end
+                    end
+                    
+                    % put all the trials together
+                    trl = cat(1,trl,double(this_trl));
+                    
+                  end % check the event struct
+                end % check the evt event
+                
+              else
+                % the count is off? EEG and evt events don't line up
+                keyboard
+              end
               
             case 'RESP'
               
@@ -212,119 +220,126 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           
           switch ft_event(i).value
             case 'STIM'
-              % set column types because Net Station evt files can vary
-              ns_evt_cols = {};
-              for ns = 1:size(ns_evt,2)
-                ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-              end
-              cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-              cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-              if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                keyboard
-              end
-              
-              if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                  strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
+              if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
                 % set column types because Net Station evt files can vary
-                cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                ns_evt_cols = {};
+                for ns = 1:size(ns_evt,2)
+                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
+                end
+                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
+                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
+                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
                   keyboard
                 end
                 
-                % Critical: set up the stimulus type, as well as the
-                % event string to match eventValues
-                if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'word')
-                  stimType = 'STUDY_WORD';
-                  evVal = 'multistudy_word';
-                elseif strcmp(ns_evt{cols.(phaseName).type+1}(ec),'image')
-                  stimType = 'STUDY_IMAGE';
-                  evVal = 'multistudy_image';
-                end
-                trl_order = cfg.eventinfo.trl_order.(evVal);
-                
-                % find where this event type occurs in the list
-                eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                if isempty(eventNumber)
-                  eventNumber = -1;
-                end
-                
-                if length(eventNumber) == 1 && eventNumber ~= -1
-                  % set the times we need to segment before and after the
-                  % trigger
-                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
+                    strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
                   
-                  % prestimulus period should be negative
-                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
-                  poststimSamp = round(poststimMS * ft_hdr.Fs);
-                else
-                  fprintf('event number not found for %s!\n',evVal);
-                  keyboard
-                end
-                
-                % find the entry in the event struct
-                this_event = events_all.(sesName).(phaseName).data(...
-                  [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                  ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                  [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                  ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                  [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                  );
-                % exclude  buffers (lag~=-1)
-                %  [events_all.(sesName).(phaseName).data.lag] ~= -1 ...
-                
-                if length(this_event) > 1
-                  warning('More than one event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif isempty(this_event)
-                  warning('No event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif length(this_event) == 1
-                  
-                  phaseCount = this_event.phaseCount;
-                  trial = this_event.trial;
-                  stimNum = this_event.stimNum;
-                  catNum = this_event.catNum;
-                  targ = this_event.targ;
-                  spaced = this_event.spaced;
-                  lag = this_event.lag;
-                  presNum = this_event.presNum;
-                  pairOrd = this_event.pairOrd;
-                  pairNum = this_event.pairNum;
-                  cr_recog_acc = this_event.cr_recog_acc;
-                  cr_recall_resp = this_event.cr_recall_resp;
-                  cr_recall_spellCorr = this_event.cr_recall_spellCorr;
-                  
-                  % add it to the trial definition
-                  this_trl = trl_ini;
-                  
-                  % prestimulus sample
-                  this_trl(1) = ft_event(i).sample + prestimSamp;
-                  % poststimulus sample
-                  this_trl(2) = ft_event(i).sample + poststimSamp;
-                  % offset in samples
-                  this_trl(3) = prestimSamp;
-                  
-                  for to = 1:length(trl_order)
-                    thisInd = find(ismember(trl_order,trl_order{to}));
-                    if ~isempty(thisInd)
-                      if exist(trl_order{to},'var')
-                        this_trl(timeCols + thisInd) = eval(trl_order{to});
-                      else
-                        fprintf('variable %s does not exist!\n',trl_order{to});
-                        keyboard
-                      end
-                    end
+                  % set column types because Net Station evt files can vary
+                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
+                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
+                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
+                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                    keyboard
                   end
                   
-                  % put all the trials together
-                  trl = cat(1,trl,double(this_trl));
+                  % Critical: set up the stimulus type, as well as the
+                  % event string to match eventValues
+                  if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'word')
+                    stimType = 'STUDY_WORD';
+                    evVal = 'multistudy_word';
+                  elseif strcmp(ns_evt{cols.(phaseName).type+1}(ec),'image')
+                    stimType = 'STUDY_IMAGE';
+                    evVal = 'multistudy_image';
+                  end
+                  trl_order = cfg.eventinfo.trl_order.(evVal);
                   
-                end % check the event struct
-              end % check the evt event
+                  % find where this event type occurs in the list
+                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                  if isempty(eventNumber)
+                    eventNumber = -1;
+                  end
+                  
+                  if length(eventNumber) == 1 && eventNumber ~= -1
+                    % set the times we need to segment before and after the
+                    % trigger
+                    prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                    poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                    
+                    % prestimulus period should be negative
+                    prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                    poststimSamp = round(poststimMS * ft_hdr.Fs);
+                  else
+                    fprintf('event number not found for %s!\n',evVal);
+                    keyboard
+                  end
+                  
+                  % find the entry in the event struct
+                  this_event = events_all.(sesName).(phaseName).data(...
+                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
+                    );
+                  % exclude  buffers (lag~=-1)
+                  %  [events_all.(sesName).(phaseName).data.lag] ~= -1 ...
+                  
+                  if length(this_event) > 1
+                    warning('More than one event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif isempty(this_event)
+                    warning('No event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif length(this_event) == 1
+                    
+                    phaseCount = this_event.phaseCount;
+                    trial = this_event.trial;
+                    stimNum = this_event.stimNum;
+                    catNum = this_event.catNum;
+                    targ = this_event.targ;
+                    spaced = this_event.spaced;
+                    lag = this_event.lag;
+                    presNum = this_event.presNum;
+                    pairOrd = this_event.pairOrd;
+                    pairNum = this_event.pairNum;
+                    cr_recog_acc = this_event.cr_recog_acc;
+                    cr_recall_resp = this_event.cr_recall_resp;
+                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
+                    
+                    % add it to the trial definition
+                    this_trl = trl_ini;
+                    
+                    % prestimulus sample
+                    this_trl(1) = ft_event(i).sample + prestimSamp;
+                    % poststimulus sample
+                    this_trl(2) = ft_event(i).sample + poststimSamp;
+                    % offset in samples
+                    this_trl(3) = prestimSamp;
+                    
+                    for to = 1:length(trl_order)
+                      thisInd = find(ismember(trl_order,trl_order{to}));
+                      if ~isempty(thisInd)
+                        if exist(trl_order{to},'var')
+                          this_trl(timeCols + thisInd) = eval(trl_order{to});
+                        else
+                          fprintf('variable %s does not exist!\n',trl_order{to});
+                          keyboard
+                        end
+                      end
+                    end
+                    
+                    % put all the trials together
+                    trl = cat(1,trl,double(this_trl));
+                    
+                  end % check the event struct
+                end % check the evt event
+                
+              else
+                % the count is off? EEG and evt events don't line up
+                keyboard
+              end
               
             case 'RESP'
               
@@ -361,103 +376,110 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           
           switch ft_event(i).value
             case 'STIM'
-              % set column types because Net Station evt files can vary
-              ns_evt_cols = {};
-              for ns = 1:size(ns_evt,2)
-                ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-              end
-              cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-              cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-              if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                keyboard
-              end
-              
-              if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                  strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
+              if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
                 % set column types because Net Station evt files can vary
-                cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial)
+                ns_evt_cols = {};
+                for ns = 1:size(ns_evt,2)
+                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
+                end
+                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
+                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
+                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
                   keyboard
                 end
                 
-                % Critical: set up the stimulus type, as well as the
-                % event string to match eventValues
-                stimType = 'MATH_PROB';
-                evVal = 'distract_math_stim';
-                trl_order = cfg.eventinfo.trl_order.(evVal);
-                
-                % find where this event type occurs in the list
-                eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                if isempty(eventNumber)
-                  eventNumber = -1;
-                end
-                
-                if length(eventNumber) == 1 && eventNumber ~= -1
-                  % set the times we need to segment before and after the
-                  % trigger
-                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
+                    strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
                   
-                  % prestimulus period should be negative
-                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
-                  poststimSamp = round(poststimMS * ft_hdr.Fs);
-                else
-                  fprintf('event number not found for %s!\n',evVal);
-                  keyboard
-                end
-                
-                % find the entry in the event struct
-                this_event = events_all.(sesName).(phaseName).data(...
-                  [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                  ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                  [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                  ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                  [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                  );
-                
-                if length(this_event) > 1
-                  warning('More than one event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif isempty(this_event)
-                  warning('No event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif length(this_event) == 1
-                  
-                  phaseCount = this_event.phaseCount;
-                  trial = this_event.trial;
-                  response = this_event.resp;
-                  acc = this_event.acc;
-                  rt = this_event.rt;
-                  
-                  % add it to the trial definition
-                  this_trl = trl_ini;
-                  
-                  % prestimulus sample
-                  this_trl(1) = ft_event(i).sample + prestimSamp;
-                  % poststimulus sample
-                  this_trl(2) = ft_event(i).sample + poststimSamp;
-                  % offset in samples
-                  this_trl(3) = prestimSamp;
-                  
-                  for to = 1:length(trl_order)
-                    thisInd = find(ismember(trl_order,trl_order{to}));
-                    if ~isempty(thisInd)
-                      if exist(trl_order{to},'var')
-                        this_trl(timeCols + thisInd) = eval(trl_order{to});
-                      else
-                        fprintf('variable %s does not exist!\n',trl_order{to});
-                        keyboard
-                      end
-                    end
+                  % set column types because Net Station evt files can vary
+                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
+                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
+                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial)
+                    keyboard
                   end
                   
-                  % put all the trials together
-                  trl = cat(1,trl,double(this_trl));
+                  % Critical: set up the stimulus type, as well as the
+                  % event string to match eventValues
+                  stimType = 'MATH_PROB';
+                  evVal = 'distract_math_stim';
+                  trl_order = cfg.eventinfo.trl_order.(evVal);
                   
-                end % check the event struct
-              end % check the evt event
+                  % find where this event type occurs in the list
+                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                  if isempty(eventNumber)
+                    eventNumber = -1;
+                  end
+                  
+                  if length(eventNumber) == 1 && eventNumber ~= -1
+                    % set the times we need to segment before and after the
+                    % trigger
+                    prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                    poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                    
+                    % prestimulus period should be negative
+                    prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                    poststimSamp = round(poststimMS * ft_hdr.Fs);
+                  else
+                    fprintf('event number not found for %s!\n',evVal);
+                    keyboard
+                  end
+                  
+                  % find the entry in the event struct
+                  this_event = events_all.(sesName).(phaseName).data(...
+                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
+                    );
+                  
+                  if length(this_event) > 1
+                    warning('More than one event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif isempty(this_event)
+                    warning('No event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif length(this_event) == 1
+                    
+                    phaseCount = this_event.phaseCount;
+                    trial = this_event.trial;
+                    response = this_event.resp;
+                    acc = this_event.acc;
+                    rt = this_event.rt;
+                    
+                    % add it to the trial definition
+                    this_trl = trl_ini;
+                    
+                    % prestimulus sample
+                    this_trl(1) = ft_event(i).sample + prestimSamp;
+                    % poststimulus sample
+                    this_trl(2) = ft_event(i).sample + poststimSamp;
+                    % offset in samples
+                    this_trl(3) = prestimSamp;
+                    
+                    for to = 1:length(trl_order)
+                      thisInd = find(ismember(trl_order,trl_order{to}));
+                      if ~isempty(thisInd)
+                        if exist(trl_order{to},'var')
+                          this_trl(timeCols + thisInd) = eval(trl_order{to});
+                        else
+                          fprintf('variable %s does not exist!\n',trl_order{to});
+                          keyboard
+                        end
+                      end
+                    end
+                    
+                    % put all the trials together
+                    trl = cat(1,trl,double(this_trl));
+                    
+                  end % check the event struct
+                end % check the evt event
+                
+              else
+                % the count is off? EEG and evt events don't line up
+                keyboard
+              end
               
             case 'RESP'
               
@@ -497,139 +519,146 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           
           switch ft_event(i).value
             case 'STIM'
-              % set column types because Net Station evt files can vary
-              ns_evt_cols = {};
-              for ns = 1:size(ns_evt,2)
-                ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-              end
-              cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-              cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-              if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                keyboard
-              end
-              
-              if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                  strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
+              if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
                 % set column types because Net Station evt files can vary
-                cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                ns_evt_cols = {};
+                for ns = 1:size(ns_evt,2)
+                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
+                end
+                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
+                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
+                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
                   keyboard
                 end
                 
-                % Critical: set up the stimulus type, as well as the
-                % event string to match eventValues
-                if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'recognition')
-                  stimType = 'RECOGTEST_STIM';
-                  evVal = 'cued_recall_stim';
-                else
-                  keyboard
-                end
-                trl_order = cfg.eventinfo.trl_order.(evVal);
-                
-                % find where this event type occurs in the list
-                eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                if isempty(eventNumber)
-                  eventNumber = -1;
-                end
-                
-                if length(eventNumber) == 1 && eventNumber ~= -1
-                  % set the times we need to segment before and after the
-                  % trigger
-                  prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
-                  poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
+                    strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
                   
-                  % prestimulus period should be negative
-                  prestimSamp = -round(prestimMS * ft_hdr.Fs);
-                  poststimSamp = round(poststimMS * ft_hdr.Fs);
-                else
-                  fprintf('event number not found for %s!\n',evVal);
-                  keyboard
-                end
-                
-                % find the entry in the event struct
-                this_event = events_all.(sesName).(phaseName).data(...
-                  [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                  ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                  [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                  ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                  [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                  );
-                
-                % exclude recog_resp == NO_RESPONSE
-                % ismember({events_all.(sesName).(phaseName).data.recog_resp},{'old', 'new'}) &...
-                % ismember({events_all.(sesName).(phaseName).data.new_resp},{'sure', 'maybe', ''}) ...
-                
-                if length(this_event) > 1
-                  warning('More than one event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif isempty(this_event)
-                  warning('No event found! Fix this script before continuing analysis.')
-                  keyboard
-                elseif length(this_event) == 1
-                  
-                  phaseCount = this_event.phaseCount;
-                  trial = this_event.trial;
-                  stimNum = this_event.stimNum;
-                  i_catNum = this_event.i_catNum;
-                  targ = this_event.targ;
-                  spaced = this_event.spaced;
-                  lag = this_event.lag;
-                  pairNum = this_event.pairNum;
-                  
-                  if ~isempty(this_event.recog_resp) && ismember(this_event.recog_resp,recog_responses)
-                    recog_resp = find(ismember(recog_responses,this_event.recog_resp));
-                  else
-                    recog_resp = 0;
+                  % set column types because Net Station evt files can vary
+                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
+                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
+                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
+                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                    keyboard
                   end
-                  recog_acc = this_event.recog_acc;
-                  recog_rt = this_event.recog_rt;
                   
-                  if ~isempty(this_event.new_resp) && ismember(this_event.new_resp,new_responses)
-                    new_resp = find(ismember(new_responses,this_event.new_resp));
+                  % Critical: set up the stimulus type, as well as the
+                  % event string to match eventValues
+                  if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'recognition')
+                    stimType = 'RECOGTEST_STIM';
+                    evVal = 'cued_recall_stim';
                   else
-                    new_resp = 0;
+                    keyboard
                   end
-                  new_acc = this_event.new_acc;
-                  new_rt = this_event.new_rt;
+                  trl_order = cfg.eventinfo.trl_order.(evVal);
                   
-                  if ~isempty(this_event.recall_resp) && ~ismember(this_event.recall_resp,{'NO_RESPONSE'})
-                    recall_resp = 1;
+                  % find where this event type occurs in the list
+                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                  if isempty(eventNumber)
+                    eventNumber = -1;
+                  end
+                  
+                  if length(eventNumber) == 1 && eventNumber ~= -1
+                    % set the times we need to segment before and after the
+                    % trigger
+                    prestimMS = abs(cfg.eventinfo.prepost(eventNumber,1));
+                    poststimMS = cfg.eventinfo.prepost(eventNumber,2);
+                    
+                    % prestimulus period should be negative
+                    prestimSamp = -round(prestimMS * ft_hdr.Fs);
+                    poststimSamp = round(poststimMS * ft_hdr.Fs);
                   else
-                    recall_resp = 0;
+                    fprintf('event number not found for %s!\n',evVal);
+                    keyboard
                   end
-                  recall_spellCorr = this_event.recall_spellCorr;
-                  recall_rt = this_event.recall_rt;
                   
-                  % add it to the trial definition
-                  this_trl = trl_ini;
+                  % find the entry in the event struct
+                  this_event = events_all.(sesName).(phaseName).data(...
+                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
+                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
+                    );
                   
-                  % prestimulus sample
-                  this_trl(1) = ft_event(i).sample + prestimSamp;
-                  % poststimulus sample
-                  this_trl(2) = ft_event(i).sample + poststimSamp;
-                  % offset in samples
-                  this_trl(3) = prestimSamp;
+                  % exclude recog_resp == NO_RESPONSE
+                  % ismember({events_all.(sesName).(phaseName).data.recog_resp},{'old', 'new'}) &...
+                  % ismember({events_all.(sesName).(phaseName).data.new_resp},{'sure', 'maybe', ''}) ...
                   
-                  for to = 1:length(trl_order)
-                    thisInd = find(ismember(trl_order,trl_order{to}));
-                    if ~isempty(thisInd)
-                      if exist(trl_order{to},'var')
-                        this_trl(timeCols + thisInd) = eval(trl_order{to});
-                      else
-                        fprintf('variable %s does not exist!\n',trl_order{to});
-                        keyboard
+                  if length(this_event) > 1
+                    warning('More than one event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif isempty(this_event)
+                    warning('No event found! Fix this script before continuing analysis.')
+                    keyboard
+                  elseif length(this_event) == 1
+                    
+                    phaseCount = this_event.phaseCount;
+                    trial = this_event.trial;
+                    stimNum = this_event.stimNum;
+                    i_catNum = this_event.i_catNum;
+                    targ = this_event.targ;
+                    spaced = this_event.spaced;
+                    lag = this_event.lag;
+                    pairNum = this_event.pairNum;
+                    
+                    if ~isempty(this_event.recog_resp) && ismember(this_event.recog_resp,recog_responses)
+                      recog_resp = find(ismember(recog_responses,this_event.recog_resp));
+                    else
+                      recog_resp = 0;
+                    end
+                    recog_acc = this_event.recog_acc;
+                    recog_rt = this_event.recog_rt;
+                    
+                    if ~isempty(this_event.new_resp) && ismember(this_event.new_resp,new_responses)
+                      new_resp = find(ismember(new_responses,this_event.new_resp));
+                    else
+                      new_resp = 0;
+                    end
+                    new_acc = this_event.new_acc;
+                    new_rt = this_event.new_rt;
+                    
+                    if ~isempty(this_event.recall_resp) && ~ismember(this_event.recall_resp,{'NO_RESPONSE'})
+                      recall_resp = 1;
+                    else
+                      recall_resp = 0;
+                    end
+                    recall_spellCorr = this_event.recall_spellCorr;
+                    recall_rt = this_event.recall_rt;
+                    
+                    % add it to the trial definition
+                    this_trl = trl_ini;
+                    
+                    % prestimulus sample
+                    this_trl(1) = ft_event(i).sample + prestimSamp;
+                    % poststimulus sample
+                    this_trl(2) = ft_event(i).sample + poststimSamp;
+                    % offset in samples
+                    this_trl(3) = prestimSamp;
+                    
+                    for to = 1:length(trl_order)
+                      thisInd = find(ismember(trl_order,trl_order{to}));
+                      if ~isempty(thisInd)
+                        if exist(trl_order{to},'var')
+                          this_trl(timeCols + thisInd) = eval(trl_order{to});
+                        else
+                          fprintf('variable %s does not exist!\n',trl_order{to});
+                          keyboard
+                        end
                       end
                     end
-                  end
-                  
-                  % put all the trials together
-                  trl = cat(1,trl,double(this_trl));
-                  
-                end % check the event struct
-              end % check the evt event
+                    
+                    % put all the trials together
+                    trl = cat(1,trl,double(this_trl));
+                    
+                  end % check the event struct
+                end % check the evt event
+                
+              else
+                % the count is off? EEG and evt events don't line up
+                keyboard
+              end
               
             case 'RESP'
               
