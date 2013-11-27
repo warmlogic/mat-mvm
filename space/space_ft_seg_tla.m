@@ -65,6 +65,12 @@ exper.subjects = {
 %   'SPACE005';
 %   'SPACE006';
 %   'SPACE007';
+%   'SPACE008';
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -224,6 +230,9 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 
 %% save the analysis details
 
+backup_orig_AD = true;
+% whether to sort by subject number
+sortBySubj = true;
 % whether to overwite existing subjects in the struct
 replaceOrig = true;
 
@@ -234,81 +243,11 @@ if ~exist(saveFile,'file')
   save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   fprintf('Done.\n');
 else
-  % combine them
-  fprintf('Concatenating these analysis details onto the end of the previous runs, which were saved here: %s...',saveFile);
+  additional_AD_file = fullfile(dirs.saveDirProc,sprintf('analysisDetails%s.mat',sprintf(repmat('_%s',1,length(exper.subjects)),exper.subjects{:})));
+  fprintf('Temporarily saving new analysis details: %s...',additional_AD_file);
+  save(additional_AD_file,'exper','ana','dirs','files','cfg_proc','cfg_pp');
   
-  orig_anaDetails = load(saveFile);
-  
-  if all(ismember(orig_anaDetails.exper.eventValues,exper.eventValues))
-    subjects_new = ~ismember(exper.subjects,orig_anaDetails.exper.subjects);
-    subjects_exist = ismember(orig_anaDetails.exper.subjects,exper.subjects);
-    
-    if any(subjects_new)
-      addSub_str = exper.subjects(subjects_new);
-      fprintf('Concatenating%s after%s...\n',sprintf(repmat(' %s',1,sum(subjects_new)),addSub_str{:}),sprintf(repmat(' %s',1,sum(subjects_new)),orig_anaDetails.exper.subjects{:}));
-      
-      subjects_all = cat(1,orig_anaDetails.exper.subjects,exper.subjects(subjects_new));
-      
-      newSubInd = find(subjects_new);
-      
-      nTrials_all = orig_anaDetails.exper.nTrials;
-      nTr_fn = fieldnames(nTrials_all);
-      for i = 1:length(nTr_fn)
-        for j = 1:length(newSubInd)
-          nTr_thisSub = exper.nTrials.(nTr_fn{i});
-          nTrials_all.(nTr_fn{i}) = cat(1,nTrials_all.(nTr_fn{i}),nTr_thisSub(newSubInd(j),:));
-        end
-      end
-      
-      badChan_all = cat(1,orig_anaDetails.exper.badChan,exper.badChan(newSubInd,:));
-      badEv_all = cat(1,orig_anaDetails.exper.badEv,exper.badEv(newSubInd,:));
-      
-      % add the combined info into the struct we want to save
-      exper.subjects = subjects_all;
-      exper.nTrials = nTrials_all;
-      exper.badChan = badChan_all;
-      exper.badEv = badEv_all;
-      
-      save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-      fprintf('Done.\n');
-    else
-      fprintf('There are no new subjects in exper.subjects (everyone is already in the old analysisDetails.mat).  Not saving new analysisDetails.mat.\n');
-    end
-    
-    if replaceOrig && any(subjects_exist)
-      % get the original data
-      nTrials_orig = orig_anaDetails.exper.nTrials;
-      nTr_fn = fieldnames(nTrials_orig);
-      badChan_orig = orig_anaDetails.exper.badChan;
-      badEv_orig = orig_anaDetails.exper.badEv;
-      
-      for os = 1:length(orig_anaDetails.exper.subjects)
-        if subjects_exist(os)
-          fprintf('Replacing %s in original data...\n',orig_anaDetails.exper.subjects{os});
-          replSubInd = find(ismember(exper.subjects,orig_anaDetails.exper.subjects(os)));
-          % move nTrials
-          for fn = 1:length(nTr_fn)
-            nTrials_orig.(nTr_fn{fn})(os) = exper.nTrials.(nTr_fn{fn})(replSubInd);
-          end
-          % move badChan
-          badChan_orig{os} = exper.badChan{replSubInd,:};
-          % move badEv
-          badEv_orig{os} = exper.badEv{replSubInd,:};
-        end
-      end
-      
-      % add the combined info into the struct we want to save
-      exper.subjects = orig_anaDetails.exper.subjects;
-      exper.nTrials = nTrials_orig;
-      exper.badChan = badChan_orig;
-      exper.badEv = badEv_orig;
-      
-      save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-      fprintf('Done.\n');
-    end
-  else
-    fprintf('exper.eventValues does not match up between old and new subjects! Not saving new analysisDetails.mat.\n');
-  end
+  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(saveFile,additional_AD_file,backup_orig_AD,sortBySubj,replaceOrig);
 end
 
 %% let me know that it's done
@@ -324,21 +263,16 @@ end
 
 %% load the analysis details
 
-% adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_Face_SA_Face_SU_Face_VA_Face_VU_House_House_SA_House_SU_House_VA_House_VU_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
-% adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/-1000_1000/ft_data/Face_House_eq0_art_ftManual_ftICA/tla_-1000_1000/analysisDetails.mat';
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
-
-%adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/expo_stim_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
-
-%adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(adFile,adFile5,true,true,true);
 
 % % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 % if exist(server_adFile,'file')
-%   mm_mergeAnalysisDetails(adFile,server_adFile,true,false);
+%   mm_mergeAnalysisDetails(adFile,server_adFile,true,false,false);
 % end
 
-%[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
 % files.figFontName = 'Helvetica';
 % files.figPrintFormat = 'epsc2';
@@ -445,14 +379,14 @@ ana.trl_expr = {...
 %   {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
 %   sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & recog_rt < 3000 & new_resp ~= 0 & new_acc == 1',find(ismember(exper.eventValues,'cued_recall_stim')))}};
 
-ana.eventValues = {{'cued_recall_stim'}};
-ana.eventValuesSplit = {{'RgH_cr_spac','RgH_cr_mass','RgH_fo_spac','RgH_fo_mass','CR'}};
-ana.trl_expr = {...
-  {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 1 & spaced == 1 & lag > 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
-  sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 1 & spaced == 0 & lag == 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
-  sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 0 & spaced == 1 & lag > 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
-  sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 0 & spaced == 0 & lag == 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
-  sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & recog_rt < 3000 & new_resp ~= 0 & new_acc == 1',find(ismember(exper.eventValues,'cued_recall_stim')))}};
+% ana.eventValues = {{'cued_recall_stim'}};
+% ana.eventValuesSplit = {{'RgH_cr_spac','RgH_cr_mass','RgH_fo_spac','RgH_fo_mass','CR'}};
+% ana.trl_expr = {...
+%   {sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 1 & spaced == 1 & lag > 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 1 & spaced == 0 & lag == 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 0 & spaced == 1 & lag > 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 1 & recog_resp == 1 & recog_acc == 1 & recog_rt < 3000 & recall_spellCorr == 0 & spaced == 0 & lag == 0',find(ismember(exper.eventValues,'cued_recall_stim'))), ...
+%   sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & recog_rt < 3000 & new_resp ~= 0 & new_acc == 1',find(ismember(exper.eventValues,'cued_recall_stim')))}};
 
 % make sure ana.eventValues is set properly
 if ~iscell(ana.eventValues{1})
@@ -630,7 +564,7 @@ title('pad=5edge');
 exper.badBehSub = {};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,13);
+[exper,ana] = mm_threshSubs(exper,ana,1);
 
 %% get the grand average
 
