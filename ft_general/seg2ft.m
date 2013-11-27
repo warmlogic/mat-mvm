@@ -595,7 +595,7 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data);
+    [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.

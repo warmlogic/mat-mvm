@@ -1,6 +1,6 @@
-function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
+function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
 %MM_FT_ARTIFACT reject artifacts
-% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data)
+% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -474,7 +474,8 @@ end
 
 if rejArt_ftManual
   % set the file to save after checking artifacts, in case MATLAB crashes
-  resumeManArtFT_file = fullfile(dataroot,sprintf('%s_%s_manArtFT%s.mat',subject,sesName,sprintf(repmat('_%s',1,length(eventValue)),eventValue{:})));
+  resumeManArtFT_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_manArtFT.mat',subject,sesName));
+  %resumeManArtFT_file = fullfile(dataroot,sprintf('%s_%s_manArtFT%s.mat',subject,sesName,sprintf(repmat('_%s',1,length(eventValue)),eventValue{:})));
   if ~isfield(ana.artifact,'resumeManArtFT')
     ana.artifact.resumeManArtFT = false;
   end
@@ -503,7 +504,7 @@ if rejArt_ftManual
     if exist(resumeManArtFT_file,'file')
       % load the manually processed artifacts
       fprintf('Loading resumable artifacts file: %s...\n',resumeManArtFT_file);
-      fprintf('\nIMPORTANT: You must repair the same channels as last time or artifacts will be different!\n');
+      fprintf('\nIMPORTANT: You must repair the same channels as last time or artifacts may be different!\n');
       load(resumeManArtFT_file,'cfg_manArt');
       
       % make sure number of trials in data.cfg and cfg_manArt match
