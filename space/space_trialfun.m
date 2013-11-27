@@ -90,13 +90,13 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
               if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
+                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
                 prev_time_ms_str = ns_evt{5}(ec-1);
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
+                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp
-                  % events occurred at the same sample
+                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                  % events occurred at the same sample or one ms apart
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -338,13 +338,13 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
               if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
+                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
                 prev_time_ms_str = ns_evt{5}(ec-1);
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
+                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp
-                  % events occurred at the same sample
+                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                  % events occurred at the same sample or one ms apart
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -593,13 +593,13 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
               if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
+                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
                 prev_time_ms_str = ns_evt{5}(ec-1);
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
+                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp
-                  % events occurred at the same sample
+                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                  % events occurred at the same sample or one ms apart
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -835,13 +835,13 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
               if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
+                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
                 prev_time_ms_str = ns_evt{5}(ec-1);
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
+                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp
-                  % events occurred at the same sample
+                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                  % events occurred at the same sample or one ms apart
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
