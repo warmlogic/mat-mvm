@@ -90,7 +90,7 @@ dirs.behDir = fullfile(exper.name,'Behavioral','Sessions',dirs.subDir);
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',dirs.subDir);
 % Possible locations of the data files (dataroot)
-% dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
 dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
