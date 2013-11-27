@@ -435,6 +435,12 @@ for ses = 1:length(session)
         cfg.eventinfo.phaseNames = ana.phaseNames;
         cfg.eventinfo.eventValues = exper.eventValues;
         cfg.eventinfo.prepost = exper.prepost;
+        
+        cfg.eventinfo.usePhotodiodeDIN = ana.usePhotodiodeDIN;
+        if ana.usePhotodiodeDIN
+          cfg.eventinfo.photodiodeDIN_thresholdMS = ana.photodiodeDIN_thresholdMS;
+          cfg.eventinfo.photodiodeDIN_str = ana.photodiodeDIN_str;
+        end
       end
       
       cfg.trialdef.eventtype = 'trigger';

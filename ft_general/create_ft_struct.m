@@ -111,6 +111,18 @@ if ~isfield(ana,'useExpInfo')
   ana.useExpInfo = false;
 end
 
+if ~isfield(ana,'usePhotodiodeDIN')
+  ana.usePhotodiodeDIN = false;
+end
+
+if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_thresholdMS')
+  ana.photodiodeDIN_thresholdMS = 75;
+end
+
+if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
+  ana.photodiodeDIN_str = 'DIN ';
+end
+
 % need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};

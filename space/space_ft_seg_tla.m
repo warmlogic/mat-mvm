@@ -58,7 +58,7 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-  'SPACE001';
+%   'SPACE001';
 %   'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
@@ -66,7 +66,7 @@ exper.subjects = {
 %   'SPACE006';
 %   'SPACE007';
 %   'SPACE008';
-%   'SPACE009';
+  'SPACE009';
 %   'SPACE010';
 %   'SPACE011';
 %   'SPACE012';
@@ -90,7 +90,7 @@ dirs.behDir = fullfile(exper.name,'Behavioral','Sessions',dirs.subDir);
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',dirs.subDir);
 % Possible locations of the data files (dataroot)
-dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+% dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
 dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'data');
@@ -144,6 +144,9 @@ ana.useEvents = true;
 ana.useExpParam = false;
 ana.useNsEvt = true;
 ana.useExpInfo = true;
+ana.usePhotodiodeDIN = true;
+ana.photodiodeDIN_thresholdMS = 50;
+ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'oneDay'};
