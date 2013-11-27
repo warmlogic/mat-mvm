@@ -114,31 +114,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     end
                   end
                 end
-                
-                %if strcmp(ns_evt{5}(ec-1),ns_evt{5}(ec))
-                %  ec = ec - 1;
-                %  ec_add = 1;
-                %elseif strcmp(ns_evt{5}(ec+1),ns_evt{5}(ec))
-                %  ec = ec + 1;
-                %  ec_add = -1;
-                %end
               end
-              
-%               % another hack: weird case when 2 DINs appear next to each
-%               % other in the evt file, but only 1 DIN is in the FT events
-%               if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-%                 this_time_ms_str = ns_evt{5}(ec);
-%                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-%                 this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
-%                 prev_time_ms_str = ns_evt{5}(ec-1);
-%                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-%                 prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
-%                 
-%                 if this_time_samp == prev_time_samp
-%                   ec = ec + 1;
-%                 end
-%                 % don't put ec back in its prior state
-%               end
               
               if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
@@ -345,23 +321,21 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           switch ft_event(i).value
             case 'STIM'
               
-              % hack: special case for when the evt events are in a
-              % slightly different order compared to the events that FT
-              % reads due to two events having the same sample time
+              % hack: 2 special cases: evt events occurred at the same
+              % sample (but possibly at different MS). Since the evt
+              % records MS and FieldTrip events records samples, this can
+              % cause some screwy things to happen. Both events always
+              % exist in the evt file; however, when FT reads events, it
+              % seems to respect events with different codes, but it
+              % ignores one of the two with the same code. In the former
+              % case, sometimes they are in a slightly different order in
+              % the evt file compared to the events that FT reads due to
+              % two events having the same sample time but different MS
+              % times, so ec needs to get reset to its previous state. In
+              % the latter case, since FT completely skips duplicate events
+              % at the same sample, we simply need to increment ec by 1.
               ec_add = 0;
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
-                if strcmp(ns_evt{5}(ec-1),ns_evt{5}(ec))
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{5}(ec+1),ns_evt{5}(ec))
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              end
-              
-              % another hack: weird case when 2 DINs appear next to each
-              % other in the evt file, but only 1 DIN is in the FT events
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
                 this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
@@ -370,9 +344,24 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
                 
                 if this_time_samp == prev_time_samp
-                  ec = ec + 1;
+                  % events occurred at the same sample
+                  
+                  if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+                    % don't put ec back in its prior state if the event
+                    % codes were the same
+                    ec = ec + 1;
+                  elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+                    % put ec back in its prior state if the event codes
+                    % were not the same
+                    if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
+                      ec = ec - 1;
+                      ec_add = 1;
+                    elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
+                      ec = ec + 1;
+                      ec_add = -1;
+                    end
+                  end
                 end
-                % don't put ec back in its prior state
               end
               
               if strcmp(ns_evt{1}(ec),ft_event(i).value)
@@ -587,23 +576,21 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           switch ft_event(i).value
             case 'STIM'
               
-              % hack: special case for when the evt events are in a
-              % slightly different order compared to the events that FT
-              % reads due to two events having the same sample time
+              % hack: 2 special cases: evt events occurred at the same
+              % sample (but possibly at different MS). Since the evt
+              % records MS and FieldTrip events records samples, this can
+              % cause some screwy things to happen. Both events always
+              % exist in the evt file; however, when FT reads events, it
+              % seems to respect events with different codes, but it
+              % ignores one of the two with the same code. In the former
+              % case, sometimes they are in a slightly different order in
+              % the evt file compared to the events that FT reads due to
+              % two events having the same sample time but different MS
+              % times, so ec needs to get reset to its previous state. In
+              % the latter case, since FT completely skips duplicate events
+              % at the same sample, we simply need to increment ec by 1.
               ec_add = 0;
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
-                if strcmp(ns_evt{5}(ec-1),ns_evt{5}(ec))
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{5}(ec+1),ns_evt{5}(ec))
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              end
-              
-              % another hack: weird case when 2 DINs appear next to each
-              % other in the evt file, but only 1 DIN is in the FT events
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
                 this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
@@ -612,9 +599,24 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
                 
                 if this_time_samp == prev_time_samp
-                  ec = ec + 1;
+                  % events occurred at the same sample
+                  
+                  if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+                    % don't put ec back in its prior state if the event
+                    % codes were the same
+                    ec = ec + 1;
+                  elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+                    % put ec back in its prior state if the event codes
+                    % were not the same
+                    if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
+                      ec = ec - 1;
+                      ec_add = 1;
+                    elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
+                      ec = ec + 1;
+                      ec_add = -1;
+                    end
+                  end
                 end
-                % don't put ec back in its prior state
               end
               
               if strcmp(ns_evt{1}(ec),ft_event(i).value)
@@ -816,23 +818,21 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           switch ft_event(i).value
             case 'STIM'
               
-              % hack: special case for when the evt events are in a
-              % slightly different order compared to the events that FT
-              % reads due to two events having the same sample time
+              % hack: 2 special cases: evt events occurred at the same
+              % sample (but possibly at different MS). Since the evt
+              % records MS and FieldTrip events records samples, this can
+              % cause some screwy things to happen. Both events always
+              % exist in the evt file; however, when FT reads events, it
+              % seems to respect events with different codes, but it
+              % ignores one of the two with the same code. In the former
+              % case, sometimes they are in a slightly different order in
+              % the evt file compared to the events that FT reads due to
+              % two events having the same sample time but different MS
+              % times, so ec needs to get reset to its previous state. In
+              % the latter case, since FT completely skips duplicate events
+              % at the same sample, we simply need to increment ec by 1.
               ec_add = 0;
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
-                if strcmp(ns_evt{5}(ec-1),ns_evt{5}(ec))
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{5}(ec+1),ns_evt{5}(ec))
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              end
-              
-              % another hack: weird case when 2 DINs appear next to each
-              % other in the evt file, but only 1 DIN is in the FT events
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
                 this_time_ms_str = ns_evt{5}(ec);
                 this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
                 this_time_samp = round((this_time_ms / 1000) * ft_hdr.Fs);
@@ -841,9 +841,24 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_samp = round((prev_time_ms / 1000) * ft_hdr.Fs);
                 
                 if this_time_samp == prev_time_samp
-                  ec = ec + 1;
+                  % events occurred at the same sample
+                  
+                  if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+                    % don't put ec back in its prior state if the event
+                    % codes were the same
+                    ec = ec + 1;
+                  elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+                    % put ec back in its prior state if the event codes
+                    % were not the same
+                    if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
+                      ec = ec - 1;
+                      ec_add = 1;
+                    elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
+                      ec = ec + 1;
+                      ec_add = -1;
+                    end
+                  end
                 end
-                % don't put ec back in its prior state
               end
               
               if strcmp(ns_evt{1}(ec),ft_event(i).value)
