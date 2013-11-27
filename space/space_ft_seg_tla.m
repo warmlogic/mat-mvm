@@ -191,7 +191,9 @@ ana.artifact.fltpadding = 0;
 ana.artifact.basic_art_z = 22;
 ana.artifact.muscle_art_z = 40;
 ana.artifact.jump_art_z = 50;
-ana.artifact.basic_art_z_postICA = 23;
+ana.artifact.basic_art_z_postICA = 22;
+ana.artifact.muscle_art_z_postICA = 40;
+ana.artifact.jump_art_z_postICA = 50;
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
 % ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
@@ -274,8 +276,8 @@ adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo
 %   mm_mergeAnalysisDetails(adFile,server_adFile,true,false,false);
 % end
 
-[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
-% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
+[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
 % files.figFontName = 'Helvetica';
 % files.figPrintFormat = 'epsc2';
@@ -306,9 +308,10 @@ ana = mm_ft_elecGroups(ana);
 % ana.eventValues = {exper.eventValues};
 % ana.eventValues = {{'Face','House'}};
 
-% % expo
-% %
-% % can include targ==-1 because those are simply buffers for multistudy
+% expo
+%
+% can include targ==-1 because those are simply buffers for multistudy
+
 % ana.eventValues = {{'expo_stim'}};
 % ana.eventValuesSplit = {{'Face','House'}};
 % ana.trl_expr = {...
@@ -669,7 +672,8 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.rois = {{'LAS'},{'LPS'}};
+cfg_plot.rois = {{'E70'},{'E83'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
@@ -888,7 +892,9 @@ cfg_ft.zlim = [-5.5 5.5]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
-cfg_ft.comment = 'no';
+% cfg_ft.comment = 'no';
+cfg_ft.comment = 'xlim';
+cfg_ft.commentpos = 'middletop';
 
 cfg_plot.roi = {'E73'};
 %cfg_plot.roi = {'LAS'};
