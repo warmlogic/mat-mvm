@@ -65,7 +65,7 @@ exper.subjects = {
 %   'SPACE005';
 %   'SPACE006';
 %   'SPACE007';
-%   'SPACE008';
+%   %'SPACE008';
   'SPACE009';
 %   'SPACE010';
 %   'SPACE011';
@@ -184,8 +184,8 @@ ana.cfg_cont.bsfreq = 59:61;
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts
-%ana.artifact.trlpadding = -0.5;
-ana.artifact.trlpadding = 0;
+ana.artifact.trlpadding = -0.5;
+% ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.basic_art_z = 22;
