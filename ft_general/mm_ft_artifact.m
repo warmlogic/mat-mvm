@@ -479,14 +479,24 @@ if rejArt_ftManual
     ana.artifact.resumeManArtFT = false;
   end
   
-  if ~isfield(ana.artifact,'basic_art_z')
-    ana.artifact.basic_art_z = 22;
+  % set some defaults
+  if isfield(ana.artifact,'basic_art_z')
+    basic_art_z_default = ana.artifact.basic_art_z;
+  elseif ~isfield(ana.artifact,'basic_art_z')
+    basic_art_z_default = 22;
+    ana.artifact.basic_art_z = basic_art_z_default;
   end
-  if ~isfield(ana.artifact,'muscle_art_z')
-    ana.artifact.muscle_art_z = 40;
+  if isfield(ana.artifact,'muscle_art_z')
+    muscle_art_z_default = ana.artifact.muscle_art_z;
+  elseif ~isfield(ana.artifact,'muscle_art_z')
+    muscle_art_z_default = 40;
+    ana.artifact.muscle_art_z = muscle_art_z_default;
   end
-  if ~isfield(ana.artifact,'jump_art_z')
-    ana.artifact.jump_art_z = 50;
+  if isfield(ana.artifact,'jump_art_z')
+    jump_art_z_default = ana.artifact.jump_art_z;
+  elseif ~isfield(ana.artifact,'jump_art_z')
+    jump_art_z_default = 50;
+    ana.artifact.jump_art_z = jump_art_z_default;
   end
   
   if ana.artifact.resumeManArtFT
@@ -608,28 +618,28 @@ if rejArt_ftManual
       if ft_customZvals_prompt
         basic_art_z = -1;
         while basic_art_z <= 0
-          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',ana.artifact.basic_art_z));
+          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
         end
         if isempty(basic_art_z)
-          basic_art_z = ana.artifact.basic_art_z;
+          basic_art_z = basic_art_z_default;
         end
         ana.artifact.basic_art_z = basic_art_z;
         
         muscle_art_z = -1;
         while muscle_art_z <= 0
-          muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',ana.artifact.muscle_art_z));
+          muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_default));
         end
         if isempty(muscle_art_z)
-          muscle_art_z = ana.artifact.muscle_art_z;
+          muscle_art_z = muscle_art_z_default;
         end
         ana.artifact.muscle_art_z = muscle_art_z;
         
         jump_art_z = -1;
         while jump_art_z <= 0
-          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',ana.artifact.jump_art_z));
+          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_default));
         end
         if isempty(jump_art_z)
-          jump_art_z = ana.artifact.jump_art_z;
+          jump_art_z = jump_art_z_default;
         end
         ana.artifact.jump_art_z = jump_art_z;
       end
@@ -753,7 +763,7 @@ if rejArt_ftManual
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       cfg_manArt = [];
-      cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue; %
+      cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue;
       cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
       cfg_manArt.artfctdef.jump.artifact = artifact_jump;
       
@@ -959,8 +969,11 @@ if rejArt_ftICA
     ana.artifact.fltpadding = 0;
   end
   
-  if ~isfield(ana.artifact,'basic_art_z_postICA')
-    ana.artifact.basic_art_z_postICA = 23;
+  if isfield(ana.artifact,'basic_art_z_postICA')
+    basic_art_z_postICA_default = ana.artifact.basic_art_z_postICA;
+  elseif ~isfield(ana.artifact,'basic_art_z_postICA')
+    basic_art_z_postICA_default = 23;
+    ana.artifact.basic_art_z_postICA = basic_art_z_postICA_default;
   end
   
   keepCheckingICA = true;
@@ -982,7 +995,7 @@ if rejArt_ftICA
     
     %ica_chanNum = [];
     while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
-      ica_chanNum = input('\nDo you only want to run ICA on all channels (1) or a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+      ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
     end
     if ica_chanNum
       cfg_ica.channel = 'all';
@@ -1043,6 +1056,8 @@ if rejArt_ftICA
         cfg.component = str2double(regexp(componentsToReject,'\d*','match')');
         data_ica_rej = ft_rejectcomponent(cfg, comp, data);
       end
+    else
+      data_ica_rej = data;
     end
     
     % another auto search for artifacts
@@ -1078,10 +1093,10 @@ if rejArt_ftICA
       if ft_customZvals_prompt
         basic_art_z = -1;
         while basic_art_z <= 0
-          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',ana.artifact.basic_art_z));
+          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_postICA_default));
         end
         if isempty(basic_art_z)
-          basic_art_z = ana.artifact.basic_art_z;
+          basic_art_z = basic_art_z_postICA_default;
         end
         ana.artifact.basic_art_z = basic_art_z;
       end
