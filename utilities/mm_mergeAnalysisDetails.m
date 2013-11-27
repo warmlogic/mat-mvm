@@ -96,10 +96,11 @@ if all(ismember(orig_anaDetails.exper.eventValues,add_anaDetails.exper.eventValu
       cfg_proc = orig_anaDetails.cfg_proc;
       cfg_pp = orig_anaDetails.cfg_pp;
       
+      fprintf('\nResaving analysis details with additional data: %s...',orig_anaDetails_file);
       save(orig_anaDetails_file,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-      fprintf('Done re-saving analysis details.\n');
+      fprintf('Done.\n');
     else
-      fprintf('There are no new subjects in exper.subjects (everyone is already in the original analysisDetails.mat).  Not re-saving analysisDetails.mat.\n');
+      fprintf('There are no new subjects in exper.subjects (everyone is already in the original analysisDetails.mat).  Not saving anything with additional subjects.\n');
     end
     
     if replaceOrig
@@ -139,11 +140,11 @@ if all(ismember(orig_anaDetails.exper.eventValues,add_anaDetails.exper.eventValu
         cfg_proc = orig_anaDetails.cfg_proc;
         cfg_pp = orig_anaDetails.cfg_pp;
         
-        fprintf('Resaving analysis details with replacement data: %s...',orig_anaDetails_file);
+        fprintf('\nResaving analysis details with replacement data: %s...',orig_anaDetails_file);
         save(orig_anaDetails_file,'exper','ana','dirs','files','cfg_proc','cfg_pp');
         fprintf('Done.\n');
       else
-        fprintf('There are no subjects to replace in the original analysis details file. Not saving anything.\n');
+        fprintf('\nThere are no subjects to replace in the original analysis details file. Not saving anything with replacements.\n');
       end
     end
   end
