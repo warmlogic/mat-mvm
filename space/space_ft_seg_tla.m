@@ -66,9 +66,9 @@ exper.subjects = {
 %   'SPACE006';
 %   'SPACE007';
 %   %'SPACE008';
-  'SPACE009';
+%   'SPACE009';
 %   'SPACE010';
-%   'SPACE011';
+  'SPACE011';
 %   'SPACE012';
 %   'SPACE013';
   };
@@ -188,10 +188,14 @@ ana.artifact.trlpadding = -0.5;
 % ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
-ana.artifact.basic_art_z = 22;
+ana.artifact.threshmin = -150;
+ana.artifact.threshmax = 150;
+ana.artifact.basic_art_z = 30;
 ana.artifact.muscle_art_z = 40;
 ana.artifact.jump_art_z = 50;
-ana.artifact.basic_art_z_postICA = 22;
+ana.artifact.threshmin_postICA = -150;
+ana.artifact.threshmax_postICA = 150;
+ana.artifact.basic_art_z_postICA = 30;
 ana.artifact.muscle_art_z_postICA = 40;
 ana.artifact.jump_art_z_postICA = 50;
 %ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
@@ -269,6 +273,7 @@ end
 %% load the analysis details
 
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+% adFile5 = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails_SPACE005.mat';
 % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(adFile,adFile5,true,true,true);
 
 % % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
@@ -640,10 +645,10 @@ cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-% cfg_ft.xlim = [-0.2 1.0];
-% cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-10 10; -10 10];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+cfg_ft.xlim = [-0.2 1.0];
+cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.ylims = [-10 10; -10 10];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -672,8 +677,8 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg_plot.rois = {{'LAS'},{'LPS'}};
-cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.rois = {{'E70'},{'E83'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
@@ -755,6 +760,79 @@ end
 %   
 %   mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
 % end
+
+%% RSA - very basic
+thisROI = 'PI';
+elecInd = ismember(data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.label,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+
+dataType = 'word_RgH_rc_spac';
+% dataType = 'img_RgH_rc_spac';
+% dataType = 'word_RgH_rc_mass';
+% dataType = 'img_RgH_rc_mass';
+
+% dataType = 'word_RgH_fo_spac';
+% dataType = 'img_RgH_fo_spac';
+% dataType = 'word_RgH_fo_mass';
+% dataType = 'img_RgH_fo_mass';
+
+phaseCountCol = 4;
+stimNumCol = 6;
+categNumCol = 7;
+
+distanceMetric = 'euclidean';
+% distanceMetric = 'seuclidean';
+% distanceMetric = 'spearman';
+% distanceMetric = 'cosine';
+% distanceMetric = 'correlation';
+
+if strcmp(distanceMetric,'euclidean')
+  distanceScale = [0 100];
+elseif strcmp(distanceMetric,'spearman') || strcmp(distanceMetric,'correlation') || strcmp(distanceMetric,'cosine')
+  distanceScale = [0 2];
+elseif strcmp(distanceMetric,'seuclidean')
+  distanceScale = [0 20];
+else
+  distanceScale = [];
+end
+
+% timeS = [0.1 0.8];
+timeS = [0.0 1.0];
+timeInd = data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.time >= timeS(1) & data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.time <= timeS(2);
+
+for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial,1)
+  %p1_trlInd = 1;
+  p1_trlInd = i;
+  p1_phaseCount = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,phaseCountCol);
+  p1_stimNum = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,stimNumCol);
+  p1_categNum = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,categNumCol);
+  
+  p2_trlInd = find(...
+    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,categNumCol) == p1_categNum);
+  %p2_trlInd = 1;
+  
+  if ~isempty(p2_trlInd)
+    p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd))';
+    p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd))';
+    
+    D = pdist2(p1_data,p2_data,distanceMetric);
+    
+    figure;
+    if exist('distanceScale','var') && ~isempty(distanceScale)
+      imagesc(linspace(timeS(1),timeS(2),size(p1_data,1)),linspace(timeS(1),timeS(2),size(p2_data,1)),D,distanceScale);
+    else
+      imagesc(linspace(timeS(1),timeS(2),size(p1_data,1)),linspace(timeS(1),timeS(2),size(p2_data,1)),D);
+    end
+    h = colorbar;
+    set(get(h,'YLabel'),'string','Dissimilarity');
+    title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
+    xlabel('P1');
+    ylabel('P2');
+  else
+    fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
+  end
+end
 
 %% make some GA plots
 
@@ -939,7 +1017,7 @@ cfg_ana = [];
 % cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
 cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_ana.rois = {{'FC'}};
+% cfg_ana.rois = {{'FC'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
 % % LF O/N
@@ -956,6 +1034,7 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 %cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
 cfg_ana.conditions = {{'Face','House'}};
+cfg_ana.conditions = {{'RgH','CR'}};
 
 %cfg_ana.conditions = {{'all'}};
 %cfg_ana.conditions = {{'all_within_types'}};
