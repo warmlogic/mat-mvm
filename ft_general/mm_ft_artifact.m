@@ -484,7 +484,7 @@ if rejArt_ftManual
   if isfield(ana.artifact,'basic_art_z')
     basic_art_z_default = ana.artifact.basic_art_z;
   elseif ~isfield(ana.artifact,'basic_art_z')
-    basic_art_z_default = 22;
+    basic_art_z_default = 25;
     ana.artifact.basic_art_z = basic_art_z_default;
   end
   if isfield(ana.artifact,'muscle_art_z')
@@ -528,11 +528,11 @@ if rejArt_ftManual
     ana.artifact.fltpadding = 0;
   end
   
-  if ~isfield(ana.artifact,'threshmax')
-    ana.artifact.threshmax = 150;
-  end
   if ~isfield(ana.artifact,'threshmin')
     ana.artifact.threshmin = -150;
+  end
+  if ~isfield(ana.artifact,'threshmax')
+    ana.artifact.threshmax = 150;
   end
   
   keepRepairingChannels = true;
@@ -667,27 +667,36 @@ if rejArt_ftManual
       end
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      % look for threshold artifacts
+      % look for threshold artifacts - only if using EGI's HydroCel GSN
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      cfg = [];
-      cfg.continuous = 'no';
-      % get the trial definition for automated FT artifact rejection
-      cfg.trl = ft_findcfg(data.cfg,'trl');
-      
-      % exclude eye channels - assumes we're using EGI's HCGSN
-      cfg.artfctdef.threshold.channel = {'all', '-E127', '-E126', '-E25', '-E8', '-E128', '-E125', '-E21', '-E14', '-E17', '-E15', '-E22', '-E9'};
-      cfg.artfctdef.threshold.bpfilter = 'yes';
-      cfg.artfctdef.threshold.bpfreq = [0.3 30];
-      cfg.artfctdef.threshold.bpfiltord = 4;
-      
-      cfg.artfctdef.threshold.min = ana.artifact.threshmin;
-      cfg.artfctdef.threshold.max = ana.artifact.threshmax;
-      
-      fprintf('\nChecking for voltages above %d uV and below %d uV (excludes eye channels and neighbors)...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min);
-      
-      % auto mark zvalue artifacts
-      [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data);
+      if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+        cfg = [];
+        cfg.continuous = 'no';
+        % get the trial definition for automated FT artifact rejection
+        cfg.trl = ft_findcfg(data.cfg,'trl');
+        
+        % exclude eye channels - assumes we're using EGI's HCGSN
+        cfg.artfctdef.threshold.channel = {'all', ...
+          '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
+          '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
+          '-E26', '-E22', '-E15', '-E9', '-E2', ...
+          '-E23', '-E18', '-E16', '-E10', '-E3', ...
+          '-E19', '-E11', '-E4'};
+        cfg.artfctdef.threshold.bpfilter = 'yes';
+        cfg.artfctdef.threshold.bpfreq = [0.3 30];
+        cfg.artfctdef.threshold.bpfiltord = 4;
+        
+        cfg.artfctdef.threshold.min = ana.artifact.threshmin;
+        cfg.artfctdef.threshold.max = ana.artifact.threshmax;
+        
+        fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %d uV and below %d uV (excludes eye channels and neighbors)...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min);
+        
+        % auto mark zvalue artifacts
+        [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data);
+      else
+        warning('Not using EGI HydroCel GSN 128/129 electrode file! Threshold artifacts are not being assessed!!');
+      end
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % look for zvalue artifacts
@@ -797,7 +806,9 @@ if rejArt_ftManual
       cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue;
       cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
       cfg_manArt.artfctdef.jump.artifact = artifact_jump;
-      cfg_manArt.artfctdef.threshold.artifact = artifact_thresh;
+      if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+        cfg_manArt.artfctdef.threshold.artifact = artifact_thresh;
+      end
       
       % get the trial definition for automated FT artifact rejection
       cfg_manArt.trl = ft_findcfg(data.cfg,'trl');
@@ -1004,7 +1015,7 @@ if rejArt_ftICA
   if isfield(ana.artifact,'basic_art_z_postICA')
     basic_art_z_postICA_default = ana.artifact.basic_art_z_postICA;
   elseif ~isfield(ana.artifact,'basic_art_z_postICA')
-    basic_art_z_postICA_default = 22;
+    basic_art_z_postICA_default = 25;
     ana.artifact.basic_art_z_postICA = basic_art_z_postICA_default;
   end
   if isfield(ana.artifact,'muscle_art_z_postICA')
@@ -1020,11 +1031,11 @@ if rejArt_ftICA
     ana.artifact.jump_art_z_postICA = jump_art_z_postICA_default;
   end
   
-  if ~isfield(ana.artifact,'threshmax')
-    ana.artifact.threshmax = 150;
+  if ~isfield(ana.artifact,'threshmin_postICA')
+    ana.artifact.threshmin_postICA = -150;
   end
-  if ~isfield(ana.artifact,'threshmin')
-    ana.artifact.threshmin = -150;
+  if ~isfield(ana.artifact,'threshmax_postICA')
+    ana.artifact.threshmax_postICA = 150;
   end
   
   keepCheckingICA = true;
@@ -1188,24 +1199,33 @@ if rejArt_ftICA
       % look for threshold artifacts
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      cfg = [];
-      cfg.continuous = 'no';
-      % get the trial definition for automated FT artifact rejection
-      cfg.trl = ft_findcfg(data.cfg,'trl');
-      
-      % exclude eye channels - assumes we're using EGI's HCGSN
-      cfg.artfctdef.threshold.channel = {'all', '-E127', '-E126', '-E25', '-E8', '-E128', '-E125', '-E21', '-E14', '-E17', '-E15', '-E22', '-E9'};
-      cfg.artfctdef.threshold.bpfilter = 'yes';
-      cfg.artfctdef.threshold.bpfreq = [0.3 30];
-      cfg.artfctdef.threshold.bpfiltord = 4;
-      
-      cfg.artfctdef.threshold.min = ana.artifact.threshmin;
-      cfg.artfctdef.threshold.max = ana.artifact.threshmax;
-      
-      fprintf('\nChecking for voltages above %d uV and below %d uV (excludes eye channels and neighbors)...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min);
-      
-      % auto mark zvalue artifacts
-      [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data);
+      if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+        cfg = [];
+        cfg.continuous = 'no';
+        % get the trial definition for automated FT artifact rejection
+        cfg.trl = ft_findcfg(data.cfg,'trl');
+        
+        % exclude eye channels - assumes we're using EGI's HCGSN
+        cfg.artfctdef.threshold.channel = {'all', ...
+          '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
+          '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
+          '-E26', '-E22', '-E15', '-E9', '-E2', ...
+          '-E23', '-E18', '-E16', '-E10', '-E3', ...
+          '-E19', '-E11', '-E4'};
+        cfg.artfctdef.threshold.bpfilter = 'yes';
+        cfg.artfctdef.threshold.bpfreq = [0.3 30];
+        cfg.artfctdef.threshold.bpfiltord = 4;
+        
+        cfg.artfctdef.threshold.min = ana.artifact.threshmin_postICA;
+        cfg.artfctdef.threshold.max = ana.artifact.threshmax_postICA;
+        
+        fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %d uV and below %d uV (excludes eye channels and neighbors)...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min);
+        
+        % auto mark zvalue artifacts
+        [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data);
+      else
+        warning('Not using EGI HydroCel GSN 128/129 electrode file! Threshold artifacts are not being assessed!!');
+      end
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % look for zvalue artifacts
@@ -1312,7 +1332,9 @@ if rejArt_ftICA
       cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue;
       cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
       cfg_manArt.artfctdef.jump.artifact = artifact_jump;
-      cfg_manArt.artfctdef.threshold.artifact = artifact_thresh;
+      if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+        cfg_manArt.artfctdef.threshold.artifact = artifact_thresh;
+      end
       
       % another manual search of the data for artifacts
       
