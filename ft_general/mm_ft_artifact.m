@@ -484,7 +484,7 @@ if rejArt_ftManual
   if isfield(ana.artifact,'basic_art_z')
     basic_art_z_default = ana.artifact.basic_art_z;
   elseif ~isfield(ana.artifact,'basic_art_z')
-    basic_art_z_default = 25;
+    basic_art_z_default = 30;
     ana.artifact.basic_art_z = basic_art_z_default;
   end
   if isfield(ana.artifact,'muscle_art_z')
@@ -707,7 +707,11 @@ if rejArt_ftManual
       % get the trial definition for automated FT artifact rejection
       cfg.trl = ft_findcfg(data.cfg,'trl');
       
-      cfg.artfctdef.zvalue.channel = 'all';
+      if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+        cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+      else
+        cfg.artfctdef.zvalue.channel = 'all';
+      end
       cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
@@ -736,7 +740,11 @@ if rejArt_ftManual
       
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
-      cfg.artfctdef.zvalue.channel = 'all';
+      if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+        cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+      else
+        cfg.artfctdef.zvalue.channel = 'all';
+      end
       cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       if strcmp(cfg.continuous,'yes')
@@ -1015,7 +1023,7 @@ if rejArt_ftICA
   if isfield(ana.artifact,'basic_art_z_postICA')
     basic_art_z_postICA_default = ana.artifact.basic_art_z_postICA;
   elseif ~isfield(ana.artifact,'basic_art_z_postICA')
-    basic_art_z_postICA_default = 25;
+    basic_art_z_postICA_default = 30;
     ana.artifact.basic_art_z_postICA = basic_art_z_postICA_default;
   end
   if isfield(ana.artifact,'muscle_art_z_postICA')
