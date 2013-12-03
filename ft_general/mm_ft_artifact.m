@@ -500,6 +500,19 @@ if rejArt_ftManual
     ana.artifact.jump_art_z = jump_art_z_default;
   end
   
+  if isfield(ana.artifact,'threshmin')
+    threshmin_default = ana.artifact.threshmin;
+  elseif ~isfield(ana.artifact,'threshmin')
+    threshmin_default = -150;
+    ana.artifact.threshmin = threshmin_default;
+  end
+  if isfield(ana.artifact,'threshmax')
+    threshmax_default = ana.artifact.threshmax;
+  elseif ~isfield(ana.artifact,'threshmax')
+    threshmax_default = 150;
+    ana.artifact.threshmax = threshmax_default;
+  end
+  
   if ana.artifact.resumeManArtFT
     if exist(resumeManArtFT_file,'file')
       % load the manually processed artifacts
@@ -526,13 +539,6 @@ if rejArt_ftManual
   end
   if ~isfield(ana.artifact,'fltpadding')
     ana.artifact.fltpadding = 0;
-  end
-  
-  if ~isfield(ana.artifact,'threshmin')
-    ana.artifact.threshmin = -150;
-  end
-  if ~isfield(ana.artifact,'threshmax')
-    ana.artifact.threshmax = 150;
   end
   
   keepRepairingChannels = true;
@@ -620,10 +626,30 @@ if rejArt_ftManual
       
       ft_customZvals_prompt = [];
       while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
-        ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+        ft_customZvals_prompt = input('\nDo you want to set your own artifact thresholds (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
       end
       
       if ft_customZvals_prompt
+        if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+          threshmin = 1;
+          while threshmin >= 0
+            threshmin = input(sprintf('\nAt what minimum (negative) voltage do you want to threshold (default=%d)?\n\n',threshmin_default));
+          end
+          if isempty(threshmin)
+            threshmin = threshmin_default;
+          end
+          ana.artifact.threshmin = threshmin;
+          
+          threshmax = -1;
+          while threshmax <= 0
+            threshmax = input(sprintf('\nAt what maximum (positive) voltage do you want to threshold (default=%d)?\n\n',threshmax_default));
+          end
+          if isempty(threshmax)
+            threshmax = threshmax_default;
+          end
+          ana.artifact.threshmax = threshmax;
+        end
+        
         basic_art_z = -1;
         while basic_art_z <= 0
           basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_default));
@@ -708,9 +734,17 @@ if rejArt_ftManual
       cfg.trl = ft_findcfg(data.cfg,'trl');
       
       if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
-        cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+        % cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+        cfg.artfctdef.zvalue.channel = {'all', ...
+          '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
+          '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
+          '-E26', '-E22', '-E15', '-E9', '-E2', ...
+          '-E23', '-E18', '-E16', '-E10', '-E3', ...
+          '-E19', '-E11', '-E4'};
+        exclStr = '(excludes eye channels and neighbors)';
       else
         cfg.artfctdef.zvalue.channel = 'all';
+        exclStr = '';
       end
       cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
@@ -724,7 +758,7 @@ if rejArt_ftManual
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       
-      fprintf('\nChecking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      fprintf('\nChecking for (basic) zvalue artifacts at z=%d%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
       
       % auto mark zvalue artifacts
       [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
@@ -742,8 +776,10 @@ if rejArt_ftManual
       % select a set of channels on which to run the artifact detection
       if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
         cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+        exclStr = ' (excludes eye channels)';
       else
         cfg.artfctdef.zvalue.channel = 'all';
+        exclStr = '';
       end
       cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
@@ -769,7 +805,7 @@ if rejArt_ftManual
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       
-      fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      fprintf('\nChecking for muscle artifacts at z=%d%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
       
       % auto mark muscle artifacts
       [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
@@ -1039,47 +1075,53 @@ if rejArt_ftICA
     ana.artifact.jump_art_z_postICA = jump_art_z_postICA_default;
   end
   
-  if ~isfield(ana.artifact,'threshmin_postICA')
-    ana.artifact.threshmin_postICA = -150;
+  if isfield(ana.artifact,'threshmin_postICA')
+    threshmin_postICA_default = ana.artifact.threshmin_postICA;
+  elseif ~isfield(ana.artifact,'threshmin_postICA')
+    threshmin_postICA_default = -150;
+    ana.artifact.threshmin_postICA = threshmin_postICA_default;
   end
-  if ~isfield(ana.artifact,'threshmax_postICA')
-    ana.artifact.threshmax_postICA = 150;
+  if isfield(ana.artifact,'threshmax_postICA')
+    threshmax_postICA_default = ana.artifact.threshmax_postICA;
+  elseif ~isfield(ana.artifact,'threshmax_postICA')
+    threshmax_postICA_default = 150;
+    ana.artifact.threshmax_postICA = threshmax_postICA_default;
   end
   
-  keepCheckingICA = true;
-  while keepCheckingICA
-    cfg_ica = [];
-    cfg_ica.method = 'runica';
-    %cfg_ica.demean = 'no';
-    
-    fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
-    if ~isempty(badChan_str)
-      fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-      ica_chanNum = 0;
-      fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-    else
-      ica_chanNum = [];
-      fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-      fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
-    end
-    
-    %ica_chanNum = [];
-    while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
-      ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
-    end
-    if ica_chanNum
-      cfg_ica.channel = 'all';
-    else
-      fprintf('\tOnce you see the channel selector:\n');
-      fprintf('\t\t1. Add all channels to the right-side list.\n');
-      fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
-      fprintf('\t\t3. Manually close any empty figure windows.\n');
-      channel = ft_channelselection('gui', data.label);
-      cfg_ica.channel = channel;
-    end
-    
-    comp = ft_componentanalysis(cfg_ica,data);
-    
+  cfg_ica = [];
+  cfg_ica.method = 'runica';
+  %cfg_ica.demean = 'no';
+  
+  fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
+  if ~isempty(badChan_str)
+    fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+    ica_chanNum = 0;
+    fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+  else
+    ica_chanNum = [];
+    fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+    fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+  end
+  
+  %ica_chanNum = [];
+  while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
+    ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+  end
+  if ica_chanNum
+    cfg_ica.channel = 'all';
+  else
+    fprintf('\tOnce you see the channel selector:\n');
+    fprintf('\t\t1. Add all channels to the right-side list.\n');
+    fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
+    fprintf('\t\t3. Manually close any empty figure windows.\n');
+    channel = ft_channelselection('gui', data.label);
+    cfg_ica.channel = channel;
+  end
+  
+  comp = ft_componentanalysis(cfg_ica,data);
+  
+  keepChoosingICAcomps = true;
+  while keepChoosingICAcomps
     % % OLD METHOD - view the first 30 components
     % cfg = [];
     % cfg.component = 1:30; % specify the component(s) that should be plotted
@@ -1157,10 +1199,30 @@ if rejArt_ftICA
       
       ft_customZvals_prompt = [];
       while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
-        ft_customZvals_prompt = input('\nDo you want to set your own artifact z-values (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
+        ft_customZvals_prompt = input('\nDo you want to set your own artifact thresholds (1) or use the defaults (0)? (1 or 0, then press ''return''):\n\n');
       end
       
       if ft_customZvals_prompt
+        if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
+          threshmin_postICA = 1;
+          while threshmin_postICA >= 0
+            threshmin_postICA = input(sprintf('\nAt what minimum (negative) voltage do you want to threshold (default=%d)?\n\n',threshmin_postICA_default));
+          end
+          if isempty(threshmin_postICA)
+            threshmin_postICA = threshmin_postICA_default;
+          end
+          ana.artifact.threshmin_postICA = threshmin_postICA;
+          
+          threshmax_postICA = -1;
+          while threshmax_postICA <= 0
+            threshmax_postICA = input(sprintf('\nAt what maximum (positive) voltage do you want to threshold (default=%d)?\n\n',threshmax_postICA_default));
+          end
+          if isempty(threshmax_postICA)
+            threshmax_postICA = threshmax_postICA_default;
+          end
+          ana.artifact.threshmax_postICA = threshmax_postICA;
+        end
+        
         basic_art_z = -1;
         while basic_art_z <= 0
           basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_postICA_default));
@@ -1213,13 +1275,16 @@ if rejArt_ftICA
         % get the trial definition for automated FT artifact rejection
         cfg.trl = ft_findcfg(data.cfg,'trl');
         
-        % exclude eye channels - assumes we're using EGI's HCGSN
-        cfg.artfctdef.threshold.channel = {'all', ...
-          '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
-          '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
-          '-E26', '-E22', '-E15', '-E9', '-E2', ...
-          '-E23', '-E18', '-E16', '-E10', '-E3', ...
-          '-E19', '-E11', '-E4'};
+        % don't exclude eye channels because we want to reject any blinks
+        % that ICA didn't catch
+        cfg.artfctdef.threshold.channel = {'all'};
+        % % exclude eye channels - assumes we're using EGI's HCGSN
+        % cfg.artfctdef.threshold.channel = {'all', ...
+        %   '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
+        %   '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
+        %   '-E26', '-E22', '-E15', '-E9', '-E2', ...
+        %   '-E23', '-E18', '-E16', '-E10', '-E3', ...
+        %   '-E19', '-E11', '-E4'};
         cfg.artfctdef.threshold.bpfilter = 'yes';
         cfg.artfctdef.threshold.bpfreq = [0.3 30];
         cfg.artfctdef.threshold.bpfiltord = 4;
@@ -1369,12 +1434,12 @@ if rejArt_ftICA
     end
     done_with_ica = [];
     while isempty(done_with_ica) || (done_with_ica ~= 0 && done_with_ica ~= 1)
-      done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to rerun ICA and artifact detection. (1 or 0, then press ''return''):\n\n');
+      done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to redo ICA component rejection and rerun artifact detection. (1 or 0, then press ''return''):\n\n');
     end
     
     if done_with_ica
       data = data_ica_rej;
-      keepCheckingICA = false;
+      keepChoosingICAcomps = false;
     end
   end
   
