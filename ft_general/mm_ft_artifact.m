@@ -1299,14 +1299,14 @@ if rejArt_ftICA
         % get the trial definition for automated FT artifact rejection
         cfg.trl = ft_findcfg(data.cfg,'trl');
         
-        % don't exclude eye channels because we want to reject any blinks
-        % that ICA didn't catch
-        cfg.artfctdef.threshold.channel = {'all'};
-        exclStr = '';
+        % % don't exclude eye channels because we want to reject any blinks
+        % % that ICA didn't catch
+        % cfg.artfctdef.threshold.channel = {'all'};
+        % exclStr = '';
         
-        % % exclude eye channels - assumes we're using EGI's HCGSN
-        % cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
-        % exclStr = ' (excludes eye channels)';
+        % exclude eye channels - assumes we're using EGI's HCGSN
+        cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+        exclStr = ' (excludes eye channels)';
         
         % % exclude eye channels - assumes we're using EGI's HCGSN
         % cfg.artfctdef.threshold.channel = {'all', ...
