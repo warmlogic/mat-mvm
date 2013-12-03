@@ -47,18 +47,12 @@ exper.prepost = [...
 % exper.prepost = [-0.2 1.0];
 exper.prepost = exper.prepost(evInd,:);
 
-% exper.eventValues = sort({'Face VA','Face SA','Face SU','Face VU','House VA','House SA','House SU','House VU'});
-% 
-% % combine some events into higher-level categories
-% exper.eventValuesExtra.toCombine = {{'Face VA','Face SA','Face SU','Face VU'},{'House VA','House SA','House SU','House VU'}};
-% exper.eventValuesExtra.newValue = {{'Face'},{'House'}};
-
 % keep only the combined (extra) events and throw out the original events?
 exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-%   'SPACE001';
+  'SPACE001';
 %   'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
@@ -68,9 +62,10 @@ exper.subjects = {
 %   %'SPACE008';
 %   'SPACE009';
 %   'SPACE010';
-  'SPACE011';
+%   'SPACE011';
 %   'SPACE012';
 %   'SPACE013';
+%   'SPACE014';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -117,25 +112,10 @@ files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
-% figure printing options - see mm_ft_setSaveDirs for other options
-files.saveFigs = 1;
-files.figFontName = 'Helvetica';
-
-files.figPrintFormat = 'epsc2';
-files.figPrintRes = 150;
-
-%files.figPrintFormat = 'png';
-%files.figPrintFormat = 'tiff';
-%files.figPrintRes = 1000;
-
 %% Convert the data to FieldTrip structs
 
 % raw data
 ana.segFxn = 'seg2ft';
-
-% ana.continuous = 'no';
-% ana.trialFxn = 'space_trialfun';
-% % ana.trialFxn = 'seg_trialfun';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
@@ -161,7 +141,6 @@ if ana.useExpInfo
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
   ana.trl_order.expo_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
-  % % ana.trl_order.expo_stim = {'eventNumber', 'sesType', 'phaseType', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'expo_keypress', 'rt'};
   ana.trl_order.multistudy_image = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
   ana.trl_order.multistudy_word = ana.trl_order.multistudy_image;
   %ana.trl_order.distract_math_stim = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
@@ -177,8 +156,6 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = 59:61;
-% ana.cfg_cont.dftfilter = 'yes';
-% ana.cfg_cont.dftfreq = [60 120 180];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
@@ -198,8 +175,6 @@ ana.artifact.threshmax_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;
 ana.artifact.muscle_art_z_postICA = 40;
 ana.artifact.jump_art_z_postICA = 50;
-%ana.artifact.type = {'zeroVar', 'badChanManual', 'badChanEP'};
-% ana.artifact.type = {'zeroVar'};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -813,8 +788,16 @@ for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial,1)
   %p2_trlInd = 1;
   
   if ~isempty(p2_trlInd)
+    % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
+    % distances are measured between observations
+    
+    % rows = samples; cols = channels
     p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd))';
     p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd))';
+    
+    % rows = channels; cols = samples
+    %p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd));
+    %p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd));
     
     D = pdist2(p1_data,p2_data,distanceMetric);
     
