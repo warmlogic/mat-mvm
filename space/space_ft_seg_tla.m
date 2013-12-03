@@ -160,6 +160,7 @@ ana.cfg_cont.bsfreq = 59:61;
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
+ana.artifact.resumeICACompFT = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts
 ana.artifact.trlpadding = -0.5;
 % ana.artifact.trlpadding = 0;
