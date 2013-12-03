@@ -741,7 +741,7 @@ if rejArt_ftManual
           '-E26', '-E22', '-E15', '-E9', '-E2', ...
           '-E23', '-E18', '-E16', '-E10', '-E3', ...
           '-E19', '-E11', '-E4'};
-        exclStr = '(excludes eye channels and neighbors)';
+        exclStr = ' (excludes eye channels and neighbors)';
       else
         cfg.artfctdef.zvalue.channel = 'all';
         exclStr = '';
