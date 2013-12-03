@@ -950,7 +950,7 @@ if rejArt_ftManual
   
   % reject the artifacts (complete or parial rejection)
   cfg_manArt.artfctdef.reject = 'complete';
-  data = ft_rejectartifact(cfg_manArt,data);
+  data = ft_rejectartifact(cfg_manArt, data);
   
   keepRepairingChannels = true;
   while keepRepairingChannels
@@ -1088,37 +1088,61 @@ if rejArt_ftICA
     ana.artifact.threshmax_postICA = threshmax_postICA_default;
   end
   
-  cfg_ica = [];
-  cfg_ica.method = 'runica';
-  %cfg_ica.demean = 'no';
-  
-  fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
-  if ~isempty(badChan_str)
-    fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-    ica_chanNum = 0;
-    fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-  else
-    ica_chanNum = [];
-    fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-    fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+  % set the file to save after running ICA, in case MATLAB crashes
+  resumeICACompFT_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_ICACompFT.mat',subject,sesName));
+  if ~isfield(ana.artifact,'resumeICACompFT')
+    ana.artifact.resumeICACompFT = false;
   end
   
-  %ica_chanNum = [];
-  while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
-    ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+  if ana.artifact.resumeICACompFT
+    if exist(resumeICACompFT_file,'file')
+      % load the manually processed artifacts
+      fprintf('Loading resumable ICA components file: %s...\n',resumeICACompFT_file);
+      fprintf('\nIMPORTANT: You must have rejected the same channels and artifacts as last time or components may be different!\n');
+      load(resumeICACompFT_file,'comp');
+    else
+      warning('Resumable ICA components file does not exist! %s\nStarting ICA over.',resumeICACompFT_file);
+      ana.artifact.resumeICACompFT = false;
+    end
   end
-  if ica_chanNum
-    cfg_ica.channel = 'all';
-  else
-    fprintf('\tOnce you see the channel selector:\n');
-    fprintf('\t\t1. Add all channels to the right-side list.\n');
-    fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
-    fprintf('\t\t3. Manually close any empty figure windows.\n');
-    channel = ft_channelselection('gui', data.label);
-    cfg_ica.channel = channel;
+
+  if ~ana.artifact.resumeICACompFT
+    cfg_ica = [];
+    cfg_ica.method = 'runica';
+    %cfg_ica.demean = 'no';
+    
+    fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
+    if ~isempty(badChan_str)
+      fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+      ica_chanNum = 0;
+      fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+    else
+      ica_chanNum = [];
+      fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+      fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+    end
+    
+    %ica_chanNum = [];
+    while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
+      ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+    end
+    if ica_chanNum
+      cfg_ica.channel = 'all';
+    else
+      fprintf('\tOnce you see the channel selector:\n');
+      fprintf('\t\t1. Add all channels to the right-side list.\n');
+      fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
+      fprintf('\t\t3. Manually close any empty figure windows.\n');
+      channel = ft_channelselection('gui', data.label);
+      cfg_ica.channel = channel;
+    end
+    
+    comp = ft_componentanalysis(cfg_ica,data);
+    
+    fprintf('\nBacking up ICA component data to %s.\n',resumeICACompFT_file);
+    fprintf('\tIf MATLAB crashes before finishing, you can resume without re-running ICA by setting ana.artifact.resumeICACompFT=true in your main file.\n');
+    save(resumeICACompFT_file,'comp');
   end
-  
-  comp = ft_componentanalysis(cfg_ica,data);
   
   keepChoosingICAcomps = true;
   while keepChoosingICAcomps
@@ -1275,18 +1299,24 @@ if rejArt_ftICA
         % get the trial definition for automated FT artifact rejection
         cfg.trl = ft_findcfg(data.cfg,'trl');
         
-        % % this is an interesting thought, but doesn't work in practice:
-        % % don't exclude eye channels because we want to reject any blinks
-        % % that ICA didn't catch
-        % cfg.artfctdef.threshold.channel = {'all'};
+        % don't exclude eye channels because we want to reject any blinks
+        % that ICA didn't catch
+        cfg.artfctdef.threshold.channel = {'all'};
+        exclStr = '';
         
-        % exclude eye channels - assumes we're using EGI's HCGSN
-        cfg.artfctdef.threshold.channel = {'all', ...
-          '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
-          '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
-          '-E26', '-E22', '-E15', '-E9', '-E2', ...
-          '-E23', '-E18', '-E16', '-E10', '-E3', ...
-          '-E19', '-E11', '-E4'};
+        % % exclude eye channels - assumes we're using EGI's HCGSN
+        % cfg.artfctdef.zvalue.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
+        % exclStr = ' (excludes eye channels)';
+        
+        % % exclude eye channels - assumes we're using EGI's HCGSN
+        % cfg.artfctdef.threshold.channel = {'all', ...
+        %   '-E48', '-E128', '-E127', '-E126', '-E125', '-E119', ...
+        %   '-E43', '-E32', '-E25', '-E21', '-E17', '-E14', '-E8', '-E1', '-E120', ...
+        %   '-E26', '-E22', '-E15', '-E9', '-E2', ...
+        %   '-E23', '-E18', '-E16', '-E10', '-E3', ...
+        %   '-E19', '-E11', '-E4'};
+        % exclStr = ' (excludes eye channels and neighbors)';
+        
         cfg.artfctdef.threshold.bpfilter = 'yes';
         cfg.artfctdef.threshold.bpfreq = [0.3 30];
         cfg.artfctdef.threshold.bpfiltord = 4;
@@ -1294,10 +1324,10 @@ if rejArt_ftICA
         cfg.artfctdef.threshold.min = ana.artifact.threshmin_postICA;
         cfg.artfctdef.threshold.max = ana.artifact.threshmax_postICA;
         
-        fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %d uV and below %d uV (excludes eye channels and neighbors)...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min);
+        fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %d uV and below %d uV%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,exclStr);
         
         % auto mark zvalue artifacts
-        [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data);
+        [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data_ica_rej);
       else
         warning('Not using EGI HydroCel GSN 128/129 electrode file! Threshold artifacts are not being assessed!!');
       end
@@ -1365,7 +1395,7 @@ if rejArt_ftICA
       fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark muscle artifacts
-      [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data_ica_rej);
+      [cfg, artifact_muscle] = ft_artifact_zvalue(cfg, data_ica_rej);
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % look for jump artifacts
@@ -1397,7 +1427,7 @@ if rejArt_ftICA
       fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark jump artifacts
-      [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data_ica_rej);
+      [cfg, artifact_jump] = ft_artifact_zvalue(cfg, data_ica_rej);
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % manual inspection of artifacts
@@ -1430,7 +1460,7 @@ if rejArt_ftICA
       fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
       fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
       
-      cfg_manArt = ft_databrowser(cfg_manArt,data_ica_rej);
+      cfg_manArt = ft_databrowser(cfg_manArt, data_ica_rej);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
     end
