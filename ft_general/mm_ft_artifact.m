@@ -1217,9 +1217,15 @@ if rejArt_ftICA
     
     comp = ft_componentanalysis(cfg_ica,data);
     
+    save_resumeICAComp = [];
+    while isempty(save_resumeICAComp) || (save_resumeICAComp ~= 0 && save_resumeICAComp ~= 1)
+      save_resumeICAComp = input('\nDo you want to resavemove the ICA compents resuming file? This file is quite large! But you will have the option to delete it automatically. (1=yes or 0=no, then press ''return''):\n\n');
+    end
+    if save_resumeICAComp
     fprintf('\nBacking up ICA component data to %s.\n',resumeICACompFT_file);
     fprintf('\tIf MATLAB crashes before finishing, you can resume without re-running ICA by setting ana.artifact.resumeICACompFT=true in your main file.\n');
     save(resumeICACompFT_file,'comp');
+    end
   end
   
   keepChoosingICAcomps = true;
@@ -1550,6 +1556,21 @@ if rejArt_ftICA
     if done_with_ica
       data = data_ica_rej;
       keepChoosingICAcomps = false;
+      
+      if save_resumeICAComp
+        % if we saved resumeICACompFT_file, see if we should delete it
+        rm_resumeICAComp = [];
+        while isempty(rm_resumeICAComp) || (rm_resumeICAComp ~= 0 && rm_resumeICAComp ~= 1)
+          rm_resumeICAComp = input('\nDo you want to remove the ICA compents resuming file? This file is quite large, so this is recommended. (1=yes or 0=no, then press ''return''):\n\n');
+        end
+        if rm_resumeICAComp
+          fprintf('\nDeleting %s...',resumeICACompFT_file);
+          delete(resumeICACompFT_file);
+          fprintf('Done.\n');
+        else
+          warning('Not deleting large file: %s',resumeICACompFT_file);
+        end
+      end
     end
   end
   
