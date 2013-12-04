@@ -1219,7 +1219,7 @@ if rejArt_ftICA
     
     save_resumeICAComp = [];
     while isempty(save_resumeICAComp) || (save_resumeICAComp ~= 0 && save_resumeICAComp ~= 1)
-      save_resumeICAComp = input('\nDo you want to resavemove the ICA compents resuming file? This file is quite large! But you will have the option to delete it automatically. (1=yes or 0=no, then press ''return''):\n\n');
+      save_resumeICAComp = input('\nDo you want to save the ICA compents resuming file? This file is quite large, but you will have the option to delete it automatically. (1=yes or 0=no, then press ''return''):\n\n');
     end
     if save_resumeICAComp
     fprintf('\nBacking up ICA component data to %s.\n',resumeICACompFT_file);
