@@ -1222,9 +1222,9 @@ if rejArt_ftICA
       save_resumeICAComp = input('\nDo you want to save the ICA compents resuming file? This file is quite large, but you will have the option to delete it automatically. (1=yes or 0=no, then press ''return''):\n\n');
     end
     if save_resumeICAComp
-    fprintf('\nBacking up ICA component data to %s.\n',resumeICACompFT_file);
-    fprintf('\tIf MATLAB crashes before finishing, you can resume without re-running ICA by setting ana.artifact.resumeICACompFT=true in your main file.\n');
-    save(resumeICACompFT_file,'comp');
+      fprintf('\nBacking up ICA component data to %s.\n',resumeICACompFT_file);
+      fprintf('\tIf MATLAB crashes before finishing, you can resume without re-running ICA by setting ana.artifact.resumeICACompFT=true in your main file.\n');
+      save(resumeICACompFT_file,'comp');
     end
   end
   
