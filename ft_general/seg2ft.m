@@ -453,20 +453,17 @@ for ses = 1:length(session)
   try
     fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     cfg = ft_definetrial(cfg);
-    
-    % remove these fields or the cfg will take up way too much disk space
-    if isfield(cfg,'eventinfo')
-      cfg = rmfield(cfg,'eventinfo');
-    end
-    if isfield(cfg.callinfo.usercfg,'eventinfo')
-      cfg.callinfo.usercfg = rmfield(cfg.callinfo.usercfg,'eventinfo');
-    end
   catch ME
+    warning('An error occurred!!!');
+    fprintf('\tFunction: %s\n',ME.stack(1).name);
+    fprintf('\tLine number: %d\n',ME.stack(1).line);
+    fprintf('\tThe reason:\n\t\t%s\n',ME.message);
+    
     % if there were zero trials for this event type
     if strfind(ME.message,'no trials were defined')
       fprintf('No %s events found!\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     end
-    fprintf('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.\n',...
+    warning('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.',...
       sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     
     % something is wrong, figure it out; or dbcont
@@ -475,6 +472,14 @@ for ses = 1:length(session)
     % set an empty cell and return to the calling function
     ft_raw.data.trial = {};
     return
+  end
+  
+  % remove these fields or the cfg will take up way too much disk space
+  if isfield(cfg,'eventinfo')
+    cfg = rmfield(cfg,'eventinfo');
+  end
+  if isfield(cfg.callinfo.usercfg,'eventinfo')
+    cfg.callinfo.usercfg = rmfield(cfg.callinfo.usercfg,'eventinfo');
   end
   
   %% Get the data and process it if necessary
