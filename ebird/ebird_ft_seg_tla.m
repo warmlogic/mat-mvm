@@ -219,7 +219,7 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 % cfg.badChanEP = true;
 % [exper] = mm_getBadChan(cfg,exper,dirs);
 
-%% save the analysis details
+% save the analysis details
 
 backup_orig_AD = true;
 % whether to sort by subject number
@@ -265,14 +265,6 @@ adFile = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo
 
 % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
-
-% files.figFontName = 'Helvetica';
-% files.figPrintFormat = 'epsc2';
-% %files.figPrintFormat = 'png';
-% files.figPrintRes = 150;
-
-%files.figPrintFormat = 'tiff';
-%files.figPrintRes = 1000;
 
 %% set up channel groups
 
