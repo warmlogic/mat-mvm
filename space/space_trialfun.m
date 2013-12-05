@@ -48,7 +48,8 @@ sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{se
 
 for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
   phaseName = cfg.eventinfo.phaseNames{sesType}{pha};
-  phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},cfg.eventinfo.phaseNames{sesType}{pha}));
+  %phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},phaseName));
+  phaseType = pha;
   
   switch phaseName
     
@@ -60,7 +61,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
+      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      
       for i = 1:length(ft_event)
+        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+        
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
           % found a trigger in the EEG file events; increment index if
           % value is correct.
@@ -298,7 +303,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           end
           
         end
-      end
+      end % for
+      fprintf('\n');
       
     case {'multistudy', 'prac_multistudy'}
       
@@ -309,7 +315,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
+      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      
       for i = 1:length(ft_event)
+        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+        
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
           % found a trigger in the evt file; increment index if value is correct.
           
@@ -553,7 +563,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           end
           
         end
-      end
+      end % for
+      fprintf('\n');
       
     case {'distract_math', 'prac_distract_math'}
       
@@ -564,7 +575,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
+      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      
       for i = 1:length(ft_event)
+        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+        
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
           % found a trigger in the evt file; increment index if value is correct.
           
@@ -792,7 +807,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           end
           
         end
-      end
+      end % for
+      fprintf('\n');
       
     case {'cued_recall', 'prac_cued_recall'}
       
@@ -806,7 +822,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
+      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      
       for i = 1:length(ft_event)
+        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+        
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
           % found a trigger in the evt file; increment index if value is correct.
           
@@ -1070,7 +1090,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           end
           
         end
-      end
+      end % for
+      fprintf('\n');
       
   end % switch phase
 end % pha
