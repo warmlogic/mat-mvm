@@ -48,12 +48,13 @@ sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{se
 
 for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
   phaseName = cfg.eventinfo.phaseNames{sesType}{pha};
-  phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},cfg.eventinfo.phaseNames{sesType}{pha}));
+  %phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},phaseName));
+  phaseType = pha;
   
   switch phaseName
     
     case {'match', 'prac_match'}
-      %% process the exposure phase
+      %% process the matching phase
       
       fprintf('Processing %s...\n',phaseName);
       
@@ -63,7 +64,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
+      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      
       for i = 1:length(ft_event)
+        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+        
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
           % found a trigger in the EEG file events; increment index if
           % value is correct.
@@ -318,21 +323,25 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           end
           
         end
-      end
+      end % for
+      fprintf('\n');
       
     case {'nametrain', 'prac_nametrain', 'name', 'prac_name'}
       
       %% process the nametraining and naming phases
       
-      % debug
-      keyboard
-      
       fprintf('Processing %s...\n',phaseName);
+      
+      image_conditions = {'normal'};
       
       % keep track of how many real evt events we have counted
       ec = 0;
       
+      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      
       for i = 1:length(ft_event)
+        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+        
         if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
           % found a trigger in the evt file; increment index if value is correct.
           
@@ -406,8 +415,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   % set column types because Net Station evt files can vary
                   cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
                   cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
+                  cols.(phaseName).block = find(strcmp(ns_evt_cols,'bloc'));
+                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).block)
                     keyboard
                   end
                   
@@ -416,12 +425,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   
                   % Critical: set up the stimulus type, as well as the
                   % event string to match eventValues
-                  if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'word')
-                    stimType = 'STUDY_WORD';
-                    evVal = 'multistudy_word';
-                  elseif strcmp(ns_evt{cols.(phaseName).type+1}(ec),'image')
-                    stimType = 'STUDY_IMAGE';
-                    evVal = 'multistudy_image';
+                  stimType = 'NAME_STIM';
+                  if strcmp(phaseName,'nametrain')
+                    evVal = 'nametrain_stim';
+                  elseif strcmp(phaseName,'name')
+                    evVal = 'name_stim';
                   end
                   trl_order = cfg.eventinfo.trl_order.(evVal);
                   
@@ -451,10 +459,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     ismember({events_all.(sesName).(phaseName_pc).data.phaseName},{phaseName}) &...
                     [events_all.(sesName).(phaseName_pc).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
                     ismember({events_all.(sesName).(phaseName_pc).data.type},{stimType}) &...
-                    [events_all.(sesName).(phaseName_pc).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
+                    [events_all.(sesName).(phaseName_pc).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) &...
+                    [events_all.(sesName).(phaseName_pc).data.block] == str2double(ns_evt{cols.(phaseName).block+1}(ec)) ...
                     );
-                  % exclude  buffers (lag~=-1)
-                  %  [events_all.(sesName).(phaseName_pc).data.lag] ~= -1 ...
                   
                   if length(this_event) > 1
                     warning('More than one event found! Fix this script before continuing analysis.')
@@ -465,18 +472,16 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   elseif length(this_event) == 1
                     
                     phaseCount = this_event.phaseCount;
+                    block = this_event.block;
                     trial = this_event.trial;
-                    stimNum = this_event.stimNum;
-                    catNum = this_event.catNum;
-                    targ = this_event.targ;
-                    spaced = this_event.spaced;
-                    lag = this_event.lag;
-                    presNum = this_event.presNum;
-                    pairOrd = this_event.pairOrd;
-                    pairNum = this_event.pairNum;
-                    cr_recog_acc = this_event.cr_recog_acc;
-                    cr_recall_resp = this_event.cr_recall_resp;
-                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
+                    familyNum = this_event.familyNum;
+                    speciesNum = this_event.speciesNum;
+                    exemplarNum = this_event.exemplarNum;
+                    imgCond = find(ismember(image_conditions,this_event.imgCond));
+                    isSubord = this_event.isSubord;
+                    response = this_event.resp;
+                    rt = this_event.rt;
+                    acc = this_event.acc;
                     
                     % add it to the trial definition
                     this_trl = trl_ini;
@@ -579,7 +584,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           end
           
         end
-      end
+      end % for
+      fprintf('\n');
       
   end % switch phase
 end % pha
