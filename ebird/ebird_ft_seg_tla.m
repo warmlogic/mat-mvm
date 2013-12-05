@@ -26,8 +26,8 @@ exper.eegFileExt = 'raw';
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
 % [exper.eventValues, evInd] = sort({'match_stim', 'nametrain_stim', 'name_stim'});
-[exper.eventValues, evInd] = sort({'match_stim'});
-% [exper.eventValues, evInd] = sort({'nametrain_stim'});
+% [exper.eventValues, evInd] = sort({'match_stim'});
+[exper.eventValues, evInd] = sort({'nametrain_stim', 'name_stim'});
 % [exper.eventValues, evInd] = sort({'name_stim'});
 
 % pre- and post-stimulus times to read, in seconds (pre is negative);
@@ -39,7 +39,7 @@ exper.eegFileExt = 'raw';
 %   -1.0 2.0; ...
 %   -1.0 2.0];
 % exper.prepost = [-1.0 2.0];
-exper.prepost = [-0.2 1.0];
+exper.prepost = [-0.2 1.0; -0.2 1.0];
 exper.prepost = exper.prepost(evInd,:);
 
 exper.subjects = {
@@ -72,7 +72,9 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {'session_1'};
+% exper.sessions = {'session_1'};
+exper.sessions = {'session_2'};
+% exper.sessions = {'session_1', 'session_2'};
 % exper.sessions = {...
 %   'session_1', ...
 %   'session_2', ...
@@ -136,21 +138,24 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-  ana.sessionNames = {'pretest'};
-  %ana.sessionNames = {'train1'};
+%   ana.sessionNames = {'pretest'};
+  ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
   
   % phases occur within a session; for dealing with events.mat
-  %ana.phaseNames = {{'match'}, {'nametrain', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
-  ana.phaseNames = {{'match'}};
-  %ana.phaseNames = {{'nametrain', 'name', 'name'}};
+%   ana.phaseNames = {...
+%     {'match'}, {'nametrain', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
+%     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
+%     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
+%   ana.phaseNames = {{'match'}};
+  ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
   ana.trl_order.match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameSpecies', 'response', 'rt', 'acc'};
-  %ana.trl_order.nametrain = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
-  %ana.trl_order.name = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
+  ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
+  ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
 end
 
 % preprocess continuous data in these ways
