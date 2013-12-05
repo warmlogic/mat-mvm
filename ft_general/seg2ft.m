@@ -319,6 +319,8 @@ for ses = 1:length(session)
     % combine the initial cfg and the continuous data preprocessing
     % settings from ana.cfg_cont
     if isfield(ana,'cfg_cont')
+      fprintf('%s: The field ana.cfg_cont exists. Using these pre-defined settings for preprocessing continuous data instead of defaults!\n',mfilename);
+      
       fn_cfg = fieldnames(cfg);
       fn_cfg_pre = fieldnames(ana.cfg_cont);
       fn = [fn_cfg; fn_cfg_pre];
@@ -333,6 +335,8 @@ for ses = 1:length(session)
         keyboard
       end
     else
+      warning('%s: The field ana.cfg_cont does not exist. Using defaults for preprocessing continuous data!',mfilename);
+      
       cfg_cont = cfg;
       % set some reasoable defaults
       cfg_cont.lpfilter = 'yes';
@@ -343,8 +347,8 @@ for ses = 1:length(session)
       cfg_cont.hpfiltord = 4;
       cfg_cont.bsfilter = 'yes';
       cfg_cont.bsfreq = 59:61;
-      %cfg_cont.dftfilter = 'yes';
-      %cfg_cont.dftfreq = [60 120 180];
+      % % cfg_cont.dftfilter = 'yes';
+      % % cfg_cont.dftfreq = [60 120 180];
     end
     fprintf('Preprocessing continuous data: %s...\n',infile_ns);
     data = ft_preprocessing(cfg_cont);
