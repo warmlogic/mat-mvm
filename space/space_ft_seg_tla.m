@@ -53,7 +53,7 @@ exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
 %   'SPACE001';
-  'SPACE002';
+%   'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
 %   'SPACE005';
@@ -61,7 +61,7 @@ exper.subjects = {
 %   'SPACE007';
 %   %'SPACE008';
 %   'SPACE009';
-%   'SPACE010';
+  'SPACE010';
 %   'SPACE011';
 %   'SPACE012';
 %   'SPACE013';
@@ -216,7 +216,7 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 % save the analysis details
 
 backup_orig_AD = true;
-% whether to sort by subject number
+% whether to sort by subject numberh
 sortBySubj = true;
 % whether to overwite existing subjects in the struct
 replaceOrig = true;
