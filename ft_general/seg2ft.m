@@ -455,13 +455,14 @@ for ses = 1:length(session)
   end
   % define the trials
   try
-    fprintf('Searching for %s trials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
+    fprintf('Searching for %strials...\n',sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     cfg = ft_definetrial(cfg);
   catch ME
+    fprintf('\n');
     warning('An error occurred!!!');
     fprintf('\tFunction: %s\n',ME.stack(1).name);
     fprintf('\tLine number: %d\n',ME.stack(1).line);
-    fprintf('\tThe reason:\n\t\t%s\n',ME.message);
+    fprintf('\tReason: %s\n',ME.message);
     
     % if there were zero trials for this event type
     if strfind(ME.message,'no trials were defined')
