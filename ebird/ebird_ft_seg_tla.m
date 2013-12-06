@@ -26,20 +26,26 @@ exper.eegFileExt = 'raw';
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
 % [exper.eventValues, evInd] = sort({'match_stim', 'nametrain_stim', 'name_stim'});
-% [exper.eventValues, evInd] = sort({'match_stim'});
-[exper.eventValues, evInd] = sort({'nametrain_stim', 'name_stim'});
+[exper.eventValues, evInd] = sort({'match_stim'});
+% [exper.eventValues, evInd] = sort({'nametrain_stim', 'name_stim'});
 % [exper.eventValues, evInd] = sort({'name_stim'});
 
 % pre- and post-stimulus times to read, in seconds (pre is negative);
 % because they get sorted, must correspond to the order listed in
 % exper.eventValues
 
+% exper.prepost = [-1.0 2.0];
 % exper.prepost = [...
 %   -1.0 2.0; ...
 %   -1.0 2.0; ...
 %   -1.0 2.0];
-% exper.prepost = [-1.0 2.0];
-exper.prepost = [-0.2 1.0; -0.2 1.0];
+
+exper.prepost = [-0.2 1.0];
+% exper.prepost = [...
+%   -0.2 1.0; ...
+%   -0.2 1.0; ...
+%   -0.2 1.0];
+
 exper.prepost = exper.prepost(evInd,:);
 
 exper.subjects = {
@@ -72,8 +78,8 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-% exper.sessions = {'session_1'};
-exper.sessions = {'session_2'};
+exper.sessions = {'session_1'};
+% exper.sessions = {'session_2'};
 % exper.sessions = {'session_1', 'session_2'};
 % exper.sessions = {...
 %   'session_1', ...
@@ -138,8 +144,9 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-%   ana.sessionNames = {'pretest'};
-  ana.sessionNames = {'train1'};
+  ana.sessionNames = {'pretest'};
+%   ana.sessionNames = {'pretest', 'train1'};
+%   ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
   
   % phases occur within a session; for dealing with events.mat
@@ -147,8 +154,9 @@ if ana.useExpInfo
 %     {'match'}, {'nametrain', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
-%   ana.phaseNames = {{'match'}};
-  ana.phaseNames = {{'nametrain', 'name', 'name'}};
+%   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
+  ana.phaseNames = {{'match'}};
+%   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
   % types of event info to store in trialinfo field; must correspond to
@@ -172,9 +180,9 @@ ana.cfg_cont.bsfreq = 59:61;
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
-% negative trlpadding: don't check that time (on both sides) for artifacts
-ana.artifact.trlpadding = -0.5;
-% ana.artifact.trlpadding = 0;
+% % negative trlpadding: don't check that time (on both sides) for artifacts
+% ana.artifact.trlpadding = -0.5;
+ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.threshmin = -150;
@@ -259,11 +267,10 @@ end
 
 %% load the analysis details
 
-adFile = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
-% adFile5 = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails_EBIRD005.mat';
+adFile = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/match_stim_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(adFile,adFile5,true,true,true);
 
-% % server_adFile = '/Volumes/curranlab/Data/EBIRD/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+% % server_adFile = '';
 % if exist(server_adFile,'file')
 %   mm_mergeAnalysisDetails(adFile,server_adFile,true,false,false);
 % end
@@ -313,6 +320,12 @@ ana = mm_ft_elecGroups(ana);
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 3000',find(ismember(exper.eventValues,'expo_stim'))), ...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 3000',find(ismember(exper.eventValues,'expo_stim')))}};
+
+
+% match
+
+ana.eventValues = {'match_stim'};
+
 
 % multistudy events
 
