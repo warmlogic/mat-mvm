@@ -90,6 +90,13 @@ end
 
 vert_ylim = [-10 10];
 
+if (rejArt_ftManual || rejArt_ftICA || rejArt_ftAuto) && isfield(data,'fsample')
+  sampleRate = data.fsample;
+else
+  warning('Sample rate of data not found in data.fsample! Cannot correctly check for muscle artifacts!');
+  keyboard
+end
+
 %% check on predefined trial numbers, NS, and zero variance artifacts;
 % manual inspection option will show which have been rejected
 
@@ -870,8 +877,8 @@ if rejArt_ftManual
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.bpfilter    = 'yes';
-      if data.fsample/2 < 140
-        cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
+      if (sampleRate / 2) < 140
+        cfg.artfctdef.zvalue.bpfreq      = [110 ((sampleRate / 2) - 1)];
       else
         cfg.artfctdef.zvalue.bpfreq      = [110 140];
       end
@@ -1463,8 +1470,8 @@ if rejArt_ftICA
       
       % algorithmic parameters
       cfg.artfctdef.zvalue.bpfilter    = 'yes';
-      if data_ica_rej.fsample/2 < 140
-        cfg.artfctdef.zvalue.bpfreq      = [110 (data_ica_rej.fsample/2 - 1)];
+      if (sampleRate / 2) < 140
+        cfg.artfctdef.zvalue.bpfreq      = [110 ((sampleRate / 2) - 1)];
       else
         cfg.artfctdef.zvalue.bpfreq      = [110 140];
       end
@@ -1768,8 +1775,8 @@ if rejArt_ftAuto
   
   % algorithmic parameters
   cfg.artfctdef.zvalue.bpfilter    = 'yes';
-  if data.fsample/2 < 140
-    cfg.artfctdef.zvalue.bpfreq      = [110 (data.fsample/2 - 1)];
+  if (sampleRate / 2) < 140
+    cfg.artfctdef.zvalue.bpfreq      = [110 ((sampleRate / 2) - 1)];
   else
     cfg.artfctdef.zvalue.bpfreq      = [110 140];
   end
