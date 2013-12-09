@@ -61,16 +61,64 @@ exper.eventValues = sort({...
 %   {'CCR'},{'CSC'},{'CSI'},{'CH'},...
 %   {'SCR'},{'SSC'},{'SSI'},{'SH'}};
 
-exper.eventValuesExtra.toCombine = {...
-  {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
-  {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
-exper.eventValuesExtra.newValue = {...
-  {'CCR'},{'CSC'},{'CSI'},...
-  {'SCR'},{'SSC'},{'SSI'}};
+% exper.eventValuesExtra.toCombine = {...
+%   {'CNS','CNM'},{'CFSC','CROSC','CRSSC'},{'CFSI','CROSI','CRSSI'},...
+%   {'SNS','SNM'},{'SFSC','SROSC','SRSSC'},{'SFSI','SROSI','SRSSI'}};
+% exper.eventValuesExtra.newValue = {...
+%   {'CCR'},{'CSC'},{'CSI'},...
+%   {'SCR'},{'SSC'},{'SSI'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
+exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
+
+% exper.subjects = {
+% %   'COSI2001';
+% %   'COSI2002';
+% %   'COSI2003';
+% %   'COSI2004';
+% %   'COSI2005';
+% %   'COSI2006';
+% %   'COSI2007';
+%   'COSI2008';
+%   'COSI2009';
+%   'COSI2010';
+% %   'COSI2011'; % will not have a session_1, didn't like EEG
+%   'COSI2012';
+%   'COSI2013';
+% %   'COSI2014'; % no session_1, didn't perform well in session_0
+%   'COSI2015';
+%   'COSI2016';
+%   'COSI2017';
+%   'COSI2018';
+%   'COSI2019';
+%   'COSI2020';
+%   'COSI2021';
+%   'COSI2022';
+%   'COSI2023';
+%   'COSI2024';
+%   'COSI2025';
+%   'COSI2026';
+%   'COSI2027';
+%   'COSI2028';
+%   'COSI2029';
+%   'COSI2030';
+% %   'COSI2031'; % Thought reference electrode messed up. No session_1.
+%   'COSI2032';
+%   'COSI2033';
+%   'COSI2034';
+%   'COSI2035';
+%   'COSI2036';
+%   'COSI2037';
+% %   'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
+%   'COSI2039';
+%   'COSI2040'; % EEG is pretty noisy overall
+% %   'COSI2041'; % COSI2041: no-show, no session_1
+%   'COSI2042';
+%   'COSI2043';
+%   'COSI2044';
+%   'COSI2045';
+%   };
 
 exper.subjects = {
 %   'COSI2001';
@@ -80,28 +128,28 @@ exper.subjects = {
 %   'COSI2005';
 %   'COSI2006';
 %   'COSI2007';
-  'COSI2008';
-  'COSI2009';
+%   'COSI2008';
+%   'COSI2009';
   'COSI2010';
 %   'COSI2011'; % will not have a session_1, didn't like EEG
   'COSI2012';
   'COSI2013';
 %   'COSI2014'; % no session_1, didn't perform well in session_0
   'COSI2015';
-  'COSI2016';
+%   'COSI2016';
   'COSI2017';
   'COSI2018';
   'COSI2019';
-  'COSI2020';
+%   'COSI2020';
   'COSI2021';
   'COSI2022';
   'COSI2023';
   'COSI2024';
-  'COSI2025';
+%   'COSI2025';
   'COSI2026';
   'COSI2027';
   'COSI2028';
-  'COSI2029';
+%   'COSI2029';
   'COSI2030';
 %   'COSI2031'; % Thought reference electrode messed up. No session_1.
   'COSI2032';
@@ -111,7 +159,7 @@ exper.subjects = {
   'COSI2036';
   'COSI2037';
 %   'COSI2038'; % COSI2038: potentially bad session_1 (bathroom, sick)
-  'COSI2039';
+%   'COSI2039';
   'COSI2040'; % EEG is pretty noisy overall
 %   'COSI2041'; % COSI2041: no-show, no session_1
   'COSI2042';
@@ -181,7 +229,8 @@ ana.segFxn = 'seg2ft';
 
 % eppp
 %ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
-ana.artifact.type = {'zeroVar'};
+% ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {};
 % % nspp
 % ana.artifact.type = {'nsAuto'};
 
@@ -193,12 +242,12 @@ ana.ftFxn = 'ft_timelockanalysis';
 ana.ftype = 'tla';
 ana.overwrite.proc = 1;
 
-ana.otherFxn = {};
-ana.cfg_other = [];
-ana.otherFxn{1} = 'ft_resampledata';
-ana.cfg_other{1}.resamplefs = 256;
-ana.cfg_other{1}.detrend = 'no';
-ana.cfg_other{1}.ftype = 'resample256';
+% ana.otherFxn = {};
+% ana.cfg_other = [];
+% ana.otherFxn{1} = 'ft_resampledata';
+% ana.cfg_other{1}.resamplefs = 256;
+% ana.cfg_other{1}.detrend = 'no';
+% ana.cfg_other{1}.ftype = 'resample256';
 
 % any preprocessing?
 cfg_pp = [];
@@ -210,12 +259,12 @@ cfg_pp = [];
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
 
-% do a lowpass filter at 40 Hz because this is currently 100 Hz
-cfg_pp.lpfilter = 'yes';
-cfg_pp.lpfreq = 40;
+% % do a lowpass filter at 40 Hz because this is currently 100 Hz
+% cfg_pp.lpfilter = 'yes';
+% cfg_pp.lpfreq = 40;
 
 cfg_proc = [];
-cfg_proc.keeptrials = 'no';
+cfg_proc.keeptrials = 'yes';
 
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');

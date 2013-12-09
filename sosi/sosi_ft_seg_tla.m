@@ -45,25 +45,26 @@ exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 %exper.eventValuesExtra.toCombine = {{'FSC','FSI'},{'NS','NM'},{'ROSC','ROSI'},{'RSSC','RSSI'}};
 %exper.eventValuesExtra.newValue = {{'F'},{'N'},{'RO'},{'RS'}};
 
-exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'},{'FSC','ROSC','RSSC','FSI','ROSI','RSSI'}};
-exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'},{'H'}};
+% exper.eventValuesExtra.toCombine = {{'NS','NM'},{'FSC','ROSC','RSSC'},{'FSI','ROSI','RSSI'},{'FSC','ROSC','RSSC','FSI','ROSI','RSSI'}};
+% exper.eventValuesExtra.newValue = {{'CR'},{'SC'},{'SI'},{'H'}};
 
 % keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 1;
+exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
+% commented out for publication
 exper.subjects = {
-  'SOSI001';
+%   'SOSI001';
   'SOSI002';
   'SOSI003';
   'SOSI004';
   'SOSI005';
   'SOSI006';
-  'SOSI007';
+%   'SOSI007';
   'SOSI008';
   'SOSI009';
   'SOSI010';
-  'SOSI011';
+%   'SOSI011';
   'SOSI012';
   'SOSI013';
   'SOSI014';
@@ -82,7 +83,7 @@ exper.subjects = {
   'SOSI027';
   'SOSI028';
   'SOSI029';
-  'SOSI030';
+%   'SOSI030';
   };
 % original SOSI019 was replaced because the first didn't finish
 
@@ -146,7 +147,8 @@ files.figPrintRes = 150;
 % raw data
 ana.segFxn = 'seg2ft';
 %ana.artifact.type = {'zeroVar','badChanManual','badChanEP'};
-ana.artifact.type = {'zeroVar'};
+% ana.artifact.type = {'zeroVar'};
+ana.artifact.type = {};
 ana.overwrite.raw = 1;
 
 % process the data
@@ -164,7 +166,7 @@ cfg_pp.baselinewindow = [-0.2 0];
 %cfg_pp.precision = 'single';
 
 cfg_proc = [];
-cfg_proc.keeptrials = 'no';
+cfg_proc.keeptrials = 'yes';
 
 % set the save directories
 [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
