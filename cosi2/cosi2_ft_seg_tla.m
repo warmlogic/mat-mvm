@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-exper.eegFileExt = 'egis';
-% exper.eegFileExt = 'raw';
+% exper.eegFileExt = 'egis';
+exper.eegFileExt = 'raw';
 
 % NB: exporting to raw because the EGIS tool won't export reference chan
 
@@ -33,9 +33,13 @@ exper.eegFileExt = 'egis';
 % exper.eventValues = sort({'CCR','CHSC','CHSI','SCR','SHSC','SHSI'});
 % exper.eventValues = sort({'CF','SF','CN','SN','CRO','SRO','CRS','SRS'});
 
+% exper.eventValues = sort({...
+%   'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
+%   'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
+
 exper.eventValues = sort({...
-  'CFSC','CFSI','CNM','CNS','CROSC','CROSI','CRSSC','CRSSI',...
-  'SFSC','SFSI','SNM','SNS','SROSC','SROSI','SRSSC','SRSSI'});
+  'C_FA_F','C_FA_RO','C_FA_RS','C_M_M','C_M_S',...
+  'C_FA_F','C_FA_RO','C_FA_RS','C_M_M','C_M_S'});
 
 % combine some events into higher-level categories
 % exper.eventValuesExtra.toCombine = {{'CHSC','CHSI'},{'SHSC','SHSI'}};
@@ -183,8 +187,10 @@ exper.sessions = {{'session_0','session_1'}};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
+% dirs.subDir = '';
 %dirs.subDir = 'RK';
-dirs.subDir = '';
+% dirs.subDir = 'H_CR';
+dirs.subDir = 'FA_M';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 %dirs.dataDir = fullfile(exper.name,'eeg','nspp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 % Possible locations of the data files (dataroot)

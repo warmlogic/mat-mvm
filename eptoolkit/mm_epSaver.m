@@ -1,7 +1,7 @@
-function mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat)
+function mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat,extraDir)
 %MM_EPSAVER: Use EP's read/write to save EEG data
 %
-% mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat)
+% mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat,extraDir)
 %
 % This is a simple input/output wrapper to, e.g., save ep_mat format to an
 % EGI-readable format (egi_egis, egi_sbin) using ep_writeData.m
@@ -21,10 +21,12 @@ function mm_epSaver(experName,prepost,eegDir,inputFormat,outputFormat)
 %
 %   outputFormat = format to save (default: 'egi_egis')
 %
+%   extraDir     = another directory below the prepost directory (default:
+%                  [])
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Original files should be located in:
-%    dataroot/[experName]/[eeg/eppp]/[pre_post_ms]/3_ep_[inputFormatExtension]
+%    dataroot/[experName]/[eeg/eppp]/[pre_post_ms]/[extraDir]/3_ep_[inputFormatExtension]
 %    e.g.,
 %    dataroot/COSI/eeg/eppp/-1000_2000/3_ep_mat
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -74,6 +76,10 @@ if ~exist('outputFormat','var') || isempty(outputFormat)
   fprintf('Setting outputFormat to default: %s\n',outputFormat);
 end
 
+if ~exist('extraDir','var') || isempty(extraDir)
+  extraDir = [];
+end
+
 
 % Input file extension
 if strcmp(inputFormat,'egi_egis')
@@ -87,7 +93,7 @@ else
 end
 
 % Location of the data files (dataroot)s
-dirs.baseDir = fullfile(eegDir,sprintf('%d_%d',prepost(1)*1000,prepost(2)*1000));
+dirs.baseDir = fullfile(eegDir,sprintf('%d_%d',prepost(1)*1000,prepost(2)*1000),extraDir);
 dirs.dataDir = fullfile(dirs.baseDir,sprintf('3_ep_%s',inputFileExt));
 
 dirs.homeDir = getenv('HOME');

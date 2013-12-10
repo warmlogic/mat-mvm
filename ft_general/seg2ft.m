@@ -662,11 +662,11 @@ for evVal = 1:length(eventValue)
     
     fprintf('Done.\n');
   else
-    fprintf('No trials found for %s!\n',eventValue{evVal});
+    warning('No trials found for %s!',eventValue{evVal});
     ft_raw.(eventValue{evVal}).trial = {};
     
     % something is wrong, figure it out; or dbcont
-    keyboard
+    %keyboard
   end
 end
 % elseif length(eventValue) == 1

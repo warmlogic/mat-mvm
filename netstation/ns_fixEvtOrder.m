@@ -1,7 +1,7 @@
-function ns_fixEvtOrder(prepost,newExt,dataroot)
+function ns_fixEvtOrder(prepost,newExt,dataroot,trackName,removeDuplicatesCol)
 %NS_FIXEVTORDER
 %
-% ns_fixEvtOrder(prepost,newExt,dataroot)
+% ns_fixEvtOrder(prepost,newExt,dataroot,trackName,removeDuplicatesCol)
 %
 % Inputs:
 %
@@ -23,6 +23,13 @@ function ns_fixEvtOrder(prepost,newExt,dataroot)
 %               are saved here.
 %               (default: pwd), meaning that by default, all .evt files in
 %               the current working dir are processed
+%
+%  trackName:   Optional: Only get events from this track name
+%               (default: []). A good option is 'Markup Track'.
+%
+%  removeDuplicatesCol: column number to simply check for contiguous
+%                       duplicate trials (e.g., the trial number column).
+%                       (default: 0; don't check for duplicates)
 %
 % IMPORTANT: Make sure you don't have the original evt file open (e.g., in
 %            a spreadsheet app) or Matlab won't be able to read it (the
@@ -72,6 +79,14 @@ end
 
 if ~exist('dataroot','var') || isempty(dataroot)
   dataroot = pwd;
+end
+
+if ~exist('trackName','var') || isempty(trackName)
+  trackName = [];
+end
+
+if ~exist('removeDuplicatesCol','var') || isempty(removeDuplicatesCol)
+  removeDuplicatesCol = 0;
 end
 
 %% Read in the old evt and write out the new evt
@@ -124,6 +139,31 @@ for i = 1:length(evt)
   fid = fopen(fullfile(dataroot,evt(i).name),'r');
   data = textscan(fid,repmat('%s',1,numCols),'Headerlines',3,'Delimiter','\t');
   fclose(fid);
+  
+  %% choose only this track type, if desired
+  if ~isempty(trackName)
+    if ismember(trackName,data{4})
+      theseEvents = ismember(data{4},trackName);
+      for j = 1:numCols
+        data{j} = data{j}(theseEvents);
+      end
+    else
+      error('Track ''%s'' not found in %s!',trackName,evt(i).name);
+    end
+  end
+  
+  %% remove contiguous duplicate events, if desired
+  if removeDuplicatesCol ~= 0
+    duplicates = zeros(size(data{1}));
+    for j = 2:length(duplicates)
+      if strcmp(data{removeDuplicatesCol}{j},data{removeDuplicatesCol}{j-1})
+        duplicates(j) = 1;
+      end
+    end
+    for j = 1:numCols
+      data{j} = data{j}(~duplicates);
+    end
+  end
   
   %% 1. sort by category
   if ~issorted(data{cols.categ})

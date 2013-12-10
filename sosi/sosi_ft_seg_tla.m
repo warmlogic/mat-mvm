@@ -30,9 +30,9 @@ exper.eegFileExt = 'raw';
 %exper.eventValues = sort({'CR','SC','SI'});
 %exper.eventValues = sort({'F','N','RO','RS'});
 
-exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
+% exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 
-% exper.eventValues = sort({'FA_F','FA_RO','FA_RS','M_M','M_S'});
+exper.eventValues = sort({'FA_F','FA_RO','FA_RS','M_M','M_S'});
 
 % combine some events into higher-level categories
 
@@ -100,7 +100,8 @@ exper.sessions = {'session_0'};
 %% set up file and directory handling parameters
 
 % directory where the data to read is located
-dirs.subDir = '';
+% dirs.subDir = '';
+dirs.subDir = 'FA_M';
 %dirs.subDir = 'RK';
 %dirs.subDir = 'RKSCSI';
 dirs.dataDir = fullfile(exper.name,'eeg','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
