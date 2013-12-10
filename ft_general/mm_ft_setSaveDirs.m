@@ -113,18 +113,22 @@ end
 evStr = evStr(1:end-1);
 
 % denote the artifact type
-if length(ana.artifact.type) > 1
-  artStr = ana.artifact.type{1};
-  for i = 2:length(ana.artifact.type)
-    artStr = cat(2,artStr,'_',ana.artifact.type{i});
+if ~isempty(ana.artifact.type)
+  if length(ana.artifact.type) > 1
+    artStr = ana.artifact.type{1};
+    for i = 2:length(ana.artifact.type)
+      artStr = cat(2,artStr,'_',ana.artifact.type{i});
+    end
+  else
+    artStr = ana.artifact.type{1};
   end
+  artStr = cat(2,'_art_',artStr);
 else
-  artStr = ana.artifact.type{1};
+  artStr = '';
 end
-artStr = cat(2,'art_',artStr);
 
 % denote whether the trial counts are being equated
-evStrDir = sprintf('%s_eq%d_%s',evStr,exper.equateTrials,artStr);
+evStrDir = sprintf('%s_eq%d%s',evStr,exper.equateTrials,artStr);
 
 %% set the directory name, dependent upon the analysis type
 
