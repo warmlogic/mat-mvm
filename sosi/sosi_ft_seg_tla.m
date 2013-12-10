@@ -32,6 +32,8 @@ exper.eegFileExt = 'raw';
 
 exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 
+% exper.eventValues = sort({'FA_F','FA_RO','FA_RS','M_M','M_S'});
+
 % combine some events into higher-level categories
 
 % exper.eventValuesExtra.toCombine = {{'SC','SI'}};
@@ -52,7 +54,7 @@ exper.eventValues = sort({'FSC','FSI','NM','NS','ROSC','ROSI','RSSC','RSSI'});
 exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
-% commented out for publication
+% commented out subjects not used in publication
 exper.subjects = {
 %   'SOSI001';
   'SOSI002';

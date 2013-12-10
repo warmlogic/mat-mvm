@@ -22,8 +22,8 @@ exper.equateTrials = 0;
 
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
-%exper.eegFileExt = 'egis';
-exper.eegFileExt = 'raw';
+exper.eegFileExt = 'egis';
+% exper.eegFileExt = 'raw';
 
 % NB: exporting to raw because the EGIS tool won't export reference chan
 
@@ -280,7 +280,7 @@ process_ft_data(ana,cfg_proc,exper,dirs);
 % cfg.badChanEP = true;
 % [exper] = mm_getBadChan(cfg,exper,dirs);
 
-%% save the analysis details
+% save the analysis details
 
 % overwrite if it already exists
 saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
