@@ -52,19 +52,19 @@ exper.eventValuesExtra.onlyKeepExtras = 0;
 exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
-%   'SPACE001';
-%   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008';
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
+  'SPACE001';
+  'SPACE002';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008';
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
   'SPACE014';
   };
 
@@ -249,8 +249,8 @@ end
 %% load the analysis details
 
 adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
-% adFile5 = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails_SPACE005.mat';
-% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(adFile,adFile5,true,true,true);
+% adFile_other = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails_9_14.mat';
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(adFile,adFile_other,true,true,true);
 
 % % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
 % if exist(server_adFile,'file')
@@ -551,7 +551,7 @@ title('pad=5edge');
 exper.badBehSub = {};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,1);
+[exper,ana] = mm_threshSubs(exper,ana,7);
 
 %% get the grand average
 
@@ -614,17 +614,17 @@ cfg_plot = [];
 
 cfg_plot.rois = {{'LAS'},{'LPS'}};
 % cfg_plot.rois = {{'posterior'}};
-% cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-8 8; -8 8];
+cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-2 6; -2 6];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-cfg_ft.xlim = [-0.2 1.0];
-cfg_plot.rois = {{'E70'},{'E83'}};
-cfg_plot.ylims = [-10 10; -10 10];
-cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -637,6 +637,10 @@ cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'img_RgH_rc_mass_p1', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p1', 'img_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -738,11 +742,27 @@ end
 % end
 
 %% RSA - very basic
-thisROI = 'PI';
-elecInd = ismember(data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.label,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+subNum = 3;
+sesNum = 1;
 
-dataType = 'word_RgH_rc_spac';
-% dataType = 'img_RgH_rc_spac';
+% thisROI = 'LPS';
+thisROI = 'PI';
+% thisROI = 'Cz';
+% thisROI = {'E70', 'E83'};
+% thisROI = {'E83'};
+if all(ismember(thisROI,ana.elecGroupsStr))
+  elecInd = ismember(data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.label,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.label))
+  elecInd = ismember(data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.label,thisROI);
+else
+  error('Cannot find specified electrode(s)');
+end
+
+simAcross = 'time';
+% simAcross = 'chan';
+
+% dataType = 'word_RgH_rc_spac';
+dataType = 'img_RgH_rc_spac';
 % dataType = 'word_RgH_rc_mass';
 % dataType = 'img_RgH_rc_mass';
 
@@ -751,6 +771,7 @@ dataType = 'word_RgH_rc_spac';
 % dataType = 'word_RgH_fo_mass';
 % dataType = 'img_RgH_fo_mass';
 
+% column numbers in trialinfo
 phaseCountCol = 4;
 stimNumCol = 6;
 categNumCol = 7;
@@ -758,7 +779,7 @@ categNumCol = 7;
 distanceMetric = 'euclidean';
 % distanceMetric = 'seuclidean';
 % distanceMetric = 'spearman';
-% distanceMetric = 'cosine';
+distanceMetric = 'cosine';
 % distanceMetric = 'correlation';
 
 if strcmp(distanceMetric,'euclidean')
@@ -771,48 +792,86 @@ else
   distanceScale = [];
 end
 
+% timeS = [0.5 0.6];
 % timeS = [0.1 0.8];
 timeS = [0.0 1.0];
-timeInd = data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.time >= timeS(1) & data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.time <= timeS(2);
+timeInd = data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.time >= timeS(1) & data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.time <= timeS(2);
 
-for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial,1)
+for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trial,1)
   %p1_trlInd = 1;
   p1_trlInd = i;
-  p1_phaseCount = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,phaseCountCol);
-  p1_stimNum = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,stimNumCol);
-  p1_categNum = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,categNumCol);
+  p1_phaseCount = data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trialinfo(p1_trlInd,phaseCountCol);
+  p1_stimNum = data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trialinfo(p1_trlInd,stimNumCol);
+  p1_categNum = data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trialinfo(p1_trlInd,categNumCol);
   
   p2_trlInd = find(...
-    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,categNumCol) == p1_categNum);
+    data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+    data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+    data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trialinfo(:,categNumCol) == p1_categNum);
   %p2_trlInd = 1;
   
   if ~isempty(p2_trlInd)
     % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
     % distances are measured between observations
     
-    % rows = samples; cols = channels
-    p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd))';
-    p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd))';
-    
-    % rows = channels; cols = samples
-    %p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd));
-    %p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd));
+    if strcmp(simAcross,'time')
+      % rows = samples; cols = channels
+      if sum(elecInd) == 1
+        p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trial(p1_trlInd,elecInd,timeInd));
+        p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trial(p2_trlInd,elecInd,timeInd));
+      elseif sum(elecInd) > 1
+        p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trial(p1_trlInd,elecInd,timeInd))';
+        p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trial(p2_trlInd,elecInd,timeInd))';
+      end
+      
+      xaxis = linspace(timeS(1),timeS(2),size(p1_data,1));
+      yaxis = linspace(timeS(1),timeS(2),size(p2_data,1));
+    elseif strcmp(simAcross,'chan')
+      % rows = channels; cols = samples
+      p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trial(p1_trlInd,elecInd,timeInd));
+      p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trial(p2_trlInd,elecInd,timeInd));
+      
+      xaxis = 1:sum(elecInd);
+      yaxis = 1:sum(elecInd);
+      
+      elecLabels_x = data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.label(elecInd);
+      elecLabels_y = data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.label(elecInd);
+    end
     
     D = pdist2(p1_data,p2_data,distanceMetric);
     
     figure;
     if exist('distanceScale','var') && ~isempty(distanceScale)
-      imagesc(linspace(timeS(1),timeS(2),size(p1_data,1)),linspace(timeS(1),timeS(2),size(p2_data,1)),D,distanceScale);
+      imagesc(xaxis,yaxis,D,distanceScale);
     else
-      imagesc(linspace(timeS(1),timeS(2),size(p1_data,1)),linspace(timeS(1),timeS(2),size(p2_data,1)),D);
+      imagesc(xaxis,yaxis,D);
     end
-    h = colorbar;
-    set(get(h,'YLabel'),'string','Dissimilarity');
+    
+    if strcmp(simAcross,'chan')
+      set(gca,'XTickLabel',elecLabels_x);
+      set(gca,'YTickLabel',elecLabels_y);
+    end
+    
     title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
-    xlabel('P1');
-    ylabel('P2');
+    if strcmp(simAcross,'time')
+      xlabel('P1: Time (s)');
+      ylabel('P2: Time (s)');
+    elseif strcmp(simAcross,'chan')
+      xlabel('P1: Electrode');
+      ylabel('P2: Electrode');
+    end
+    
+    hc = colorbar;
+    set(get(hc,'YLabel'),'string','Dissimilarity');
+    
+    figure;
+    plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trial(p1_trlInd,elecInd,timeInd),2)),'b');
+    hold on
+    plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.trial(p1_trlInd,elecInd,timeInd),2)),'r');
+    %plot(linspace(timeS(1),timeS(2),size(p2_data,1)),p2_data,'r');
+    hold off
+    axis([timeS(1) timeS(2) -20 20]);
+    
   else
     fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
   end
