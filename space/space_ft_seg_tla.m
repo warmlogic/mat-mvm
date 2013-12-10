@@ -779,7 +779,7 @@ categNumCol = 7;
 distanceMetric = 'euclidean';
 % distanceMetric = 'seuclidean';
 % distanceMetric = 'spearman';
-distanceMetric = 'cosine';
+% distanceMetric = 'cosine';
 % distanceMetric = 'correlation';
 
 if strcmp(distanceMetric,'euclidean')
