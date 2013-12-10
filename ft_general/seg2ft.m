@@ -391,13 +391,13 @@ for ses = 1:length(session)
   cfg.trialdef.eventvalue = eventValue_orig;
   %end
   
-  %cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
-  %cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
-  
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
     cfg.trialfun = ana.trialFxn;
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
+      
+      cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
+      cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
       
       %       if ana.useEvents
       %         cfg.eventinfo.events = subEvents.events;
@@ -654,9 +654,11 @@ for evVal = 1:length(eventValue)
     % get the data for only this event value
     ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
     
-    % remove the buffer trialinfo -1s; those were set because the cfg.trl
-    % matrix needed to hold all eventValues
-    ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
+    if ana.useExpInfo
+      % remove the buffer trialinfo -1s; those were set because the cfg.trl
+      % matrix needed to hold all eventValues
+      ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
+    end
     
     fprintf('Done.\n');
   else
