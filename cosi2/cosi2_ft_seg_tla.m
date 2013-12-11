@@ -39,7 +39,7 @@ exper.eegFileExt = 'raw';
 
 exper.eventValues = sort({...
   'C_FA_F','C_FA_RO','C_FA_RS','C_M_M','C_M_S',...
-  'C_FA_F','C_FA_RO','C_FA_RS','C_M_M','C_M_S'});
+  'S_FA_F','S_FA_RO','S_FA_RS','S_M_M','S_M_S'});
 
 % combine some events into higher-level categories
 % exper.eventValuesExtra.toCombine = {{'CHSC','CHSI'},{'SHSC','SHSI'}};

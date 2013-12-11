@@ -49,6 +49,11 @@ for i = 1:length(event)
         eventNumber = [];
       end
       
+      if ~isempty(eventNumber) && length(eventNumber) > 1
+        warning('More than one event value matched the current value (%s)',deblank(event(i).value));
+        keyboard
+      end
+      
       % TODO: add in a check comparing
       % range(event(i).sample,event(i).sample + durationSamp), maybe use
       % ft_read_data; or maybe durationSamp vs event(i).sample - event(i-1).sample
