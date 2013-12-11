@@ -32,25 +32,25 @@ end
 %% MODIFY THIS STUFF
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%exper.name = 'SOSI';
-exper.name = 'SOCO';
-%exper.name = 'COSI';
+% exper.name = 'SOSI';
+% %exper.name = 'SOCO';
+% %exper.name = 'COSI';
+% dirs.eegDir = fullfile('eeg','eppp');
+% % sampling rate of the EEG data
+% exper.sampleRate = 250;
+% % segment length created with NetStation (in seconds)
+% exper.prepost = [-1 2];
+% % baseline period (in milliseconds)
+% exper.baseline_ms = [-200 0];
+
+exper.name = 'COSI2';
 dirs.eegDir = fullfile('eeg','eppp');
 % sampling rate of the EEG data
-exper.sampleRate = 250;
+exper.sampleRate = 500;
 % segment length created with NetStation (in seconds)
 exper.prepost = [-1 2];
 % baseline period (in milliseconds)
 exper.baseline_ms = [-200 0];
-
-% exper.name = 'COSI2';
-% dirs.eegDir = fullfile('eeg','eppp');
-% % sampling rate of the EEG data
-% exper.sampleRate = 500;
-% % segment length created with NetStation (in seconds)
-% exper.prepost = [-1 2.5];
-% % baseline period (in milliseconds)
-% exper.baseline_ms = [-200 0];
 
 % exper.name = 'FRCE';
 % dirs.eegDir = fullfile('EEG','eppp');
