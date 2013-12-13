@@ -621,10 +621,10 @@ cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-% cfg_ft.xlim = [-0.2 1.0];
-% cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-10 10; -10 10];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+cfg_ft.xlim = [-0.2 1.0];
+cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.ylims = [-10 10; -10 10];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -637,9 +637,9 @@ cfg_plot.excludeBadSub = 1;
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_mass_p1', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p1', 'img_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
@@ -742,7 +742,7 @@ end
 % end
 
 %% RSA - very basic
-subNum = 3;
+subNum = 1;
 sesNum = 1;
 
 % thisROI = 'LPS';
@@ -794,7 +794,8 @@ end
 
 % timeS = [0.5 0.6];
 % timeS = [0.1 0.8];
-timeS = [0.0 1.0];
+% timeS = [0.0 1.0];
+timeS = [0.0 0.3];
 timeInd = data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.time >= timeS(1) & data_tla.(ana.eventValues{1}{1}).sub(subNum).ses(sesNum).data.time <= timeS(2);
 
 for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data.trial,1)
@@ -838,7 +839,7 @@ for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(subNum).ses(sesNum).data
       elecLabels_y = data_tla.(sprintf('%s_p2',dataType)).sub(subNum).ses(sesNum).data.label(elecInd);
     end
     
-    D = pdist2(p1_data,p2_data,distanceMetric);
+    D = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
     
     figure;
     if exist('distanceScale','var') && ~isempty(distanceScale)

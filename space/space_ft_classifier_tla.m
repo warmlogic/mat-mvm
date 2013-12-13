@@ -29,22 +29,17 @@ subtract_trials = false; % subtract auditory trials to simulate skewed classes
 
 %% classification from the tutorial
 
-cfg = [];
+cfg_ana = [];
 
 cfg_ana.latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 lat = 2;
 typ = 1;
-cfg.latency = cfg_ana.latencies(lat,:);
 
 sub = 1;
 ses = 1;
 
-% data1 = ft_selectdata_new(cfg,data_tla.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data);
-% data2 = ft_selectdata_new(cfg,data_tla.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data);
-
 data1 = data_tla.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data;
 data2 = data_tla.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data;
-
 
 cfg = [];
 cfg.parameter = 'trial';
@@ -59,6 +54,9 @@ cfg.latency = cfg_ana.latencies(lat,:);
 cfg.channel = 'all';
 cfg.avgoverchan = 'no';
 cfg.avgovertime = 'yes';
+
+% data1 = ft_selectdata_new(cfg,data_tla.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data);
+% data2 = ft_selectdata_new(cfg,data_tla.(ana.eventValues{typ}{2}).sub(sub).ses(ses).data);
 
 % data1 = ft_selectdata_old(data_tla.(ana.eventValues{typ}{1}).sub(sub).ses(ses).data,...
 %   'param',cfg.parameter,...
