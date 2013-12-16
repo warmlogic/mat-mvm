@@ -292,6 +292,36 @@ end
 
 %% tf test
 
+
+cfg_ft = [];
+cfg_ft.pad = 'maxperlen';
+% cfg_ft.output = 'pow';
+% % cfg_ft.output = 'powandcsd';
+% cfg_ft.keeptrials = 'yes';
+% cfg_ft.keeptapers = 'no';
+
+cfg_ft.output = 'pow';
+% cfg_ft.output = 'fourier';
+% cfg_ft.keeptrials = 'yes';
+% cfg_ft.keeptapers = 'yes';
+
+% wavelet
+cfg_ft.method = 'wavelet';
+cfg_ft.width = 5;
+%cfg_ft.toi = -0.8:0.04:3.0;
+cfg_ft.toi = -0.5:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
+% % cfg_ft.foi = 3:freqstep:9;
+% cfg_ft.foi = 3:freqstep:60;
+% cfg_ft.foi = 4:1:100;
+%cfg_ft.foi = 4:1:30;
+cfg_ft.foilim = [3 9];
+
+data_pow = ft_freqanalysis(cfg_ft,data_tla.img_onePres.sub(1).ses(1).data);
+
+
+
 cfg_ft = [];
 
 cfg_ft.output = 'pow';
@@ -431,11 +461,11 @@ cfg_plot = [];
 
 cfg_plot.rois = {{'LAS'},{'RAS'}};
 cfg_plot.ylims = [-4 2; -4 2];
-% cfg_plot.rois = {{'FC'},{'FS'}};
-% cfg_plot.ylims = [-4 2; -4 2];
+cfg_plot.rois = {{'FC'},{'FS'}};
+cfg_plot.ylims = [-4 2; -4 2];
 % cfg_plot.rois = {{'posterior'}};
-% cfg_plot.rois = {{'LPS'},{'RPS'}};
-% cfg_plot.ylims = [-2 6; -2 6];
+cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-2 6; -2 6];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -462,8 +492,11 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_mass_p1', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p1', 'img_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{'word_spac_p2', 'word_mass_p2', 'word_onePres'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'img_spac_p2', 'img_mass_p2', 'img_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_spac_p2', 'word_mass_p2', 'word_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'img_spac_p2', 'img_mass_p2', 'img_onePres'}},size(cfg_plot.rois));
+
+cfg_plot.condByROI = repmat({{'word_RgH_spac_p2', 'word_RgH_mass_p2', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'img_RgH_spac_p2', 'img_RgH_mass_p2', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_onePres'}},size(cfg_plot.rois));
 
 
 for r = 1:length(cfg_plot.rois)
@@ -633,15 +666,19 @@ b = reshape(a, dim(1), prod(dim(2:end)));
 
 %% RSA - very basic
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
+
 % dataTypes = {'img_RgH_rc_spac'};
 
 % latencies = [0 1.0];
 % latencies = [0 0.5; 0.5 1.0];
-% latencies = [0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+latencies = [0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 % latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+% latencies = [-0.2 0];
 
 standardize = true;
 
@@ -664,7 +701,8 @@ ses = 1;
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS', 'RPS'};
 % thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
-thisROI = {'all129'};
+% thisROI = {'all129'};
+thisROI = {'center91'};
 % thisROI = 'Cz';
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
@@ -856,11 +894,15 @@ end % lat
 % data1_str = 'img_RgH_fo_spac';
 % data2_str = 'img_RgH_fo_mass';
 
+% comparisons = {...
+%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
+%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
+%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
+%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+
 comparisons = {...
-  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
-  {'img_RgH_rc_spac','img_RgH_rc_mass'}, ...
-  {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
-  {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+  {'word_RgH_spac', 'word_RgH_mass'}, ...
+  {'img_RgH_spac', 'img_RgH_mass'}};
 
 alpha = 0.05;
 tails = 'both';
