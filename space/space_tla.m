@@ -290,6 +290,60 @@ end
 %   end
 % end
 
+%% decide who to kick out based on trial counts
+
+% Subjects with bad behavior
+exper.badBehSub = {};
+
+% exclude subjects with low event counts
+[exper,ana] = mm_threshSubs(exper,ana,1);
+
+%% get the grand average
+
+% set up strings to put in grand average function
+cfg_ana = [];
+cfg_ana.is_ga = 0;
+cfg_ana.conditions = ana.eventValues;
+cfg_ana.data_str = 'data_tla';
+cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
+
+ga_tla = struct;
+
+cfg_ft = [];
+cfg_ft.keepindividual = 'no';
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues)
+    for evVal = 1:length(ana.eventValues{typ})
+      %tic
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{typ}{evVal});
+      ga_tla.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      fprintf('Done.\n');
+      %toc
+    end
+  end
+end
+
+% turn keeptrial data into average for statistical functions because proper
+% processing of dimord is currently broken
+
+data_tla_avg = struct;
+
+cfg = [];
+cfg.keeptrials = 'no';
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sesStr)
+    for typ = 1:length(ana.eventValues)
+      for evVal = 1:length(ana.eventValues{typ})
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+        if isfield(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'avg')
+          data_tla_avg.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_timelockanalysis(cfg,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+        end
+      end
+    end
+  end
+end
+
 %% tf test
 
 
@@ -309,21 +363,212 @@ cfg_ft.output = 'pow';
 cfg_ft.method = 'wavelet';
 cfg_ft.width = 5;
 %cfg_ft.toi = -0.8:0.04:3.0;
-cfg_ft.toi = -0.5:0.04:1.0;
+% cfg_ft.toi = -0.5:0.04:1.0;
+cfg_ft.toi = 0:0.04:1.0;
 % % evenly spaced frequencies, but not as many as foilim makes
 % freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
 % % cfg_ft.foi = 3:freqstep:9;
 % cfg_ft.foi = 3:freqstep:60;
 % cfg_ft.foi = 4:1:100;
 %cfg_ft.foi = 4:1:30;
-cfg_ft.foilim = [3 9];
+% cfg_ft.foilim = [3 9];
+cfg_ft.foilim = [3 13];
 
-data_pow = ft_freqanalysis(cfg_ft,data_tla.img_onePres.sub(1).ses(1).data);
+% data_pow.img_onePres = ft_freqanalysis(cfg_ft,data_tla.img_onePres.sub(1).ses(1).data);
 
+% sub = 1;
+ses = 1;
+conds = {'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2', ...
+  'img_onePres', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_RgH_spac_p2', 'img_RgH_mass_p2'};
 
+data_pow = struct;
+
+for sub = 1:length(exper.subjects)
+  for cnd = 1:length(conds)
+    data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(conds{cnd}).sub(sub).ses(ses).data);
+  end
+end
+  
+cfg_bl = [];
+cfg_bl.baseline = [-0.3 -0.1];
+cfg_bl.baselinetype = 'absolute';
+for sub = 1:length(exper.subjects)
+  for cnd = 1:length(conds)
+    data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_bl,data_pow.(conds{cnd}).sub(sub).ses(ses).data);
+  end
+end
+
+% save fourier and use ft_freqdescriptives to convert to power
+
+%% get the grand average
+
+% set up strings to put in grand average function
+cfg_ana = [];
+cfg_ana.is_ga = 0;
+cfg_ana.conditions = ana.eventValues;
+cfg_ana.data_str = 'data_pow';
+%cfg_ana.data_str = 'data_coh';
+%cfg_ana.data_str = 'data_evoked';
+cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
+cfg_ft.keepindividual = 'no';
+%cfg_ft.keepindividual = 'yes';
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues)
+    for evVal = 1:length(ana.eventValues{typ})
+      %tic
+      fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
+      if strcmp(cfg_ana.data_str,'data_pow')
+        cfg_ft.parameter = 'powspctrm';
+        ga_pow.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_coh')
+        %cfg_ft.parameter = 'plvspctrm';
+        cfg_ft.parameter = 'powspctrm';
+        ga_coh.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_evoked')
+        cfg_ft.parameter = 'powspctrm';
+        ga_evoked.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      end
+      fprintf('Done.\n');
+      %toc
+    end
+  end
+end
 
+
+%% simple plot
+
+chan = 73; % 73 = Pz
+
+zlim = [-200 400];
+
+for cnd = 1:length(conds)
+  figure;
+  surf(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)));
+  shading interp;view([0,90]);axis tight;
+  caxis(zlim);
+  %imagesc(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)),zlim);
+  %axis xy;
+  title(strrep(conds{cnd},'_','-'));
+  colorbar
+end
+
+%% make some GA plots
+
+cfg_ft = [];
+cfg_ft.colorbar = 'yes';
+cfg_ft.interactive = 'yes';
+cfg_ft.showlabels = 'yes';
+%cfg_ft.xlim = 'maxmin'; % time
+%cfg_ft.ylim = 'maxmin'; % freq
+% cfg_ft.zlim = 'maxmin'; % pow
+cfg_ft.xlim = [0 1.0]; % time
+% cfg_ft.ylim = [3 8]; % freq
+% cfg_ft.ylim = [8 12]; % freq
+% cfg_ft.ylim = [8 10]; % freq
+cfg_ft.ylim = [10 12]; % freq
+%cfg_ft.ylim = [12 28]; % freq
+%cfg_ft.ylim = [28 50]; % freq
+%cfg_ft.zlim = [-100 100]; % pow
+
+cfg_ft.parameter = 'powspctrm';
+
+cfg_plot = [];
+cfg_plot.plotTitle = 1;
+
+%cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
+%cfg_plot.rois = {{'FS'},{'PS'}};
+%cfg_plot.rois = {'E71'};
+cfg_plot.rois = {'all'};
+
+cfg_plot.is_ga = 0;
+% outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% for each event type; each event type cell holds strings for its
+% conditions
+
+% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
+
+%%%%%%%%%%%%%%%
+% Type of plot
+%%%%%%%%%%%%%%%
+
+%cfg_plot.ftFxn = 'ft_singleplotTFR';
+
+% cfg_plot.ftFxn = 'ft_topoplotTFR';
+% %cfg_ft.marker = 'on';
+% cfg_ft.marker = 'labels';
+% cfg_ft.markerfontsize = 9;
+% cfg_ft.comment = 'no';
+% %cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_plot.subplot = 1;
+% cfg_ft.xlim = [0 1.0]; % time
+
+cfg_plot.ftFxn = 'ft_multiplotTFR';
+cfg_ft.showlabels = 'yes';
+cfg_ft.comment = '';
+
+for r = 1:length(cfg_plot.rois)
+  cfg_plot.roi = cfg_plot.rois{r};
+  cfg_plot.conditions = cfg_plot.condByROI{r};
+  
+  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
+end
+
+%% line plots
+
+% files.saveFigs = 1;
+
+cfg = [];
+cfg.parameter = 'powspctrm';
+
+%cfg.times = [-0.2:0.05:0.9; -0.1:0.05:1.0]';
+%cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
+
+% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
+cfg.freqs = [4 8; 8 10; 10 12];
+
+cfg.rois = {...
+  {'LAS'},{'FS'},{'RAS'},...
+  {'LPS'},{'PS'},{'RPS'},...
+  };
+
+% cfg.rois = {...
+%   {'LAI'},{'FI'},{'RAI'},...
+%   {'LAS'},{'FS'},{'RAS'},...
+%   {'LPS'},{'PS'},{'RPS'},...
+%   {'LPI'},{'PI'},{'RPI'},...
+%   };
+
+cfg.conditions = ana.eventValues;
+
+cfg.plotTitle = true;
+cfg.plotLegend = true;
+
+cfg.plotClusSig = false;
+cfg.clusAlpha = 0.1;
+%cfg.clusTimes = cfg.times;
+cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
+cfg.clusLimits = false;
+
+%cfg.ylim = [-0.6 0.6];
+%cfg.ylim = [-0.5 0.2];
+cfg.nCol = 3;
+
+% % whole power
+% cfg.type = 'line_pow';
+% cfg.clusDirStr = '_zpow_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+
+
+%% other tf
+
+cfg_ft = [];
 cfg_ft.output = 'pow';
 % % cfg_ft.output = 'powandcsd';
 cfg_ft.keeptrials = 'yes';
@@ -391,60 +636,6 @@ figure
 imagesc(face_pow_pad5e.time,face_pow_pad5e.freq,squeeze(mean(face_pow_pad5e.powspctrm(:,chan,:,:),1)));
 axis xy;
 title('pad=5edge');
-
-%% decide who to kick out based on trial counts
-
-% Subjects with bad behavior
-exper.badBehSub = {};
-
-% exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,1);
-
-%% get the grand average
-
-% set up strings to put in grand average function
-cfg_ana = [];
-cfg_ana.is_ga = 0;
-cfg_ana.conditions = ana.eventValues;
-cfg_ana.data_str = 'data_tla';
-cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
-
-ga_tla = struct;
-
-cfg_ft = [];
-cfg_ft.keepindividual = 'no';
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues)
-    for evVal = 1:length(ana.eventValues{typ})
-      %tic
-      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{typ}{evVal});
-      ga_tla.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      fprintf('Done.\n');
-      %toc
-    end
-  end
-end
-
-% turn keeptrial data into average for statistical functions because proper
-% processing of dimord is currently broken
-
-data_tla_avg = struct;
-
-cfg = [];
-cfg.keeptrials = 'no';
-
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sesStr)
-    for typ = 1:length(ana.eventValues)
-      for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-        if isfield(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'avg')
-          data_tla_avg.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_timelockanalysis(cfg,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-        end
-      end
-    end
-  end
-end
 
 %% plot the conditions - simple
 
