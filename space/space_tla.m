@@ -355,8 +355,8 @@ cfg_ft.pad = 'maxperlen';
 % cfg_ft.keeptapers = 'no';
 
 cfg_ft.output = 'pow';
-% cfg_ft.output = 'fourier';
-% cfg_ft.keeptrials = 'yes';
+cfg_ft.output = 'fourier';
+cfg_ft.keeptrials = 'yes';
 % cfg_ft.keeptapers = 'yes';
 
 % wavelet
@@ -372,7 +372,8 @@ cfg_ft.toi = 0:0.04:1.0;
 % cfg_ft.foi = 4:1:100;
 %cfg_ft.foi = 4:1:30;
 % cfg_ft.foilim = [3 9];
-cfg_ft.foilim = [3 13];
+% cfg_ft.foilim = [3 13];
+cfg_ft.foilim = [3 80];
 
 % data_pow.img_onePres = ft_freqanalysis(cfg_ft,data_tla.img_onePres.sub(1).ses(1).data);
 
@@ -381,14 +382,66 @@ ses = 1;
 conds = {'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2', ...
   'img_onePres', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_RgH_spac_p2', 'img_RgH_mass_p2'};
 
-data_pow = struct;
+data_fourier = struct;
 
 for sub = 1:length(exper.subjects)
   for cnd = 1:length(conds)
-    data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(conds{cnd}).sub(sub).ses(ses).data);
+    data_fourier.(conds{cnd}).sub(sub).ses(ses).data = ft_freqanalysis(cfg_ft,data_tla.(conds{cnd}).sub(sub).ses(ses).data);
   end
 end
+
+save(sprintf('~/Downloads/space_data_%s_%d_%d',cfg_ft.output,cfg_ft.foilim(1),cfg_ft.foilim(2)),sprintf('data_%s',cfg_ft.output));
+
+% save fourier and use ft_freqdescriptives to convert to power
+
+cfg_fd = [];
+cfg_fd.variance = 'no';
+cfg_fd.jackknife = 'no';
+cfg_fd.keeptrials = 'yes';
+param = 'fourierspctrm';
+
+data_pow = struct;
+% calculate power
+for sub = 1:length(exper.subjects)
+  for cnd = 1:length(conds)
+    % get the modulus for whole data (i.e., abs(whole fourier)) and square
+    % to get pow
+    data_pow.(conds{cnd}).sub(sub).ses(ses).data = (abs(data_fourier.(conds{cnd}).sub(sub).ses(ses).data.(param))).^2;
+    %data_pow.(conds{cnd}).sub(sub).ses(ses).data = (abs(subSesEvData.(cell2mat(fn)).(fourierparam))).^2;
+
+    %data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_fourier.(conds{cnd}).sub(sub).ses(ses).data);
+  end
+end
+
+cfg.baseline_time = [-0.3 -0.1];
+% get the baseline time indices
+blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline_time(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline_time(2);
+% mean across baseline period
+blm = nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4);
+if strcmp(cfg.baseline_type,'zscore')
+  fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+  % std across time, then avg across events (lower freqs often get smaller std)
+  blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,4),1);
   
+  % % avg across time, then std across events (higher freqs often get smaller std)
+  % blstd = nanstd(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),0,1);
+  
+  % % concatenate all times of all events and std (equivalent std across freqs)
+  %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3),...
+  %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),1)*size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),...
+  %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),2),size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3))),0,1)),-1);
+  
+  subSesEvData.(cell2mat(fn)).(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cell2mat(fn)).(param),blm),blstd);
+end
+
+% % log power
+% data_pow_log = data_pow;
+% for sub = 1:length(exper.subjects)
+%   for cnd = 1:length(conds)
+%     data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.powspctrm = log10(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm);
+%   end
+% end
+
 cfg_bl = [];
 cfg_bl.baseline = [-0.3 -0.1];
 cfg_bl.baselinetype = 'absolute';
@@ -398,7 +451,6 @@ for sub = 1:length(exper.subjects)
   end
 end
 
-% save fourier and use ft_freqdescriptives to convert to power
 
 %% get the grand average
 
@@ -407,6 +459,7 @@ cfg_ana = [];
 cfg_ana.is_ga = 0;
 cfg_ana.conditions = ana.eventValues;
 cfg_ana.data_str = 'data_pow';
+cfg_ana.data_str = 'data_pow_log';
 %cfg_ana.data_str = 'data_coh';
 %cfg_ana.data_str = 'data_evoked';
 cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
@@ -422,6 +475,9 @@ for ses = 1:length(exper.sesStr)
       if strcmp(cfg_ana.data_str,'data_pow')
         cfg_ft.parameter = 'powspctrm';
         ga_pow.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_pow_log')
+        cfg_ft.parameter = 'powspctrm';
+        ga_pow_log.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
       elseif strcmp(cfg_ana.data_str,'data_coh')
         %cfg_ft.parameter = 'plvspctrm';
         cfg_ft.parameter = 'powspctrm';
@@ -442,10 +498,11 @@ end
 chan = 73; % 73 = Pz
 
 zlim = [-200 400];
+zlim = [0 100];
 
 for cnd = 1:length(conds)
   figure;
-  surf(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)));
+  surf(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)));
   shading interp;view([0,90]);axis tight;
   caxis(zlim);
   %imagesc(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)),zlim);
@@ -470,7 +527,7 @@ cfg_ft.xlim = [0 1.0]; % time
 cfg_ft.ylim = [10 12]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
-%cfg_ft.zlim = [-100 100]; % pow
+% cfg_ft.zlim = [0 3]; % pow
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -565,6 +622,9 @@ cfg.nCol = 3;
 mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 
 
+% mm_ft_clusterplotTFR
+
+% nk_ft_avgpowerbytime - see cosi2_ft_seg_pow line 1158
 
 %% other tf
 
@@ -946,7 +1006,7 @@ for lat = 1:size(latencies,1)
     
     for sub = 1:length(exper.subjects)
       
-      subD = nan(size(data_tla.(sprintf('%s_p1',dataType)).sub(sub).ses(ses).data.trial,1),1);
+      subD = nan(size(data_tla.(sprintf('%s_p1',dataType)).sub(sub).ses(ses).data.(parameter),1),1);
       
       if standardize
         nTrl1 = size(data_tla.(sprintf('%s_p1',dataType)).sub(sub).ses(ses).data.(parameter),1);
