@@ -121,9 +121,8 @@ ana.segFxn = 'seg2ft';
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
 % files used when adding metadata to segmented trials
-ana.useEvents = true;
-ana.useExpParam = false;
-ana.useNsEvt = true;
+ana.useMetadata = true;
+ana.metadata.types = {'eventStruct','nsEvt'};
 ana.useExpInfo = true;
 ana.usePhotodiodeDIN = true;
 ana.photodiodeDIN_thresholdMS = 50;

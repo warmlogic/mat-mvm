@@ -8,16 +8,89 @@ if ischar(cfg.trialdef.eventvalue)
   cfg.trialdef.eventvalue = {cfg.trialdef.eventvalue};
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Read in external data, if wanted
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if cfg.eventinfo.useMetadata
+  md = cfg.eventinfo.metadata;
+  
+  if ismember('eventStruct', md.types)
+    % read the events file
+    eventsFile = fullfile(md.dirs.dataroot,md.dirs.behDir,md.subject,'events','events.mat');
+    if exist(eventsFile,'file')
+      fprintf('Loading events file: %s...',eventsFile);
+      events_all = load(eventsFile,'events');
+      events_all = events_all.events;
+      fprintf('Done.\n');
+    else
+      error('Cannot find events file: %s\n',eventsFile)
+    end
+  end
+  
+  if ismember('expParam', md.types)
+    % read the experiment parameters file
+    expParamFile = fullfile(md.dirs.dataroot,md.dirs.behDir,md.subject,'experimentParams.mat');
+    if exist(expParamFile,'file')
+      fprintf('Loading experiment parameters file: %s...',expParamFile);
+      load(expParamFile,'expParam');
+      fprintf('Done.\n');
+    else
+      error('Cannot find experiment parameters file: %s\n',expParamFile)
+    end
+  end
+  
+  if ismember('nsEvt', md.types)
+    % read the file with information about all events
+    evtDir = 'ns_evt';
+    % find the evt file
+    evtfile = dir(fullfile(md.dataroot,md.sesName,evtDir,[md.subject,'*.evt']));
+    if isempty(evtfile)
+      error('Cannot find %s*.evt file in %s',md.subject,fullfile(md.dataroot,md.sesName,evtDir));
+    elseif length(evtfile) > 1
+      error('More than one %s*.evt file found in %s',md.subject,fullfile(md.dataroot,md.sesName,evtDir));
+    elseif length(evtfile) == 1
+      evtfile = fullfile(md.dataroot,md.sesName,evtDir,evtfile.name);
+    end
+    fprintf('Reading evt file: %s...',evtfile);
+    % figure out how many columns there are
+    fid = fopen(evtfile,'r');
+    maxNumCols = -Inf;
+    while 1
+      % get each line of the file
+      tline = fgetl(fid);
+      if ischar(tline)
+        if strcmp(tline(end),sprintf('\t'))
+          tline = tline(1:end-1);
+        end
+        % since it's tab delimited, split it and count the length
+        numCols = length(regexp(tline,'\t','split'));
+        % change the max number
+        if numCols > maxNumCols
+          maxNumCols = numCols;
+        end
+      else
+        break
+      end
+    end
+    fclose(fid);
+    % read the evt file
+    fid = fopen(evtfile,'r');
+    ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
+    fclose(fid);
+    fprintf('Done.\n');
+  end
+end
+
+% ns_evt = cfg.eventinfo.ns_evt;
+% events_all = cfg.eventinfo.events;
+% expParam = cfg.eventinfo.expParam;
+
 % get the header and event information
 ft_hdr = ft_read_header(cfg.dataset);
 ft_event = ft_read_event(cfg.dataset);
 
-ns_evt = cfg.eventinfo.ns_evt;
-events_all = cfg.eventinfo.events;
-% expParam = cfg.eventinfo.expParam;
-
-%space_triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
-space_triggers = unique(ns_evt{1});
+%triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
+triggers = unique(ns_evt{1});
 
 % initialize the trl matrix
 trl = [];
@@ -71,7 +144,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           % value is correct.
           
           %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,space_triggers)
+          if ismember(ft_event(i).value,triggers)
             ec = ec + 1;
           end
           
@@ -324,7 +397,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           % found a trigger in the evt file; increment index if value is correct.
           
           %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,space_triggers)
+          if ismember(ft_event(i).value,triggers)
             ec = ec + 1;
           end
           
@@ -584,7 +657,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           % found a trigger in the evt file; increment index if value is correct.
           
           %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,space_triggers)
+          if ismember(ft_event(i).value,triggers)
             ec = ec + 1;
           end
           
@@ -831,7 +904,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           % found a trigger in the evt file; increment index if value is correct.
           
           %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,space_triggers)
+          if ismember(ft_event(i).value,triggers)
             ec = ec + 1;
           end
           

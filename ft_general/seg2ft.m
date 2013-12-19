@@ -230,74 +230,6 @@ for ses = 1:length(session)
   % data = ft_read_data(infile_ns,'dataformat',ftype,'headerformat',ftype);
   % event = ft_read_event(infile_ns,'eventformat',ftype,'dataformat',ftype,'headerformat',ftype);
   
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % Read in external data, if wanted
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  
-  if ana.useEvents
-    % read the events file
-    eventsFile = fullfile(dirs.dataroot,dirs.behDir,subject,'events','events.mat');
-    if exist(eventsFile,'file')
-      fprintf('Loading events file: %s...',eventsFile);
-      subEvents = load(eventsFile,'events');
-      fprintf('Done.\n');
-    else
-      error('Cannot find events file: %s\n',eventsFile)
-    end
-  end
-  
-  if ana.useExpParam
-    % read the experiment parameters file
-    expParamFile = fullfile(dirs.dataroot,dirs.behDir,subject,'experimentParams.mat');
-    if exist(expParamFile,'file')
-      fprintf('Loading experiment parameters file: %s...',expParamFile);
-      load(expParamFile,'expParam');
-      fprintf('Done.\n');
-    else
-      error('Cannot find experiment parameters file: %s\n',expParamFile)
-    end
-  end
-  
-  if ana.useNsEvt
-    % read the file with information about all events
-    evtDir = 'ns_evt';
-    % find the evt file
-    evtfile = dir(fullfile(dataroot,sesName,evtDir,[subject,'*.evt']));
-    if isempty(evtfile)
-      error('Cannot find %s*.evt file in %s',subject,fullfile(dataroot,sesName,evtDir));
-    elseif length(evtfile) > 1
-      error('More than one %s*.evt file found in %s',subject,fullfile(dataroot,sesName,evtDir));
-    elseif length(evtfile) == 1
-      evtfile = fullfile(dataroot,sesName,evtDir,evtfile.name);
-    end
-    fprintf('Reading evt file: %s...',evtfile);
-    % figure out how many columns there are
-    fid = fopen(evtfile,'r');
-    maxNumCols = -Inf;
-    while 1
-      % get each line of the file
-      tline = fgetl(fid);
-      if ischar(tline)
-        if strcmp(tline(end),sprintf('\t'))
-          tline = tline(1:end-1);
-        end
-        % since it's tab delimited, split it and count the length
-        numCols = length(regexp(tline,'\t','split'));
-        % change the max number
-        if numCols > maxNumCols
-          maxNumCols = numCols;
-        end
-      else
-        break
-      end
-    end
-    fclose(fid);
-    % read the evt file
-    fid = fopen(evtfile,'r');
-    ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
-    fclose(fid);
-    fprintf('Done.\n');
-  end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Initial parameters for reading the data
@@ -322,12 +254,20 @@ for ses = 1:length(session)
       fprintf('%s: The field ana.cfg_cont exists. Using these pre-defined settings for preprocessing continuous data instead of defaults!\n',mfilename);
       
       fn_cfg = fieldnames(cfg);
-      fn_cfg_pre = fieldnames(ana.cfg_cont);
+      if ~isempty(ana.cfg_cont)
+        fn_cfg_pre = fieldnames(ana.cfg_cont);
+      else
+        fn_cfg_pre = [];
+      end
       fn = [fn_cfg; fn_cfg_pre];
       
       if length(fn) == unique(length(fn))
         c1 = struct2cell(cfg);
-        c2 = struct2cell(ana.cfg_cont);
+        if ~isempty(ana.cfg_cont)
+          c2 = struct2cell(ana.cfg_cont);
+        else
+          c2 = [];
+        end
         c = [c1; c2];
         cfg_cont = cell2struct(c,fn,1);
       else
@@ -423,15 +363,18 @@ for ses = 1:length(session)
       % field, but be sure to remove it or the cfg will take up way too
       % much disk space (this happens automatically after running
       % ft_definetrial)
-      if ana.useEvents
-        cfg.eventinfo.events = subEvents.events;
+      cfg.eventinfo.useMetadata = ana.useMetadata;
+      if cfg.eventinfo.useMetadata
+        % need to know what kind of metadata to access
+        cfg.eventinfo.metadata.types = ana.metadata.types;
+        % add metadata specific to this run
+        cfg.eventinfo.metadata.dataroot = dataroot;
+        cfg.eventinfo.metadata.subject = subject;
+        cfg.eventinfo.metadata.sesName = sesName;
+        % add the basic directories struct
+        cfg.eventinfo.metadata.dirs = dirs;
       end
-      if ana.useExpParam
-        cfg.eventinfo.expParam = expParam;
-      end
-      if ana.useNsEvt
-        cfg.eventinfo.ns_evt = ns_evt;
-      end
+      
       if ana.useExpInfo
         cfg.eventinfo.trl_order = ana.trl_order;
         cfg.eventinfo.sessionNames = ana.sessionNames;
