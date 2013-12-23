@@ -92,7 +92,7 @@ vert_ylim = [-10 10];
 
 if (rejArt_ftManual || rejArt_ftICA || rejArt_ftAuto) && isfield(data,'fsample')
   sampleRate = data.fsample;
-else
+elseif (rejArt_ftManual || rejArt_ftICA || rejArt_ftAuto) && ~isfield(data,'fsample')
   warning('Sample rate of data not found in data.fsample! Cannot correctly check for muscle artifacts!');
   keyboard
 end
