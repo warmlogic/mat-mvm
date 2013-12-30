@@ -236,7 +236,7 @@ else
 end
 
 %% let me know that it's done
-emailme = 1;
+emailme = 0;
 if emailme
   subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
   mail_message = {...
