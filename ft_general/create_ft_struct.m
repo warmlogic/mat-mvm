@@ -98,15 +98,24 @@ if ~isfield(ana,'checksize')
 end
 
 % for adding metadata; false by default
-if ~isfield(ana,'useEvents')
-  ana.useEvents = false;
+if ~isfield(ana,'useMetadata')
+  ana.useMetadata = false;
+  ana.metadata.types = {};
+elseif isfield(ana,'useMetadata') && ana.useMetadata
+  if ~isfield(ana,'metadata')
+    error('No ana.metadata.types field');
+  elseif isfield(ana,'metadata') && ~isfield(ana.metadata,'types')
+    error('No ana.metadata.types field');
+  elseif isfield(ana,'metadata') && isfield(ana.metadata,'types') && isempty(ana.metadata.types)
+    error('ana.metadata.types field is empty');
+  end
+elseif isfield(ana,'useMetadata') && ~ana.useMetadata
+  ana.metadata.types = {};
 end
-if ~isfield(ana,'useNsEvt')
-  ana.useNsEvt = false;
-end
-if ~isfield(ana,'useExpParam')
-  ana.useExpParam = false;
-end
+
+% use info like ana.trl_order, ana.trl_order, ana.sessionNames,
+% ana.phaseNames, exper.eventValues, and exper.prepost (usually when
+% segmenting continuous data)
 if ~isfield(ana,'useExpInfo')
   ana.useExpInfo = false;
 end
@@ -114,11 +123,9 @@ end
 if ~isfield(ana,'usePhotodiodeDIN')
   ana.usePhotodiodeDIN = false;
 end
-
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_thresholdMS')
   ana.photodiodeDIN_thresholdMS = 75;
 end
-
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
   ana.photodiodeDIN_str = 'DIN ';
 end
