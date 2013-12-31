@@ -1,5 +1,5 @@
 function [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files)
-%CREATE_FT_STRUCT: Create a FieldTrip data structure from NS files
+%CREATE_FT_STRUCT_MULTISES: Create a FieldTrip data structure from NS files
 %
 % [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files)
 %
@@ -194,7 +194,7 @@ appendInFrontOfNum = 'a';
 % store the bad channel information
 exper.badChan = cell(length(exper.subjects),length(exper.sessions));
 % store the bad event information
-exper.badEv = cell(length(exper.subjects),length(exper.sessions));
+% exper.badEv = cell(length(exper.subjects),length(exper.sessions));
 
 %% Store the raw data in FieldTrip format
 
@@ -242,7 +242,8 @@ for sub = 1:length(exper.subjects)
     
     % initialize to store trial counts
     for evVal = 1:length(exper.eventValues{ses})
-      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),length(exper.sessions{ses}));
+      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
+      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cell(1,length(exper.subjects));
     end
     
     % set the location to save the data and make sure it exists
@@ -286,11 +287,11 @@ for sub = 1:length(exper.subjects)
           end
         end
       end
-    elseif ~strcmpi(exper.eegFileExt,'set') && ~isempty(eventValuesToProcess)
+    else
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,files.elecfile,ana,exper,dirs);
+      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -305,36 +306,37 @@ for sub = 1:length(exper.subjects)
     % store the bad channel information
     exper.badChan{sub,ses} = badChan;
     % store the bad event information
-    exper.badEv{sub,ses} = badEv;
+    % exper.badEv{sub,ses} = badEv;
     
-    % check on any empty events
-    for evVal = 1:length(eventValuesToProcess)
-      % get the name of this event type
-      eventVal = eventValuesToProcess{evVal};
-      if ~isempty(ft_raw.(eventVal).trial)
-        % store the number of trials for this event value
-        exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-        
-        fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
-      else
-        warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
-        if ~exist('emptyEvents','var')
-          emptyEvents = {eventVal};
-        elseif exist('emptyEvents','var')
-          emptyEvents = cat(2,emptyEvents,eventVal);
-        end
-      end
-    end
+%     % check on any empty events
+%     for evVal = 1:length(eventValuesToProcess)
+%       % get the name of this event type
+%       eventVal = eventValuesToProcess{evVal};
+%       if ~isempty(ft_raw.(eventVal).trial)
+%         % store the number of trials for this event value
+%         exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
+%         
+%         fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
+%       else
+%         warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
+%         if ~exist('emptyEvents','var')
+%           emptyEvents = {eventVal};
+%         elseif exist('emptyEvents','var')
+%           emptyEvents = cat(2,emptyEvents,eventVal);
+%         end
+%       end
+%     end
     
-    % if we want to keep the events in exper.eventValues (regardless of
-    % whether there were any extras)
+    % store data about events and do any additional preprocessing
     for evVal = 1:length(exper.eventValues{ses})
       % get the name of this event type
       eventVal = exper.eventValues{ses}{evVal};
       
       if size(ft_raw.(eventVal).trial,2) > 0
         % store the number of trials for this event value
-        exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
+        %exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
+        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
+        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
         
         % set outputfile so the raw data is saved; especially useful for
         % implementing analyses with the peer toolbox
@@ -373,24 +375,7 @@ for sub = 1:length(exper.subjects)
       end % if there were trials
     end % for exper.eventValues
     
-    % if we found an eventValue with 0 trials, put original events back so
-    % the next subject/session will be processed correctly
-    if exist('emptyEvents','var')
-      %exper.eventValues = orig.eventValues;
-      if ~isempty(exper.eventValuesExtra.newValue)
-        exper.eventValuesExtra = orig.eventValuesExtra;
-      end
-      clear emptyEvents
-    end
-    
   end % for exper.sessions
 end % for exper.subjects
-
-%% if necessary, overwrite exper.eventValues so it includes the extra values
-if ~isempty(exper.eventValuesExtra.newValue) && ~exper.eventValuesExtra.onlyKeepExtras
-  exper.eventValues = sort(eventValuesWithExtra);
-elseif ~isempty(exper.eventValuesExtra.newValue) && exper.eventValuesExtra.onlyKeepExtras
-  exper.eventValues = sort(cat(2,exper.eventValuesExtra.newValue{:}));
-end
 
 end
