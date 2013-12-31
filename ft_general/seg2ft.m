@@ -1,11 +1,12 @@
-function [ft_raw,badChanAllSes,badEvAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
 %   badChan = bad channel information
+%   badEv   = bad event information
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP:
@@ -336,8 +337,8 @@ for ses = 1:length(session)
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
       
-      cfg.trialdef.prestim = abs(exper.prepost(1)); % in seconds; must be positive
-      cfg.trialdef.poststim = exper.prepost(2); % in seconds; must be positive
+      cfg.trialdef.prestim = abs(prepost(1)); % in seconds; must be positive
+      cfg.trialdef.poststim = prepost(2); % in seconds; must be positive
       
       %       if ana.useEvents
       %         cfg.eventinfo.events = subEvents.events;
@@ -353,8 +354,8 @@ for ses = 1:length(session)
       %         cfg.eventinfo.sessionNames = ana.sessionNames;
       %         cfg.eventinfo.sessionNum = ses;
       %         cfg.eventinfo.phaseNames = ana.phaseNames;
-      %         cfg.eventinfo.eventValues = exper.eventValues;
-      %         cfg.eventinfo.prepost = exper.prepost;
+      %         cfg.eventinfo.eventValues = eventValue_orig;
+      %         cfg.eventinfo.prepost = prepost;
       %       end
       %
       %       cfg.trialdef.eventtype = 'trigger';
@@ -380,8 +381,8 @@ for ses = 1:length(session)
         cfg.eventinfo.sessionNames = ana.sessionNames;
         cfg.eventinfo.sessionNum = ses;
         cfg.eventinfo.phaseNames = ana.phaseNames;
-        cfg.eventinfo.eventValues = exper.eventValues;
-        cfg.eventinfo.prepost = exper.prepost;
+        cfg.eventinfo.eventValues = eventValue_orig;
+        cfg.eventinfo.prepost = prepost;
         
         cfg.eventinfo.usePhotodiodeDIN = ana.usePhotodiodeDIN;
         if ana.usePhotodiodeDIN
@@ -585,6 +586,11 @@ ft_raw = struct;
 % created
 trialinfo_eventNumCol = 1;
 
+badEvEvVals = struct;
+for evVal = 1:length(eventValue)
+  badEvEvVals.(eventValue{evVal}) = [];
+end
+
 % if length(eventValue) > 1
 for evVal = 1:length(eventValue)
   
@@ -596,6 +602,8 @@ for evVal = 1:length(eventValue)
     fprintf('Selecting %d trials for %s...\n',sum(cfg_split.trials),eventValue{evVal});
     % get the data for only this event value
     ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
+    
+    badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
     
     if ana.useExpInfo
       % remove the buffer trialinfo -1s; those were set because the cfg.trl

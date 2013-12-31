@@ -399,7 +399,7 @@ for sub = 1:length(exper.subjects)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,files.elecfile,ana,exper,dirs);
+      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess,eventValuesToProcess_orig,exper.prepost,files.elecfile,ana,exper,dirs);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -450,7 +450,7 @@ for sub = 1:length(exper.subjects)
         % turn the NS segments into raw FT data; uses the NS bci metadata
         % file to reject artifact trials before returning good trials in
         % ft_raw
-        [ft_raw.(eventVal),badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),eventValuesToProcess_orig(evVal),files.elecfile,ana,exper,dirs);
+        [ft_raw.(eventVal),badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},eventValuesToProcess(evVal),eventValuesToProcess_orig(evVal),exper.prepost,files.elecfile,ana,exper,dirs);
         
         % if an extra value was defined and the current event is one of its
         % sub-values, store the current event in the toCombine field for
