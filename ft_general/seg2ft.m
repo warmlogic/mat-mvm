@@ -1,4 +1,4 @@
-function [ft_raw,badChanAllSes,badEvAllSes] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
 % [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
