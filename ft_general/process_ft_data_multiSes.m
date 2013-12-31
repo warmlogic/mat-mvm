@@ -1,7 +1,7 @@
-function process_ft_data_multiSes(ana,cfg_proc,exper,dirs)
+function process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp)
 %PROCESS_FT_DATA_MULTISES processes the raw FieldTrip data
 %
-% process_ft_data_multiSes(ana,cfg_proc,exper,dirs)
+% process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp)
 %
 %
 % ana.ftFxn           = the FieldTrip function used to process the data
@@ -108,6 +108,22 @@ if ana.usePeer
         mkdir(saveDirProcFile);
       end
       
+      % save subjectDetails.mat in the processed directory, too
+      %raw_subDetailFile = fullfile(saveDirRawFile,'subjectDetails.mat');
+      proc_subDetailFile = fullfile(saveDirProcFile,'subjectDetails.mat');
+      % back up original exper struct
+      orig_exper = exper;
+      % include only this subject
+      exper.subjects = exper.subjects(sub);
+      exper.sessions = exper.sessions(ses);
+      exper.badChan = exper.badChan(sub,ses);
+      for evVal = 1:length(exper.eventValues{ses})
+        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+      end
+      save(proc_subDetailFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+      exper = orig_exper;
+      
       for evVal = 1:length(exper.eventValues{ses})
         % get the name of this event type
         eventVal = exper.eventValues{ses}{evVal};
@@ -160,6 +176,22 @@ else
       if ~exist(saveDirProcFile,'dir')
         mkdir(saveDirProcFile);
       end
+      
+      % save subjectDetails.mat in the processed directory, too
+      %raw_subDetailFile = fullfile(saveDirRawFile,'subjectDetails.mat');
+      proc_subDetailFile = fullfile(saveDirProcFile,'subjectDetails.mat');
+      % back up original exper struct
+      orig_exper = exper;
+      % include only this subject
+      exper.subjects = exper.subjects(sub);
+      exper.sessions = exper.sessions(ses);
+      exper.badChan = exper.badChan(sub,ses);
+      for evVal = 1:length(exper.eventValues{ses})
+        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+      end
+      save(proc_subDetailFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+      exper = orig_exper;
       
       for evVal = 1:length(exper.eventValues{ses})
         % get the name of this event type
