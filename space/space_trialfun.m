@@ -79,11 +79,11 @@ if cfg.eventinfo.useMetadata
     fclose(fid);
     fprintf('Done.\n');
   end
+  
+  if ismember('expParam', md.types)
+    error('loading experimentParams.mat is not yet supported');
+  end
 end
-
-% ns_evt = cfg.eventinfo.ns_evt;
-% events_all = cfg.eventinfo.events;
-% expParam = cfg.eventinfo.expParam;
 
 % get the header and event information
 ft_hdr = ft_read_header(cfg.dataset);
