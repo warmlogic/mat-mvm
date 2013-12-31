@@ -108,9 +108,9 @@ if ana.usePeer
         mkdir(saveDirProcFile);
       end
       
-      for evVal = 1:length(exper.eventValues)
+      for evVal = 1:length(exper.eventValues{ses})
         % get the name of this event type
-        eventVal = exper.eventValues{evVal};
+        eventVal = exper.eventValues{ses}{evVal};
         
         inputfile = fullfile(saveDirRawFile,sprintf('data_raw%s_%s.mat',data_suffix,eventVal));
         outputfile = fullfile(saveDirProcFile,sprintf('data_%s_%s.mat',ana.ftype,eventVal));
