@@ -34,25 +34,6 @@ function [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files)
 % or one at a time (mostly useful for manual artifact rejection)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Notes on equating trial counts when also creating new extra event values:
-%
-% exper.eventValuesExtra.equateExtrasSeparately = equate extras based on
-% their own minimum event number so you can still have bigger numbers with
-% the normal events
-%
-% if exper.equateTrials==1 and exper.eventValuesExtra.onlyKeepExtras==1,
-% the trial counts of the unkept event values will not necessarily add up
-% to those of the kept event values; this is due to the way unkept and kept
-% event values are processed.
-%
-% if exper.equateTrials==1 and event values are being combined to form
-% exper.eventValuesExtra.newValue, there will not necessarily be equal
-% contibution from each exper.eventValue to the new values because this
-% could cut down on the number of trials if one event value had a low trial
-% count. Instead, the event values are combined and them randomly sampled
-% to create equal bin sizes.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % See also: SEG2FT, PROCESS_FT_DATA, MM_FT_ARTIFACT
 %
@@ -308,24 +289,24 @@ for sub = 1:length(exper.subjects)
     % store the bad event information
     % exper.badEv{sub,ses} = badEv;
     
-%     % check on any empty events
-%     for evVal = 1:length(eventValuesToProcess)
-%       % get the name of this event type
-%       eventVal = eventValuesToProcess{evVal};
-%       if ~isempty(ft_raw.(eventVal).trial)
-%         % store the number of trials for this event value
-%         exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-%         
-%         fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
-%       else
-%         warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
-%         if ~exist('emptyEvents','var')
-%           emptyEvents = {eventVal};
-%         elseif exist('emptyEvents','var')
-%           emptyEvents = cat(2,emptyEvents,eventVal);
-%         end
-%       end
-%     end
+    %     % check on any empty events
+    %     for evVal = 1:length(eventValuesToProcess)
+    %       % get the name of this event type
+    %       eventVal = eventValuesToProcess{evVal};
+    %       if ~isempty(ft_raw.(eventVal).trial)
+    %         % store the number of trials for this event value
+    %         exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
+    %
+    %         fprintf('Created FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
+    %       else
+    %         warning([mfilename,':noTrialsFound'],'Did not create FT struct of raw EEG data: %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
+    %         if ~exist('emptyEvents','var')
+    %           emptyEvents = {eventVal};
+    %         elseif exist('emptyEvents','var')
+    %           emptyEvents = cat(2,emptyEvents,eventVal);
+    %         end
+    %       end
+    %     end
     
     % store data about events and do any additional preprocessing
     for evVal = 1:length(exper.eventValues{ses})
@@ -374,6 +355,22 @@ for sub = 1:length(exper.subjects)
         fprintf('No good trials found for %s, %s, %s!\n',exper.subjects{sub},sesStr,eventVal);
       end % if there were trials
     end % for exper.eventValues
+    
+    % save a subjectDetails.mat file for each session
+    saveFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr,'subjectDetails.mat');
+    % back up original exper struct
+    exper_orig = exper;
+    % include only this subject
+    exper.subjects = exper.subjects(sub);
+    exper.sessions = exper.sessions(ses);
+    exper.badChan = exper.badChan(sub,ses);
+    for evVal = 1:length(exper.eventValues{ses})
+      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+    end
+    save(saveFile,'exper','ana','dirs','files','cfg_pp');
+    % restore original exper struct
+    exper = exper_orig;
     
   end % for exper.sessions
 end % for exper.subjects
