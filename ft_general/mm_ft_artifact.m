@@ -13,7 +13,7 @@ function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,even
 % EOGH_right = 125;
 % eog = {[25 127], [8 126]}; % left, right
 
-badEv = [];
+% badEv = [];
 badChan = [];
 badChan_str = {};
 
@@ -1833,6 +1833,10 @@ if rejArt_ftAuto
   cfg.artfctdef.muscle.artifact = artifact_muscle;
   cfg.artfctdef.eog.artifact = artifact_EOG;
   data = ft_rejectartifact(cfg,data);
+end
+
+if ~exist('badEv','var') || isempty(badEv)
+  badEv = zeros(size(data.sampleinfo,1), 1);
 end
 
 end
