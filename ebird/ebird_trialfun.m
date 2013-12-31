@@ -210,8 +210,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   keyboard
                 end
                 
-                if strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName) &&...
-                    strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true')
+                if strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)% &&...
+                    %strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true')
                   
                   % set column types because Net Station evt files can vary
                   cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
@@ -482,8 +482,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   keyboard
                 end
                 
-                if strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName) &&...
-                    strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true')
+                if strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)% &&...
+                    %strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true')
                   
                   % set column types because Net Station evt files can vary
                   cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
