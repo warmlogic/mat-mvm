@@ -134,7 +134,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
-      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
       
       for i = 1:length(ft_event)
         fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
@@ -388,7 +388,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
-      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
       
       for i = 1:length(ft_event)
         fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
@@ -648,7 +648,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
-      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
       
       for i = 1:length(ft_event)
         fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
@@ -895,7 +895,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
       % keep track of how many real evt events we have counted
       ec = 0;
       
-      fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
       
       for i = 1:length(ft_event)
         fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
