@@ -26,7 +26,9 @@ exper.eegFileExt = 'raw';
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
 % [exper.eventValues, evInd] = sort({'match_stim', 'nametrain_stim', 'name_stim'});
-[exper.eventValues, evInd] = sort({'match_stim'});
+% exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
+exper.eventValues = {{'match_stim'}};
+% [exper.eventValues, evInd] = sort({'match_stim'});
 % [exper.eventValues, evInd] = sort({'nametrain_stim', 'name_stim'});
 % [exper.eventValues, evInd] = sort({'name_stim'});
 
@@ -34,19 +36,10 @@ exper.eegFileExt = 'raw';
 % because they get sorted, must correspond to the order listed in
 % exper.eventValues
 
-% exper.prepost = [-1.0 2.0];
-% exper.prepost = [...
-%   -1.0 2.0; ...
-%   -1.0 2.0; ...
-%   -1.0 2.0];
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
+exper.prepost = {[-0.2 1.0]};
 
-exper.prepost = [-0.2 1.0];
-% exper.prepost = [...
-%   -0.2 1.0; ...
-%   -0.2 1.0; ...
-%   -0.2 1.0];
-
-exper.prepost = exper.prepost(evInd,:);
+% exper.prepost = exper.prepost(evInd,:);
 
 exper.subjects = {
 %   'EBIRD049';
@@ -176,7 +169,8 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = 59:61;
 
 % artifact settings
-ana.artifact.type = {'ftManual', 'ftICA'};
+ana.artifact.type = {'ftManual'};
+% ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
 % % negative trlpadding: don't check that time (on both sides) for artifacts
@@ -218,11 +212,13 @@ cfg_proc = [];
 cfg_proc.keeptrials = 'yes';
 
 % set the save directories
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
+%[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
+[dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',false);
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
-process_ft_data(ana,cfg_proc,exper,dirs);
+% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+[exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
+process_ft_data_multiSes(ana,cfg_proc,exper,dirs);
 
 % %% get the bad channel information
 % 
