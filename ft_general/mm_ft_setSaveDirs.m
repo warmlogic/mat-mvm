@@ -184,7 +184,7 @@ elseif strcmp(ana.ftFxn,'ft_freqanalysis')
     infoDir = sprintf('%s_%s%s_%s_%d_%d',prefix,cfg.method,extraInfo,cfg.output,round(cfg.foilim(1)),round(cfg.foilim(end)));
   end
 else
-  error('mm_ft_setSaveDirs:unknownFtFxn','Unsure of how to name the saving directory for %s',ana.ftFxn);
+  error('%s:unknownFtFxn','Unsure of how to name the saving directory for %s',mfilename,ana.ftFxn);
 end
 
 % set the save directory
