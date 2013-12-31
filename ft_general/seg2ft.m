@@ -603,7 +603,9 @@ for evVal = 1:length(eventValue)
     % get the data for only this event value
     ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
     
-    badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
+    if rejArt
+      badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
+    end
     
     if ana.useExpInfo
       % remove the buffer trialinfo -1s; those were set because the cfg.trl
