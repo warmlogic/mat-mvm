@@ -47,9 +47,9 @@ if ~isfield(dirs,'saveDirStem')
   dirs.saveDirStem = dirs.dataDir;
 end
 
-if ~isfield(exper,'equateTrials')
-  exper.equateTrials = 0;
-end
+% if ~isfield(exper,'equateTrials')
+%   exper.equateTrials = 0;
+% end
 
 if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
   ana.artifact.type = {'none'};
@@ -109,8 +109,9 @@ else
   artStr = '';
 end
 
-% denote whether the trial counts are being equated
-evStrDir = sprintf('%s_eq%d%s',evStr,exper.equateTrials,artStr);
+% % denote whether the trial counts are being equated
+% evStrDir = sprintf('%s_eq%d%s',evStr,exper.equateTrials,artStr);
+evStrDir = sprintf('%s%s',evStr,artStr);
 
 %% set the directory name, dependent upon the analysis type
 
