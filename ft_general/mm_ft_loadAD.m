@@ -42,7 +42,37 @@ elseif ~islogical(replace_dataroot)
 end
 
 % load in analysisDetails.mat: exper, ana, dirs, files, cfg_proc
-load(filename,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+ad = load(filename,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+if isfield(ad,'exper')
+  exper = ad.exper;
+else
+  error('exper variable not found');
+end
+if isfield(ad,'ana')
+  ana = ad.ana;
+else
+  error('ana variable not found');
+end
+if isfield(ad,'dirs')
+  dirs = ad.dirs;
+else
+  error('dirs variable not found');
+end
+if isfield(ad,'files')
+  files = ad.files;
+else
+  error('files variable not found');
+end
+if isfield(ad,'cfg_proc')
+  cfg_proc = ad.cfg_proc;
+else
+  error('cfg_proc variable not found');
+end
+if isfield(ad,'cfg_pp')
+  cfg_pp = ad.cfg_pp;
+else
+  error('cfg_pp variable not found');
+end
 
 % add in the electrode information, if necessary
 if ~isfield(ana,'elec')
@@ -55,15 +85,19 @@ if ~isfield(exper,'sesStr')
   exper.sesStr = cell(size(exper.sessions));
   
   for ses = 1:length(exper.sessions)
+    
     % turn the session name into a string for easier printing
     if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
       sesStr = exper.sessions{ses}{1};
       for i = 2:length(exper.sessions{ses})
         sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
       end
-    elseif ~iscell(exper.sessions{ses}) || (iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1)
+    elseif ~iscell(exper.sessions{ses})
       sesStr = exper.sessions{ses};
+    elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
+      sesStr = cell2mat(exper.sessions{ses});
     end
+    
     % store the sesStr
     exper.sesStr{ses} = sesStr;
   end
