@@ -134,7 +134,7 @@ for sub = 1:length(exper.subjects)
                 cfg_fd.keeptrials = 'no';
                 data.(sesStr).(ana.eventValuesSplit{ses}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
                 % put in the trial counts
-                %exper.nTrials.(ana.eventValuesSplit{ses}{es})(sub,ses) = sum(cfg.trials);
+                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{es})(sub) = sum(cfg.trials);
               end % es
             end
             
@@ -179,7 +179,7 @@ for sub = 1:length(exper.subjects)
                 %data.(sesStr).(ana.eventValuesSplit{ses}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
                 
                 % put in the trial counts
-                %exper.nTrials.(ana.eventValuesSplit{ses}{es})(sub,ses) = sum(cfg.trials);
+                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{es})(sub) = sum(cfg.trials);
               end % es
               
             end % loadMethod
