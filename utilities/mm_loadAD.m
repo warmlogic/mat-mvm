@@ -1,18 +1,19 @@
-function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesNames,eventValues,replaceDataroot)
-%MM_LOADAD Load in the analysis details by aggregating subject details.
-%Modify the file location if necessary (e.g., loading files on a different
-%computer than the processing occurred).
+function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesStr,replaceDataroot)
+% MM_LOADAD Load in the analysis details by aggregating subject details.
+% All event values are loaded!
 %
-% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesNames,eventValues,replaceDataroot)
+% Can modify the file location if necessary (e.g., loading files on a
+% different computer than the processing occurred).
+%
+% [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot)
 %
 % NB: uses the first subject as the basis for analysis details variables
 % 
 % procDir         = root path to where subject/session folders are that
 %                   contain processed data and subjectDetails.mat
 % subjects        = which subjects to load
-% sesNames        = cell of strings for session names
-% eventValues     = cell of cells (one per session) for which events to
-%                   load
+% sesStr          = cell of strings for session names (same name(s) as
+%                   directories where processed data was saved)
 % replaceDataroot = replace the dataroot stored in analysisDetails.mat
 %                   with the one applicable now. true or false (default = false).
 %                   OR
@@ -50,8 +51,8 @@ end
 
 % use the first subject as the basis for analysis details variables
 sub=1;
-for ses = 1:length(sesNames)
-  sdFile = fullfile(procDir,subjects{sub},sesNames{ses},'subjectDetails.mat');
+for ses = 1:length(sesStr)
+  sdFile = fullfile(procDir,subjects{sub},sesStr{ses},'subjectDetails.mat');
   if exist(sdFile,'file')
     % load in analysisDetails.mat: exper, ana, dirs, files, cfg_proc
     sd = load(sdFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
@@ -90,32 +91,35 @@ for ses = 1:length(sesNames)
       end
       
       % only include the sessions and relevant info for the input sesNames
-      keepSesInd = ismember(exper.sesNames,sesNames{ses});
+      keepSesInd = ismember(exper.sesStr,sesStr{ses});
       if ~any(keepSesInd)
         exper.sessions = exper.sessions(keepSesInd);
         exper.prepost = exper.prepost(keepSesInd);
+        exper.sesStr = exper.sesStr(keepSesInd);
         
         for k = 1:length(keepSesInd)
           if ~keepSesInd(k)
-            exper.badChan = rmfield(exper.badChan,exper.sesNames{k});
-            exper.nTrials = rmfield(exper.nTrials,exper.sesNames{k});
-            exper.badEv = rmfield(exper.badEv,exper.sesNames{k});
+            exper.badChan = rmfield(exper.badChan,exper.sesStr{k});
+            exper.nTrials = rmfield(exper.nTrials,exper.sesStr{k});
+            exper.badEv = rmfield(exper.badEv,exper.sesStr{k});
           end
         end
       end
       
-      % only include nTrials and badEv for the input eventValues
-      for evVal = 1:length(exper.eventValues{ses})
-        if ~ismember(exper.eventValues{ses}{evVal},eventValues{ses})
-          exper.nTrials.(sesNames{ses}) = rmfield(exper.nTrials.(sesNames{ses}),exper.eventValues{ses}{evVal});
-          exper.badEv.(sesNames{ses}) = rmfield(exper.badEv.(sesNames{ses}),exper.eventValues{ses}{evVal});
-        end
-      end
+%       % only include nTrials and badEv for the input eventValues
+%       for evVal = 1:length(exper.eventValues{ses})
+%         if ~ismember(exper.eventValues{ses}{evVal},eventValues{ses})
+%           exper.nTrials.(sesNames{ses}) = rmfield(exper.nTrials.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%           exper.badEv.(sesNames{ses}) = rmfield(exper.badEv.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%         end
+%       end
       
-      % overwrite these fields using the input variables
+      % overwrite the subject field using the input variable
       exper.subjects = subjects;
-      exper.sesNames = sesNames;
-      exper.eventValues = eventValues;
+      
+      % % do not overwrite the eventValues field!! We need this for proper
+      % % indexing of eventNumber
+      % exper.eventValues = eventValues;
       
     else
       
@@ -137,8 +141,8 @@ end
 
 if length(subjects) > 1
   for sub = 2:length(subjects)
-    for ses = 1:length(sesNames)
-      sdFile = fullfile(procDir,subjects{sub},sesNames{ses},'subjectDetails.mat');
+    for ses = 1:length(sesStr)
+      sdFile = fullfile(procDir,subjects{sub},sesStr{ses},'subjectDetails.mat');
       if exist(sdFile,'file')
         
         % load in analysisDetails.mat: exper, ana, dirs, files, cfg_proc
