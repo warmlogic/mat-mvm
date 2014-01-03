@@ -169,8 +169,7 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = 59:61;
 
 % artifact settings
-ana.artifact.type = {'ftManual'};
-% ana.artifact.type = {'ftManual', 'ftICA'};
+ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
 % % negative trlpadding: don't check that time (on both sides) for artifacts
@@ -208,9 +207,6 @@ cfg_pp.baselinewindow = [-0.2 0];
 % single precision to save space
 %cfg_pp.precision = 'single';
 
-cfg_proc = [];
-cfg_proc.keeptrials = 'yes';
-
 % set the save directories
 %[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 [dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',false);
@@ -218,7 +214,11 @@ cfg_proc.keeptrials = 'yes';
 % create the raw and processed structs for each sub, ses, & event value
 % [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
-process_ft_data_multiSes(ana,cfg_proc,exper,dirs);
+
+cfg_proc = [];
+cfg_proc.keeptrials = 'yes';
+
+process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
 
 % %% get the bad channel information
 % 
@@ -227,38 +227,38 @@ process_ft_data_multiSes(ana,cfg_proc,exper,dirs);
 % cfg.badChanEP = true;
 % [exper] = mm_getBadChan(cfg,exper,dirs);
 
-% save the analysis details
+% % save the analysis details
+% 
+% backup_orig_AD = true;
+% % whether to sort by subject number
+% sortBySubj = true;
+% % whether to overwite existing subjects in the struct
+% replaceOrig = true;
+% 
+% % concatenate the additional ones onto the existing ones
+% saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
+% if ~exist(saveFile,'file')
+%   fprintf('Saving analysis details: %s...',saveFile);
+%   save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+%   fprintf('Done.\n');
+% else
+%   additional_AD_file = fullfile(dirs.saveDirProc,sprintf('analysisDetails%s.mat',sprintf(repmat('_%s',1,length(exper.subjects)),exper.subjects{:})));
+%   fprintf('Temporarily saving new analysis details: %s...',additional_AD_file);
+%   save(additional_AD_file,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+%   
+%   [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails_multiSes(saveFile,additional_AD_file,backup_orig_AD,sortBySubj,replaceOrig);
+% end
 
-backup_orig_AD = true;
-% whether to sort by subject number
-sortBySubj = true;
-% whether to overwite existing subjects in the struct
-replaceOrig = true;
-
-% concatenate the additional ones onto the existing ones
-saveFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
-if ~exist(saveFile,'file')
-  fprintf('Saving analysis details: %s...',saveFile);
-  save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-  fprintf('Done.\n');
-else
-  additional_AD_file = fullfile(dirs.saveDirProc,sprintf('analysisDetails%s.mat',sprintf(repmat('_%s',1,length(exper.subjects)),exper.subjects{:})));
-  fprintf('Temporarily saving new analysis details: %s...',additional_AD_file);
-  save(additional_AD_file,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-  
-  [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(saveFile,additional_AD_file,backup_orig_AD,sortBySubj,replaceOrig);
-end
-
-%% let me know that it's done
-emailme = 0;
-if emailme
-  subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
-  mail_message = {...
-    sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
-    sprintf('%s',saveFile),...
-    };
-  send_gmail(subject,mail_message);
-end
+% %% let me know that it's done
+% emailme = 0;
+% if emailme
+%   subject = sprintf('Done with%s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:}));
+%   mail_message = {...
+%     sprintf('Done with%s %s',sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
+%     sprintf('%s',saveFile),...
+%     };
+%   send_gmail(subject,mail_message);
+% end
 
 %% load the analysis details
 

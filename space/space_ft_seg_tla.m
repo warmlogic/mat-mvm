@@ -38,6 +38,8 @@ exper.eegFileExt = 'raw';
 % pre- and post-stimulus times to read, in seconds (pre is negative);
 % because they get sorted, must correspond to the order listed in
 % exper.eventValues
+
+% exper.prepost = {[-1.0 2.0], [-1.0 2.0], [-1.0 2.0], [-1.0 2.0]};
 exper.prepost = [...
   -1.0 2.0; ...
   -1.0 2.0; ...
@@ -47,9 +49,9 @@ exper.prepost = [...
 % exper.prepost = [-0.2 1.0];
 exper.prepost = exper.prepost(evInd,:);
 
-% keep only the combined (extra) events and throw out the original events?
-exper.eventValuesExtra.onlyKeepExtras = 0;
-exper.eventValuesExtra.equateExtrasSeparately = 0;
+% % keep only the combined (extra) events and throw out the original events?
+% exper.eventValuesExtra.onlyKeepExtras = 0;
+% exper.eventValuesExtra.equateExtrasSeparately = 0;
 
 exper.subjects = {
   'SPACE001';
