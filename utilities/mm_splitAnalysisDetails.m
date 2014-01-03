@@ -84,7 +84,7 @@ for sub = 1:length(exper_orig.subjects)
     exper = rmfield(exper,'nTrials');
     exper = rmfield(exper,'badEv');
     
-    exper.badChan.(exper_orig.sesStr{ses}) = exper_orig.badChan(sub,ses);
+    exper.badChan.(exper_orig.sesStr{ses})(sub) = exper_orig.badChan(sub,ses);
     for evVal = 1:length(exper_orig.eventValues)
       exper.nTrials.(exper_orig.sesStr{ses}).(exper_orig.eventValues{evVal}) = exper_orig.nTrials.(exper_orig.eventValues{evVal})(sub,ses);
     end
