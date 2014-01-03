@@ -170,11 +170,11 @@ replaceIllegalCharWith = '_';
 % appent this character in front of a field that starts with a number
 appendInFrontOfNum = 'a';
 
-%% initialize for storing some information
-
-% store the bad channel information
-exper.badChan = cell(length(exper.subjects),length(exper.sessions));
-% store the bad event information
+% %% initialize for storing some information
+% 
+% % store the bad channel information
+% exper.badChan = cell(length(exper.subjects),length(exper.sessions));
+% % store the bad event information
 % exper.badEv = cell(length(exper.subjects),length(exper.sessions));
 
 %% Store the raw data in FieldTrip format
@@ -221,10 +221,13 @@ for sub = 1:length(exper.subjects)
     % store the sesStr
     exper.sesStr{ses} = sesStr;
     
-    % initialize to store trial counts
+    % initialize to store the bad channel information
+    exper.badChan.(exper.sesStr{ses}) = cell(length(exper.subjects),1);
+
+    % initialize to store trial counts and bad events (if using artifacts)
     for evVal = 1:length(exper.eventValues{ses})
       exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
-      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cell(1,length(exper.subjects));
+      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
     end
     
     % set the location to save the data and make sure it exists
@@ -285,7 +288,8 @@ for sub = 1:length(exper.subjects)
     end % if
     
     % store the bad channel information
-    exper.badChan{sub,ses} = badChan;
+    %exper.badChan{sub,ses} = badChan;
+    exper.badChan.(exper.sesStr{ses}){sub} = badChan;
     % store the bad event information
     % exper.badEv{sub,ses} = badEv;
     
@@ -363,7 +367,8 @@ for sub = 1:length(exper.subjects)
     % include only this subject
     exper.subjects = exper.subjects(sub);
     exper.sessions = exper.sessions(ses);
-    exper.badChan = exper.badChan(sub,ses);
+    exper.sesStr = exper.sesStr(ses);
+    exper.badChan = exper.badChan.(exper.sesStr{ses})(sub);
     for evVal = 1:length(exper.eventValues{ses})
       exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
       exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
