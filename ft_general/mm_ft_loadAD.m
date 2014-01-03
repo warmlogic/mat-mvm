@@ -116,13 +116,13 @@ if islogical(replace_dataroot) && replace_dataroot
   dirs.localDir = fullfile(getenv('HOME'),'data');
   
   % pick the current dataroot
-  if exist(dirs.serverDir,'dir')
+  if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
     new_dataroot = dirs.serverDir;
-  elseif exist(dirs.serverLocalDir,'dir')
+  elseif isfield(dirs,'serverLocalDir') && exist(dirs.serverLocalDir,'dir')
     new_dataroot = dirs.serverLocalDir;
-  elseif exist(dirs.dreamDir,'dir')
+  elseif isfield(dirs,'dreamDir') && exist(dirs.dreamDir,'dir')
     new_dataroot = dirs.dreamDir;
-  elseif exist(dirs.localDir,'dir')
+  elseif isfield(dirs,'localDir') && exist(dirs.localDir,'dir')
     new_dataroot = dirs.localDir;
   else
     error('Data directory not found.');
