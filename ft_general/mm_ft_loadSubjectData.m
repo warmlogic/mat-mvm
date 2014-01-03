@@ -38,11 +38,13 @@ function [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,lo
 %warning([mfilename,':oldFxn'],'%s will soon become an old function! Use mm_ft_loadData instead.',mfilename);
 
 if ~exist('keeptrials','var') || isempty(keeptrials)
+  warning('Keeping all trials!');
   keeptrials = 1;
 end
 
 if ~exist('loadMethod','var') || isempty(loadMethod)
-  loadMethod = 'seg';
+  error('Need to provide variable ''loadMethod''. See ''help %s'' for details.',mfilename);
+  %loadMethod = 'seg';
 end
 
 if isstruct(ana)
@@ -90,6 +92,7 @@ for sub = 1:length(exper.subjects)
           % rename the field to 'data'
           if length(fn) == 1
             data_fn = cell2mat(fn);
+            
             if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) == 4
               if strcmp(loadMethod,'seg')
                 % use ft_freqdescriptives to average over individual trials
@@ -98,6 +101,7 @@ for sub = 1:length(exper.subjects)
                 cfg_fd = [];
                 cfg_fd.keeptrials = 'no';
                 data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                
               elseif strcmp(loadMethod,'trialinfo')
                 trl_order = ana.trl_order.(eventValues{typ}{evVal});
                 
@@ -130,6 +134,7 @@ for sub = 1:length(exper.subjects)
                   exper.nTrials.(ana.eventValuesSplit{typ}{es})(sub,ses) = sum(cfg.trials);
                 end % es
               end
+              
             elseif keeptrials == 0 && ~strcmp(ftype,'pow')
               error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{typ}{evVal},ftype);
             elseif keeptrials == 0 && ~isfield(subSesEvData.(data_fn),'powspctrm')
@@ -139,6 +144,7 @@ for sub = 1:length(exper.subjects)
             else
               if strcmp(loadMethod,'seg')
                 data.(eventValues{typ}{evVal}).sub(sub).ses(ses).data = subSesEvData.(data_fn);
+                
               elseif strcmp(loadMethod,'trialinfo')
                 trl_order = ana.trl_order.(eventValues{typ}{evVal});
                 
@@ -172,6 +178,7 @@ for sub = 1:length(exper.subjects)
                   % put in the trial counts
                   exper.nTrials.(ana.eventValuesSplit{typ}{es})(sub,ses) = sum(cfg.trials);
                 end % es
+                
               end % loadMethod
             end % keeptrials
           else
