@@ -222,15 +222,16 @@ sesNum = 1;
 
 %% load in the subject data
 
-% make sure ana.eventValues is set properly
-if ~iscell(ana.eventValues{1})
-  ana.eventValues = {ana.eventValues};
-end
-if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
-  ana.eventValues = {exper.eventValues};
-end
+% % make sure ana.eventValues is set properly
+% if ~iscell(ana.eventValues{1})
+%   ana.eventValues = {ana.eventValues};
+% end
+% if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
+%   ana.eventValues = {exper.eventValues};
+% end
 
-[data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
 
 % %% get rid of the bad channels
 % 
