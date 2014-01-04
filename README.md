@@ -1,10 +1,10 @@
-*Update Nov 12, 2013*: You can now escape the evil (Carbon-based) clutches of Net Station and do everything within Matlab/!FieldTrip, including but not limited to: filtering, event segmentation, artifact detection/rejection, ICA component rejection, and analysis. All that is required is writing your own trial segmentation function [as described here](http://fieldtrip.fcdonders.nl/example/making_your_own_trialfun_for_conditional_trial_definition). This obviates some of what is described below, including using the ERP PCA toolkit for ICA. Contact me for more information if you are interested, as it may take me a while to update this documentation.
+*Update Nov 12, 2013*: You can now escape the evil (Carbon-based) clutches of Net Station and do everything within Matlab/FieldTrip, including but not limited to: filtering, event segmentation, artifact detection/rejection, ICA component rejection, and analysis. All that is required is writing your own trial segmentation function [as described here](http://fieldtrip.fcdonders.nl/example/making_your_own_trialfun_for_conditional_trial_definition). This obviates some of what is described below, including using the ERP PCA toolkit for ICA. Contact me for more information if you are interested, as it may take me a while to update this documentation.
 
 # High-Level Summary
 
-This toolkit contains [MATLAB](http://www.mathworks.com/) functions and scripts that I've written for importing and analyzing EEG data with [FieldTrip](http://www.ru.nl/neuroimaging/fieldtrip/). The main goal is to provide wrapper functions for quickly and easily running analyses and making plots in the way that I've determined has been fruitful for using !FieldTrip.
+This toolkit contains [MATLAB](http://www.mathworks.com/) functions and scripts that I've written for importing and analyzing EEG data with [FieldTrip](http://www.ru.nl/neuroimaging/fieldtrip/). The main goal is to provide wrapper functions for quickly and easily running analyses and making plots in the way that I've determined has been fruitful for using FieldTrip.
 
-I've set up the functions to import and process [Net Station](http://www.egi.com/) data; they don't currently deal with other formats, but it should relatively easy to modify mat-mvm to import anything that FieldTrip can import. Also included are scripts for using [PyEPL](http://pyepl.sourceforge.net/)-based experimental data in the context of Net Station and !FieldTrip, dealing with Net Station files, interfacing with the [ERP PCA Toolkit](http://sourceforge.net/projects/erppcatoolkit/), running statistics, running ICA blink correction, ANOVAs, and more. There are other scripts as well, many of which are specific to my experiments
+I've set up the functions to import and process [Net Station](http://www.egi.com/) data; they don't currently deal with other formats, but it should relatively easy to modify mat-mvm to import anything that FieldTrip can import. Also included are scripts for using [PyEPL](http://pyepl.sourceforge.net/)-based experimental data in the context of Net Station and FieldTrip, dealing with Net Station files, interfacing with the [ERP PCA Toolkit](http://sourceforge.net/projects/erppcatoolkit/), running statistics, running ICA blink correction, ANOVAs, and more. There are other scripts as well, many of which are specific to my experiments
 
 The toolkit has been tuned for my workflow, and so I can't guarantee how well they will work for others, but I wanted to put them out there so I can keep track of them in a version control system and so that others can use them. I would enjoy hearing feedback that anyone might have.
 
@@ -28,9 +28,9 @@ I am a [graduate student](http://psych.colorado.edu/~mollison/) in [Tim Curran's
 
 # How to start using the scripts
 
-*NB*: As noted on the main page, I now do all my processing and analysis within Matlab/!FieldTrip, so many of the instructions below are out of date. See mat-mvm/space/space_ft_seg_tla.m and the accompanying mat-mvm/space/space_trialfun.m for examples of the new workflow.
+*NB*: As noted on the main page, I now do all my processing and analysis within Matlab/FieldTrip, so many of the instructions below are out of date. See mat-mvm/space/space_ft_seg_tla.m and the accompanying mat-mvm/space/space_trialfun.m for examples of the new workflow.
 
-In order to generalize to other experiments, things may need to change, but may not. To get trial metadata during segmentation (which gets put in the trialinfo field by !FieldTrip), you will need to either have .evt files exported from your Net Station recordings, events.mat files created from other behavioral data, and/or other ways of reading behavioral data that might need to get built in to seg2ft or ideally would get put in your trialfun function. An example of event file creation can be found at another one of my projects, [https://github.com/warmlogic/expertTrain expertTrain], an experiment framework that started as an expertise training experiment but has grown. See expertTrain/analysis/space_createEvents.m for an example of event creation.
+In order to generalize to other experiments, things may need to change, but may not. To get trial metadata during segmentation (which gets put in the trialinfo field by FieldTrip), you will need to either have .evt files exported from your Net Station recordings, events.mat files created from other behavioral data, and/or other ways of reading behavioral data that might need to get built in to seg2ft or ideally would get put in your trialfun function. An example of event file creation can be found at another one of my projects, [https://github.com/warmlogic/expertTrain expertTrain], an experiment framework that started as an expertise training experiment but has grown. See expertTrain/analysis/space_createEvents.m for an example of event creation.
 
 ## Introduction
 
@@ -55,7 +55,7 @@ A few subfolders in mat-mvm (excluding data, eeg, eptoolkit, ft_general, netstat
 
 To get started in analyzing your data:
 
-  * The most important functions that get your data in !FieldTrip format are `create_ft_struct.m`, `seg2ft.m`, and `process_ft_data.m`. They have extensive help sections that you can view with the 'help' command in MATLAB. The help sections may not explain all of the options (yet), so feel free to peruse the top of the code for some of these.
+  * The most important functions that get your data in FieldTrip format are `create_ft_struct.m`, `seg2ft.m`, and `process_ft_data.m`. They have extensive help sections that you can view with the 'help' command in MATLAB. The help sections may not explain all of the options (yet), so feel free to peruse the top of the code for some of these.
   * You will need to file your such that the tools know where to find it. There are some assumptions made regarding file locations.
   * Take a look at some of the current experiment scripts such as `mat-mvm/soco/soco_ft_seg_tla.m` or `mat-mvm/tnt/tnt_ft_seg_pow.m`, but note that they may not be tuned for your experiment and all options may not be present.
     * I will give a detailed initial setup here in the future. For now, try to glean them from the example experiment scripts.
@@ -67,7 +67,7 @@ Here's how I preprocessed my data at one point (it has since changed a bit):
   * Net Station: filter, segment/epoch, eye artifact detection, bad channel replacement/interpolation
   * ERP PCA Toolkit: ICA blink removal, baseline correction
   * Net Station: artifact detection, bad channel replace, average rereference
-  * !FieldTrip: use these tools to read in NS files and get the data in !FieldTrip format
+  * FieldTrip: use these tools to read in NS files and get the data in FieldTrip format
 
 ## Analyzing and Plotting
 
@@ -94,7 +94,7 @@ To remove version control (.git, .svn, and CVS) directories from your path (I do
 
 Be sure to read the StartingOut section above before jumping in too deep.
 
-NB: Functions are usually suffixed with ER for ERP data (Event Related) and TFR for time–frequency data (TF Representation). This is adopted from the typical !FieldTrip function naming convention.
+NB: Functions are usually suffixed with ER for ERP data (Event Related) and TFR for time–frequency data (TF Representation). This is adopted from the typical FieldTrip function naming convention.
 
 ## Plotting
 
