@@ -763,10 +763,9 @@ cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{'Face' 'House'}},size(cfg_plot.rois));
-
 sesNum = 1;
 % cfg_plot.condByROI = repmat(ana.eventValues(sesNum),size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'Face' 'House'}},size(cfg_plot.rois));
 
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
