@@ -123,3 +123,5 @@ mm_ft_corr_dprimeER: Run correlations between ERP voltage and d'. You could prob
 There are many other functions, mostly for bookkeeping and getting your data ready to analyze. Check out some of the experiment scripts for examples.
 
 For example, check out send_gmail, which will send you an email (via your gmail account) when processing is done. !ProTip: use Cmd-Enter or Cmd-Shift-Enter to run sections of a script that has been divided up using cell notation (%%) to start your processing, and then follow that up with an email call to let you know when it's done.
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/6382a7ac8cfc3532d269c944a6155764 "githalytics.com")](http://githalytics.com/warmlogic/mat-mvm)
