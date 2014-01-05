@@ -329,26 +329,29 @@ exper.badBehSub = {{}};
 
 %% get the grand average
 
-
-% set up strings to put in grand average function
-cfg_ana = [];
-cfg_ana.is_ga = 0;
-cfg_ana.conditions = ana.eventValues{ses};
-cfg_ana.data_str = 'data_tla';
-cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper);
-
 ga_tla = struct;
 
-cfg_ft = [];
-cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sesStr)
-  for evVal = 1:length(ana.eventValues{ses})
-    %tic
-    fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{evVal});
-    ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
-    fprintf('Done.\n');
-    %toc
-  end
+  % set up strings to put in grand average function
+  cfg_ana = [];
+  cfg_ana.is_ga = 0;
+  cfg_ana.conditions = ana.eventValues{ses};
+  cfg_ana.data_str = 'data_tla';
+  % cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
+  cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+  
+  cfg_ft = [];
+  cfg_ft.keepindividual = 'no';
+  %for ses = 1:length(exper.sesStr)
+    for evVal = 1:length(ana.eventValues{ses})
+      %tic
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{evVal});
+      %ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
+      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal})));
+      fprintf('Done.\n');
+      %toc
+    end
+  %end
 end
 
 % turn keeptrial data into average for statistical functions because proper
@@ -745,10 +748,10 @@ cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 cfg_plot.is_ga = 1;
 cfg_plot.excludeBadSub = 1;
 
-% cfg_ft.xlim = [-0.2 1.0];
-% cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-10 10; -10 10];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+cfg_ft.xlim = [-0.2 1.0];
+cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.ylims = [-10 10; -10 10];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -760,7 +763,11 @@ cfg_plot.excludeBadSub = 1;
 
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
-% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'Face' 'House'}},size(cfg_plot.rois));
+
+sesNum = 1;
+% cfg_plot.condByROI = repmat(ana.eventValues(sesNum),size(cfg_plot.rois));
+
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
@@ -769,7 +776,7 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.condByROI = repmat({{'word_spac_p2', 'word_mass_p2', 'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_spac_p2', 'img_mass_p2', 'img_onePres'}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{'word_RgH_spac_p2', 'word_RgH_mass_p2', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_RgH_spac_p2', 'word_RgH_mass_p2', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_spac_p2', 'img_RgH_mass_p2', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_onePres'}},size(cfg_plot.rois));
 
 
@@ -780,7 +787,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
+  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
