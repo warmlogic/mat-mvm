@@ -1,8 +1,8 @@
-function [ana_str] = mm_catSubStr_multiSes(cfg,exper,ses)
+function [ana_str] = mm_catSubStr_multiSes(cfg,exper,sesNum)
 %MM_CATSUBSTR_MULTISES Concatenate strings of subject data for input to FieldTrip
 %functions
 %
-% [ana_str] = mm_catSubStr_multiSes(cfg,exper,ses)
+% [ana_str] = mm_catSubStr_multiSes(cfg,exper,sesNum)
 %
 % input:
 %   cfg.conditions    = which condition fields to create in ana_str; should
@@ -13,7 +13,7 @@ function [ana_str] = mm_catSubStr_multiSes(cfg,exper,ses)
 %                       (1 or 0)
 %   cfg.excludeBadSub = 1 or 0; excludes bad subjects by default
 %   exper             = exper struct with subject, session, and badSub info
-%   ses               = session number
+%   sesNum            = session number
 %
 % output:
 %   ana_str is a struct with fields corresponding to event values in
@@ -54,7 +54,7 @@ if ~cfg.is_ga
   % go through subjects, add strings for the ones we want
   %for ses = 1:length(exper.sessions)
     for sub = 1:length(exper.subjects)
-      if exper.badSub(sub,ses)
+      if exper.badSub(sub,sesNum)
         if cfg.excludeBadSub
           % skip this subject if they're bad
           fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
@@ -70,7 +70,7 @@ if ~cfg.is_ga
           %  ana_str.(cfg.conditions{ses}{evVal}){ses} = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal},sub);
           %end
           for evVal = 1:length(cfg.conditions)
-            ana_str.(cfg.conditions{evVal}) = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
+            ana_str.(cfg.conditions{evVal}) = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{sesNum},cfg.conditions{evVal},sub);
           end
           firstOneDone = 1;
         else
@@ -78,7 +78,7 @@ if ~cfg.is_ga
           %  ana_str.(cfg.conditions{ses}{evVal}){ses} = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{ses}{evVal}){ses},cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal},sub);
           %end
           for evVal = 1:length(cfg.conditions)
-            ana_str.(cfg.conditions{evVal}) = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{evVal}),cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
+            ana_str.(cfg.conditions{evVal}) = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{evVal}),cfg.data_str,exper.sesStr{sesNum},cfg.conditions{evVal},sub);
           end
         end
       end
@@ -93,10 +93,10 @@ else
     %    ana_str = sprintf('%s,%s.%s.%s',ana_str,cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal});
     %  end
     %end
-    ana_str = sprintf('%s.%s.%s',cfg.data_str,exper.sesStr{ses},cfg.conditions{1});
+    ana_str = sprintf('%s.%s.%s',cfg.data_str,exper.sesStr{sesNum},cfg.conditions{1});
     if length(cfg.conditions) > 1
       for evVal = 2:length(cfg.conditions)
-        ana_str = sprintf('%s,%s.%s.%s',ana_str,cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal});
+        ana_str = sprintf('%s,%s.%s.%s',ana_str,cfg.data_str,exper.sesStr{sesNum},cfg.conditions{evVal});
       end
     end
   %end
