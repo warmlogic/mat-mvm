@@ -26,7 +26,7 @@ function [ana_str] = mm_ft_catSubStr(cfg,exper,str_format)
 %
 
 if ~exist('str_format','var') || isempty(str_format)
-  str_format = 1;
+  str_format = 2;
 end
 
 % make sure the conditions are stored in a cell
