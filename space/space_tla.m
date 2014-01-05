@@ -4,7 +4,7 @@ procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_exp
 
 subjects = {
   'SPACE001';
-%   'SPACE002';
+  'SPACE002';
 %   'SPACE003';
 %   'SPACE004';
 %   'SPACE005';
@@ -322,33 +322,32 @@ end
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {};
+exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs(exper,ana,1);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,1);
 
 %% get the grand average
+
 
 % set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = ana.eventValues;
+cfg_ana.conditions = ana.eventValues{ses};
 cfg_ana.data_str = 'data_tla';
-cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
+cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper);
 
 ga_tla = struct;
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
 for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues)
-    for evVal = 1:length(ana.eventValues{typ})
-      %tic
-      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{typ}{evVal});
-      ga_tla.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      fprintf('Done.\n');
-      %toc
-    end
+  for evVal = 1:length(ana.eventValues{ses})
+    %tic
+    fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{evVal});
+    ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
+    fprintf('Done.\n');
+    %toc
   end
 end
 
@@ -360,14 +359,12 @@ data_tla_avg = struct;
 cfg = [];
 cfg.keeptrials = 'no';
 
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sesStr)
-    for typ = 1:length(ana.eventValues)
-      for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-        if isfield(data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data,'avg')
-          data_tla_avg.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_timelockanalysis(cfg,data_tla.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-        end
+for ses = 1:length(exper.sesStr)
+  for evVal = 1:length(ana.eventValues{ses})
+    for sub = 1:length(exper.subjects)
+      fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{evVal});
+      if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data,'avg')
+        data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data);
       end
     end
   end
