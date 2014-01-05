@@ -84,10 +84,10 @@ if ~cfg.is_ga
 else
   % if we have grand average data, then we just need the event value names
   for ses = 1:length(exper.sessions)
-    ana_str = sprintf('%s.%s',cfg.data_str,cfg.conditions{ses}{1});
+    ana_str = sprintf('%s.%s.%s',cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{1});
     if length(cfg.conditions{ses}) > 1
       for evVal = 2:length(cfg.conditions{ses})
-        ana_str = sprintf('%s,%s.%s',ana_str,cfg.data_str,cfg.conditions{ses}{evVal});
+        ana_str = sprintf('%s,%s.%s.%s',ana_str,cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal});
       end
     end
   end
