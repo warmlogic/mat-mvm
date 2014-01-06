@@ -50,13 +50,13 @@ elseif isfield(ana,'overwrite') && isfield(ana.overwrite,'raw') && ana.overwrite
   error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
 end
 
-% make sure exper.eventValues is a cell
+% make sure exper.eventValues is a cell containing one cell per session
 if ~iscell(exper.eventValues)
   exper.eventValues = {{exper.eventValues}};
 elseif iscell(exper.eventValues) && ~iscell(exper.eventValues{1})
   exper.eventValues = {exper.eventValues};
-elseif iscell(exper.eventValues) && iscell(exper.eventValues{1})
-  fprintf('good eventValues setup!\n');
+% elseif iscell(exper.eventValues) && iscell(exper.eventValues{1})
+%   fprintf('good eventValues setup!\n');
 end
 
 % make sure exper.sessions is a cell
@@ -64,8 +64,12 @@ if ~iscell(exper.sessions)
   exper.sessions = {{exper.sessions}};
 elseif iscell(exper.sessions) && ~iscell(exper.sessions{1})
   exper.sessions = {exper.sessions};
-elseif iscell(exper.sessions) && iscell(exper.sessions{1})
-  fprintf('good sessions setup!\n');
+% elseif iscell(exper.sessions) && iscell(exper.sessions{1})
+%   fprintf('good sessions setup!\n');
+end
+
+if length(exper.eventValues) ~= length(exper.sessions)
+  error('Length of exper.eventValues must equal the number of sessions in exper.sessions!');
 end
 
 % need a segmentation function
@@ -187,9 +191,14 @@ exper.sesStr = cell(size(exper.sessions));
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     
+    if size(exper.prepost{ses},1) ~= length(exper.eventValues{ses})
+      error('Number of entries in exper.prepost{ses} does not match that of exper.eventValues{ses}!\nConstruct exper.prepost as a cell with one Nx2 matrix per session where N is length(exper.eventValues{ses}); e.g. exper.prepost = {[-1.0 2.0; -1.0 2.0], [-1.0 2.0; -1.0 2.0]} for two sessions with two events each.');
+    end
+    
     % make sure event values are sorted
     if ~issorted(exper.eventValues{ses})
-      exper.eventValues{ses} = sort(exper.eventValues{ses});
+      [exper.eventValues{ses}, evInd] = sort(exper.eventValues{ses});
+      exper.prepost{ses} = exper.prepost{ses}(evInd,:);
     end
     
     % back up original field values because that is how we access the data
