@@ -100,7 +100,12 @@ end
 % artifact rejection; or 'none' for no rejection, should still be able to
 % reject them with badEv field
 if ~isfield(ana.artifact,'reject')
+  fprintf('Default: setting ana.artifact.reject = ''complete'' for complete rejection of artifacts. See ''help ft_rejectartifact'' for other options (''none'', ''partial'', and ''nan'').\n');
   ana.artifact.reject = 'complete';
+end
+
+if ~ismember(ana.artifact.reject,{'none', 'partial', 'complete', 'nan'})
+  error('ana.artifact.reject is not set correctly. You set it as ''%s'', must be ''none'', ''partial'', ''complete'', or ''nan''',ana.artifact.reject);
 end
 
 %% check on predefined trial numbers, NS, and zero variance artifacts;
