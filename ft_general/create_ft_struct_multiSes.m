@@ -174,13 +174,6 @@ replaceIllegalCharWith = '_';
 % appent this character in front of a field that starts with a number
 appendInFrontOfNum = 'a';
 
-% %% initialize for storing some information
-% 
-% % store the bad channel information
-% exper.badChan = cell(length(exper.subjects),length(exper.sessions));
-% % store the bad event information
-% exper.badEv = cell(length(exper.subjects),length(exper.sessions));
-
 %% Store the raw data in FieldTrip format
 
 fprintf('Converting NetStation to FieldTrip...\n');
