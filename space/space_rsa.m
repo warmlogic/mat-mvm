@@ -229,10 +229,10 @@ ana.eventValues = ana.eventValuesSplit;
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
 %   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
-
 % dataTypes = {'img_RgH_rc_spac'};
+
+%dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
+dataTypes = {'Face', 'House'};
 
 % latencies = [0 1.0];
 % latencies = [0 0.5; 0.5 1.0];
