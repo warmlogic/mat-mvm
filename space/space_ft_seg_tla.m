@@ -14,12 +14,6 @@ exper.name = 'SPACE';
 
 exper.sampleRate = 250;
 
-% % pre- and post-stimulus times to read, in seconds (pre is negative)
-% exper.prepost = [-1.0 1.0];
-
-% equate the number of trials across event values?
-exper.equateTrials = 0;
-
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
 % exper.eegFileExt = 'egis';
@@ -28,30 +22,13 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-% % [exper.eventValues, evInd] = sort({'expo_face', 'expo_house'});
-% [exper.eventValues, evInd] = sort({'expo_stim'});
-% [exper.eventValues, evInd] = sort({'multistudy_image', 'multistudy_word'});
-% [exper.eventValues, evInd] = sort({'distract_math_stim'});
-% [exper.eventValues, evInd] = sort({'cued_recall_stim'});
-[exper.eventValues, evInd] = sort({'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'});
+exper.eventValues = {{'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'}};
 
-% pre- and post-stimulus times to read, in seconds (pre is negative);
-% because they get sorted, must correspond to the order listed in
-% exper.eventValues
-
-% exper.prepost = {[-1.0 2.0], [-1.0 2.0], [-1.0 2.0], [-1.0 2.0]};
-exper.prepost = [...
-  -1.0 2.0; ...
-  -1.0 2.0; ...
-  -1.0 2.0; ...
-  -1.0 2.0];
-% exper.prepost = [-1.0 2.0];
-% exper.prepost = [-0.2 1.0];
-exper.prepost = exper.prepost(evInd,:);
-
-% % keep only the combined (extra) events and throw out the original events?
-% exper.eventValuesExtra.onlyKeepExtras = 0;
-% exper.eventValuesExtra.equateExtrasSeparately = 0;
+% pre- and post-stimulus times to read, in seconds (pre is negative).
+% Construct as a cell with one Nx2 matrix per session where N is
+% length(exper.eventValues{ses}) Order must correspond to the event order
+% in exper.eventValues.
+exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
 
 exper.subjects = {
   'SPACE001';
@@ -77,7 +54,7 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {'session_1'};
+exper.sessions = {{'session_1'}};
 
 %% set up file and directory handling parameters
 

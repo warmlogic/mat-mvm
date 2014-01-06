@@ -14,9 +14,6 @@ exper.name = 'EBIRD';
 
 exper.sampleRate = 250;
 
-% equate the number of trials across event values?
-exper.equateTrials = 0;
-
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
 % exper.eegFileExt = 'egis';
@@ -25,21 +22,15 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-% [exper.eventValues, evInd] = sort({'match_stim', 'nametrain_stim', 'name_stim'});
-% exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
 exper.eventValues = {{'match_stim'}};
-% [exper.eventValues, evInd] = sort({'match_stim'});
-% [exper.eventValues, evInd] = sort({'nametrain_stim', 'name_stim'});
-% [exper.eventValues, evInd] = sort({'name_stim'});
+% exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
 
-% pre- and post-stimulus times to read, in seconds (pre is negative);
-% because they get sorted, must correspond to the order listed in
-% exper.eventValues
-
-% exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
+% pre- and post-stimulus times to read, in seconds (pre is negative).
+% Construct as a cell with one Nx2 matrix per session where N is
+% length(exper.eventValues{ses}) Order must correspond to the event order
+% in exper.eventValues.
 exper.prepost = {[-0.2 1.0]};
-
-% exper.prepost = exper.prepost(evInd,:);
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
 
 exper.subjects = {
 %   'EBIRD049';
