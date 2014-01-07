@@ -1,6 +1,6 @@
 %% new analysis details loading method
 
-procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla';
+procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
   'SPACE001';
@@ -31,15 +31,15 @@ replaceDataroot = false;
 
 % %% load the analysis details
 
-% adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+% adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/analysisDetails.mat';
 % 
-% mm_splitAnalysisDetails(adFile);
+% mm_splitAnalysisDetails(adFile,[],true);
 
-% % adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
-% % adFile_other = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails_9_14.mat';
+% % adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/analysisDetails.mat';
+% % adFile_other = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/analysisDetails_9_14.mat';
 % % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_mergeAnalysisDetails(adFile,adFile_other,true,true,true);
 % 
-% % % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
+% % % server_adFile = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/analysisDetails.mat';
 % % if exist(server_adFile,'file')
 % %   mm_mergeAnalysisDetails(adFile,server_adFile,true,false,false);
 % % end
