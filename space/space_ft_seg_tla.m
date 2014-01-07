@@ -31,25 +31,25 @@ exper.eventValues = {{'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_
 exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
 
 exper.subjects = {
-  'SPACE001';
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008';
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
+%   'SPACE001';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008';
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
   'SPACE015';
-  'SPACE016';
-  'SPACE017';
-  'SPACE018';
-  'SPACE019';
+%   'SPACE016';
+%   'SPACE017';
+%   'SPACE018';
+%   'SPACE019';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
