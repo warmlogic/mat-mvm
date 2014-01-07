@@ -1,12 +1,16 @@
-function mm_splitAnalysisDetails(adFile,badEvPerValue)
+function mm_splitAnalysisDetails(adFile,badEvPerValue,rm_eq)
 
-%function mm_splitAnalysisDetails(adFile,badEvPerValue)
+%function mm_splitAnalysisDetails(adFile,badEvPerValue,rm_eq)
 %
 % adFile        = path to and name of original analysisDetails.mat
 %
 % badEvPerValue = number of possible events per event value, listed in
 %                 alphabetical order because these event values got sorted
 %                 when processing using the old method
+
+if ~exist('rm_eq','var')
+  rm_eq = false;
+end
 
 if ~exist('badEvPerVal','var')
   badEvPerValue = [];
@@ -25,6 +29,28 @@ else
 end
 if isfield(ad,'dirs')
   dirs = ad.dirs;
+  if rm_eq
+    if ~isempty(strfind(dirs.saveDirRaw,'_eq0'))
+      dirs.saveDirRaw = strrep(dirs.saveDirRaw,'_eq0','');
+    end
+    if ~isempty(strfind(dirs.saveDirRaw,'_eq1'))
+      dirs.saveDirRaw = strrep(dirs.saveDirRaw,'_eq1','');
+    end
+    
+    if ~isempty(strfind(dirs.saveDirProc,'_eq0'))
+      dirs.saveDirProc = strrep(dirs.saveDirProc,'_eq0','');
+    end
+    if ~isempty(strfind(dirs.saveDirProc,'_eq1'))
+      dirs.saveDirProc = strrep(dirs.saveDirProc,'_eq1','');
+    end
+    
+    if ~isempty(strfind(dirs.saveDirFigs,'_eq0'))
+      dirs.saveDirFigs = strrep(dirs.saveDirFigs,'_eq0','');
+    end
+    if ~isempty(strfind(dirs.saveDirFigs,'_eq1'))
+      dirs.saveDirFigs = strrep(dirs.saveDirFigs,'_eq1','');
+    end
+  end
 else
   error('dirs variable not found');
 end
@@ -84,7 +110,7 @@ for sub = 1:length(exper_orig.subjects)
     exper = rmfield(exper,'nTrials');
     exper = rmfield(exper,'badEv');
     
-    exper.badChan.(exper_orig.sesStr{ses})(sub) = exper_orig.badChan(sub,ses);
+    exper.badChan.(exper_orig.sesStr{ses}) = exper_orig.badChan(sub,ses);
     for evVal = 1:length(exper_orig.eventValues)
       exper.nTrials.(exper_orig.sesStr{ses}).(exper_orig.eventValues{evVal}) = exper_orig.nTrials.(exper_orig.eventValues{evVal})(sub,ses);
     end
