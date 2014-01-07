@@ -108,8 +108,8 @@ for sub = 1:length(exper.subjects)
             elseif strcmp(loadMethod,'trialinfo')
               trl_order = ana.trl_order.(eventValues{ses}{evVal});
               
-              for es = 1:length(ana.eventValuesSplit{ses})
-                fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{es});
+              for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+                fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
                 
                 expr = ana.trl_expr{ses}{es};
                 
@@ -132,9 +132,9 @@ for sub = 1:length(exper.subjects)
                 cfg_fd = [];
                 cfg_fd.trials = eval(expr);
                 cfg_fd.keeptrials = 'no';
-                data.(sesStr).(ana.eventValuesSplit{ses}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
                 % put in the trial counts
-                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{es})(sub,1) = sum(cfg.trials);
+                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg.trials);
               end % es
             end
             
@@ -151,10 +151,10 @@ for sub = 1:length(exper.subjects)
             elseif strcmp(loadMethod,'trialinfo')
               trl_order = ana.trl_order.(eventValues{ses}{evVal});
               
-              for es = 1:length(ana.eventValuesSplit{ses})
-                fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{es});
+              for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+                fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
                 
-                expr = ana.trl_expr{ses}{es};
+                expr = ana.trl_expr{ses}{evVal}{es};
                 
                 for to = 1:length(trl_order)
                   % replace the field name in the logical expression
@@ -175,11 +175,11 @@ for sub = 1:length(exper.subjects)
                 cfg = [];
                 cfg.trials = eval(expr);
                 cfg.keeptrials = 'yes';
-                data.(sesStr).(ana.eventValuesSplit{ses}{es}).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
-                %data.(sesStr).(ana.eventValuesSplit{ses}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
+                %data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
                 
                 % put in the trial counts
-                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{es})(sub,1) = sum(cfg.trials);
+                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg.trials);
               end % es
               
             end % loadMethod
@@ -197,8 +197,8 @@ for sub = 1:length(exper.subjects)
         if strcmp(loadMethod,'seg')
           data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data.cfg.trl = [];
         elseif strcmp(loadMethod,'trialinfo')
-          for es = 1:length(ana.eventValuesSplit{ses})
-            data.(sesStr).(ana.eventValuesSplit{ses}{es}).sub(sub).data.cfg.trl = [];
+          for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+            data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data.cfg.trl = [];
           end
         end
       end % if
