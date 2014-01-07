@@ -944,68 +944,6 @@ end
 dim = size(a);
 b = reshape(a, dim(1), prod(dim(2:end)));
 
-
-%% stats
-
-% data1_str = 'word_RgH_rc_spac';
-% data2_str = 'word_RgH_rc_mass';
-% data1_str = 'img_RgH_rc_spac';
-% data2_str = 'img_RgH_rc_mass';
-% data1_str = 'word_RgH_fo_spac';
-% data2_str = 'word_RgH_fo_mass';
-% data1_str = 'img_RgH_fo_spac';
-% data2_str = 'img_RgH_fo_mass';
-
-% comparisons = {...
-%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
-%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
-%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
-%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
-
-comparisons = {...
-  {'word_RgH_spac', 'word_RgH_mass'}, ...
-  {'img_RgH_spac', 'img_RgH_mass'}};
-
-alpha = 0.05;
-tails = 'both';
-
-% trial count threshold - need n or more trials in both comparison conds
-nThresh = 5;
-
-for lat = 1:size(latencies,1)
-  fprintf('\n');
-  fprintf('%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
-  
-  for cmp = 1:length(comparisons)
-    data1_str = comparisons{cmp}{1};
-    data2_str = comparisons{cmp}{2};
-    
-    threshSub = D.(data1_str).nTrial >= nThresh & D.(data2_str).nTrial >= nThresh;
-    
-    data1 = D.(data1_str).dissim(:,lat);
-    data1 = data1(threshSub);
-    data2 = D.(data2_str).dissim(:,lat);
-    data2 = data2(threshSub);
-    
-    d = mm_effect_size('within',data1,data2);
-    [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
-    
-    fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
-      data1_str, ...
-      mean(data1), ...
-      std(data1) / sqrt(length(data1)), ...
-      data2_str, ...
-      mean(data2), ...
-      std(data2) / sqrt(length(data2)), ...
-      stats.df, ...
-      stats.tstat, ...
-      d, ...
-      std(data1 - data2),...
-      std(data1 - data2) / sqrt(length(data1)),...
-      p);
-  end
-end
-
 %% make some GA plots
 
 cfg_ft = [];

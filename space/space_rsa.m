@@ -2,7 +2,7 @@
 
 %% load the analysis details
 
-procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_eq0_art_ftManual_ftICA/tla';
+procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
   'SPACE001';
@@ -231,8 +231,9 @@ ana.eventValues = ana.eventValuesSplit;
 %   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 % dataTypes = {'img_RgH_rc_spac'};
 
-%dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
-dataTypes = {'Face', 'House'};
+dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
+% dataTypes = {'img_RgH_spac', 'img_RgH_mass'};
+% dataTypes = {'Face', 'House'};
 
 % latencies = [0 1.0];
 % latencies = [0 0.5; 0.5 1.0];
@@ -295,162 +296,227 @@ else
 end
 % end
 
-% store the distance values
+%% run it for p1 vs p2
+
+% initialize to store the distance values
 D = struct;
 for d = 1:length(dataTypes)
 %   fprintf('%s\n',dataTypes{d});
 %   D.(dataTypes{d}).nTrial
-  D.(dataTypes{d}).dissim = nan(length(exper.subjects),size(latencies,1));
-  D.(dataTypes{d}).nTrial = nan(length(exper.subjects),1);
+  D.(dataTypes{d}).dissim = nan(length(exper.subjects),length(exper.sessions),size(latencies,1));
+  D.(dataTypes{d}).nTrial = nan(length(exper.subjects),length(exper.sessions));
 end
 
-%% run it for p1 vs p2
-
-for lat = 1:size(latencies,1)
-  fprintf('%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
-  timeS = latencies(lat,:);
-  timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{1}).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
+for d = 1:length(dataTypes)
+  dataType = dataTypes{d};
   
-  for d = 1:length(dataTypes)
-    dataType = dataTypes{d};
-    
-    fprintf('Processing %s...\n',dataType);
-    
-    for sub = 1:length(exper.subjects)
+  fprintf('Processing %s...\n',dataType);
+  
+  for sub = 1:length(exper.subjects)
+    for ses = 1:length(exper.sessions)
+      fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
       
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1),1);
       
-      if standardize
-        nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1);
-        nTrl2 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter),1);
-        data_cat = cat(1, ...
-          data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd), ...
-          data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd));
-        dim = size(data_cat);
-        dat = reshape(data_cat, dim(1), prod(dim(2:end)));
+      for lat = 1:size(latencies,1)
+        fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
+        timeS = latencies(lat,:);
+        timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{1}).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
         
-        mu = nanmean(dat);
-        sigma = nanstd(dat);
-        
-        dat_z = dat;
-        idx = ~isnan(mu);
-        dat_z(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
-        idx = ~isnan(sigma) & ~(sigma==0);
-        dat_z(:,idx) = bsxfun(@rdivide,dat_z(:,idx),sigma(idx));
-        dat_z_ravel = reshape(dat_z,dim);
-        
-        % put it back
-        %data_tla.(fn{f}).sub(sub).ses(ses).data.(parameter) = dat_z_ravel;
-        dat1 = dat_z_ravel(1:nTrl1,:,:);
-        dat2 = dat_z_ravel(nTrl1+1:nTrl1+nTrl2,:,:);
-      else
-        dat1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd);
-        dat2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd);
-      end
-      
-      for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
-        %p1_trlInd = 1;
-        p1_trlInd = i;
-        p1_phaseCount = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
-        p1_stimNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
-        p1_categNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
-        
-        p2_trlInd = find(...
-          data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-          data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-          data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
-        %p2_trlInd = 1;
-        
-        if ~isempty(p2_trlInd)
-          % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
-          % distances are measured between observations
+        if standardize
+          nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1);
+          nTrl2 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter),1);
+          data_cat = cat(1, ...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd), ...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd));
+          dim = size(data_cat);
+          dat = reshape(data_cat, dim(1), prod(dim(2:end)));
           
-          if sum(elecInd) == 1
-            p1_data = squeeze(dat1(p1_trlInd,:,:));
-            p2_data = squeeze(dat2(p2_trlInd,:,:));
-          elseif sum(elecInd) > 1
-            p1_data = squeeze(dat1(p1_trlInd,:,:))';
-            p2_data = squeeze(dat2(p2_trlInd,:,:))';
-          end
+          mu = nanmean(dat);
+          sigma = nanstd(dat);
           
-%           if strcmp(simAcross,'time')
-%             % rows = samples; cols = channels
-%             if sum(elecInd) == 1
-%               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd));
-%               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd));
-%             elseif sum(elecInd) > 1
-%               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd))';
-%               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd))';
-%             end
-%             
-%             if plotit
-%               xaxis = linspace(timeS(1),timeS(2),size(p1_data,1));
-%               yaxis = linspace(timeS(1),timeS(2),size(p2_data,1));
-%             end
-%           elseif strcmp(simAcross,'chan')
-%             % rows = channels; cols = samples
-%             p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd));
-%             p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd));
-%             
-%             if plotit
-%               xaxis = 1:sum(elecInd);
-%               yaxis = 1:sum(elecInd);
-%               
-%               elecLabels_x = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label(elecInd);
-%               elecLabels_y = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.label(elecInd);
-%             end
-%           end
+          dat_z = dat;
+          idx = ~isnan(mu);
+          dat_z(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+          idx = ~isnan(sigma) & ~(sigma==0);
+          dat_z(:,idx) = bsxfun(@rdivide,dat_z(:,idx),sigma(idx));
+          dat_z_ravel = reshape(dat_z,dim);
           
-          subD(i) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
-          
-          if plotit
-            figure;
-            if exist('distanceScale','var') && ~isempty(distanceScale)
-              imagesc(xaxis,yaxis,D,distanceScale);
-            else
-              imagesc(xaxis,yaxis,D);
-            end
-            
-            if strcmp(simAcross,'chan')
-              set(gca,'XTickLabel',elecLabels_x);
-              set(gca,'YTickLabel',elecLabels_y);
-            end
-            
-            title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
-            if strcmp(simAcross,'time')
-              xlabel('P1: Time (s)');
-              ylabel('P2: Time (s)');
-            elseif strcmp(simAcross,'chan')
-              xlabel('P1: Electrode');
-              ylabel('P2: Electrode');
-            end
-            
-            hc = colorbar;
-            set(get(hc,'YLabel'),'string','Dissimilarity');
-          end
-          
-          %     figure;
-          %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd),2)),'b');
-          %     hold on
-          %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd),2)),'r');
-          %     %plot(linspace(timeS(1),timeS(2),size(p2_data,1)),p2_data,'r');
-          %     hold off
-          %     axis([timeS(1) timeS(2) -20 20]);
-          
+          % put it back
+          %data_tla.(fn{f}).sub(sub).ses(ses).data.(parameter) = dat_z_ravel;
+          dat1 = dat_z_ravel(1:nTrl1,:,:);
+          dat2 = dat_z_ravel(nTrl1+1:nTrl1+nTrl2,:,:);
         else
-          if verbose
-            fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
-          end
+          dat1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd);
+          dat2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd);
         end
-      end % trials
-      D.(dataType).dissim(sub,lat) = nanmean(subD);
-      D.(dataType).nTrial(sub) = sum(~isnan(subD));
-    end % sub
-  end % dataTypes
-end % lat
+        
+        for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+          %p1_trlInd = 1;
+          p1_trlInd = i;
+          p1_phaseCount = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
+          
+          p2_trlInd = find(...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
+          %p2_trlInd = 1;
+          
+          if ~isempty(p2_trlInd)
+            % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
+            % distances are measured between observations
+            
+            if sum(elecInd) == 1
+              p1_data = squeeze(dat1(p1_trlInd,:,:));
+              p2_data = squeeze(dat2(p2_trlInd,:,:));
+            elseif sum(elecInd) > 1
+              p1_data = squeeze(dat1(p1_trlInd,:,:))';
+              p2_data = squeeze(dat2(p2_trlInd,:,:))';
+            end
+            
+            %           if strcmp(simAcross,'time')
+            %             % rows = samples; cols = channels
+            %             if sum(elecInd) == 1
+            %               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd));
+            %               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd));
+            %             elseif sum(elecInd) > 1
+            %               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd))';
+            %               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd))';
+            %             end
+            %
+            %             if plotit
+            %               xaxis = linspace(timeS(1),timeS(2),size(p1_data,1));
+            %               yaxis = linspace(timeS(1),timeS(2),size(p2_data,1));
+            %             end
+            %           elseif strcmp(simAcross,'chan')
+            %             % rows = channels; cols = samples
+            %             p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd));
+            %             p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd));
+            %
+            %             if plotit
+            %               xaxis = 1:sum(elecInd);
+            %               yaxis = 1:sum(elecInd);
+            %
+            %               elecLabels_x = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label(elecInd);
+            %               elecLabels_y = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.label(elecInd);
+            %             end
+            %           end
+            
+            subD(i) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
+            
+            if plotit
+              figure;
+              if exist('distanceScale','var') && ~isempty(distanceScale)
+                imagesc(xaxis,yaxis,D,distanceScale);
+              else
+                imagesc(xaxis,yaxis,D);
+              end
+              
+              if strcmp(simAcross,'chan')
+                set(gca,'XTickLabel',elecLabels_x);
+                set(gca,'YTickLabel',elecLabels_y);
+              end
+              
+              title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
+              if strcmp(simAcross,'time')
+                xlabel('P1: Time (s)');
+                ylabel('P2: Time (s)');
+              elseif strcmp(simAcross,'chan')
+                xlabel('P1: Electrode');
+                ylabel('P2: Electrode');
+              end
+              
+              hc = colorbar;
+              set(get(hc,'YLabel'),'string','Dissimilarity');
+            end
+            
+            %     figure;
+            %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd),2)),'b');
+            %     hold on
+            %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd),2)),'r');
+            %     %plot(linspace(timeS(1),timeS(2),size(p2_data,1)),p2_data,'r');
+            %     hold off
+            %     axis([timeS(1) timeS(2) -20 20]);
+            
+          else
+            if verbose
+              fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
+            end
+          end
+        end % trials
+        D.(dataType).dissim(sub,ses,lat) = nanmean(subD);
+      end % lat
+      D.(dataType).nTrial(sub,ses) = sum(~isnan(subD));
+    end
+  end % sub
+end % dataTypes
 
+%% stats
 
+% data1_str = 'word_RgH_rc_spac';
+% data2_str = 'word_RgH_rc_mass';
+% data1_str = 'img_RgH_rc_spac';
+% data2_str = 'img_RgH_rc_mass';
+% data1_str = 'word_RgH_fo_spac';
+% data2_str = 'word_RgH_fo_mass';
+% data1_str = 'img_RgH_fo_spac';
+% data2_str = 'img_RgH_fo_mass';
 
+% comparisons = {...
+%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
+%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
+%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
+%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+
+% comparisons = {...
+%   {'word_RgH_spac', 'word_RgH_mass'}, ...
+%   {'img_RgH_spac', 'img_RgH_mass'}};
+
+comparisons = {{'img_RgH_spac', 'img_RgH_mass'}};
+
+alpha = 0.05;
+tails = 'both';
+
+% trial count threshold - need n or more trials in both comparison conds
+nThresh = 5;
+
+for ses = 1:length(exper.sessions)
+  for lat = 1:size(latencies,1)
+    fprintf('\n');
+    fprintf('%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
+    
+    for cmp = 1:length(comparisons)
+      data1_str = comparisons{cmp}{1};
+      data2_str = comparisons{cmp}{2};
+      
+      threshSub = D.(data1_str).nTrial(:,ses) >= nThresh & D.(data2_str).nTrial(:,ses) >= nThresh;
+      
+      data1 = D.(data1_str).dissim(:,ses,lat);
+      data1 = data1(threshSub);
+      data2 = D.(data2_str).dissim(:,ses,lat);
+      data2 = data2(threshSub);
+      
+      d = mm_effect_size('within',data1,data2);
+      [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
+      
+      fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
+        data1_str, ...
+        mean(data1), ...
+        std(data1) / sqrt(length(data1)), ...
+        data2_str, ...
+        mean(data2), ...
+        std(data2) / sqrt(length(data2)), ...
+        stats.df, ...
+        stats.tstat, ...
+        d, ...
+        std(data1 - data2),...
+        std(data1 - data2) / sqrt(length(data1)),...
+        p);
+    end
+  end
+end
 
 %% run it for face vs house
 
