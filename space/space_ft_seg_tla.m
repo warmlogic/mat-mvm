@@ -176,15 +176,19 @@ cfg_pp.baselinewindow = [-0.2 0];
 % single precision to save space
 %cfg_pp.precision = 'single';
 
+% set the save directories
+[dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',true);
+% [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
+
+% create the raw and processed structs for each sub, ses, & event value
+[exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
+% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+
 cfg_proc = [];
 cfg_proc.keeptrials = 'yes';
 
-% set the save directories
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
-
-% create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
-process_ft_data(ana,cfg_proc,exper,dirs);
+process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
+% process_ft_data(ana,cfg_proc,exper,dirs);
 
 % %% get the bad channel information
 % 
