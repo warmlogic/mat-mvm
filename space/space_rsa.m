@@ -7,18 +7,18 @@ procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_exp
 subjects = {
   'SPACE001';
   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008';
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008';
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
   %'SPACE015';
   };
 
@@ -236,16 +236,16 @@ dataTypes = {'Face', 'House'};
 
 % latencies = [0 1.0];
 % latencies = [0 0.5; 0.5 1.0];
-latencies = [0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+% latencies = [0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 % latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
-% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [-0.2 0];
 
 standardize = true;
 
-distanceMetric = 'euclidean';
+% distanceMetric = 'euclidean';
 % distanceMetric = 'seuclidean';
-% distanceMetric = 'spearman';
+distanceMetric = 'spearman';
 % distanceMetric = 'cosine';
 % distanceMetric = 'correlation';
 
@@ -253,7 +253,7 @@ parameter = 'trial';
 plotit = false;
 verbose = false;
 
-% sub = 1;
+sub = 1;
 ses = 1;
 
 % thisROI = 'LPS';
@@ -283,6 +283,18 @@ phaseCountCol = 4;
 stimNumCol = 6;
 categNumCol = 7;
 
+% if plotit
+if strcmp(distanceMetric,'euclidean')
+  distanceScale = [0 100];
+elseif strcmp(distanceMetric,'spearman') || strcmp(distanceMetric,'correlation') || strcmp(distanceMetric,'cosine')
+  distanceScale = [0 2];
+elseif strcmp(distanceMetric,'seuclidean')
+  distanceScale = [0 20];
+else
+  distanceScale = [];
+end
+% end
+
 % store the distance values
 D = struct;
 for d = 1:length(dataTypes)
@@ -292,17 +304,7 @@ for d = 1:length(dataTypes)
   D.(dataTypes{d}).nTrial = nan(length(exper.subjects),1);
 end
 
-if plotit
-  if strcmp(distanceMetric,'euclidean')
-    distanceScale = [0 100];
-  elseif strcmp(distanceMetric,'spearman') || strcmp(distanceMetric,'correlation') || strcmp(distanceMetric,'cosine')
-    distanceScale = [0 2];
-  elseif strcmp(distanceMetric,'seuclidean')
-    distanceScale = [0 20];
-  else
-    distanceScale = [];
-  end
-end
+%% run it for p1 vs p2
 
 for lat = 1:size(latencies,1)
   fprintf('%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
@@ -341,6 +343,9 @@ for lat = 1:size(latencies,1)
         %data_tla.(fn{f}).sub(sub).ses(ses).data.(parameter) = dat_z_ravel;
         dat1 = dat_z_ravel(1:nTrl1,:,:);
         dat2 = dat_z_ravel(nTrl1+1:nTrl1+nTrl2,:,:);
+      else
+        dat1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd);
+        dat2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd);
       end
       
       for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
@@ -443,3 +448,139 @@ for lat = 1:size(latencies,1)
     end % sub
   end % dataTypes
 end % lat
+
+
+
+
+%% run it for face vs house
+
+dissim = struct;
+
+for sub = 1:length(exper.subjects)
+  dissim.sub(sub).D = [];
+  
+  fprintf('Subject %s...\n',exper.subjects{sub});
+  
+  nTrl1 = size(data_tla.(exper.sesStr{ses}).(dataTypes{1}).sub(sub).data.(parameter),1);
+  nTrl2 = size(data_tla.(exper.sesStr{ses}).(dataTypes{2}).sub(sub).data.(parameter),1);
+  
+  subD = nan(nTrl1+nTrl2,nTrl1+nTrl2);
+  
+  for lat = 1:size(latencies,1)
+    fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
+    timeS = latencies(lat,:);
+    timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{1}).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
+    
+    if standardize
+      data_cat = cat(1, ...
+        data_tla.(exper.sesStr{ses}).(dataTypes{1}).sub(sub).data.(parameter)(:,elecInd,timeInd), ...
+        data_tla.(exper.sesStr{ses}).(dataTypes{2}).sub(sub).data.(parameter)(:,elecInd,timeInd));
+      dim = size(data_cat);
+      dat = reshape(data_cat, dim(1), prod(dim(2:end)));
+      
+      mu = nanmean(dat);
+      sigma = nanstd(dat);
+      
+      dat_z = dat;
+      idx = ~isnan(mu);
+      dat_z(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+      idx = ~isnan(sigma) & ~(sigma==0);
+      dat_z(:,idx) = bsxfun(@rdivide,dat_z(:,idx),sigma(idx));
+      dat_z_ravel = reshape(dat_z,dim);
+      
+      % put it back
+      %data_tla.(fn{f}).sub(sub).ses(ses).data.(parameter) = dat_z_ravel;
+      dat1 = dat_z_ravel(1:nTrl1,:,:);
+      dat2 = dat_z_ravel(nTrl1+1:nTrl1+nTrl2,:,:);
+    else
+      dat1 = data_tla.(exper.sesStr{ses}).(dataTypes{1}).sub(sub).data.(parameter)(:,elecInd,timeInd);
+      dat2 = data_tla.(exper.sesStr{ses}).(dataTypes{2}).sub(sub).data.(parameter)(:,elecInd,timeInd);
+    end
+    
+    d1count = 0;
+    for d = 1:length(dataTypes)
+      dataType = dataTypes{d};
+      
+      fprintf('\t\tProcessing %s...\n',dataTypes{d});
+      
+      for i = 1:size(data_tla.(exper.sesStr{ses}).(dataTypes{d}).sub(sub).data.(parameter),1)
+        d1count = d1count + 1;
+        %dt1_data = squeeze(dat1(i,:,:));
+        dt1_data = squeeze(dat_z_ravel(d1count,:,:));
+        
+        d2count = 0;
+        for d2 = 1:length(dataTypes)
+          for j = 1:size(data_tla.(exper.sesStr{ses}).(dataTypes{d2}).sub(sub).data.(parameter),1)
+            d2count = d2count + 1;
+            
+            %dt2_data = squeeze(dat2(j,:,:));
+            dt2_data = squeeze(dat_z_ravel(d2count,:,:));
+            
+            subD(d1count,d2count) = pdist2(dt1_data(:)',dt2_data(:)',distanceMetric);
+            
+            if plotit
+              figure;
+              if exist('distanceScale','var') && ~isempty(distanceScale)
+                imagesc(xaxis,yaxis,D,distanceScale);
+              else
+                imagesc(xaxis,yaxis,D);
+              end
+              
+              if strcmp(simAcross,'chan')
+                set(gca,'XTickLabel',elecLabels_x);
+                set(gca,'YTickLabel',elecLabels_y);
+              end
+              
+              title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
+              if strcmp(simAcross,'time')
+                xlabel('P1: Time (s)');
+                ylabel('P2: Time (s)');
+              elseif strcmp(simAcross,'chan')
+                xlabel('P1: Electrode');
+                ylabel('P2: Electrode');
+              end
+              
+              hc = colorbar;
+              set(get(hc,'YLabel'),'string','Dissimilarity');
+            end
+            
+            %     figure;
+            %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd),2)),'b');
+            %     hold on
+            %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd),2)),'r');
+            %     %plot(linspace(timeS(1),timeS(2),size(p2_data,1)),p2_data,'r');
+            %     hold off
+            %     axis([timeS(1) timeS(2) -20 20]);
+            
+            %         else
+            %           if verbose
+            %             fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
+            %           end
+            %         end
+          end
+        end
+        
+      end % trials
+      %D.(dataType).dissim(sub,lat) = nanmean(subD);
+      %D.(dataType).nTrial(sub) = sum(~isnan(subD));
+    end % dataTypes
+    dissim.sub(sub).D = cat(3,dissim.sub(sub).D,subD);
+  end % lat
+end % sub
+
+%% plot it
+
+% distanceScale = [0 150];
+% distanceScale = [0 100];
+% distanceScale = [0 75];
+
+distanceScale = [0 1.5];
+
+for sub = 1:length(exper.subjects)
+  for lat = 1:size(latencies,1)
+    figure;
+    imagesc(dissim.sub(sub).D(:,:,lat),distanceScale);
+    axis square;
+    title(sprintf('\t%.2f sec to %.2f sec\n',latencies(lat,1),latencies(lat,2)));
+  end
+end
