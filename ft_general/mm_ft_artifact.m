@@ -1279,6 +1279,7 @@ if rejArt_ftICA
       fprintf('Loading resumable ICA components file: %s...\n',resumeICACompFT_file);
       fprintf('\nIMPORTANT: You must have rejected the same channels and artifacts as last time or components may be different!\n');
       load(resumeICACompFT_file,'comp');
+      save_resumeICAComp = 1;
     else
       warning('Resumable ICA components file does not exist! %s\nStarting ICA over.',resumeICACompFT_file);
       ana.artifact.resumeICACompFT = false;
