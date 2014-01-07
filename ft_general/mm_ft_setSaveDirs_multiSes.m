@@ -86,7 +86,7 @@ end
 
 if allSesEvInDir
   % get all the event names
-  evFlat = cellflat(exper.eventValues);
+  evFlat = sort(cellflat(exper.eventValues));
   evStr = sprintf(repmat('%s_',1,length(evFlat)),evFlat{:});
   % remove the trailing underscore
   evStr = evStr(1:end-1);
