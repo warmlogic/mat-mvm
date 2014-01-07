@@ -199,6 +199,9 @@ cfg_pp.baselinewindow = [-0.2 0];
 % single precision to save space
 %cfg_pp.precision = 'single';
 
+cfg_proc = [];
+cfg_proc.keeptrials = 'yes';
+
 % set the save directories
 %[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 [dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',false);
@@ -206,9 +209,6 @@ cfg_pp.baselinewindow = [-0.2 0];
 % create the raw and processed structs for each sub, ses, & event value
 % [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
-
-cfg_proc = [];
-cfg_proc.keeptrials = 'yes';
 
 process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
 
