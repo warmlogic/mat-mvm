@@ -171,13 +171,13 @@ ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.threshmin = -150;
 ana.artifact.threshmax = 150;
-ana.artifact.basic_art_z = 30;
-ana.artifact.muscle_art_z = 40;
-ana.artifact.jump_art_z = 50;
+ana.artifact.basic_art_z = 40;
+ana.artifact.muscle_art_z = 60;
+ana.artifact.jump_art_z = 60;
 ana.artifact.threshmin_postICA = -150;
 ana.artifact.threshmax_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;
-ana.artifact.muscle_art_z_postICA = 40;
+ana.artifact.muscle_art_z_postICA = 50;
 ana.artifact.jump_art_z_postICA = 50;
 ana.overwrite.raw = 1;
 
