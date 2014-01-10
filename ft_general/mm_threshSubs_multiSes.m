@@ -1,7 +1,7 @@
-function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan)
+function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,printDirection)
 %MM_THRESHSUBS_MULTISES Mark subjects as bad when they have fewer than X events
 %
-%   [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan)
+%   [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,printDirection)
 %
 %   If one event in ana.eventValues has fewer than 'thresh' trials, then
 %   the subject is marked bad for all events values for that session
@@ -14,6 +14,7 @@ function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan)
 %           counted as having a too low trial count
 %  commonGoodChan = true/false, whether to find the common good channels
 %                   across the good subjects
+%  printDirection = how to print out trial counts ('horiz' or 'vert')
 %
 % Output:
 %  exper.badSub                  = overall, who's bad for any reason
@@ -24,12 +25,17 @@ function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan)
 
 %% setup
 
-% make sure thresh is set; save it in exper struct
-if nargin < 4
+if ~exist('printDirection','var') || isempty(printDirection)
+  printDirection = 'horiz';
+end
+
+if ~exist('commonGoodChan','var') || isempty(commonGoodChan)
   commonGoodChan = false;
-  if nargin < 3
-    error('Must specify ''thresh'' for the event count threshold');
-  end
+end
+
+% make sure thresh is set; save it in exper struct
+if ~exist('thresh','var') || isempty(thresh)
+  error('Must specify ''thresh'' for the event count threshold');
 end
 
 if ~isfield(exper,'badBehSub')
@@ -55,9 +61,11 @@ for ses = 1:length(exper.sesStr)
   for sub = 1:length(exper.subjects)
     %for ses = 1:length(exper.sessions)
     for evVal = 1:length(ana.eventValues{ses})
-      % compare nTrials to threshold
-      if exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal})(sub) < exper.nTrials.(exper.sesStr{ses}).thresh
-        exper.nTrials.(exper.sesStr{ses}).lowNum(sub) = true;
+      for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+        % compare nTrials to threshold
+        if exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(sub) < exper.nTrials.(exper.sesStr{ses}).thresh
+          exper.nTrials.(exper.sesStr{ses}).lowNum(sub) = true;
+        end
       end
     end
     %end
@@ -67,10 +75,13 @@ end
 
 %% print some info
 
-if length(exper.subjects{1}) > 7
-  tabchar_sub = '\t';
-else
-  tabchar_sub = '';
+tabLimit = 7;
+
+tabchar_sub = '';
+if length(exper.subjects{1}) > tabLimit
+  for i = 1:floor(length(exper.subjects{1}) / tabLimit)
+    tabchar_sub = cat(2,tabchar_sub,'\t');
+  end
 end
 
 fprintf('\n');
@@ -80,18 +91,33 @@ for ses = 1:length(exper.sessions)
   fprintf('========================\n');
   fprintf('Session: %s\n',exper.sesStr{ses});
   fprintf('========================\n');
-  fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(ana.eventValues{ses})),ana.eventValues{ses}{:}));
-  for sub = 1:length(exper.subjects)
-    subStr = exper.subjects{sub};
-    for evVal = 1:length(ana.eventValues{ses})
-      if length(ana.eventValues{ses}{evVal}) > 7
-        tabchar_ev = '\t';
-      else
-        tabchar_ev = '';
-      end
-      subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal})(sub),sprintf(tabchar_ev)));
+  for evVal = 1:length(ana.eventValues{ses})
+    if strcmp(printDirection,'horiz')
+    fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(ana.eventValues{ses}{evVal})),ana.eventValues{ses}{evVal}{:}));
+    elseif strcmp(printDirection,'vert')
+      fprintf('Subject\n');
     end
-    fprintf('%s\n',subStr);
+    for sub = 1:length(exper.subjects)
+      subStr = exper.subjects{sub};
+      for es = 1:length(ana.eventValues{ses}{evVal})
+        if strcmp(printDirection,'horiz')
+          tabchar_ev = '';
+          if length(ana.eventValues{ses}{evVal}{es}) > tabLimit
+            for i = 1:floor(length(ana.eventValues{ses}{evVal}{es}) / tabLimit)
+              tabchar_ev = cat(2,tabchar_ev,'\t');
+            end
+          end
+          
+          subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(sub),sprintf(tabchar_ev)));
+        elseif strcmp(printDirection,'vert')
+          if es == 1
+            subStr = sprintf('%s\n',subStr);
+          end
+          subStr = cat(2,subStr,sprintf('\t%s: %d\n',ana.eventValues{ses}{evVal}{es},exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(sub)));
+        end
+      end
+      fprintf('%s\n',subStr);
+    end
   end
   
   % display who we're rejecting because of low trial counts
@@ -129,10 +155,12 @@ if sum(~exper.badSub) > 0
   fprintf('\nNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',sum(~exper.badSub),thresh);
   for ses = 1:length(exper.sessions)
     for evVal = 1:length(ana.eventValues{ses})
-      meanTrials = mean(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal})(~exper.badSub));
-      semTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
-      stdTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal})(~exper.badSub),0,1);
-      fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',ana.eventValues{ses}{evVal},meanTrials,semTrials,stdTrials);
+      for es = 1:length(ana.eventValues{ses}{evVal})
+        meanTrials = mean(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub));
+        semTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
+        stdTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub),0,1);
+        fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',ana.eventValues{ses}{evVal}{es},meanTrials,semTrials,stdTrials);
+      end
     end
   end
 else
