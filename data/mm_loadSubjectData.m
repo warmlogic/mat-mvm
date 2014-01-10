@@ -175,8 +175,13 @@ for sub = 1:length(exper.subjects)
                 cfg = [];
                 cfg.trials = eval(expr);
                 cfg.keeptrials = 'yes';
-                data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
-                %data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                if any(cfg.trials == 1)
+                  data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
+                  %data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                else
+                  warning('No events found for %s %s %s',exper.subjects{sub},sesStr,ana.eventValuesSplit{ses}{evVal}{es});
+                  data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data.trial = [];
+                end
                 
                 % put in the trial counts
                 exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg.trials);
