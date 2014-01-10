@@ -239,15 +239,19 @@ exper.badBehSub = {{}};
 
 %% RSA - very basic
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 % dataTypes = {'img_RgH_rc_spac'};
 
 % dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
 % dataTypes = {'img_RgH_spac', 'img_RgH_mass'};
 % dataTypes = {'Face', 'House'};
 
+% compare the different types of stimuli
 % dataTypes = {{'img_RgH_spac', 'word_RgH_spac'}, {'img_RgH_mass', 'word_RgH_mass'}};
+
+dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
+  {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
 
 
 % latencies = [0 1.0];
@@ -273,8 +277,8 @@ sub = 1;
 ses = 1;
 evVal = 1;
 
-% thisROI = {'center91'};
-thisROI = {'LPI', 'PI', 'RPI'};
+thisROI = {'center91'};
+% thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = 'LPS';
 % thisROI = 'PI';
 % thisROI = {'posterior'};
@@ -332,6 +336,8 @@ for d = 1:length(dataTypes)
   
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
+      if ~exper.badSub(sub,ses)
+        
       fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
       
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1),size(latencies,1),size(latencies,1));
@@ -471,6 +477,7 @@ for d = 1:length(dataTypes)
         end % lat2
       end % lat1
       D.(dataType).nTrial(sub,ses) = sum(~isnan(subD(:,1,1)));
+      end
     end
   end % sub
 end % dataTypes
@@ -486,15 +493,15 @@ end % dataTypes
 % data1_str = 'img_RgH_fo_spac';
 % data2_str = 'img_RgH_fo_mass';
 
-% comparisons = {...
-%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
-%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
-%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
-%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
-
 comparisons = {...
-  {'word_RgH_spac', 'word_RgH_mass'}, ...
-  {'img_RgH_spac', 'img_RgH_mass'}};
+  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
+  {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
+  {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
+  {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+
+% comparisons = {...
+%   {'word_RgH_spac', 'word_RgH_mass'}, ...
+%   {'img_RgH_spac', 'img_RgH_mass'}};
 
 % comparisons = {{'img_RgH_spac', 'img_RgH_mass'}};
 
@@ -574,6 +581,7 @@ for d = 1:length(dataTypes)
   
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
+      if ~exper.badSub(sub,ses)
       fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
       
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter),1),size(latencies,1),size(latencies,1));
@@ -720,6 +728,7 @@ for d = 1:length(dataTypes)
         end % lat2
       end % lat1
       D.(datstr).nTrial(sub,ses) = sum(~isnan(subD(:,1,1)));
+      end
     end
   end % sub
 end % dataTypes
@@ -746,6 +755,7 @@ end % dataTypes
 %   {'img_RgH_spac', 'img_RgH_mass'}};
 
 comparisons = {{'img_RgH_spac_word_RgH_spac','img_RgH_mass_word_RgH_mass'}};
+% comparisons = {{'img_RgH_rc_spac_word_RgH_rc_spac','img_RgH_rc_mass_word_RgH_rc_mass'},{'img_RgH_fo_spac_word_RgH_fo_spac','img_RgH_fo_mass_word_RgH_fo_mass'}};
 
 % comparisons = {{'img_RgH_spac', 'img_RgH_mass'}};
 
@@ -815,6 +825,7 @@ for d = 1:length(dataTypes)
   
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
+      if ~exper.badSub(sub,ses)
       fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
       
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1),1);
@@ -950,6 +961,7 @@ for d = 1:length(dataTypes)
         D.(dataType).dissim(sub,ses,lat) = nanmean(subD);
       end % lat
       D.(dataType).nTrial(sub,ses) = sum(~isnan(subD));
+      end
     end
   end % sub
 end % dataTypes
@@ -1036,6 +1048,7 @@ for sub = 1:length(exper.subjects)
   
   subD = nan(nTrl1+nTrl2,nTrl1+nTrl2);
   
+  if ~exper.badSub(sub,ses)
   for lat = 1:size(latencies,1)
     fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
     timeS = latencies(lat,:);
@@ -1136,6 +1149,7 @@ for sub = 1:length(exper.subjects)
     end % dataTypes
     dissim.sub(sub).D = cat(3,dissim.sub(sub).D,subD);
   end % lat
+  end
 end % sub
 
 %% plot it
