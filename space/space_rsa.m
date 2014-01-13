@@ -22,8 +22,8 @@ subjects = {
   'SPACE015';
   'SPACE016';
   'SPACE017'; % really noisy EEG, half of ICA components rejected
-  %'SPACE018';
-  %'SPACE019';
+  'SPACE018';
+  'SPACE019';
   };
 
 % only one cell, with all session names
