@@ -235,12 +235,13 @@ ana.eventValues = ana.eventValuesSplit;
 exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,3,[],'vert');
 
 %% RSA - very basic
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
 % dataTypes = {'img_RgH_rc_spac'};
 
 % dataTypes = {'img_RgH_spac', 'img_RgH_mass', 'word_RgH_spac', 'word_RgH_mass'};
@@ -250,8 +251,8 @@ exper.badBehSub = {{}};
 % compare the different types of stimuli
 % dataTypes = {{'img_RgH_spac', 'word_RgH_spac'}, {'img_RgH_mass', 'word_RgH_mass'}};
 
-dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
-  {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
+% dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
+%   {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
 
 
 % latencies = [0 1.0];
