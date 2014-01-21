@@ -251,14 +251,13 @@ dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH
 % compare the different types of stimuli
 % dataTypes = {{'img_RgH_spac', 'word_RgH_spac'}, {'img_RgH_mass', 'word_RgH_mass'}};
 
-% dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
-%   {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
 
 
 % latencies = [0 1.0];
 % latencies = [0 0.5; 0.5 1.0];
 % latencies = [0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-% latencies = [0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+% latencies = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
+% latencies = [-0.2 -0.1; -0.1 0; 0 0.1; 0.1 0.2; 0.2 0.3; 0.3 0.4; 0.4 0.5; 0.5 0.6; 0.6 0.7; 0.7 0.8; 0.8 0.9; 0.9 1.0];
 latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [-0.2 0];
 
@@ -319,6 +318,8 @@ else
 end
 % end
 
+verbose = false;
+
 %% run it for p1 vs p2 comparing across time
 
 % initialize to store the distance values
@@ -344,14 +345,18 @@ for d = 1:length(dataTypes)
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1),size(latencies,1),size(latencies,1));
       
       for lat1 = 1:size(latencies,1)
-        fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+        if verbose
+          fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+        end
         timeS = latencies(lat1,:);
-        timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
+        timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
         
         for lat2 = 1:size(latencies,1)
-          fprintf('\t\t%.2f sec to %.2f sec...\n',latencies(lat2,1),latencies(lat2,2));
+          if verbose
+            fprintf('\t\t%.2f sec to %.2f sec...\n',latencies(lat2,1),latencies(lat2,2));
+          end
           timeS = latencies(lat2,:);
-          timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
+          timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
           
           if standardize
             nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1);
@@ -483,6 +488,48 @@ for d = 1:length(dataTypes)
   end % sub
 end % dataTypes
 
+%% RMANOVA - p1 vs p2: spac x stimType x memory x time
+
+cnds = {'word_RgH_rc_spac', 'img_RgH_rc_spac', 'word_RgH_fo_spac', 'img_RgH_fo_spac', 'word_RgH_rc_mass', 'img_RgH_rc_mass', 'word_RgH_fo_mass', 'img_RgH_fo_mass'};
+
+nThresh = 1;
+
+goodSub = ones(length(exper.subjects),1);
+
+for ses = 1:length(exper.sesStr)
+  for cnd = 1:length(cnds)
+    goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
+  end
+end
+
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  
+  %if ~exper.badSub(sub)
+  if goodSub(sub)
+    for ses = 1:length(exper.sesStr)
+      
+      theseData = [];
+      
+      for cnd = 1:length(cnds)
+        
+        for t = 1:size(D.(cnds{cnd}).dissim,3)
+          
+          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
+          
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+  
+end
+
+varnames = {'spacing','subseqMem','stimType','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
+
 %% stats
 
 % data1_str = 'word_RgH_rc_spac';
@@ -551,7 +598,235 @@ for ses = 1:length(exper.sessions)
   end % lat2
 end % ses
 
+%% run it for p1 vs p2 comparing across stim types (p1 image, p2 word)
+
+dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
+  {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
+
+% initialize to store the distance values
+D = struct;
+for d = 1:length(dataTypes)
+  %   fprintf('%s\n',dataTypes{d});
+  %   D.(dataTypes{d}).nTrial
+  datstr = dataTypes{d}{1};
+  if length(dataTypes{d}) > 1
+    for di = 2:length(dataTypes{d})
+      datstr = cat(2,datstr,'_',dataTypes{d}{di});
+    end
+  end
+  D.(datstr).dissim = nan(length(exper.subjects),length(exper.sessions),size(latencies,1));
+  D.(datstr).nTrial = nan(length(exper.subjects),length(exper.sessions));
+end
+
+for d = 1:length(dataTypes)
+  datstr = dataTypes{d}{1};
+  if length(dataTypes{d}) > 1
+    for di = 2:length(dataTypes{d})
+      datstr = cat(2,datstr,'_',dataTypes{d}{di});
+    end
+  end
+  
+  dataType = dataTypes{d};
+  
+  fprintf('Processing %s vs %s...\n',dataType{1},dataType{2});
+  
+  for sub = 1:length(exper.subjects)
+    for ses = 1:length(exper.sessions)
+      if ~exper.badSub(sub,ses)
+      fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
+      
+      subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter),1),size(latencies,1));
+      
+      for lat1 = 1:size(latencies,1)
+        if verbose
+          fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+        end
+        timeS = latencies(lat1,:);
+        timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.time <= timeS(2) + 0.0001;
+          timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.time <= timeS(2) + 0.0001;
+          
+          if standardize
+            nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter),1);
+            nTrl2 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.(parameter),1);
+            data_cat = cat(1, ...
+              data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter)(:,elecInd,timeInd1), ...
+              data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.(parameter)(:,elecInd,timeInd2));
+            dim = size(data_cat);
+            dat = reshape(data_cat, dim(1), prod(dim(2:end)));
+            
+            mu = nanmean(dat);
+            sigma = nanstd(dat);
+            
+            dat_z = dat;
+            idx = ~isnan(mu);
+            dat_z(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+            idx = ~isnan(sigma) & ~(sigma==0);
+            dat_z(:,idx) = bsxfun(@rdivide,dat_z(:,idx),sigma(idx));
+            dat_z_ravel = reshape(dat_z,dim);
+            
+            % put it back
+            %data_tla.(fn{f}).sub(sub).ses(ses).data.(parameter) = dat_z_ravel;
+            dat1 = dat_z_ravel(1:nTrl1,:,:);
+            dat2 = dat_z_ravel(nTrl1+1:nTrl1+nTrl2,:,:);
+          else
+            dat1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter)(:,elecInd,timeInd1);
+            dat2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.(parameter)(:,elecInd,timeInd2);
+          end
+          
+          for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter),1)
+            p1_trlInd = i;
+            %p1_trialNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.trialinfo(p1_trlInd,trialNumCol);
+            p1_phaseCount = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
+            p1_stimNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
+            p1_categNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
+            p1_pairNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.trialinfo(p1_trlInd,pairNumCol);
+            
+%             p2_trlInd = find(...
+%               data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+%               data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+%               data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
+            
+            p2_trlInd = find(...
+              data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+              data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.trialinfo(:,pairNumCol) == p1_pairNum & ...
+              data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.trialinfo(:,categNumCol) ~= p1_categNum);
+            
+            if ~isempty(p2_trlInd)
+              % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
+              % distances are measured between observations
+              
+              if sum(elecInd) == 1
+                p1_data = squeeze(dat1(p1_trlInd,:,:));
+                p2_data = squeeze(dat2(p2_trlInd,:,:));
+              elseif sum(elecInd) > 1
+                p1_data = squeeze(dat1(p1_trlInd,:,:))';
+                p2_data = squeeze(dat2(p2_trlInd,:,:))';
+              end
+              
+              %           if strcmp(simAcross,'time')
+              %             % rows = samples; cols = channels
+              %             if sum(elecInd) == 1
+              %               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+              %               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd2));
+              %             elseif sum(elecInd) > 1
+              %               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1))';
+              %               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd2))';
+              %             end
+              %
+              %             if plotit
+              %               xaxis = linspace(timeS(1),timeS(2),size(p1_data,1));
+              %               yaxis = linspace(timeS(1),timeS(2),size(p2_data,1));
+              %             end
+              %           elseif strcmp(simAcross,'chan')
+              %             % rows = channels; cols = samples
+              %             p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+              %             p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd2));
+              %
+              %             if plotit
+              %               xaxis = 1:sum(elecInd);
+              %               yaxis = 1:sum(elecInd);
+              %
+              %               elecLabels_x = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label(elecInd);
+              %               elecLabels_y = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.label(elecInd);
+              %             end
+              %           end
+              
+              subD(i,lat1) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
+              
+              if plotit
+                figure;
+                if exist('distanceScale','var') && ~isempty(distanceScale)
+                  imagesc(xaxis,yaxis,D,distanceScale);
+                else
+                  imagesc(xaxis,yaxis,D);
+                end
+                
+                if strcmp(simAcross,'chan')
+                  set(gca,'XTickLabel',elecLabels_x);
+                  set(gca,'YTickLabel',elecLabels_y);
+                end
+                
+                title(sprintf('%s vs %s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType{1},'_','-'),strrep(dataType{2},'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
+                if strcmp(simAcross,'time')
+                  xlabel('P1: Time (s)');
+                  ylabel('P2: Time (s)');
+                elseif strcmp(simAcross,'chan')
+                  xlabel('P1: Electrode');
+                  ylabel('P2: Electrode');
+                end
+                
+                hc = colorbar;
+                set(get(hc,'YLabel'),'string','Dissimilarity');
+              end
+              
+              %     figure;
+              %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1),2)),'b');
+              %     hold on
+              %     plot(linspace(timeS(1),timeS(2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd2),2)),'r');
+              %     %plot(linspace(timeS(1),timeS(2),size(p2_data,1)),p2_data,'r');
+              %     hold off
+              %     axis([timeS(1) timeS(2) -20 20]);
+              
+            else
+              if verbose
+                fprintf('%s vs %s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType{1},dataType{2},p1_phaseCount,p1_stimNum,p1_categNum);
+              end
+            end
+          end % trials
+          D.(datstr).dissim(sub,ses,lat1) = nanmean(subD(:,lat1));
+      end % lat1
+      D.(datstr).nTrial(sub,ses) = sum(~isnan(subD(:,1)));
+      end
+    end
+  end % sub
+end % dataTypes
+
+%% RMANOVA - p1 vs p2 comparing stim types
+
+cnds = {'img_RgH_rc_spac_word_RgH_rc_spac', 'img_RgH_fo_spac_word_RgH_fo_spac', 'img_RgH_rc_mass_word_RgH_rc_mass', 'img_RgH_fo_mass_word_RgH_fo_mass'};
+
+nThresh = 1;
+
+goodSub = ones(length(exper.subjects),1);
+
+for ses = 1:length(exper.sesStr)
+  for cnd = 1:length(cnds)
+    goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
+  end
+end
+
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  
+  %if ~exper.badSub(sub)
+  if goodSub(sub)
+    for ses = 1:length(exper.sesStr)
+      
+      theseData = [];
+      
+      for cnd = 1:length(cnds)
+        
+        for t = 1:size(D.(cnds{cnd}).dissim,3)
+          
+          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
+          
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+  
+end
+
+varnames = {'spacing','subseqMem','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 4], varnames);
+
 %% run it for p1 vs p2 comparing across time, comparing across stim types (p1 image, p2 word)
+
+% dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
+%   {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
 
 % initialize to store the distance values
 D = struct;
@@ -588,14 +863,18 @@ for d = 1:length(dataTypes)
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter),1),size(latencies,1),size(latencies,1));
       
       for lat1 = 1:size(latencies,1)
-        fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+        if verbose
+          fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+        end
         timeS = latencies(lat1,:);
-        timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.time <= timeS(2) + 0.0001;
+        timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.time <= timeS(2) + 0.0001;
         
         for lat2 = 1:size(latencies,1)
-          fprintf('\t\t%.2f sec to %.2f sec...\n',latencies(lat2,1),latencies(lat2,2));
+          if verbose
+            fprintf('\t\t%.2f sec to %.2f sec...\n',latencies(lat2,1),latencies(lat2,2));
+          end
           timeS = latencies(lat2,:);
-          timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.time <= timeS(2) + 0.0001;
+          timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType{2})).sub(sub).data.time <= timeS(2) + 0.0001;
           
           if standardize
             nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType{1})).sub(sub).data.(parameter),1);
@@ -832,9 +1111,11 @@ for d = 1:length(dataTypes)
       subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1),1);
       
       for lat = 1:size(latencies,1)
-        fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
+        if verbose
+          fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
+        end
         timeS = latencies(lat,:);
-        timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
+        timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
         
         if standardize
           nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1);
@@ -1053,7 +1334,7 @@ for sub = 1:length(exper.subjects)
   for lat = 1:size(latencies,1)
     fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat,1),latencies(lat,2));
     timeS = latencies(lat,:);
-    timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time >= timeS(1) & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
+    timeInd = data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time <= timeS(2) + 0.0001;
     
     if standardize
       data_cat = cat(1, ...
