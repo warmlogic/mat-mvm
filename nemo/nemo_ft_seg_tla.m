@@ -22,7 +22,7 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-exper.eventValues = {{'study_prime', 'study_target', 'ao_standard','ao_target','test_target'}};
+exper.eventValues = {{'ao_standard','ao_target', 'study_prime', 'study_target', 'test_target'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative);
 % because they get sorted, must correspond to the order listed in
@@ -36,9 +36,9 @@ exper.prepost = {[...
 
 exper.subjects = {
  'TC_NEMO-001';
- 'TC_NEMO-002';
- 'TC_NEMO-003';
- 'TC_NEMO-004';
+%  'TC_NEMO-002';
+%  'TC_NEMO-003';
+%  'TC_NEMO-004';
 %  'TC_NEMO-005';
 %  'TC_NEMO-006';
 %  'TC_NEMO-007';
@@ -163,11 +163,11 @@ if ana.useExpInfo
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
-  ana.trl_order.study_prime = {'cel#', 'obs#', 'exid', 'trl#', 'rsp#', 'widp', 'eval', 'rtim'};
-  ana.trl_order.study_target = {'cel#', 'obs#', 'exid', 'trl#', 'rsp#', 'widt', 'eval', 'rtim'};
-  ana.trl_order.ao_standard = {'eval'};
-  ana.trl_order.ao_target = {'eval'};
-  ana.trl_order.test_target = {'cel#', 'obs#', 'exid', 'trl#', 'rsp#', 'widt', 'eval', 'rtim'};
+  ana.trl_order.study_prime = {'eventNumber', 'phaseType', 'trial'};
+  ana.trl_order.study_target = {'eventNumber', 'phaseType', 'trial'};
+  ana.trl_order.ao_standard = {'eventNumber', 'phaseType', };
+  ana.trl_order.ao_target = {'eventNumber', 'phaseType', };
+  ana.trl_order.test_target = {'eventNumber', 'phaseType', };
 %   ana.trl_order.multistudy_word = ana.trl_order.multistudy_image;
   %ana.trl_order.distract_math_stim = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
 %  ana.trl_order.test_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
@@ -185,6 +185,7 @@ ana.cfg_cont.bsfreq = 59:61;
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
+ana.artifact.reject = 'complete';
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts
@@ -226,11 +227,15 @@ cfg_proc = [];
 cfg_proc.keeptrials = 'yes';
 
 % set the save directories
-[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
+[dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',true);
+% [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 
 % create the raw and processed structs for each sub, ses, & event value
-[exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
-process_ft_data(ana,cfg_proc,exper,dirs);
+[exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
+% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
+
+process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
+% process_ft_data(ana,cfg_proc,exper,dirs);
 
 % %% get the bad channel information
 % 
