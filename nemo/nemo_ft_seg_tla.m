@@ -35,7 +35,7 @@ exper.prepost = {[...
   -0.2 1.0]};
 
 exper.subjects = {
- 'TC_NEMO-001';
+%  'TC_NEMO-001';
 %  'TC_NEMO-002';
 %  'TC_NEMO-003';
 %  'TC_NEMO-004';
@@ -46,7 +46,7 @@ exper.subjects = {
 %  'TC_NEMO-009';
 %  'TC_NEMO-010';
 %  'TC_NEMO-011';
-%  'TC_NEMO-012';
+  'TC_NEMO-012';
 %  'TC_NEMO-013';
 %  'TC_NEMO-014';
 %  'TC_NEMO-015';
@@ -109,9 +109,9 @@ dirs.behDir = fullfile(exper.name,'Behavioral',dirs.subDir);
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
 dirs.dataDir = fullfile(exper.name,'EEG','ftpp',dirs.subDir);
 % Possible locations of the data files (dataroot)
-dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
-dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
-dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
+%dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+%dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+%dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'Desktop','markupfiles');
 
 % pick the right dirs.dataroot
@@ -163,11 +163,39 @@ if ana.useExpInfo
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
-  ana.trl_order.study_prime = {'eventNumber', 'phaseType', 'trial'};
-  ana.trl_order.study_target = {'eventNumber', 'phaseType', 'trial'};
-  ana.trl_order.ao_standard = {'eventNumber', 'phaseType', };
-  ana.trl_order.ao_target = {'eventNumber', 'phaseType', };
-  ana.trl_order.test_target = {'eventNumber', 'phaseType', };
+  ana.trl_order.study_prime = {'eventNumber', 'phaseType', 'trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time','FSG_target',...
+      'FSG_target','BSG_target','CNC_target','KFFRQ_target','NLET_target','NPHON_target',...
+      'NSYLL_target','orthoN_target','phonoN_target','AOA_target','BFRQ_target',...
+      'FAM_target','IMG_target','CMEAN_target','PMEAN_target','TLFRQ_target',...
+      'wordid_target','CNC_prime','KFFRQ_prime','NLET_prime','NPHON_prime','NPHON_prime',...
+      'NSYLL_prime','orthoN_prime','phonoN_prime','AOA_prime','BFRQ_prime','FAM_prime',...
+      'IMG_prime','CMEAN_prime','PMEAN_prime','TLFRQ_prime','wordid_prime','word_pair_id'};
+  
+  ana.trl_order.study_target = {'eventNumber', 'phaseType', 'trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time','FSG_target',...
+      'FSG_target','BSG_target','CNC_target','KFFRQ_target','NLET_target','NPHON_target',...
+      'NSYLL_target','orthoN_target','phonoN_target','AOA_target','BFRQ_target',...
+      'FAM_target','IMG_target','CMEAN_target','PMEAN_target','TLFRQ_target',...
+      'wordid_target','CNC_prime','KFFRQ_prime','NLET_prime','NPHON_prime','NPHON_prime',...
+      'NSYLL_prime','orthoN_prime','phonoN_prime','AOA_prime','BFRQ_prime','FAM_prime',...
+      'IMG_prime','CMEAN_prime','PMEAN_prime','TLFRQ_prime','wordid_prime','word_pair_id'};
+ 
+  ana.trl_order.ao_standard = {'eventNumber', 'phaseType', 'trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time'};
+ 
+  ana.trl_order.ao_target = {'eventNumber', 'phaseType', 'trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time'};
+  
+  ana.trl_order.test_target = {'eventNumber', 'phaseType','trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time','FSG_target',...
+      'FSG_target','BSG_target','CNC_target','KFFRQ_target','NLET_target','NPHON_target',...
+      'NSYLL_target','orthoN_target','phonoN_target','AOA_target','BFRQ_target',...
+      'FAM_target','IMG_target','CMEAN_target','PMEAN_target','TLFRQ_target',...
+      'wordid_target','CNC_prime','KFFRQ_prime','NLET_prime','NPHON_prime','NPHON_prime',...
+      'NSYLL_prime','orthoN_prime','phonoN_prime','AOA_prime','BFRQ_prime','FAM_prime',...
+      'IMG_prime','CMEAN_prime','PMEAN_prime','TLFRQ_prime','wordid_prime','word_pair_id'};
+ 
 %   ana.trl_order.multistudy_word = ana.trl_order.multistudy_image;
   %ana.trl_order.distract_math_stim = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
 %  ana.trl_order.test_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
@@ -182,6 +210,7 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = 59:61;
+ana.cfg_cont = []; %REMOVE FOR ACTUAL RUNS
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};

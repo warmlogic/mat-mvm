@@ -90,7 +90,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames)
     
     %% process the study phase
     
-    fprintf('Processing %s...\n',phaseName);
+    fprintf('Processing %s...\n',{phaseName});
     
     % keep track of how many real evt events we have counted
     ec = 0;
@@ -238,13 +238,56 @@ for pha = 1:length(cfg.eventinfo.phaseNames)
                                     %cols.(phaseName).response_prime = find(strcmp(ns_evt_cols,'rspp')); %string
                                     cols.(phaseName).wordid_prime = find(strcmp(ns_evt_cols,'widp'));
                                     cols.(phaseName).word_pair_id = find(strcmp(ns_evt_cols,'pair'));
-                                    cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
+                                    %cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
                                     %cols.(phaseName).modality = find(strcmp(ns_evt_cols,'mody')); %string
                                     %cols.(phaseName).study_task = find(strcmp(ns_evt_cols,'task')); %string
-                                case {'TC_NEMO_AO'}
                                     
                                 case {'TC_NEMO_fN400test'}
-                                    
+                                    %cols.(phaseName).prime_string = find(strcmp(ns_evt_cols,'prim')); %string
+                                    %cols.(phaseName).target_string = find(strcmp(ns_evt_cols,'targ')); %string
+                                    cols.(phaseName).FSG_target = find(strcmp(ns_evt_cols,'fstg'));
+                                    cols.(phaseName).BSG_target = find(strcmp(ns_evt_cols,'bstg'));
+                                    %cols.(phaseName).relation_target = find(strcmp(ns_evt_cols,'relt')); %string
+                                    cols.(phaseName).CNC_target = find(strcmp(ns_evt_cols,'cnct'));
+                                    cols.(phaseName).KFFRQ_target = find(strcmp(ns_evt_cols,'frqt'));
+                                    cols.(phaseName).NLET_target = find(strcmp(ns_evt_cols,'lent'));
+                                    cols.(phaseName).NPHON_target = find(strcmp(ns_evt_cols,'phot'));
+                                    cols.(phaseName).NSYLL_target = find(strcmp(ns_evt_cols,'sylt'));
+                                    cols.(phaseName).orthoN_target = find(strcmp(ns_evt_cols,'ornt'));
+                                    cols.(phaseName).phonoN_target = find(strcmp(ns_evt_cols,'phnt'));
+                                    %cols.(phaseName).con_cat_target = find(strcmp(ns_evt_cols,'ccat')); %string
+                                    cols.(phaseName).AOA_target = find(strcmp(ns_evt_cols,'aoat'));
+                                    cols.(phaseName).BFRQ_target = find(strcmp(ns_evt_cols,'bfqt'));
+                                    cols.(phaseName).FAM_target = find(strcmp(ns_evt_cols,'famt'));
+                                    cols.(phaseName).IMG_target = find(strcmp(ns_evt_cols,'imgt'));
+                                    cols.(phaseName).CMEAN_target = find(strcmp(ns_evt_cols,'cmnt'));
+                                    cols.(phaseName).PMEAN_target = find(strcmp(ns_evt_cols,'pmnt'));
+                                    cols.(phaseName).TLFRQ_target = find(strcmp(ns_evt_cols,'tfrt'));
+                                    %cols.(phaseName).valence_target = find(strcmp(ns_evt_cols,'valt')); %string
+                                    %cols.(phaseName).response_target = find(strcmp(ns_evt_cols,'rspt')); %string
+                                    cols.(phaseName).wordid_target = find(strcmp(ns_evt_cols,'widt'));
+                                    cols.(phaseName).CNC_prime = find(strcmp(ns_evt_cols,'cncp'));
+                                    cols.(phaseName).KFFRQ_prime = find(strcmp(ns_evt_cols,'frqp'));
+                                    cols.(phaseName).NLET_prime = find(strcmp(ns_evt_cols,'lenp'));
+                                    cols.(phaseName).NPHON_prime = find(strcmp(ns_evt_cols,'phop'));
+                                    cols.(phaseName).NSYLL_prime = find(strcmp(ns_evt_cols,'sylp'));
+                                    cols.(phaseName).orthoN_prime = find(strcmp(ns_evt_cols,'ornp'));
+                                    cols.(phaseName).phonoN_prime = find(strcmp(ns_evt_cols,'phnp'));
+                                    %cols.(phaseName).con_cat_prime = find(strcmp(ns_evt_cols,'ccap')); %string
+                                    cols.(phaseName).AOA_prime = find(strcmp(ns_evt_cols,'aoap'));
+                                    cols.(phaseName).BFRQ_prime = find(strcmp(ns_evt_cols,'bfqp'));
+                                    cols.(phaseName).FAM_prime = find(strcmp(ns_evt_cols,'famp'));
+                                    cols.(phaseName).IMG_prime = find(strcmp(ns_evt_cols,'imgp'));
+                                    cols.(phaseName).CMEAN_prime = find(strcmp(ns_evt_cols,'cmnp'));
+                                    cols.(phaseName).PMEAN_prime = find(strcmp(ns_evt_cols,'pmnp'));
+                                    cols.(phaseName).TLFRQ_prime = find(strcmp(ns_evt_cols,'tfrp'));
+                                    %cols.(phaseName).valence_prime = find(strcmp(ns_evt_cols,'valp')); %string
+                                    %cols.(phaseName).response_prime = find(strcmp(ns_evt_cols,'rspp')); %string
+                                    cols.(phaseName).wordid_prime = find(strcmp(ns_evt_cols,'widp'));
+                                    cols.(phaseName).word_pair_id = find(strcmp(ns_evt_cols,'pair'));
+                                    %cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
+                                    %cols.(phaseName).modality = find(strcmp(ns_evt_cols,'mody')); %string
+                                    %cols.(phaseName).study_task = find(strcmp(ns_evt_cols,'task')); %string
                             end
                             
                             % Critical: set up the stimulus type, as well as the
@@ -289,13 +332,77 @@ for pha = 1:length(cfg.eventinfo.phaseNames)
                             resp_value = ns_evt{cols.(phaseName).trial+1}(trspInd);
                             accuracy = ns_evt{cols.(phaseName).trial+1}(trspInd);
                             reaction_time = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                           
                             switch phaseName
                                 case {'TC_NEMO_fN400study'}
-                                    
-                                case {'TC_NEMO_AO'}
+                                    FSG_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    BSG_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CNC_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    KFFRQ_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NLET_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NPHON_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NSYLL_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    orthoN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    phonoN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    AOA_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    BFRQ_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    FAM_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    IMG_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CMEAN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    PMEAN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    TLFRQ_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    wordid_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CNC_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    KFFRQ_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NLET_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NPHON_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NSYLL_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    orthoN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    phonoN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    AOA_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    BFRQ_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    FAM_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    IMG_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CMEAN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    PMEAN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    TLFRQ_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    wordid_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    word_pair_id = ns_evt{cols.(phaseName).trial+1}(trspInd);
                                     
                                 case {'TC_NEMO_fN400test'}
-                                    
+                                    FSG_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    BSG_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CNC_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    KFFRQ_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NLET_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NPHON_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NSYLL_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    orthoN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    phonoN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    AOA_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    BFRQ_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    FAM_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    IMG_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CMEAN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    PMEAN_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    TLFRQ_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    wordid_target = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CNC_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    KFFRQ_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NLET_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NPHON_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    NSYLL_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    orthoN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    phonoN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    AOA_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    BFRQ_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    FAM_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    IMG_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    CMEAN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    PMEAN_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    TLFRQ_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    wordid_prime = ns_evt{cols.(phaseName).trial+1}(trspInd);
+                                    word_pair_id = ns_evt{cols.(phaseName).trial+1}(trspInd);
                             end
                             
                             % add it to the trial definition
