@@ -24,6 +24,7 @@ subjects = {
   'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
   'SPACE019';
+  'SPACE020';
   };
 
 % only one cell, with all session names
@@ -318,8 +319,6 @@ else
 end
 % end
 
-verbose = false;
-
 %% run it for p1 vs p2 comparing across time
 
 % initialize to store the distance values
@@ -488,47 +487,6 @@ for d = 1:length(dataTypes)
   end % sub
 end % dataTypes
 
-%% RMANOVA - p1 vs p2: spac x stimType x memory x time
-
-cnds = {'word_RgH_rc_spac', 'img_RgH_rc_spac', 'word_RgH_fo_spac', 'img_RgH_fo_spac', 'word_RgH_rc_mass', 'img_RgH_rc_mass', 'word_RgH_fo_mass', 'img_RgH_fo_mass'};
-
-nThresh = 1;
-
-goodSub = ones(length(exper.subjects),1);
-
-for ses = 1:length(exper.sesStr)
-  for cnd = 1:length(cnds)
-    goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
-  end
-end
-
-
-anovaData = [];
-
-for sub = 1:length(exper.subjects)
-  
-  %if ~exper.badSub(sub)
-  if goodSub(sub)
-    for ses = 1:length(exper.sesStr)
-      
-      theseData = [];
-      
-      for cnd = 1:length(cnds)
-        
-        for t = 1:size(D.(cnds{cnd}).dissim,3)
-          
-          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
-          
-        end
-      end
-    end
-    anovaData = cat(1,anovaData,theseData);
-  end
-  
-end
-
-varnames = {'spacing','subseqMem','stimType','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
 
 %% stats
 
@@ -1248,7 +1206,49 @@ for d = 1:length(dataTypes)
   end % sub
 end % dataTypes
 
-%% stats
+%% RM ANOVA - p1 vs p2: spac x stimType x memory x time
+
+cnds = {'word_RgH_rc_spac', 'img_RgH_rc_spac', 'word_RgH_fo_spac', 'img_RgH_fo_spac', 'word_RgH_rc_mass', 'img_RgH_rc_mass', 'word_RgH_fo_mass', 'img_RgH_fo_mass'};
+
+nThresh = 1;
+
+goodSub = ones(length(exper.subjects),1);
+
+for ses = 1:length(exper.sesStr)
+  for cnd = 1:length(cnds)
+    goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
+  end
+end
+
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  
+  %if ~exper.badSub(sub)
+  if goodSub(sub)
+    for ses = 1:length(exper.sesStr)
+      
+      theseData = [];
+      
+      for cnd = 1:length(cnds)
+        
+        for t = 1:size(D.(cnds{cnd}).dissim,3)
+          
+          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
+          
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+  
+end
+
+varnames = {'spacing','subseqMem','stimType','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
+
+%% stats - ttest
 
 % data1_str = 'word_RgH_rc_spac';
 % data2_str = 'word_RgH_rc_mass';
@@ -1259,15 +1259,15 @@ end % dataTypes
 % data1_str = 'img_RgH_fo_spac';
 % data2_str = 'img_RgH_fo_mass';
 
-% comparisons = {...
-%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
-%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
-%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
-%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
-
 comparisons = {...
-  {'word_RgH_spac', 'word_RgH_mass'}, ...
-  {'img_RgH_spac', 'img_RgH_mass'}};
+  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
+  {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
+  {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
+  {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+
+% comparisons = {...
+%   {'word_RgH_spac', 'word_RgH_mass'}, ...
+%   {'img_RgH_spac', 'img_RgH_mass'}};
 
 % comparisons = {{'img_RgH_spac', 'img_RgH_mass'}};
 

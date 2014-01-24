@@ -24,6 +24,7 @@ subjects = {
   'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
   'SPACE019';
+  'SPACE020';
   };
 
 % only one cell, with all session names
@@ -40,7 +41,7 @@ replaceDataroot = false;
 exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,3,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
 %% load the behavioral data
 
