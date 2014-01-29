@@ -49,7 +49,9 @@ exper.subjects = {
 %   'SPACE016';
 %   'SPACE017';
 %   'SPACE018';
-  'SPACE019';
+%   'SPACE019';
+%   'SPACE020';
+  'SPACE021';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -143,8 +145,8 @@ ana.cfg_cont.bsfreq = 59:61;
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.reject = 'complete';
-ana.artifact.resumeManArtFT = false;
-ana.artifact.resumeICACompFT = false;
+ana.artifact.resumeManArtFT = true;
+ana.artifact.resumeICACompFT = true;
 % negative trlpadding: don't check that time (on both sides) for artifacts
 ana.artifact.trlpadding = -0.5;
 % ana.artifact.trlpadding = 0;
