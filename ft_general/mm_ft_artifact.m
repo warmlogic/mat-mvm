@@ -1398,14 +1398,87 @@ if rejArt_ftICA
           ft_autoCheckArt_prompt = input(sprintf('\nDo you want to run FieldTrip artifact auto-check again? This will reset previously marked artifacts. (1 or 0, then press ''return''):\n\n'));
         end
         if ft_autoCheckArt_prompt
-          fprintf('\tThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
+          fprintf('\tStarting with data fresh from ICA rejection (no channel repairs from this portion).\nThis is run number %d through the FieldTrip artifact auto-check.\n',ft_autoCheckArtNum);
         else
           %ft_autoCheckArt = false;
           break
         end
       end
       
-      fprintf('\n\nFinal round of manual artifact rejection:\n');
+      fprintf('\n\nFinal round of manual artifact rejection (REMEMBER: starting with data fresh from ICA rejection):\n');
+      
+      data_toCheckForArtifacts = data_ica_rej;
+      
+      keepRepairingChannels = true;
+      while keepRepairingChannels
+        if ~exist('badChan_str','var')
+          badChan_str = {};
+        end
+        
+        % see if there were any channels to repair first
+        rejArt_repair = [];
+        while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+          rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
+        end
+        
+        if rejArt_repair
+          cfgChannelRepair = [];
+          cfgChannelRepair.continuous = 'no';
+          cfgChannelRepair.elecfile = elecfile;
+          %cfgChannelRepair.viewmode = 'butterfly';
+          
+          % viewmode?
+          repair_viewmode = [];
+          while isempty(repair_viewmode) || (repair_viewmode ~= 0 && repair_viewmode ~= 1)
+            repair_viewmode = input('\nDo you want to plot in butterfly (1) or vertical (0) mode? (1 or 0, then press ''return''):\n\n');
+          end
+          if repair_viewmode
+            cfgChannelRepair.viewmode = 'butterfly';
+          else
+            cfgChannelRepair.viewmode = 'vertical';
+            cfgChannelRepair.ylim = vert_ylim;
+          end
+          
+          % subset?
+          repair_chanNum = [];
+          while isempty(repair_chanNum) || (repair_chanNum ~= 0 && repair_chanNum ~= 1)
+            repair_chanNum = input('\nDo you want to plot all channels (1) or a particular subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+          end
+          if repair_chanNum
+            cfgChannelRepair.channel = 'all';
+          else
+            channel = ft_channelselection('gui', data_toCheckForArtifacts.label);
+            cfgChannelRepair.channel = channel;
+            fprintf('(Manually close any empty figure windows.)\n');
+          end
+          
+          if strcmp(cfgChannelRepair.viewmode,'butterfly')
+            fprintf('\nUse the ''i'' key and mouse to identify channels in the data browser. Note any consistently bad channels.\n');
+          end
+          fprintf('\nUse the ''q'' key to quit the data browser when finished. Then channel selection will begin.\n');
+          cfgChannelRepair = ft_databrowser(cfgChannelRepair, data_toCheckForArtifacts);
+          % bug when calling rejectartifact right after databrowser, pause first
+          pause(1);
+          
+          rejArt_repair_really = [];
+          while isempty(rejArt_repair_really) || (rejArt_repair_really ~= 0 && rejArt_repair_really ~= 1)
+            rejArt_repair_really = input('\nWere there channels to repair? (1 or 0, then press ''return''):\n\n');
+          end
+          if rejArt_repair_really
+            badchannel = ft_channelselection('gui', data_toCheckForArtifacts.label);
+            fprintf('(Manually close any empty figure windows.)\n');
+            badChan_str = cat(1,badChan_str,badchannel);
+            cfgChannelRepair.channel = 'all';
+            cfgChannelRepair.badchannel = badchannel;
+            cfgChannelRepair.method = 'spline';
+            cfgChannelRepair.elecfile = elecfile;
+            fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
+            data_toCheckForArtifacts = ft_channelrepair(cfgChannelRepair, data_toCheckForArtifacts);
+          end
+        else
+          keepRepairingChannels = false;
+        end
+      end
       
       ft_customZvals_prompt = [];
       while isempty(ft_customZvals_prompt) || (ft_customZvals_prompt ~= 0 && ft_customZvals_prompt ~= 1)
@@ -1483,7 +1556,7 @@ if rejArt_ftICA
         cfg = [];
         cfg.continuous = 'no';
         % get the trial definition for automated FT artifact rejection
-        cfg.trl = ft_findcfg(data.cfg,'trl');
+        cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
         
         % % don't exclude eye channels because we want to reject any blinks
         % % that ICA didn't catch
@@ -1513,7 +1586,7 @@ if rejArt_ftICA
         fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %d uV and below %d uV%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,exclStr);
         
         % auto mark zvalue artifacts
-        [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data_ica_rej);
+        [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data_toCheckForArtifacts);
       else
         warning('Not using EGI HydroCel GSN 128/129 electrode file! Threshold artifacts are not being assessed!!');
       end
@@ -1525,7 +1598,7 @@ if rejArt_ftICA
       cfg = [];
       cfg.continuous = 'no';
       % get the trial definition for automated FT artifact rejection
-      cfg.trl = ft_findcfg(data_ica_rej.cfg,'trl');
+      cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
       cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_postICA;
@@ -1540,7 +1613,7 @@ if rejArt_ftICA
       fprintf('Checking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark some artifacts
-      [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data_ica_rej);
+      [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % look for muscle artifacts
@@ -1549,7 +1622,7 @@ if rejArt_ftICA
       cfg = [];
       cfg.continuous = 'no';
       % get the trial definition for automated FT artifact rejection
-      cfg.trl = ft_findcfg(data_ica_rej.cfg,'trl');
+      cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
       
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
@@ -1581,7 +1654,7 @@ if rejArt_ftICA
       fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark muscle artifacts
-      [cfg, artifact_muscle] = ft_artifact_zvalue(cfg, data_ica_rej);
+      [cfg, artifact_muscle] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % look for jump artifacts
@@ -1590,7 +1663,7 @@ if rejArt_ftICA
       cfg = [];
       cfg.continuous = 'no';
       % get the trial definition for automated FT artifact rejection
-      cfg.trl = ft_findcfg(data_ica_rej.cfg,'trl');
+      cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
       
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
@@ -1613,7 +1686,7 @@ if rejArt_ftICA
       fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark jump artifacts
-      [cfg, artifact_jump] = ft_artifact_zvalue(cfg, data_ica_rej);
+      [cfg, artifact_jump] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
       
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % manual inspection of artifacts
@@ -1646,7 +1719,7 @@ if rejArt_ftICA
       fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
       fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
       
-      cfg_manArt = ft_databrowser(cfg_manArt, data_ica_rej);
+      cfg_manArt = ft_databrowser(cfg_manArt, data_toCheckForArtifacts);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
     end
@@ -1656,7 +1729,7 @@ if rejArt_ftICA
     end
     
     if done_with_ica
-      data = data_ica_rej;
+      data = data_toCheckForArtifacts;
       keepChoosingICAcomps = false;
       
       if save_resumeICAComp
