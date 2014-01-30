@@ -88,13 +88,13 @@ end
 % checks if sample numbers in sampleinfo field overlap (after segmentation
 % of continuous data)
 if ~isfield(ana,'allowTrialOverlap')
-  ana.allowTrialOverlap = true;
+  ana.allowTrialOverlap = false;
 end
 
-% if true, if two or more trials overlap, will overwrite sampleinfo field
-% (after segmentation of continuous data) so trials are contiguous
-if ~isfield(ana,'renumberSamplesIfTrialOverlap')
-  ana.renumberSamplesIfTrialOverlap = true;
+% if true, will overwrite sampleinfo field  (after segmentation of
+% continuous data) so trial sample indices are contiguously numbered
+if ~isfield(ana,'renumberSamplesContiguous')
+  ana.renumberSamplesContiguous = false;
 end
 
 % maximum size of FieldTrip cfg struct

@@ -108,7 +108,7 @@ ana.segFxn = 'seg2ft';
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
 ana.allowTrialOverlap = true;
-ana.renumberSamplesIfTrialOverlap = true;
+ana.renumberSamplesContiguous = true;
 % files used when adding metadata to segmented trials
 ana.useMetadata = true;
 ana.metadata.types = {'eventStruct','nsEvt'};

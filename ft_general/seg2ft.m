@@ -450,7 +450,7 @@ for ses = 1:length(session)
     end
   end
   if overlap && ana.allowTrialOverlap
-    if ana.renumberSamplesIfTrialOverlap
+    if ana.renumberSamplesContiguous
       % overwrite the sample numbers so trials do not overlap
       fprintf('Renumbering sample indices so trials are contiguous....');
       
@@ -472,6 +472,23 @@ for ses = 1:length(session)
     end
   elseif overlap && ~ana.allowTrialOverlap
     error('Found overlapping trials (e.g., trials %d and %d, but there are probably more). You have set ana.allowTrialOverlap=false, so this is not allowed!',i-1,i);
+  elseif ~overlap && ana.renumberSamplesContiguous
+    fprintf('No trials with overlapping samples found. Renumbering sample indices anyway so trials are contiguous....');
+    nSamp = length(data_seg.sampleinfo(1,1):data_seg.sampleinfo(1,2));
+    % set the beginning sample
+    data_seg.sampleinfo(1,1) = 1;
+    % set the ending sample
+    data_seg.sampleinfo(1,2) = nSamp;
+    for i = 2:size(data_seg.sampleinfo,1)
+      nSamp = length(data_seg.sampleinfo(i,1):data_seg.sampleinfo(i,2));
+      % set the beginning sample
+      data_seg.sampleinfo(i,1) = data_seg.sampleinfo(i-1,2) + 1;
+      % set the ending sample
+      data_seg.sampleinfo(i,2) = data_seg.sampleinfo(i,1) + nSamp - 1;
+    end
+    % and overwrite the trl stored in cfg
+    data_seg.cfg.trl(:,1:2) = data_seg.sampleinfo(:,1:2);
+    fprintf('Done.\n');
   end
   
   % find out how many channels are in the data
