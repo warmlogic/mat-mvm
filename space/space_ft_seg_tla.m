@@ -23,12 +23,14 @@ exper.eegFileExt = 'raw';
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
 exper.eventValues = {{'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'}};
+% exper.eventValues = {{'expo_stim'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative).
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
 exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
+% exper.prepost = {[-1.0 2.0]};
 
 exper.subjects = {
 %   'SPACE001';
@@ -105,6 +107,8 @@ ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'space_trialfun';
+ana.allowTrialOverlap = true;
+ana.renumberSamplesIfTrialOverlap = true;
 % files used when adding metadata to segmented trials
 ana.useMetadata = true;
 ana.metadata.types = {'eventStruct','nsEvt'};
@@ -140,7 +144,7 @@ ana.cfg_cont.hpfreq = 0.1;
 ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
-ana.cfg_cont.bsfreq = 59:61;
+ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
@@ -154,9 +158,9 @@ ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.threshmin = -150;
 ana.artifact.threshmax = 150;
-ana.artifact.basic_art_z = 40;
-ana.artifact.muscle_art_z = 60;
-ana.artifact.jump_art_z = 60;
+ana.artifact.basic_art_z = 50;
+ana.artifact.muscle_art_z = 70;
+ana.artifact.jump_art_z = 70;
 ana.artifact.threshmin_postICA = -150;
 ana.artifact.threshmax_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;

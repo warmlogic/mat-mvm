@@ -435,13 +435,47 @@ for ses = 1:length(session)
   
   % get the actual data
   if strcmp(cfg.continuous,'no')
-    data = ft_preprocessing(cfg);
+    data_seg = ft_preprocessing(cfg);
   elseif strcmp(cfg.continuous,'yes')
-    data = ft_redefinetrial(cfg, data);
+    data_seg = ft_redefinetrial(cfg, data);
+  end
+  
+  % hack: renumber samples so they don't overlap, or throw an error
+  overlap = false;
+  for i = 2:size(data_seg.sampleinfo,1)
+    if data_seg.sampleinfo(i,1) < data_seg.sampleinfo(i-1,2)
+      overlap = true;
+      fprintf('Found trials with overlapping sample indices! This could be problematic during artifact rejection.\n');
+      break
+    end
+  end
+  if overlap && ana.allowTrialOverlap
+    if ana.renumberSamplesIfTrialOverlap
+      % overwrite the sample numbers so trials do not overlap
+      fprintf('Renumbering sample indices so trials are contiguous....');
+      
+      nSamp = length(data_seg.sampleinfo(1,1):data_seg.sampleinfo(1,2));
+      % set the beginning sample
+      data_seg.sampleinfo(1,1) = 1;
+      % set the ending sample
+      data_seg.sampleinfo(1,2) = nSamp;
+      for i = 2:size(data_seg.sampleinfo,1)
+        nSamp = length(data_seg.sampleinfo(i,1):data_seg.sampleinfo(i,2));
+        % set the beginning sample
+        data_seg.sampleinfo(i,1) = data_seg.sampleinfo(i-1,2) + 1;
+        % set the ending sample
+        data_seg.sampleinfo(i,2) = data_seg.sampleinfo(i,1) + nSamp - 1;
+      end
+      % and overwrite the trl stored in cfg
+      data_seg.cfg.trl(:,1:2) = data_seg.sampleinfo(:,1:2);
+      fprintf('Done.\n');
+    end
+  elseif overlap && ~ana.allowTrialOverlap
+    error('Found overlapping trials (e.g., trials %d and %d, but there are probably more). You have set ana.allowTrialOverlap=false, so this is not allowed!',i-1,i);
   end
   
   % find out how many channels are in the data
-  nChan_data = length(data.label);
+  nChan_data = length(data_seg.label);
 
   % find reference channel index
   if isnumeric(exper.refChan)
@@ -470,7 +504,7 @@ for ses = 1:length(session)
   elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3)
     
     % grab data from all of the trials
-    trialData = cat(3,data.trial{:});
+    trialData = cat(3,data_seg.trial{:});
     % check the variance across time for the reference channel
     if sum(var(trialData(refChanInd,:,:),0,2) ~= 0) == 0
       % if none of trials have a non-zero variance reference channel, then
@@ -505,20 +539,20 @@ for ses = 1:length(session)
       if isCapital
         % capitalize the E for each electrode, or add it in if it's not there
         for c = 1:nChan_data
-          if strcmp(data.label{c}(1),'e')
-            data.label{c} = upper(data.label{c});
-          elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
-            data.label{c} = ['E' data.label{c}];
+          if strcmp(data_seg.label{c}(1),'e')
+            data_seg.label{c} = upper(data_seg.label{c});
+          elseif ~strcmp(data_seg.label{c}(1),'e') && ~strcmp(data_seg.label{c}(1),'E')
+            data_seg.label{c} = ['E' data_seg.label{c}];
           end
         end
       elseif ~isCapital
         % make sure the e for each electrode is lowercase, or add it in if
         % it's not there
         for c = 1:nChan_data
-          if strcmp(data.label{c}(1),'E')
-            data.label{c} = lower(data.label{c});
-          elseif ~strcmp(data.label{c}(1),'e') && ~strcmp(data.label{c}(1),'E')
-            data.label{c} = ['e' data.label{c}];
+          if strcmp(data_seg.label{c}(1),'E')
+            data_seg.label{c} = lower(data_seg.label{c});
+          elseif ~strcmp(data_seg.label{c}(1),'e') && ~strcmp(data_seg.label{c}(1),'E')
+            data_seg.label{c} = ['e' data_seg.label{c}];
           end
         end
       end
@@ -532,11 +566,11 @@ for ses = 1:length(session)
           lastChanStr = sprintf('e%d',nChan_data);
         end
         %lastChanStr = 'Cz';
-        chanindx = find(strcmpi(data.label,lastChanStr));
+        chanindx = find(strcmpi(data_seg.label,lastChanStr));
         if ~isempty(chanindx)
           % set the label for the reference channel
-          %data.label{chanindx} = elec.label{chanindx};
-          data.label{chanindx} = elec.label{end};
+          %data_seg.label{chanindx} = elec.label{chanindx};
+          data_seg.label{chanindx} = elec.label{end};
         end
       end
     end
@@ -549,7 +583,7 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    [data,badChan,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data,dirs);
+    [data_seg,badChan,badEv,artftcdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
@@ -558,7 +592,7 @@ for ses = 1:length(session)
   
   %% if we're combining multiple sessions, add the data to the append struct
   if length(session) > 1
-    append_data.(sesStr) = data;
+    append_data.(sesStr) = data_seg;
   end
 end % ses
 
@@ -574,7 +608,7 @@ if length(session) > 1
     append_str = cat(2,append_str,sprintf(',append_data.%s',sesStr));
   end
   
-  data = eval(sprintf('ft_appenddata([],%s);',append_str));
+  data_seg = eval(sprintf('ft_appenddata([],%s);',append_str));
 end
 
 %% Separate the event values
@@ -596,12 +630,12 @@ for evVal = 1:length(eventValue)
   
   cfg_split = [];
   % select the correct trials for this event value
-  cfg_split.trials = data.trialinfo(:,trialinfo_eventNumCol) == evVal;
+  cfg_split.trials = data_seg.trialinfo(:,trialinfo_eventNumCol) == evVal;
   
   if sum(cfg_split.trials) > 0
     fprintf('Selecting %d trials for %s...\n',sum(cfg_split.trials),eventValue{evVal});
     % get the data for only this event value
-    ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data);
+    ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data_seg);
     
     if rejArt
       badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
@@ -623,7 +657,7 @@ for evVal = 1:length(eventValue)
   end
 end
 % elseif length(eventValue) == 1
-%   ft_raw.(eventValue{1}) = data;
+%   ft_raw.(eventValue{1}) = data_seg;
 %   % remove the buffer trialinfo -1s; those were set because the cfg.trl
 %   % matrix needed to hold all eventValues
 %   ft_raw.(eventValue{1}).trialinfo = ft_raw.(eventValue{1}).trialinfo(:,1:length(ana.trl_order.(eventValue{1})));
