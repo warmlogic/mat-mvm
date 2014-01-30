@@ -340,10 +340,10 @@ if rejArt_nsAuto
     cfg = [];
     % mark the trials that have artifacts as such; select the entire sample
     % range for the bad events
-    cfg.artfctdef.visual.artifact = data.sampleinfo(badEv,:);
+    cfg.artfctdef.netstation.artifact = data.sampleinfo(badEv,:);
     
     % this doesn't work when we're passing in multiple event values
-    %cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv(min(thisEv):max(thisEv))),:);
+    %cfg.artfctdef.netstation.artifact = data.sampleinfo(logical(badEv(min(thisEv):max(thisEv))),:);
   else
     fprintf('No NS artifacts found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   end
@@ -369,15 +369,15 @@ if rejArt_zeroVar
     
     if ~exist('cfg','var')
       cfg = [];
-      cfg.artfctdef.visual.artifact = data.sampleinfo(logical(badEv),:);
+      cfg.artfctdef.netstation.artifact = data.sampleinfo(logical(badEv),:);
     else
       if rejArt_nsAuto && foundArt
         % if running both nsAuto and zeroVar
         if isfield(cfg,'artfctdef')
-          if isfield(cfg.artfctdef,'visual')
-            if isfield(cfg.artfctdef.visual,'artifact')
-              if ~isempty(cfg.artfctdef.visual.artifact)
-                cfg.artfctdef.visual.artifact = unique(cat(1,cfg.artfctdef.visual.artifact,data.sampleinfo(logical(badEv),:)),'rows');
+          if isfield(cfg.artfctdef,'netstation')
+            if isfield(cfg.artfctdef.netstation,'artifact')
+              if ~isempty(cfg.artfctdef.netstation.artifact)
+                cfg.artfctdef.netstation.artifact = unique(cat(1,cfg.artfctdef.netstation.artifact,data.sampleinfo(logical(badEv),:)),'rows');
               end
             end
           end
