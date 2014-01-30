@@ -1,6 +1,6 @@
-function [data,badChan_str,badEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
+function [data,badChan_str,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
 %MM_FT_ARTIFACT reject artifacts
-% [data,badChan] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
+% [data,badChan_str,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -427,7 +427,19 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       cfgChannelRepair = [];
       cfgChannelRepair.continuous = 'no';
       cfgChannelRepair.elecfile = elecfile;
-      cfgChannelRepair.viewmode = 'butterfly';
+      %cfgChannelRepair.viewmode = 'butterfly';
+      
+      % viewmode?
+      repair_viewmode = [];
+      while isempty(repair_viewmode) || (repair_viewmode ~= 0 && repair_viewmode ~= 1)
+        repair_viewmode = input('\nDo you want to plot in butterfly (1) or vertical (0) mode? (1 or 0, then press ''return''):\n\n');
+      end
+      if repair_viewmode
+        cfgChannelRepair.viewmode = 'butterfly';
+      else
+        cfgChannelRepair.viewmode = 'vertical';
+        cfgChannelRepair.ylim = vert_ylim;
+      end
       
       % subset?
       repair_chanNum = [];
@@ -505,7 +517,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   end
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = zeros(data.sampleinfo(end,2),1);
+    artSamp = single(zeros(max(data.sampleinfo(:)),1));
     for i = 1:length(theseArt)
       for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
@@ -534,8 +546,22 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
         end
       end
     end
+    if ~isempty(theseArt)
+      if ~exist('artfctdef','var')
+        artfctdef = cfg_manArt.artfctdef;
+      else
+      for i = 1:length(theseArt)
+        if isfield(artfctdef,theseArt{i})
+          artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+        else
+          artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+        end
+      end
+      end
+    end
   else
     badEv = manualEv;
+    artfctdef = cfg.artfctdef;
   end
 end
 
@@ -622,11 +648,11 @@ if rejArt_ftManual
       badChan_str = {};
     end
     
-    if rejArt_ftICA
-      fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
-      fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
-      fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
-    end
+    %if rejArt_ftICA
+    %  fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
+    %  fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
+    %  fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
+    %end
     
     % see if there were any channels to repair first
     rejArt_repair = [];
@@ -638,7 +664,19 @@ if rejArt_ftManual
       cfgChannelRepair = [];
       cfgChannelRepair.continuous = 'no';
       cfgChannelRepair.elecfile = elecfile;
-      cfgChannelRepair.viewmode = 'butterfly';
+      %cfgChannelRepair.viewmode = 'butterfly';
+      
+      % viewmode?
+      repair_viewmode = [];
+      while isempty(repair_viewmode) || (repair_viewmode ~= 0 && repair_viewmode ~= 1)
+        repair_viewmode = input('\nDo you want to plot in butterfly (1) or vertical (0) mode? (1 or 0, then press ''return''):\n\n');
+      end
+      if repair_viewmode
+        cfgChannelRepair.viewmode = 'butterfly';
+      else
+        cfgChannelRepair.viewmode = 'vertical';
+        cfgChannelRepair.ylim = vert_ylim;
+      end
       
       % subset?
       repair_chanNum = [];
@@ -701,11 +739,11 @@ if rejArt_ftManual
               badChan_str = {};
             end
             
-            if rejArt_ftICA
-              fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
-              fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
-              fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
-            end
+            %if rejArt_ftICA
+            %  fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
+            %  fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
+            %  fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
+            %end
             
             % see if there were any channels to repair first
             rejArt_repair = [];
@@ -1092,9 +1130,10 @@ if rejArt_ftManual
       theseArt = cat(2,theseArt,fn{i});
     end
   end
+  
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = zeros(data.sampleinfo(end,2),1);
+    artSamp = single(zeros(max(data.sampleinfo(:)),1));
     for i = 1:length(theseArt)
       for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
@@ -1123,8 +1162,22 @@ if rejArt_ftManual
         end
       end
     end
+    if ~isempty(theseArt)
+      if ~exist('artfctdef','var')
+        artfctdef = cfg_manArt.artfctdef;
+      else
+        for i = 1:length(theseArt)
+          if isfield(artfctdef,theseArt{i})
+            artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
+          else
+            artfctdef.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
+          end
+        end
+      end
+    end
   else
     badEv = manualEv;
+    artfctdef = cfg_manArt.artfctdef;
   end
   
   % reject the artifacts (complete or parial rejection)
@@ -1137,11 +1190,11 @@ if rejArt_ftManual
       badChan_str = {};
     end
     
-    if rejArt_ftICA
-      fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
-      fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
-      fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
-    end
+    %if rejArt_ftICA
+    %  fprintf('\nIMPORTANT!! ICA will not run properly if you repair channels and then include those in ICA.\n');
+    %  fprintf('\tSo, it is ok to repair bad channels, but DO NOT include them in ICA.\n');
+    %  fprintf('\tSee more information about this here: http://sccn.ucsd.edu/pipermail/eeglablist/2003/000182.html\n');
+    %end
     
     % see if there were any channels to repair first
     rejArt_repair = [];
@@ -1277,7 +1330,7 @@ if rejArt_ftICA
     if exist(resumeICACompFT_file,'file')
       % load the manually processed artifacts
       fprintf('Loading resumable ICA components file: %s...\n',resumeICACompFT_file);
-      fprintf('\nIMPORTANT: You must have rejected the same channels and artifacts as last time or components may be different!\n');
+      fprintf('\nIMPORTANT: You must have repaired the same channels and rejected the same artifacts as last time or components may be different!\n');
       load(resumeICACompFT_file,'comp');
       save_resumeICAComp = 1;
     else
@@ -1291,31 +1344,39 @@ if rejArt_ftICA
     cfg_ica.method = 'runica';
     %cfg_ica.demean = 'no';
     
+    cfg_ica.channel = 'all';
+    
     fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
     if ~isempty(badChan_str)
-      fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-      ica_chanNum = 0;
-      fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-    else
-      ica_chanNum = [];
-      fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-      fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+%       % Method 1: exclude repaired channels
+%       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+%       ica_chanNum = 0;
+%       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+%     else
+%       ica_chanNum = [];
+%       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+%       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+      
+      % Method 2: run only on a given number of principle components
+      %
+      % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
+      cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
     end
     
-    %ica_chanNum = [];
-    while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
-      ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
-    end
-    if ica_chanNum
-      cfg_ica.channel = 'all';
-    else
-      fprintf('\tOnce you see the channel selector:\n');
-      fprintf('\t\t1. Add all channels to the right-side list.\n');
-      fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
-      fprintf('\t\t3. Manually close any empty figure windows.\n');
-      channel = ft_channelselection('gui', data.label);
-      cfg_ica.channel = channel;
-    end
+%     %ica_chanNum = [];
+%     while isempty(ica_chanNum) || (ica_chanNum ~= 0 && ica_chanNum ~= 1)
+%       ica_chanNum = input('\nDo you want to run ICA on all channels (1) or only a subset of channels (0)? (1 or 0, then press ''return''):\n\n');
+%     end
+%     if ica_chanNum
+%       cfg_ica.channel = 'all';
+%     else
+%       fprintf('\tOnce you see the channel selector:\n');
+%       fprintf('\t\t1. Add all channels to the right-side list.\n');
+%       fprintf('\t\t2. Remove the bad channel from the right-side list, into the left-side list.\n');
+%       fprintf('\t\t3. Manually close any empty figure windows.\n');
+%       channel = ft_channelselection('gui', data.label);
+%       cfg_ica.channel = channel;
+%     end
     
     comp = ft_componentanalysis(cfg_ica,data);
     
@@ -1351,7 +1412,7 @@ if rejArt_ftICA
     cfg.plotlabels = 'yes';
     cfg.layout = elecfile;
     cfg.elecfile = elecfile;
-    cfg.ylim = vert_ylim;
+    %cfg.ylim = vert_ylim;
     ft_databrowser(cfg,comp);
     % bug when calling rejectartifact right after databrowser, pause first
     pause(1);
@@ -1779,7 +1840,7 @@ if rejArt_ftICA
   end
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = zeros(data.sampleinfo(end,2),1);
+    artSamp = single(zeros(max(data.sampleinfo(:)),1));
     for i = 1:length(theseArt)
       for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
@@ -1808,8 +1869,22 @@ if rejArt_ftICA
         end
       end
     end
+    if ~isempty(theseArt)
+      if ~exist('artfctdef','var')
+        artfctdef = cfg_manArt.artfctdef;
+      else
+      for i = 1:length(theseArt)
+        if isfield(artfctdef,theseArt{i})
+          artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
+        else
+          artfctdef.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
+        end
+      end
+      end
+    end
   else
     badEv = postIcaEv;
+    artfctdef = cfg_manArt.artfctdef;
   end
   
   % reject the artifacts (complete or parial rejection)
@@ -1833,7 +1908,19 @@ if rejArt_ftICA
       cfgChannelRepair = [];
       cfgChannelRepair.continuous = 'no';
       cfgChannelRepair.elecfile = elecfile;
-      cfgChannelRepair.viewmode = 'butterfly';
+      %cfgChannelRepair.viewmode = 'butterfly';
+      
+      % viewmode?
+      repair_viewmode = [];
+      while isempty(repair_viewmode) || (repair_viewmode ~= 0 && repair_viewmode ~= 1)
+        repair_viewmode = input('\nDo you want to plot in butterfly (1) or vertical (0) mode? (1 or 0, then press ''return''):\n\n');
+      end
+      if repair_viewmode
+        cfgChannelRepair.viewmode = 'butterfly';
+      else
+        cfgChannelRepair.viewmode = 'vertical';
+        cfgChannelRepair.ylim = vert_ylim;
+      end
       
       % subset?
       repair_chanNum = [];
@@ -2020,7 +2107,7 @@ if rejArt_ftAuto
   end
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = zeros(data.sampleinfo(end,2),1);
+    artSamp = single(zeros(max(data.sampleinfo(:)),1));
     for i = 1:length(theseArt)
       for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
@@ -2049,8 +2136,22 @@ if rejArt_ftAuto
         end
       end
     end
+    if ~isempty(theseArt)
+      if ~exist('artfctdef','var')
+        artfctdef = cfg_manArt.artfctdef;
+      else
+      for i = 1:length(theseArt)
+        if isfield(artfctdef,theseArt{i})
+          artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+        else
+          artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+        end
+      end
+      end
+    end
   else
     badEv = autoEv;
+    artfctdef = cfg.artfctdef;
   end
   
   cfg.artfctdef.reject = ana.artifact.reject;
@@ -2059,6 +2160,10 @@ end
 
 if ~exist('badEv','var') || isempty(badEv)
   badEv = zeros(size(data.sampleinfo,1), 1);
+end
+
+if ~exist('artfctdef','var')
+  artfctdef = [];
 end
 
 end
