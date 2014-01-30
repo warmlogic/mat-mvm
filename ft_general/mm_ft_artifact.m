@@ -604,19 +604,19 @@ if rejArt_ftManual
   if isfield(ana.artifact,'threshmin')
     threshmin_default = ana.artifact.threshmin;
   elseif ~isfield(ana.artifact,'threshmin')
-    threshmin_default = -150;
+    threshmin_default = -100;
     ana.artifact.threshmin = threshmin_default;
   end
   if isfield(ana.artifact,'threshmax')
     threshmax_default = ana.artifact.threshmax;
   elseif ~isfield(ana.artifact,'threshmax')
-    threshmax_default = 150;
+    threshmax_default = 100;
     ana.artifact.threshmax = threshmax_default;
   end
   if isfield(ana.artifact,'threshrange')
     threshrange_default = ana.artifact.threshrange;
   elseif ~isfield(ana.artifact,'threshrange')
-    threshrange_default = 100;
+    threshrange_default = 150;
     ana.artifact.threshrange = threshrange_default;
   end
   
@@ -1333,19 +1333,19 @@ if rejArt_ftICA
   if isfield(ana.artifact,'threshmin_postICA')
     threshmin_postICA_default = ana.artifact.threshmin_postICA;
   elseif ~isfield(ana.artifact,'threshmin_postICA')
-    threshmin_postICA_default = -150;
+    threshmin_postICA_default = -100;
     ana.artifact.threshmin_postICA = threshmin_postICA_default;
   end
   if isfield(ana.artifact,'threshmax_postICA')
     threshmax_postICA_default = ana.artifact.threshmax_postICA;
   elseif ~isfield(ana.artifact,'threshmax_postICA')
-    threshmax_postICA_default = 150;
+    threshmax_postICA_default = 100;
     ana.artifact.threshmax_postICA = threshmax_postICA_default;
   end
   if isfield(ana.artifact,'threshrange_postICA')
     threshrange_postICA_default = ana.artifact.threshrange_postICA;
   elseif ~isfield(ana.artifact,'threshrange_postICA')
-    threshrange_postICA_default = 100;
+    threshrange_postICA_default = 150;
     ana.artifact.threshrange_postICA = threshrange_postICA_default;
   end
   

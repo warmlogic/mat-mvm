@@ -151,15 +151,17 @@ ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.reject = 'complete';
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
-% negative trlpadding: don't check that time (on both sides) for artifacts
-ana.artifact.trlpadding = -0.5;
+% negative trlpadding: don't check that time (on both sides) for artifacts.
+% IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% of extra time around trial epochs. Otherwise set to zero.
+ana.artifact.trlpadding = -0.7;
 % ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.threshmin = -150;
 ana.artifact.threshmax = 150;
-ana.artifact.threshrange = 200;
-ana.artifact.basic_art_z = 50;
+ana.artifact.threshrange = 250;
+ana.artifact.basic_art_z = 60;
 % ana.artifact.muscle_art_z = 70;
 ana.artifact.jump_art_z = 70;
 ana.artifact.threshmin_postICA = -100;
