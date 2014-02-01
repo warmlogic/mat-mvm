@@ -10,7 +10,7 @@ subjects = {
 %   'SPACE005';
 %   'SPACE006';
 %   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+% %   %'SPACE008'; % didn't perform task correctly, didn't perform well
 %   'SPACE009';
 %   'SPACE010';
 %   'SPACE011';
@@ -19,16 +19,21 @@ subjects = {
 %   'SPACE014';
 %   'SPACE015';
 %   'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
-  %'SPACE018';
-  %'SPACE019';
+%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   'SPACE019';
+  'SPACE020';
+  'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
   };
 
 % only one cell, with all session names
 sesNames = {'session_1'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = false;
+replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
@@ -339,23 +344,26 @@ for ses = 1:length(exper.sesStr)
   % set up strings to put in grand average function
   cfg_ana = [];
   cfg_ana.is_ga = 0;
-  cfg_ana.conditions = ana.eventValues{ses};
+  %cfg_ana.conditions = ana.eventValues{ses};
   cfg_ana.data_str = 'data_tla';
   % cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
-  cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+  %cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
   
   cfg_ft = [];
   cfg_ft.keepindividual = 'no';
-  %for ses = 1:length(exper.sesStr)
-    for evVal = 1:length(ana.eventValues{ses})
+  for typ = 1:length(ana.eventValues{ses})
+    cfg_ana.conditions = ana.eventValues{ses}{typ};
+    cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+    
+    for evVal = 1:length(ana.eventValues{ses}{typ})
       %tic
-      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{evVal});
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{typ}{evVal});
       %ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
-      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal})));
+      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       fprintf('Done.\n');
       %toc
     end
-  %end
+  end
 end
 
 % turn keeptrial data into average for statistical functions because proper
@@ -367,15 +375,54 @@ cfg = [];
 cfg.keeptrials = 'no';
 
 for ses = 1:length(exper.sesStr)
-  for evVal = 1:length(ana.eventValues{ses})
-    for sub = 1:length(exper.subjects)
-      fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{evVal});
-      if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data,'avg')
-        data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data);
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      for sub = 1:length(exper.subjects)
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+        if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'avg')
+          data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        end
       end
     end
   end
 end
+
+
+%% lowpass filter and segment for ERPs
+
+sampleRate = 250;
+lpFiltHz = 40;
+lpFiltOrd = 4;
+lpFiltType = 'but';
+
+cfg_sel = [];
+cfg_sel.latency = [-0.2 1.0];
+
+% data_tla_filt = struct;
+data_tla_filt = data_tla;
+
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      for sub = 1:length(exper.subjects)
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+        
+        for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
+          data_tla_filt.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
+            squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
+          sampleRate,lpFiltHz,lpFiltOrd,lpFiltType);
+        end
+        
+        % select
+        data_tla_filt.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla_filt.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        
+      end
+    end
+  end
+end
+
+
+
 
 %% tf test
 

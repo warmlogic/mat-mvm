@@ -5,26 +5,30 @@
 procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
-  'SPACE001';
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  'SPACE019';
-  'SPACE020';
+%   'SPACE001';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   'SPACE019';
+%   'SPACE020';
+  'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
   };
 
 % only one cell, with all session names
