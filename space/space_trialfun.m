@@ -98,6 +98,8 @@ end
 if ismember('nsEvt', md.types)
   triggers = unique(ns_evt{1});
 else
+  %warning('Need to set up %s to find trigger types!',mfilename);
+  %keyboard
   triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
 end
 
