@@ -384,7 +384,6 @@ for ses = 1:length(session)
         cfg.eventinfo.eventValues = eventValue_orig;
         cfg.eventinfo.prepost = prepost;
         
-        cfg.eventinfo.evtToleranceSamp = ana.evtToleranceSamp;
         cfg.eventinfo.evtToleranceMS = ana.evtToleranceMS;
         
         cfg.eventinfo.usePhotodiodeDIN = ana.usePhotodiodeDIN;
