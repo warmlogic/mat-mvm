@@ -147,8 +147,9 @@ ana.trialFxn = 'nemo_trialfun';
 ana.useMetadata = true;
 ana.metadata.types = {'nsEvt'};
 ana.useExpInfo = true;
+ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
 ana.usePhotodiodeDIN = false;
-ana.photodiodeDIN_toleranceMS = 50;
+ana.photodiodeDIN_toleranceMS = 40;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
