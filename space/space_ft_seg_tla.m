@@ -53,7 +53,10 @@ exper.subjects = {
 %   'SPACE018';
 %   'SPACE019';
 %   'SPACE020';
-  'SPACE021';
+%   'SPACE021';
+  'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -113,8 +116,9 @@ ana.renumberSamplesContiguous = true;
 ana.useMetadata = true;
 ana.metadata.types = {'eventStruct','nsEvt'};
 ana.useExpInfo = true;
+ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
 ana.usePhotodiodeDIN = true;
-ana.photodiodeDIN_thresholdMS = 50;
+ana.photodiodeDIN_toleranceMS = 40;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases

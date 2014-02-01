@@ -8,6 +8,12 @@ if ischar(cfg.trialdef.eventvalue)
   cfg.trialdef.eventvalue = {cfg.trialdef.eventvalue};
 end
 
+% get the header and event information
+fprintf('Reading flags from EEG file using FieldTrip...');
+ft_hdr = ft_read_header(cfg.dataset);
+ft_event = ft_read_event(cfg.dataset);
+fprintf('Done.\n');
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in external data, if wanted
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,6 +84,9 @@ if cfg.eventinfo.useMetadata
     ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
     fclose(fid);
     fprintf('Done.\n');
+    
+    evtToleranceMS = cfg.eventinfo.evtToleranceMS;
+    evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
   end
   
   if ismember('expParam', md.types)
@@ -85,12 +94,12 @@ if cfg.eventinfo.useMetadata
   end
 end
 
-% get the header and event information
-ft_hdr = ft_read_header(cfg.dataset);
-ft_event = ft_read_event(cfg.dataset);
-
-%triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
-triggers = unique(ns_evt{1});
+% read the types of triggers (flags) in the Net Station evt file
+if ismember('nsEvt', md.types)
+  triggers = unique(ns_evt{1});
+else
+  triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
+end
 
 % initialize the trl matrix
 trl = [];
@@ -173,8 +182,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
                 prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                  % events occurred at the same sample or one ms apart
+                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                  % events in evt occurred within the same sample or ms
+                  % tolerance
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -285,19 +295,19 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     % within the threshold, replace the current sample time
                     % with that of the DIN
                     if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_thresholdSamp = round((cfg.eventinfo.photodiodeDIN_thresholdMS / 1000) * ft_hdr.Fs);
+                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
                       if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
                         % if there is a DIN before and after the stim, pick
                         % the closer one
                         preDiff = (ft_event(i-1).sample - this_sample);
                         postDiff = (ft_event(i+1).sample - this_sample);
                         
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_thresholdSamp
+                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
                           preFlag = true;
                         else
                           preFlag = false;
                         end
-                        if postDiff <= photodiodeDIN_thresholdSamp
+                        if postDiff <= photodiodeDIN_toleranceSamp
                           postFlag = true;
                         else
                           postFlag = false;
@@ -319,9 +329,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             keyboard
                           end
                         end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         % apparently the ethernet tags can be delayed
                         % enough that the DIN shows up first
                         this_sample = ft_event(i-1).sample;
@@ -426,8 +436,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
                 prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                  % events occurred at the same sample or one ms apart
+                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                  % events in evt occurred within the same sample or ms
+                  % tolerance
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -545,19 +556,19 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     % within the threshold, replace the current sample time
                     % with that of the DIN
                     if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_thresholdSamp = round((cfg.eventinfo.photodiodeDIN_thresholdMS / 1000) * ft_hdr.Fs);
+                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
                       if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
                         % if there is a DIN before and after the stim, pick
                         % the closer one
                         preDiff = (ft_event(i-1).sample - this_sample);
                         postDiff = (ft_event(i+1).sample - this_sample);
                         
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_thresholdSamp
+                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
                           preFlag = true;
                         else
                           preFlag = false;
                         end
-                        if postDiff <= photodiodeDIN_thresholdSamp
+                        if postDiff <= photodiodeDIN_toleranceSamp
                           postFlag = true;
                         else
                           postFlag = false;
@@ -579,9 +590,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             keyboard
                           end
                         end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         % apparently the ethernet tags can be delayed
                         % enough that the DIN shows up first
                         this_sample = ft_event(i-1).sample;
@@ -686,8 +697,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
                 prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                  % events occurred at the same sample or one ms apart
+                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                  % events in evt occurred within the same sample or ms
+                  % tolerance
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -789,19 +801,19 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     % within the threshold, replace the current sample time
                     % with that of the DIN
                     if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_thresholdSamp = round((cfg.eventinfo.photodiodeDIN_thresholdMS / 1000) * ft_hdr.Fs);
+                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
                       if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
                         % if there is a DIN before and after the stim, pick
                         % the closer one
                         preDiff = (ft_event(i-1).sample - this_sample);
                         postDiff = (ft_event(i+1).sample - this_sample);
                         
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_thresholdSamp
+                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
                           preFlag = true;
                         else
                           preFlag = false;
                         end
-                        if postDiff <= photodiodeDIN_thresholdSamp
+                        if postDiff <= photodiodeDIN_toleranceSamp
                           postFlag = true;
                         else
                           postFlag = false;
@@ -823,9 +835,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             keyboard
                           end
                         end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         % apparently the ethernet tags can be delayed
                         % enough that the DIN shows up first
                         this_sample = ft_event(i-1).sample;
@@ -933,8 +945,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
                 prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
                 
-                if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                  % events occurred at the same sample or one ms apart
+                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                  % events in evt occurred within the same sample or ms
+                  % tolerance
                   
                   if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     % don't put ec back in its prior state if the event
@@ -1072,19 +1085,19 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     % within the threshold, replace the current sample time
                     % with that of the DIN
                     if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_thresholdSamp = round((cfg.eventinfo.photodiodeDIN_thresholdMS / 1000) * ft_hdr.Fs);
+                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
                       if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
                         % if there is a DIN before and after the stim, pick
                         % the closer one
                         preDiff = (ft_event(i-1).sample - this_sample);
                         postDiff = (ft_event(i+1).sample - this_sample);
                         
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_thresholdSamp
+                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
                           preFlag = true;
                         else
                           preFlag = false;
                         end
-                        if postDiff <= photodiodeDIN_thresholdSamp
+                        if postDiff <= photodiodeDIN_toleranceSamp
                           postFlag = true;
                         else
                           postFlag = false;
@@ -1106,9 +1119,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             keyboard
                           end
                         end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_thresholdSamp
+                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
                         % apparently the ethernet tags can be delayed
                         % enough that the DIN shows up first
                         this_sample = ft_event(i-1).sample;

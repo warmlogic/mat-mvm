@@ -125,11 +125,23 @@ if ~isfield(ana,'useExpInfo')
   ana.useExpInfo = false;
 end
 
+% millisecond tolerance for how close together two events can appear in the
+% evt file, but fieldtrip will collapse them together into a single event
+% when reading the flags from the raw file; default = 2 samples at this
+% sampling rate
+if ana.useExpInfo
+  if ~isfield(ana,'evtToleranceMS')
+    ana.evtToleranceMS = ceil((2 * 1000) / exper.sampleRate);
+  end
+end
+
 if ~isfield(ana,'usePhotodiodeDIN')
   ana.usePhotodiodeDIN = false;
 end
-if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_thresholdMS')
-  ana.photodiodeDIN_thresholdMS = 75;
+% how long after the event of interest can the DIN show up? Seems to occur
+% within about 6 to 9 ms, but can be delayed as much as 25 (or more)
+if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_toleranceMS')
+  ana.photodiodeDIN_toleranceMS = 50;
 end
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
   ana.photodiodeDIN_str = 'DIN ';

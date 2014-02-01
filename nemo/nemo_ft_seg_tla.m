@@ -148,7 +148,7 @@ ana.useMetadata = true;
 ana.metadata.types = {'nsEvt'};
 ana.useExpInfo = true;
 ana.usePhotodiodeDIN = false;
-ana.photodiodeDIN_thresholdMS = 50;
+ana.photodiodeDIN_toleranceMS = 50;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases

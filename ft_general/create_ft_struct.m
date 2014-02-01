@@ -123,8 +123,8 @@ end
 if ~isfield(ana,'usePhotodiodeDIN')
   ana.usePhotodiodeDIN = false;
 end
-if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_thresholdMS')
-  ana.photodiodeDIN_thresholdMS = 75;
+if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_toleranceMS')
+  ana.photodiodeDIN_toleranceMS = 75;
 end
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
   ana.photodiodeDIN_str = 'DIN ';
