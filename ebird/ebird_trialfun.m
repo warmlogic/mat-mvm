@@ -160,54 +160,59 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           %if ~ismember(event(i).value,{'epoc'})
           if ismember(ft_event(i).value,triggers)
             ec = ec + 1;
+          else
+            continue
+          end
+          
+          % hack: 2 special cases: evt events occurred at (approximately)
+          % the same sample, but possibly at different MS. Since the evt
+          % use MS and FieldTrip events use samples, this can cause some
+          % screwy things to happen. Both events always exist in the evt
+          % file; however, when FT reads events, it seems to respect events
+          % with different trigger values (i.e., both events exist), but it
+          % ignores one of the two if they have the same trigger value. In
+          % the former case (both are present), sometimes they are in a
+          % slightly different order in the evt file compared to the events
+          % that FT reads due to two events having the same sample time but
+          % different MS times, so ec needs to get reset to its previous
+          % state. In the latter case (one was skipped), since FT
+          % completely skips duplicate events at the same sample, we simply
+          % need to increment ec by 1.
+          ec_add = 0;
+          if ec > 1
+            this_time_ms_str = ns_evt{5}(ec);
+            this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+            prev_time_ms_str = ns_evt{5}(ec-1);
+            prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+            
+            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1)) && ~strcmp(ft_event(i).value,ft_event(i-1).value)
+              if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                % events in evt occurred within the same sample or ms
+                % tolerance
+                
+                % increment ec by 1 because fieldtrip collapses events with
+                % the same trigger that are too close together
+                ec = ec + 1;
+              end
+            elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                % put ec back in its prior state if the event codes
+                % were not the same
+                if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
+                  ec = ec - 1;
+                  ec_add = 1;
+                elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
+                  ec = ec + 1;
+                  ec_add = -1;
+                end
+              end
+            end
           end
           
           switch ft_event(i).value
             case 'STIM'
-              
-              % hack: 2 special cases: evt events occurred at the same
-              % sample (but possibly at different MS). Since the evt
-              % records MS and FieldTrip events records samples, this can
-              % cause some screwy things to happen. Both events always
-              % exist in the evt file; however, when FT reads events, it
-              % seems to respect events with different codes, but it
-              % ignores one of the two with the same code. In the former
-              % case, sometimes they are in a slightly different order in
-              % the evt file compared to the events that FT reads due to
-              % two events having the same sample time but different MS
-              % times, so ec needs to get reset to its previous state. In
-              % the latter case, since FT completely skips duplicate events
-              % at the same sample, we simply need to increment ec by 1.
-              ec_add = 0;
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
-                this_time_ms_str = ns_evt{5}(ec);
-                this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-                prev_time_ms_str = ns_evt{5}(ec-1);
-                prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-                
-                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                  % events in evt occurred within the same sample or ms
-                  % tolerance
-                  
-                  if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    % don't put ec back in its prior state if the event
-                    % codes were the same
-                    ec = ec + 1;
-                  elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    % put ec back in its prior state if the event codes
-                    % were not the same
-                    if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                      ec = ec - 1;
-                      ec_add = 1;
-                    elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                      ec = ec + 1;
-                      ec_add = -1;
-                    end
-                  end
-                end
-              end
               
               if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
@@ -390,9 +395,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 keyboard
               end
               
-              % put ec back in its prior state
-              ec = ec + ec_add;
-              
             case 'RESP'
               
             case 'FIXT'
@@ -406,6 +408,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
             case 'DIN '
               
           end
+          
+          % put ec back in its prior state
+          ec = ec + ec_add;
           
         end
       end % for
@@ -433,54 +438,59 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
           %if ~ismember(event(i).value,{'epoc'})
           if ismember(ft_event(i).value,triggers)
             ec = ec + 1;
+          else
+            continue
+          end
+          
+          % hack: 2 special cases: evt events occurred at (approximately)
+          % the same sample, but possibly at different MS. Since the evt
+          % use MS and FieldTrip events use samples, this can cause some
+          % screwy things to happen. Both events always exist in the evt
+          % file; however, when FT reads events, it seems to respect events
+          % with different trigger values (i.e., both events exist), but it
+          % ignores one of the two if they have the same trigger value. In
+          % the former case (both are present), sometimes they are in a
+          % slightly different order in the evt file compared to the events
+          % that FT reads due to two events having the same sample time but
+          % different MS times, so ec needs to get reset to its previous
+          % state. In the latter case (one was skipped), since FT
+          % completely skips duplicate events at the same sample, we simply
+          % need to increment ec by 1.
+          ec_add = 0;
+          if ec > 1
+            this_time_ms_str = ns_evt{5}(ec);
+            this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+            prev_time_ms_str = ns_evt{5}(ec-1);
+            prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+            
+            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1)) && ~strcmp(ft_event(i).value,ft_event(i-1).value)
+              if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                % events in evt occurred within the same sample or ms
+                % tolerance
+                
+                % increment ec by 1 because fieldtrip collapses events with
+                % the same trigger that are too close together
+                ec = ec + 1;
+              end
+            elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                % put ec back in its prior state if the event codes
+                % were not the same
+                if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
+                  ec = ec - 1;
+                  ec_add = 1;
+                elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
+                  ec = ec + 1;
+                  ec_add = -1;
+                end
+              end
+            end
           end
           
           switch ft_event(i).value
             case 'STIM'
-              
-              % hack: 2 special cases: evt events occurred at the same
-              % sample (but possibly at different MS). Since the evt
-              % records MS and FieldTrip events records samples, this can
-              % cause some screwy things to happen. Both events always
-              % exist in the evt file; however, when FT reads events, it
-              % seems to respect events with different codes, but it
-              % ignores one of the two with the same code. In the former
-              % case, sometimes they are in a slightly different order in
-              % the evt file compared to the events that FT reads due to
-              % two events having the same sample time but different MS
-              % times, so ec needs to get reset to its previous state. In
-              % the latter case, since FT completely skips duplicate events
-              % at the same sample, we simply need to increment ec by 1.
-              ec_add = 0;
-              if ~strcmp(ns_evt{1}(ec),ft_event(i).value)% && (strcmp(ns_evt{1}(ec-1),ft_event(i).value) || strcmp(ns_evt{1}(ec+1),ft_event(i).value))
-                this_time_ms_str = ns_evt{5}(ec);
-                this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-                prev_time_ms_str = ns_evt{5}(ec-1);
-                prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-                
-                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                  % events in evt occurred within the same sample or ms
-                  % tolerance
-                  
-                  if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    % don't put ec back in its prior state if the event
-                    % codes were the same
-                    ec = ec + 1;
-                  elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    % put ec back in its prior state if the event codes
-                    % were not the same
-                    if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                      ec = ec - 1;
-                      ec_add = 1;
-                    elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                      ec = ec + 1;
-                      ec_add = -1;
-                    end
-                  end
-                end
-              end
               
               if strcmp(ns_evt{1}(ec),ft_event(i).value)
                 
@@ -652,9 +662,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 keyboard
               end
               
-              % put ec back in its prior state
-              ec = ec + ec_add;
-              
             case 'RESP'
               
             case 'FIXT'
@@ -668,6 +675,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
             case 'DIN '
               
           end
+          
+          % put ec back in its prior state
+          ec = ec + ec_add;
           
         end
       end % for
