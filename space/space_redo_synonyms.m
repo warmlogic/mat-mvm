@@ -1,30 +1,30 @@
 % regrade synonyms
 
 subjects = {
-  'SPACE001';
-  %   'SPACE002';
-  %   'SPACE003';
-  %   'SPACE004';
-  %   'SPACE005';
-  %   'SPACE006';
-  %   'SPACE007';
-  %   %'SPACE008'; % didn't perform task correctly, didn't perform well
-  %   'SPACE009';
-  %   'SPACE010';
-  %   'SPACE011';
-  %   'SPACE012';
-  %   'SPACE013';
-  %   'SPACE014';
-  %   'SPACE015';
-  %   'SPACE016';
-  %   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-  %   'SPACE018';
-  %   'SPACE019';
-  %   'SPACE020';
-  %   'SPACE021';
-  %   'SPACE022';
-  %   'SPACE027';
-  %   'SPACE029';
+%   'SPACE001';
+  'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   'SPACE019';
+%   'SPACE020';
+%   %'SPACE021'; % synonyms already scored from here
+%   %'SPACE022';
+%   %'SPACE027';
+%   %'SPACE029';
   };
 
 procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
@@ -105,10 +105,16 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
+        %if thisEv.cr_recall_spellCorr == 0.5
+        %  fprintf('synonym\n');
+        %  keyboard
+        %end
+        
         %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
         %timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.cr_recall_spellCorr;
       else
+        fprintf('length(thisEv) ~= 1\n');
         keyboard
       end
     end
@@ -116,9 +122,6 @@ for sub = 1:length(subjects)
     fprintf('resaving EEG...');
     save(eegFile_expo,'timelock');
     fprintf('Done.\n')
-    
-    
-    
     
     %% load the multistudy phase file - data_tla_multistudy_image.mat
     type = 'STUDY_IMAGE';
@@ -148,13 +151,20 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
+        %if thisEv.cr_recall_spellCorr == 0.5
+        %  fprintf('synonym\n');
+        %  keyboard
+        %end
+        
         %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
         %timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.cr_recall_spellCorr;
       else
+        fprintf('length(thisEv) ~= 1\n');
         keyboard
       end
     end
+    
     fprintf('resaving EEG...');
     save(eegFile_msImg,'timelock');
     fprintf('Done.\n')
@@ -187,10 +197,16 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
+        %if thisEv.cr_recall_spellCorr == 0.5
+        %  fprintf('synonym\n');
+        %  keyboard
+        %end
+        
         %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
         %timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.cr_recall_spellCorr;
       else
+        fprintf('length(thisEv) ~= 1\n');
         keyboard
       end
     end
@@ -207,9 +223,9 @@ for sub = 1:length(subjects)
     cols.phaseCount = 4;
     cols.trial = 5;
     cols.stimNum = 6;
-    %cols.cr_recog_acc = 13;
-    %cols.cr_recall_resp = 18;
-    cols.cr_recall_spellCorr = 19;
+    %cols.recog_acc = 13;
+    %cols.recall_resp = 18;
+    cols.recall_spellCorr = 19;
     
     eegFile_cr = fullfile(procDir,subjects{sub},sesNames{ses},'data_tla_cued_recall_stim.mat');
     load(eegFile_cr);
@@ -227,16 +243,22 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
-        if ~isempty(thisEv.recall_resp) && ~ismember(thisEv.recall_resp,{'NO_RESPONSE'})
-          recall_resp = 1;
-        else
-          recall_resp = 0;
-        end
+        %if thisEv.recall_spellCorr == 0.5
+        %  fprintf('synonym\n');
+        %  keyboard
+        %end
         
-        %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
-        %timelock.trialinfo(i,cols.cr_recall_resp) = recall_resp;
-        timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.recall_spellCorr;
+        %if ~isempty(thisEv.recall_resp) && ~ismember(thisEv.recall_resp,{'NO_RESPONSE'})
+        %  recall_resp = 1;
+        %else
+        %  recall_resp = 0;
+        %end
+        
+        %timelock.trialinfo(i,cols.recog_acc) = thisEv.recog_acc;
+        %timelock.trialinfo(i,cols.recall_resp) = recall_resp;
+        timelock.trialinfo(i,cols.recall_spellCorr) = thisEv.recall_spellCorr;
       else
+        fprintf('length(thisEv) ~= 1\n');
         keyboard
       end
     end
