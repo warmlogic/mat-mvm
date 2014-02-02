@@ -85,8 +85,8 @@ for sub = 1:length(subjects)
     cols.phaseCount = 4;
     cols.trial = 5;
     cols.stimNum = 6;
-    cols.cr_recog_acc = 13;
-    cols.cr_recall_resp = 14;
+    %cols.cr_recog_acc = 13;
+    %cols.cr_recall_resp = 14;
     cols.cr_recall_spellCorr = 15;
     
     eegFile_expo = fullfile(procDir,subjects{sub},sesNames{ses},'data_tla_expo_stim.mat');
@@ -105,8 +105,8 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
-        timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
-        timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
+        %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
+        %timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.cr_recall_spellCorr;
       else
         keyboard
@@ -128,8 +128,8 @@ for sub = 1:length(subjects)
     cols.phaseCount = 4;
     cols.trial = 5;
     cols.stimNum = 6;
-    cols.cr_recog_acc = 14;
-    cols.cr_recall_resp = 15;
+    %cols.cr_recog_acc = 14;
+    %cols.cr_recall_resp = 15;
     cols.cr_recall_spellCorr = 16;
     
     eegFile_msImg = fullfile(procDir,subjects{sub},sesNames{ses},'data_tla_multistudy_image.mat');
@@ -148,8 +148,8 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
-        timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
-        timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
+        %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
+        %timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.cr_recall_spellCorr;
       else
         keyboard
@@ -167,8 +167,8 @@ for sub = 1:length(subjects)
     cols.phaseCount = 4;
     cols.trial = 5;
     cols.stimNum = 6;
-    cols.cr_recog_acc = 14;
-    cols.cr_recall_resp = 15;
+    %cols.cr_recog_acc = 14;
+    %cols.cr_recall_resp = 15;
     cols.cr_recall_spellCorr = 16;
     
     eegFile_msWord = fullfile(procDir,subjects{sub},sesNames{ses},'data_tla_multistudy_word.mat');
@@ -187,8 +187,8 @@ for sub = 1:length(subjects)
         );
       
       if length(thisEv) == 1
-        timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
-        timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
+        %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
+        %timelock.trialinfo(i,cols.cr_recall_resp) = thisEv.cr_recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.cr_recall_spellCorr;
       else
         keyboard
@@ -208,7 +208,7 @@ for sub = 1:length(subjects)
     cols.trial = 5;
     cols.stimNum = 6;
     %cols.cr_recog_acc = 13;
-    cols.cr_recall_resp = 18;
+    %cols.cr_recall_resp = 18;
     cols.cr_recall_spellCorr = 19;
     
     eegFile_cr = fullfile(procDir,subjects{sub},sesNames{ses},'data_tla_cued_recall_stim.mat');
@@ -234,7 +234,7 @@ for sub = 1:length(subjects)
         end
         
         %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
-        timelock.trialinfo(i,cols.cr_recall_resp) = recall_resp;
+        %timelock.trialinfo(i,cols.cr_recall_resp) = recall_resp;
         timelock.trialinfo(i,cols.cr_recall_spellCorr) = thisEv.recall_spellCorr;
       else
         keyboard
