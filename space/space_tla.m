@@ -262,10 +262,12 @@ cfg_ft.ylim = [-15 15];
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub = 1;
 ses = 1;
-for i = 1:length(ana.eventValues{1})
-  figure
-  ft_multiplotER(cfg_ft,data_tla.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
-  title(strrep(ana.eventValues{1}{i},'_','-'));
+for typ = 1:length(ana.eventValues{ses})
+  for ev = 1:length(ana.eventValues{ses}{typ})
+    figure
+    ft_multiplotER(cfg_ft,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{ev}).sub(sub).data);
+    title(strrep(ana.eventValues{ses}{typ}{ev},'_','-'));
+  end
 end
 
 % cfg_ft = [];
@@ -852,6 +854,9 @@ cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.parameter = 'avg';
+
+cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.ylims = [-10 10; -10 10];
 
 % cfg_plot.rois = {{'E83'}};
 % cfg_plot.xlim = [-0.2 1.0];
