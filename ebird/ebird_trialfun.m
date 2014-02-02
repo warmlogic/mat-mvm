@@ -187,14 +187,25 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
             prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
             prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
             
-            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1)) && ~strcmp(ft_event(i).value,ft_event(i-1).value)
-              if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                % events in evt occurred within the same sample or ms
-                % tolerance
-                
+            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              sameSample = false;
+              
+              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
                 % increment ec by 1 because fieldtrip collapses events with
                 % the same trigger that are too close together
                 ec = ec + 1;
+                sameSample = true;
+              end
+              
+              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
+                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                  % events in evt occurred within the same sample or ms
+                  % tolerance
+                  
+                  % increment ec by 1 because fieldtrip collapses events with
+                  % the same trigger that are too close together
+                  ec = ec + 1;
+                end
               end
             elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
               if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
@@ -465,14 +476,25 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
             prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
             prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
             
-            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1)) && ~strcmp(ft_event(i).value,ft_event(i-1).value)
-              if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                % events in evt occurred within the same sample or ms
-                % tolerance
-                
+            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+              sameSample = false;
+              
+              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
                 % increment ec by 1 because fieldtrip collapses events with
                 % the same trigger that are too close together
                 ec = ec + 1;
+                sameSample = true;
+              end
+              
+              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
+                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
+                  % events in evt occurred within the same sample or ms
+                  % tolerance
+                  
+                  % increment ec by 1 because fieldtrip collapses events with
+                  % the same trigger that are too close together
+                  ec = ec + 1;
+                end
               end
             elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
               if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
