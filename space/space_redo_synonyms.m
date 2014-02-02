@@ -163,7 +163,7 @@ for sub = 1:length(subjects)
         if length(thisEv) == 1
           if thisEv.(crField) == 0.5
             fprintf('\tsynonym\n');
-            keyboard
+            %keyboard
           end
           
           %timelock.trialinfo(i,cols.cr_recog_acc) = thisEv.cr_recog_acc;
@@ -271,7 +271,7 @@ for sub = 1:length(subjects)
         if length(thisEv) == 1
           if thisEv.(crField) == 0.5
             fprintf('\tsynonym\n');
-            keyboard
+            %keyboard
           end
           
           %if ~isempty(thisEv.recall_resp) && ~ismember(thisEv.recall_resp,{'NO_RESPONSE'})
