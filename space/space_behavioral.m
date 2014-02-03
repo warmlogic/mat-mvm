@@ -21,10 +21,14 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
+  'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
   'SPACE019';
   'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
   };
 
 % only one cell, with all session names
@@ -48,6 +52,11 @@ exper.badBehSub = {{}};
 behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results.mat');
 
 load(behfile);
+
+%% ttest stuff
+
+alpha = 0.05;
+tails = 'both';
 
 %% recog
 
