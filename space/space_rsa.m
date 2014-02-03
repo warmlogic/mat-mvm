@@ -5,30 +5,30 @@
 procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
-%   'SPACE001';
-%   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   'SPACE019';
-%   'SPACE020';
+  'SPACE001';
+  'SPACE002';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  'SPACE019';
+  'SPACE020';
   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
   };
 
 % only one cell, with all session names
@@ -103,10 +103,10 @@ ana.eventValuesSplit = { ...
 ana.trl_expr = { ...
   {{ ...
   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
@@ -118,10 +118,10 @@ ana.trl_expr = { ...
   } ...
   { ...
   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
@@ -240,7 +240,7 @@ ana.eventValues = ana.eventValuesSplit;
 exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,3,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
 %% RSA - very basic
 
@@ -490,7 +490,6 @@ for d = 1:length(dataTypes)
     end
   end % sub
 end % dataTypes
-
 
 %% stats
 
@@ -787,8 +786,8 @@ O = teg_repeated_measures_ANOVA(anovaData, [2 2 4], varnames);
 
 %% run it for p1 vs p2 comparing across time, comparing across stim types (p1 image, p2 word)
 
-% dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
-%   {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
+dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
+  {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
 
 % initialize to store the distance values
 D = struct;
@@ -996,8 +995,8 @@ end % dataTypes
 %   {'word_RgH_spac', 'word_RgH_mass'}, ...
 %   {'img_RgH_spac', 'img_RgH_mass'}};
 
-comparisons = {{'img_RgH_spac_word_RgH_spac','img_RgH_mass_word_RgH_mass'}};
-% comparisons = {{'img_RgH_rc_spac_word_RgH_rc_spac','img_RgH_rc_mass_word_RgH_rc_mass'},{'img_RgH_fo_spac_word_RgH_fo_spac','img_RgH_fo_mass_word_RgH_fo_mass'}};
+% comparisons = {{'img_RgH_spac_word_RgH_spac','img_RgH_mass_word_RgH_mass'}};
+comparisons = {{'img_RgH_rc_spac_word_RgH_rc_spac','img_RgH_rc_mass_word_RgH_rc_mass'},{'img_RgH_fo_spac_word_RgH_fo_spac','img_RgH_fo_mass_word_RgH_fo_mass'}};
 
 % comparisons = {{'img_RgH_spac', 'img_RgH_mass'}};
 
