@@ -21,17 +21,21 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
+  'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
   'SPACE019';
   'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
   };
 
 % only one cell, with all session names
 sesNames = {'session_1'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = false;
+replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
@@ -53,17 +57,27 @@ ana = mm_ft_elecGroups(ana);
 % {'all_across_types'}; mm_ft_checkCondComps is called within subsequent
 % analysis functions
 
-%% expo
+%% classifier needs expo and multistudy
 
 % can include targ==-1 because those are simply buffers for multistudy
 
 sesNum = 1;
 
-ana.eventValues = {{'expo_stim'}};
-ana.eventValuesSplit = {{{'Face','House'}}};
+ana.eventValues = {{'expo_stim','multistudy_word'}};
+ana.eventValuesSplit = { ...
+  {{'Face','House'} ...
+  {'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
+  'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
+  }} ...
+  };
 ana.trl_expr = {...
   {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
-  sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))}}};
+  sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
+  {sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word')))}} ...
+  };
 
 % ana.eventValues = {{'expo_stim'}};
 % ana.eventValuesSplit = {{{'Face_VU','Face_SU','Face_SA','Face_VA','House_VU','House_SU','House_SA','House_VA',}}};
@@ -76,6 +90,18 @@ ana.trl_expr = {...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 2 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))}}};
+
+%% expo
+
+% can include targ==-1 because those are simply buffers for multistudy
+
+sesNum = 1;
+
+ana.eventValues = {{'expo_stim'}};
+ana.eventValuesSplit = {{{'Face','House'}}};
+ana.trl_expr = {...
+  {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
+  sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))}}};
 
 %% multistudy events
 
@@ -99,10 +125,10 @@ ana.eventValuesSplit = { ...
 ana.trl_expr = { ...
   {{ ...
   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
@@ -114,10 +140,10 @@ ana.trl_expr = { ...
   } ...
   { ...
   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+  sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
@@ -222,7 +248,7 @@ ana.trl_expr = { ...
 [data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
 
 % %% get rid of the bad channels
-% 
+%
 % cfg = [];
 % cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
@@ -236,7 +262,7 @@ ana.eventValues = ana.eventValuesSplit;
 exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,3,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
 %% classifier - use face/house to predict image paired with P2 word
 
@@ -251,251 +277,361 @@ latencies = [0.0 0.5; 0.5 1.0];
 parameter = 'trial';
 
 % sub = 1;
-ses = 1;
+% ses = 1;
+
+%dataTypes_train = {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1', 'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1'};
+
+% train on expo faces and houses
+dataTypes_train = {'Face', 'House'};
+equateTrainTrials = true;
+standardizeTrain = true;
+
+% test on p2 word
+dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
+equateTestTrials = false;
+standardizeTest = true;
 
 % data1 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data;
 % data2 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data;
 % data1_trials = data_tla.(exper.sesStr{ses}).Face.sub(sub).data;
 % data2_trials = data_tla.(exper.sesStr{ses}).House.sub(sub).data;
 
+testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
+
 for sub = 1:length(exper.subjects)
-  fprintf('Subject: %s...\n',exper.subjects{sub});
-  
-  eventsFile = fullfile(dirs.dataroot,dirs.behDir,exper.subjects{sub},'events','events.mat');
-  if exist(eventsFile,'file')
-    load(eventsFile)
-  else
-    error('events file not found: %s',eventsFile);
-  end
-  
-  %dataTypes_train = {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1', 'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1'};
-  dataTypes_train = {'Face', 'House'};
-  
-  % get the category number for each training image
-  catNumCol = 7;
-  imageCategory_train = data_tla.(exper.sesStr{ses}).(dataTypes_train{1}).sub(sub).data.trialinfo(:,catNumCol);
-  for d = 2:length(dataTypes_train)
-    imageCategory_train = cat(1,imageCategory_train,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.trialinfo(:,catNumCol));
-  end
-  
-  % test on p2 word
-  dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
-  
-  sesName = 'oneDay';
-  phaseName = 'multistudy';
-  phaseCountCol = 4;
-  trialCol = 5;
-  stimNumCol = 6;
-  presNumCol = 11;
-  pairNumCol = 13;
-  pairedCategory_test = [];
-  for d = 1:length(dataTypes_test)
-    for i = 1:size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(cfg_stat.parameter),1)
-      phaseNum = data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.trialinfo(i,phaseCountCol);
-      
-      thisEventInd = find(...
-        [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.trialinfo(i,trialCol) & ...
-        [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.trialinfo(i,stimNumCol) & ...
-        [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.trialinfo(i,presNumCol) & ...
-        [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.trialinfo(i,pairNumCol) ...
-        );
-      
-      if ~isempty(thisEventInd) && length(thisEventInd) == 1
-        pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
-        pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
-      elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
-        %keyboard
-        error('Found more than one event!');
-      elseif isempty(thisEventInd)
-        %keyboard
-        error('No events found!');
+  fprintf('%s...',exper.subjects{sub});
+  for ses = 1:length(exper.sesStr)
+    fprintf('%s...',exper.sesStr{ses});
+    
+    if ~exper.badSub(sub,ses)
+      eventsFile = fullfile(dirs.dataroot,dirs.behDir,exper.subjects{sub},'events','events.mat');
+      if exist(eventsFile,'file')
+        fprintf('Loading events file...');
+        load(eventsFile)
+        fprintf('Done.\n');
+      else
+        error('events file not found: %s',eventsFile);
       end
-    end
-  end
-  
+      
+      % equate the training categories
+      trlIndTrain = cell(length(dataTypes_train),1);
+      if equateTrainTrials
+        nTrainTrial = nan(length(dataTypes_train),1);
+        for d = 1:length(dataTypes_train)
+          nTrainTrial(d) = size(data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
+        end
+        fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
+        for d = 1:length(dataTypes_train)
+          trlInd = randperm(nTrainTrial(d));
+          trlIndTrain{d,1} = sort(trlInd(1:min(nTrainTrial)));
+        end
+      else
+        fprintf('\tNot equating training category trial counts.\n');
+        for d = 1:length(dataTypes_train)
+          trlIndTrain{d,1} = 'all';
+        end
+      end
+      
+      % equate the testing categories
+      trlIndTest = cell(length(dataTypes_test),1);
+      if equateTestTrials
+        nTestTrial = nan(length(dataTypes_test),1);
+        for d = 1:length(dataTypes_test)
+          nTestTrial(d) = size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
+        end
+        fprintf('Equating testing categories to have %d trials.\n',min(nTestTrial));
+        for d = 1:length(dataTypes_test)
+          trlInd = randperm(nTestTrial(d));
+          trlIndTest{d,1} = sort(trlInd(1:min(nTestTrial)));
+        end
+      else
+        fprintf('\tNot equating testing category trial counts.\n');
+        for d = 1:length(dataTypes_test)
+          trlIndTest{d,1} = 'all';
+        end
+      end
+      
+      for lat = 1:size(latencies,1)
+        fprintf('\t%.2fs to %.2fs...\n',latencies(lat,1),latencies(lat,2));
+        
+        cfg_data = [];
+        cfg_data.latency = latencies(lat,:);
+        cfg_data.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+        cfg_data.avgoverchan = 'no';
+        cfg_data.avgovertime = 'no';
+        % cfg_data.avgovertime = 'yes';
+        
+        data_train = struct;
+        
+        % select the data
+        for d = 1:length(dataTypes_train)
+          cfg_data.trials = trlIndTrain{d};
+          data_train.(dataTypes_train{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+        end
+        
+        % get the category number for each training image
+        catNumCol = 7;
+        imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,catNumCol);
+        for d = 2:length(dataTypes_train)
+          imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{d}).trialinfo(:,catNumCol));
+        end
+        
+        % concatenate the data
+        dat_train = data_train.(dataTypes_train{1}).(parameter);
+        for d = 2:length(dataTypes_train)
+          dat_train = cat(1,dat_train,data_train.(dataTypes_train{d}).(parameter));
+        end
+        
+        dim = size(dat_train);
+        dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
+        %dat_train_ravel = reshape(dat_train,dim);
+        
+        % whether to standardize the training data
+        if standardizeTrain
+          fprintf('\t\tStandardizing the training data...');
+          
+          m = dml.standardizer;
+          m = m.train(dat_train);
+          dat_train = m.test(dat_train);
+          %dat_train_ravel = reshape(dat_train,dim);
+          
+          %       mu = nanmean(dat);
+          %       sigma = nanstd(dat);
+          %
+          %       dat = dat;
+          %       idx = ~isnan(mu);
+          %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+          %       idx = ~isnan(sigma) & ~(sigma==0);
+          %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
+          %       dat_ravel = reshape(dat,dim);
+          %
+          %       % put it back
+          %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
+          %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
+          
+          fprintf('Done.\n');
+        end
+        
+        fprintf('\t\tTraining classifier...');
+        %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',0.2)};
+        facehouse = dml.enet('family','binomial','alpha',0.2);
+        facehouse = facehouse.train(dat_train,imageCategory_train);
+        fprintf('Done.\n');
+        
+        %     cfg = [];
+        %     %cfg.parameter = 'trial';
+        %     %cfg.layout = 'GSN-HydroCel-129.sfp';
+        %     %cfg.method = 'crossvalidate_mm';
+        %     cfg.mva = dml.enet('family','binomial','alpha',0.2);
+        %     cfg.statistic = {'accuracy', 'binomial', 'contingency', 'confusion'};
+        %     cfg.compact = true;
+        %     cfg.verbose = true;
+        %     cfg.resample = false;
+        %     cfg.type = 'nfold';
+        %     cfg.nfolds = 5;
+        %     %cfg.type = 'split';
+        %     %cfg.proportion = 0.75;
+        %
+        %     if strcmp(cfg.type,'nfold')
+        %       cv = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'folds',cfg.nfolds,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
+        %     elseif strcmp(cfg.type,'split')
+        %       cv = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'proportion',cfg.proportion,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
+        %     elseif strcmp(cfg.type,'loo') || strcmp(cfg.type,'bloo')
+        %       cv = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
+        %     end
+        %
+        %     % cfg.design = imageCategory_train';
+        %     % cfg.design = pairedCategory_test';
+        %
+        %     %cv = cv.train(dat_train,imageCategory_train);
+        
+        for d = 1:length(dataTypes_test)
+          fprintf('\t\tSetting up testing data...\n');
+          % set up the test data
+          data_test = struct;
+          
+          % select the data
+          %for d = 1:length(dataTypes_test)
+          cfg_data.trials = trlIndTest{d};
+          data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+          %end
+          
+          % find whether p2 words were paired with a face or a house
+          sesName = 'oneDay';
+          phaseName = 'multistudy';
+          phaseCountCol = 4;
+          trialCol = 5;
+          stimNumCol = 6;
+          presNumCol = 11;
+          pairNumCol = 13;
+          pairedCategory_test = [];
+          %for d = 1:length(dataTypes_test)
+          for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
+            phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
+            
+            thisEventInd = find(...
+              ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
+              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
+              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
+              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
+              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+              );
+            
+            if isempty(thisEventInd)
+              thisEventInd = find(...
+                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                );
+            end
+            
+            if ~isempty(thisEventInd) && length(thisEventInd) == 1
+              pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
+              pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
+            elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
+              %keyboard
+              error('Found more than one event!');
+            elseif isempty(thisEventInd)
+              %keyboard
+              error('No events found!');
+            end
+          end
+          %end
+          
+          % get the test data
+          dat_test = data_test.(dataTypes_test{d}).(parameter);
+          
+          % concatenate the data
+          %dat_test = data_test.(dataTypes_test{1}).(parameter);
+          %for d = 2:length(dataTypes_test)
+          %  dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
+          %end
+          
+          dim = size(dat_test);
+          dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
+          %dat_test_ravel = reshape(dat_test,dim);
+          
+          % whether to standardize the testing data
+          if standardizeTest
+            fprintf('\t\tStandardizing the testing data (%s)...',dataTypes_test{d});
+            
+            m = dml.standardizer;
+            m = m.train(dat_test);
+            dat_test = m.test(dat_test);
+            %dat_test_ravel = reshape(dat_test,dim);
+            
+            %       mu = nanmean(dat);
+            %       sigma = nanstd(dat);
+            %
+            %       dat = dat;
+            %       idx = ~isnan(mu);
+            %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+            %       idx = ~isnan(sigma) & ~(sigma==0);
+            %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
+            %       dat_ravel = reshape(dat,dim);
+            %
+            %       % put it back
+            %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
+            %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
+            
+            fprintf('Done.\n');
+          end
+          
+          %cv = cv.train(dat_test,pairedCategory_test);
+          
+          fprintf('\t\tRunning classifier on testing data (%s)...',dataTypes_test{d});
+          Z = facehouse.test(dat_test);
+          fprintf('Done.\n');
+          
+          % find which category it fit best
+          [Y,I] = max(Z,[],2);
+          
+          testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test);
+          
+          %[I pairedCategory_test]
+          fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
+        end % d
+      end % lat
+    else
+      fprintf('bad subject!\n');
+    end % badSub
+  end % ses
+end % sub
+
+%% testAcc
+
+ses = 1;
+lat = 1;
+mean(testAcc(~exper.badSub(:,ses),ses,lat,1),1)
+mean(testAcc(~exper.badSub(:,ses),ses,lat,2),1)
+mean(testAcc(~exper.badSub(:,ses),ses,lat,3),1)
+mean(testAcc(~exper.badSub(:,ses),ses,lat,4),1)
+
+alpha = 0.05;
+tails = 'both';
+for ses = 1:length(exper.sesStr)
+  fprintf('%s...',exper.sesStr{ses});
   for lat = 1:size(latencies,1)
-    fprintf('\t%.2fs to %.2fs...\n',latencies(lat,1),latencies(lat,2));
+    fprintf('%.2fs to %.2fs...\n',latencies(lat,1),latencies(lat,2));
     
-    cfg_data = [];
-    cfg_data.latency = latencies(lat,:);
-    cfg_data.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
-    cfg_data.avgoverchan = 'no';
-    cfg_data.avgovertime = 'no';
-    % cfg_data.avgovertime = 'yes';
+    % recalled
+    fprintf('Recalled\n');
+    spaced = 1;
+    massed = 2;
+    data1_str = dataTypes_test{spaced};
+    data2_str = dataTypes_test{massed};
+    data1 = testAcc(~exper.badSub(:,ses),ses,lat,spaced);
+    data2 = testAcc(~exper.badSub(:,ses),ses,lat,massed);
     
-    data_train = struct;
+    data2_str = 'chance';
+    data2 = 0.5*ones(sum(~exper.badSub(:,ses)),1);
     
-    % select the data
-    for d = 1:length(dataTypes_train)
-      data_train.(dataTypes_train{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
-    end
+    d = mm_effect_size('within',data1,data2);
+    [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
     
-    % concatenate the data
-    dat_train = data_train.(dataTypes_train{1}).(parameter);
-    for d = 2:length(dataTypes_train)
-      dat_train = cat(1,dat_train,data_train.(dataTypes_train{d}).(parameter));
-    end
+    fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
+      data1_str, ...
+      mean(data1), ...
+      std(data1) / sqrt(length(data1)), ...
+      data2_str, ...
+      mean(data2), ...
+      std(data2) / sqrt(length(data2)), ...
+      stats.df, ...
+      stats.tstat, ...
+      d, ...
+      std(data1 - data2),...
+      std(data1 - data2) / sqrt(length(data1)),...
+      p);
     
-    dim = size(dat_train);
-    dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
-    %dat_train_ravel = reshape(dat_train,dim);
+    % forgotten
+    fprintf('Forgotten\n');
+    spaced = 3;
+    massed = 4;
+    data1_str = dataTypes_test{spaced};
+    data2_str = dataTypes_test{massed};
+    data1 = testAcc(~exper.badSub(:,ses),ses,lat,spaced);
+    data2 = testAcc(~exper.badSub(:,ses),ses,lat,massed);
     
-    % whether to equate the training data
-    equateTrainTrials = true;
-    if equateTrainTrials
-      nTrainCateg = unique(imageCategory_train);
-      nTrainTrial = nan(length(nTrainCateg),1);
-      for i = 1:length(nTrainCateg)
-        nTrainTrial(i) = sum(imageCategory_train == i);
-      end
-      for i = 1:length(nTrainCateg)
-        if nTrainTrial(i) > min(nTrainTrial)
-          thisCatInd = find(imageCategory_train == i);
-          thisCatInd = thisCatInd(randperm(length(thisCatInd)));
-          tr_to_keep = thisCatInd(1:min(nTrainTrial));
-          
-          tr_to_keep = sort(cat(1,tr_to_keep,find(imageCategory_train ~= i)));
-          imageCategory_train = imageCategory_train(tr_to_keep);
-          dat_train = dat_train(tr_to_keep,:);
-        end
-      end
-    end
+    d = mm_effect_size('within',data1,data2);
+    [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
     
-    % whether to standardize the data
-    standardize = true;
-    if standardize
-      fprintf('Standardizing the data...');
-      
-      m = dml.standardizer;
-      m = m.train(dat_train);
-      dat_train = m.test(dat_train);
-      %dat_train_ravel = reshape(dat_train,dim);
-      
-      %       mu = nanmean(dat);
-      %       sigma = nanstd(dat);
-      %
-      %       dat = dat;
-      %       idx = ~isnan(mu);
-      %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
-      %       idx = ~isnan(sigma) & ~(sigma==0);
-      %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
-      %       dat_ravel = reshape(dat,dim);
-      %
-      %       % put it back
-      %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
-      %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
-      
-      fprintf('Done.\n');
-    end
-    
-    %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',0.2)};
-    facehouse = dml.enet('family','binomial','alpha',0.2);
-    facehouse = facehouse.train(dat_train,imageCategory_train);
-    
-%     cfg = [];
-%     %cfg.parameter = 'trial';
-%     %cfg.layout = 'GSN-HydroCel-129.sfp';
-%     %cfg.method = 'crossvalidate_mm';
-%     cfg.mva = dml.enet('family','binomial','alpha',0.2);
-%     cfg.statistic = {'accuracy', 'binomial', 'contingency', 'confusion'};
-%     cfg.compact = true;
-%     cfg.verbose = true;
-%     cfg.resample = false;
-%     cfg.type = 'nfold';
-%     cfg.nfolds = 5;
-%     %cfg.type = 'split';
-%     %cfg.proportion = 0.75;
-%     
-%     if strcmp(cfg.type,'nfold')
-%       cv = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'folds',cfg.nfolds,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
-%     elseif strcmp(cfg.type,'split')
-%       cv = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'proportion',cfg.proportion,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
-%     elseif strcmp(cfg.type,'loo') || strcmp(cfg.type,'bloo')
-%       cv = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
-%     end
-% 
-%     % cfg.design = imageCategory_train';
-%     % cfg.design = pairedCategory_test';
-%     
-%     %cv = cv.train(dat_train,imageCategory_train);
-    
-    % set up the test data
-    data_test = struct;
-    
-    % select the data
-    for d = 1:length(dataTypes_test)
-      data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
-    end
-    
-    % concatenate the data
-    dat_test = data_test.(dataTypes_test{1}).(parameter);
-    for d = 2:length(dataTypes_test)
-      dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
-    end
-    
-    dim = size(dat_test);
-    dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
-    %dat_test_ravel = reshape(dat_test,dim);
-    
-    % whether to equate the test data
-    equateTestTrials = true;
-    if equateTestTrials
-      nTestCateg = unique(pairedCategory_test);
-      nTestTrial = nan(length(nTestCateg),1);
-      for i = 1:length(nTestCateg)
-        nTestTrial(i) = sum(pairedCategory_test == i);
-      end
-      for i = 1:length(nTestCateg)
-        if nTestTrial(i) > min(nTestTrial)
-          thisCatInd = find(pairedCategory_test == i);
-          thisCatInd = thisCatInd(randperm(length(thisCatInd)));
-          tr_to_keep = thisCatInd(1:min(nTestTrial));
-          
-          tr_to_keep = sort(cat(1,tr_to_keep,find(pairedCategory_test ~= i)));
-          pairedCategory_test = pairedCategory_test(tr_to_keep);
-          dat_test = dat_test(tr_to_keep,:);
-        end
-      end
-    end
-    
-    % whether to standardize the data
-    standardize = true;
-    if standardize
-      fprintf('Standardizing the data...');
-      
-      m = dml.standardizer;
-      m = m.train(dat_test);
-      dat_test = m.test(dat_test);
-      %dat_test_ravel = reshape(dat_test,dim);
-      
-      %       mu = nanmean(dat);
-      %       sigma = nanstd(dat);
-      %
-      %       dat = dat;
-      %       idx = ~isnan(mu);
-      %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
-      %       idx = ~isnan(sigma) & ~(sigma==0);
-      %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
-      %       dat_ravel = reshape(dat,dim);
-      %
-      %       % put it back
-      %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
-      %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
-      
-      fprintf('Done.\n');
-    end
-    
-    %cv = cv.train(dat_test,pairedCategory_test);
-    
-    Z = facehouse.test(dat_test);
-    [Y,I] = max(Z,[],2);
-    
-    %[I pairedCategory_test]
-    fprintf('\tAccuracy: %.4f\n',mean(I == pairedCategory_test));
-    
+    fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
+      data1_str, ...
+      mean(data1), ...
+      std(data1) / sqrt(length(data1)), ...
+      data2_str, ...
+      mean(data2), ...
+      std(data2) / sqrt(length(data2)), ...
+      stats.df, ...
+      stats.tstat, ...
+      d, ...
+      std(data1 - data2),...
+      std(data1 - data2) / sqrt(length(data1)),...
+      p);
   end
 end
-
 
 %% classification from the tutorial
 
@@ -536,7 +672,7 @@ cfg.avgovertime = 'yes';
 %   'channel',cfg.channel,...
 %   'avgoverchan',cfg.avgoverchan,...
 %   'avgovertime',cfg.avgovertime);
-% 
+%
 % data2 = ft_selectdata_old(data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data,...
 %   'param',cfg.parameter,...
 %   'toilim',cfg.latency,...
@@ -592,7 +728,7 @@ ft_topoplotER(cfg,stat);
 %         data_train.(dataTypes_train{d}) = data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data;
 %       end
 %     end
-    
+
 
 %     % whether to equate the test data
 %     equateTestTrials = false;
@@ -619,4 +755,4 @@ ft_topoplotER(cfg,stat);
 %         data_test.(dataTypes_test{d}) = data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data;
 %       end
 %     end
-    
+
