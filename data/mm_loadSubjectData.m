@@ -180,6 +180,7 @@ for sub = 1:length(exper.subjects)
                   %data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
                 else
                   warning('No events found for %s %s %s',exper.subjects{sub},sesStr,ana.eventValuesSplit{ses}{evVal}{es});
+                  fprintf('\tEvaluated this expression: %s\n',expr);
                   data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data.trial = [];
                 end
                 
