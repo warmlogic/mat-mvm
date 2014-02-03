@@ -153,7 +153,7 @@ ana.photodiodeDIN_toleranceMS = 40;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
-%   ana.sessionNames = {'oneDay'};
+   ana.sessionNames = {'NEMO'};
   
   % phases occur within a session; for dealing with events.mat
   ana.phaseNames = {{'TC_NEMO_fN400study', 'TC_NEMO_AO', 'TC_NEMO_fN400test'}};
@@ -164,6 +164,12 @@ if ana.useExpInfo
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
+   ana.trl_order.ao_standard = {'eventNumber', 'phaseType', 'trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time'};
+ 
+  ana.trl_order.ao_target = {'eventNumber', 'phaseType', 'trial','cell_label',...
+      'times_studied','position','resp_value','accuracy','reaction_time'}; 
+  
   ana.trl_order.study_prime = {'eventNumber', 'phaseType', 'trial','cell_label',...
       'times_studied','position','resp_value','accuracy','reaction_time','FSG_target',...
       'FSG_target','BSG_target','CNC_target','KFFRQ_target','NLET_target','NPHON_target',...
@@ -182,12 +188,6 @@ if ana.useExpInfo
       'NSYLL_prime','orthoN_prime','phonoN_prime','AOA_prime','BFRQ_prime','FAM_prime',...
       'IMG_prime','CMEAN_prime','PMEAN_prime','TLFRQ_prime','wordid_prime','word_pair_id'};
  
-  ana.trl_order.ao_standard = {'eventNumber', 'phaseType', 'trial','cell_label',...
-      'times_studied','position','resp_value','accuracy','reaction_time'};
- 
-  ana.trl_order.ao_target = {'eventNumber', 'phaseType', 'trial','cell_label',...
-      'times_studied','position','resp_value','accuracy','reaction_time'};
-  
   ana.trl_order.test_target = {'eventNumber', 'phaseType','trial','cell_label',...
       'times_studied','position','resp_value','accuracy','reaction_time','FSG_target',...
       'FSG_target','BSG_target','CNC_target','KFFRQ_target','NLET_target','NPHON_target',...
@@ -211,6 +211,7 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = 59:61;
+ana.cfg_cont = [];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};

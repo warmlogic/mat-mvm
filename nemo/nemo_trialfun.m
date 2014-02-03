@@ -103,10 +103,12 @@ trl_ini = -1 * ones(1, timeCols + maxTrlCols);
 %     phaseName = cfg.eventinfo.phaseNames{sesType}{pha};
 %     %phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},phaseName));
 %     phaseType = pha;
-
+    cfg.eventinfo.sessionNames = 'NEMO';
+    
 for pha = 1:length(cfg.eventinfo.phaseNames)
     phaseName = cfg.eventinfo.phaseNames{pha};
     phaseType = pha;
+
     
     %% process the study phase
     
@@ -115,7 +117,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames)
     % keep track of how many real evt events we have counted
     ec = 0;
     
-    fprintf('%s NS event flag count: %s',{phaseName},repmat(' ',1,length(num2str(length(ft_event)))));
+    fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
     
     for i = 1:length(ft_event)
         fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
@@ -211,7 +213,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames)
                         for ns = 1:size(ns_evt,2)
                             ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(trspInd));
                         end
-                        cols.(phaseName).phase = find(strcmp(ns_evt_cols,'exid'));     %string but the only phase identifier
+                        cols.(phaseName).phase = find(strcmp(ns_evt_cols,'exid'));
                         if isempty(cols.(phaseName).phase)
                             keyboard
                         end
