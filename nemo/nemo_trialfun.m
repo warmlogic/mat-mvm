@@ -94,6 +94,16 @@ trl_ini = -1 * ones(1, timeCols + maxTrlCols);
 
 %% go through the events
 
+% % for ses = 1:length(cfg.eventinfo.sessionNames)
+% ses = cfg.eventinfo.sessionNum;
+% sesName = cfg.eventinfo.sessionNames{ses};
+% sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
+% 
+% for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
+%     phaseName = cfg.eventinfo.phaseNames{sesType}{pha};
+%     %phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},phaseName));
+%     phaseType = pha;
+
 for pha = 1:length(cfg.eventinfo.phaseNames)
     phaseName = cfg.eventinfo.phaseNames{pha};
     phaseType = pha;
@@ -105,7 +115,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames)
     % keep track of how many real evt events we have counted
     ec = 0;
     
-    fprintf('%s NS event flag count: %s',phaseName,repmat(' ',1,length(num2str(length(ft_event)))));
+    fprintf('%s NS event flag count: %s',{phaseName},repmat(' ',1,length(num2str(length(ft_event)))));
     
     for i = 1:length(ft_event)
         fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);

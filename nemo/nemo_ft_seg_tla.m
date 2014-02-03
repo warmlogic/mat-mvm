@@ -211,7 +211,6 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = 59:61;
-ana.cfg_cont = []; %REMOVE FOR ACTUAL RUNS
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
