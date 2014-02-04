@@ -274,6 +274,11 @@ distanceMetric = 'euclidean';
 % distanceMetric = 'cosine';
 % distanceMetric = 'correlation';
 
+if strcmp(distanceMetric,'correlation')
+  warning('need to do a Fischer Z-transform before t-test/ANOVA');
+  %http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
+end
+
 parameter = 'trial';
 plotit = false;
 verbose = false;
@@ -537,6 +542,16 @@ for ses = 1:length(exper.sessions)
         data1 = data1(threshSub);
         data2 = D.(data2_str).dissim(:,ses,lat1,lat2);
         data2 = data2(threshSub);
+        
+        if strcmp(distanceMetric,'correlation')
+          % need to do a Fischer Z-transform before t-test/ANOVA
+          %
+          % http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
+          data1 = data1(:);
+          data1 = 0.5 .* log((1+data1) ./ (1-data1));
+          data2 = data2(:);
+          data2 = 0.5 .* log((1+data2) ./ (1-data2));
+        end
         
         d = mm_effect_size('within',data1,data2);
         [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
