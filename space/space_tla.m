@@ -391,16 +391,19 @@ end
 
 %% lowpass filter and segment for ERPs
 
-sampleRate = 250;
-lpFiltHz = 40;
-lpFiltOrd = 4;
-lpFiltType = 'but';
+data_tla_backup = data_tla;
+
+lpfilt = true;
+
+if lpfilt
+  sampleRate = 250;
+  lpfreq = 40;
+  lofiltord = 4;
+  lpfilttype = 'but';
+end
 
 cfg_sel = [];
 cfg_sel.latency = [-0.2 1.0];
-
-% data_tla_filt = struct;
-data_tla_filt = data_tla;
 
 for ses = 1:length(exper.sesStr)
   for typ = 1:length(ana.eventValues{ses})
@@ -408,14 +411,16 @@ for ses = 1:length(exper.sesStr)
       for sub = 1:length(exper.subjects)
         fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
         
-        for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
-          data_tla_filt.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
-            squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
-          sampleRate,lpFiltHz,lpFiltOrd,lpFiltType);
+        if lpfilt
+          for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
+            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
+              squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
+              sampleRate,lpfreq,lofiltord,lpfilttype);
+          end
         end
         
         % select
-        data_tla_filt.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla_filt.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
         
       end
     end
