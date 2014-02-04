@@ -4,7 +4,8 @@
 
 allowRecallSynonyms = true;
 
-procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+procDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
   'SPACE001';
@@ -37,7 +38,7 @@ subjects = {
 sesNames = {'session_1'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = false;
+replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
@@ -333,14 +334,15 @@ sub = 1;
 ses = 1;
 evVal = 1;
 
-thisROI = {'center91'};
+% thisROI = {'center91'};
+thisROI = {'center109'};
+% thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = 'LPS';
 % thisROI = 'PI';
 % thisROI = {'posterior'};
 % thisROI = {'LPS', 'RPS'};
 % thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
-% thisROI = {'all129'};
 % thisROI = 'Cz';
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
@@ -1339,7 +1341,7 @@ alpha = 0.05;
 tails = 'both';
 
 % trial count threshold - need n or more trials in both comparison conds
-nThresh = 5;
+nThresh = 1;
 
 for ses = 1:length(exper.sessions)
   for lat = 1:size(latencies,1)
@@ -1376,6 +1378,31 @@ for ses = 1:length(exper.sessions)
     end
   end
 end
+
+%% plot
+
+conds = {'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+  'img_RgH_rc_spac', 'img_RgH_rc_mass', ...
+  'word_RgH_fo_spac', 'word_RgH_fo_mass', ...
+  'img_RgH_fo_spac', 'img_RgH_fo_mass'};
+
+plotStyles = {'ro-','ko-','r^-','k^-','ro--','ko--','r^--','k^--'};
+% red = spaced
+% black = massed
+% solid = recalled
+% dashed = forgotten
+% circles = words
+% triangles = images
+figure;
+for i = 1:length(conds)
+  plot(squeeze(nanmean(D.(conds{i}).dissim,1)),plotStyles{i},'LineWidth',1.2);
+  hold on
+end
+hold off
+legend(strrep(conds,'_','-'),'Location','SouthWest');
+axis([0.5 4.5 85 100]);
+% ylim([85 100]);
+
 
 %% run it for face vs house
 
