@@ -290,6 +290,7 @@ standardizeTrain = true;
 dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
 equateTestTrials = false;
 standardizeTest = true;
+standardizeTestSeparately = false;
 
 % data1 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data;
 % data2 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data;
@@ -297,6 +298,7 @@ standardizeTest = true;
 % data2_trials = data_tla.(exper.sesStr{ses}).House.sub(sub).data;
 
 testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
+continTab = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
 
 for sub = 1:length(exper.subjects)
   fprintf('%s...',exper.subjects{sub});
@@ -445,69 +447,190 @@ for sub = 1:length(exper.subjects)
         %
         %     %cv = cv.train(dat_train,imageCategory_train);
         
-        for d = 1:length(dataTypes_test)
-          fprintf('\t\tSetting up testing data...\n');
-          % set up the test data
-          data_test = struct;
-          
-          % select the data
-          %for d = 1:length(dataTypes_test)
-          cfg_data.trials = trlIndTest{d};
-          data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
-          %end
-          
-          % find whether p2 words were paired with a face or a house
-          sesName = 'oneDay';
-          phaseName = 'multistudy';
-          phaseCountCol = 4;
-          trialCol = 5;
-          stimNumCol = 6;
-          presNumCol = 11;
-          pairNumCol = 13;
-          pairedCategory_test = [];
-          %for d = 1:length(dataTypes_test)
-          for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
-            phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
+        fprintf('\t\tSetting up testing data...\n');
+        % set up the test data
+        data_test = struct;
+        
+        sesName = 'oneDay';
+        phaseName = 'multistudy';
+        phaseCountCol = 4;
+        trialCol = 5;
+        stimNumCol = 6;
+        presNumCol = 11;
+        pairNumCol = 13;
+        
+        if standardizeTestSeparately
+          for d = 1:length(dataTypes_test)
+            % select the data
+            %for d = 1:length(dataTypes_test)
+            cfg_data.trials = trlIndTest{d};
+            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+            %end
             
-            thisEventInd = find(...
-              ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
-              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-              [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
-              );
-            
-            if isempty(thisEventInd)
+            % find whether p2 words were paired with a face or a house
+            pairedCategory_test = [];
+            %for d = 1:length(dataTypes_test)
+            for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
+              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
+              
               thisEventInd = find(...
-                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
                 [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
                 [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
                 [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
                 [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
                 );
+              
+              if isempty(thisEventInd)
+                thisEventInd = find(...
+                  ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                  );
+              end
+              
+              if ~isempty(thisEventInd) && length(thisEventInd) == 1
+                pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
+                pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
+              elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
+                %keyboard
+                error('Found more than one event!');
+              elseif isempty(thisEventInd)
+                %keyboard
+                error('No events found!');
+              end
+            end
+            %end
+            
+            % get the test data
+            dat_test = data_test.(dataTypes_test{d}).(parameter);
+            
+            % concatenate the data
+            %dat_test = data_test.(dataTypes_test{1}).(parameter);
+            %for d = 2:length(dataTypes_test)
+            %  dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
+            %end
+            
+            dim = size(dat_test);
+            dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
+            %dat_test_ravel = reshape(dat_test,dim);
+            
+            % whether to standardize the testing data
+            if standardizeTest
+              fprintf('\t\tStandardizing the testing data (%s)...',dataTypes_test{d});
+              
+              m = dml.standardizer;
+              m = m.train(dat_test);
+              dat_test = m.test(dat_test);
+              %dat_test_ravel = reshape(dat_test,dim);
+              
+              %       mu = nanmean(dat);
+              %       sigma = nanstd(dat);
+              %
+              %       dat = dat;
+              %       idx = ~isnan(mu);
+              %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+              %       idx = ~isnan(sigma) & ~(sigma==0);
+              %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
+              %       dat_ravel = reshape(dat,dim);
+              %
+              %       % put it back
+              %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
+              %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
+              
+              fprintf('Done.\n');
             end
             
-            if ~isempty(thisEventInd) && length(thisEventInd) == 1
-              pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
-              pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
-            elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
-              %keyboard
-              error('Found more than one event!');
-            elseif isempty(thisEventInd)
-              %keyboard
-              error('No events found!');
+            %cv = cv.train(dat_test,pairedCategory_test);
+            
+            faceInd = pairedCategory_test == 1;
+            houseInd = pairedCategory_test == 2;
+            
+            fprintf('\t\tTest data: %s\n',dataTypes_test{d});
+            fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test,1),sum(faceInd),sum(houseInd));
+            fprintf('\t\tRunning classifier on testing data...');
+            Z = facehouse.test(dat_test);
+            fprintf('Done.\n');
+            
+            % find which category it fit best
+            [Y,I] = max(Z,[],2);
+            
+            testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test);
+            
+            %[I pairedCategory_test]
+            fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
+            
+            
+            faceCorr = pairedCategory_test(faceInd) == I(faceInd);
+            faceWrong = pairedCategory_test(faceInd) ~= I(faceInd);
+            houseCorr = pairedCategory_test(houseInd) == I(houseInd);
+            houseWrong = pairedCategory_test(houseInd) ~= I(houseInd);
+            
+            continTab{sub,ses,lat,d} = [sum(faceCorr), sum(faceWrong); sum(houseWrong), sum(houseCorr)];
+            
+            % contingency table
+            fprintf('\n');
+            fprintf('\t\tPredicted\n');
+            fprintf('\t\t%s\t%s\n',dataTypes_train{1},dataTypes_train{2});
+            fprintf('True\t%s\t%d\t%d\n',dataTypes_train{1},continTab{sub,ses,lat,d}(1,1),continTab{sub,ses,lat,d}(1,2));
+            fprintf('\t%s\t%d\t%d\n',dataTypes_train{2},continTab{sub,ses,lat,d}(2,1),continTab{sub,ses,lat,d}(2,2));
+            fprintf('\n');
+          end % d
+        else
+          % standardize test data together
+          
+          % select the data
+          for d = 1:length(dataTypes_test)
+            cfg_data.trials = trlIndTest{d};
+            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+          end
+          
+          % find whether p2 words were paired with a face or a house
+          pairedCategory_test = [];
+          for d = 1:length(dataTypes_test)
+            for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
+              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
+              
+              thisEventInd = find(...
+                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
+                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                );
+              
+              if isempty(thisEventInd)
+                thisEventInd = find(...
+                  ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
+                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                  );
+              end
+              
+              if ~isempty(thisEventInd) && length(thisEventInd) == 1
+                pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
+                pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
+              elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
+                %keyboard
+                error('Found more than one event!');
+              elseif isempty(thisEventInd)
+                %keyboard
+                error('No events found!');
+              end
             end
           end
-          %end
-          
-          % get the test data
-          dat_test = data_test.(dataTypes_test{d}).(parameter);
           
           % concatenate the data
-          %dat_test = data_test.(dataTypes_test{1}).(parameter);
-          %for d = 2:length(dataTypes_test)
-          %  dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
-          %end
+          dat_test = data_test.(dataTypes_test{1}).(parameter);
+          testDataIndices = ones(size(data_test.(dataTypes_test{1}).(parameter),1),1);
+          for d = 2:length(dataTypes_test)
+            dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
+            testDataIndices = cat(1,testDataIndices,d * ones(size(data_test.(dataTypes_test{d}).(parameter),1),1));
+          end
           
           dim = size(dat_test);
           dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
@@ -539,20 +662,43 @@ for sub = 1:length(exper.subjects)
             fprintf('Done.\n');
           end
           
-          %cv = cv.train(dat_test,pairedCategory_test);
+          for d = 1:length(dataTypes_test)
+            datInd = testDataIndices == d;
+            thisPairedCategory_test = pairedCategory_test(datInd,:);
+            faceInd = thisPairedCategory_test == 1;
+            houseInd = thisPairedCategory_test == 2;
+            
+            fprintf('\t\tTest data: %s\n',dataTypes_test{d});
+            fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test(datInd,:),1),sum(faceInd),sum(houseInd));
+            fprintf('\t\tRunning classifier on testing data...');
+            Z = facehouse.test(dat_test(datInd,:));
+            fprintf('Done.\n');
+            
+            % find which category it fit best
+            [Y,I] = max(Z,[],2);
+            
+            testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test(datInd,:));
+            
+            %[I pairedCategory_test]
+            fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
+            
+            faceCorr = thisPairedCategory_test(faceInd) == I(faceInd);
+            faceWrong = thisPairedCategory_test(faceInd) ~= I(faceInd);
+            houseCorr = thisPairedCategory_test(houseInd) == I(houseInd);
+            houseWrong = thisPairedCategory_test(houseInd) ~= I(houseInd);
+            
+            continTab{sub,ses,lat,d} = [sum(faceCorr), sum(faceWrong); sum(houseWrong), sum(houseCorr)];
+            
+            % contingency table
+            fprintf('\n');
+            fprintf('\t\tPredicted\n');
+            fprintf('\t\t%s\t%s\n',dataTypes_train{1},dataTypes_train{2});
+            fprintf('True\t%s\t%d\t%d\n',dataTypes_train{1},continTab{sub,ses,lat,d}(1,1),continTab{sub,ses,lat,d}(1,2));
+            fprintf('\t%s\t%d\t%d\n',dataTypes_train{2},continTab{sub,ses,lat,d}(2,1),continTab{sub,ses,lat,d}(2,2));
+            fprintf('\n');
+          end % d
           
-          fprintf('\t\tRunning classifier on testing data (%s)...',dataTypes_test{d});
-          Z = facehouse.test(dat_test);
-          fprintf('Done.\n');
-          
-          % find which category it fit best
-          [Y,I] = max(Z,[],2);
-          
-          testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test);
-          
-          %[I pairedCategory_test]
-          fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
-        end % d
+        end
       end % lat
     else
       fprintf('bad subject!\n');
@@ -563,7 +709,7 @@ end % sub
 %% testAcc
 
 ses = 1;
-lat = 1;
+lat = 2;
 mean(testAcc(~exper.badSub(:,ses),ses,lat,1),1)
 mean(testAcc(~exper.badSub(:,ses),ses,lat,2),1)
 mean(testAcc(~exper.badSub(:,ses),ses,lat,3),1)
@@ -585,11 +731,13 @@ for ses = 1:length(exper.sesStr)
     data1 = testAcc(~exper.badSub(:,ses),ses,lat,spaced);
     data2 = testAcc(~exper.badSub(:,ses),ses,lat,massed);
     
-    data2_str = 'chance';
-    data2 = 0.5*ones(sum(~exper.badSub(:,ses)),1);
-    
     d = mm_effect_size('within',data1,data2);
     [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
+    
+%     data2_str = 'chance';
+%     data2 = 0.5*ones(sum(~exper.badSub(:,ses)),1);
+%     d = mm_effect_size('single',data1,0.5);
+%     [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
     
     fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
       data1_str, ...
