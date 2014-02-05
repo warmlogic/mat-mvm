@@ -1314,6 +1314,170 @@ end
 varnames = {'spacing','subseqMem','stimType','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
 
+%% plot RSA spacing x subsequent memory interaction
+
+ses=1;
+
+rc_spaced_mean = mean([mean(D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_spac.dissim(~exper.badSub,ses,:),3)],2);
+rc_massed_mean = mean([mean(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:),3)],2);
+fo_spaced_mean = mean([mean(D.word_RgH_fo_spac.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_spac.dissim(~exper.badSub,ses,:),3)],2);
+fo_massed_mean = mean([mean(D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:),3)],2);
+
+figure
+hold on
+
+rc_mark = 'ko';
+fo_mark = 'rx';
+
+% recalled
+plot(ones(sum(~exper.badSub(:,ses)),1), rc_spaced_mean,rc_mark,'LineWidth',1);
+plot(2*ones(sum(~exper.badSub(:,ses)),1), rc_massed_mean,rc_mark,'LineWidth',1);
+
+% forgotten
+plot(ones(sum(~exper.badSub(:,ses)),1), fo_spaced_mean,fo_mark,'LineWidth',1);
+plot(2*ones(sum(~exper.badSub(:,ses)),1), fo_massed_mean,fo_mark,'LineWidth',1);
+
+meanSizeR = 15;
+meanSizeF = 20;
+
+% recalled
+hr = plot(1, mean(rc_spaced_mean),rc_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+plot(2, mean(rc_massed_mean),rc_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+
+% forgotten
+hf = plot(1, mean(fo_spaced_mean),fo_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+plot(2, mean(fo_massed_mean),fo_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+
+hold off
+axis square
+axis([0.75 2.25 75 110]);
+
+set(gca,'XTick', [1 2]);
+
+set(gca,'XTickLabel',{'Spaced','Massed'});
+ylabel('Euclidean Distance');
+
+title('RSA: Spacing \times Subsequent Memory');
+legend([hr, hf],{'Recalled','Forgotten'},'Location','North');
+
+publishfig(gcf,0,[],[],[]);
+
+print(gcf,'-depsc2','~/Desktop/rsa_spacXsm.eps');
+
+%% plot RSA spacing x time interaction
+
+ses=1;
+
+spaced_mean = squeeze(mean(cat(2,D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:), D.img_RgH_rc_spac.dissim(~exper.badSub,ses,:), ...
+  D.word_RgH_fo_spac.dissim(~exper.badSub,ses,:), D.img_RgH_fo_spac.dissim(~exper.badSub,ses,:)),2));
+
+spaced_sem = std(spaced_mean,0,1) / sqrt(sum(~exper.badSub));
+
+massed_mean = squeeze(mean(cat(2,D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:), D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:), ...
+  D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:), D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:)),2));
+
+massed_sem = std(massed_mean,0,1) / sqrt(sum(~exper.badSub));
+
+% rc_massed_mean = mean([mean(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:),3)],2);
+% fo_massed_mean = mean([mean(D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:),3)],2);
+
+sp_mark = 'ks-';
+ma_mark = 'ro-';
+
+meanSize_spac = 15;
+meanSize_mass = 15;
+
+figure
+hold on
+
+% plot(mean(spaced_mean,1)',sp_mark,'LineWidth',2,'MarkerSize',meanSizeS);
+% plot(mean(massed_mean,1)',ma_mark,'LineWidth',2,'MarkerSize',meanSizeM);
+hs = errorbar(mean(spaced_mean,1)',spaced_sem,sp_mark,'LineWidth',2,'MarkerSize',meanSize_spac,'MarkerFaceColor','k');
+hm = errorbar(mean(massed_mean,1)',massed_sem,ma_mark,'LineWidth',2,'MarkerSize',meanSize_mass,'MarkerFaceColor','r');
+
+hold off
+axis square
+% axis([0.75 4.25 97 103]);
+axis([0.75 4.25 95 105]);
+
+set(gca,'XTick', [1 2 3 4]);
+
+set(gca,'XTickLabel',{'100-300','300-500','500-700','700-900'});
+xlabel('Time (ms)');
+ylabel('Euclidean Distance');
+
+title('RSA: Spacing \times Time');
+legend([hm,hs],{'Massed','Spaced'},'Location','SouthWest');
+
+publishfig(gcf,0,[],[],[]);
+
+print(gcf,'-depsc2','~/Desktop/rsa_spacXtime.eps');
+
+
+%% plot RSA spacing x time interaction
+
+ses=1;
+
+spaced_w_mean = squeeze(mean(cat(2,D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:), ...
+  D.word_RgH_fo_spac.dissim(~exper.badSub,ses,:)),2));
+
+spaced_w_sem = std(spaced_w_mean,0,1) / sqrt(sum(~exper.badSub));
+
+spaced_i_mean = squeeze(mean(cat(2,D.img_RgH_rc_spac.dissim(~exper.badSub,ses,:), ...
+  D.img_RgH_fo_spac.dissim(~exper.badSub,ses,:)),2));
+
+spaced_i_sem = std(spaced_i_mean,0,1) / sqrt(sum(~exper.badSub));
+
+massed_w_mean = squeeze(mean(cat(2,D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:), ...
+  D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:)),2));
+
+massed_w_sem = std(massed_w_mean,0,1) / sqrt(sum(~exper.badSub));
+
+massed_i_mean = squeeze(mean(cat(2,D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:), ...
+  D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:)),2));
+
+massed_i_sem = std(massed_i_mean,0,1) / sqrt(sum(~exper.badSub));
+
+
+% rc_massed_mean = mean([mean(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:),3)],2);
+% fo_massed_mean = mean([mean(D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:),3)],2);
+
+spac_w_mark = 'ks-';
+spac_i_mark = 'ko--';
+mass_w_mark = 'rs-';
+mass_i_mark = 'ro--';
+
+meanSize_spac = 15;
+meanSize_mass = 15;
+
+figure
+hold on
+
+% plot(mean(spaced_mean,1)',sp_mark,'LineWidth',2,'MarkerSize',meanSizeS);
+% plot(mean(massed_mean,1)',ma_mark,'LineWidth',2,'MarkerSize',meanSizeM);
+hsw = errorbar(mean(spaced_w_mean,1)',spaced_w_sem,spac_w_mark,'LineWidth',2,'MarkerSize',meanSize_spac,'MarkerFaceColor','k');
+hsi = errorbar(mean(spaced_i_mean,1)',spaced_i_sem,spac_i_mark,'LineWidth',2,'MarkerSize',meanSize_spac);
+hmw = errorbar(mean(massed_w_mean,1)',massed_w_sem,mass_w_mark,'LineWidth',2,'MarkerSize',meanSize_mass,'MarkerFaceColor','r');
+hmi = errorbar(mean(massed_i_mean,1)',massed_i_sem,mass_i_mark,'LineWidth',2,'MarkerSize',meanSize_mass);
+
+hold off
+axis square
+axis([0.75 4.25 95 105]);
+
+set(gca,'XTick', [1 2 3 4]);
+
+set(gca,'XTickLabel',{'100-300','300-500','500-700','700-900'});
+xlabel('Time (ms)');
+ylabel('Euclidean Distance');
+
+title('RSA: Spacing \times Stim Type \times Time');
+legend([hmw, hmi, hsw, hsi],{'Massed Word','Massed Image','Spaced Word','Spaced Image'},'Location','SouthWest');
+
+publishfig(gcf,0,[],[],[]);
+
+print(gcf,'-depsc2','~/Desktop/rsa_spacXstimXtime.eps');
+
+
 %% stats - ttest
 
 % data1_str = 'word_RgH_rc_spac';
