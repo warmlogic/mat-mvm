@@ -364,10 +364,13 @@ end
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
 %   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
-thisROI = 'center91';
+% thisROI = 'all129';
+% thisROI = 'center91';
+thisROI = 'center109';
 
-% latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-latencies = [0.0 0.5; 0.5 1.0];
+latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+% latencies = [0.0 0.5; 0.5 1.0];
 
 parameter = 'trial';
 
@@ -858,7 +861,105 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(sprintf('fhClass_100HzLP_%s_alpha%s_4Feb2014.mat',synStr,strrep(num2str(alpha),'.','')),'testAcc','continTab','trainLambda','trainWeights');
+save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_4Feb2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','trainLambda','trainWeights');
+
+%% testAcc RMANOVA
+
+% cnds = {'img_RgH_rc_spac_word_RgH_rc_spac', 'img_RgH_fo_spac_word_RgH_fo_spac', 'img_RgH_rc_mass_word_RgH_rc_mass', 'img_RgH_fo_mass_word_RgH_fo_mass'};
+% 
+% nThresh = 1;
+% 
+% goodSub = ones(length(exper.subjects),1);
+% 
+% for ses = 1:length(exper.sesStr)
+%   for cnd = 1:length(cnds)
+%     goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
+%   end
+% end
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  if ~exper.badSub(sub)
+    %if goodSub(sub)
+    for ses = 1:length(exper.sesStr)
+      theseData = [];
+      
+      for d = 1:size(testAcc,4)
+        for t = 1:size(testAcc,3)
+          theseData = cat(2,theseData,testAcc(sub,ses,t,d));
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+varnames = {'spacing','subseqMem','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(testAcc,3)], varnames);
+
+%% plot spacing x subsequent memory interaction
+
+% recalled
+spaced = 1;
+massed = 2;
+rc_spaced_mean = mean(testAcc(~exper.badSub(:,ses),ses,:,spaced),3);
+rc_massed_mean = mean(testAcc(~exper.badSub(:,ses),ses,:,massed),3);
+
+% forgotten
+spaced = 3;
+massed = 4;
+fo_spaced_mean = mean(testAcc(~exper.badSub(:,ses),ses,:,spaced),3);
+fo_massed_mean = mean(testAcc(~exper.badSub(:,ses),ses,:,massed),3);
+
+figure
+hold on
+
+rc_mark = 'ko';
+fo_mark = 'rx';
+
+% recalled
+plot(ones(sum(~exper.badSub(:,ses)),1), rc_spaced_mean,rc_mark,'LineWidth',1);
+plot(2*ones(sum(~exper.badSub(:,ses)),1), rc_massed_mean,rc_mark,'LineWidth',1);
+
+% forgotten
+plot(ones(sum(~exper.badSub(:,ses)),1), fo_spaced_mean,fo_mark,'LineWidth',1);
+plot(2*ones(sum(~exper.badSub(:,ses)),1), fo_massed_mean,fo_mark,'LineWidth',1);
+
+meanSizeR = 15;
+meanSizeF = 20;
+
+% recalled
+hr = plot(1, mean(rc_spaced_mean),rc_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+plot(2, mean(rc_massed_mean),rc_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+
+% forgotten
+hf = plot(1, mean(fo_spaced_mean),fo_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+plot(2, mean(fo_massed_mean),fo_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+
+hold off
+axis square
+axis([0.75 2.25 0.25 0.65]);
+
+set(gca,'XTick', [1 2]);
+
+set(gca,'XTickLabel',{'Spaced','Massed'});
+ylabel('Classification accuracy');
+
+title('Spacing \times Subsequent Memory');
+legend([hr, hf],{'Recalled','Forgotten'},'Location','North');
+
+publishfig(gcf,0,[],[],[]);
+
+print(gcf,'-depsc2','~/Desktop/class_spacXsm.eps');
+
+% figure;
+% boxplot([mean(testAcc(~exper.badSub(:,ses),ses,:,spaced),3);mean(testAcc(~exper.badSub(:,ses),ses,:,massed),3)],[ones(sum(~exper.badSub(:,ses)),1);2*ones(sum(~exper.badSub(:,ses)),1)]);
+% set(gca,'XTickLabel',{'Spaced','Massed'});
+% ylabel('Classification accuracy');
+% 
+% mean(mean(testAcc(~exper.badSub(:,ses),ses,:,massed),3))
+
 
 %% testAcc
 
@@ -893,7 +994,7 @@ for ses = 1:length(exper.sesStr)
     d = mm_effect_size('within',data1,data2);
     [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
     
-    fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
+    fprintf('%s (M=%.3f; SEM=%.3f) vs\t%s (M=%.3f; SEM=%.3f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
       data1_str, ...
       mean(data1), ...
       std(data1) / sqrt(length(data1)), ...
