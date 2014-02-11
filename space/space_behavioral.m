@@ -2,7 +2,10 @@
 
 %% load the analysis details
 
+allowRecallSynonyms = true;
+
 procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% procDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
   'SPACE001';
@@ -35,23 +38,26 @@ subjects = {
 sesNames = {'session_1'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = false;
+replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
-
-%% decide who to kick out based on trial counts
-
-% Subjects with bad behavior
-exper.badBehSub = {{}};
-
-% exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
 %% load the behavioral data
 
 behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results.mat');
 
 load(behfile);
+
+%% decide who to kick out based on trial counts
+
+% Subjects with bad behavior
+exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
+
+% % exclude subjects with low event counts
+% [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+
+% exper.badSub = zeros(size(subjects));
+exper.badSub = ismember(subjects,exper.badBehSub{1});
 
 %% ttest stuff
 
@@ -64,6 +70,7 @@ ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recog';
 measure = 'hr';
+% measure = 'dp';
 
 manip = 'spaced';
 
