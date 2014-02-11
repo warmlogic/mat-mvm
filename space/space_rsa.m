@@ -4,8 +4,8 @@
 
 allowRecallSynonyms = true;
 
-% procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-procDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% procDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 
 subjects = {
   'SPACE001';
@@ -335,15 +335,17 @@ ses = 1;
 evVal = 1;
 
 % thisROI = {'center91'};
-thisROI = {'center109'};
+% thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
-% thisROI = 'LPS';
-% thisROI = 'PI';
-% thisROI = {'posterior'};
+thisROI = {'LPS'};
 % thisROI = {'LPS', 'RPS'};
+% thisROI = {'Fz'};
+% thisROI = {'Cz'};
+% thisROI = {'Pz'};
+% thisROI = {'PI'};
+% thisROI = {'posterior'};
 % thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
-% thisROI = 'Cz';
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
 if all(ismember(thisROI,ana.elecGroupsStr))
@@ -1271,6 +1273,74 @@ for d = 1:length(dataTypes)
     end
   end % sub
 end % dataTypes
+
+%% bar plot
+
+
+% bar(D.img_RgH_rc_spac.dissim(~exper.badSub,1,1));
+
+measure = 'recall_hr';
+
+figure
+hold on
+
+plot(results.oneDay.cued_recall.spaced.recall.(measure)(~exper.badSub)',D.img_RgH_rc_spac.dissim(~exper.badSub,1,1),'ko');
+plot(results.oneDay.cued_recall.spaced.recall.(measure)(~exper.badSub)',D.img_RgH_rc_mass.dissim(~exper.badSub,1,1),'rx');
+
+hold off
+
+%% correlation
+
+corrType = 'Pearson';
+% corrType = 'Spearman';
+
+measure = 'recall_hr';
+% measure = 'recall_rt';
+
+distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+for t = 1:size(D.(distcases{1}).dissim,3)
+  fprintf('\n');
+  latStr = sprintf('%.2f s to %.2f s',latencies(t,1),latencies(t,2));
+  fprintf('%s...\n',latStr);
+  for d = 1:length(distcases)
+    %x = results.oneDay.cued_recall.spaced.recall.(measure)(~exper.badSub)';
+    %y = D.(distcases{d}).dissim(~exper.badSub,1,t);
+    
+    x = D.(distcases{d}).dissim(~exper.badSub,1,t);
+    y = results.oneDay.cued_recall.spaced.recall.(measure)(~exper.badSub)';
+    
+    stats = regstats(x,y,'linear','cookd');
+    outliers = stats.cookd > 3*mean(stats.cookd);
+    
+    [rho ,p] = corr(x(~outliers),y(~outliers),'type',corrType);
+    fprintf('\t%s vs %s (%d),\trho=%.3f, p=%.5f\n',measure,distcases{d},sum(~outliers),rho,p);
+    
+    if p < .05
+      figure
+      hold on
+      
+      plot(x(~outliers),y(~outliers),'ko');
+      plot(x(outliers),y(outliers),'rx');
+      
+      hold off
+      
+      title(sprintf('%s, %s: rho=%.3f, p=%.5f',latStr,strrep(distcases{d},'_','-'),rho,p));
+      %xlabel(strrep(measure,'_','-'));
+      %ylabel('distance');
+      
+      xlabel('distance');
+      ylabel(strrep(measure,'_','-'));
+      %ylim([75 110]);
+    end
+  end
+end
+
+
+% mdl = fitlm(x,y);
+% 
+% plotDiagnostics(mdl,'cookd')
 
 %% RM ANOVA - p1 vs p2: spac x stimType x memory x time
 
