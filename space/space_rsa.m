@@ -334,10 +334,10 @@ cfg_scd = [];
 cfg_scd.elec = ana.elec;
 cfg_scd.method = 'spline';
 
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sesStr)
+    for typ = 1:length(ana.eventValues{ses})
+      for evVal = 1:length(ana.eventValues{ses}{typ})
         if ~exper.badSub(sub)
           fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
           
@@ -362,14 +362,20 @@ end
 % cfg_t.layout = ana.elec;
 % ft_topoplotER(cfg_t,c);
 
+% fn = fieldnames(data_tla.session_1);
+% for i = 1:length(fn)
+%   if ~ismember(fn{i},ana.eventValues{1}{1})
+%     data_tla.session_1 = rmfield(data_tla.session_1,fn{i});
+%   end
+% end
 
 %% RSA - very basic
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % testing out SCD
-% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
+dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
 
 % dataTypes = {'img_RgH_rc_spac'};
 
@@ -411,11 +417,11 @@ sub = 1;
 ses = 1;
 evVal = 1;
 
-% thisROI = {'center91'};
+thisROI = {'center91'};
 % thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
-thisROI = {'LPS'};
+% thisROI = {'LPS'};
 % thisROI = {'LPS', 'RPS'};
 % thisROI = {'Fz'};
 % thisROI = {'Cz'};
@@ -1468,6 +1474,48 @@ end
 varnames = {'spacing','subseqMem','stimType','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
 
+%% RM ANOVA - p1 vs p2: spac x time
+
+cnds = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
+
+nThresh = 1;
+
+goodSub = ones(length(exper.subjects),1);
+
+for ses = 1:length(exper.sesStr)
+  for cnd = 1:length(cnds)
+    goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
+  end
+end
+
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  
+  if ~exper.badSub(sub)
+  %if goodSub(sub)
+    for ses = 1:length(exper.sesStr)
+      
+      theseData = [];
+      
+      for cnd = 1:length(cnds)
+        
+        for t = 1:size(D.(cnds{cnd}).dissim,3)
+          
+          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
+          
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+  
+end
+
+varnames = {'spacing','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 4], varnames);
+
 %% plot RSA spacing x subsequent memory interaction
 
 ses=1;
@@ -1569,7 +1617,6 @@ publishfig(gcf,0,[],[],[]);
 
 % print(gcf,'-depsc2','~/Desktop/rsa_spacXtime.eps');
 
-
 %% plot RSA spacing x stimType x time interaction
 
 ses=1;
@@ -1634,7 +1681,6 @@ publishfig(gcf,0,[],[],[]);
 
 % print(gcf,'-depsc2','~/Desktop/rsa_spacXstimXtime.eps');
 
-
 %% stats - ttest
 
 % data1_str = 'word_RgH_rc_spac';
@@ -1646,11 +1692,14 @@ publishfig(gcf,0,[],[],[]);
 % data1_str = 'img_RgH_fo_spac';
 % data2_str = 'img_RgH_fo_mass';
 
+% comparisons = {...
+%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
+%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
+%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
+%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+
 comparisons = {...
-  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
-  {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
-  {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
-  {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}};
 
 % comparisons = {...
 %   {'word_RgH_spac', 'word_RgH_mass'}, ...
