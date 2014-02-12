@@ -143,6 +143,8 @@ ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'nemo_trialfun';
+ana.allowTrialOverlap = true;
+ana.renumberSamplesContiguous = true;
 % files used when adding metadata to segmented trials
 ana.useMetadata = true;
 ana.metadata.types = {'nsEvt'};
@@ -210,8 +212,7 @@ ana.cfg_cont.hpfreq = 0.1;
 ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
-ana.cfg_cont.bsfreq = 59:61;
-ana.cfg_cont = [];
+ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
@@ -225,13 +226,15 @@ ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 ana.artifact.threshmin = -150;
 ana.artifact.threshmax = 150;
+ana.artifact.threshrange = 250;
 ana.artifact.basic_art_z = 40;
-ana.artifact.muscle_art_z = 60;
+% ana.artifact.muscle_art_z = 60;
 ana.artifact.jump_art_z = 60;
-ana.artifact.threshmin_postICA = -150;
-ana.artifact.threshmax_postICA = 150;
+ana.artifact.threshmin_postICA = -100;
+ana.artifact.threshmax_postICA = 100;
+ana.artifact.threshrange_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;
-ana.artifact.muscle_art_z_postICA = 50;
+% ana.artifact.muscle_art_z_postICA = 50;
 ana.artifact.jump_art_z_postICA = 50;
 ana.overwrite.raw = 1;
 
