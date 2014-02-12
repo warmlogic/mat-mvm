@@ -216,7 +216,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trl#'));
                             cols.(phaseName).cell_label = find(strcmp(ns_evt_cols,'cel#'));
                             cols.(phaseName).times_studied = find(strcmp(ns_evt_cols,'obs#'));
-                            cols.(phaseName).position = find(strcmp(ns_evt_cols,'pos#'));
                             cols.(phaseName).resp_value = find(strcmp(ns_evt_cols,'rsp#'));
                             cols.(phaseName).accuracy = find(strcmp(ns_evt_cols,'eval'));
                             cols.(phaseName).reaction_time = find(strcmp(ns_evt_cols,'rtim'));
@@ -278,7 +277,13 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     %cols.(phaseName).prime_string = find(strcmp(ns_evt_cols,'prim')); %string
                                     %cols.(phaseName).target_string = find(strcmp(ns_evt_cols,'targ')); %string
                                     cols.(phaseName).FSG_target = find(strcmp(ns_evt_cols,'fstg'));
+                                    if isempty(cols.(phaseName).FSG_target)
+                                        FSG_target = 0;
+                                    end
                                     cols.(phaseName).BSG_target = find(strcmp(ns_evt_cols,'bstg'));
+                                    if isempty(cols.(phaseName).BSG_target)
+                                        BSG_target = 0;
+                                    end
                                     %cols.(phaseName).relation_target = find(strcmp(ns_evt_cols,'relt')); %string
                                     cols.(phaseName).CNC_target = find(strcmp(ns_evt_cols,'cnct'));
                                     cols.(phaseName).KFFRQ_target = find(strcmp(ns_evt_cols,'frqt'));
@@ -299,24 +304,72 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     %cols.(phaseName).response_target = find(strcmp(ns_evt_cols,'rspt')); %string
                                     cols.(phaseName).wordid_target = find(strcmp(ns_evt_cols,'widt'));
                                     cols.(phaseName).CNC_prime = find(strcmp(ns_evt_cols,'cncp'));
+                                    if isempty(cols.(phaseName).CNC_prime)
+                                        CNC_prime = 0;
+                                    end
                                     cols.(phaseName).KFFRQ_prime = find(strcmp(ns_evt_cols,'frqp'));
+                                    if isempty(cols.(phaseName).KFFRQ_prime)
+                                        KFFRQ_prime = 0;
+                                    end
                                     cols.(phaseName).NLET_prime = find(strcmp(ns_evt_cols,'lenp'));
+                                    if isempty(cols.(phaseName).NLET_prime)
+                                        NLET_prime = 0;
+                                    end
                                     cols.(phaseName).NPHON_prime = find(strcmp(ns_evt_cols,'phop'));
+                                    if isempty(cols.(phaseName).NPHON_prime)
+                                        NPHON_prime = 0;
+                                    end
                                     cols.(phaseName).NSYLL_prime = find(strcmp(ns_evt_cols,'sylp'));
+                                    if isempty(cols.(phaseName).NSYLL_prime)
+                                        NSYLL_prime = 0;
+                                    end
                                     cols.(phaseName).orthoN_prime = find(strcmp(ns_evt_cols,'ornp'));
+                                    if isempty(cols.(phaseName).orthoN_prime)
+                                        orthoN_prime = 0;
+                                    end
                                     cols.(phaseName).phonoN_prime = find(strcmp(ns_evt_cols,'phnp'));
+                                    if isempty(cols.(phaseName).phonoN_prime)
+                                        phonoN_prime = 0;
+                                    end
                                     %cols.(phaseName).con_cat_prime = find(strcmp(ns_evt_cols,'ccap')); %string
                                     cols.(phaseName).AOA_prime = find(strcmp(ns_evt_cols,'aoap'));
+                                    if isempty(cols.(phaseName).AOA_prime)
+                                        AOA_prime = 0;
+                                    end
                                     cols.(phaseName).BFRQ_prime = find(strcmp(ns_evt_cols,'bfqp'));
+                                    if isempty(cols.(phaseName).BFRQ_prime)
+                                        BFRQ_prime = 0;
+                                    end
                                     cols.(phaseName).FAM_prime = find(strcmp(ns_evt_cols,'famp'));
+                                    if isempty(cols.(phaseName).FAM_prime)
+                                        FAM_prime = 0;
+                                    end
                                     cols.(phaseName).IMG_prime = find(strcmp(ns_evt_cols,'imgp'));
+                                    if isempty(cols.(phaseName).IMG_prime)
+                                        IMG_prime = 0;
+                                    end
                                     cols.(phaseName).CMEAN_prime = find(strcmp(ns_evt_cols,'cmnp'));
+                                    if isempty(cols.(phaseName).CMEAN_prime)
+                                        CMEAN_prime = 0;
+                                    end
                                     cols.(phaseName).PMEAN_prime = find(strcmp(ns_evt_cols,'pmnp'));
+                                    if isempty(cols.(phaseName).PMEAN_prime)
+                                        PMEAN_prime = 0;
+                                    end
                                     cols.(phaseName).TLFRQ_prime = find(strcmp(ns_evt_cols,'tfrp'));
+                                    if isempty(cols.(phaseName).TLFRQ_prime)
+                                        TLFRQ_prime = 0;
+                                    end
                                     %cols.(phaseName).valence_prime = find(strcmp(ns_evt_cols,'valp')); %string
                                     %cols.(phaseName).response_prime = find(strcmp(ns_evt_cols,'rspp')); %string
                                     cols.(phaseName).wordid_prime = find(strcmp(ns_evt_cols,'widp'));
+                                    if isempty(cols.(phaseName).wordid_prime)
+                                        wordid_prime = 0;
+                                    end
                                     cols.(phaseName).word_pair_id = find(strcmp(ns_evt_cols,'pair'));
+                                    if isempty(cols.(phaseName).word_pair_id)
+                                        word_pair_id = 0;
+                                    end
                                     %cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
                                     %cols.(phaseName).modality = find(strcmp(ns_evt_cols,'mody')); %string
                                     %cols.(phaseName).study_task = find(strcmp(ns_evt_cols,'task')); %string
@@ -324,16 +377,16 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             
                             % Critical: set up the stimulus type, as well as the
                             % event string to match eventValues
-                            if strcmp(ns_evt{1}(ec),'prm+') && strcmp(phaseName,'TC_NEMO_fN400study')
+                            if strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'11') && strcmp(phaseName,'TC_NEMO_AO')
+                                evVal = 'ao_standard';
+                            elseif strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'12') && strcmp(phaseName,'TC_NEMO_AO')
+                                evVal = 'ao_target';
+                            elseif strcmp(ns_evt{1}(ec),'prm+') && strcmp(phaseName,'TC_NEMO_fN400study')
                                 evVal = 'study_prime';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study')
                                 evVal = 'study_target';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test')
                                 evVal = 'test_target';
-                            elseif strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'11') && strcmp(phaseName,'TC_NEMO_AO')
-                                evVal = 'ao_standard';
-                            elseif strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'12') && strcmp(phaseName,'TC_NEMO_AO')
-                                evVal = 'ao_target';
                             end
                             trl_order = cfg.eventinfo.trl_order.(evVal);
                             
@@ -360,7 +413,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             trial = str2double(ns_evt{cols.(phaseName).trial+1}{trspInd});
                             cell_label = str2double(ns_evt{cols.(phaseName).cell_label+1}{trspInd});
                             times_studied = str2double(ns_evt{cols.(phaseName).times_studied+1}{trspInd});
-                            position = str2double(ns_evt{cols.(phaseName).position+1}{trspInd});
                             resp_value = str2double(ns_evt{cols.(phaseName).resp_value+1}{trspInd});
                             accuracy = str2double(ns_evt{cols.(phaseName).accuracy+1}{trspInd});
                             reaction_time = str2double(ns_evt{cols.(phaseName).reaction_time+1}{trspInd});
@@ -402,8 +454,12 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     word_pair_id = str2double(ns_evt{cols.(phaseName).word_pair_id+1}{trspInd});
                                     
                                 case {'TC_NEMO_fN400test'}
-                                    FSG_target = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
-                                    BSG_target = str2double(ns_evt{cols.(phaseName).BSG_target+1}{trspInd});
+                                    if FSG_target ~= 0
+                                        FSG_target = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if BSG_target ~= 0
+                                        BSG_target = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
                                     CNC_target = str2double(ns_evt{cols.(phaseName).CNC_target+1}{trspInd});
                                     KFFRQ_target = str2double(ns_evt{cols.(phaseName).KFFRQ_target+1}{trspInd});
                                     NLET_target = str2double(ns_evt{cols.(phaseName).NLET_target+1}{trspInd});
@@ -419,22 +475,54 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     PMEAN_target = str2double(ns_evt{cols.(phaseName).PMEAN_target+1}{trspInd});
                                     TLFRQ_target = str2double(ns_evt{cols.(phaseName).TLFRQ_target+1}{trspInd});
                                     wordid_target = str2double(ns_evt{cols.(phaseName).wordid_target+1}{trspInd});
-                                    CNC_prime = str2double(ns_evt{cols.(phaseName).CNC_prime+1}{trspInd});
-                                    KFFRQ_prime = str2double(ns_evt{cols.(phaseName).KFFRQ_prime+1}{trspInd});
-                                    NLET_prime = str2double(ns_evt{cols.(phaseName).NLET_prime+1}{trspInd});
-                                    NPHON_prime = str2double(ns_evt{cols.(phaseName).NPHON_prime+1}{trspInd});
-                                    NSYLL_prime = str2double(ns_evt{cols.(phaseName).NSYLL_prime+1}{trspInd});
-                                    orthoN_prime = str2double(ns_evt{cols.(phaseName).orthoN_prime+1}{trspInd});
-                                    phonoN_prime = str2double(ns_evt{cols.(phaseName).phonoN_prime+1}{trspInd});
-                                    AOA_prime = str2double(ns_evt{cols.(phaseName).AOA_prime+1}{trspInd});
-                                    BFRQ_prime = str2double(ns_evt{cols.(phaseName).BFRQ_prime+1}{trspInd});
-                                    FAM_prime = str2double(ns_evt{cols.(phaseName).FAM_prime+1}{trspInd});
-                                    IMG_prime = str2double(ns_evt{cols.(phaseName).IMG_prime+1}{trspInd});
-                                    CMEAN_prime = str2double(ns_evt{cols.(phaseName).CMEAN_prime+1}{trspInd});
-                                    PMEAN_prime = str2double(ns_evt{cols.(phaseName).PMEAN_prime+1}{trspInd});
-                                    TLFRQ_prime = str2double(ns_evt{cols.(phaseName).TLFRQ_prime+1}{trspInd});
-                                    wordid_prime = str2double(ns_evt{cols.(phaseName).wordid_prime+1}{trspInd});
-                                    word_pair_id = str2double(ns_evt{cols.(phaseName).word_pair_id+1}{trspInd});
+                                    if CNC_prime ~= 0
+                                        CNC_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if KFFRQ_prime ~= 0
+                                        KFFRQ_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if NLET_prime ~= 0
+                                        NLET_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if NPHON_prime ~= 0
+                                        NPHON_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if NSYLL_prime ~= 0
+                                        NSYLL_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if orthoN_prime ~= 0
+                                        orthoN_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if phonoN_prime ~= 0
+                                        phonoN_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if AOA_prime ~= 0
+                                        AOA_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if BFRQ_prime ~= 0
+                                        BFRQ_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if FAM_prime ~= 0
+                                        FAM_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if IMG_prime ~= 0
+                                        IMG_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if CMEAN_prime ~= 0
+                                        CMEAN_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if PMEAN_prime ~= 0
+                                        PMEAN_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if TLFRQ_prime ~= 0
+                                        TLFRQ_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if wordid_prime ~= 0
+                                        wordid_prime = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
+                                    if word_pair_id ~= 0
+                                        word_pair_id = str2double(ns_evt{cols.(phaseName).FSG_target+1}{trspInd});
+                                    end
                             end
                             
                             % add it to the trial definition
