@@ -32,6 +32,7 @@ subjects = {
   'SPACE022';
   'SPACE027';
   'SPACE029';
+  'SPACE037';
   };
 
 % only one cell, with all session names
@@ -69,17 +70,20 @@ tails = 'both';
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recog';
-measure = 'hr';
-% measure = 'dp';
+measure = 'recog_hr';
+% measure = 'recog_dp';
+% measure = 'recog_rt';
+% measure = 'recog_rt_hit';
+% measure = 'recog_rt_miss';
 
 manip = 'spaced';
 
-data1 = results.(ses).(phase).(manip).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data1 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
 data1_str = sprintf('%s %s %s',manip,test,measure);
 
 manip = 'massed';
 
-data2 = results.(ses).(phase).(manip).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data2 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
 data2_str = sprintf('%s %s %s',manip,test,measure);
 d = mm_effect_size('within',data1,data2);
 [h, p, ci, stats] = ttest(data1,data2,alpha,tails);
@@ -103,16 +107,19 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recall';
-measure = 'hr';
+measure = 'recall_hr';
+% measure = 'recall_rt';
+% measure = 'recall_rt_hit';
+% measure = 'recall_rt_miss';
 
 manip = 'spaced';
 
-data1 = results.(ses).(phase).(manip).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data1 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
 data1_str = sprintf('%s %s %s',manip,test,measure);
 
 manip = 'massed';
 
-data2 = results.(ses).(phase).(manip).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data2 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
 data2_str = sprintf('%s %s %s',manip,test,measure);
 
 d = mm_effect_size('within',data1,data2);
@@ -139,16 +146,19 @@ categ = 'Faces';
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recall';
-measure = 'hr';
+measure = 'recall_hr';
+% measure = 'recall_rt';
+% measure = 'recall_rt_hit';
+% measure = 'recall_rt_miss';
 
 manip = 'spaced';
 
-data1 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data1 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data1_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 manip = 'massed';
 
-data2 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data2 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data2_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 d = mm_effect_size('within',data1,data2);
@@ -175,16 +185,19 @@ categ = 'HouseInside';
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recall';
-measure = 'hr';
+measure = 'recall_hr';
+% measure = 'recall_rt';
+% measure = 'recall_rt_hit';
+% measure = 'recall_rt_miss';
 
 manip = 'spaced';
 
-data1 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data1 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data1_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 manip = 'massed';
 
-data2 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data2 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data2_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 d = mm_effect_size('within',data1,data2);
@@ -209,18 +222,21 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recall';
-measure = 'hr';
+measure = 'recall_hr';
+% measure = 'recall_rt';
+% measure = 'recall_rt_hit';
+% measure = 'recall_rt_miss';
 
 manip = 'spaced';
 
 categ = 'Faces';
 
-data1 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data1 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data1_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 categ = 'HouseInside';
 
-data2 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data2 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data2_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 d = mm_effect_size('within',data1,data2);
@@ -245,18 +261,21 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recall';
-measure = 'hr';
+measure = 'recall_hr';
+% measure = 'recall_rt';
+% measure = 'recall_rt_hit';
+% measure = 'recall_rt_miss';
 
 manip = 'massed';
 
 categ = 'Faces';
 
-data1 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data1 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data1_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 categ = 'HouseInside';
 
-data2 = results.(ses).(phase).(manip).(categ).(test).(sprintf('%s_%s',test,measure))(~exper.badSub);
+data2 = results.(ses).(phase).(manip).(categ).(test).(measure)(~exper.badSub);
 data2_str = sprintf('%s %s %s %s',manip,categ,test,measure);
 
 d = mm_effect_size('within',data1,data2);
