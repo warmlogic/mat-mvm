@@ -2,9 +2,33 @@
 
 %% load the analysis details
 
-allowRecallSynonyms = true;
+subDir = '';
+dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
 
-procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+  %runLocally = 1;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+  %runLocally = 1;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+  %runLocally = 0;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+  %runLocally = 1;
+else
+  error('Data directory not found.');
+end
+
+% procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
   'SPACE001';
@@ -36,6 +60,8 @@ subjects = {
 
 % only one cell, with all session names
 sesNames = {'session_1'};
+
+allowRecallSynonyms = true;
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;

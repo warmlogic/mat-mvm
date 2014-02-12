@@ -25,8 +25,6 @@ else
   error('Data directory not found.');
 end
 
-allowRecallSynonyms = true;
-
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
@@ -60,6 +58,8 @@ subjects = {
 
 % only one cell, with all session names
 sesNames = {'session_1'};
+
+allowRecallSynonyms = true;
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;
