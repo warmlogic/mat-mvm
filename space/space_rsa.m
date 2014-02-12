@@ -32,6 +32,7 @@ subjects = {
   'SPACE022';
   'SPACE027';
   'SPACE029';
+  'SPACE037';
   };
 
 % only one cell, with all session names
@@ -284,10 +285,58 @@ ana.eventValues = ana.eventValuesSplit;
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{}};
+% exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE001','SPACE005','SPACE017'}};
+% exper.badBehSub = {{'SPACE001','SPACE005','SPACE017','SPACE019'}};
+
+% SPACE019 has particularly low distance (high similarity) values
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+
+%% convert to scalp current density
+
+if ~exist('data_tla_backup','var')
+  data_tla_backup = data_tla;
+else
+  error('data_tla_backup already exists, don''t want to overwrite it');
+end
+
+cfg_sel = [];
+cfg_sel.latency = [-0.2 1.0];
+
+cfg_scd = [];
+cfg_scd.elec = ana.elec;
+cfg_scd.method = 'spline';
+
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      for sub = 1:length(exper.subjects)
+        if ~exper.badSub(sub)
+          fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+          
+          % select
+          data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+          
+          % scalp current density
+          data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_scalpcurrentdensity(cfg_scd,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        end
+      end
+    end
+  end
+end
+
+% cfg_tla = [];
+% cfg_tla.keeptrials = 'no';
+% c = ft_timelockanalysis(cfg_tla,b);
+% 
+% cfg_t = [];
+% cfg_t.xlim = [0.1 0.3];
+% % cfg_t.xlim = [0.5 0.8];
+% cfg_t.layout = ana.elec;
+% ft_topoplotER(cfg_t,c);
+
 
 %% RSA - very basic
 
@@ -1296,6 +1345,7 @@ corrType = 'Pearson';
 
 measure = 'recall_hr';
 % measure = 'recall_rt';
+% measure = 'recall_rt_hit';
 
 distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
@@ -1305,11 +1355,17 @@ for t = 1:size(D.(distcases{1}).dissim,3)
   latStr = sprintf('%.2f s to %.2f s',latencies(t,1),latencies(t,2));
   fprintf('%s...\n',latStr);
   for d = 1:length(distcases)
-    %x = results.oneDay.cued_recall.spaced.recall.(measure)(~exper.badSub)';
+    if ~isempty(strfind(distcases{d},'spac'))
+      cond = 'spaced';
+    elseif ~isempty(strfind(distcases{d},'mass'))
+      cond = 'massed';
+    end
+    
+    %x = results.oneDay.cued_recall.(cond).recall.(measure)(~exper.badSub);
     %y = D.(distcases{d}).dissim(~exper.badSub,1,t);
     
     x = D.(distcases{d}).dissim(~exper.badSub,1,t);
-    y = results.oneDay.cued_recall.spaced.recall.(measure)(~exper.badSub)';
+    y = results.oneDay.cued_recall.(cond).recall.(measure)(~exper.badSub);
     
     stats = regstats(x,y,'linear','cookd');
     outliers = stats.cookd > 3*mean(stats.cookd);
@@ -1331,7 +1387,7 @@ for t = 1:size(D.(distcases{1}).dissim,3)
       %ylabel('distance');
       
       xlabel('distance');
-      ylabel(strrep(measure,'_','-'));
+      ylabel(sprintf('%s %s',cond,strrep(measure,'_','-')));
       %ylim([75 110]);
     end
   end
@@ -1361,8 +1417,8 @@ anovaData = [];
 
 for sub = 1:length(exper.subjects)
   
-  %if ~exper.badSub(sub)
-  if goodSub(sub)
+  if ~exper.badSub(sub)
+  %if goodSub(sub)
     for ses = 1:length(exper.sesStr)
       
       theseData = [];
@@ -1420,7 +1476,8 @@ plot(2, mean(fo_massed_mean),fo_mark,'LineWidth',3,'MarkerSize',meanSizeF);
 
 hold off
 axis square
-axis([0.75 2.25 75 110]);
+% axis([0.75 2.25 75 110]);
+xlim([0.75 2.25]);
 
 set(gca,'XTick', [1 2]);
 
@@ -1432,7 +1489,7 @@ legend([hr, hf],{'Recalled','Forgotten'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2','~/Desktop/rsa_spacXsm.eps');
+% print(gcf,'-depsc2','~/Desktop/rsa_spacXsm.eps');
 
 %% plot RSA spacing x time interaction
 
@@ -1468,7 +1525,8 @@ hm = errorbar(mean(massed_mean,1)',massed_sem,ma_mark,'LineWidth',2,'MarkerSize'
 hold off
 axis square
 % axis([0.75 4.25 97 103]);
-axis([0.75 4.25 95 105]);
+% axis([0.75 4.25 95 105]);
+xlim([0.75 4.25]);
 
 set(gca,'XTick', [1 2 3 4]);
 
@@ -1481,10 +1539,10 @@ legend([hm,hs],{'Massed','Spaced'},'Location','SouthWest');
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2','~/Desktop/rsa_spacXtime.eps');
+% print(gcf,'-depsc2','~/Desktop/rsa_spacXtime.eps');
 
 
-%% plot RSA spacing x time interaction
+%% plot RSA spacing x stimType x time interaction
 
 ses=1;
 
@@ -1532,7 +1590,8 @@ hmi = errorbar(mean(massed_i_mean,1)',massed_i_sem,mass_i_mark,'LineWidth',2,'Ma
 
 hold off
 axis square
-axis([0.75 4.25 95 105]);
+%axis([0.75 4.25 95 105]);
+xlim([0.75 4.25]);
 
 set(gca,'XTick', [1 2 3 4]);
 
@@ -1545,7 +1604,7 @@ legend([hmw, hmi, hsw, hsi],{'Massed Word','Massed Image','Spaced Word','Spaced 
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2','~/Desktop/rsa_spacXstimXtime.eps');
+% print(gcf,'-depsc2','~/Desktop/rsa_spacXstimXtime.eps');
 
 
 %% stats - ttest
