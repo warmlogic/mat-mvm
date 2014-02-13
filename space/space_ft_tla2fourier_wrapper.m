@@ -5,11 +5,11 @@ function space_ft_tla2fourier_wrapper(whichStages)
 %
 % To run on a local computer, type the command in MATLAB
 %
-% There are two stages:
+% There is one stage:
 %  stage1 = call wrapper that calls mm_tla2fourier, saves fourier and pow
 %
 % Input:
-%  whichStages: the stage number(s) to run (default = 1:2)
+%  whichStages: the stage number(s) to run (default = 1)
 %
 % Output:
 %  time-frequency data
@@ -233,7 +233,8 @@ if runLocally == 0
     inArg = {exper,dirs,cfg_ana,cfg_ft,cfg_fd};
     
     % save the exper struct (output 1) so we can use it later
-    createTask(job,@mm_tla2fourier,1,inArg);
+    nOutArg = 0;
+    createTask(job,@mm_tla2fourier,nOutArg,inArg);
   end
   
   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
