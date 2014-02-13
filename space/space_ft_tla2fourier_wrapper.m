@@ -38,16 +38,16 @@ localDir = fullfile(getenv('HOME'),'data');
 % pick the right dataroot
 if exist('serverDir','var') && exist(serverDir,'dir')
   dataroot = serverDir;
-  %runLocally = 1;
+  runLocally = 1;
 elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
   dataroot = serverLocalDir;
-  %runLocally = 1;
+  runLocally = 1;
 elseif exist('dreamDir','var') && exist(dreamDir,'dir')
   dataroot = dreamDir;
-  %runLocally = 0;
+  runLocally = 0;
 elseif exist('localDir','var') && exist(localDir,'dir')
   dataroot = localDir;
-  %runLocally = 1;
+  runLocally = 1;
 else
   error('Data directory not found.');
 end
