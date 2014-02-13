@@ -6,7 +6,7 @@ function space_ft_tla2fourier_wrapper(whichStages)
 % To run on a local computer, type the command in MATLAB
 %
 % There are two stages:
-%  stage1 = call wrapper that calls mm_tla2fourier2pow, saves fourier and pow
+%  stage1 = call wrapper that calls mm_tla2fourier, saves fourier and pow
 %
 % Input:
 %  whichStages: the stage number(s) to run (default = 1:2)
@@ -232,7 +232,7 @@ if runLocally == 0
     inArg = {exper,dirs,cfg_ana,cfg_ft,cfg_fd};
     
     % save the exper struct (output 1) so we can use it later
-    createTask(job,@mm_tla2fourier2pow,1,inArg);
+    createTask(job,@mm_tla2fourier,1,inArg);
   end
   
   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
@@ -253,7 +253,7 @@ else
   %ana.usePeer = 0;
   
   % Local: run all the subjects
-  mm_tla2fourier2pow(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
+  mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
   
   % turn the diary off
   diary off
