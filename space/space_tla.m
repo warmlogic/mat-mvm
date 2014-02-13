@@ -85,6 +85,135 @@ replaceDataroot = true;
 % % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
+%% convert timelock to fourier
+
+orig_ftype = 'tla';
+
+param = 'fourierspctrm';
+
+alt_ftype = 'pow';
+alt_param = 'powspctrm';
+
+cfg_ft = [];
+cfg_ft.pad = 'maxperlen';
+% cfg_ft.output = 'pow';
+% % cfg_ft.output = 'powandcsd';
+% cfg_ft.keeptrials = 'yes';
+% cfg_ft.keeptapers = 'no';
+
+% cfg_ft.output = 'pow';
+% cfg_ft.keeptrials = 'no';
+cfg_ft.output = 'fourier';
+cfg_ft.keeptrials = 'yes';
+% cfg_ft.keeptapers = 'yes';
+
+% wavelet
+cfg_ft.method = 'wavelet';
+cfg_ft.width = 5;
+%cfg_ft.toi = -0.8:0.04:3.0;
+cfg_ft.toi = -0.5:0.04:1.0;
+% cfg_ft.toi = 0:0.04:1.0;
+% % evenly spaced frequencies, but not as many as foilim makes
+% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
+% % cfg_ft.foi = 3:freqstep:9;
+% cfg_ft.foi = 3:freqstep:60;
+% cfg_ft.foi = 4:1:100;
+%cfg_ft.foi = 4:1:30;
+% cfg_ft.foilim = [3 9];
+% cfg_ft.foilim = [3 13];
+cfg_ft.foilim = [3 80];
+
+cfg_fd = [];
+cfg_fd.variance = 'no';
+cfg_fd.jackknife = 'no';
+cfg_fd.keeptrials = 'yes';
+
+saveroot = strrep(dirs.saveDirProc,orig_ftype,cfg_ft.output);
+if ~exist(saveroot,'dir')
+  [s] = mkdir(saveroot);
+  if ~s
+    error('Could not make %s',saveroot);
+  end
+end
+
+saveroot_alt = strrep(dirs.saveDirProc,orig_ftype,alt_ftype);
+if ~exist(saveroot_alt,'dir')
+  [s] = mkdir(saveroot_alt);
+  if ~s
+    error('Could not make %s',saveroot_alt);
+  end
+end
+
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sesStr)
+    fprintf('%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
+    
+    sesDir = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses});
+    origData = dir(fullfile(sesDir,sprintf('data_%s*.mat',orig_ftype)));
+    
+    saveDir = fullfile(saveroot,exper.subjects{sub},exper.sesStr{ses});
+    if ~exist(saveDir,'dir')
+      [s] = mkdir(saveDir);
+      if ~s
+        error('Could not make %s',saveDir);
+      end
+    end
+    
+    saveDir_alt = fullfile(saveroot_alt,exper.subjects{sub},exper.sesStr{ses});
+    if ~exist(saveDir_alt,'dir')
+      [s] = mkdir(saveDir_alt);
+      if ~s
+        error('Could not make %s',saveDir_alt);
+      end
+    end
+    
+    for od = 1:length(origData)
+      % set up file names
+      origFile = origData(od).name;
+      origFile_full = fullfile(sesDir,origFile);
+      
+      outputFile = strrep(origFile,orig_ftype,cfg_ft.output);
+      outputFile_full = fullfile(saveDir,outputFile);
+      
+      outputFile_alt = strrep(origFile,orig_ftype,alt_ftype);
+      outputFile_alt_full = fullfile(saveDir_alt,outputFile_alt);
+      
+      % load timelock
+      %fprintf('\tLoading timelock...\n');
+      %load(origFile_full);
+      %fprintf('Done.\n');
+      
+      % calculate fourier
+      fprintf('\tCalculating fourier...\n');
+      cfg_ft.inputfile = origFile_full;
+      cfg_ft.outputfile = outputFile_full;
+      fourier = ft_freqanalysis(cfg_ft);
+      %fourier = ft_freqanalysis(cfg_ft,timelock);
+      fprintf('Done.\n');
+      
+      % save fourier
+      %fprintf('\tSaving fourier...');
+      %save(outputFile_full,'fourier');
+      %fprintf('Done.\n');
+      
+      % calculate pow
+      fprintf('\tCalculating power...\n');
+      cfg_fd.outputfile = outputFile_alt_full;
+      %pow.(alt_param) = (abs(fourier.(param))).^2;
+      %pow = ft_freqdescriptives(cfg_fd,fourier);
+      ft_freqdescriptives(cfg_fd,fourier);
+      fprintf('Done.\n');
+      
+      % save pow
+      %fprintf('\tSaving power...\n');
+      %save(outputFile_alt_full,'pow');
+      %fprintf('Done.\n');
+    end
+  end
+end
+
+%imagesc(freq.time,freq.freq,squeeze(mean(freq.powspctrm(:,55,:,:),1)));axis xy;
+
 %% set up channel groups
 
 % pre-defined in this function
@@ -724,7 +853,8 @@ cfg_plot.is_ga = 0;
 
 % cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
 
 %%%%%%%%%%%%%%%
 % Type of plot
@@ -894,7 +1024,7 @@ cfg_plot.rois = {{'FC'},{'FS'}};
 cfg_plot.ylims = [-4 2; -4 2];
 % cfg_plot.rois = {{'posterior'}};
 cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-2 6; -2 6];
+cfg_plot.ylims = [-2 3; -2 3];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 cfg_plot.is_ga = 1;
@@ -919,7 +1049,7 @@ sesNum = 1;
 % cfg_plot.condByROI = repmat(ana.eventValues(sesNum),size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'Face' 'House'}},size(cfg_plot.rois));
 
-% cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_mass_p1', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p1', 'img_RgH_fo_mass_p2'}},size(cfg_plot.rois));
@@ -954,8 +1084,10 @@ cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.parameter = 'avg';
 
-cfg_plot.rois = {{'E70'},{'E83'}};
-cfg_plot.ylims = [-10 10; -10 10];
+cfg_plot.titleTrialCount = false;
+
+% cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.ylims = [-10 10; -10 10];
 
 % cfg_plot.rois = {{'E83'}};
 % cfg_plot.xlim = [-0.2 1.0];
@@ -975,12 +1107,15 @@ cfg_plot.ylims = [-10 10; -10 10];
 
 cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
+ses = 1;
+
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
+  cfg_plot.types = {'image','word'};
   
-  mm_ft_subjplotER(cfg_plot,ana,exper,data_tla);
+  mm_ft_subjplotER(cfg_plot,ana,exper,data_tla,ses);
 end
 
 % %% plot the conditions
