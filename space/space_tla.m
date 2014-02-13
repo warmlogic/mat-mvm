@@ -228,7 +228,9 @@ for sub = 1:length(exper.subjects)
           
           % calculate pow
           fprintf('\tCalculating power for second half of trials...\n');
-          cfg_fd = rmfield(cfg_fd,'outputfile');
+          if isfield(cfg_fd,'outputfile')
+            cfg_fd = rmfield(cfg_fd,'outputfile');
+          end
           cfg_fd.outputfile = outputFile_alt_full;
           %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
           %pow = ft_freqdescriptives(cfg_fd,fourier);
@@ -239,7 +241,9 @@ for sub = 1:length(exper.subjects)
           
           % calculate pow
           fprintf('\tCalculating power...\n');
-          cfg_fd = rmfield(cfg_fd,'outputfile');
+          if isfield(cfg_fd,'outputfile')
+            cfg_fd = rmfield(cfg_fd,'outputfile');
+          end
           cfg_fd.outputfile = outputFile_alt_full;
           %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
           %pow = ft_freqdescriptives(cfg_fd,fourier);
@@ -251,7 +255,9 @@ for sub = 1:length(exper.subjects)
         
         % calculate pow
         fprintf('\tCalculating power...\n');
-        cfg_fd = rmfield(cfg_fd,'outputfile');
+        if isfield(cfg_fd,'outputfile')
+          cfg_fd = rmfield(cfg_fd,'outputfile');
+        end
         cfg_fd.outputfile = outputFile_alt_full;
         %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
         %pow = ft_freqdescriptives(cfg_fd,fourier);
