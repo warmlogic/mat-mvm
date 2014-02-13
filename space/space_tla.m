@@ -96,6 +96,7 @@ cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
 cfg_ana.alt_splitTrials = false;
+cfg_ana.alt_splitSize = 200;
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -206,39 +207,44 @@ for sub = 1:length(exper.subjects)
         if cfg_ana.alt_splitTrials
           % split it in two if there are too many trials
           nTrials = size(fourier.fourierspctrm,1);
-          if nTrials > 300
+          if nTrials > cfg_ana.alt_splitSize
             fprintf('Splitting trials...\n');
-            cfg_fd.trials = false(1,nTrials);
-            firstHalf = floor(nTrials / 2);
-            cfg_fd.trials(1:firstHalf) = true;
-            outputFile_alt_full = strrep(outputFile_alt_full,'.mat','_1.mat');
             
-            % calculate pow
-            fprintf('\tCalculating power for first half of trials...\n');
-            if isfield(cfg_fd,'outputfile')
-              cfg_fd = rmfield(cfg_fd,'outputfile');
+            nSplits = floor(nTrials / cfg_ana.alt_splitSize);
+            remainSize = nTrials - (cfg_ana.alt_splitSize * nSplits);
+            splitSizes = repmat(cfg_ana.alt_splitSize,1,nSplits);
+            if remainSize > 0
+              splitSizes = cat(2,splitSizes,remainSize);
             end
-            cfg_fd.outputfile = outputFile_alt_full;
-            %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
-            %pow = ft_freqdescriptives(cfg_fd,fourier);
-            ft_freqdescriptives(cfg_fd,fourier);
-            fprintf('Done.\n');
             
-            
-            cfg_fd.trials = false(1,nTrials);
-            cfg_fd.trials(firstHalf+1:nTrials) = true;
-            outputFile_alt_full = strrep(outputFile_alt_full,'_1.mat','_2.mat');
-            
-            % calculate pow
-            fprintf('\tCalculating power for second half of trials...\n');
-            if isfield(cfg_fd,'outputfile')
-              cfg_fd = rmfield(cfg_fd,'outputfile');
+            % trial counter
+            count = 0;
+            for sp = 1:length(splitSizes)
+              cfg_fd.trials = false(1,nTrials);
+              
+              cfg_fd.trials(count+1:count+splitSizes(sp)) = true;
+              
+              if sp == 1
+                outputFile_alt_full = strrep(outputFile_alt_full,'.mat',sprintf('_%d.mat',sp));
+              elseif sp > 1
+                outputFile_alt_full = strrep(outputFile_alt_full,sprintf('_%d.mat',sp-1),sprintf('_%d.mat',sp));
+              end
+              
+              % calculate pow
+              fprintf('\tSplit %d: Calculating power for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+              
+              if isfield(cfg_fd,'outputfile')
+                cfg_fd = rmfield(cfg_fd,'outputfile');
+              end
+              cfg_fd.outputfile = outputFile_alt_full;
+              %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
+              %pow = ft_freqdescriptives(cfg_fd,fourier);
+              ft_freqdescriptives(cfg_fd,fourier);
+              fprintf('Done.\n');
+              
+              % increase the count for next time
+              count = count + splitSizes(sp);
             end
-            cfg_fd.outputfile = outputFile_alt_full;
-            %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
-            %pow = ft_freqdescriptives(cfg_fd,fourier);
-            ft_freqdescriptives(cfg_fd,fourier);
-            fprintf('Done.\n');
           else
             cfg_fd.trials = 'all';
             

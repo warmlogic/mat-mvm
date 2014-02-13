@@ -108,6 +108,7 @@ cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
 cfg_ana.alt_splitTrials = false;
+cfg_ana.alt_splitSize = 200;
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
