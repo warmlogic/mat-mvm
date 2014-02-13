@@ -1378,6 +1378,9 @@ if rejArt_ftICA
     %fprintf('\nIf you still have really bad channels, or have repaired channels, you must exclude them from ICA.\n');
     if ~isempty(badChan_str)
 %       % Method 1: exclude repaired channels
+%       %
+%       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
+%
 %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
 %       ica_chanNum = 0;
 %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
@@ -1389,7 +1392,16 @@ if rejArt_ftICA
       % Method 2: run only on a given number of principle components
       %
       % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
+      %
+      % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
+      
       cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
+      
+      fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+      fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+      fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+      fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+      fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
     end
     
 %     %ica_chanNum = [];
