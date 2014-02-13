@@ -1381,8 +1381,10 @@ measure = 'recall_hr';
 % measure = 'recall_rt';
 % measure = 'recall_rt_hit';
 
-distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+distcases = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
 
 for t = 1:size(D.(distcases{1}).dissim,3)
   fprintf('\n');
@@ -1474,7 +1476,7 @@ end
 varnames = {'spacing','subseqMem','stimType','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
 
-%% RM ANOVA - p1 vs p2: spac x time
+%% RM ANOVA - p1 vs p2: spac x time (trying with SCD)
 
 cnds = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
 
@@ -1574,10 +1576,14 @@ ses=1;
 spaced_mean = squeeze(mean(cat(2,D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:), D.img_RgH_rc_spac.dissim(~exper.badSub,ses,:), ...
   D.word_RgH_fo_spac.dissim(~exper.badSub,ses,:), D.img_RgH_fo_spac.dissim(~exper.badSub,ses,:)),2));
 
+% spaced_mean = squeeze(D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:));
+
 spaced_sem = std(spaced_mean,0,1) / sqrt(sum(~exper.badSub));
 
 massed_mean = squeeze(mean(cat(2,D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:), D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:), ...
   D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:), D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:)),2));
+
+% massed_mean = squeeze(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:));
 
 massed_sem = std(massed_mean,0,1) / sqrt(sum(~exper.badSub));
 
@@ -1692,14 +1698,14 @@ publishfig(gcf,0,[],[],[]);
 % data1_str = 'img_RgH_fo_spac';
 % data2_str = 'img_RgH_fo_mass';
 
-% comparisons = {...
-%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
-%   {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
-%   {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
-%   {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
-
 comparisons = {...
-  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}};
+  {'word_RgH_rc_spac', 'word_RgH_rc_mass'}, ...
+  {'img_RgH_rc_spac', 'img_RgH_rc_mass'}, ...
+  {'word_RgH_fo_spac', 'word_RgH_fo_mass'}, ...
+  {'img_RgH_fo_spac', 'img_RgH_fo_mass'}};
+
+% comparisons = {...
+%   {'word_RgH_rc_spac', 'word_RgH_rc_mass'}};
 
 % comparisons = {...
 %   {'word_RgH_spac', 'word_RgH_mass'}, ...
