@@ -87,10 +87,12 @@ replaceDataroot = true;
 
 %% convert timelock to fourier
 
+cfg_ana = [];
 cfg_ana.orig_ftype = 'tla';
 
-% param = 'fourierspctrm';
+% cfg_ana.param = 'fourierspctrm';
 
+cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
 cfg_ana.alt_splitTrials = false;
@@ -146,7 +148,7 @@ if ~exist(cfg_ana.saveroot_alt,'dir')
   end
 end
 
-%function tla2fourier2pow(exper,dirs,cfg_ana,cfg_ft,cfg_fd)
+%function mm_tla2fourier2pow(exper,dirs,cfg_ana,cfg_ft,cfg_fd)
 
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
@@ -200,42 +202,57 @@ for sub = 1:length(exper.subjects)
       %save(outputFile_full,'fourier');
       %fprintf('Done.\n');
       
-      if cfg_ana.alt_splitTrials
-        % split it in two if there are too many trials
-        nTrials = size(fourier.fourierspctrm,1);
-        if nTrials > 300
-          fprintf('Splitting trials...\n');
-          cfg_fd.trials = false(1,nTrials);
-          firstHalf = floor(nTrials / 2);
-          cfg_fd.trials(1:firstHalf) = true;
-          outputFile_alt_full = strrep(outputFile_alt_full,'.mat','_1.mat');
-          
-          % calculate pow
-          fprintf('\tCalculating power for first half of trials...\n');
-          if isfield(cfg_fd,'outputfile')
-            cfg_fd = rmfield(cfg_fd,'outputfile');
+      if cfg_ana.fourier2pow
+        if cfg_ana.alt_splitTrials
+          % split it in two if there are too many trials
+          nTrials = size(fourier.fourierspctrm,1);
+          if nTrials > 300
+            fprintf('Splitting trials...\n');
+            cfg_fd.trials = false(1,nTrials);
+            firstHalf = floor(nTrials / 2);
+            cfg_fd.trials(1:firstHalf) = true;
+            outputFile_alt_full = strrep(outputFile_alt_full,'.mat','_1.mat');
+            
+            % calculate pow
+            fprintf('\tCalculating power for first half of trials...\n');
+            if isfield(cfg_fd,'outputfile')
+              cfg_fd = rmfield(cfg_fd,'outputfile');
+            end
+            cfg_fd.outputfile = outputFile_alt_full;
+            %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
+            %pow = ft_freqdescriptives(cfg_fd,fourier);
+            ft_freqdescriptives(cfg_fd,fourier);
+            fprintf('Done.\n');
+            
+            
+            cfg_fd.trials = false(1,nTrials);
+            cfg_fd.trials(firstHalf+1:nTrials) = true;
+            outputFile_alt_full = strrep(outputFile_alt_full,'_1.mat','_2.mat');
+            
+            % calculate pow
+            fprintf('\tCalculating power for second half of trials...\n');
+            if isfield(cfg_fd,'outputfile')
+              cfg_fd = rmfield(cfg_fd,'outputfile');
+            end
+            cfg_fd.outputfile = outputFile_alt_full;
+            %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
+            %pow = ft_freqdescriptives(cfg_fd,fourier);
+            ft_freqdescriptives(cfg_fd,fourier);
+            fprintf('Done.\n');
+          else
+            cfg_fd.trials = 'all';
+            
+            % calculate pow
+            fprintf('\tCalculating power...\n');
+            if isfield(cfg_fd,'outputfile')
+              cfg_fd = rmfield(cfg_fd,'outputfile');
+            end
+            cfg_fd.outputfile = outputFile_alt_full;
+            %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
+            %pow = ft_freqdescriptives(cfg_fd,fourier);
+            ft_freqdescriptives(cfg_fd,fourier);
+            fprintf('Done.\n');
           end
-          cfg_fd.outputfile = outputFile_alt_full;
-          %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
-          %pow = ft_freqdescriptives(cfg_fd,fourier);
-          ft_freqdescriptives(cfg_fd,fourier);
-          fprintf('Done.\n');
-          
-          
-          cfg_fd.trials = false(1,nTrials);
-          cfg_fd.trials(firstHalf+1:nTrials) = true;
-          outputFile_alt_full = strrep(outputFile_alt_full,'_1.mat','_2.mat');
-          
-          % calculate pow
-          fprintf('\tCalculating power for second half of trials...\n');
-          if isfield(cfg_fd,'outputfile')
-            cfg_fd = rmfield(cfg_fd,'outputfile');
-          end
-          cfg_fd.outputfile = outputFile_alt_full;
-          %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
-          %pow = ft_freqdescriptives(cfg_fd,fourier);
-          ft_freqdescriptives(cfg_fd,fourier);
-          fprintf('Done.\n');
         else
           cfg_fd.trials = 'all';
           
@@ -245,32 +262,20 @@ for sub = 1:length(exper.subjects)
             cfg_fd = rmfield(cfg_fd,'outputfile');
           end
           cfg_fd.outputfile = outputFile_alt_full;
-          %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
+          %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
           %pow = ft_freqdescriptives(cfg_fd,fourier);
           ft_freqdescriptives(cfg_fd,fourier);
           fprintf('Done.\n');
         end
-      else
-        cfg_fd.trials = 'all';
         
-        % calculate pow
-        fprintf('\tCalculating power...\n');
-        if isfield(cfg_fd,'outputfile')
-          cfg_fd = rmfield(cfg_fd,'outputfile');
-        end
-        cfg_fd.outputfile = outputFile_alt_full;
-        %pow.(cfg_ana.alt_param) = (abs(fourier.(param))).^2;
-        %pow = ft_freqdescriptives(cfg_fd,fourier);
-        ft_freqdescriptives(cfg_fd,fourier);
-        fprintf('Done.\n');
+        % save pow
+        %fprintf('\tSaving power...\n');
+        %save(outputFile_alt_full,'pow');
+        %fprintf('Done.\n');
       end
       
       clear fourier
       
-      % save pow
-      %fprintf('\tSaving power...\n');
-      %save(outputFile_alt_full,'pow');
-      %fprintf('Done.\n');
     end
   end
 end
