@@ -107,8 +107,8 @@ cfg_ana.orig_ftype = 'tla';
 cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
-cfg_ana.alt_splitTrials = true;
-cfg_ana.alt_splitSize = 200;
+cfg_ana.splitTrials = true;
+cfg_ana.splitSize = 200;
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
