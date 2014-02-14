@@ -36,17 +36,19 @@ for sub = 1:length(exper.subjects)
         outputFile_alt_full_orig = fullfile(saveDir_alt,outputFile_alt);
       end
       
-      % check the lock on the final file that we should compute
-      if cfg_ana.fourier2pow
-        lockedFile = outputFile_alt_full_orig;
-      else
-        lockedFile = outputFile_full_orig;
-      end
-      
-      % file could be in limbo; see if it's already been started
-      if ~lockFile(lockedFile)
-        fprintf('Moving on, final file already exists: %s\n',lockedFile);
-        continue
+      if cfg_ana.useLockFiles
+        % check the lock on the final file that we should compute
+        if cfg_ana.fourier2pow
+          lockedFile = outputFile_alt_full_orig;
+        else
+          lockedFile = outputFile_full_orig;
+        end
+        
+        % file could be in limbo; see if it's already been started
+        if ~lockFile(lockedFile)
+          fprintf('Moving on, final file already exists: %s\n',lockedFile);
+          continue
+        end
       end
       
       if ~exist(outputFile_full_orig,'file') || (cfg_ana.fourier2pow && ~exist(outputFile_alt_full_orig,'file'))
@@ -449,7 +451,9 @@ for sub = 1:length(exper.subjects)
         fprintf('\tAll necessary data for %s already exists! Moving on...\n',origFile);
       end
       
-      releaseFile(lockedFile);
+      if cfg_ana.useLockFiles
+        releaseFile(lockedFile);
+      end
     end % for od
     
   end % ses
