@@ -107,7 +107,7 @@ cfg_ana.orig_ftype = 'tla';
 cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
-cfg_ana.useLockFiles = true;
+cfg_ana.useLockFiles = false;
 cfg_ana.splitTrials = true;
 if cfg_ana.splitTrials
   cfg_ana.splitSize = 100;
