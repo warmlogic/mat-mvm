@@ -118,33 +118,34 @@ for sub = 1:length(exper.subjects)
                       load(outputFile_full);
                     else
                       if exist(outputFile_full_orig,'file')
-                        % fprintf('Combined fourier file already exists. Need split files, so loading full file and splitting...\n');
-                        % % reloading the file for each split may not be
-                        % % efficient, but it may be better than keeping a
-                        % % backup of the full struct in memory (untested)
-                        % load(outputFile_full_orig);
+                        fprintf('Combined fourier file already exists. Need split files, so loading full file and splitting...\n');
+                        % reloading the file for each split may not be
+                        % efficient, but it may be better than keeping a
+                        % backup of the full struct in memory (untested)
+                        load(outputFile_full_orig);
                         
-                        % cfg_sel = [];
-                        % cfg_sel.trials = false(1,nTrials);
-                        % cfg_sel.trials(count+1:count+splitSizes(sp)) = true;
-                        % freq = ft_selectdata_new(cfg_sel,freq);
+                        cfg_sel = [];
+                        cfg_sel.trials = false(1,nTrials);
+                        cfg_sel.trials(count+1:count+splitSizes(sp)) = true;
+                        freq = ft_selectdata_new(cfg_sel,freq);
                         
-                        % delete the file and re-calculate fourier
-                        fprintf('Deleting the combined file...\n');
-                        %delete(outputFile_full);
-                        [s] = unix(sprintf('rm %s',outputFile_full_orig));
-                        if s ~= 0
-                          warning('Something went wrong when deleting %s',outputFile_full_orig);
-                        end
-                        fprintf('Done.\n');
-                        
-                        fprintf('\tSplit %d: Re-calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
-                        if isfield(cfg_ft,'outputfile')
-                          cfg_ft = rmfield(cfg_ft,'outputfile');
-                        end
-                        cfg_ft.outputfile = outputFile_full;
-                        freq = ft_freqanalysis(cfg_ft,timelock);
-                        
+                        % % delete the file and re-calculate fourier; since
+                        % % the files are going to get re-combined anyway,
+                        % % seems easier and more efficient to start over
+                        % fprintf('Deleting the combined file...\n');
+                        % %delete(outputFile_full);
+                        % [s] = unix(sprintf('rm %s',outputFile_full_orig));
+                        % if s ~= 0
+                        %   warning('Something went wrong when deleting %s',outputFile_full_orig);
+                        % end
+                        % fprintf('Done.\n');
+                        %
+                        % fprintf('\tSplit %d: Re-calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+                        % if isfield(cfg_ft,'outputfile')
+                        %   cfg_ft = rmfield(cfg_ft,'outputfile');
+                        % end
+                        % cfg_ft.outputfile = outputFile_full;
+                        % freq = ft_freqanalysis(cfg_ft,timelock);
                       else
                         fprintf('\tSplit %d: Re-calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
                         if isfield(cfg_ft,'outputfile')
@@ -228,19 +229,21 @@ for sub = 1:length(exper.subjects)
               
               % clear some memory
               clear freq freq_all
+            end
+            
+            % remove the split files
+            for sp = 1:length(splitSizes)
+              if sp == 1
+                origExt = '.mat';
+                newExt = sprintf('_%d.mat',sp);
+                outputFile_full = strrep(outputFile_full,origExt,newExt);
+              elseif sp > 1
+                origExt = sprintf('_%d.mat',sp-1);
+                newExt = sprintf('_%d.mat',sp);
+                outputFile_full = strrep(outputFile_full,origExt,newExt);
+              end
               
-              % remove the split files
-              for sp = 1:length(splitSizes)
-                if sp == 1
-                  origExt = '.mat';
-                  newExt = sprintf('_%d.mat',sp);
-                  outputFile_full = strrep(outputFile_full,origExt,newExt);
-                elseif sp > 1
-                  origExt = sprintf('_%d.mat',sp-1);
-                  newExt = sprintf('_%d.mat',sp);
-                  outputFile_full = strrep(outputFile_full,origExt,newExt);
-                end
-                
+              if exist(outputFile_full,'file')
                 %delete(outputFile_full);
                 [s] = unix(sprintf('rm %s',outputFile_full));
                 if s ~= 0
@@ -294,19 +297,21 @@ for sub = 1:length(exper.subjects)
                 
                 % clear some memory
                 clear freq freq_all
+              end
+              
+              % remove the split files
+              for sp = 1:length(splitSizes)
+                if sp == 1
+                  origExt = '.mat';
+                  newExt = sprintf('_%d.mat',sp);
+                  outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
+                elseif sp > 1
+                  origExt = sprintf('_%d.mat',sp-1);
+                  newExt = sprintf('_%d.mat',sp);
+                  outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
+                end
                 
-                % remove the split files
-                for sp = 1:length(splitSizes)
-                  if sp == 1
-                    origExt = '.mat';
-                    newExt = sprintf('_%d.mat',sp);
-                    outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
-                  elseif sp > 1
-                    origExt = sprintf('_%d.mat',sp-1);
-                    newExt = sprintf('_%d.mat',sp);
-                    outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
-                  end
-                  
+                if exist(outputFile_alt_full,'file')
                   %delete(outputFile_alt_full);
                   [s] = unix(sprintf('rm %s',outputFile_alt_full));
                   if s ~= 0
