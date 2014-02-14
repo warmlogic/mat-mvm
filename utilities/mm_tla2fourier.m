@@ -1,16 +1,5 @@
 function mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd)
 
-if cfg_ana.splitTrials
-  % number of trials to lump in with the last trial split. Must be >= 1.
-  splitRemainderLump = 10;
-  
-  % whether to see if files are too big to combine (RAM limit issue)
-  checkSplitFileSizeForSaving = true;
-  % approximate limit in MB that the combined files can reach; otherwise
-  % will keep the split files
-  combineSavingLimitMB = 2000;
-end
-
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     fprintf('%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
@@ -87,7 +76,7 @@ for sub = 1:length(exper.subjects)
               % the last split; also, ft_freqdescriptives will error if
               % only 1 trial is processed by itself because it expects some
               % other type of data
-              if remainSize > splitRemainderLump
+              if remainSize > cfg_ana.splitRemainderLump
                 splitSizes = cat(2,splitSizes,remainSize);
               else
                 splitSizes(end) = splitSizes(end) + remainSize;
@@ -121,10 +110,10 @@ for sub = 1:length(exper.subjects)
                 freq = ft_freqanalysis(cfg_ft,timelock);
                 fprintf('Done.\n');
                 
-                if sp == 1 && checkSplitFileSizeForSaving
+                if sp == 1 && cfg_ana.checkSplitFileSizeForSaving
                   varinfo = whos(freq);
                   % convert to Megabytes
-                  if (varinfo.bytes / (1024^2)) * length(splitSizes) > combineSavingLimitMB
+                  if (varinfo.bytes / (1024^2)) * length(splitSizes) > cfg_ana.combineSavingLimitMB
                     tooBigToCombine = true;
                   end
                 end

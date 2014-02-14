@@ -108,7 +108,17 @@ cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
 cfg_ana.splitTrials = true;
-cfg_ana.splitSize = 100;
+if cfg_ana.splitTrials
+  cfg_ana.splitSize = 100;
+  % number of trials to lump in with the last trial split. Must be >= 1.
+  cfg_ana.splitRemainderLump = 10;
+  
+  % whether to see if files are too big to combine (RAM limit issue)
+  cfg_ana.checkSplitFileSizeForSaving = false;
+  % approximate limit in MB that the combined files can reach; otherwise will
+  % keep the split files
+  cfg_ana.combineSavingLimitMB = 2000;
+end
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
