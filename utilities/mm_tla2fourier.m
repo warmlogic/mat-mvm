@@ -1,5 +1,10 @@
 function mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd)
 
+% number of trials to lump in with the last trial split. Must be >= 1.
+if cfg_ana.splitTrials
+  splitRemainderLump = 10;
+end
+
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     fprintf('%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
@@ -36,6 +41,19 @@ for sub = 1:length(exper.subjects)
         outputFile_alt_full_orig = fullfile(saveDir_alt,outputFile_alt);
       end
       
+      % check the lock on the final file that we should compute
+      if cfg_ana.fourier2pow
+        lockedFile = outputFile_alt_full_orig;
+      else
+        lockedFile = outputFile_full_orig;
+      end
+      
+      % file could be in limbo; see if it's already been started
+      if ~lockFile(lockedFile)
+        fprintf('Moving on, final file already exists: %s\n',lockedFile);
+        continue
+      end
+      
       if ~exist(outputFile_full_orig,'file') || (cfg_ana.fourier2pow && ~exist(outputFile_alt_full_orig,'file'))
         % load timelock regardless of what output we have
         fprintf('\tLoading timelock: %s...\n',origFile);
@@ -61,7 +79,7 @@ for sub = 1:length(exper.subjects)
               % the last split; also, ft_freqdescriptives will error if
               % only 1 trial is processed by itself because it expects some
               % other type of data
-              if remainSize > 10
+              if remainSize > splitRemainderLump
                 splitSizes = cat(2,splitSizes,remainSize);
               else
                 splitSizes(end) = splitSizes(end) + remainSize;
@@ -87,12 +105,6 @@ for sub = 1:length(exper.subjects)
               
               % calculate fourier if it is not already calculated
               if ~exist(outputFile_full,'file') && ~exist(outputFile_full_orig,'file')
-                % % file could be in limbo; see if it's already been started
-                % if ~lockFile(outputFile_full)
-                %   fprintf('Moving on, file already exists: %s\n',outputFile_full);
-                %   continue
-                % end
-                
                 fprintf('\tSplit %d: Calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
                 if isfield(cfg_ft,'outputfile')
                   cfg_ft = rmfield(cfg_ft,'outputfile');
@@ -100,8 +112,6 @@ for sub = 1:length(exper.subjects)
                 cfg_ft.outputfile = outputFile_full;
                 freq = ft_freqanalysis(cfg_ft,timelock);
                 fprintf('Done.\n');
-                
-                % releaseFile(outputFile_full);
               else
                 if exist(outputFile_full,'file')
                   fprintf('fourier file already exist, not recalculating: %s\n',outputFile_full);
@@ -122,7 +132,6 @@ for sub = 1:length(exper.subjects)
                   if ~exist('freq','var')
                     if exist(outputFile_full,'file')
                       load(outputFile_full);
-                      % locked = 1;
                     else
                       if exist(outputFile_full_orig,'file')
                         fprintf('Combined fourier file already exists. Need split files, so loading full file and splitting...\n');
@@ -136,10 +145,6 @@ for sub = 1:length(exper.subjects)
                         cfg_sel.trials(count+1:count+splitSizes(sp)) = true;
                         freq = ft_selectdata_new(cfg_sel,freq);
                         
-                        % locked = 1;
-                        
-                        % % TODO: add lockFile for re-calculating
-                        % %
                         % % delete the file and re-calculate fourier; since
                         % % the files are going to get re-combined anyway,
                         % % seems easier and more efficient to start over
@@ -158,24 +163,17 @@ for sub = 1:length(exper.subjects)
                         % cfg_ft.outputfile = outputFile_full;
                         % freq = ft_freqanalysis(cfg_ft,timelock);
                       else
-                        % locked = lockFile(outputFile_full);
-                        % if locked
                         fprintf('\tSplit %d: Re-calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
                         if isfield(cfg_ft,'outputfile')
                           cfg_ft = rmfield(cfg_ft,'outputfile');
                         end
                         cfg_ft.outputfile = outputFile_full;
                         freq = ft_freqanalysis(cfg_ft,timelock);
-                        
-                        % releaseFile(outputFile_full);
-                        % end
                       end
                       fprintf('Done.\n');
                     end
                   end
                   
-                  % if locked
-                  % if lockFile(outputFile_alt_full)
                   fprintf('\tSplit %d: Calculating power for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
                   if isfield(cfg_fd,'outputfile')
                     cfg_fd = rmfield(cfg_fd,'outputfile');
@@ -185,9 +183,6 @@ for sub = 1:length(exper.subjects)
                   %pow = ft_freqdescriptives(cfg_fd,freq);
                   ft_freqdescriptives(cfg_fd,freq);
                   fprintf('Done.\n');
-                  % releaseFile(outputFile_alt_full);
-                  % end
-                  % end
                 else
                   if exist(outputFile_alt_full,'file')
                     fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full);
@@ -447,7 +442,9 @@ for sub = 1:length(exper.subjects)
         fprintf('\tAll necessary data for %s already exists! Moving on...\n',origFile);
       end
       
+      releaseFile(lockedFile);
     end % for od
+    
   end % ses
 end % sub
 
