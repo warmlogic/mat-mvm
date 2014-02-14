@@ -33,8 +33,15 @@ if ~overwrite && exist(filename,'file')
   return;
 end
 
+if strcmp(computer,'MACI64')
+  lockFileCommand = ['lockfile -4 -r 45 ' lockname];
+elseif strcmp(computer,'GLNXA64') || strcmp(computer,'GLNX86')
+  % for the dream cluster, use lockfile-create
+  lockFileCommand = ['lockfile -4 -r 45 ' lockname];
+end
+
 % see if we can lock it
-if system(['lockfile -4 -r 45 ' lockname])
+if system(lockFileCommand)
   % is already locked
   locked = 0;
   return;

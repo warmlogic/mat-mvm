@@ -14,13 +14,18 @@ function releaseFile(filename)
 %
 % Attribution: Borrowed from the Kahana Lab's eeg_toolbox
 
-% test name
-lockname = [filename '.lock'];
-
-if exist(lockname,'file')
-  % release it
-  system(['rm -f ' lockname]);
-else
-  % tell them
-  fprintf('No lock found for %s.\n',filename);
+if strcmp(computer,'MACI64')
+  % test name
+  lockname = [filename '.lock'];
+  
+  if exist(lockname,'file')
+    % release it
+    system(['rm -f ' lockname]);
+  else
+    % tell them
+    fprintf('No lock found for %s.\n',filename);
+  end
+elseif strcmp(computer,'GLNXA64') || strcmp(computer,'GLNX86')
+  % for the dream cluster
+  system(['lockfile-remove' filename]);
 end
