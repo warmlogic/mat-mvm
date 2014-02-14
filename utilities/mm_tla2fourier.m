@@ -149,9 +149,6 @@ for sub = 1:length(exper.subjects)
                   %pow = ft_freqdescriptives(cfg_fd,freq);
                   ft_freqdescriptives(cfg_fd,freq);
                   fprintf('Done.\n');
-                  
-                  % clear memory
-                  clear freq
                 else
                   if exist(outputFile_alt_full,'file')
                     fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full);
