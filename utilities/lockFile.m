@@ -37,7 +37,7 @@ if strcmp(computer,'MACI64')
   lockFileCommand = ['lockfile -4 -r 45 ' lockname];
 elseif strcmp(computer,'GLNXA64') || strcmp(computer,'GLNX86')
   % for the dream cluster, use lockfile-create
-  lockFileCommand = ['lockfile -4 -r 45 ' lockname];
+  lockFileCommand = ['lockfile-create --retry 45 ' filename];
 end
 
 % see if we can lock it
