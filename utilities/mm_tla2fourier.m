@@ -1,5 +1,49 @@
 function mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd)
 
+if nargin ~= 5
+  error('Not the correct number of input arguments!');
+end
+
+if ~isfield(cfg_ana,'fourier2pow')
+  cfg_ana.fourier2pow = true;
+end
+
+if ~isfield(cfg_ana,'alt_ftype')
+  cfg_ana.alt_ftype = 'pow';
+end
+
+if ~isfield(cfg_ana,'alt_param')
+  cfg_ana.alt_param = 'powspctrm';
+end
+
+if ~isfield(cfg_ana,'useLockFiles')
+  cfg_ana.useLockFiles = false;
+end
+
+if ~isfield(cfg_ana,'splitTrials')
+  cfg_ana.splitTrials = false;
+end
+
+if cfg_ana.splitTrials
+  if ~isfield(cfg_ana,'splitSize')
+    cfg_ana.splitSize = 100;
+  end
+  % number of trials to lump in with the last trial split. Must be >= 1.
+  if ~isfield(cfg_ana,'splitRemainderLump')
+    cfg_ana.splitRemainderLump = 10;
+  end
+  
+  % whether to see if files are too big to combine (RAM limit issue)
+  if ~isfield(cfg_ana,'checkSplitFileSizeForSaving')
+    cfg_ana.checkSplitFileSizeForSaving = false;
+  end
+  % approximate limit in MB that the combined files can reach; otherwise will
+  % keep the split files
+  if ~isfield(cfg_ana,'combineSavingLimitMB')
+    cfg_ana.combineSavingLimitMB = 2000;
+  end
+end
+
 for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sesStr)
     fprintf('%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
