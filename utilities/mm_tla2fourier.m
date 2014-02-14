@@ -40,7 +40,7 @@ for sub = 1:length(exper.subjects)
       fprintf('\tLoading timelock...\n');
       load(origFile_full);
       fprintf('Done.\n');
-        
+      
       if cfg_ana.splitTrials
         % split the trials up if there are more trials than RAM can handle
         nTrials = size(timelock.trial,1);
@@ -121,7 +121,137 @@ for sub = 1:length(exper.subjects)
             
             % clear some memory
             clear freq
+          end % for sp
+          
+          % now combine the files
+          
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          % Fourier
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          
+          outputFile_full = outputFile_full_orig;
+          
+          % initialize to hold all files
+          freq_all = struct;
+          
+          for sp = 1:length(splitSizes)
+            
+            if sp == 1
+              origExt = '.mat';
+              newExt = sprintf('_%d.mat',sp);
+              outputFile_full = strrep(outputFile_full,origExt,newExt);
+            elseif sp > 1
+              origExt = sprintf('_%d.mat',sp-1);
+              newExt = sprintf('_%d.mat',sp);
+              outputFile_full = strrep(outputFile_full,origExt,newExt);
+            end
+            
+            freq_all.(sprintf('freq_%d',sp)) = load(outputFile_full);
+            
+          end % for sp
+          
+          % append the data together
+          fn = fieldnames(freq_all);
+          data_str = [];
+          for sp = 1:length(fn)
+            data_str = cat(2,data_str,sprintf(',freq_all.%s.freq',fn{sp}));
           end
+          
+          cfg_af = [];
+          cfg_af.parameter = 'fourierspctrm';
+          freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
+          
+          % save it
+          outputFile_full = outputFile_full_orig;
+          save(outputFile_full,'freq');
+          
+          % clear some memory
+          clear freq freq_all
+          
+          % remove the split files
+          for sp = 1:length(splitSizes)
+            if sp == 1
+              origExt = '.mat';
+              newExt = sprintf('_%d.mat',sp);
+              outputFile_full = strrep(outputFile_full,origExt,newExt);
+            elseif sp > 1
+              origExt = sprintf('_%d.mat',sp-1);
+              newExt = sprintf('_%d.mat',sp);
+              outputFile_full = strrep(outputFile_full,origExt,newExt);
+            end
+            
+            %delete(outputFile_full);
+            [s] = unix(sprintf('rm %s',outputFile_full));
+            if s ~= 0
+              warning('Something went wrong when deleting %s',outputFile_full);
+            end
+          end
+          
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          % Power
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          
+          % combine power files
+          if cfg_ana.fourier2pow
+            outputFile_alt_full = outputFile_alt_full_orig;
+            
+            % initialize to hold all files
+            freq_all = struct;
+            
+            for sp = 1:length(splitSizes)
+              
+              if sp == 1
+                origExt = '.mat';
+                newExt = sprintf('_%d.mat',sp);
+                outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
+              elseif sp > 1
+                origExt = sprintf('_%d.mat',sp-1);
+                newExt = sprintf('_%d.mat',sp);
+                outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
+              end
+              
+              freq_all.(sprintf('freq_%d',sp)) = load(outputFile_alt_full);
+              
+            end % for sp
+            
+            % append the data together
+            fn = fieldnames(freq_all);
+            data_str = [];
+            for sp = 1:length(fn)
+              data_str = cat(2,data_str,sprintf(',freq_all.%s.freq',fn{sp}));
+            end
+            
+            cfg_af = [];
+            cfg_af.parameter = cfg_ana.alt_param;
+            freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
+          end
+          
+          % save it
+          outputFile_alt_full = outputFile_alt_full_orig;
+          save(outputFile_alt_full,'freq');
+          
+          % clear some memory
+          clear freq freq_all
+          
+          % remove the split files
+          for sp = 1:length(splitSizes)
+            if sp == 1
+              origExt = '.mat';
+              newExt = sprintf('_%d.mat',sp);
+              outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
+            elseif sp > 1
+              origExt = sprintf('_%d.mat',sp-1);
+              newExt = sprintf('_%d.mat',sp);
+              outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
+            end
+            
+            %delete(outputFile_alt_full);
+            [s] = unix(sprintf('rm %s',outputFile_alt_full));
+            if s ~= 0
+              warning('Something went wrong when deleting %s',outputFile_alt_full);
+            end
+          end
+          
         else
           fprintf('No need to split trials...\n');
           
