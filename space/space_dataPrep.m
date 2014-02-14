@@ -206,7 +206,9 @@ end
 
 %% save data for distribution
 
-saveDir = '~/Downloads/space_data';
+% saveDir = '~/Downloads/space_data';
+
+saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/space_data';
 
 for ses = 1:length(exper.sesStr)
   for typ = 1:length(ana.eventValues{ses})
@@ -215,7 +217,7 @@ for ses = 1:length(exper.sesStr)
         
         eval(sprintf('timelock = data_tla.%s.%s.sub(%d).data;',exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal},sub));
         
-        if exist(ana.eventValues{ses}{typ}{evVal},'var')
+        if exist('timelock','var')
           %save(fullfile(saveDir,sprintf('%s.mat',ana.eventValues{ses}{typ}{evVal})),ana.eventValues{ses}{typ}{evVal});
           save(fullfile(saveDir,sprintf('%s.mat',ana.eventValues{ses}{typ}{evVal})),'timelock');
         else
