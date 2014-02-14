@@ -34,54 +34,83 @@ for sub = 1:length(exper.subjects)
       outputFile_alt = strrep(origFile,cfg_ana.orig_ftype,cfg_ana.alt_ftype);
       outputFile_alt_full = fullfile(saveDir_alt,outputFile_alt);
       
-      % load timelock
-      %fprintf('\tLoading timelock...\n');
-      %load(origFile_full);
-      %fprintf('Done.\n');
-      
-      % calculate fourier
-      fprintf('\tCalculating fourier...\n');
-      cfg_ft.inputfile = origFile_full;
-      cfg_ft.outputfile = outputFile_full;
-      fourier = ft_freqanalysis(cfg_ft);
-      %fourier = ft_freqanalysis(cfg_ft,timelock);
-      fprintf('Done.\n');
-      
-      % save fourier
-      %fprintf('\tSaving fourier...');
-      %save(outputFile_full,'fourier');
-      %fprintf('Done.\n');
+      if ~exist(outputFile_full,'file')
+        % load timelock
+        %fprintf('\tLoading timelock...\n');
+        %load(origFile_full);
+        %fprintf('Done.\n');
+        
+        % calculate fourier
+        fprintf('\tCalculating fourier...\n');
+        cfg_ft.inputfile = origFile_full;
+        cfg_ft.outputfile = outputFile_full;
+        fourier = ft_freqanalysis(cfg_ft);
+        %fourier = ft_freqanalysis(cfg_ft,timelock);
+        fprintf('Done.\n');
+        
+        % save fourier
+        %fprintf('\tSaving fourier...');
+        %save(outputFile_full,'fourier');
+        %fprintf('Done.\n');
+      else
+        fprintf('fourier file already exist, not recalculating: %s\n',outputFile_full);
+      end
       
       if cfg_ana.fourier2pow
-        if cfg_ana.alt_splitTrials
-          % split it in two if there are too many trials
-          nTrials = size(fourier.fourierspctrm,1);
-          if nTrials > cfg_ana.alt_splitSize
-            fprintf('Splitting trials...\n');
-            
-            nSplits = floor(nTrials / cfg_ana.alt_splitSize);
-            remainSize = nTrials - (cfg_ana.alt_splitSize * nSplits);
-            splitSizes = repmat(cfg_ana.alt_splitSize,1,nSplits);
-            if remainSize > 0
-              splitSizes = cat(2,splitSizes,remainSize);
-            end
-            
-            % trial counter
-            count = 0;
-            for sp = 1:length(splitSizes)
-              cfg_fd.trials = false(1,nTrials);
+        if ~exist(outputFile_alt_full,'file')
+          
+          if ~exist('fourier','var')
+            % load the fourier file so we have data to work with
+            load(outputFile_full);
+          end
+          
+          if cfg_ana.alt_splitTrials
+            % split the trials up if there are more trials than the RAM can
+            % handle
+            nTrials = size(fourier.fourierspctrm,1);
+            if nTrials > cfg_ana.alt_splitSize
+              fprintf('Splitting trials...\n');
               
-              cfg_fd.trials(count+1:count+splitSizes(sp)) = true;
-              
-              if sp == 1
-                outputFile_alt_full = strrep(outputFile_alt_full,'.mat',sprintf('_%d.mat',sp));
-              elseif sp > 1
-                outputFile_alt_full = strrep(outputFile_alt_full,sprintf('_%d.mat',sp-1),sprintf('_%d.mat',sp));
+              nSplits = floor(nTrials / cfg_ana.alt_splitSize);
+              remainSize = nTrials - (cfg_ana.alt_splitSize * nSplits);
+              splitSizes = repmat(cfg_ana.alt_splitSize,1,nSplits);
+              if remainSize > 0
+                splitSizes = cat(2,splitSizes,remainSize);
               end
               
-              % calculate pow
-              fprintf('\tSplit %d: Calculating power for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+              % trial counter
+              count = 0;
+              for sp = 1:length(splitSizes)
+                cfg_fd.trials = false(1,nTrials);
+                
+                cfg_fd.trials(count+1:count+splitSizes(sp)) = true;
+                
+                if sp == 1
+                  outputFile_alt_full = strrep(outputFile_alt_full,'.mat',sprintf('_%d.mat',sp));
+                elseif sp > 1
+                  outputFile_alt_full = strrep(outputFile_alt_full,sprintf('_%d.mat',sp-1),sprintf('_%d.mat',sp));
+                end
+                
+                % calculate pow
+                fprintf('\tSplit %d: Calculating power for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+                
+                if isfield(cfg_fd,'outputfile')
+                  cfg_fd = rmfield(cfg_fd,'outputfile');
+                end
+                cfg_fd.outputfile = outputFile_alt_full;
+                %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
+                %pow = ft_freqdescriptives(cfg_fd,fourier);
+                ft_freqdescriptives(cfg_fd,fourier);
+                fprintf('Done.\n');
+                
+                % increase the count for next time
+                count = count + splitSizes(sp);
+              end
+            else
+              cfg_fd.trials = 'all';
               
+              % calculate pow
+              fprintf('\tCalculating power...\n');
               if isfield(cfg_fd,'outputfile')
                 cfg_fd = rmfield(cfg_fd,'outputfile');
               end
@@ -90,9 +119,6 @@ for sub = 1:length(exper.subjects)
               %pow = ft_freqdescriptives(cfg_fd,fourier);
               ft_freqdescriptives(cfg_fd,fourier);
               fprintf('Done.\n');
-              
-              % increase the count for next time
-              count = count + splitSizes(sp);
             end
           else
             cfg_fd.trials = 'all';
@@ -107,31 +133,22 @@ for sub = 1:length(exper.subjects)
             %pow = ft_freqdescriptives(cfg_fd,fourier);
             ft_freqdescriptives(cfg_fd,fourier);
             fprintf('Done.\n');
-          end
-        else
-          cfg_fd.trials = 'all';
+          end % split trials
           
-          % calculate pow
-          fprintf('\tCalculating power...\n');
-          if isfield(cfg_fd,'outputfile')
-            cfg_fd = rmfield(cfg_fd,'outputfile');
-          end
-          cfg_fd.outputfile = outputFile_alt_full;
-          %pow.(cfg_ana.alt_param) = (abs(fourier.(cfg_ana.param))).^2;
-          %pow = ft_freqdescriptives(cfg_fd,fourier);
-          ft_freqdescriptives(cfg_fd,fourier);
-          fprintf('Done.\n');
-        end
+          % save pow
+          %fprintf('\tSaving power...\n');
+          %save(outputFile_alt_full,'pow');
+          %fprintf('Done.\n');
+          
+        else
+          fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full);
+        end % exist
         
-        % save pow
-        %fprintf('\tSaving power...\n');
-        %save(outputFile_alt_full,'pow');
-        %fprintf('Done.\n');
-      end
+      end % fourier2pow
       
       clear fourier
       
-    end
+    end % for od
   end
 end
 
