@@ -50,7 +50,7 @@ end
 
 if strcmp(computer,'MACI64')
   % % we have now locked it, so touch the real file
-  % system(['touch ' filename ' ; sync']);
+  system(['touch ' filename ' ; sync']);
 elseif strcmp(computer,'GLNXA64') || strcmp(computer,'GLNX86')
   % touch the lockfile
   system(['lockfile-touch --oneshot ' filename ]);
