@@ -95,8 +95,19 @@ cfg_ana.orig_ftype = 'tla';
 cfg_ana.fourier2pow = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
-cfg_ana.alt_splitTrials = false;
-cfg_ana.alt_splitSize = 200;
+cfg_ana.useLockFiles = false;
+cfg_ana.splitTrials = true;
+if cfg_ana.splitTrials
+  cfg_ana.splitSize = 100;
+  % number of trials to lump in with the last trial split. Must be >= 1.
+  cfg_ana.splitRemainderLump = 10;
+  
+  % whether to see if files are too big to combine (RAM limit issue)
+  cfg_ana.checkSplitFileSizeForSaving = false;
+  % approximate limit in MB that the combined files can reach; otherwise will
+  % keep the split files
+  cfg_ana.combineSavingLimitMB = 2000;
+end
 
 cfg_ft = [];
 cfg_ft.pad = 'maxperlen';
@@ -149,7 +160,7 @@ if ~exist(cfg_ana.saveroot_alt,'dir')
   end
 end
 
-mm_tla2fourier2pow(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
+mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
 
 %imagesc(freq.time,freq.freq,squeeze(mean(freq.powspctrm(:,55,:,:),1)));axis xy;
 
@@ -383,8 +394,12 @@ end
 %   ana.eventValues = {exper.eventValues};
 % end
 
-% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
-[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+% keeptrials = true;
+% % [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+% [data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+
+keeptrials = false;
+[data_pow,exper] = mm_loadSubjectData(exper,dirs,ana,'pow',keeptrials,'trialinfo');
 
 % %% get rid of the bad channels
 % 
