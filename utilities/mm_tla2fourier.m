@@ -291,9 +291,17 @@ for sub = 1:length(exper.subjects)
                 cfg_af.parameter = 'fourierspctrm';
                 freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
                 
+                % see if freq struct is too big to save in v7 format
+                varinfo = whos(freq);
+                if (varinfo.bytes / (1024^2)) > 2000
+                  saveVersion = '-v7.3';
+                else
+                  saveVersion = '-v7';
+                end
+                
                 % save it
                 outputFile_full = outputFile_full_orig;
-                save(outputFile_full,'freq');
+                save(outputFile_full,'freq',saveVersion);
                 
                 % clear some memory
                 clear freq freq_all
@@ -359,9 +367,17 @@ for sub = 1:length(exper.subjects)
                   cfg_af.parameter = cfg_ana.alt_param;
                   freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
                   
+                  % see if freq struct is too big to save in v7 format
+                  varinfo = whos(freq);
+                  if (varinfo.bytes / (1024^2)) > 2000
+                    saveVersion = '-v7.3';
+                  else
+                    saveVersion = '-v7';
+                  end
+                  
                   % save it
                   outputFile_alt_full = outputFile_alt_full_orig;
-                  save(outputFile_alt_full,'freq');
+                  save(outputFile_alt_full,'freq',saveVersion);
                   
                   % clear some memory
                   clear freq freq_all
