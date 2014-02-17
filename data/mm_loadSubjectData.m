@@ -111,7 +111,7 @@ for sub = 1:length(exper.subjects)
               for es = 1:length(ana.eventValuesSplit{ses}{evVal})
                 fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
                 
-                expr = ana.trl_expr{ses}{es};
+                expr = ana.trl_expr{ses}{evVal}{es};
                 
                 for to = 1:length(trl_order)
                   % replace the field name in the logical expression
@@ -134,7 +134,7 @@ for sub = 1:length(exper.subjects)
                 cfg_fd.keeptrials = 'no';
                 data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
                 % put in the trial counts
-                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg.trials);
+                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg_fd.trials);
               end % es
             end
             
