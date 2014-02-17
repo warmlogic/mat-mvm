@@ -1,4 +1,4 @@
-function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesStr,replaceDataroot)
+function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesStr,replaceDataroot,replaceDatatype)
 % MM_LOADAD Load in the analysis details by aggregating subject details.
 % All event values are loaded!
 %
@@ -25,7 +25,29 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,ses
 %
 %                   but also may simply be an old string to be replaced by
 %                   a new string!
-% 
+%
+% replaceDatatype = similar to replaceDataroot but replaces the type of
+%                   data in procDir (the final directory) with a different
+%                   type; e.g., change tla to pow (tla needs to be in
+%                   procDir because this is where subjectDetails.mat are
+%                   stored) e.g., {'tla','pow'}
+%
+% TODO: save subjectDetails.mat in their own directory instead of in the
+%       first data type to be processed
+%
+
+if ~exist('replaceDatatype','var') || isempty(replaceDatatype)
+  replaceDatatype = {};
+end
+
+if isstr(replaceDatatype)
+  replaceDatatype = {replaceDatatype};
+end
+
+datatype_replace = false;
+if ~isempty(replaceDatatype)
+  datatype_replace = true;
+end
 
 if ~exist('replaceDataroot','var') || isempty(replaceDataroot)
   replaceDataroot = false;
@@ -36,16 +58,16 @@ if ~islogical(replaceDataroot) && ~iscell(replaceDataroot)
 end
 
 % make sure replace_dataroot is in the right format
-do_the_replace = false;
+dataroot_replace = false;
 if islogical(replaceDataroot)
   if replaceDataroot
-    do_the_replace = true;
+    dataroot_replace = true;
   end
 elseif ~islogical(replaceDataroot)
   if length(replaceDataroot) ~= 2
     error('replace_dataroot must either be logical (true or false) or a cell containing {''old_dataroot'',''new_dataroot''}');
   elseif length(replaceDataroot) == 2
-    do_the_replace = true;
+    dataroot_replace = true;
   end
 end
 
@@ -218,7 +240,7 @@ if islogical(replaceDataroot) && replaceDataroot
   
   if strcmp(dirs.dataroot,new_dataroot)
     fprintf('Saved dirs.dataroot and dataroot for this location are the same (%s), nothing will be changed.\n',dirs.dataroot);
-    do_the_replace = false;
+    dataroot_replace = false;
   end
 elseif iscell(replaceDataroot)
   old_dataroot = replaceDataroot{1};
@@ -243,7 +265,7 @@ elseif iscell(replaceDataroot)
 end
 
 % do the replacement
-if do_the_replace
+if dataroot_replace
   %fprintf('Replacing saved dirs.dataroot (%s) with dataroot for this location (%s)...',old_dataroot,new_dataroot);
   fprintf('Replacing strings in the dirs struct containing ''%s'' with ''%s''...',old_dataroot,new_dataroot);
   
@@ -274,6 +296,50 @@ if do_the_replace
   
   if ~exist(dirs.dataroot,'dir')
     warning([mfilename,':newDatarootDoesNotExist'],'The new dataroot does not exist on this system. This may be OK, e.g. if you are setting up files for another system.');
+  end
+end
+
+if datatype_replace
+  if length(replaceDatatype) == 1
+    newDatatype = replaceDatatype{1};
+    
+    % guessing at oldDatatype
+    dirSep = strfind(dirs.saveDirProc,filesep);
+    oldDatatype = dirs.saveDirProc(dirSep(end)+1:end);
+    
+    if ~strcmp(oldDatatype,newDatatype)
+      fprintf('Guessing that old datatype is ''%s''... replacing with ''%s''.\n',oldDatatype,newDatatype);
+      
+      dirs.saveDirProc = dirs.saveDirProc(1:dirSep(end));
+      dirs.saveDirProc = sprintf('%s%s',dirs.saveDirProc,newDatatype);
+      
+      dirs.saveDirFigs = sprintf('%s%sfigs',dirs.saveDirProc,filesep);
+    else
+      fprintf('Old datatype (''%s'') is the same as new datatype (''%s''). Not replacing anything.\n',oldDatatype,newDatatype);
+    end
+      
+  elseif length(replaceDatatype) == 2
+    oldDatatype = replaceDatatype{1};
+    newDatatype = replaceDatatype{2};
+    
+    if ~strcmp(oldDatatype,newDatatype)
+      fprintf('Replacing old datatype ''%s'' with new datatype ''%s''.\n',oldDatatype,newDatatype);
+      
+      dirSep = strfind(dirs.saveDirProc,filesep);
+      if strcmp(oldDatatype,dirs.saveDirProc(dirSep(end)+1:end));
+        dirs.saveDirProc = dirs.saveDirProc(1:dirSep(end));
+        dirs.saveDirProc = sprintf('%s%s',dirs.saveDirProc,newDatatype);
+        
+        dirs.saveDirFigs = sprintf('%s%sfigs',dirs.saveDirProc,filesep);
+      else
+        error('old datatype ''%s'' does not match what is at the end of procDir (''%s'').',oldDatatype,dirs.saveDirProc(dirSep(end)+1:end));
+      end
+    else
+      fprintf('Old datatype (''%s'') is the same as new datatype (''%s''). Not replacing anything.\n',oldDatatype,newDatatype);
+    end
+    
+  else
+    error('incorrect setup of replaceDatatype');
   end
 end
 
