@@ -157,7 +157,7 @@ for sub = 1:length(exper.subjects)
                 fprintf('Done.\n');
                 
                 if sp == 1 && cfg_ana.checkSplitFileSizeForSaving
-                  varinfo = whos(freq);
+                  varinfo = whos('freq');
                   % convert to Megabytes
                   if (varinfo.bytes / (1024^2)) * length(splitSizes) > cfg_ana.combineSavingLimitMB
                     tooBigToCombine = true;
@@ -292,7 +292,7 @@ for sub = 1:length(exper.subjects)
                 freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
                 
                 % see if freq struct is too big to save in v7 format
-                varinfo = whos(freq);
+                varinfo = whos('freq');
                 if (varinfo.bytes / (1024^2)) > 2000
                   saveVersion = '-v7.3';
                 else
@@ -368,7 +368,7 @@ for sub = 1:length(exper.subjects)
                   freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
                   
                   % see if freq struct is too big to save in v7 format
-                  varinfo = whos(freq);
+                  varinfo = whos('freq');
                   if (varinfo.bytes / (1024^2)) > 2000
                     saveVersion = '-v7.3';
                   else
