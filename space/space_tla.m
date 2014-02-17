@@ -64,8 +64,8 @@ allowRecallSynonyms = true;
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;
 
-[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
-
+replaceDatatype = {'tla','pow'};
+[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot,replaceDatatype);
 
 % %% load the analysis details
 
