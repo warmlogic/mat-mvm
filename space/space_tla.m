@@ -84,85 +84,6 @@ replaceDataroot = true;
 % % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
-%% convert timelock to fourier
-
-cfg_ana = [];
-cfg_ana.orig_ftype = 'tla';
-
-% cfg_ana.param = 'fourierspctrm';
-
-cfg_ana.fourier2pow = true;
-cfg_ana.alt_ftype = 'pow';
-cfg_ana.alt_param = 'powspctrm';
-cfg_ana.useLockFiles = false;
-cfg_ana.splitTrials = true;
-if cfg_ana.splitTrials
-  cfg_ana.splitSize = 100;
-  % number of trials to lump in with the last trial split. Must be >= 1.
-  cfg_ana.splitRemainderLump = 10;
-  
-  % whether to see if files are too big to combine (RAM limit issue)
-  cfg_ana.checkSplitFileSizeForSaving = false;
-  % approximate limit in MB that the combined files can reach; otherwise will
-  % keep the split files
-  cfg_ana.combineSavingLimitMB = 2000;
-end
-
-cfg_ft = [];
-cfg_ft.pad = 'maxperlen';
-% cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-% cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'no';
-
-% cfg_ft.output = 'pow';
-% cfg_ft.keeptrials = 'no';
-cfg_ft.output = 'fourier';
-cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'yes';
-
-% wavelet
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 5;
-%cfg_ft.toi = -0.8:0.04:3.0;
-cfg_ft.toi = -0.5:0.04:1.0;
-% cfg_ft.toi = 0:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-% % cfg_ft.foi = 3:freqstep:9;
-% cfg_ft.foi = 3:freqstep:60;
-% cfg_ft.foi = 4:1:100;
-%cfg_ft.foi = 4:1:30;
-cfg_ft.foi = 3:1:80;
-% cfg_ft.foilim = [3 9];
-% cfg_ft.foilim = [3 13];
-% cfg_ft.foilim = [3 80];
-
-cfg_fd = [];
-cfg_fd.variance = 'no';
-cfg_fd.jackknife = 'no';
-cfg_fd.keeptrials = 'yes';
-
-cfg_ana.saveroot = strrep(dirs.saveDirProc,cfg_ana.orig_ftype,cfg_ft.output);
-if ~exist(cfg_ana.saveroot,'dir')
-  [s] = mkdir(cfg_ana.saveroot);
-  if ~s
-    error('Could not make %s',cfg_ana.saveroot);
-  end
-end
-
-cfg_ana.saveroot_alt = strrep(dirs.saveDirProc,cfg_ana.orig_ftype,cfg_ana.alt_ftype);
-if ~exist(cfg_ana.saveroot_alt,'dir')
-  [s] = mkdir(cfg_ana.saveroot_alt);
-  if ~s
-    error('Could not make %s',cfg_ana.saveroot_alt);
-  end
-end
-
-mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
-
-%imagesc(freq.time,freq.freq,squeeze(mean(freq.powspctrm(:,55,:,:),1)));axis xy;
-
 %% set up channel groups
 
 % pre-defined in this function
@@ -492,9 +413,10 @@ end
 
 % Subjects with bad behavior
 exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,1,[],'vert');
 
 %% get the grand average
 
