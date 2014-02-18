@@ -101,10 +101,12 @@ replaceDataroot = true;
 
 cfg_ana = [];
 cfg_ana.orig_ftype = 'tla';
+cfg_ana.orig_param = 'trial';
 
-% cfg_ana.param = 'fourierspctrm';
+% must match with cfg_ft.output, below
+cfg_ana.out_param = 'fourierspctrm';
 
-cfg_ana.fourier2pow = true;
+cfg_ana.output2alt = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';
 cfg_ana.useLockFiles = false;
@@ -116,9 +118,11 @@ if cfg_ana.splitTrials
   
   % whether to see if files are too big to combine (RAM limit issue)
   cfg_ana.checkSplitFileSizeForSaving = false;
-  % approximate limit in MB that the combined files can reach; otherwise will
-  % keep the split files
-  cfg_ana.combineSavingLimitMB = 2000;
+  if cfg_ana.checkSplitFileSizeForSaving
+    % approximate limit in MB that the combined files can reach; otherwise will
+    % keep the split files
+    cfg_ana.combineSavingLimitMB = 3000;
+  end
 end
 
 cfg_ft = [];

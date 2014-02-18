@@ -4,14 +4,23 @@ if nargin ~= 5
   error('Not the correct number of input arguments!');
 end
 
-if ~isfield(cfg_ana,'fourier2pow')
-  cfg_ana.fourier2pow = true;
+if ~isfield(cfg_ana,'orig_ftype')
+  cfg_ana.orig_ftype = 'tla';
+end
+if ~isfield(cfg_ana,'orig_param')
+  cfg_ana.orig_param = 'trial';
 end
 
+if ~isfield(cfg_ana,'param')
+  cfg_ana.out_param = 'fourierspctrm';
+end
+
+if ~isfield(cfg_ana,'output2alt')
+  cfg_ana.output2alt = true;
+end
 if ~isfield(cfg_ana,'alt_ftype')
   cfg_ana.alt_ftype = 'pow';
 end
-
 if ~isfield(cfg_ana,'alt_param')
   cfg_ana.alt_param = 'powspctrm';
 end
@@ -23,7 +32,6 @@ end
 if ~isfield(cfg_ana,'splitTrials')
   cfg_ana.splitTrials = false;
 end
-
 if cfg_ana.splitTrials
   if ~isfield(cfg_ana,'splitSize')
     cfg_ana.splitSize = 100;
@@ -39,8 +47,10 @@ if cfg_ana.splitTrials
   end
   % approximate limit in MB that the combined files can reach; otherwise will
   % keep the split files
-  if ~isfield(cfg_ana,'combineSavingLimitMB')
-    cfg_ana.combineSavingLimitMB = 2000;
+  if cfg_ana.checkSplitFileSizeForSaving
+    if ~isfield(cfg_ana,'combineSavingLimitMB')
+      cfg_ana.combineSavingLimitMB = 3000;
+    end
   end
 end
 
@@ -75,14 +85,14 @@ for sub = 1:length(exper.subjects)
       outputFile = strrep(origFile,cfg_ana.orig_ftype,cfg_ft.output);
       outputFile_full_orig = fullfile(saveDir,outputFile);
       
-      if cfg_ana.fourier2pow
+      if cfg_ana.output2alt
         outputFile_alt = strrep(origFile,cfg_ana.orig_ftype,cfg_ana.alt_ftype);
         outputFile_alt_full_orig = fullfile(saveDir_alt,outputFile_alt);
       end
       
       if cfg_ana.useLockFiles
         % check the lock on the final file that we should compute
-        if cfg_ana.fourier2pow
+        if cfg_ana.output2alt
           lockedFile = outputFile_alt_full_orig;
         else
           lockedFile = outputFile_full_orig;
@@ -95,22 +105,22 @@ for sub = 1:length(exper.subjects)
         end
       end
       
-      if ~exist(outputFile_full_orig,'file') || (cfg_ana.fourier2pow && ~exist(outputFile_alt_full_orig,'file'))
+      if ~exist(outputFile_full_orig,'file') || (cfg_ana.output2alt && ~exist(outputFile_alt_full_orig,'file'))
         % load timelock regardless of what output we have
-        fprintf('\tLoading timelock: %s...\n',origFile);
+        fprintf('\tLoading %s: %s...\n',cfg_ana.orig_ftype,origFile);
         load(origFile_full);
         fprintf('Done.\n');
         
         if cfg_ana.splitTrials
           % split up trials if there are more than the RAM can handle
-          nTrials = size(timelock.trial,1);
+          nTrials = size(timelock.(cfg_ana.orig_param),1);
           if nTrials > cfg_ana.splitSize
             fprintf('Splitting trials...\n');
             
             tooBigToCombine = false;
             
             outputFile_full = outputFile_full_orig;
-            if cfg_ana.fourier2pow
+            if cfg_ana.output2alt
               outputFile_alt_full = outputFile_alt_full_orig;
             end
             
@@ -146,9 +156,9 @@ for sub = 1:length(exper.subjects)
                 outputFile_full = strrep(outputFile_full,origExt,newExt);
               end
               
-              % calculate fourier if it is not already calculated
+              % do the first conversion if it is not already calculated
               if ~exist(outputFile_full,'file') && ~exist(outputFile_full_orig,'file')
-                fprintf('\tSplit %d: Calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+                fprintf('\tSplit %d: Calculating %s for trials %d to %d...\n',sp,cfg_ana.out_param,count+1,count+splitSizes(sp));
                 if isfield(cfg_ft,'outputfile')
                   cfg_ft = rmfield(cfg_ft,'outputfile');
                 end
@@ -166,15 +176,15 @@ for sub = 1:length(exper.subjects)
                 
               else
                 if exist(outputFile_full,'file')
-                  fprintf('fourier file already exist, not recalculating: %s\n',outputFile_full);
+                  fprintf('%s file (split) already exist, not recalculating: %s\n',cfg_ana.out_param,outputFile_full);
                 end
                 if exist(outputFile_full_orig,'file')
-                  fprintf('fourier file already exist, not recalculating: %s\n',outputFile_full_orig);
+                  fprintf('%s file (combined) already exist, not recalculating: %s\n',cfg_ana.out_param,outputFile_full_orig);
                 end
               end
               
               % calculate power for this split
-              if cfg_ana.fourier2pow
+              if cfg_ana.output2alt
                 outputFile_alt_full = strrep(outputFile_alt_full,origExt,newExt);
                 
                 % if it is not already calculated
@@ -186,7 +196,7 @@ for sub = 1:length(exper.subjects)
                       load(outputFile_full);
                     else
                       if exist(outputFile_full_orig,'file')
-                        fprintf('Combined fourier file already exists. Need split files, so loading full file and splitting...\n');
+                        fprintf('Combined %s file already exists. Need split files, so loading full file and splitting...\n',cfg_ana.out_param);
                         % reloading the file for each split may not be
                         % efficient, but it may be better than keeping a
                         % backup of the full struct in memory (untested)
@@ -208,14 +218,14 @@ for sub = 1:length(exper.subjects)
                         % end
                         % fprintf('Done.\n');
                         %
-                        % fprintf('\tSplit %d: Re-calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+                        % fprintf('\tSplit %d: Re-calculating %s for trials %d to %d...\n',sp,cfg_ana.out_param,count+1,count+splitSizes(sp));
                         % if isfield(cfg_ft,'outputfile')
                         %   cfg_ft = rmfield(cfg_ft,'outputfile');
                         % end
                         % cfg_ft.outputfile = outputFile_full;
                         % freq = ft_freqanalysis(cfg_ft,timelock);
                       else
-                        fprintf('\tSplit %d: Re-calculating fourier for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+                        fprintf('\tSplit %d: Re-calculating %s for trials %d to %d...\n',sp,cfg_ana.out_param,count+1,count+splitSizes(sp));
                         if isfield(cfg_ft,'outputfile')
                           cfg_ft = rmfield(cfg_ft,'outputfile');
                         end
@@ -226,21 +236,21 @@ for sub = 1:length(exper.subjects)
                     end
                   end
                   
-                  fprintf('\tSplit %d: Calculating power for trials %d to %d...\n',sp,count+1,count+splitSizes(sp));
+                  fprintf('\tSplit %d: Calculating %s for trials %d to %d...\n',sp,cfg_ana.alt_param,count+1,count+splitSizes(sp));
                   if isfield(cfg_fd,'outputfile')
                     cfg_fd = rmfield(cfg_fd,'outputfile');
                   end
                   cfg_fd.outputfile = outputFile_alt_full;
-                  %pow.(cfg_ana.alt_param) = (abs(freq.(cfg_ana.param))).^2;
+                  %pow.(cfg_ana.alt_param) = (abs(freq.(cfg_ana.out_param))).^2;
                   %pow = ft_freqdescriptives(cfg_fd,freq);
                   ft_freqdescriptives(cfg_fd,freq);
                   fprintf('Done.\n');
                 else
                   if exist(outputFile_alt_full,'file')
-                    fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full);
+                    fprintf('%s file (split) already exist, not recalculating: %s\n',cfg_ana.alt_param,outputFile_alt_full);
                   end
                   if exist(outputFile_alt_full_orig,'file')
-                    fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full_orig);
+                    fprintf('%s file (combined) already exist, not recalculating: %s\n',cfg_ana.alt_param,outputFile_alt_full_orig);
                   end
                 end
               end
@@ -288,7 +298,7 @@ for sub = 1:length(exper.subjects)
                 end
                 
                 cfg_af = [];
-                cfg_af.parameter = 'fourierspctrm';
+                cfg_af.parameter = cfg_ana.out_param;
                 freq = eval(sprintf('ft_appendfreq(cfg_af%s)',data_str));
                 
                 % see if freq struct is too big to save in v7 format
@@ -333,7 +343,7 @@ for sub = 1:length(exper.subjects)
               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
               
               % combine power files
-              if cfg_ana.fourier2pow
+              if cfg_ana.output2alt
                 outputFile_alt_full = outputFile_alt_full_orig;
                 
                 if ~exist(outputFile_alt_full,'file')
@@ -403,7 +413,7 @@ for sub = 1:length(exper.subjects)
                     end
                   end
                 end % remove sp
-              end % if fourier2pow
+              end % if output2alt
             end % tooBigToCombine
             
           else
@@ -414,9 +424,9 @@ for sub = 1:length(exper.subjects)
             % fourier: operate on all trials
             cfg_ft.trials = 'all';
             
-            % calculate fourier if it is not already calculated
+            % do first conversion if it is not already calculated
             if ~exist(outputFile_full,'file')
-              fprintf('\tCalculating fourier...\n');
+              fprintf('\tCalculating %s...\n',cfg_ana.out_param);
               if isfield(cfg_ft,'outputfile')
                 cfg_ft = rmfield(cfg_ft,'outputfile');
               end
@@ -424,11 +434,11 @@ for sub = 1:length(exper.subjects)
               freq = ft_freqanalysis(cfg_ft,timelock);
               fprintf('Done.\n');
             else
-              fprintf('fourier file already exist, not recalculating: %s\n',outputFile_full);
+              fprintf('%s file already exist, not recalculating: %s\n',cfg_ana.out_param,outputFile_full);
             end
             
             % calculate power
-            if cfg_ana.fourier2pow
+            if cfg_ana.output2alt
               outputFile_alt_full = outputFile_alt_full_orig;
               
               % if it is not already calculated
@@ -439,17 +449,17 @@ for sub = 1:length(exper.subjects)
                   load(outputFile_full);
                 end
                 
-                fprintf('\tCalculating power...\n');
+                fprintf('\tCalculating %s...\n',cfg_ana.alt_param);
                 if isfield(cfg_fd,'outputfile')
                   cfg_fd = rmfield(cfg_fd,'outputfile');
                 end
                 cfg_fd.outputfile = outputFile_alt_full;
-                %pow.(cfg_ana.alt_param) = (abs(freq.(cfg_ana.param))).^2;
+                %pow.(cfg_ana.alt_param) = (abs(freq.(cfg_ana.out_param))).^2;
                 %pow = ft_freqdescriptives(cfg_fd,freq);
                 ft_freqdescriptives(cfg_fd,freq);
                 fprintf('Done.\n');
               else
-                fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full);
+                fprintf('%s file already exist, not recalculating: %s\n',cfg_ana.alt_param,outputFile_alt_full);
               end
             end
             
@@ -459,12 +469,12 @@ for sub = 1:length(exper.subjects)
         else
           outputFile_full = outputFile_full_orig;
           
-          % fourier: operate on all trials
+          % first conversion: operate on all trials
           cfg_ft.trials = 'all';
           
           % calculate fourier if it is not already calculated
           if ~exist(outputFile_full,'file')
-            fprintf('\tCalculating fourier...\n');
+            fprintf('\tCalculating %s...\n',cfg_ana.out_param);
             if isfield(cfg_ft,'outputfile')
               cfg_ft = rmfield(cfg_ft,'outputfile');
             end
@@ -472,32 +482,34 @@ for sub = 1:length(exper.subjects)
             freq = ft_freqanalysis(cfg_ft,timelock);
             fprintf('Done.\n');
           else
-            fprintf('fourier file already exist, not recalculating: %s\n',outputFile_full);
+            fprintf('%s file already exist, not recalculating: %s\n',cfg_ana.out_param,outputFile_full);
           end
           
           % calculate power
-          if cfg_ana.fourier2pow
+          if cfg_ana.output2alt
             outputFile_alt_full = outputFile_alt_full_orig;
             
             % if it is not already calculated
             if ~exist(outputFile_alt_full,'file')
               
+              % TODO: check on this exist variable name
+              
               % load the fourier file so we have data to work with
-              if ~exist('fourier','var')
+              if ~exist('freq','var')
                 load(outputFile_full);
               end
               
-              fprintf('\tCalculating power...\n');
+              fprintf('\tCalculating %s...\n',cfg_ana.alt_param);
               if isfield(cfg_fd,'outputfile')
                 cfg_fd = rmfield(cfg_fd,'outputfile');
               end
               cfg_fd.outputfile = outputFile_alt_full;
-              %pow.(cfg_ana.alt_param) = (abs(freq.(cfg_ana.param))).^2;
+              %pow.(cfg_ana.alt_param) = (abs(freq.(cfg_ana.out_param))).^2;
               %pow = ft_freqdescriptives(cfg_fd,freq);
               ft_freqdescriptives(cfg_fd,freq);
               fprintf('Done.\n');
             else
-              fprintf('power file already exist, not recalculating: %s\n',outputFile_alt_full);
+              fprintf('%s file already exist, not recalculating: %s\n',cfg_ana.alt_param,outputFile_alt_full);
             end
           end
           
