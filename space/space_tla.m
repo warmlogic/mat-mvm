@@ -314,12 +314,9 @@ end
 %   ana.eventValues = {exper.eventValues};
 % end
 
-% keeptrials = true;
-% % [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
-% [data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
-
-keeptrials = false;
-[data_pow,exper] = mm_loadSubjectData(exper,dirs,ana,'pow',keeptrials,'trialinfo');
+keeptrials = true;
+% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
 
 % %% get rid of the bad channels
 % 
