@@ -497,30 +497,108 @@ exper.badBehSub = {{}};
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
+%% baseline
+
+% % log power
+% data_pow_log = data_pow;
+% for sub = 1:length(exper.subjects)
+%   for cnd = 1:length(conds)
+%     data_pow_log.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm = log10(data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm);
+%   end
+% end
+
+% fieldtrip's baseline method
+cfg_bl = [];
+cfg_bl.baseline = [-0.3 -0.1];
+cfg_bl.baselinetype = 'absolute';
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      for sub = 1:length(exper.subjects)
+        data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_freqbaseline(cfg_bl,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+      end
+    end
+  end
+end
+
+% % my zscore method
+% cfg = [];
+% cfg.baseline_time = [-0.3 -0.1];
+% cfg.baseline_type = 'zscore';
+% cfg.param = 'powspctrm';
+% for ses = 1:length(exper.sesStr)
+%   for typ = 1:length(ana.eventValues{ses})
+%     for evVal = 1:length(ana.eventValues{ses}{typ})
+%       for sub = 1:length(exper.subjects)
+%         subSesEvData = data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data;
+%         
+%         % get the baseline time indices
+%         blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
+%         % mean across baseline period
+%         blm = nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4);
+%         
+%         if strcmp(cfg.baseline_type,'zscore')
+%           fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+%           % std across time, then avg across events (lower freqs often get smaller std)
+%           blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(cfg.param)(:,:,:,blt),0,4),1);
+%           
+%           % % avg across time, then std across events (higher freqs often get smaller std)
+%           % blstd = nanstd(nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4),0,1);
+%           
+%           % % concatenate all times of all events and std (equivalent std across freqs)
+%           %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cfg.param)(:,:,:,blt),3),...
+%           %  size(subSesEvData.(cfg.param)(:,:,:,blt),1)*size(subSesEvData.(cfg.param)(:,:,:,blt),4),...
+%           %  size(subSesEvData.(cfg.param)(:,:,:,blt),2),size(subSesEvData.(cfg.param)(:,:,:,blt),3))),0,1)),-1);
+%           
+%           data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cfg.param),blm),blstd);
+%         end
+%       end
+%     end
+%   end
+% end
+
 %% get the grand average
 
-ga_tla = struct;
+% set up strings to put in grand average function
+cfg_ana = [];
+cfg_ana.is_ga = 0;
+cfg_ana.data_str = 'data_pow';
+
+cfg_ft = [];
+cfg_ft.keepindividual = 'no';
+
+if strcmp(cfg_ana.data_str,'data_pow')
+  ga_pow = struct;
+elseif strcmp(cfg_ana.data_str,'data_pow_log')
+  ga_pow_log = struct;
+elseif strcmp(cfg_ana.data_str,'data_coh')
+  ga_coh = struct;
+elseif strcmp(cfg_ana.data_str,'data_evoked')
+  ga_evoked = struct;
+end
 
 for ses = 1:length(exper.sesStr)
-  % set up strings to put in grand average function
-  cfg_ana = [];
-  cfg_ana.is_ga = 0;
-  %cfg_ana.conditions = ana.eventValues{ses};
-  cfg_ana.data_str = 'data_tla';
-  % cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
-  %cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
-  
-  cfg_ft = [];
-  cfg_ft.keepindividual = 'no';
   for typ = 1:length(ana.eventValues{ses})
     cfg_ana.conditions = ana.eventValues{ses}{typ};
     cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
     
     for evVal = 1:length(ana.eventValues{ses}{typ})
       %tic
-      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{typ}{evVal});
-      %ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
-      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
+      fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{ses}{typ}{evVal});
+      if strcmp(cfg_ana.data_str,'data_pow')
+        cfg_ft.parameter = 'powspctrm';
+        ga_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_pow_log')
+        cfg_ft.parameter = 'powspctrm';
+        ga_pow_log.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_coh')
+        %cfg_ft.parameter = 'plvspctrm';
+        cfg_ft.parameter = 'powspctrm';
+        ga_coh.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      elseif strcmp(cfg_ana.data_str,'data_evoked')
+        cfg_ft.parameter = 'powspctrm';
+        ga_evoked.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+      end
       fprintf('Done.\n');
       %toc
     end
@@ -530,227 +608,31 @@ end
 % turn keeptrial data into average for statistical functions because proper
 % processing of dimord is currently broken
 
-data_tla_avg = struct;
+data_pow_avg = struct;
 
-cfg = [];
-cfg.keeptrials = 'no';
-
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-        if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'avg')
-          data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-        end
-      end
-    end
-  end
-end
-
-%% lowpass filter and segment for ERPs
-
-data_tla_backup = data_tla;
-
-lpfilt = true;
-
-if lpfilt
-  sampleRate = 250;
-  lpfreq = 40;
-  lofiltord = 4;
-  lpfilttype = 'but';
-end
-
-cfg_sel = [];
-cfg_sel.latency = [-0.2 1.0];
-
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-        
-        if lpfilt
-          for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
-            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
-              squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
-              sampleRate,lpfreq,lofiltord,lpfilttype);
-          end
-        end
-        
-        % select
-        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-        
-      end
-    end
-  end
-end
-
-%% tf test
-
-cfg_ft = [];
-cfg_ft.pad = 'maxperlen';
-% cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-% cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'no';
-
-% cfg_ft.output = 'pow';
-% cfg_ft.keeptrials = 'no';
-cfg_ft.output = 'fourier';
-cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'yes';
-
-% wavelet
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 5;
-%cfg_ft.toi = -0.8:0.04:3.0;
-cfg_ft.toi = -0.5:0.04:1.0;
-% cfg_ft.toi = 0:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-% % cfg_ft.foi = 3:freqstep:9;
-% cfg_ft.foi = 3:freqstep:60;
-% cfg_ft.foi = 4:1:100;
-%cfg_ft.foi = 4:1:30;
-% cfg_ft.foilim = [3 9];
-% cfg_ft.foilim = [3 13];
-cfg_ft.foilim = [3 80];
-
-% data_pow.img_onePres = ft_freqanalysis(cfg_ft,data_tla.img_onePres.sub(1).ses(1).data);
-
-% sub = 1;
-ses = 1;
-
-% conds = {'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2', ...
-%   'img_onePres', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_RgH_spac_p2', 'img_RgH_mass_p2'};
-
-conds = cellflat(ana.eventValues{1});
-
-cfg_fd = [];
-cfg_fd.variance = 'no';
-cfg_fd.jackknife = 'no';
-cfg_fd.keeptrials = 'yes';
-param = 'fourierspctrm';
-
-saveDataroot = '/Volumes/DeLorean/space_data';
-if ~exist(saveDataroot,'dir')
-  [s] = mkdir(saveDataroot);
-  if ~s
-    error('Could not make %s',saveDataroot);
-  end
-end
-
-for sub = 1:length(exper.subjects)
-  
-  data_fourier = struct;
-  % save fourier and use ft_freqdescriptives to convert to power
-  data_pow = struct;
-  
-  for cnd = 1:length(conds)
-    %data_fourier.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data = ft_freqanalysis(cfg_ft,data_tla.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data);
-    data_fourier.(exper.sesStr{ses}).(conds{cnd}).data = ft_freqanalysis(cfg_ft,data_tla.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data);
-    
-    data_pow.(exper.sesStr{ses}).(conds{cnd}).data = (abs(data_fourier.(exper.sesStr{ses}).(conds{cnd}).data.(param))).^2;
-    
-  end
-  save(fullfile(saveDataroot,sprintf('%s_data_%s_%d_%d.mat',exper.subjects{sub},cfg_ft.output,cfg_ft.foilim(1),cfg_ft.foilim(2))),sprintf('data_%s',cfg_ft.output));
-  save(fullfile(saveDataroot,sprintf('%s_data_%s_%d_%d.mat',exper.subjects{sub},'pow',cfg_ft.foilim(1),cfg_ft.foilim(2))),sprintf('data_%s','pow'));
-end
-
-% save(sprintf('~/Downloads/space_data_%s_%d_%d',cfg_ft.output,cfg_ft.foilim(1),cfg_ft.foilim(2)),sprintf('data_%s',cfg_ft.output));
-
-% % calculate power
-% for sub = 1:length(exper.subjects)
-%   for cnd = 1:length(conds)
-%     % get the modulus for whole data (i.e., abs(whole fourier)) and square
-%     % to get pow
-%     data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data = (abs(data_fourier.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.(param))).^2;
-%     %data_pow.(conds{cnd}).sub(sub).ses(ses).data = (abs(subSesEvData.(cell2mat(fn)).(fourierparam))).^2;
-% 
-%     %data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_fourier.(conds{cnd}).sub(sub).ses(ses).data);
-%   end
-% end
-
-%% baseline
-
-cfg = [];
-cfg.baseline_type = 'zscore';
-cfg.baseline_time = [-0.3 -0.1];
-
-% get the baseline time indices
-blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline_time(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline_time(2);
-% mean across baseline period
-blm = nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4);
-if strcmp(cfg.baseline_type,'zscore')
-  fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-  % std across time, then avg across events (lower freqs often get smaller std)
-  blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,4),1);
-  
-  % % avg across time, then std across events (higher freqs often get smaller std)
-  % blstd = nanstd(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),0,1);
-  
-  % % concatenate all times of all events and std (equivalent std across freqs)
-  %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3),...
-  %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),1)*size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),...
-  %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),2),size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3))),0,1)),-1);
-  
-  subSesEvData.(cell2mat(fn)).(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cell2mat(fn)).(param),blm),blstd);
-end
-
-% % log power
-% data_pow_log = data_pow;
-% for sub = 1:length(exper.subjects)
-%   for cnd = 1:length(conds)
-%     data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.powspctrm = log10(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm);
-%   end
-% end
-
-cfg_bl = [];
-cfg_bl.baseline = [-0.3 -0.1];
-cfg_bl.baselinetype = 'absolute';
-for sub = 1:length(exper.subjects)
-  for cnd = 1:length(conds)
-    data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_bl,data_pow.(conds{cnd}).sub(sub).ses(ses).data);
-  end
-end
-
-%% get the grand average
-
-% set up strings to put in grand average function
 cfg_ana = [];
 cfg_ana.is_ga = 0;
-cfg_ana.conditions = ana.eventValues;
+%cfg_ana.conditions = ana.eventValues{ses};
 cfg_ana.data_str = 'data_pow';
-cfg_ana.data_str = 'data_pow_log';
-%cfg_ana.data_str = 'data_coh';
-%cfg_ana.data_str = 'data_evoked';
-cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
 
 cfg_ft = [];
-cfg_ft.keepindividual = 'no';
-%cfg_ft.keepindividual = 'yes';
+cfg_ft.keepindividual = 'yes';
+
 for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues)
-    for evVal = 1:length(ana.eventValues{typ})
-      %tic
-      fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
-      if strcmp(cfg_ana.data_str,'data_pow')
-        cfg_ft.parameter = 'powspctrm';
-        ga_pow.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      elseif strcmp(cfg_ana.data_str,'data_pow_log')
-        cfg_ft.parameter = 'powspctrm';
-        ga_pow_log.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      elseif strcmp(cfg_ana.data_str,'data_coh')
-        %cfg_ft.parameter = 'plvspctrm';
-        cfg_ft.parameter = 'powspctrm';
-        ga_coh.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      elseif strcmp(cfg_ana.data_str,'data_evoked')
-        cfg_ft.parameter = 'powspctrm';
-        ga_evoked.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      end
-      fprintf('Done.\n');
-      %toc
+  for typ = 1:length(ana.eventValues{ses})
+    cfg_ana.conditions = ana.eventValues{ses}{typ};
+    cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+    
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      % collapse subjects together
+      fprintf('%s, %s\n',exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+      data_pow_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
+      
+      % % keep subjects separate
+      %for sub = 1:length(exper.subjects)
+      %  fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+      %  data_pow_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_freqgrandaverage(cfg_ft,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+      %end
     end
   end
 end
@@ -1023,7 +905,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_pow);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
@@ -1294,7 +1176,7 @@ for r = 1:length(cfg_plot.rois)
     end
   end
   
-  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
+  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
 end
 
 %% plot the contrasts
@@ -1357,7 +1239,7 @@ cfg_ft.xlim = (0:0.05:1.0); % time
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.ylim = [-1 1]; % volt
 
-mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
+mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
 
 %% descriptive statistics: ttest
 
@@ -1426,7 +1308,7 @@ for r = 1:length(cfg_ana.rois)
   
   % use data_tla_avg because FieldTrip doesn't deal with dimord properly
   % when single-trials exist
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg);
+  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_pow_avg);
 end
 
 %% output some values
