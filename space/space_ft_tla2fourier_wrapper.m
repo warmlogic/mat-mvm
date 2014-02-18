@@ -155,10 +155,10 @@ cfg_ft.foi = 3:1:80;
 % cfg_ft.foilim = [3 13];
 % cfg_ft.foilim = [3 80];
 
-cfg_fd = [];
-cfg_fd.variance = 'no';
-cfg_fd.jackknife = 'no';
-cfg_fd.keeptrials = 'yes';
+cfg_alt = [];
+cfg_alt.variance = 'no';
+cfg_alt.jackknife = 'no';
+cfg_alt.keeptrials = 'yes';
 
 cfg_ana.saveroot = strrep(dirs.saveDirProc,cfg_ana.orig_ftype,cfg_ft.output);
 if ~exist(cfg_ana.saveroot,'dir')
@@ -207,7 +207,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    stageFun{i}(exper,dirs,cfg_ana,cfg_ft,cfg_fd,runLocally,timeOut{i});
+    stageFun{i}(exper,dirs,cfg_ana,cfg_ft,cfg_alt,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_proc,exper,dirs,runLocally,timeOut{i});
   end
@@ -224,7 +224,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function stage1(exper,dirs,cfg_ana,cfg_ft,cfg_fd,runLocally,timeOut)
+function stage1(exper,dirs,cfg_ana,cfg_ft,cfg_alt,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -245,7 +245,7 @@ if runLocally == 0
     % Dream: create one task for each subject
     exper.subjects = allSubjects(i);
     
-    inArg = {exper,dirs,cfg_ana,cfg_ft,cfg_fd};
+    inArg = {exper,dirs,cfg_ana,cfg_ft,cfg_alt};
     
     % save the exper struct (output 1) so we can use it later
     nOutArg = 0;
@@ -270,7 +270,7 @@ else
   %ana.usePeer = 0;
   
   % Local: run all the subjects
-  mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
+  mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_alt);
   
   % turn the diary off
   diary off
