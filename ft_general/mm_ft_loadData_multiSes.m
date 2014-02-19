@@ -384,18 +384,37 @@ for sub = 1:length(exper.subjects)
               cfg_sel.trials = eval(expr);
               if isfield(cfg,'latency')
                 cfg_sel.latency = cfg.latency;
+              else
+                cfg_sel.latency = 'all';
               end
               if isfield(cfg,'frequency')
                 cfg_sel.frequency = cfg.frequency;
+              else
+                cfg_sel.frequency = 'all';
               end
               if isfield(cfg,'foilim')
                 cfg_sel.foilim = cfg.foilim;
+              else
+                cfg_sel.foilim = 'all';
               end
               if isfield(cfg,'channel')
                 cfg_sel.channel = cfg.channel;
+              else
+                cfg_sel.channel = 'all';
               end
-              % select these data
-              selData = ft_selectdata_new(cfg_sel,subSesEvData.(data_fn));
+              
+              % select these data - use the new selection function
+              %selData = ft_selectdata_new(cfg_sel,subSesEvData.(data_fn));
+              
+              % select these data - use the old selection function
+              if strcmp(cfg.ftype,'fourier')
+                thisParam = cfg.fourierparam;
+              elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
+                thisParam = cfg.powparam;
+              end
+              selData = ft_selectdata_old(...
+                subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
+                'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
               
               % put in the trial counts
               exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_sel.trials);
