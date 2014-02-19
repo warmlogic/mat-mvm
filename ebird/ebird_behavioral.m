@@ -166,5 +166,5 @@ for sub = 1:length(subjects)
   end
 end
 
-varnames = {'sesNames','trainConds','imgConds', 'famLevel'};
+varnames = {'session','trainUntrain','imgConds', 'basicSubord'};
 O = teg_repeated_measures_ANOVA(anovaData, [3 2 5 2], varnames);
