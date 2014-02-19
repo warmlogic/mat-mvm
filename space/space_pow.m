@@ -85,85 +85,6 @@ replaceDatatype = {'tla','pow'};
 % % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
 % [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,false);
 
-%% convert timelock to fourier
-
-cfg_ana = [];
-cfg_ana.orig_ftype = 'tla';
-
-% cfg_ana.param = 'fourierspctrm';
-
-cfg_ana.fourier2pow = true;
-cfg_ana.alt_ftype = 'pow';
-cfg_ana.alt_param = 'powspctrm';
-cfg_ana.useLockFiles = false;
-cfg_ana.splitTrials = true;
-if cfg_ana.splitTrials
-  cfg_ana.splitSize = 100;
-  % number of trials to lump in with the last trial split. Must be >= 1.
-  cfg_ana.splitRemainderLump = 10;
-  
-  % whether to see if files are too big to combine (RAM limit issue)
-  cfg_ana.checkSplitFileSizeForSaving = false;
-  % approximate limit in MB that the combined files can reach; otherwise will
-  % keep the split files
-  cfg_ana.combineSavingLimitMB = 2000;
-end
-
-cfg_ft = [];
-cfg_ft.pad = 'maxperlen';
-% cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-% cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'no';
-
-% cfg_ft.output = 'pow';
-% cfg_ft.keeptrials = 'no';
-cfg_ft.output = 'fourier';
-cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'yes';
-
-% wavelet
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 5;
-%cfg_ft.toi = -0.8:0.04:3.0;
-cfg_ft.toi = -0.5:0.04:1.0;
-% cfg_ft.toi = 0:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-% % cfg_ft.foi = 3:freqstep:9;
-% cfg_ft.foi = 3:freqstep:60;
-% cfg_ft.foi = 4:1:100;
-%cfg_ft.foi = 4:1:30;
-cfg_ft.foi = 3:1:80;
-% cfg_ft.foilim = [3 9];
-% cfg_ft.foilim = [3 13];
-% cfg_ft.foilim = [3 80];
-
-cfg_fd = [];
-cfg_fd.variance = 'no';
-cfg_fd.jackknife = 'no';
-cfg_fd.keeptrials = 'yes';
-
-cfg_ana.saveroot = strrep(dirs.saveDirProc,cfg_ana.orig_ftype,cfg_ft.output);
-if ~exist(cfg_ana.saveroot,'dir')
-  [s] = mkdir(cfg_ana.saveroot);
-  if ~s
-    error('Could not make %s',cfg_ana.saveroot);
-  end
-end
-
-cfg_ana.saveroot_alt = strrep(dirs.saveDirProc,cfg_ana.orig_ftype,cfg_ana.alt_ftype);
-if ~exist(cfg_ana.saveroot_alt,'dir')
-  [s] = mkdir(cfg_ana.saveroot_alt);
-  if ~s
-    error('Could not make %s',cfg_ana.saveroot_alt);
-  end
-end
-
-mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_fd);
-
-%imagesc(freq.time,freq.freq,squeeze(mean(freq.powspctrm(:,55,:,:),1)));axis xy;
-
 %% set up channel groups
 
 % pre-defined in this function
@@ -384,32 +305,131 @@ end
 %     sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & recog_rt < 3000 & new_resp ~= 0 & new_acc == 1',find(ismember(exper.eventValues{sesNum},'cued_recall_stim')))}}};
 % end
 
-%% load in the subject data
+%% new loading workflow - pow
 
-% % make sure ana.eventValues is set properly
-% if ~iscell(ana.eventValues{1})
-%   ana.eventValues = {ana.eventValues};
-% end
-% if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
-%   ana.eventValues = {exper.eventValues};
-% end
+cfg = [];
 
-% keeptrials = true;
-% % [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
-% [data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+% cfg.loadMethod = 'seg';
+cfg.loadMethod = 'trialinfo';
+cfg.latency = 'all';
+% cfg.frequency = 'all';
+cfg.foilim = [3 9];
 
-keeptrials = false;
-[data_pow,exper] = mm_loadSubjectData(exper,dirs,ana,'pow',keeptrials,'trialinfo');
+cfg.keeptrials = 'no';
+%cfg.keeptrials = 'yes';
+% cfg.equatetrials = 'no';
+% %cfg.equatetrials = 'yes';
 
-% %% get rid of the bad channels
-% 
-% cfg = [];
-% cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+% type of input (used in the filename to load)
+cfg.ftype = 'pow';
+% cfg.ftype = 'fourier';
+
+% type of output: 'pow', 'coh', 'phase'
+cfg.output = 'pow';
+
+% transformation: 'log10', 'log', 'vec', 'dB'
+cfg.transform = 'log10';
+% cfg.transform = 'vec';
+
+% normalization of single or average trials
+% cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
+cfg.norm_trials = 'average';
+
+% baseline type
+% % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
+%cfg.baselinetype = 'zscore';
+cfg.baseline_type = 'absolute';
+% cfg.baseline_type = 'relchange';
+% cfg.baseline_type = 'relative';
+
+% baseline period
+cfg.baseline_time = [-0.3 0];
+%cfg.baseline_time = [-0.2 0];
+
+% at what data stage should it be baseline corrected?
+% cfg.baseline_data = 'mod';
+cfg.baseline_data = 'pow';
+
+%cfg.saveFile = true;
+cfg.saveFile = false;
+
+% only keep induced data by removing evoked?
+cfg.rmevoked = 'no';
+cfg.rmevokedfourier = 'no';
+cfg.rmevokedpow = 'no';
+% cfg.rmevoked = 'yes';
+% cfg.rmevokedfourier = 'yes';
+% cfg.rmevokedpow = 'no';
+if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
+  % load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+  
+  % local testing
+  %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
+end
+
+if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
+  eq_str = '_eq';
+else
+  eq_str = '';
+end
+if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
+  kt_str = '_trials';
+else
+  kt_str = '_avg';
+end
+if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
+  indu_str = '_induced';
+else
+  indu_str = '_whole';
+end
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
+
+if exist(saveFile,'file')
+  fprintf('Loading saved file: %s\n',saveFile);
+  load(saveFile);
+else
+  fprintf('Running mm_ft_loadData_multiSes\n');
+  if exist('data_evoked','var')
+    [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
+  else
+    [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
+  end
+  if cfg.saveFile
+    fprintf('Saving %s...\n',saveFile);
+    save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
+  end
+end
+fprintf('Done.\n');
 
 % overwrite ana.eventValues with the new split events
 ana.eventValues = ana.eventValuesSplit;
 
+% %% OLD - load in the subject data
+% 
+% % % make sure ana.eventValues is set properly
+% % if ~iscell(ana.eventValues{1})
+% %   ana.eventValues = {ana.eventValues};
+% % end
+% % if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
+% %   ana.eventValues = {exper.eventValues};
+% % end
+% 
+% % keeptrials = true;
+% % % [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+% % [data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+% 
+% keeptrials = false;
+% [data_pow,exper] = mm_loadSubjectData(exper,dirs,ana,'pow',keeptrials,'trialinfo');
+% 
+% % %% get rid of the bad channels
+% % 
+% % cfg = [];
+% % cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% % [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+% 
+% % overwrite ana.eventValues with the new split events
+% ana.eventValues = ana.eventValuesSplit;
+% 
 %% Test plots to make sure data look ok
 
 cfg_ft = [];
