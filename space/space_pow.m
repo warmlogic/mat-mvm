@@ -312,8 +312,7 @@ cfg = [];
 % cfg.loadMethod = 'seg';
 cfg.loadMethod = 'trialinfo';
 cfg.latency = 'all';
-% cfg.frequency = 'all';
-cfg.foilim = [3 9];
+cfg.frequency = 'all';
 
 cfg.keeptrials = 'no';
 %cfg.keeptrials = 'yes';
@@ -344,8 +343,9 @@ cfg.baselinetype = 'zscore';
 % cfg.baseline_type = 'db';
 
 % baseline period
-cfg.baseline_time = [-0.3 0];
 %cfg.baseline_time = [-0.2 0];
+% cfg.baseline_time = [-0.3 0];
+cfg.baseline_time = [-0.3 -0.1];
 
 % at what data stage should it be baseline corrected?
 % cfg.baseline_data = 'mod';
@@ -430,90 +430,73 @@ ana.eventValues = ana.eventValuesSplit;
 % 
 % % overwrite ana.eventValues with the new split events
 % ana.eventValues = ana.eventValuesSplit;
-% 
+
 %% Test plots to make sure data look ok
 
-cfg_ft = [];
-cfg_ft.showlabels = 'yes';
-cfg_ft.interactive = 'yes';
-cfg_ft.showoutline = 'yes';
-cfg_ft.fontsize = 9;
-cfg_ft.ylim = [-15 15];
-cfg_ft.layout = ft_prepare_layout([],ana);
-sub = 1;
-ses = 1;
-for typ = 1:length(ana.eventValues{ses})
-  for ev = 1:length(ana.eventValues{ses}{typ})
-    figure
-    ft_multiplotER(cfg_ft,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{ev}).sub(sub).data);
-    title(strrep(ana.eventValues{ses}{typ}{ev},'_','-'));
-  end
-end
-
 % cfg_ft = [];
-% cfg_ft.channel = {'E20'};
-% %cfg_ft.linewidth = 2;
-% cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--','-.'};
-% cfg_ft.xlim = [-0.2 1.0];
-% figure
-% ft_singleplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{2}).sub(1).ses(1).data);
-
-% cfg_ft = [];
-% cfg_ft.channel = {'E20'};
-% %cfg_ft.linewidth = 2;
-% cfg_ft.graphcolor = 'rbk';
-% %cfg_ft.linestyle = {'-','--','-.'};
-% cfg_ft.xlim = [-0.2 1.0];
-% %figure
-% %ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data,data_tla.(exper.eventValues{2}).sub(1).ses(1).data,data_tla.(exper.eventValues{3}).sub(1).ses(1).data);
-% %legend(strrep(exper.eventValues,'_','-'),'Location','SouthEast');
-% figure
-% cfg_ft.graphcolor = 'b';
-% ft_singleplotER(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data);
-% legend(strrep(exper.eventValues{1},'_','-'),'Location','SouthEast');
-% hold on
-% plot([cfg_ft.xlim(1) cfg_ft.xlim(2)],[0 0],'k--'); % horizontal
-% plot([0 0],[-5 5],'k--'); % vertical
-% hold off
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% cfg_ft = [];
-% cfg_ft.channel = {'all'};
-% cfg_ft.latency = [.5 .8];
-% data_topo = ft_timelockanalysis(cfg_ft,data_tla.(exper.eventValues{1}).sub(1).ses(1).data);
-% cfg_ft = [];
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% cfg_ft.interactive = 'yes';
-% cfg_ft.colormap = 'jet';
-% %cfg_ft.colormap = 'hot';
-% cfg_ft.colorbar = 'yes';
-% cfg_ft.xlim = 'maxmin';
-% cfg_ft.layout = ft_prepare_layout([],ana);
-% figure
-% ft_topoplotER(cfg_ft,data_topo);
-%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% %% Remove the dof field. I'm not sure what degrees of freedom refers to, but the tutorial says to.
-% for evVal = 1:length(exper.eventValues)
-%   for sub = 1:length(exper.subjects)
-%     for ses = 1:length(exper.sesStr)
-%       if isfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof')
-%         data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data = rmfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof');
-%       end
-%     end
-%   end
+% cfg_ft.baseline = [-0.3 -0.1];
+% cfg_ft.baselinetype = 'absolute';
+% if strcmp(cfg_ft.baselinetype,'absolute')
+%   %cfg_ft.zlim = [-400 400];
+%   cfg_ft.zlim = [-2 2];
+% elseif strcmp(cfg_ft.baselinetype,'relative')
+%   cfg_ft.zlim = [0 2.0];
 % end
+% cfg_ft.parameter = 'powspctrm';
+% %cfg_ft.ylim = [3 9];
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.fontsize = 12;
+% cfg_ft.colorbar = 'yes';
+% cfg_ft.interactive = 'yes';
+% cfg_ft.layout = ft_prepare_layout([],ana);
+% sub=6;
+% ses=1;
+% for i = 1:length(ana.eventValues{1})
+%   figure
+%   ft_multiplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+%   title(ana.eventValues{1}{i});
+% end
+
+cfg_ft = [];
+cfg_ft.channel = {'E124'};
+% %cfg_ft.channel = {'E117'};
+
+% cfg_ft.baseline = [-0.4 -0.1];
+% cfg_ft.baselinetype = 'absolute';
+% % if strcmp(cfg_ft.baselinetype,'absolute')
+% %   %cfg_ft.zlim = [-2 2];
+% %   cfg_ft.zlim = [-500 500];
+% % elseif strcmp(cfg_ft.baselinetype,'relative')
+% %   cfg_ft.zlim = [0 1.5];
+% % end
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.colorbar = 'yes';
+% cfg_ft.ylim = [4 8];
+
+%cfg_ft.zlim = [-150 150];
+%cfg_ft.zlim = [-300 300];
+
+cfg_ft.zlim = [-.6 .6];
+%cfg_ft.zlim = [-.30 .30];
+% cfg_ft.zlim = [-.15 .15];
+
+%cfg_ft.zlim = [-2 2];
+cfg_ft.zlim = [-1 1];
+
+
+sub=1;
+ses=1;
+for i = 1:length(ana.eventValues{1})
+  figure
+  ft_singleplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
+  title(ana.eventValues{1}{i});
+end
 
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
 exper.badBehSub = {{}};
+% exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
@@ -626,37 +609,37 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-% turn keeptrial data into average for statistical functions because proper
-% processing of dimord is currently broken
-
-data_pow_avg = struct;
-
-cfg_ana = [];
-cfg_ana.is_ga = 0;
-%cfg_ana.conditions = ana.eventValues{ses};
-cfg_ana.data_str = 'data_pow';
-
-cfg_ft = [];
-cfg_ft.keepindividual = 'yes';
-
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    cfg_ana.conditions = ana.eventValues{ses}{typ};
-    cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
-    
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      % collapse subjects together
-      fprintf('%s, %s\n',exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-      data_pow_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
-      
-      % % keep subjects separate
-      %for sub = 1:length(exper.subjects)
-      %  fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-      %  data_pow_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_freqgrandaverage(cfg_ft,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-      %end
-    end
-  end
-end
+% % turn keeptrial data into average for statistical functions because proper
+% % processing of dimord is currently broken
+% 
+% data_pow_avg = struct;
+% 
+% cfg_ana = [];
+% cfg_ana.is_ga = 0;
+% %cfg_ana.conditions = ana.eventValues{ses};
+% cfg_ana.data_str = 'data_pow';
+% 
+% cfg_ft = [];
+% cfg_ft.keepindividual = 'yes';
+% 
+% for ses = 1:length(exper.sesStr)
+%   for typ = 1:length(ana.eventValues{ses})
+%     cfg_ana.conditions = ana.eventValues{ses}{typ};
+%     cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+%     
+%     for evVal = 1:length(ana.eventValues{ses}{typ})
+%       % collapse subjects together
+%       fprintf('%s, %s\n',exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+%       data_pow_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
+%       
+%       % % keep subjects separate
+%       %for sub = 1:length(exper.subjects)
+%       %  fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+%       %  data_pow_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_freqgrandaverage(cfg_ft,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+%       %end
+%     end
+%   end
+% end
 
 %% simple plot
 
@@ -665,15 +648,84 @@ chan = 73; % 73 = Pz
 zlim = [-200 400];
 zlim = [0 100];
 
-for cnd = 1:length(conds)
+ses = 1;
+typ = 1;
+
+for evVal = 1:length(ana.eventValues{ses}{typ})
   figure;
-  surf(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)));
+  
+  surf(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.time,...
+    data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.freq,...
+    squeeze(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.powspctrm(chan,:,:)));
+  
   shading interp;view([0,90]);axis tight;
   caxis(zlim);
-  %imagesc(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)),zlim);
+  %imagesc(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.time,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.freq,squeeze(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.powspctrm(chan,:,:)),zlim);
   %axis xy;
-  title(strrep(conds{cnd},'_','-'));
+  title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
   colorbar
+end
+
+%% plot the conditions - simple
+
+cfg_ft = [];
+%cfg_ft.baseline = [-0.3 -0.1];
+%cfg_ft.baselinetype = 'absolute';
+%if strcmp(cfg_ft.baselinetype,'absolute')
+%cfg_ft.xlim = [0 1];
+%cfg_ft.ylim = [4 64];
+%cfg_ft.ylim = [4 8];
+%cfg_ft.ylim = [8 12];
+%cfg_ft.ylim = [12 28];
+%cfg_ft.ylim = [28 64];
+%cfg_ft.zlim = [-1 1];
+%cfg_ft.zlim = [-2 2];
+%elseif strcmp(cfg_ft.baselinetype,'relative')
+cfg_ft.zlim = [-0.5 0.5];
+%end
+cfg_ft.showlabels = 'yes';
+cfg_ft.colorbar = 'yes';
+cfg_ft.interactive = 'yes';
+cfg_ft.layout = ft_prepare_layout([],ana);
+for ses = 1:length(ana.eventValues)
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      figure
+      ft_multiplotTFR(cfg_ft,ga_freq.(ana.eventValues{ses}{typ}{evVal}));
+      set(gcf,'Name',sprintf('%s',ana.eventValues{ses}{typ}{evVal}))
+    end
+  end
+end
+
+%% subplots of each subject's power spectrum
+
+cfg_plot = [];
+%cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+cfg_plot.rois = {{'FS'},{'PS'}};
+%cfg_plot.rois = {'E124'};
+%cfg_plot.rois = {'E25'};
+%cfg_plot.rois = {'RAS'};
+%cfg_plot.rois = {'LPS','RPS'};
+%cfg_plot.rois = {'LPS'};
+cfg_plot.excludeBadSub = 1;
+cfg_plot.numCols = 5;
+
+% outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% for each event type; each event type cell holds strings for its
+% conditions
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+%cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
+
+cfg_ft = [];
+cfg_ft.colorbar = 'yes';
+%cfg_ft.zlim = [-2 2];
+cfg_ft.parameter = 'powspctrm';
+
+for r = 1:length(cfg_plot.rois)
+  cfg_plot.roi = cfg_plot.rois{r};
+  cfg_plot.conditions = cfg_plot.condByROI{r};
+  
+  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_freq);
 end
 
 %% make some GA plots
@@ -689,7 +741,8 @@ cfg_ft.xlim = [0 1.0]; % time
 % cfg_ft.ylim = [3 8]; % freq
 % cfg_ft.ylim = [8 12]; % freq
 % cfg_ft.ylim = [8 10]; % freq
-cfg_ft.ylim = [10 12]; % freq
+% cfg_ft.ylim = [10 12]; % freq
+cfg_ft.ylim = [4 28]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
 % cfg_ft.zlim = [0 3]; % pow
@@ -704,7 +757,7 @@ cfg_plot.plotTitle = 1;
 %cfg_plot.rois = {'E71'};
 cfg_plot.rois = {'all'};
 
-cfg_plot.is_ga = 0;
+cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
@@ -791,77 +844,6 @@ mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
 % mm_ft_clusterplotTFR
 
 % nk_ft_avgpowerbytime - see cosi2_ft_seg_pow line 1158
-
-%% other tf
-
-cfg_ft = [];
-cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-cfg_ft.keeptrials = 'yes';
-
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 5;
-cfg_ft.toi = -0.2:0.04:1.0;
-% cfg_ft.foi = 4:1:30;
-cfg_ft.foilim = [4 30];
-% cfg_ft.foi = 4:1:9;
-
-% % multi-taper method - Usually to up 30 Hz
-% cfg_ft.method = 'mtmconvol';
-% cfg_ft.taper = 'hanning';
-% % cfg_ft.taper = 'dpss';
-% 
-% cfg_ft.toi = -0.2:0.04:1.0;
-% cfg_ft.foi = 4:1:9;
-% % temporal smoothing
-% cfg_ft.t_ftimwin = 4 ./ cfg_ft.foi;
-% % frequency smoothing (tapsmofrq) is not used for hanning taper
-% 
-% % % % frequency smoothing (tapsmofrq) is used for dpss
-% % cfg_ft.tapsmofrq = 0.3 .* cfg_ft.foi;
-
-
-cfg_ft.pad = 'maxperlen';
-cfg_ft.padtype = 'zero';
-face_pow = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-cfg_ft.pad = 2;
-cfg_ft.padtype = 'zero';
-face_pow_pad2 = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-cfg_ft.pad = 10;
-cfg_ft.padtype = 'zero';
-face_pow_pad5 = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-% %%
-% 
-% cfg_ft.pad = 5;
-% cfg_ft.padtype = 'edge';
-% face_pow_pad5e = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-% plot something
-
-chan = 70;
-
-figure
-imagesc(face_pow.time,face_pow.freq,squeeze(mean(face_pow.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=maxperlen');
-
-figure
-imagesc(face_pow_pad2.time,face_pow_pad2.freq,squeeze(mean(face_pow_pad2.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=2');
-
-figure
-imagesc(face_pow_pad5.time,face_pow_pad5.freq,squeeze(mean(face_pow_pad5.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=5');
-
-figure
-imagesc(face_pow_pad5e.time,face_pow_pad5e.freq,squeeze(mean(face_pow_pad5e.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=5edge');
 
 %% plot the conditions - simple
 
@@ -1266,70 +1248,37 @@ mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
 
 cfg_ana = [];
 % define which regions to average across for the test
-% and the times that correspond to each set of ROIs
+cfg_ana.rois = {{'PS'},{'FS'},{'LPS'},{'RPS'},{'PS'},{'PS'}};
+% define the times that correspond to each set of ROIs
+cfg_ana.latencies = [0.2 0.4; 0.6 1.0; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.5 1.0];
+% define the frequencies that correspond to each set of ROIs
+cfg_ana.frequencies = [4 8; 4 8; 4 8; 4 8; 4 8; 8 12];
 
-%cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'},{'LAS','RAS'},{'LPS','RPS'},{'LPS','RPS'},{'LPS','RPS'}};
-%cfg_ana.latencies = [0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-
-% cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
-
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg_ana.rois = {{'FC'}};
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-
-% % LF O/N
-% cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
-% cfg_ana.latencies = [1.1 1.4; 1.4 1.9; 1.1 1.4; 1.4 1.9];
-
-% % LPN
-% cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
-% cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
-
-
-% cfg_ana.conditions = {'all'};
-%cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-%cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
-cfg_ana.conditions = {{'Face','House'}};
-cfg_ana.conditions = {{'RgH','CR'}};
-
-%cfg_ana.conditions = {{'all'}};
-%cfg_ana.conditions = {{'all_within_types'}};
-%cfg_ana.conditions = {{'all_across_types'}};
+%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+cfg_ana.conditions = {'all'};
 
 % set parameters for the statistical test
 cfg_ft = [];
 cfg_ft.avgovertime = 'yes';
 cfg_ft.avgoverchan = 'yes';
-cfg_ft.parameter = 'avg';
+cfg_ft.avgoverfreq = 'yes';
+cfg_ft.parameter = 'powspctrm';
 cfg_ft.correctm = 'fdr';
 
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
 cfg_plot.line_plots = 0;
-%cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
-%cfg_plot.ylims = [-4 -1; 1 4; 1 4];
-% cfg_plot.ylims = [-5 -2; -5 -2; -5 -2; 1.5 4.5; 1.5 4.5;];
-cfg_plot.ylims = [-5 -2; 1.5 4.5];
-%cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
-%cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
-% cfg_plot.plot_order = {'SC','SI','CR'};
-%cfg_plot.rename_conditions = {'SC','SI','CR'};
-% cfg_plot.xlabel = 'Condition';
-% cfg_plot.ylabel = 'Voltage (\muV)';
-cfg_plot.xlabel = '';
-cfg_plot.ylabel = '';
+cfg_plot.ylims = repmat([-1 1],size(cfg_ana.rois'));
+%cfg_plot.ylims = repmat([-100 100],size(cfg_ana.rois'));
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
   cfg_ft.latency = cfg_ana.latencies(r,:);
+  cfg_ft.frequency = cfg_ana.frequencies(r,:);
   cfg_plot.ylim = cfg_plot.ylims(r,:);
   
-  % use data_tla_avg because FieldTrip doesn't deal with dimord properly
-  % when single-trials exist
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_pow_avg);
+  mm_ft_ttestTFR(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_freq);
 end
 
 %% output some values
@@ -1520,61 +1469,96 @@ end
 %% cluster statistics
 
 cfg_ft = [];
-%cfg_ft.avgovertime = 'no';
-cfg_ft.avgovertime = 'yes';
 cfg_ft.avgoverchan = 'no';
+cfg_ft.avgovertime = 'yes';
+cfg_ft.avgoverfreq = 'yes';
+%cfg_ft.avgoverfreq = 'no';
 
-cfg_ft.parameter = 'avg';
+cfg_ft.parameter = 'powspctrm';
+
+% debugging
+%cfg_ft.numrandomization = 100;
+
+cfg_ft.numrandomization = 500;
+cfg_ft.clusteralpha = .05;
+cfg_ft.alpha = .025;
 
 cfg_ana = [];
 cfg_ana.roi = 'all';
-%cfg_ana.latencies = [0 1.0; 1.0 2.0];
-%cfg_ana.latencies = [0.2 0.6];
-cfg_ana.latencies = [0.3 0.5];
+%cfg_ana.roi = 'center74';
+cfg_ana.avgFrq = cfg_ft.avgoverfreq;
+%cfg_ana.conditions = {'all'};
 
-cfg_ft.numrandomization = 500;
-% cfg_ft.clusteralpha = 0.05;
-cfg_ft.clusteralpha = 0.1;
-cfg_ft.alpha = 0.05;
+cfg_ana.conditions = {{'recall','no_recall'}};
 
-% extra directory info
 cfg_ana.dirStr = '';
-if strcmp(cfg_ft.avgovertime,'yes')
+
+if strcmp(cfg_ft.avgovertime,'no')
+  cfg_ana.latencies = [0 0.5];
+  %cfg_ana.latencies = [0 1.0];
+  %cfg_ana.latencies = [0 0.5; 0.5 1.0];
+elseif strcmp(cfg_ft.avgovertime,'yes')
+  %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+  cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]';
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
 end
+
+if strcmp(cfg_ft.avgoverfreq,'no')
+  cfg_ana.frequencies = [4 100];
+elseif strcmp(cfg_ft.avgoverfreq,'yes')
+  cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 100];
+  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+  cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
+end
+%cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.615];
+
 if strcmp(cfg_ft.avgoverchan,'yes')
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgC'];
 end
 
-% cfg_ana.conditions = {...
-%   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
-%   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
-%   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-cfg_ana.conditions = {'all_within_types'};
-%cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
-
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
-  
-  stat_clus = mm_ft_clusterstatER(cfg_ft,cfg_ana,exper,ana,dirs,data_tla);
+  for fr = 1:size(cfg_ana.frequencies,1)
+    cfg_ft.frequency = cfg_ana.frequencies(fr,:);
+    
+    [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_freq);
+  end
 end
 
 %% plot the cluster statistics
 
-%files.saveFigs = 1;
+files.saveFigs = 1;
 
 cfg_ft = [];
-cfg_ft.alpha = 0.1;
+%cfg_ft.alpha = .025;
+cfg_ft.alpha = .1;
+cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 
 cfg_plot = [];
-cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.conditions = cfg_ana.conditions;
+cfg_plot.frequencies = cfg_ana.frequencies;
+cfg_plot.latencies = cfg_ana.latencies;
 cfg_plot.dirStr = cfg_ana.dirStr;
+
+if strcmp(cfg_ft.avgoverfreq,'no')
+  % not averaging over frequencies - only works with ft_multiplotTFR
+  files.saveFigs = 0;
+  cfg_ft.interactive = 'yes';
+  cfg_plot.mask = 'yes';
+  %cfg_ft.maskstyle = 'saturation';
+  cfg_ft.maskalpha = 0.3;
+  cfg_plot.ftFxn = 'ft_multiplotTFR';
+  % http://mailman.science.ru.nl/pipermail/fieldtrip/2009-July/002288.html
+  % http://mailman.science.ru.nl/pipermail/fieldtrip/2010-November/003312.html
+end
 
 for lat = 1:size(cfg_plot.latencies,1)
   cfg_ft.latency = cfg_plot.latencies(lat,:);
-  
-  mm_ft_clusterplotER(cfg_ft,cfg_plot,ana,files,dirs);
+  for fr = 1:size(cfg_plot.frequencies,1)
+    cfg_ft.frequency = cfg_plot.frequencies(fr,:);
+    
+    mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
+  end
 end
 
 %% let me know that it's done
