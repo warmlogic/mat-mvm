@@ -327,7 +327,7 @@ cfg.ftype = 'pow';
 % type of output: 'pow', 'coh', 'phase'
 cfg.output = 'pow';
 
-% transformation: 'log10', 'log', 'vec', 'dB'
+% transformation: 'log10', 'log', 'vec'
 cfg.transform = 'log10';
 % cfg.transform = 'vec';
 
@@ -336,11 +336,12 @@ cfg.transform = 'log10';
 cfg.norm_trials = 'average';
 
 % baseline type
-% % 'zscore', 'absolute', 'relchange', 'relative', 'condition' (use ft_freqcomparison)
-%cfg.baselinetype = 'zscore';
-cfg.baseline_type = 'absolute';
+% % 'zscore', 'absolute', 'relchange', 'relative', 'db'
+cfg.baselinetype = 'zscore';
+% cfg.baseline_type = 'absolute';
 % cfg.baseline_type = 'relchange';
 % cfg.baseline_type = 'relative';
+% cfg.baseline_type = 'db';
 
 % baseline period
 cfg.baseline_time = [-0.3 0];

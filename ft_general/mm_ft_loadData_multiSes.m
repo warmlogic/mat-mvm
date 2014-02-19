@@ -15,7 +15,7 @@ function [data,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked)
 %   exper       = exper struct
 %
 % TODO:
-%  - for cfg.baseline_type='condition', use ft_freqcomparison
+%  - for cfg.baseline_type='condition', use ft_math
 %  - many other things...
 %
 
@@ -213,10 +213,11 @@ if ~isfield(cfg,'baseline_type')
   cfg.baseline_type = '';
 end
 
-if strcmp(cfg.transform,'dB') && ~isempty(cfg.baseline_type) && ~strcmp(cfg.baseline_type,'relative')
-  warning([mfilename,':dbNormBL'],'dB transformation uses a relative baseline type (division). Setting cfg.baseline_type=''relative''.\n');
-  cfg.baseline_type = 'relative';
-end
+% % no longer having 'db' be a reasonable transformation option
+% if strcmp(cfg.transform,'db') && ~isempty(cfg.baseline_type) && ~strcmp(cfg.baseline_type,'relative')
+%   warning([mfilename,':dbNormBL'],'db transformation uses a relative baseline type (division). Setting cfg.baseline_type=''relative''.\n');
+%   cfg.baseline_type = 'relative';
+% end
 
 % if iscell(ana.eventValues)
 %   if ~iscell(ana.eventValues{1})
@@ -289,18 +290,6 @@ end
 %     fprintf('\n');
 %   end
 % end
-
-%% set up event values
-
-% if strcmp(cfg.loadMethod,'seg')
-%   eventValues = ana.eventValues;
-%   % TODO: need to repmat ana.eventValues for number of sessions??
-%   warning('not sure if eventValues is set up correctly');
-% elseif strcmp(cfg.loadMethod,'trialinfo')
-%   eventValues = ana.eventValuesSplit;
-% end
-
-% eventValues = ana.eventValues;
 
 %% process the data
 
@@ -670,6 +659,12 @@ if ~isempty(cfg.transform)
       end
     end
   else
+    
+    if ~strcmp(cfg.transform,'log10') && ~strcmp(cfg.transform,'log')
+      % just letting you know...
+      warning([mfilename,':unsure_about_cfgTransform'],'Unsure if %s is a reasonable trasnformation.\n',evcfg.transformentValue);
+    end
+    
     % run using feval (e.g., for log10 normalization)
     subSesEvData.(param) = feval(cfg.transform,subSesEvData.(param));
     
@@ -700,6 +695,7 @@ if strcmp(cfg.baseline_data,'pow')
     end
     
     if strcmp(cfg.norm_trials,'single')
+      % Grandchamp & Delorme (2011)
       
       % single-trial normalization uses all the time points
       blt = true(size(subSesEvData.time));
@@ -715,9 +711,9 @@ if strcmp(cfg.baseline_data,'pow')
         % z-transform
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blstd);
         
-      elseif strcmp(cfg.baseline_type,'dB')
-        fprintf('\tConverting each trial to dB using entire trial as baseline.\n');
-        % divide by baseline mean and convert to dB
+      elseif strcmp(cfg.baseline_type,'db')
+        fprintf('\tConverting each trial to db using entire trial as baseline.\n');
+        % divide by baseline mean and convert to db
         subSesEvData.(param) = 10*log10(bsxfun(@rdivide,subSesEvData.(param),blm));
         
         % mean(10*log10) is not the same as 10*log10(mean)
@@ -742,6 +738,7 @@ if strcmp(cfg.baseline_data,'pow')
     
     % now compare it to the baseline activity
     if strcmp(cfg.norm_trials,'average') || strcmp(cfg.norm_trials,'single')
+      % TODO: can I combine 'single' with comparison to baseline?
       
       % get the baseline time indices
       blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
@@ -750,7 +747,7 @@ if strcmp(cfg.baseline_data,'pow')
       blm = nanmean(subSesEvData.(param)(:,:,:,blt),4);
       
       if strcmp(cfg.baseline_type,'zscore')
-        fprintf('\tZ-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tZ-transforming data relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
         % std across time, then avg across events (lower freqs often get smaller std)
         blstd = nanmean(nanstd(subSesEvData.(param)(:,:,:,blt),0,4),1);
         
@@ -764,13 +761,14 @@ if strcmp(cfg.baseline_data,'pow')
         
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blstd);
         
-      elseif strcmp(cfg.baseline_type,'dB')
-        fprintf('\tConverting to dB relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-        % divide by baseline mean and convert to dB
+      elseif strcmp(cfg.baseline_type,'db')
+        fprintf('\tConverting to db relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        % divide by baseline mean and convert to db
         
-        subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
-        if ~strcmp(cfg.norm_trials,'single')
-          subSesEvData.(param) = 10*log10(subSesEvData.(param));
+        if strcmp(cfg.norm_trials,'average')
+          subSesEvData.(param) = 10*log10(bsxfun(@rdivide,subSesEvData.(param),blm));
+        elseif strcmp(cfg.norm_trials,'single')
+          subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
         end
         
         % TODO: mean(10*log10) is not the same as 10*log10(mean)
@@ -778,15 +776,15 @@ if strcmp(cfg.baseline_data,'pow')
         %subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'absolute')
-        fprintf('\tSubtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tSubtracting mean([%.2f %.2f]) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
         subSesEvData.(param) = bsxfun(@minus,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'relative')
-        fprintf('\tDividing entire trial power by mean([%.2f %.2f] pre-stimulus) power.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tDividing entire trial power by mean([%.2f %.2f]) power.\n',cfg.baseline_time(1),cfg.baseline_time(2));
         subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'relchange')
-        fprintf('\tSubtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by that mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tSubtracting mean([%.2f %.2f]) power from entire trial and dividing by that mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blm);
       end
       
@@ -795,13 +793,13 @@ if strcmp(cfg.baseline_data,'pow')
 end % baseline_data
 
 %             if strcmp(cfg.baseline_data,'pow')
-%               if ~isempty(cfg.baseline_type) && ~strcmp(cfg.transform,'dB')
+%               if ~isempty(cfg.baseline_type) && ~strcmp(cfg.transform,'db')
 %
 %                 % get the baseline time indices
 %                 blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
 %
 %                 if strcmp(cfg.baseline_type,'zscore') && (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && ndims(subSesEvData.(param)) == 4
-%                   fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+%                   fprintf('Z-transforming data relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
 %
 %                   nTrl = size(subSesEvData.(param),1);
 %                   %nFrq = size(subSesEvData.(param),3);
@@ -819,22 +817,22 @@ end % baseline_data
 %                   blm = repmat(nanmean(subSesEvData.(param)(:,:,:,blt),4),[1,1,1,nSmp]);
 %
 %                   if strcmp(cfg.baseline_type,'absolute')
-%                     fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+%                     fprintf('Subtracting mean([%.2f %.2f]) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
 %                     subSesEvData.(param) = subSesEvData.(param) - blm;
 %                   elseif strcmp(cfg.baseline_type,'relative')
 %                     error('relative baseline is not working');
-%                     %fprintf('Dividing power by mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+%                     %fprintf('Dividing power by mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
 %                     %subSesEvData.(param) = subSesEvData.(param) ./ blm;
 %                   elseif strcmp(cfg.baseline_type,'relchange')
 %                     error('relchange baseline is not working');
-%                     %fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by the mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+%                     %fprintf('Subtracting mean([%.2f %.2f]) power from entire trial and dividing by the mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
 %                     %subSesEvData.(param) = (subSesEvData.(param) - blm) ./ blm;
 %                   end
 %
 %                 elseif strcmp(cfg.baseline_type,'absolute') && strcmp(cfg.output,'coh') && ndims(subSesEvData.(param)) == 3
 %                   % not sure that coherence gets baseline correction???
 %
-%                   fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) coherence from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+%                   fprintf('Subtracting mean([%.2f %.2f]) coherence from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
 %                   %blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
 %
 %                   nSmp = size(subSesEvData.(param),3);
@@ -850,7 +848,7 @@ end % baseline_data
 %             chan = 25;
 %             clim = [-1 1];
 %             %clim = [-3 3];
-%             if strcmp(cfg.transform,'dB')
+%             if strcmp(cfg.transform,'db')
 %               clim = clim .* 10;
 %             end
 %             figure;surf(subSesEvData.time,subSesEvData.freq,squeeze(mean(subSesEvData.(cfg.powparam)(:,chan,:,:),1)));shading interp;view([0,90]);axis tight;colorbar;
