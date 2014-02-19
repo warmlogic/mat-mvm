@@ -29,12 +29,12 @@ subjects = {
   %'EBIRD022'; % DNF. Dropout. Last session: 8.
   %'EBIRD023'; % DNF. Dropout. Last session: 1.
   'EBIRD024';
-  %'EBIRD025'; % In progress. Last session: 8.
+  'EBIRD025';
   'EBIRD027';
-  %'EBIRD029'; % In progress. Last session: 8.
+  'EBIRD029';
   'EBIRD032';
   'EBIRD034';
-  %'EBIRD042'; % In progress. Last session: 8.
+  'EBIRD042';
   };
 
 % % only one cell, with all session names
