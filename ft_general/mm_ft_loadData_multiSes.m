@@ -339,7 +339,7 @@ for sub = 1:length(exper.subjects)
               thisData_evoked = [];
             end
             
-            data.(sesStr).(eventValue).sub(sub).data = processData(subSesEvData.(data_fn),exper.subjects{sub},sesStr,eventValue,cfg,exper,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
+            data.(sesStr).(eventValue).sub(sub).data = processData(subSesEvData.(data_fn),exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
             
           elseif strcmp(cfg.loadMethod,'trialinfo')
             % if we're using trialinfo loading method
@@ -414,7 +414,7 @@ for sub = 1:length(exper.subjects)
                 thisData_evoked = [];
               end
               
-              data.(sesStr).(eventValue).sub(sub).data = processData(selData,exper.subjects{sub},sesStr,eventValue,cfg,exper,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
+              data.(sesStr).(eventValue).sub(sub).data = processData(selData,exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
             end % es
           end
         else
@@ -436,7 +436,7 @@ end % for sub
 
 end % function mm_ft_loadData_multiSes
 
-function [subSesEvData] = processData(subSesEvData,subject,sesStr,eventValue,cfg,exper,dirs,ana,data_evoked,powflg,csdflg,fftflg)
+function [subSesEvData] = processData(subSesEvData,subject,sesStr,eventValue,cfg,dirs,ana,data_evoked,powflg,csdflg,fftflg)
 
 % can't have values exactly equal to zero (why?)
 if powflg
