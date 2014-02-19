@@ -336,7 +336,7 @@ cfg.norm_trials = 'average';
 
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'db'
-cfg.baselinetype = 'zscore';
+cfg.baseline_type = 'zscore';
 % cfg.baseline_type = 'absolute';
 % cfg.baseline_type = 'relchange';
 % cfg.baseline_type = 'relative';
@@ -348,8 +348,9 @@ cfg.baselinetype = 'zscore';
 cfg.baseline_time = [-0.3 -0.1];
 
 % at what data stage should it be baseline corrected?
-% cfg.baseline_data = 'mod';
 cfg.baseline_data = 'pow';
+% mod is not an option
+% % cfg.baseline_data = 'mod';
 
 %cfg.saveFile = true;
 cfg.saveFile = false;
