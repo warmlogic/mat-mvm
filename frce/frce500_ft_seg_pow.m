@@ -473,26 +473,26 @@ for i = 1:length(ana.eventValues{1})
   title(ana.eventValues{1}{i});
 end
 
-%% Change in freq relative to baseline using absolute power
-
-cfg_fb = [];
-cfg_fb.baseline = [-0.3 -0.1];
-cfg_fb.baselinetype = 'absolute';
-
-data_freq_orig = data_freq;
-
-fprintf('Baseline correcting frequency data: ''%s'' baseline: %.2fs to %.2fs\n',cfg_fb.baselinetype,cfg_fb.baseline(1),cfg_fb.baseline(2));
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
-    for typ = 1:length(ana.eventValues)
-      for evVal = 1:length(ana.eventValues{typ})
-        fprintf('%s, %s, %s...',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
-        data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
-      end
-    end
-  end
-end
-fprintf('Done.\n');
+% %% Change in freq relative to baseline using absolute power
+% 
+% cfg_fb = [];
+% cfg_fb.baseline = [-0.3 -0.1];
+% cfg_fb.baselinetype = 'absolute';
+% 
+% data_freq_orig = data_freq;
+% 
+% fprintf('Baseline correcting frequency data: ''%s'' baseline: %.2fs to %.2fs\n',cfg_fb.baselinetype,cfg_fb.baseline(1),cfg_fb.baseline(2));
+% for sub = 1:length(exper.subjects)
+%   for ses = 1:length(exper.sessions)
+%     for typ = 1:length(ana.eventValues)
+%       for evVal = 1:length(ana.eventValues{typ})
+%         fprintf('%s, %s, %s...',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{typ}{evVal});
+%         data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_fb,data_freq.(ana.eventValues{typ}{evVal}).sub(sub).ses(ses).data);
+%       end
+%     end
+%   end
+% end
+% fprintf('Done.\n');
 
 % % find the time points without NaNs for a particular frequency
 % data_freq.(exper.eventValues{1}).sub(1).ses(1).data.time(~isnan(squeeze(data_freq.(exper.eventValues{1}).sub(1).ses(1).data.powspctrm(1,2,:))'))
