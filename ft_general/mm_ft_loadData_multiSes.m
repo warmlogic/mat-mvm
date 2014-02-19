@@ -329,9 +329,10 @@ for sub = 1:length(exper.subjects)
       
       inputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',cfg.ftype,ana.eventValues{ses}{evVal}));
       if exist(inputfile,'file')
-        fprintf('Loading %s %s %s: %s...\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal},inputfile);
+        fprintf('Loading %s %s %s: %s...',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal},inputfile);
         % load the data
         subSesEvData = load(inputfile);
+        fprintf('Done.\n');
         % get the name of the field
         fn = fieldnames(subSesEvData);
         
@@ -358,7 +359,7 @@ for sub = 1:length(exper.subjects)
             for es = 1:length(ana.eventValuesSplit{ses}{evVal})
               eventValue = ana.eventValuesSplit{ses}{evVal}{es};
               
-              fprintf('Selecting %s trials...\n',eventValue);
+              fprintf('\nSelecting %s trials...\n',eventValue);
               
               expr = ana.trl_expr{ses}{evVal}{es};
               
@@ -456,7 +457,7 @@ if fftflg
   %                 end
   %               end
   
-  fprintf('Converting %s to %s.\n',cfg.ftype,cfg.output);
+  fprintf('\tConverting %s to %s.\n',cfg.ftype,cfg.output);
   if strcmp(cfg.output,'pow')
     %% get the modulus of the whole data and evoked data
     param = 'modulus';
@@ -474,7 +475,7 @@ if fftflg
       % this will make evoked=positive and induced=negative
       
       %fprintf('Subtraction: (abs(whole fourier) - abs(evoked fourier)).^2 = induced power.\n');
-      fprintf('Subtraction: ((whole modulus) - (evoked modulus)).^2 = induced power.\n');
+      fprintf('\tSubtraction: ((whole modulus) - (evoked modulus)).^2 = induced power.\n');
       
       % subtract evoked from single trials, then square
       % % evoked_data = repmat(data_evoked.(cfg.fourierparam),[size(subSesEvData.(cfg.fourierparam),1),1,1,1]);
@@ -632,7 +633,7 @@ end % fftflg
 
 %% transform the data
 if ~isempty(cfg.transform)
-  fprintf('Doing a %s transformation.\n',cfg.transform);
+  fprintf('\tDoing a %s transformation.\n',cfg.transform);
   
   if strcmp(cfg.transform,'vec')
     for tr = 1:size(subSesEvData.(param),1)
@@ -663,7 +664,7 @@ end
 % option 2: subtract evoked power from whole power; need to
 % do this after log normalization
 if strcmp(cfg.rmevoked,'yes') && strcmp(cfg.rmevokedpow,'yes')
-  fprintf('Subtracting evoked power from whole power to get induced power.\n');
+  fprintf('\tSubtracting evoked power from whole power to get induced power.\n');
   evoked_data = repmat(data_evoked.(cfg.powparam),[size(subSesEvData.(cfg.powparam),1),1,1,1]);
   subSesEvData.(cfg.powparam) = subSesEvData.(cfg.powparam) - evoked_data;
 end
@@ -688,7 +689,7 @@ if strcmp(cfg.baseline_data,'pow')
       blm = nanmean(subSesEvData.(param)(:,:,:,blt),4);
       
       if strcmp(cfg.baseline_type,'zscore')
-        fprintf('Z-transforming each trial using entire trial as baseline.\n');
+        fprintf('\tZ-transforming each trial using entire trial as baseline.\n');
         % std across time
         blstd = nanstd(subSesEvData.(param)(:,:,:,blt),0,4);
         
@@ -696,7 +697,7 @@ if strcmp(cfg.baseline_data,'pow')
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blstd);
         
       elseif strcmp(cfg.baseline_type,'dB')
-        fprintf('Converting each trial to dB using entire trial as baseline.\n');
+        fprintf('\tConverting each trial to dB using entire trial as baseline.\n');
         % divide by baseline mean and convert to dB
         subSesEvData.(param) = 10*log10(bsxfun(@rdivide,subSesEvData.(param),blm));
         
@@ -706,15 +707,15 @@ if strcmp(cfg.baseline_data,'pow')
         %figure;imagesc(squeeze(mean(subSesEvData.(param)(:,62,:,:),1)));axis xy;colorbar
         
       elseif strcmp(cfg.baseline_type,'absolute')
-        fprintf('Subtracting mean(entire trial) power from entire trial.\n');
+        fprintf('\tSubtracting mean(entire trial) power from entire trial.\n');
         subSesEvData.(param) = bsxfun(@minus,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'relative')
-        fprintf('Dividing entire trial power by mean(entire trial).\n');
+        fprintf('\tDividing entire trial power by mean(entire trial).\n');
         subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'relchange')
-        fprintf('Subtracting mean(entire trial) power from entire trial and dividing by that mean.\n');
+        fprintf('\tSubtracting mean(entire trial) power from entire trial and dividing by that mean.\n');
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blm);
       end
       
@@ -730,7 +731,7 @@ if strcmp(cfg.baseline_data,'pow')
       blm = nanmean(subSesEvData.(param)(:,:,:,blt),4);
       
       if strcmp(cfg.baseline_type,'zscore')
-        fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tZ-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
         % std across time, then avg across events (lower freqs often get smaller std)
         blstd = nanmean(nanstd(subSesEvData.(param)(:,:,:,blt),0,4),1);
         
@@ -745,7 +746,7 @@ if strcmp(cfg.baseline_data,'pow')
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blstd);
         
       elseif strcmp(cfg.baseline_type,'dB')
-        fprintf('Converting to dB relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tConverting to dB relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
         % divide by baseline mean and convert to dB
         
         subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
@@ -758,15 +759,15 @@ if strcmp(cfg.baseline_data,'pow')
         %subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'absolute')
-        fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tSubtracting mean([%.2f %.2f] pre-stimulus) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
         subSesEvData.(param) = bsxfun(@minus,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'relative')
-        fprintf('Dividing entire trial power by mean([%.2f %.2f] pre-stimulus) power.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tDividing entire trial power by mean([%.2f %.2f] pre-stimulus) power.\n',cfg.baseline_time(1),cfg.baseline_time(2));
         subSesEvData.(param) = bsxfun(@rdivide,subSesEvData.(param),blm);
         
       elseif strcmp(cfg.baseline_type,'relchange')
-        fprintf('Subtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by that mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+        fprintf('\tSubtracting mean([%.2f %.2f] pre-stimulus) power from entire trial and dividing by that mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
         subSesEvData.(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(param),blm),blm);
       end
       
@@ -850,7 +851,7 @@ end % baseline_data
 
 %% save the data in a container struct
 
-fprintf('%s %s %s: ',subject,sesStr,eventValue);
+fprintf('\t%s %s %s: ',subject,sesStr,eventValue);
 if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData,cfg.powparam) && ndims(subSesEvData.(cfg.powparam)) == 4
   fprintf('Power data: ');
   %             elseif strcmp(cfg.keeptrials,'no') && (~strcmp(cfg.ftype,'pow') || ~strcmp(cfg.output,'pow')) && isfield(subSesEvData,'powspctrm') && ndims(subSesEvData.(cfg.powparam)) == 4
@@ -887,11 +888,11 @@ if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData
     cfg_fd.trials = true(1,size(subSesEvData.(param),1));
     [tr,ch] = find(squeeze(nanmean(nanmean(subSesEvData.(param),4),3)) > cfg.zthresh);
     if ~isempty(tr)
-      fprintf('Rejecting %d of %d trials due to zscore > %.2f in %d channels (NB: this is a very coarse rejection).\n',length(unique(tr)),length(cfg_fd.trials),cfg.zthresh,length(unique(ch)));
+      fprintf('\tRejecting %d of %d trials due to zscore > %.2f in %d channels (NB: this is a very coarse rejection).\n',length(unique(tr)),length(cfg_fd.trials),cfg.zthresh,length(unique(ch)));
       cfg_fd.trials(unique(tr)) = false;
-      fprintf('Keeping %d of %d trials.\n',sum(ismember(cfg_fd.trials,1)),length(cfg_fd.trials));
+      fprintf('\tKeeping %d of %d trials.\n',sum(ismember(cfg_fd.trials,1)),length(cfg_fd.trials));
     else
-      fprintf('Keeping all %d trials.\n',size(subSesEvData.(param),1));
+      fprintf('\tKeeping all %d trials.\n',size(subSesEvData.(param),1));
       cfg_fd.trials = 'all';
     end
   else
@@ -915,7 +916,7 @@ if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData
   
   
 elseif strcmp(cfg.output,'coh') && isfield(subSesEvData,cfg.cohparam) && ndims(subSesEvData.(cfg.cohparam)) == 3
-  fprintf('Phase coherence data: Individual trials are lost.\n');
+  fprintf('\tPhase coherence data: Individual trials are lost.\n');
   %               if strcmp(cfg.equatetrials,'no')
   %                 fprintf(' Using all trials. NB: this could affect the coherence calculation if trial counts are unequal!!\n');
   %               %elseif strcmp(cfg.equatetrials,'yes')
@@ -924,10 +925,10 @@ elseif strcmp(cfg.output,'coh') && isfield(subSesEvData,cfg.cohparam) && ndims(s
   
   %data.(sesStr).(eventValue).sub(sub).data = subSesEvData;
 elseif strcmp(cfg.output,'phase') && isfield(subSesEvData,cfg.phaseparam) && ndims(subSesEvData.(cfg.phaseparam)) == 4
-  fprintf('Outputting phase data.\n');
+  fprintf('\tOutputting phase data.\n');
   %data.(sesStr).(eventValue).sub(sub).data = subSesEvData;
 else
-  fprintf('Need to figure out what to do for this case.\n');
+  fprintf('\tNeed to figure out what to do for this case.\n');
   keyboard
 end
 
