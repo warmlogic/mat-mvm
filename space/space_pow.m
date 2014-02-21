@@ -434,7 +434,7 @@ ana.eventValues = ana.eventValuesSplit;
 
 %% Test plots to make sure data look ok
 
-% cfg_ft = [];
+cfg_ft = [];
 % cfg_ft.baseline = [-0.3 -0.1];
 % cfg_ft.baselinetype = 'absolute';
 % if strcmp(cfg_ft.baselinetype,'absolute')
@@ -444,7 +444,7 @@ ana.eventValues = ana.eventValuesSplit;
 %   cfg_ft.zlim = [0 2.0];
 % end
 % cfg_ft.parameter = 'powspctrm';
-% %cfg_ft.ylim = [3 9];
+cfg_ft.ylim = [3 9];
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.fontsize = 12;
 % cfg_ft.colorbar = 'yes';
@@ -458,9 +458,9 @@ ana.eventValues = ana.eventValuesSplit;
 %   title(ana.eventValues{1}{i});
 % end
 
-cfg_ft = [];
-cfg_ft.channel = {'E124'};
-% %cfg_ft.channel = {'E117'};
+% cfg_ft.channel = {'E124'};
+% cfg_ft.channel = {'E117'};
+cfg_ft.channel = {'E55'};
 
 % cfg_ft.baseline = [-0.4 -0.1];
 % cfg_ft.baselinetype = 'absolute';
@@ -483,14 +483,16 @@ cfg_ft.zlim = [-.6 .6];
 
 %cfg_ft.zlim = [-2 2];
 cfg_ft.zlim = [-1 1];
+cfg_ft.zlim = [-3 3];
 
 
-sub=1;
-ses=1;
-for i = 1:length(ana.eventValues{1})
+sub = 24;
+ses = 1;
+typ = 1;
+for evVal = 1:length(ana.eventValues{ses}{typ})
   figure
-  ft_singleplotTFR(cfg_ft,data_freq.(ana.eventValues{1}{i}).sub(sub).ses(ses).data);
-  title(ana.eventValues{1}{i});
+  ft_singleplotTFR(cfg_ft,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+  title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
 end
 
 %% decide who to kick out based on trial counts
@@ -592,17 +594,17 @@ for ses = 1:length(exper.sesStr)
       fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{ses}{typ}{evVal});
       if strcmp(cfg_ana.data_str,'data_pow')
         cfg_ft.parameter = 'powspctrm';
-        ga_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+        ga_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       elseif strcmp(cfg_ana.data_str,'data_pow_log')
         cfg_ft.parameter = 'powspctrm';
-        ga_pow_log.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+        ga_pow_log.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       elseif strcmp(cfg_ana.data_str,'data_coh')
         %cfg_ft.parameter = 'plvspctrm';
         cfg_ft.parameter = 'powspctrm';
-        ga_coh.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+        ga_coh.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       elseif strcmp(cfg_ana.data_str,'data_evoked')
         cfg_ft.parameter = 'powspctrm';
-        ga_evoked.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
+        ga_evoked.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       end
       fprintf('Done.\n');
       %toc
