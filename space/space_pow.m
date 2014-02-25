@@ -694,8 +694,8 @@ for ses = 1:length(ana.eventValues)
   for typ = 1:length(ana.eventValues{ses})
     for evVal = 1:length(ana.eventValues{ses}{typ})
       figure
-      ft_multiplotTFR(cfg_ft,ga_freq.(ana.eventValues{ses}{typ}{evVal}));
-      set(gcf,'Name',sprintf('%s',ana.eventValues{ses}{typ}{evVal}))
+      ft_multiplotTFR(cfg_ft,ga_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}));
+      set(gcf,'Name',sprintf('%s',strrep(ana.eventValues{ses}{typ}{evVal},'_','-')))
     end
   end
 end
@@ -1492,7 +1492,26 @@ cfg_ana.roi = 'all';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
 %cfg_ana.conditions = {'all'};
 
-cfg_ana.conditions = {{'recall','no_recall'}};
+% cfg_ana.conditions = {{'recall','no_recall'}};
+
+% cfg_ana.conditions = {{'word_RgH_spac_p1', 'word_RgH_mass_p1'}, {'word_RgH_spac_p2', 'word_RgH_mass_p2'}, ...
+%   {'img_RgH_spac_p1', 'img_RgH_mass_p1'}, {'img_RgH_spac_p2', 'img_RgH_mass_p2'}};
+
+cfg_ana.conditions = {...
+  {'word_RgH_rc_spac_p1', 'word_RgH_rc_mass_p1'} ...
+  {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1'} ...
+  {'word_RgH_fo_spac_p1', 'word_RgH_fo_mass_p1'} ...
+  {'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1'} ...
+  {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2'} ...
+  {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ...
+  {'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'} ...
+  {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ...
+  {'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2'} ...
+  {'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2'} ...
+  {'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2'} ...
+  {'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2'} ...
+  };
+
 
 cfg_ana.dirStr = '';
 
@@ -1509,7 +1528,7 @@ end
 if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [4 100];
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
-  cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 100];
+  cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 80];
   %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
@@ -1524,7 +1543,7 @@ for lat = 1:size(cfg_ana.latencies,1)
   for fr = 1:size(cfg_ana.frequencies,1)
     cfg_ft.frequency = cfg_ana.frequencies(fr,:);
     
-    [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_freq);
+    [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data_pow);
   end
 end
 
@@ -1534,7 +1553,8 @@ files.saveFigs = 1;
 
 cfg_ft = [];
 %cfg_ft.alpha = .025;
-cfg_ft.alpha = .1;
+cfg_ft.alpha = .05;
+% cfg_ft.alpha = .1;
 cfg_ft.avgoverfreq = cfg_ana.avgFrq;
 
 cfg_plot = [];
@@ -1563,6 +1583,81 @@ for lat = 1:size(cfg_plot.latencies,1)
     mm_ft_clusterplotTFR(cfg_ft,cfg_plot,ana,files,dirs);
   end
 end
+
+%% line plots
+
+files.saveFigs = 1;
+
+cfg = [];
+cfg.parameter = 'powspctrm';
+
+%cfg.times = [-0.2:0.05:0.9; -0.1:0.05:1.0]';
+%cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+% cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
+cfg.times = cfg_ana.latencies;
+
+% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
+%cfg.freqs = [4 8];
+cfg.freqs = cfg_ana.frequencies;
+
+cfg.rois = {...
+  {'LAS'},{'FS'},{'RAS'},...
+  {'LPS'},{'PS'},{'RPS'},...
+  };
+
+% cfg.rois = {...
+%   {'LAI'},{'FI'},{'RAI'},...
+%   {'LAS'},{'FS'},{'RAS'},...
+%   {'LPS'},{'PS'},{'RPS'},...
+%   {'LPI'},{'PI'},{'RPI'},...
+%   };
+
+% cfg.conditions = ana.eventValues;
+cfg.conditions = cfg_ana.conditions;
+
+cfg.plotTitle = true;
+cfg.plotLegend = true;
+
+cfg.plotClusSig = true;
+% cfg.clusAlpha = 0.1;
+cfg.clusAlpha = 0.05;
+cfg.clusTimes = cfg.times;
+% cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
+cfg.clusLimits = true;
+
+%cfg.ylim = [-0.6 0.6];
+%cfg.ylim = [-0.5 0.2];
+cfg.nCol = 3;
+
+% whole power
+cfg.type = 'line_pow';
+% cfg.clusDirStr = '_zpow_-300_-100';
+cfg.clusDirStr = '_avgT_avgF';
+cfg.ylabel = 'Log10 Z-Trans Pow';
+mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
+
+% % induced power
+% cfg.type = 'line_pow_induced';
+% cfg.clusDirStr = '_pow_induced_-300_-100';
+% cfg.ylabel = 'Log Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+% % induced power
+% cfg.type = 'line_pow_indu';
+% cfg.clusDirStr = '_zpow_indu_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+
+% % evoked power
+% cfg.type = 'line_pow_evok';
+% cfg.clusDirStr = '_zp_evok_-400_-200';
+% cfg.ylabel = 'Z-Trans Pow';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_evoked);
+
+% cfg.type = 'line_coh';
+% cfg.clusDirStr = '_coh_-400_-200';
+% cfg.ylabel = 'ITC';
+% mm_ft_lineTFR(cfg,ana,files,dirs,ga_coh);
 
 %% let me know that it's done
 emailme = 1;
