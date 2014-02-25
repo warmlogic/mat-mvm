@@ -1,4 +1,4 @@
-function [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data)
+function [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data,sesNum)
 %MM_FT_CLUSTERSTATTFR Do FT cluster statistics for time-frequency data
 %
 %   [stat_clus] = mm_ft_clusterstatTFR(cfg_ft,cfg_ana,exper,ana,dirs,data)
@@ -90,19 +90,23 @@ if ~isfield(cfg_ana,'dirStr')
   cfg_ana.dirStr = '';
 end
 
-% make sure cfg_ana.conditions is set correctly
-if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
-  if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  else
-    cfg_ana.condMethod = [];
-  end
+if ~exist('sesNum','var')
+  sesNum = 1;
 end
-cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
+
+% % make sure cfg_ana.conditions is set correctly
+% if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
+%   if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
+%     cfg_ana.condMethod = 'pairwise';
+%   elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
+%     cfg_ana.condMethod = 'pairwise';
+%   elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
+%     cfg_ana.condMethod = 'pairwise';
+%   else
+%     cfg_ana.condMethod = [];
+%   end
+% end
+% cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
 
 % set the saving directory
 dirs.saveDirClusStat = fullfile(dirs.saveDirProc,sprintf('tfr_stat_clus_%d_%d%s',round(cfg_ft.latency(1)*1000),round(cfg_ft.latency(2)*1000),cfg_ana.dirStr));
@@ -128,17 +132,19 @@ for cnd = 1:length(cfg_ana.conditions)
   cfg.conditions = cfg_ana.conditions{cnd};
   cfg.data_str = 'data';
   cfg.is_ga = 0;
-  ana_str = mm_ft_catSubStr(cfg,exper);
+  %ana_str = mm_ft_catSubStr(cfg,exper);
+  ana_str = mm_catSubStr_multiSes(cfg,exper,sesNum);
   
   % set some info to use later
-  ses = 1;
   vs_str = sprintf('%s%s',cfg_ana.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_ana.numConds-1),cfg_ana.conditions{cnd}{2:end}));
   
   % put in all the subjects for the first conditions
-  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){ses});
+  %subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){sesNum});
+  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}));
   % do the subsequent conditions
   for i = 2:cfg_ana.numConds
-    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){ses}));
+    %subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){sesNum}));
+    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i})));
   end
   
   % make the design matrix

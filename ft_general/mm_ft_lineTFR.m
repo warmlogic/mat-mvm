@@ -1,7 +1,7 @@
-function mm_ft_lineTFR(cfg,ana,files,dirs,data)
+function mm_ft_lineTFR(cfg,ana,exper,files,dirs,data,sesNum)
 %MM_FT_LINETFR make (and save) Time-Frequency plots
 %
-%   mm_ft_lineTFR(cfg,ana,files,dirs,data)
+%   mm_ft_lineTFR(cfg,ana,exper,files,dirs,data)
 %
 % NB: figure doesn't save very well.
 %
@@ -39,6 +39,10 @@ function mm_ft_lineTFR(cfg,ana,files,dirs,data)
 %   files.saveFigs      = 1 or 0. Whether to save the figures.
 %
 %   data                = output from ft_freqgrandaverage
+
+if ~exist('sesNum','var')
+  sesNum = 1;
+end
 
 if ~isfield(cfg,'type')
   cfg.type = 'line';
@@ -155,29 +159,29 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%
 
-% make sure conditions are set correctly
-if ~isfield(cfg,'condMethod')
-  if ~iscell(cfg.conditions) && (strcmp(cfg.conditions,'all') || strcmp(cfg.conditions,'all_across_types') || strcmp(cfg.conditions,'all_within_types'))
-    cfg.condMethod = 'single';
-  elseif iscell(cfg.conditions) && ~iscell(cfg.conditions{1}) && length(cfg.conditions) == 1 && (strcmp(cfg.conditions{1},'all') || strcmp(cfg.conditions{1},'all_across_types') || strcmp(cfg.conditions{1},'all_within_types'))
-    cfg.condMethod = 'single';
-  elseif iscell(cfg.conditions) && iscell(cfg.conditions{1}) && length(cfg.conditions{1}) == 1 && (strcmp(cfg.conditions{1},'all') || strcmp(cfg.conditions{1},'all_across_types') || strcmp(cfg.conditions{1},'all_within_types'))
-    cfg.condMethod = 'single';
-  else
-    cfg.condMethod = [];
-  end
-end
-
-%cfg.conditions = mm_ft_checkConditions(cfg.conditions,ana,cfg.condMethod);
-
-% temporary hack for plotting a single subject and 1 evVal, because the
-% data struct will have a field titled parameter and won't have the typical
-% data.evVal.sub.ses.data structure
-if ~isfield(data,cfg.parameter)
-  cfg.conditions = mm_ft_checkConditions(cfg.conditions,ana,cfg.condMethod);
-elseif isfield(data,cfg.parameter) && length(cfg.conditions{:}) > 1
-  error('Cannot have more than one condition if data is only one evVal');
-end
+% % make sure conditions are set correctly
+% if ~isfield(cfg,'condMethod')
+%   if ~iscell(cfg.conditions) && (strcmp(cfg.conditions,'all') || strcmp(cfg.conditions,'all_across_types') || strcmp(cfg.conditions,'all_within_types'))
+%     cfg.condMethod = 'single';
+%   elseif iscell(cfg.conditions) && ~iscell(cfg.conditions{1}) && length(cfg.conditions) == 1 && (strcmp(cfg.conditions{1},'all') || strcmp(cfg.conditions{1},'all_across_types') || strcmp(cfg.conditions{1},'all_within_types'))
+%     cfg.condMethod = 'single';
+%   elseif iscell(cfg.conditions) && iscell(cfg.conditions{1}) && length(cfg.conditions{1}) == 1 && (strcmp(cfg.conditions{1},'all') || strcmp(cfg.conditions{1},'all_across_types') || strcmp(cfg.conditions{1},'all_within_types'))
+%     cfg.condMethod = 'single';
+%   else
+%     cfg.condMethod = [];
+%   end
+% end
+% 
+% %cfg.conditions = mm_ft_checkConditions(cfg.conditions,ana,cfg.condMethod);
+% 
+% % temporary hack for plotting a single subject and 1 evVal, because the
+% % data struct will have a field titled parameter and won't have the typical
+% % data.evVal.sub.ses.data structure
+% if ~isfield(data,cfg.parameter)
+%   cfg.conditions = mm_ft_checkConditions(cfg.conditions,ana,cfg.condMethod);
+% elseif isfield(data,cfg.parameter) && length(cfg.conditions{:}) > 1
+%   error('Cannot have more than one condition if data is only one evVal');
+% end
 
 % make sure conditions are set up for the for loop
 if ~isfield(cfg,'types')
@@ -230,10 +234,14 @@ end
 
 for typ = 1:length(cfg.conditions)
   % get all the condition names together
-  nCond = length(cfg.conditions{typ});
-  cond_str = sprintf(repmat('%s_',1,nCond),cfg.conditions{typ}{:});
+  if length(length(cfg.conditions{typ})) > 2
+    nCond = length(cfg.conditions{typ});
+  else
+    nCond = 1;
+  end
+  cond_str = sprintf(repmat('%s_',1,length(cfg.conditions{typ})),cfg.conditions{typ}{:});
   if cfg.plotClusSig
-    condCombos = nchoosek(1:nCond,2);
+    condCombos = nchoosek(1:length(cfg.conditions{typ}),2);
   end
   
   for f = 1:nFreq
@@ -273,19 +281,22 @@ for typ = 1:length(cfg.conditions)
         end
       end
       
-      for evVal = 1:nCond
+      for evVal = 1:length(cfg.conditions{typ})
         for t = 1:nTime
           % find the indices for the chans, freqs, and times that we want
-          chansel = ismember(data.(cfg.conditions{typ}{evVal}).label,cfg.channel);
-          freqsel = data.(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
-          timesel = data.(cfg.conditions{typ}{evVal}).time >= cfg.times(t,1) & data.(cfg.conditions{typ}{evVal}).time <= cfg.times(t,2);
+          chansel = ismember(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label,cfg.channel);
+          freqsel = data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
+          timesel = data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time >= cfg.times(t,1) & data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time <= cfg.times(t,2);
           
-          dataVec(evVal,r,t) = nanmean(nanmean(nanmean(data.(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
+          dataVec(evVal,r,t) = nanmean(nanmean(nanmean(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
         end % t
         
         % TODO: don't plot at the average time, plot at the first time and
         % add on the final time point manually?
         h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
+        
+        % TODO: error bars
+        
       end % evVal
       
       if cfg.setylim
@@ -416,18 +427,22 @@ for typ = 1:length(cfg.conditions)
               for iPos = 1:length(sigpos)
                 sigposCLM(:,iPos) = (posCLM == sigpos(iPos));
                 
-                if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))) > 0
+                if sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))) > 0
                   %fprintf('%s:\t***Found positive clusters***\n',vs_str);
                   foundpos(r,t) = foundpos(r,t) + 1;
                   
                   % debug
                   fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
                     cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,sigpos(iPos),...
-                    sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))),...
+                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))),...
                     stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
-                  clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
+                  if length(cond1) < 7 && length(cond2) < 7
+                    clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
+                  else
+                    clus_str = sprintf('%s>%s:%s','1','2',clus_symb);
+                  end
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
                 end
@@ -447,18 +462,22 @@ for typ = 1:length(cfg.conditions)
               for iNeg = 1:length(signeg)
                 signegCLM(:,iNeg) = (negCLM == signeg(iNeg));
                 
-                if sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))) > 0
+                if sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))) > 0
                   %fprintf('%s:\t***Found negative clusters***\n',vs_str);
                   foundneg(r,t) = foundneg(r,t) + 1;
                   
                   % debug
                   fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
                     cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,signeg(iNeg),...
-                    sum(ismember(cfg.channel,data.(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))),...
+                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))),...
                     stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
-                  clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
+                  if length(cond1) < 7 && length(cond2) < 7
+                    clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
+                  else
+                    clus_str = sprintf('%s<%s:%s','1','2',clus_symb);
+                  end
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
                 end
@@ -505,18 +524,22 @@ for typ = 1:length(cfg.conditions)
       print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
     end
     
-    publishfig(gcf,~cfg.plotTitle,cfg.ticFontSize,cfg.labelFontSize,files.figFontName);
-    
-    % get the figure's current position and size
-    cfg.pos = get(gcf, 'Position');
-    % get the height x width ratio
-    hwRatio = cfg.pos(3) / cfg.pos(4);
-    % % square figure
-    % cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85)];
-    % maintain figure height x width ratio
-    cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
-    % resize the figure window
-    set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), cfg.figSize(2), cfg.figSize(1)]);
+    if ~files.saveFigs
+      publishfig(gcf,~cfg.plotTitle,cfg.ticFontSize,cfg.labelFontSize,files.figFontName);
+      
+      % get the figure's current position and size
+      cfg.pos = get(gcf, 'Position');
+      % get the height x width ratio
+      hwRatio = cfg.pos(3) / cfg.pos(4);
+      % % square figure
+      % cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85)];
+      % maintain figure height x width ratio
+      cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
+      % resize the figure window
+      set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), cfg.figSize(2), cfg.figSize(1)]);
+    else
+      close all
+    end
     
   end % frq
 end % typ
