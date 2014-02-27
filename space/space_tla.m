@@ -504,380 +504,6 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-%% tf test
-
-cfg_ft = [];
-cfg_ft.pad = 'maxperlen';
-% cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-% cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'no';
-
-% cfg_ft.output = 'pow';
-% cfg_ft.keeptrials = 'no';
-cfg_ft.output = 'fourier';
-cfg_ft.keeptrials = 'yes';
-% cfg_ft.keeptapers = 'yes';
-
-% wavelet
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 5;
-%cfg_ft.toi = -0.8:0.04:3.0;
-cfg_ft.toi = -0.5:0.04:1.0;
-% cfg_ft.toi = 0:0.04:1.0;
-% % evenly spaced frequencies, but not as many as foilim makes
-% freqstep = (exper.sampleRate/(diff(exper.prepost)*exper.sampleRate)) * 2;
-% % cfg_ft.foi = 3:freqstep:9;
-% cfg_ft.foi = 3:freqstep:60;
-% cfg_ft.foi = 4:1:100;
-%cfg_ft.foi = 4:1:30;
-% cfg_ft.foilim = [3 9];
-% cfg_ft.foilim = [3 13];
-cfg_ft.foilim = [3 80];
-
-% data_pow.img_onePres = ft_freqanalysis(cfg_ft,data_tla.img_onePres.sub(1).ses(1).data);
-
-% sub = 1;
-ses = 1;
-
-% conds = {'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2', ...
-%   'img_onePres', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_RgH_spac_p2', 'img_RgH_mass_p2'};
-
-conds = cellflat(ana.eventValues{1});
-
-cfg_fd = [];
-cfg_fd.variance = 'no';
-cfg_fd.jackknife = 'no';
-cfg_fd.keeptrials = 'yes';
-param = 'fourierspctrm';
-
-saveDataroot = '/Volumes/DeLorean/space_data';
-if ~exist(saveDataroot,'dir')
-  [s] = mkdir(saveDataroot);
-  if ~s
-    error('Could not make %s',saveDataroot);
-  end
-end
-
-for sub = 1:length(exper.subjects)
-  
-  data_fourier = struct;
-  % save fourier and use ft_freqdescriptives to convert to power
-  data_pow = struct;
-  
-  for cnd = 1:length(conds)
-    %data_fourier.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data = ft_freqanalysis(cfg_ft,data_tla.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data);
-    data_fourier.(exper.sesStr{ses}).(conds{cnd}).data = ft_freqanalysis(cfg_ft,data_tla.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data);
-    
-    data_pow.(exper.sesStr{ses}).(conds{cnd}).data = (abs(data_fourier.(exper.sesStr{ses}).(conds{cnd}).data.(param))).^2;
-    
-  end
-  save(fullfile(saveDataroot,sprintf('%s_data_%s_%d_%d.mat',exper.subjects{sub},cfg_ft.output,cfg_ft.foilim(1),cfg_ft.foilim(2))),sprintf('data_%s',cfg_ft.output));
-  save(fullfile(saveDataroot,sprintf('%s_data_%s_%d_%d.mat',exper.subjects{sub},'pow',cfg_ft.foilim(1),cfg_ft.foilim(2))),sprintf('data_%s','pow'));
-end
-
-% save(sprintf('~/Downloads/space_data_%s_%d_%d',cfg_ft.output,cfg_ft.foilim(1),cfg_ft.foilim(2)),sprintf('data_%s',cfg_ft.output));
-
-% % calculate power
-% for sub = 1:length(exper.subjects)
-%   for cnd = 1:length(conds)
-%     % get the modulus for whole data (i.e., abs(whole fourier)) and square
-%     % to get pow
-%     data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data = (abs(data_fourier.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.(param))).^2;
-%     %data_pow.(conds{cnd}).sub(sub).ses(ses).data = (abs(subSesEvData.(cell2mat(fn)).(fourierparam))).^2;
-% 
-%     %data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqdescriptives(cfg_fd,data_fourier.(conds{cnd}).sub(sub).ses(ses).data);
-%   end
-% end
-
-%% baseline
-
-cfg = [];
-cfg.baseline_type = 'zscore';
-cfg.baseline_time = [-0.3 -0.1];
-
-% get the baseline time indices
-blt = subSesEvData.(cell2mat(fn)).time >= cfg.baseline_time(1) & subSesEvData.(cell2mat(fn)).time <= cfg.baseline_time(2);
-% mean across baseline period
-blm = nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4);
-if strcmp(cfg.baseline_type,'zscore')
-  fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-  % std across time, then avg across events (lower freqs often get smaller std)
-  blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),0,4),1);
-  
-  % % avg across time, then std across events (higher freqs often get smaller std)
-  % blstd = nanstd(nanmean(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),0,1);
-  
-  % % concatenate all times of all events and std (equivalent std across freqs)
-  %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3),...
-  %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),1)*size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),4),...
-  %  size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),2),size(subSesEvData.(cell2mat(fn)).(param)(:,:,:,blt),3))),0,1)),-1);
-  
-  subSesEvData.(cell2mat(fn)).(param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cell2mat(fn)).(param),blm),blstd);
-end
-
-% % log power
-% data_pow_log = data_pow;
-% for sub = 1:length(exper.subjects)
-%   for cnd = 1:length(conds)
-%     data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.powspctrm = log10(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm);
-%   end
-% end
-
-cfg_bl = [];
-cfg_bl.baseline = [-0.3 -0.1];
-cfg_bl.baselinetype = 'absolute';
-for sub = 1:length(exper.subjects)
-  for cnd = 1:length(conds)
-    data_pow.(conds{cnd}).sub(sub).ses(ses).data = ft_freqbaseline(cfg_bl,data_pow.(conds{cnd}).sub(sub).ses(ses).data);
-  end
-end
-
-%% get the grand average
-
-% set up strings to put in grand average function
-cfg_ana = [];
-cfg_ana.is_ga = 0;
-cfg_ana.conditions = ana.eventValues;
-cfg_ana.data_str = 'data_pow';
-cfg_ana.data_str = 'data_pow_log';
-%cfg_ana.data_str = 'data_coh';
-%cfg_ana.data_str = 'data_evoked';
-cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
-
-cfg_ft = [];
-cfg_ft.keepindividual = 'no';
-%cfg_ft.keepindividual = 'yes';
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues)
-    for evVal = 1:length(ana.eventValues{typ})
-      %tic
-      fprintf('Running ft_freqgrandaverage on %s...',ana.eventValues{typ}{evVal});
-      if strcmp(cfg_ana.data_str,'data_pow')
-        cfg_ft.parameter = 'powspctrm';
-        ga_pow.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      elseif strcmp(cfg_ana.data_str,'data_pow_log')
-        cfg_ft.parameter = 'powspctrm';
-        ga_pow_log.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      elseif strcmp(cfg_ana.data_str,'data_coh')
-        %cfg_ft.parameter = 'plvspctrm';
-        cfg_ft.parameter = 'powspctrm';
-        ga_coh.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      elseif strcmp(cfg_ana.data_str,'data_evoked')
-        cfg_ft.parameter = 'powspctrm';
-        ga_evoked.(ana.eventValues{typ}{evVal})(ses) = eval(sprintf('ft_freqgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{typ}{evVal}){ses}));
-      end
-      fprintf('Done.\n');
-      %toc
-    end
-  end
-end
-
-%% simple plot
-
-chan = 73; % 73 = Pz
-
-zlim = [-200 400];
-zlim = [0 100];
-
-for cnd = 1:length(conds)
-  figure;
-  surf(data_pow_log.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)));
-  shading interp;view([0,90]);axis tight;
-  caxis(zlim);
-  %imagesc(data_pow.(conds{cnd}).sub(sub).ses(ses).data.time,data_pow.(conds{cnd}).sub(sub).ses(ses).data.freq,squeeze(data_pow.(conds{cnd}).sub(sub).ses(ses).data.powspctrm(chan,:,:)),zlim);
-  %axis xy;
-  title(strrep(conds{cnd},'_','-'));
-  colorbar
-end
-
-%% make some GA plots
-
-cfg_ft = [];
-cfg_ft.colorbar = 'yes';
-cfg_ft.interactive = 'yes';
-cfg_ft.showlabels = 'yes';
-%cfg_ft.xlim = 'maxmin'; % time
-%cfg_ft.ylim = 'maxmin'; % freq
-% cfg_ft.zlim = 'maxmin'; % pow
-cfg_ft.xlim = [0 1.0]; % time
-% cfg_ft.ylim = [3 8]; % freq
-% cfg_ft.ylim = [8 12]; % freq
-% cfg_ft.ylim = [8 10]; % freq
-cfg_ft.ylim = [10 12]; % freq
-%cfg_ft.ylim = [12 28]; % freq
-%cfg_ft.ylim = [28 50]; % freq
-% cfg_ft.zlim = [0 3]; % pow
-
-cfg_ft.parameter = 'powspctrm';
-
-cfg_plot = [];
-cfg_plot.plotTitle = 1;
-
-%cfg_plot.rois = {{'FS'},{'LAS','RAS'},{'LPS','RPS'}};
-%cfg_plot.rois = {{'FS'},{'PS'}};
-%cfg_plot.rois = {'E71'};
-cfg_plot.rois = {'all'};
-
-cfg_plot.is_ga = 0;
-% outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% for each event type; each event type cell holds strings for its
-% conditions
-
-% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
-
-%%%%%%%%%%%%%%%
-% Type of plot
-%%%%%%%%%%%%%%%
-
-%cfg_plot.ftFxn = 'ft_singleplotTFR';
-
-% cfg_plot.ftFxn = 'ft_topoplotTFR';
-% %cfg_ft.marker = 'on';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% cfg_ft.comment = 'no';
-% %cfg_ft.xlim = [0.5 0.8]; % time
-% cfg_plot.subplot = 1;
-% cfg_ft.xlim = [0 1.0]; % time
-
-cfg_plot.ftFxn = 'ft_multiplotTFR';
-cfg_ft.showlabels = 'yes';
-cfg_ft.comment = '';
-
-for r = 1:length(cfg_plot.rois)
-  cfg_plot.roi = cfg_plot.rois{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
-  
-  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
-end
-
-%% line plots
-
-% files.saveFigs = 1;
-
-cfg = [];
-cfg.parameter = 'powspctrm';
-
-%cfg.times = [-0.2:0.05:0.9; -0.1:0.05:1.0]';
-%cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
-cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
-
-% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
-cfg.freqs = [4 8; 8 10; 10 12];
-
-cfg.rois = {...
-  {'LAS'},{'FS'},{'RAS'},...
-  {'LPS'},{'PS'},{'RPS'},...
-  };
-
-% cfg.rois = {...
-%   {'LAI'},{'FI'},{'RAI'},...
-%   {'LAS'},{'FS'},{'RAS'},...
-%   {'LPS'},{'PS'},{'RPS'},...
-%   {'LPI'},{'PI'},{'RPI'},...
-%   };
-
-cfg.conditions = ana.eventValues;
-
-cfg.plotTitle = true;
-cfg.plotLegend = true;
-
-cfg.plotClusSig = false;
-cfg.clusAlpha = 0.1;
-%cfg.clusTimes = cfg.times;
-cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
-cfg.clusLimits = false;
-
-%cfg.ylim = [-0.6 0.6];
-%cfg.ylim = [-0.5 0.2];
-cfg.nCol = 3;
-
-% % whole power
-% cfg.type = 'line_pow';
-% cfg.clusDirStr = '_zpow_-400_-200';
-% cfg.ylabel = 'Z-Trans Pow';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
-
-
-% mm_ft_clusterplotTFR
-
-% nk_ft_avgpowerbytime - see cosi2_ft_seg_pow line 1158
-
-%% other tf
-
-cfg_ft = [];
-cfg_ft.output = 'pow';
-% % cfg_ft.output = 'powandcsd';
-cfg_ft.keeptrials = 'yes';
-
-cfg_ft.method = 'wavelet';
-cfg_ft.width = 5;
-cfg_ft.toi = -0.2:0.04:1.0;
-% cfg_ft.foi = 4:1:30;
-cfg_ft.foilim = [4 30];
-% cfg_ft.foi = 4:1:9;
-
-% % multi-taper method - Usually to up 30 Hz
-% cfg_ft.method = 'mtmconvol';
-% cfg_ft.taper = 'hanning';
-% % cfg_ft.taper = 'dpss';
-% 
-% cfg_ft.toi = -0.2:0.04:1.0;
-% cfg_ft.foi = 4:1:9;
-% % temporal smoothing
-% cfg_ft.t_ftimwin = 4 ./ cfg_ft.foi;
-% % frequency smoothing (tapsmofrq) is not used for hanning taper
-% 
-% % % % frequency smoothing (tapsmofrq) is used for dpss
-% % cfg_ft.tapsmofrq = 0.3 .* cfg_ft.foi;
-
-
-cfg_ft.pad = 'maxperlen';
-cfg_ft.padtype = 'zero';
-face_pow = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-cfg_ft.pad = 2;
-cfg_ft.padtype = 'zero';
-face_pow_pad2 = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-cfg_ft.pad = 10;
-cfg_ft.padtype = 'zero';
-face_pow_pad5 = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-% %%
-% 
-% cfg_ft.pad = 5;
-% cfg_ft.padtype = 'edge';
-% face_pow_pad5e = ft_freqanalysis(cfg_ft,data_tla.Face.sub(1).ses(1).data);
-
-% plot something
-
-chan = 70;
-
-figure
-imagesc(face_pow.time,face_pow.freq,squeeze(mean(face_pow.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=maxperlen');
-
-figure
-imagesc(face_pow_pad2.time,face_pow_pad2.freq,squeeze(mean(face_pow_pad2.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=2');
-
-figure
-imagesc(face_pow_pad5.time,face_pow_pad5.freq,squeeze(mean(face_pow_pad5.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=5');
-
-figure
-imagesc(face_pow_pad5e.time,face_pow_pad5e.freq,squeeze(mean(face_pow_pad5e.powspctrm(:,chan,:,:),1)));
-axis xy;
-title('pad=5edge');
-
 %% plot the conditions - simple
 
 cfg_ft = [];
@@ -886,6 +512,9 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
+cfg_plot.is_ga = 1;
+cfg_plot.excludeBadSub = 1;
+
 % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
@@ -893,19 +522,28 @@ cfg_plot = [];
 
 cfg_plot.rois = {{'LAS'},{'RAS'}};
 cfg_plot.ylims = [-4 2; -4 2];
-cfg_plot.rois = {{'FC'},{'FS'}};
-cfg_plot.ylims = [-4 2; -4 2];
-% cfg_plot.rois = {{'posterior'}};
-cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-2 3; -2 3];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-cfg_plot.is_ga = 1;
-cfg_plot.excludeBadSub = 1;
+% cfg_plot.rois = {{'FC'},{'FS'}};
+% cfg_plot.ylims = [-4 2; -4 2];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-% cfg_ft.xlim = [-0.2 1.0];
+cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-1 4; -1 4];
+cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+
+% cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
+% cfg_plot.ylims = [-3 2; -2 3; -1 4];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
+
+cfg_plot.axisxy = false;
+
 % cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_plot.ylims = [-2 3; -2 3];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+
+% cfg_plot.rois = {{'Oz'},{'PI'}};
+% cfg_plot.ylims = [-2 3; -2 3];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -922,7 +560,7 @@ sesNum = 1;
 % cfg_plot.condByROI = repmat(ana.eventValues(sesNum),size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'Face' 'House'}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_mass_p1', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p1', 'img_RgH_fo_mass_p2'}},size(cfg_plot.rois));
@@ -933,6 +571,11 @@ cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2', 'wor
 % cfg_plot.condByROI = repmat({{'word_RgH_spac_p2', 'word_RgH_mass_p2', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_spac_p2', 'img_RgH_mass_p2', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_onePres'}},size(cfg_plot.rois));
 
+% VanSEtal2007
+% cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_fo_spac_p1', 'word_RgH_rc_mass_p1', 'word_RgH_fo_mass_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
+
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -940,6 +583,8 @@ for r = 1:length(cfg_plot.rois)
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
+  
+  cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions));
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
