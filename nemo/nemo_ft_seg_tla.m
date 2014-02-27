@@ -10,7 +10,7 @@ ana = struct;
 
 %% Experiment-specific setup
 
-exper.name = 'NEMO';
+exper.name = 'FAV';
 
 exper.sampleRate = 250;
 
@@ -105,14 +105,14 @@ exper.sessions = {{'session_1'}};
 % directory where the data to read is located
 dirs.subDir = '';
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','face_house_ratings','eppp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
-dirs.behDir = fullfile(exper.name,'Behavioral',dirs.subDir);
+dirs.behDir = fullfile(exper.name,'NEMO','Behavioral','Sessions',dirs.subDir);
 % dirs.dataDir = fullfile(exper.name,'EEG','Sessions','ftpp',sprintf('%d_%d',exper.prepost(1)*1000,exper.prepost(2)*1000),dirs.subDir);
-dirs.dataDir = fullfile(exper.name,'EEG','ftpp',dirs.subDir);
+dirs.dataDir = fullfile(exper.name,'NEMO','EEG','Sessions','ftpp',dirs.subDir);
 % Possible locations of the data files (dataroot)
-%dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+dirs.serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 %dirs.serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
 %dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
-dirs.localDir = fullfile(getenv('HOME'),'Desktop','markupfiles');
+%dirs.localDir = fullfile(getenv('HOME'),'Desktop','markupfiles');
 
 % pick the right dirs.dataroot
 if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
