@@ -21,6 +21,10 @@ if ~isfield(cfg_plot,'excludeBadSub')
   cfg_plot.excludeBadSub = 1;
 end
 
+if ~isfield(cfg_plot,'axisxy')
+  cfg_plot.axisxy = false;
+end
+
 if ~isfield(cfg_plot,'roi')
   error('Must specify either ROI names or channel names in cfg_plot.roi');
 elseif isfield(cfg_plot,'roi')
@@ -79,6 +83,11 @@ end
   
   plot([cfg_ft.xlim(1) cfg_ft.xlim(2)],[0 0],'k--'); % horizontal
   plot([0 0],[cfg_ft.ylim(1) cfg_ft.ylim(2)],'k--'); % vertical
+  
+  if cfg_plot.axisxy
+    %axis xy;
+    set(gca,'YDir','reverse');
+  end
 % end
 
 end
