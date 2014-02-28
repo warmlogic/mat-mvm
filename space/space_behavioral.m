@@ -68,9 +68,31 @@ replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
+saveFigs = true;
+if saveFigs
+  figsDir = fullfile(dataroot,dirs.behDir,'figs');
+  if ~exist(figsDir,'dir')
+    mkdir(figsDir);
+  end
+  %figFormat = '-djpg90';
+  figFormat = '-dpng';
+  %figFormat = '-deps2';
+  %figFormat = '-depsc2';
+  
+  figRes = '-r150';
+end
+
+%% collapse phases?
+
+collapsePhases = true;
+
 %% load the behavioral data
 
-behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results.mat');
+if collapsePhases
+  behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results_collapsed.mat');
+else
+  behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results.mat');
+end
 
 load(behfile);
 
@@ -95,8 +117,8 @@ tails = 'both';
 ses = 'oneDay';
 phase = 'cued_recall';
 test = 'recog';
-measure = 'recog_hr';
-% measure = 'recog_dp';
+% measure = 'recog_hr';
+measure = 'recog_dp';
 % measure = 'recog_rt';
 % measure = 'recog_rt_hit';
 % measure = 'recog_rt_miss';
@@ -320,3 +342,121 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
   std(data1 - data2) / sqrt(length(data1)),...
   p);
 
+
+%% Plot recognition: spaced vs massed
+
+sesName = 'oneDay';
+% test = 'recog';
+test = 'recall';
+
+if collapsePhases
+  phases = {'cued_recall'};
+else
+  phases = {'cued_recall_1','cued_recall_2','cued_recall_3','cued_recall_4','cued_recall_5','cued_recall_6'};
+end
+
+data = struct;
+data.spaced = nan(sum(~exper.badSub),length(phases));
+data.massed = nan(sum(~exper.badSub),length(phases));
+
+% recog or recall
+
+% dataMeasure = sprintf('%s_rt',test);
+% dataLabel = 'Response Time (ms)';
+% dataMeasure = sprintf('%s_rt_hit',test);
+% dataLabel = 'Response Time: Hits (ms)';
+% dataMeasure = sprintf('%s_rt_miss',test);
+% dataLabel = 'Response Time: Misses (ms)';
+
+% if strcmp(test,'recog')
+%   ylimits = [500 2500];
+% elseif strcmp(test,'recall')
+%   ylimits = [500 4000];
+% end
+
+dataMeasure = sprintf('%s_hr',test);ylimits = [0 1];
+if strcmp(test,'recog')
+  dataLabel = 'Hit Rate';
+elseif strcmp(test,'recall')
+  dataLabel = 'Accuracy';
+end
+
+% recog only
+
+% dataMeasure = sprintf('%s_dp',test);ylimits = [0 4];
+% dataLabel = 'd''';
+
+tpCounter = 0;
+for p = 1:length(phases)
+  if isfield(results.(sesName),phases{p})
+    tpCounter = tpCounter + 1;
+    
+    manip = 'spaced';
+    data.spaced(:,tpCounter) = results.(sesName).(phases{p}).(manip).(test).(dataMeasure)(~exper.badSub);
+    
+    manip = 'massed';
+    data.massed(:,tpCounter) = results.(sesName).(phases{p}).(manip).(test).(dataMeasure)(~exper.badSub);
+  end
+end
+
+spaced_mean = nanmean(data.spaced,1);
+spaced_sem = nanstd(data.spaced,1) ./ sqrt(sum(~isnan(data.spaced)));
+
+massed_mean = nanmean(data.massed,1);
+massed_sem = nanstd(data.massed,1) ./ sqrt(sum(~isnan(data.massed)));
+
+if collapsePhases
+  %bw_title = sprintf('Test phases (collapsed): %s',strrep(dataMeasure,'_','\_'));
+  if strcmp(test,'recog')
+    bw_title = 'Test: Recognition (collapsed)';
+  elseif strcmp(test,'recall')
+    bw_title = 'Test: Cued Recall (collapsed)';
+  end
+else
+  %bw_title = sprintf('Test phases: %s',strrep(dataMeasure,'_','\_'));
+  if strcmp(test,'recog')
+    bw_title = 'Test: Recognition';
+  elseif strcmp(test,'recall')
+    bw_title = 'Test: Cued Recall';
+  end
+end
+
+bw_legend = {'Spaced','Massed'};
+if length(phases) > 1
+  bw_width = 1;
+  bw_groupnames = 1:length(phases);
+  bw_xlabel = 'Block number';
+else
+  bw_width = 0.75;
+  bw_groupnames = [];
+  bw_xlabel = [];
+end
+bw_ylabel = dataLabel;
+bw_colormap = 'gray';
+% bw_colormap = 'linspecer';
+bw_data = [spaced_mean;massed_mean]';
+bw_errors = [spaced_sem;massed_sem]';
+bw_legend_type = 'plot';
+% bw_legend_type = 'axis';
+h = barweb(bw_data,bw_errors,bw_width,bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend,[],bw_legend_type);
+if strcmp(bw_legend_type,'plot')
+  set(h.legend,'Location','NorthEast');
+end
+if length(phases) > 1
+  axis([0.5 (length(phases)+0.5) ylimits(1) ylimits(2)]);
+else
+  axis([0 (length(phases) + 1) ylimits(1) ylimits(2)]);
+end
+axis square
+% ylim([ylimits(1) ylimits(2)]);
+
+publishfig(gcf,0);
+
+if saveFigs
+  if collapsePhases
+    collapseStr = '_collapsed';
+  else
+    collapseStr = '';
+  end
+  print(gcf,figFormat,figRes,fullfile(figsDir,sprintf('test_%s%s',dataMeasure,collapseStr)));
+end
