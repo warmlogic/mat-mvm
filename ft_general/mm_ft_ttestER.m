@@ -1,4 +1,4 @@
-function [cfg_ana] = mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data)
+function [cfg_ana] = mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data,sesNum)
 %MM_FT_TTESTER t-test between combinations of event types for ERP data
 % 
 % Will compare the event values in cfg_ana.conditions using FieldTrip's
@@ -14,6 +14,10 @@ function [cfg_ana] = mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,
 
 if ~isfield(cfg_ft,'parameter')
   error('Must specify cfg_ft.parameter, denoting the data to test (e.g., ''avg'' or ''individual'')');
+end
+
+if ~exist('sesNum','var')
+  sesNum = 1;
 end
 
 cfg_ft.method = 'analytic';
@@ -104,19 +108,19 @@ end
 % exclude the bad subjects from the subject count
 cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub);
 
-% make sure cfg_ana.conditions is set correctly
-if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
-  if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
-    cfg_ana.condMethod = 'pairwise';
-  else
-    cfg_ana.condMethod = [];
-  end
-end
-cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
+% % make sure cfg_ana.conditions is set correctly
+% if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
+%   if ~iscell(cfg_ana.conditions) && (strcmp(cfg_ana.conditions,'all') || strcmp(cfg_ana.conditions,'all_across_types') || strcmp(cfg_ana.conditions,'all_within_types'))
+%     cfg_ana.condMethod = 'pairwise';
+%   elseif iscell(cfg_ana.conditions) && ~iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
+%     cfg_ana.condMethod = 'pairwise';
+%   elseif iscell(cfg_ana.conditions) && iscell(cfg_ana.conditions{1}) && length(cfg_ana.conditions{1}) == 1 && (strcmp(cfg_ana.conditions{1},'all') || strcmp(cfg_ana.conditions{1},'all_across_types') || strcmp(cfg_ana.conditions{1},'all_within_types'))
+%     cfg_ana.condMethod = 'pairwise';
+%   else
+%     cfg_ana.condMethod = [];
+%   end
+% end
+% cfg_ana.conditions = mm_ft_checkConditions(cfg_ana.conditions,ana,cfg_ana.condMethod);
 
 % collect all conditions into one cell
 allConds = unique(cat(2,cfg_ana.conditions{:}));
@@ -138,9 +142,8 @@ for evVal = 1:length(allConds)
   cfg_ana.values.(ev) = nan(cfg_ana.numSub,length(exper.sessions));
   goodSubInd = 0;
   for sub = 1:length(exper.subjects)
-    ses = 1;
     %for ses = 1:length(exper.sessions)
-    if exper.badSub(sub,ses)
+    if exper.badSub(sub,sesNum)
       fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
       continue
     else
@@ -149,14 +152,14 @@ for evVal = 1:length(allConds)
       % get the right channels (on an individual subject basis)
       if ismember(cfg_ana.roi,ana.elecGroupsStr)
         cfg_ana.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_ana.roi)});
-        cfg_ana.chansel = ismember(data.(ev).sub(sub).ses(ses).data.label,cfg_ana.channel);
+        cfg_ana.chansel = ismember(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.label,cfg_ana.channel);
       else
         % find the channel indices for averaging
-        cfg_ana.chansel = ismember(data.(ev).sub(sub).ses(ses).data.label,cfg_ana.roi);
+        cfg_ana.chansel = ismember(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.label,cfg_ana.roi);
       end
       
-      cfg_ana.timesel.(ev) = find(data.(ev).sub(sub).ses(ses).data.time >= cfg_ft.latency(1) & data.(ev).sub(sub).ses(ses).data.time <= cfg_ft.latency(2));
-      cfg_ana.values.(ev)(goodSubInd,ses) = mean(mean(data.(ev).sub(sub).ses(ses).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
+      cfg_ana.timesel.(ev) = find(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time >= cfg_ft.latency(1) & data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time <= cfg_ft.latency(2));
+      cfg_ana.values.(ev)(goodSubInd,sesNum) = mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
     end
     %end % ses
   end % sub
@@ -178,13 +181,17 @@ for cnd = 1:length(cfg_ana.conditions)
   cfg.data_str = 'data';
   cfg.is_ga = 0;
   cfg.excludeBadSub = cfg_ana.excludeBadSub;
-  ana_str = mm_ft_catSubStr(cfg,exper);
+  %ana_str = mm_ft_catSubStr(cfg,exper);
+  ana_str = mm_catSubStr_multiSes(cfg,exper,sesNum);
   
-  ses = 1;
   vs_str = sprintf('%s%s',cfg_ana.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_ana.numConds-1),cfg_ana.conditions{cnd}{2:end}));
-  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){ses});
+  %subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){sesNum});
+  %for i = 2:cfg_ana.numConds
+  %  subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){sesNum}));
+  %end
+  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}));
   for i = 2:cfg_ana.numConds
-    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){ses}));
+    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i})));
   end
   
   % make the design matrix
@@ -235,9 +242,8 @@ fprintf('%s\n',gaStr);
 fprintf('Subject%s%s\n',sprintf(tabchar),sprintf(repmat('\t%s',1,length(allConds)),allConds{:}));
 goodSubInd = 0;
 for sub = 1:length(exper.subjects)
-  ses = 1;
   %for ses = 1:length(exper.sessions)
-  if exper.badSub(sub,ses)
+  if exper.badSub(sub,sesNum)
     continue
   else
     goodSubInd = goodSubInd + 1;

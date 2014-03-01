@@ -66,6 +66,9 @@ replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
+files.figPrintFormat = 'png';
+files.saveFigs = true;
+
 % %% load the analysis details
 
 % adFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/analysisDetails.mat';
@@ -762,7 +765,7 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
 %cfg_ft.xlim = [-0.2 1.0]; % time
-cfg_ft.xlim = [-0.2 1.5]; % time
+cfg_ft.xlim = [-0.2 0.5]; % time
 %cfg_ft.xlim = [-0.2 2.0]; % time
 
 cfg_ft.parameter = 'avg';
@@ -778,18 +781,20 @@ cfg_plot.excludeBadSub = 1;
 %%%%%%%%%%%%%%%
 
 cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
-cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
-cfg_plot.rois = {{'FC'}};
-cfg_plot.ylims = [-7.5 2];
-cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
-cfg_plot.plotLegend = 0;
-cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+% cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
+cfg_plot.rois = {{'PI'}};
+cfg_plot.ylims = [-2 3];
+% cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
+cfg_plot.x_bounds = [0.13 0.19];
+cfg_plot.plotLegend = 1;
+cfg_plot.legendlocs = {'NorthWest'};
 
-% cfg_plot.xlabel = 'Time (s)';
-% cfg_plot.ylabel = 'Voltage (\muV)';
-cfg_plot.xlabel = '';
-cfg_plot.ylabel = '';
+cfg_plot.xlabel = 'Time (s)';
+cfg_plot.ylabel = 'Voltage (\muV)';
+% cfg_plot.xlabel = '';
+% cfg_plot.ylabel = '';
 
 % cfg_plot.ftFxn = 'ft_topoplotER';
 % cfg_plot.ylims = [-6 6];
@@ -823,10 +828,18 @@ cfg_plot.ylabel = '';
 % conditions
 % cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{'FSC','FSI','N'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'FSC','FSI','CR'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'FSC','FSI','N'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'FSC','FSI','CR'}}},size(cfg_plot.rois));
 %cfg_plot.condByROI = repmat({{'RHSC','RHSI','RCR'}},size(cfg_plot.rois));
 %cfg_plot.rename_condByROI = repmat({{{'SC','SI','CR'}}},size(cfg_plot.rois));
+
+
+% cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
+% cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
+
+cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+
 
 % % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % % for each event type; each event type cell holds strings for its
@@ -841,6 +854,8 @@ cfg_plot.rename_condByROI = repmat({{{'FSC','FSI','CR'}}},size(cfg_plot.rois));
 % %   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}...
 % %   };
 % cfg_plot.typesByROI = repmat({{'C2','C6'}},size(cfg_plot.condByTypeByROI));
+
+sesNum = 1;
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -857,13 +872,13 @@ for r = 1:length(cfg_plot.rois)
     end
   end
   
-  mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
+  mm_ft_plotER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 end
 
 %% plot the contrasts
 
 cfg_plot = [];
-cfg_plot.plotTitle = 0;
+cfg_plot.plotTitle = 1;
 
 cfg_ft = [];
 cfg_ft.parameter = 'avg';
@@ -880,11 +895,15 @@ cfg_ft.colorbar = 'no';
 % cfg_plot.conditions = {{'SC','CR'},{'SC','SI'},{'SI','CR'}};
 %cfg_plot.conditions = {{'RHSC','RHSI'}};
 %cfg_plot.conditions = {{'FSC','RSSI'}};
-cfg_plot.conditions = {{'Face','House'}};
+% cfg_plot.conditions = {{'Face','House'}};
+
+% cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
+cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
+cfg_plot.cond_rename = {{'Space P2 Recalled','Mass P2 Recalled'},{'Space P2 Forgot','Mass P2 Forgot'}};
 
 
 cfg_plot.ftFxn = 'ft_topoplotER';
-cfg_ft.zlim = [-5.5 5.5]; % volt
+cfg_ft.zlim = [-2 2]; % volt
 cfg_ft.marker = 'on';
 %cfg_ft.marker = 'labels';
 cfg_ft.markerfontsize = 9;
@@ -892,8 +911,10 @@ cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'xlim';
 cfg_ft.commentpos = 'middletop';
 
-cfg_plot.roi = {'E73'};
-%cfg_plot.roi = {'LAS'};
+cfg_plot.roi = {'PI'};
+% cfg_plot.roi = {'E73'};
+% cfg_plot.roi = {'E70','E71','E66','E83','E76','E84'};
+% cfg_plot.roi = {'E70','E71','E66','E75','E83','E76','E84'};
 % cfg_ft.xlim = [0.01 0.8]; % time
 
 % cfg_plot.roi = {'LPS','RPS'};
@@ -906,7 +927,10 @@ cfg_plot.roi = {'E73'};
 
 % cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
-cfg_ft.xlim = (0:0.05:1.0); % time
+% cfg_ft.xlim = (0:0.05:1.0); % time
+
+cfg_ft.xlim = [0.13 0.19];
+% cfg_ft.xlim = [0.14 0.19];
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
 % cfg_ft.xlim = [-0.2 1.5]; % time
@@ -920,7 +944,8 @@ cfg_ft.xlim = (0:0.05:1.0); % time
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.ylim = [-1 1]; % volt
 
-mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,ga_tla);
+sesNum = 1;
+mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 
 %% descriptive statistics: ttest
 
@@ -934,9 +959,19 @@ cfg_ana = [];
 % cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg_ana.rois = {{'FC'}};
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% % cfg_ana.rois = {{'FC'}};
+% cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+cfg_ana.rois = {{'PI'}};
+% cfg_ana.rois = {{'E70','E71','E66','E75','E83','E76','E84'}};
+cfg_ana.latencies = [0.13 0.19];
+% cfg_ana.latencies = [0.14 0.19];
+
+% cfg_ana.rois = {{'E70','E71','E66'},{'E83','E76','E84'}};
+% % cfg_ana.rois = {{'E70','E66','E65','E69'},{'E83','E84','E89','E90'}};
+% % cfg_ana.rois = {{'E70'},{'E83'}};
+% cfg_ana.latencies = [0.14 0.19; 0.14 0.19];
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -946,13 +981,8 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 % cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
 % cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
-
-% cfg_ana.conditions = {'all'};
-%cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
-%cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
-%cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
-cfg_ana.conditions = {{'Face','House'}};
-cfg_ana.conditions = {{'RgH','CR'}};
+% cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
+cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
 
 %cfg_ana.conditions = {{'all'}};
 %cfg_ana.conditions = {{'all_within_types'}};
@@ -982,6 +1012,8 @@ cfg_plot.ylims = [-5 -2; 1.5 4.5];
 cfg_plot.xlabel = '';
 cfg_plot.ylabel = '';
 
+sesNum = 1;
+
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
   cfg_ft.latency = cfg_ana.latencies(r,:);
@@ -989,7 +1021,7 @@ for r = 1:length(cfg_ana.rois)
   
   % use data_tla_avg because FieldTrip doesn't deal with dimord properly
   % when single-trials exist
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg);
+  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg,sesNum);
 end
 
 %% output some values

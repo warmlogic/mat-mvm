@@ -1,4 +1,4 @@
-function mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
+function mm_ft_plotER(cfg_ft,cfg_plot,exper,ana,files,dirs,data,sesNum)
 %MM_FT_PLOTER make (and save) event-related data plots
 %
 %   mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
@@ -33,6 +33,10 @@ function mm_ft_plotER(cfg_ft,cfg_plot,ana,files,dirs,data)
 
 if ~isfield(cfg_ft,'parameter')
   error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''avg'')');
+end
+
+if ~exist('sesNum','var')
+  sesNum = 1;
 end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotER','');
@@ -116,19 +120,20 @@ if strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo')
   end
 end
 
-% make sure conditions are set correctly
-if ~isfield(cfg_plot,'condMethod')
-  if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
-    cfg_plot.condMethod = 'single';
-  elseif iscell(cfg_plot.conditions) && ~iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
-    cfg_plot.condMethod = 'single';
-  elseif iscell(cfg_plot.conditions) && iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions{1}) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
-    cfg_plot.condMethod = 'single';
-  else
-    cfg_plot.condMethod = [];
-  end
-end
-cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+% % make sure conditions are set correctly
+% if ~isfield(cfg_plot,'condMethod')
+%   if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
+%     cfg_plot.condMethod = 'single';
+%   elseif iscell(cfg_plot.conditions) && ~iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
+%     cfg_plot.condMethod = 'single';
+%   elseif iscell(cfg_plot.conditions) && iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions{1}) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
+%     cfg_plot.condMethod = 'single';
+%   else
+%     cfg_plot.condMethod = [];
+%   end
+% end
+% cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+
 % make sure conditions are set up for the for loop
 if ~isfield(cfg_plot,'types')
   cfg_plot.types = repmat({''},size(cfg_plot.conditions));
@@ -141,14 +146,14 @@ if cfg_plot.plotLegend == 1
   end
 end
 
-% temporary hack for plotting a single subject and 1 evVal, because the
-% data struct will have a field titled parameter and won't have the typical
-% data.evVal.sub.ses.data structure
-if ~isfield(data,cfg_ft.parameter)
-  cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
-elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
-  error('Cannot have more than one condition if data is only one evVal');
-end
+% % temporary hack for plotting a single subject and 1 evVal, because the
+% % data struct will have a field titled parameter and won't have the typical
+% % data.ses.evVal.sub.data structure
+% if ~isfield(data,cfg_ft.parameter)
+%   cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+% elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
+%   error('Cannot have more than one condition if data is only one evVal');
+% end
 
 % % get the label info for this data struct
 % if cfg_plot.is_ga && isfield(data.(cfg_plot.conditions{1}{1}),'label')
@@ -200,10 +205,10 @@ end
 % time - get this info for the figure name
 if isfield(cfg_ft,'xlim')
   if strcmp(cfg_ft.xlim,'maxmin')
-    cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+    cfg_ft.xlim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time)];
   end
 else
-  cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+  cfg_ft.xlim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time)];
 end
 
 % set parameters for the subplot
@@ -268,19 +273,19 @@ for typ = 1:length(cfg_plot.conditions)
           if isfield(data,cfg_ft.parameter)
             % temporary hack for plotting a single subject and 1 evVal,
             % because the data struct will have a field titled parameter and
-            % won't have the typical data.evVal.sub.ses.data structure
+            % won't have the typical data.(exper.sesStr{sesNum}).evVal.sub.data structure
             feval(str2func(cfg_plot.ftFxn),cfg_ft,data);
           else
-            feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(cfg_plot.conditions{typ}{evVal}));
+            feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{evVal}));
           end
         end
         % reset the xlim
         cfg_ft.xlim = [cfg_plot.timeS(1) cfg_plot.timeS(end)];
       else
-        feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(cfg_plot.conditions{typ}{evVal}));
+        feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{evVal}));
         
         if cfg_plot.plotTitle
-          title(sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+          title(sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
         end
         
         if ~isfield(files,'figFontName')
@@ -345,7 +350,8 @@ for typ = 1:length(cfg_plot.conditions)
     cfg.conditions = cfg_plot.conditions{typ};
     cfg.data_str = 'data';
     cfg.is_ga = cfg_plot.is_ga;
-    ana_str = mm_ft_catSubStr(cfg);
+    %ana_str = mm_ft_catSubStr(cfg);
+    ana_str = mm_catSubStr_multiSes(cfg,exper,sesNum);
     
     figure
     
@@ -354,9 +360,9 @@ for typ = 1:length(cfg_plot.conditions)
       hold on
       
       if ischar(cfg_ft.ylim) && strcmp(cfg_ft.ylim,'maxmin')
-        timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
-        voltmin = min(min(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
-        voltmax = max(max(data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter)(ismember(data.(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
+        timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+        voltmin = min(min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter)(ismember(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
+        voltmax = max(max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter)(ismember(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).label,cfg_ft.channel),timesel)));
       else
         voltmin = cfg_ft.ylim(1);
         voltmax = cfg_ft.ylim(2);
@@ -388,14 +394,14 @@ for typ = 1:length(cfg_plot.conditions)
       
     elseif strcmp(cfg_plot.type,'multi')
       eval(sprintf('ft_multiplotER(cfg_ft,%s);',ana_str));
-      %feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(cfg_plot.conditions{typ}{evVal}));
+      %feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{evVal}));
     end
     
     if cfg_plot.plotTitle
       if strcmp(cfg_plot.roi,'all')
-        title(sprintf('%s %.1f--%.1f s',sprintf(repmat('%s,',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+        title(sprintf('%s %.1f--%.1f s',sprintf(repmat('%s,',1,length(cfg_plot.conditions{typ})),strrep(cfg_plot.conditions{typ}{:}),'_','-'),cfg_ft.xlim(1),cfg_ft.xlim(2)));
       else
-        title(sprintf('%s %s, %.1f--%.1f s',sprintf(repmat('%s,',1,length(cfg_plot.conditions{typ})),cfg_plot.conditions{typ}{:}),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+        title(sprintf('%s %s, %.1f--%.1f s',sprintf(repmat('%s,',1,length(cfg_plot.conditions{typ})),strrep(cfg_plot.conditions{typ}{:}),'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
       end
       %title(strrep(cfg_plot.chan_str,'_',' '));
     end

@@ -1,4 +1,4 @@
-function mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,data)
+function mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,data,sesNum)
 %MM_FT_CONTRASTER plot (and save) contast plots of ERP data
 %
 %   mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,data)
@@ -32,6 +32,10 @@ function mm_ft_contrastER(cfg_ft,cfg_plot,ana,files,dirs,data)
 
 if ~isfield(cfg_ft,'parameter')
   error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''avg'' or ''individual'')');
+end
+
+if ~exist('sesNum','var')
+  sesNum = 1;
 end
 
 cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotER','');
@@ -176,10 +180,10 @@ end
 % time - get this info for the figure name
 if isfield(cfg_ft,'xlim')
   if strcmp(cfg_ft.xlim,'maxmin')
-    cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+    cfg_ft.xlim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time)];
   end
 else
-  cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+  cfg_ft.xlim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time)];
 end
 
 % set parameters for the subplot
@@ -239,21 +243,21 @@ for typ = 1:length(cfg_plot.conditions)
   end
   
   % create contrast
-  cont_plot.(vs_str) = data.(cfg_plot.conditions{typ}{1});
-  cont_plot.(vs_str).(cfg_ft.parameter) = data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter) - data.(cfg_plot.conditions{typ}{2}).(cfg_ft.parameter);
+  cont_plot.(vs_str) = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1});
+  cont_plot.(vs_str).(cfg_ft.parameter) = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter) - data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{2}).(cfg_ft.parameter);
   
   % voltage
   if isfield(cfg_ft,'zlim')
     if strcmp(cfg_ft.zlim,'maxmin')
       usedMaxmin = 1;
-      timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+      timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
       cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,timesel),2))];
     else
       usedMaxmin = 0;
     end
   else
     usedMaxmin = 1;
-    timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+    timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
     cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,timesel),2))];
   end
   
@@ -292,8 +296,12 @@ for typ = 1:length(cfg_plot.conditions)
     cfg_plot.subplot_str = '';
   end
   if cfg_plot.plotTitle
-    %title(sprintf('%s - %s, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.xlim(1),cfg_ft.xlim(2)));
-    title(sprintf('%s - %s, %.1f--%.1f s',cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.xlim(1),cfg_ft.xlim(2)));
+    %title(sprintf('%s vs %s, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.xlim(1),cfg_ft.xlim(2)));
+    if isfield(cfg_plot,'cond_rename')
+      title(sprintf('%s vs %s, %.1f--%.1f s',strrep(cfg_plot.cond_rename{typ}{1},'_','-'),strrep(cfg_plot.cond_rename{typ}{2},'_','-'),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+    else
+      title(sprintf('%s vs %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{1},'_','-'),strrep(cfg_plot.conditions{typ}{2},'_','-'),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+    end
     cfg_plot.title_str = '_title';
   else
     cfg_plot.title_str = '';
