@@ -31,7 +31,7 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
-  'SPACE001';
+  %'SPACE001';
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -47,15 +47,16 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+  %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
-  'SPACE019';
+  %'SPACE019';
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
+  'SPACE039';
   };
 
 % only one cell, with all session names
@@ -67,6 +68,9 @@ allowRecallSynonyms = true;
 replaceDataroot = true;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+
+files.figPrintFormat = 'png';
+files.saveFigs = true;
 
 %% set up channel groups
 
@@ -395,8 +399,8 @@ end
 % thisROI = 'center91';
 thisROI = 'center109';
 
-latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+% latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [0.0 0.5; 0.5 1.0];
 
 parameter = 'trial';
@@ -436,9 +440,11 @@ standardizeTestSeparately = false;
 % data2_trials = data_tla.(exper.sesStr{ses}).House.sub(sub).data;
 
 testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
+% contingency table
 continTab = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
 trainLambda = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
 trainWeights = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+facehouseClass = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
 
 for sub = 1:length(exper.subjects)
   fprintf('%s...',exper.subjects{sub});
@@ -559,6 +565,7 @@ for sub = 1:length(exper.subjects)
         facehouse = dml.enet('family','binomial','alpha',alpha);
         facehouse = facehouse.train(dat_train,imageCategory_train);
         fprintf('Done.\n');
+        facehouseClass{sub,ses,lat} = facehouse;
         trainLambda(sub,ses,lat) = facehouse.lambda;
         trainWeights{sub,ses,lat} = facehouse.weights;
         
@@ -888,7 +895,28 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_4Feb2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','trainLambda','trainWeights');
+%save(sprintf('fhClass_100HzLP_fhC_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','facehouseClass','trainLambda','trainWeights','-v7.3');
+save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','trainLambda','trainWeights');
+
+%% classifier face/house performance
+
+classAcc = zeros(length(exper.subjects),size(testAcc,3),length(exper.sesStr));
+
+for sub = 1:length(exper.subjects)
+  if ~exper.badSub(sub)
+    %if goodSub(sub)
+    for ses = 1:length(exper.sesStr)
+      theseData = [];
+      
+        for t = 1:size(testAcc,3)
+          
+          classAcc(sub,t,ses) = mean(facehouseClass{sub,ses,t}.performance);
+          
+        end
+    end
+  end
+end
+
 
 %% testAcc RMANOVA
 
@@ -946,12 +974,12 @@ rc_mark = 'ko';
 fo_mark = 'rx';
 
 % recalled
-plot(ones(sum(~exper.badSub(:,ses)),1), rc_spaced_mean,rc_mark,'LineWidth',1);
-plot(2*ones(sum(~exper.badSub(:,ses)),1), rc_massed_mean,rc_mark,'LineWidth',1);
+plot(0.9*ones(sum(~exper.badSub(:,ses)),1), rc_spaced_mean,rc_mark,'LineWidth',1);
+plot(1.9*ones(sum(~exper.badSub(:,ses)),1), rc_massed_mean,rc_mark,'LineWidth',1);
 
 % forgotten
-plot(ones(sum(~exper.badSub(:,ses)),1), fo_spaced_mean,fo_mark,'LineWidth',1);
-plot(2*ones(sum(~exper.badSub(:,ses)),1), fo_massed_mean,fo_mark,'LineWidth',1);
+plot(1.1*ones(sum(~exper.badSub(:,ses)),1), fo_spaced_mean,fo_mark,'LineWidth',1);
+plot(2.1*ones(sum(~exper.badSub(:,ses)),1), fo_massed_mean,fo_mark,'LineWidth',1);
 
 meanSizeR = 15;
 meanSizeF = 20;
