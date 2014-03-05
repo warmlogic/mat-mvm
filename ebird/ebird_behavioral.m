@@ -2,7 +2,34 @@
 
 %% load the analysis details
 
-procDir = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+expName = 'EBIRD';
+
+subDir = '';
+dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+  %runLocally = 1;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+  %runLocally = 1;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+  %runLocally = 0;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+  %runLocally = 1;
+else
+  error('Data directory not found.');
+end
+
+% procDir = fullfile(dataroot,dataDir,'ft_data/???????????/tla');
 
 subjects = {
   %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
@@ -53,6 +80,9 @@ subjects = {
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
+% only loading saved data for good subjects
+exper.badSub = false(length(subjects),1);
+
 %% collapsed or not
 
 % collapsePhases = true;
@@ -66,9 +96,7 @@ else
   behfile = 'EBIRD_behav_results.mat';
 end
 
-load(fullfile(getenv('HOME'),'data','EBIRD','Behavioral','Sessions',behfile));
-
-exper.badSub = false(length(subjects),1);
+load(fullfile(dataroot,'EBIRD','Behavioral','Sessions',behfile));
 
 %% ttest
 
@@ -131,18 +159,6 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
 
 %% RMANOVA - prepost
 
-% cnds = {'img_RgH_rc_spac_word_RgH_rc_spac', 'img_RgH_fo_spac_word_RgH_fo_spac', 'img_RgH_rc_mass_word_RgH_rc_mass', 'img_RgH_fo_mass_word_RgH_fo_mass'};
-% 
-% nThresh = 1;
-% 
-% goodSub = ones(length(exper.subjects),1);
-% 
-% for ses = 1:length(exper.sesStr)
-%   for cnd = 1:length(cnds)
-%     goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
-%   end
-% end
-
 sesNames = {'pretest','posttest','posttest_delay'};
 % trainConds = {'trained','untrained'};
 % trainConds = {'TT','UU','TU','UT'};
@@ -182,7 +198,7 @@ O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) 
 
 %% write to file, with header
 
-anovaFile = fullfile(getenv('HOME'),'data','EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_prepost_%s.txt',measure));
+anovaFile = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_prepost_%s.txt',measure));
 fid = fopen(anovaFile,'w+');
 
 thisHeader = [];
@@ -224,21 +240,7 @@ fclose(fid);
 
 %% RMANOVA - train - need to collapse phases
 
-% cnds = {'img_RgH_rc_spac_word_RgH_rc_spac', 'img_RgH_fo_spac_word_RgH_fo_spac', 'img_RgH_rc_mass_word_RgH_rc_mass', 'img_RgH_fo_mass_word_RgH_fo_mass'};
-% 
-% nThresh = 1;
-% 
-% goodSub = ones(length(exper.subjects),1);
-% 
-% for ses = 1:length(exper.sesStr)
-%   for cnd = 1:length(cnds)
-%     goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
-%   end
-% end
-
 sesNames = {'train1','train2','train3','train4','train5','train6'};
-% trainConds = {'trained','untrained'};
-% imgConds = {'color','g','g_hi8','g_lo8','normal'};
 famLevel = {'basic','subord'};
 
 % phaseNames = {'name_1','name_2','name_3','name_4'};
@@ -256,16 +258,15 @@ for sub = 1:length(subjects)
     theseData = [];
     
     for ses = 1:length(sesNames)
-      %for trn = 1:length(trainConds)
-      %for img = 1:length(imgConds)
       for fam = 1:length(famLevel)
         
-        %theseData = cat(2,theseData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub));
         theseData = cat(2,theseData,results.(sesNames{ses}).(phaseName).(famLevel{fam}).(measure)(sub));
         
+        %for pha = 1:length(phaseNames)
+        %  theseData = cat(2,theseData,results.(sesNames{ses}).(phaseNames{pha}).(famLevel{fam}).(measure)(sub));
+        %end
+        
       end
-      %end
-      %end
     end
     anovaData = cat(1,anovaData,theseData);
   end
@@ -274,9 +275,12 @@ end
 varnames = {'session', 'basicSubord'};
 O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel)], varnames);
 
+% varnames = {'session', 'basicSubord', 'phaseNum'};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(phaseNames)], varnames);
+
 %% write to file, with header
 
-anovaFile = fullfile(getenv('HOME'),'data','EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_train_%s.txt',measure));
+anovaFile = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_train_%s.txt',measure));
 fid = fopen(anovaFile,'w+');
 
 thisHeader = [];
@@ -284,20 +288,6 @@ for i = 1:length(sesNames)
   thisHeader = cat(2,thisHeader,sprintf('%s%s',sesNames{i},repmat(sprintf('\t'),1,length(famLevel))));
 end
 fprintf(fid,'\t%s\n',thisHeader);
-
-% thisHeader = [];
-% for i = 1:length(trainConds)
-%   thisHeader = cat(2,thisHeader,sprintf('%s%s',trainConds{i},repmat(sprintf('\t'),1,length(imgConds) * length(famLevel))));
-% end
-% thisHeader = repmat(thisHeader,1,length(sesNames));
-% fprintf(fid,'\t%s\n',thisHeader);
-% 
-% thisHeader = [];
-% for i = 1:length(imgConds)
-%   thisHeader = cat(2,thisHeader,sprintf('%s%s',imgConds{i},repmat(sprintf('\t'),1,length(famLevel))));
-% end
-% thisHeader = repmat(thisHeader,1,length(sesNames) * length(trainConds));
-% fprintf(fid,'\t%s\n',thisHeader);
 
 thisHeader = [];
 for i = 1:length(famLevel)
@@ -308,7 +298,6 @@ fprintf(fid,'\t%s\n',thisHeader);
 
 for i = 1:size(anovaData,1)
   tData = sprintf('%s',subjects{i});
-  %tData = sprintf('%.4f',anovaData(i,1));
   tData = sprintf('%s%s\n',tData,sprintf(repmat('\t%.4f',1,length(anovaData(i,:))),anovaData(i,:)));
   
   fprintf(fid,'%s',tData);
@@ -316,21 +305,7 @@ end
 
 fclose(fid);
 
-
-
 %% RMANOVA - pre-test vs post-test x basic/subord x training, for each image manipulation group
-
-% cnds = {'img_RgH_rc_spac_word_RgH_rc_spac', 'img_RgH_fo_spac_word_RgH_fo_spac', 'img_RgH_rc_mass_word_RgH_rc_mass', 'img_RgH_fo_mass_word_RgH_fo_mass'};
-% 
-% nThresh = 1;
-% 
-% goodSub = ones(length(exper.subjects),1);
-% 
-% for ses = 1:length(exper.sesStr)
-%   for cnd = 1:length(cnds)
-%     goodSub = goodSub .* D.(cnds{cnd}).nTrial(:,ses) >= nThresh;
-%   end
-% end
 
 % trainConds = {'TT','UU'};
 % imgConds = {'normal','color','g'};
