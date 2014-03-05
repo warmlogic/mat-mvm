@@ -320,10 +320,10 @@ ana.eventValues = ana.eventValuesSplit;
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-% exper.badBehSub = {{}};
+exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE001','SPACE005','SPACE017'}};
 % exper.badBehSub = {{'SPACE001','SPACE005','SPACE017','SPACE019'}};
-exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
+% exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
 
 % SPACE019 has particularly low distance (high similarity) values
 
