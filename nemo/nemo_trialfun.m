@@ -219,6 +219,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             cols.(phaseName).resp_value = find(strcmp(ns_evt_cols,'rsp#'));
                             cols.(phaseName).accuracy = find(strcmp(ns_evt_cols,'eval'));
                             cols.(phaseName).reaction_time = find(strcmp(ns_evt_cols,'rtim'));
+                            cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
+
                             if isempty(cols.(phaseName).trial)
                                 keyboard
                             end
@@ -269,7 +271,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     %cols.(phaseName).response_prime = find(strcmp(ns_evt_cols,'rspp')); %string
                                     cols.(phaseName).wordid_prime = find(strcmp(ns_evt_cols,'widp'));
                                     cols.(phaseName).word_pair_id = find(strcmp(ns_evt_cols,'pair'));
-                                    cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
                                     %cols.(phaseName).modality = find(strcmp(ns_evt_cols,'mody')); %string
                                     %cols.(phaseName).study_task = find(strcmp(ns_evt_cols,'task')); %string
                                     
@@ -370,18 +371,13 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     if isempty(cols.(phaseName).word_pair_id)
                                         word_pair_id = -1;
                                     end
-                                     cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
-                                    if isempty(cols.(phaseName).random_number)
-                                        word_pair_id = -1;
-                                    end
-                                    %
                                     %cols.(phaseName).modality = find(strcmp(ns_evt_cols,'mody')); %string
                                     %cols.(phaseName).study_task = find(strcmp(ns_evt_cols,'task')); %string
                             end
                             
                             % Critical: set up the stimulus type, as well as the
                             % event string to match eventValues
-                            if strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'11') && strcmp(phaseName,'TC_NEMO_AO')  && strcmp(ns_evt{cols.(phaseName).random_number}(ec),'150') && strcmp(ns_evt{cols.(phaseName).accuracy}(ec),'1')
+                            if strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy}(ec),'1') %&& double(ns_evt{cols.(phaseName).random_number}(ec)) <= 150 
                                 evVal = 'ao_standard_corr';
                             elseif strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'12') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy}(ec),'1')
                                 evVal = 'ao_target_corr';
@@ -402,6 +398,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'3') && strcmp(ns_evt{cols.(phaseName).accuracy}(ec),'1')
                                 evVal = 'test_targ_CA_unrel_corr';
                             end
+                            
                             trl_order = cfg.eventinfo.trl_order.(evVal);
                             
                             % find where this event type occurs in the list
