@@ -157,6 +157,7 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
   std(data1 - data2) / sqrt(length(data1)),...
   p);
 
+
 %% RMANOVA - prepost
 
 sesNames = {'pretest','posttest','posttest_delay'};
@@ -305,7 +306,7 @@ end
 
 fclose(fid);
 
-%% RMANOVA - pre-test vs post-test x basic/subord x training, for each image manipulation group
+%% RMANOVA - pre-test vs post-test (diff) x basic/subord x training, for each image manipulation group
 
 % trainConds = {'TT','UU'};
 % imgConds = {'normal','color','g'};
@@ -357,4 +358,145 @@ end
 varnames = {'sesDiff', 'training', 'imgConds', 'basicSubord'};
 O = teg_repeated_measures_ANOVA(anovaData, [length(sesDiff) length(trainConds) length(imgConds) length(famLevel)], varnames);
 
+%% NEW: RMANOVA - pretest 1-way, image manipulation conditions (2 groups of 3 manips)
 
+% pretest: collapse basic/subord, all training conditions because they
+% haven't seen these birds yet
+
+% sesNames = {'pretest','posttest','posttest_delay'};
+sesNames = {'pretest'};
+
+imgConds = {'normal','color','g'};
+% imgConds = {'g','g_hi8','g_lo8'};
+
+% trainConds = {'trained','untrained'};
+trainConds = {'TT','UU','TU','UT'};
+% trainConds = {'TT','UU'};
+famLevel = {'basic','subord'};
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+anovaData = [];
+
+for sub = 1:length(subjects)
+  
+  if ~exper.badSub(sub)
+    
+    theseData = [];
+    
+    for ses = 1:length(sesNames)
+      for img = 1:length(imgConds)
+        
+        collapsedData = [];
+        
+        for trn = 1:length(trainConds)
+          for fam = 1:length(famLevel)
+            
+            collapsedData = cat(2,collapsedData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub));
+            
+          end
+        end
+        
+        theseData = cat(2,theseData,nanmean(collapsedData));
+        
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+varnames = {'imgConds'};
+O = teg_repeated_measures_ANOVA(anovaData, length(imgConds), varnames);
+
+%% NEW: RMANOVA - for each image manipulation group: posttest vs posttest_delay x basic/subord x training x image condition
+
+trainConds = {'TT','UU'};
+imgConds = {'normal','color','g'};
+
+% trainConds = {'TT','UU','TU','UT'};
+trainConds = {'TT','UU'};
+imgConds = {'g','g_hi8','g_lo8'};
+
+sesNames = {'posttest', 'posttest_delay'};
+
+famLevel = {'basic','subord'};
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+anovaData = [];
+
+for sub = 1:length(subjects)
+  
+  if ~exper.badSub(sub)
+    
+    theseData = [];
+    
+    for ses = 1:length(sesNames)
+      for trn = 1:length(trainConds)
+        for img = 1:length(imgConds)
+          for fam = 1:length(famLevel)
+            
+            dp_post = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub);
+            
+            theseData = cat(2,theseData,dp_post);
+            
+          end
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+varnames = {'sesName', 'training', 'imgConds', 'basicSubord'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
+
+%% NEW: RMANOVA - posttest subordinate only
+
+trainConds = {'TT','UU'};
+imgConds = {'normal','color','g'};
+
+% trainConds = {'TT','UU','TU','UT'};
+% trainConds = {'TT','UU'};
+imgConds = {'g','g_hi8','g_lo8'};
+
+sesNames = {'posttest', 'posttest_delay'};
+
+% famLevel = {'basic'};
+famLevel = {'subord'};
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+anovaData = [];
+
+for sub = 1:length(subjects)
+  
+  if ~exper.badSub(sub)
+    
+    theseData = [];
+    
+    for ses = 1:length(sesNames)
+      for trn = 1:length(trainConds)
+        for img = 1:length(imgConds)
+          for fam = 1:length(famLevel)
+            
+            dp_post = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub);
+            
+            theseData = cat(2,theseData,dp_post);
+            
+          end
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+varnames = {'sesName', 'training', 'imgConds'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds)], varnames);
