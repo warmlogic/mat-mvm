@@ -5,7 +5,8 @@
 expName = 'EBIRD';
 
 subDir = '';
-dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
+behDir = fullfile(expName,'Behavioral','Sessions',subDir);
+eegDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
 serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
@@ -15,21 +16,19 @@ localDir = fullfile(getenv('HOME'),'data');
 % pick the right dataroot
 if exist('serverDir','var') && exist(serverDir,'dir')
   dataroot = serverDir;
-  %runLocally = 1;
 elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
   dataroot = serverLocalDir;
-  %runLocally = 1;
 elseif exist('dreamDir','var') && exist(dreamDir,'dir')
   dataroot = dreamDir;
-  %runLocally = 0;
 elseif exist('localDir','var') && exist(localDir,'dir')
   dataroot = localDir;
-  %runLocally = 1;
 else
   error('Data directory not found.');
 end
 
-% procDir = fullfile(dataroot,dataDir,'ft_data/???????????/tla');
+% procDir = fullfile(dataroot,eegDir,'ft_data/???????????/tla');
+
+behDir = fullfile(dataroot,behDir);
 
 subjects = {
   %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
@@ -88,15 +87,27 @@ exper.badSub = false(length(subjects),1);
 % collapsePhases = true;
 collapsePhases = false;
 
+%% split into quantile divisions?
+
+% nDivisions = 1;
+nDivisions = 4;
+
+if nDivisions > 1
+  quantStr = sprintf('_%dquantileDiv',nDivisions);
+else
+  quantStr = '';
+end
+
 %% load the behavioral data
 
 if collapsePhases
-  behfile = 'EBIRD_behav_results_collapsed.mat';
+  resultsFile = fullfile(behDir,sprintf('%s_behav_results%s_collapsed.mat',expName,quantStr));
 else
-  behfile = 'EBIRD_behav_results.mat';
+  resultsFile = fullfile(behDir,sprintf('%s_behav_results%s.mat',expName,quantStr));
 end
-
-load(fullfile(dataroot,'EBIRD','Behavioral','Sessions',behfile));
+fprintf('Loading %s...',resultsFile);
+load(resultsFile);
+fprintf('Done.\n');
 
 %% ttest
 
@@ -156,7 +167,6 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
   std(data1 - data2),...
   std(data1 - data2) / sqrt(length(data1)),...
   p);
-
 
 %% RMANOVA - prepost
 
@@ -460,9 +470,9 @@ O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) 
 trainConds = {'TT','UU'};
 imgConds = {'normal','color','g'};
 
-% trainConds = {'TT','UU','TU','UT'};
-% trainConds = {'TT','UU'};
-imgConds = {'g','g_hi8','g_lo8'};
+% % trainConds = {'TT','UU','TU','UT'};
+% % trainConds = {'TT','UU'};
+% imgConds = {'g','g_hi8','g_lo8'};
 
 sesNames = {'posttest', 'posttest_delay'};
 
@@ -486,10 +496,11 @@ for sub = 1:length(subjects)
         for img = 1:length(imgConds)
           for fam = 1:length(famLevel)
             
-            dp_post = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub);
-            
-            theseData = cat(2,theseData,dp_post);
-            
+            for d = 1:nDivisions
+              dp_post = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d);
+              
+              theseData = cat(2,theseData,dp_post);
+            end
           end
         end
       end
@@ -498,5 +509,5 @@ for sub = 1:length(subjects)
   end
 end
 
-varnames = {'sesName', 'training', 'imgConds'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds)], varnames);
+varnames = {'sesName', 'training', 'imgConds', 'quartile'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) nDivisions], varnames);
