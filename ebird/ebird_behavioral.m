@@ -375,6 +375,8 @@ O = teg_repeated_measures_ANOVA(anovaData, [length(sesDiff) length(trainConds) l
 
 % sesNames = {'pretest','posttest','posttest_delay'};
 sesNames = {'pretest'};
+% sesNames = {'posttest'};
+% sesNames = {'posttest_delay'};
 
 imgConds = {'normal','color','g'};
 % imgConds = {'g','g_hi8','g_lo8'};
@@ -399,17 +401,19 @@ for sub = 1:length(subjects)
     for ses = 1:length(sesNames)
       for img = 1:length(imgConds)
         
-        collapsedData = [];
-        
-        for trn = 1:length(trainConds)
-          for fam = 1:length(famLevel)
-            
-            collapsedData = cat(2,collapsedData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub));
-            
+        for d = 1:nDivisions
+          collapsedData = [];
+          
+          for trn = 1:length(trainConds)
+            for fam = 1:length(famLevel)
+              
+              collapsedData = cat(2,collapsedData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
+              
+            end
           end
+          
+          theseData = cat(2,theseData,nanmean(collapsedData));
         end
-        
-        theseData = cat(2,theseData,nanmean(collapsedData));
         
       end
     end
@@ -417,8 +421,13 @@ for sub = 1:length(subjects)
   end
 end
 
-varnames = {'imgConds'};
-O = teg_repeated_measures_ANOVA(anovaData, length(imgConds), varnames);
+if nDivisions > 1
+  varnames = {'imgConds','quartile'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(imgConds) nDivisions], varnames);
+elseif nDivisions == 1
+  varnames = {'imgConds'};
+  O = teg_repeated_measures_ANOVA(anovaData, length(imgConds), varnames);
+end
 
 %% NEW: RMANOVA - for each image manipulation group: posttest vs posttest_delay x basic/subord x training x image condition
 
@@ -450,9 +459,11 @@ for sub = 1:length(subjects)
         for img = 1:length(imgConds)
           for fam = 1:length(famLevel)
             
+            for d = 1:nDivisions
             dp_post = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub);
             
             theseData = cat(2,theseData,dp_post);
+            end
             
           end
         end
@@ -462,10 +473,15 @@ for sub = 1:length(subjects)
   end
 end
 
-varnames = {'sesName', 'training', 'imgConds', 'basicSubord'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
+if nDivisions > 1
+  varnames = {'sesName', 'training', 'imgConds', 'basicSubord', 'quartile'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel) nDivisions], varnames);
+elseif nDivisions == 1
+  varnames = {'sesName', 'training', 'imgConds', 'basicSubord'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
+end
 
-%% NEW: RMANOVA - posttest subordinate only
+%% NEW: RMANOVA - posttests subordinate only
 
 trainConds = {'TT','UU'};
 imgConds = {'normal','color','g'};
@@ -509,5 +525,10 @@ for sub = 1:length(subjects)
   end
 end
 
-varnames = {'sesName', 'training', 'imgConds', 'quartile'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) nDivisions], varnames);
+if nDivisions > 1
+  varnames = {'sesName', 'training', 'imgConds', 'quartile'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) nDivisions], varnames);
+elseif nDivisions == 1
+  varnames = {'sesName', 'training', 'imgConds'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds)], varnames);
+end
