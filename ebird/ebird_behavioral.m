@@ -89,8 +89,8 @@ collapsePhases = false;
 
 %% split into quantile divisions?
 
-nDivisions = 1;
-% nDivisions = 2;
+% nDivisions = 1;
+nDivisions = 2;
 % nDivisions = 3;
 % nDivisions = 4;
 
@@ -173,11 +173,15 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
 %% RMANOVA - prepost
 
 sesNames = {'pretest','posttest','posttest_delay'};
+sesStr = {'Pretest','Posttest','Delay'};
 % trainConds = {'trained','untrained'};
 % trainConds = {'TT','UU','TU','UT'};
 trainConds = {'TT','UU'};
+trainStr = {'Trained','Untrained'};
 imgConds = {'normal','color','g','g_hi8','g_lo8'};
+imgStr = {'Congruent','Incongruent','Gray','HiSF','LoSF'};
 famLevel = {'basic','subord'};
+famStr = {'Basic','Subordinate'};
 
 phaseName = 'match_1';
 
@@ -196,7 +200,9 @@ for sub = 1:length(subjects)
         for img = 1:length(imgConds)
           for fam = 1:length(famLevel)
             
-            theseData = cat(2,theseData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub));
+            for d = 1:nDivisions
+              theseData = cat(2,theseData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
+            end
             
           end
         end
@@ -206,40 +212,54 @@ for sub = 1:length(subjects)
   end
 end
 
-varnames = {'session','training','imgConds', 'basicSubord'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
+% if nDivisions > 1
+%   varnames = {'Session', 'Training','ImgConds', 'BasicSubord', 'Quantile'};
+%   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel) nDivisions], varnames);
+% else
+%   varnames = {'Session', 'Training','ImgConds', 'BasicSubord'};
+%   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
+% end
 
-%% write to file, with header
+%% write to file, with header, quantiles together
 
-anovaFile = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_prepost_%s.txt',measure));
+anovaFile = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_prepost_%s%s.txt',measure,quantStr));
 fid = fopen(anovaFile,'w+');
 
 thisHeader = [];
 for i = 1:length(sesNames)
-  thisHeader = cat(2,thisHeader,sprintf('%s%s',sesNames{i},repmat(sprintf('\t'),1,length(trainConds) * length(imgConds) * length(famLevel))));
+  thisHeader = cat(2,thisHeader,sprintf('%s%s',sesStr{i},repmat(sprintf('\t'),1,length(trainConds) * length(imgConds) * length(famLevel) * nDivisions)));
 end
 fprintf(fid,'\t%s\n',thisHeader);
 
 thisHeader = [];
 for i = 1:length(trainConds)
-  thisHeader = cat(2,thisHeader,sprintf('%s%s',trainConds{i},repmat(sprintf('\t'),1,length(imgConds) * length(famLevel))));
+  thisHeader = cat(2,thisHeader,sprintf('%s%s',trainStr{i},repmat(sprintf('\t'),1,length(imgConds) * length(famLevel) * nDivisions)));
 end
 thisHeader = repmat(thisHeader,1,length(sesNames));
 fprintf(fid,'\t%s\n',thisHeader);
 
 thisHeader = [];
 for i = 1:length(imgConds)
-  thisHeader = cat(2,thisHeader,sprintf('%s%s',imgConds{i},repmat(sprintf('\t'),1,length(famLevel))));
+  thisHeader = cat(2,thisHeader,sprintf('%s%s',imgStr{i},repmat(sprintf('\t'),1,length(famLevel)  * nDivisions)));
 end
 thisHeader = repmat(thisHeader,1,length(sesNames) * length(trainConds));
 fprintf(fid,'\t%s\n',thisHeader);
 
 thisHeader = [];
 for i = 1:length(famLevel)
-  thisHeader = cat(2,thisHeader,sprintf('%s%s',famLevel{i},repmat(sprintf('\t'),1,length(famLevel) - 1)));
+  thisHeader = cat(2,thisHeader,sprintf('%s%s',famStr{i},repmat(sprintf('\t'),1,(length(famLevel) - 1) * nDivisions)));
 end
 thisHeader = repmat(thisHeader,1,length(sesNames) * length(trainConds) * length(imgConds));
 fprintf(fid,'\t%s\n',thisHeader);
+
+if nDivisions > 1
+  thisHeader = [];
+  for i = 1:nDivisions
+    thisHeader = cat(2,thisHeader,sprintf('%s%s',sprintf('D%d',i),repmat(sprintf('\t'),1,1)));
+  end
+  thisHeader = repmat(thisHeader,1,length(sesNames) * length(trainConds) * length(imgConds) * (length(famLevel)));
+  fprintf(fid,'\t%s\n',thisHeader);
+end
 
 for i = 1:size(anovaData,1)
   tData = sprintf('%s',subjects{i});
@@ -250,6 +270,52 @@ for i = 1:size(anovaData,1)
 end
 
 fclose(fid);
+
+%% write to file, with header, separate quantiles
+
+if nDivisions > 1
+  for d = 1:nDivisions
+    anovaFile = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_prepost_%s%s.txt',measure,sprintf('_D%d',d)));
+    fid = fopen(anovaFile,'w+');
+    
+    thisHeader = [];
+    for i = 1:length(sesNames)
+      thisHeader = cat(2,thisHeader,sprintf('%s%s',sesStr{i},repmat(sprintf('\t'),1,length(trainConds) * length(imgConds) * length(famLevel))));
+    end
+    fprintf(fid,'\t%s\n',thisHeader);
+    
+    thisHeader = [];
+    for i = 1:length(trainConds)
+      thisHeader = cat(2,thisHeader,sprintf('%s%s',trainStr{i},repmat(sprintf('\t'),1,length(imgConds) * length(famLevel))));
+    end
+    thisHeader = repmat(thisHeader,1,length(sesNames));
+    fprintf(fid,'\t%s\n',thisHeader);
+    
+    thisHeader = [];
+    for i = 1:length(imgConds)
+      thisHeader = cat(2,thisHeader,sprintf('%s%s',imgStr{i},repmat(sprintf('\t'),1,length(famLevel))));
+    end
+    thisHeader = repmat(thisHeader,1,length(sesNames) * length(trainConds));
+    fprintf(fid,'\t%s\n',thisHeader);
+    
+    thisHeader = [];
+    for i = 1:length(famLevel)
+      thisHeader = cat(2,thisHeader,sprintf('%s%s',famStr{i},repmat(sprintf('\t'),1,length(famLevel) - 1)));
+    end
+    thisHeader = repmat(thisHeader,1,length(sesNames) * length(trainConds) * length(imgConds));
+    fprintf(fid,'\t%s\n',thisHeader);
+    
+    for i = 1:size(anovaData,1)
+      tData = sprintf('%s',subjects{i});
+      %tData = sprintf('%.4f',anovaData(i,1));
+      tData = sprintf('%s%s\n',tData,sprintf(repmat('\t%.4f',1,length(anovaData(i,d:2:end))),anovaData(i,d:2:end)));
+      
+      fprintf(fid,'%s',tData);
+    end
+    
+    fclose(fid);
+  end
+end
 
 %% RMANOVA - train - need to collapse phases
 
@@ -492,7 +558,7 @@ imgConds = {'normal','color','g'};
 
 % % trainConds = {'TT','UU','TU','UT'};
 % % trainConds = {'TT','UU'};
-imgConds = {'g','g_hi8','g_lo8'};
+% imgConds = {'g','g_hi8','g_lo8'};
 
 sesNames = {'posttest', 'posttest_delay'};
 
