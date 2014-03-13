@@ -89,8 +89,8 @@ collapsePhases = false;
 
 %% split into quantile divisions?
 
-nDivisions = 1;
-% nDivisions = 2;
+% nDivisions = 1;
+nDivisions = 2;
 % nDivisions = 3;
 % nDivisions = 4;
 
@@ -640,7 +640,7 @@ sesNames = {'pretest'};
 % sesNames = {'posttest_delay'};
 
 imgConds = {'normal','color','g'};
-% imgConds = {'g','g_hi8','g_lo8'};
+imgConds = {'g','g_hi8','g_lo8'};
 
 % trainConds = {'trained','untrained'};
 trainConds = {'TT','UU','TU','UT'};
@@ -787,7 +787,7 @@ for sub = 1:length(subjects)
 end
 
 if nDivisions > 1
-  varnames = {'sesName', 'training', 'imgConds', 'quartile'};
+  varnames = {'sesName', 'training', 'imgConds', 'Quantile'};
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) nDivisions], varnames);
 elseif nDivisions == 1
   varnames = {'sesName', 'training', 'imgConds'};
@@ -866,10 +866,10 @@ end
 
 if nDivisions > 1
   if collapseTrain
-    varnames = {sesStr, 'Basic/Subord', imgStr, 'Quartile'};
+    varnames = {sesStr, 'Basic/Subord', imgStr, 'Quantile'};
     O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds) nDivisions], varnames);
   else
-    varnames = {sesStr, 'Basic/Subord', imgStr, 'Quartile', 'Training'};
+    varnames = {sesStr, 'Basic/Subord', imgStr, 'Quantile', 'Training'};
     O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds) nDivisions length(trainConds)], varnames);
   end
 elseif nDivisions == 1
