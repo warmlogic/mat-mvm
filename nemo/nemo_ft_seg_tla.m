@@ -121,21 +121,26 @@ dirs.dataDir = fullfile(exper.name,'NEMO','EEG','Sessions','ftpp',dirs.subDir);
 %dirs.dreamDir = fullfile(filesep,'data','projects','curranlab');
 dirs.localDir = fullfile(getenv('HOME'),'Desktop','markupfiles');
 
+
 % pick the right dirs.dataroot
-if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
-  dirs.dataroot = dirs.serverDir;
-  %runLocally = 1;
-elseif isfield(dirs,'serverLocalDir') && exist(dirs.serverLocalDir,'dir')
-  dirs.dataroot = dirs.serverLocalDir;
-  %runLocally = 1;
-elseif isfield(dirs,'dreamDir') && exist(dirs.dreamDir,'dir')
-  dirs.dataroot = dirs.dreamDir;
-  %runLocally = 0;
-elseif isfield(dirs,'localDir') && exist(dirs.localDir,'dir')
-  dirs.dataroot = dirs.localDir;
-  %runLocally = 1;
+if exist('/Volumes/CurranImacLab3','dir')
+    dirs.dataroot = dirs.localDir;
 else
-  error('Data directory not found.');
+    if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
+        dirs.dataroot = dirs.serverDir;
+        %runLocally = 1;
+    elseif isfield(dirs,'serverLocalDir') && exist(dirs.serverLocalDir,'dir')
+        dirs.dataroot = dirs.serverLocalDir;
+        %runLocally = 1;
+    elseif isfield(dirs,'dreamDir') && exist(dirs.dreamDir,'dir')
+        dirs.dataroot = dirs.dreamDir;
+        %runLocally = 0;
+    elseif isfield(dirs,'localDir') && exist(dirs.localDir,'dir')
+        dirs.dataroot = dirs.localDir;
+        %runLocally = 1;
+    else
+        error('Data directory not found.');
+    end
 end
 
 % Use the FT chan locs file
