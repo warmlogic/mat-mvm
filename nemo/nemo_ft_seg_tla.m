@@ -52,7 +52,7 @@ exper.subjects = {
 %  'TC_NEMO-008';
 %  'TC_NEMO-009';
 %  'TC_NEMO-010';
-  'TC_NEMO-011';
+%  'TC_NEMO-011';
   'TC_NEMO-012';
 %  'TC_NEMO-013';
 %  'TC_NEMO-014';

@@ -397,6 +397,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                 evVal = 'test_targ_AA_unrel_corr';  
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label}(ec),'3') && strcmp(ns_evt{cols.(phaseName).accuracy}(ec),'1')
                                 evVal = 'test_targ_CA_unrel_corr';
+                            else
+                                keyboard
                             end
                             
                             trl_order = cfg.eventinfo.trl_order.(evVal);
