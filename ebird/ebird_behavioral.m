@@ -89,8 +89,8 @@ collapsePhases = false;
 
 %% split into quantile divisions?
 
-% nDivisions = 1;
-nDivisions = 2;
+nDivisions = 1;
+% nDivisions = 2;
 % nDivisions = 3;
 % nDivisions = 4;
 
@@ -212,13 +212,204 @@ for sub = 1:length(subjects)
   end
 end
 
-% if nDivisions > 1
-%   varnames = {'Session', 'Training','ImgConds', 'BasicSubord', 'Quantile'};
-%   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel) nDivisions], varnames);
-% else
-%   varnames = {'Session', 'Training','ImgConds', 'BasicSubord'};
-%   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
-% end
+if nDivisions > 1
+  varnames = {'Session', 'Training','ImgConds', 'BasicSubord', 'Quantile'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel) nDivisions], varnames);
+else
+  varnames = {'Session', 'Training','ImgConds', 'BasicSubord'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
+end
+
+%% write data in long format - all data
+
+%e.g.,
+% Participant Session TrainedUntrained ImgCond BasicSubord Quantile dp
+% EBIRD001 Pretest Trained Congruent Basic D1 2.5015
+
+sesNames = {'pretest','posttest','posttest_delay'};
+sesStr = {'Pretest','Posttest','Delay'};
+% trainConds = {'trained','untrained'};
+% trainConds = {'TT','UU','TU','UT'};
+trainConds = {'TT','UU'};
+trainStr = {'Trained','Untrained'};
+imgConds = {'normal','color','g','g_hi8','g_lo8'};
+imgStr = {'Congruent','Incongruent','Gray','HiSF','LoSF'};
+famLevel = {'basic','subord'};
+famStr = {'Basic','Subordinate'};
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+%anovaData = [];
+
+anovaFile = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA',sprintf('EBIRD_ANOVA_long_prepost_%s%s.txt',measure,quantStr));
+fid = fopen(anovaFile,'w+');
+
+fprintf(fid,'Subject\tSession\tTraining\tImgCond\tBasicSubord\tQuantDiv\t%s\n',measure);
+
+for sub = 1:length(subjects)
+  
+  if ~exper.badSub(sub)
+    
+    for ses = 1:length(sesNames)
+      for trn = 1:length(trainConds)
+        for img = 1:length(imgConds)
+          for fam = 1:length(famLevel)
+            
+            for d = 1:nDivisions
+              fprintf(fid,'%s\t%s\t%s\t%s\t%s\t%d\t%.4f\n',subjects{sub},sesStr{ses},trainStr{trn},imgStr{img},famStr{fam},d,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
+            end
+            
+          end
+        end
+      end
+    end
+  end
+end
+
+fclose(fid);
+
+%% write data in long format - posttests - separate for each session, training condition, family learning level
+
+%e.g.,
+% Participant Session TrainedUntrained ImgCond BasicSubord Quantile dp
+% EBIRD001 Pretest Trained Congruent Basic D1 2.5015
+
+% sesNames = {'pretest','posttest','posttest_delay'};
+% sesStr = {'Pretest','Posttest','Delay'};
+% trainConds = {'TT','UU'};
+
+% sesNames = {'pretest'};
+% sesStr = {'Pretest'};
+% trainConds = {'TT','UU','TU','UT'};
+
+sesNames = {'posttest','posttest_delay'};
+sesStr = {'Posttest','Delay'};
+trainConds = {'TT','UU'};
+
+% trainConds = {'trained','untrained'};
+trainStr = {'Trained','Untrained'};
+famLevel = {'basic','subord'};
+famStr = {'Basic','Subordinate'};
+
+% imgConds = {'normal','color','g','g_hi8','g_lo8'};
+% imgStr = {'Congruent','Incongruent','Gray','HiSF','LoSF'};
+
+imgConds = {'normal','color','g'};
+imgStr = {'Congruent','Incongruent','Gray'};
+groupname = 'Color';
+
+% imgConds = {'g','g_hi8','g_lo8'};
+% imgStr = {'Gray','HiSF','LoSF'};
+% groupname = 'SF';
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+for ses = 1:length(sesNames)
+  for trn = 1:length(trainConds)
+    for fam = 1:length(famLevel)
+      origdata_dir = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA','origdata_long');
+      if ~exist(origdata_dir,'dir')
+        mkdir(origdata_dir);
+      end
+      anovaFile = fullfile(origdata_dir,sprintf('EBIRD_ANOVA_long_%s_%s_%s_%s_%s%s.txt',groupname,sesStr{ses},trainStr{trn},famStr{fam},measure,quantStr));
+      fid = fopen(anovaFile,'w+');
+      fprintf(fid,'Subject\tImgCond\tQuantDiv\t%s\n',measure);
+      
+      for sub = 1:length(subjects)
+        if ~exper.badSub(sub)
+          for img = 1:length(imgConds)
+            
+            for d = 1:nDivisions
+              fprintf(fid,'%s\t%s\t%s\t%.4f\n',subjects{sub},imgStr{img},sprintf('D%d',d),results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
+            end
+            
+          end
+        end
+      end
+      fprintf('Saving %s.\n',anovaFile);
+      fclose(fid);
+      
+    end
+  end
+end
+
+%% write data in long format - pretest - separate for each session, training condition, family learning level
+
+%e.g.,
+% Participant Session TrainedUntrained ImgCond BasicSubord Quantile dp
+% EBIRD001 Pretest Trained Congruent Basic D1 2.5015
+
+% sesNames = {'pretest','posttest','posttest_delay'};
+% sesStr = {'Pretest','Posttest','Delay'};
+% trainConds = {'TT','UU'};
+
+sesNames = {'pretest'};
+sesStr = {'Pretest'};
+trainConds = {'TT','UU','TU','UT'};
+
+% sesNames = {'posttest','posttest_delay'};
+% sesStr = {'Posttest','Delay'};
+% trainConds = {'TT','UU'};
+
+% trainConds = {'trained','untrained'};
+trainStr = {'Trained','Untrained'};
+famLevel = {'basic','subord'};
+famStr = {'Basic','Subordinate'};
+
+% imgConds = {'normal','color','g','g_hi8','g_lo8'};
+% imgStr = {'Congruent','Incongruent','Gray','HiSF','LoSF'};
+
+imgConds = {'normal','color','g'};
+imgStr = {'Congruent','Incongruent','Gray'};
+groupname = 'Color';
+
+% imgConds = {'g','g_hi8','g_lo8'};
+% imgStr = {'Gray','HiSF','LoSF'};
+% groupname = 'SF';
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+for ses = 1:length(sesNames)
+  origdata_dir = fullfile(dataroot,'EBIRD','Behavioral','Sessions','ANOVA','origdata_long');
+  if ~exist(origdata_dir,'dir')
+    mkdir(origdata_dir);
+  end
+  anovaFile = fullfile(origdata_dir,sprintf('EBIRD_ANOVA_long_%s_%s_%s%s.txt',groupname,sesStr{ses},measure,quantStr));
+  fid = fopen(anovaFile,'w+');
+  fprintf(fid,'Subject\tImgCond\tQuantDiv\t%s\n',measure);
+  
+  for sub = 1:length(subjects)
+    if ~exper.badSub(sub)
+      for img = 1:length(imgConds)
+        
+        for d = 1:nDivisions
+          
+          % collapse across training and basic/subord for pretest
+          collapseData = [];
+          
+          for trn = 1:length(trainConds)
+            for fam = 1:length(famLevel)
+              collapseData = cat(2,collapseData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
+            end
+          end
+          
+          fprintf(fid,'%s\t%s\t%s\t%.4f\n',subjects{sub},imgStr{img},sprintf('D%d',d),nanmean(collapseData));
+          
+        end
+        
+      end
+    end
+  end
+  fprintf('Saving %s.\n',anovaFile);
+  fclose(fid);
+  
+end
 
 %% write to file, with header, quantiles together
 
@@ -436,7 +627,7 @@ end
 varnames = {'sesDiff', 'training', 'imgConds', 'basicSubord'};
 O = teg_repeated_measures_ANOVA(anovaData, [length(sesDiff) length(trainConds) length(imgConds) length(famLevel)], varnames);
 
-%% NEW: RMANOVA - pretest 1-way, image manipulation conditions (2 groups of 3 manips)
+%% NEW: RMANOVA - pretest 1-way (or 2-way with quantile), image manipulation conditions (2 groups of 3 manips)
 
 % can also include quantile divisions
 
@@ -492,7 +683,7 @@ for sub = 1:length(subjects)
 end
 
 if nDivisions > 1
-  varnames = {'imgConds','quartile'};
+  varnames = {'imgConds','Quantile'};
   O = teg_repeated_measures_ANOVA(anovaData, [length(imgConds) nDivisions], varnames);
 elseif nDivisions == 1
   varnames = {'imgConds'};
@@ -504,9 +695,9 @@ end
 trainConds = {'TT','UU'};
 imgConds = {'normal','color','g'};
 
-% trainConds = {'TT','UU','TU','UT'};
-trainConds = {'TT','UU'};
-imgConds = {'g','g_hi8','g_lo8'};
+% % trainConds = {'TT','UU','TU','UT'};
+% trainConds = {'TT','UU'};
+% imgConds = {'g','g_hi8','g_lo8'};
 
 sesNames = {'posttest', 'posttest_delay'};
 
@@ -602,7 +793,6 @@ elseif nDivisions == 1
   varnames = {'sesName', 'training', 'imgConds'};
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds)], varnames);
 end
-
 
 %% New: pre/post x sub/basic interaction x image condition (color and SF) (x training???)
 
