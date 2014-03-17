@@ -31,7 +31,7 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
-  'SPACE001';
+  'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -47,15 +47,22 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+  'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
-  'SPACE019';
+  'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  'SPACE030';
   };
 
 % only one cell, with all session names
@@ -99,7 +106,8 @@ load(behfile);
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
+% exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');

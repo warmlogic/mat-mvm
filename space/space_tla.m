@@ -54,7 +54,13 @@ subjects = {
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  'SPACE039'; % noisy EEG???
+  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  'SPACE030';
   };
 
 % only one cell, with all session names
@@ -341,8 +347,8 @@ ana.eventValues = ana.eventValuesSplit;
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{}};
-% exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
+% exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');

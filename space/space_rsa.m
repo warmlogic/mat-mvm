@@ -31,7 +31,7 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
-  %'SPACE001';
+  %'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -56,7 +56,13 @@ subjects = {
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  'SPACE039';
+  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  'SPACE030';
   };
 
 % only one cell, with all session names
@@ -320,10 +326,8 @@ ana.eventValues = ana.eventValuesSplit;
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{}};
-% exper.badBehSub = {{'SPACE001','SPACE005','SPACE017'}};
-% exper.badBehSub = {{'SPACE001','SPACE005','SPACE017','SPACE019'}};
-% exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
+% exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % SPACE019 has particularly low distance (high similarity) values
 
