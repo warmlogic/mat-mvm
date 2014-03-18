@@ -1,9 +1,9 @@
-%% initialize
-
 % % if path is not getting set properly, run these commands:
 % restoredefaultpath
 % rehash toolboxcache
 % savepath
+
+%% initialize
 
 myMatlabDir = fullfile(getenv('HOME'),'Documents','MATLAB');
 
