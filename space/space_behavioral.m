@@ -2,8 +2,11 @@
 
 %% load the analysis details
 
+expName = 'SPACE';
+
 subDir = '';
-dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+behDir = fullfile(expName,'Behavioral','Sessions',subDir);
+eegDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
 serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
@@ -27,8 +30,10 @@ else
   error('Data directory not found.');
 end
 
+behDir = fullfile(dataroot,behDir);
+
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+procDir = fullfile(dataroot,eegDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
   'SPACE001'; % low trial counts
@@ -70,14 +75,15 @@ sesNames = {'session_1'};
 
 allowRecallSynonyms = true;
 
-% replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = true;
-
-[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+% % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
+% replaceDataroot = true;
+% 
+% [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
 saveFigs = true;
 if saveFigs
-  figsDir = fullfile(dataroot,dirs.behDir,'figs');
+  %figsDir = fullfile(dataroot,dirs.behDir,'figs');
+  figsDir = fullfile(behDir,'figs');
   if ~exist(figsDir,'dir')
     mkdir(figsDir);
   end
@@ -93,15 +99,33 @@ end
 
 collapsePhases = true;
 
-%% load the behavioral data
-
 if collapsePhases
-  behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results_collapsed.mat');
+  collapseStr = '_collapsed';
 else
-  behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results.mat');
+  collapseStr = '';
 end
 
-load(behfile);
+%% split into quantile divisions?
+
+nDivisions = 1;
+% nDivisions = 2;
+% nDivisions = 3;
+% nDivisions = 4;
+
+if nDivisions > 1
+  quantStr = sprintf('_%dquantileDiv',nDivisions);
+else
+  quantStr = '';
+end
+
+%% load the behavioral data
+
+%resultsFile = fullfile(dataroot,dirs.behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+resultsFile = fullfile(behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+
+fprintf('Loading %s...',resultsFile);
+load(resultsFile);
+fprintf('Done.\n');
 
 %% decide who to kick out based on trial counts
 

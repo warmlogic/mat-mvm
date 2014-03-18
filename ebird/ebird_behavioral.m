@@ -87,6 +87,12 @@ exper.badSub = false(length(subjects),1);
 % collapsePhases = true;
 collapsePhases = false;
 
+if collapsePhases
+  collapseStr = '_collapsed';
+else
+  collapseStr = '';
+end
+
 %% split into quantile divisions?
 
 % nDivisions = 1;
@@ -102,11 +108,8 @@ end
 
 %% load the behavioral data
 
-if collapsePhases
-  resultsFile = fullfile(behDir,sprintf('%s_behav_results%s_collapsed.mat',expName,quantStr));
-else
-  resultsFile = fullfile(behDir,sprintf('%s_behav_results%s.mat',expName,quantStr));
-end
+resultsFile = fullfile(behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+
 fprintf('Loading %s...',resultsFile);
 load(resultsFile);
 fprintf('Done.\n');
