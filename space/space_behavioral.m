@@ -68,6 +68,8 @@ subjects = {
   'SPACE026';
   'SPACE028';
   'SPACE030';
+  'SPACE032';
+  'SPACE034';
   };
 
 % only one cell, with all session names
@@ -391,32 +393,30 @@ data = struct;
 data.spaced = nan(sum(~exper.badSub),length(phases));
 data.massed = nan(sum(~exper.badSub),length(phases));
 
-% recog or recall
+% % d' (recog only)
+% dataMeasure = sprintf('%s_dp',test);ylimits = [0 4];
+% dataLabel = 'd''';
 
-% dataMeasure = sprintf('%s_rt',test);
-% dataLabel = 'Response Time (ms)';
+% % Response times (recog and recall)
+% % dataMeasure = sprintf('%s_rt',test);
+% % dataLabel = 'Response Time (ms)';
 % dataMeasure = sprintf('%s_rt_hit',test);
 % dataLabel = 'Response Time: Hits (ms)';
-% dataMeasure = sprintf('%s_rt_miss',test);
-% dataLabel = 'Response Time: Misses (ms)';
-
+% % dataMeasure = sprintf('%s_rt_miss',test);
+% % dataLabel = 'Response Time: Misses (ms)';
 % if strcmp(test,'recog')
 %   ylimits = [500 2500];
 % elseif strcmp(test,'recall')
 %   ylimits = [500 4000];
 % end
 
+% Hit rate / Accuracy (recog and recall)
 dataMeasure = sprintf('%s_hr',test);ylimits = [0 1];
 if strcmp(test,'recog')
   dataLabel = 'Hit Rate';
 elseif strcmp(test,'recall')
   dataLabel = 'Accuracy';
 end
-
-% recog only
-
-% dataMeasure = sprintf('%s_dp',test);ylimits = [0 4];
-% dataLabel = 'd''';
 
 tpCounter = 0;
 for p = 1:length(phases)
