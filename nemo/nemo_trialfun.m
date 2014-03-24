@@ -152,14 +152,14 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
                     sameSample = false;
                     
-                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
                         % increment ec by 1 because fieldtrip collapses events with
                         % the same trigger that are too close together
                         ec = ec + 1;
                         sameSample = true;
                     end
                     
-                    if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
+                    if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
                         if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
                             % events in evt occurred within the same sample or ms
                             % tolerance
@@ -170,7 +170,10 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                         end
                     end
                 elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
+                        % events in evt occurred within the same sample or ms
+                        % tolerance
+                        
                         % put ec back in its prior state if the event codes
                         % were not the same
                         if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
@@ -180,6 +183,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             ec = ec + 1;
                             ec_add = -1;
                         end
+                        
                     end
                 end
             end
