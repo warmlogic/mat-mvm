@@ -134,13 +134,14 @@ end
 
 %% read evt and put events with the same sample in alphabetical order
 
+% backup so we can access original data
 ns_evt_orig = ns_evt;
 
+% % wait to change the values
 % ecInd = 1:length(ns_evt{1});
 
 for ec = 1:length(ns_evt{1})
-  
-  if ec > 1
+  if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
     this_time_ms_str = ns_evt{5}(ec);
     this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
     this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
@@ -148,53 +149,25 @@ for ec = 1:length(ns_evt{1})
     prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
     prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
     
-    if ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-        
-      if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-        
-        if cfg.eventinfo.usePhotodiodeDIN
-          %if strcmp(ns_evt{1}{ec},cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ns_evt{1}{ec-1},cfg.eventinfo.photodiodeDIN_str)
-          %  continue
-          %else
-            if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
-              % change the values on the fly
-              
-              for i = 1:length(ns_evt_orig)
-                ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
-                ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
-              end
-              
-              % % wait to change the values
-              % prevInd = ec - 1;
-              % ecInd(ec) = prevInd;
-              % ecInd(prevInd) = ec;
-            end
-          %end
-          
-        else
-          if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
-            
-            
-            % change the values on the fly
-            
-            for i = 1:length(ns_evt_orig)
-              ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
-              ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
-            end
-            
-            % % wait to change the values
-            % prevInd = ec - 1;
-            % ecInd(ec) = prevInd;
-            % ecInd(prevInd) = ec;
-          end
+    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
+      if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
+        % change the values on the fly
+        for i = 1:length(ns_evt_orig)
+          ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
+          ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
         end
+        
+        % % wait to change the values
+        % prevInd = ec - 1;
+        % ecInd(ec) = prevInd;
+        % ecInd(prevInd) = ec;
       end
     end
   end
   
 end
 
-% %ns_evt_backup = ns_evt;
+% % wait to change the values
 % for i = 1:length(ns_evt)
 %   ns_evt{i} = ns_evt{i}(ecInd);
 % end
@@ -205,8 +178,6 @@ ecInd = true(length(ns_evt{1}),1);
 
 % keep track of how many real evt events we have counted
 ec = 0;
-
-% for ec = 1:length(ns_evt{1})
   
 for i = 1:length(ft_event)
   if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
@@ -228,37 +199,18 @@ for i = 1:length(ft_event)
       prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
       
       if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
-        %fprintf('%d',ec);
-        %keyboard
-        
         % need to check on upcoming events; can't rely on comparing current
         % NS and FT events because they might have the same value even
         % though they're not the same exact event
         if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
-          %fprintf(': removed!!!!');
           ecInd(ec) = false;
           ec = ec + 1;
         end
-        %fprintf('\n');
-        
-        %if ~strcmp(ns_evt{1}(ec),ft_event(i).value)
-        %end
       end
+      
     end
   end
 end
-
-% % ft = {ft_event(~ismember({ft_event.value},'epoc')).value}; % 6515
-% % ns = ns_evt{1}(ecInd); % 6516
-% % for i = 1:length(ns)
-% %   if ~strcmp(ft{i},ns{i})
-% %     keyboard
-% %   end
-% %   %fprintf('%s %s\n',ft{i},ns{i});
-% %   %if  mod(i,1000) == 0
-% %   %  keyboard
-% %   %end
-% % end
 
 %% final alignment of evt Code column and ft_event value field
 
@@ -297,222 +249,8 @@ else
   keyboard
 end
 
-%% read evt and put events with the same sample in alphabetical order
-% 
-% ns_evt_orig = ns_evt;
-% 
-% % ecInd = 1:length(ns_evt{1});
-% 
-% for ec = 1:length(ns_evt{1})
-%   
-%   if ec > 1
-%     this_time_ms_str = ns_evt{5}(ec);
-%     this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-%     this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-%     prev_time_ms_str = ns_evt{5}(ec-1);
-%     prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-%     prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-%     
-%     if ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-%         
-%       if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%         
-%         if cfg.eventinfo.usePhotodiodeDIN
-%           if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
-%             % change the values on the fly
-%             
-%             for i = 1:length(ns_evt_orig)
-%               ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
-%               ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
-%             end
-%             
-%             % % wait to change the values
-%             % prevInd = ec - 1;
-%             % ecInd(ec) = prevInd;
-%             % ecInd(prevInd) = ec;
-%           end
-%           
-%         else
-%           if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
-%             
-%             
-%             % change the values on the fly
-%             
-%             for i = 1:length(ns_evt_orig)
-%               ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
-%               ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
-%             end
-%             
-%             % % wait to change the values
-%             % prevInd = ec - 1;
-%             % ecInd(ec) = prevInd;
-%             % ecInd(prevInd) = ec;
-%           end
-%         end
-%       end
-%     end
-%   end
-%   
-% end
-% 
-% % %ns_evt_backup = ns_evt;
-% % for i = 1:length(ns_evt)
-% %   ns_evt{i} = ns_evt{i}(ecInd);
-% % end
+%% go through events and add metadata to trl matrix
 
-%% align evt Code and ft_event value fields
-
-% % set up an index that will correspond to ft_event (all extra indices will
-% % be zero)
-% ecInd = zeros(length(ns_evt{1}),1);
-% 
-% % keep track of how many real evt events we have counted
-% ec = 0;
-% 
-% for i = 1:length(ft_event)
-%   if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-%     % found a trigger in the EEG file events; increment index if
-%     % value is correct.
-%     
-%     %if ~ismember(event(i).value,{'epoc'})
-%     if ismember(ft_event(i).value,triggers)
-%       ec = ec + 1;
-%     else
-%       continue
-%     end
-%     
-%     if i == 298 || i == 2510 || i == 4291 || i == 6145
-%     %if i == 6145
-%       keyboard
-%     end
-%     
-% %     if ec > 1
-% %       this_time_ms_str = ns_evt{5}(ec);
-% %       this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-% %       this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-% %       prev_time_ms_str = ns_evt{5}(ec-1);
-% %       prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-% %       prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-% %       
-% %       if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-% %         if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-% %           % increment ec by 1 because fieldtrip collapses events with the
-% %           % same trigger that are too close together
-% %           ec = ec + 1;
-% %           sameSample = true;
-% %         end
-% %       end
-% %     end
-%     
-%     
-%     ec_add = 0;
-%     if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && ec > 1
-%       alignmentAttempts = 0;
-%       while ~strcmp(ns_evt{1}(ec),ft_event(i).value)
-%         alignmentAttempts = alignmentAttempts + 1;
-%         
-%         this_time_ms_str = ns_evt{5}(ec);
-%         this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-%         this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-%         prev_time_ms_str = ns_evt{5}(ec-1);
-%         prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-%         prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-%         
-%         if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-%           if ~strcmp(ft_event(i).value,ft_event(i-1).value) && ...
-%               strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
-%             sameSample = false;
-%             
-%             if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%               % increment ec by 1 because fieldtrip (usually) collapses events with
-%               % the same trigger that are too close together
-%               ec = ec + 1;
-%               sameSample = true;
-%             end
-%             
-%             if ~sameSample
-%               if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-%                 % events in evt occurred within the same sample or ms
-%                 % tolerance
-%                 
-%                 % increment ec by 1 because fieldtrip collapses events with
-%                 % the same trigger that are too close together
-%                 ec = ec + 1;
-%               end
-%             end
-%           else
-%             keyboard
-%           end
-%         elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-%           if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)) || ...
-%               abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-%           
-%             % events in evt occurred within the same sample or ms
-%             % tolerance
-%             
-%             % put ec back in its prior state if the event codes
-%             % were not the same
-%             if strcmp(ns_evt{1}(ec-1),ft_event(i).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-%               % figure out whether to move ec forward or backward
-%               if strcmp(ns_evt{1}(ec-1),ft_event(i-1).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
-%                 ec = ec + 1;
-%                 %if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%                   ec_add = -1;
-%                 %end
-%               elseif ~strcmp(ns_evt{1}(ec-1),ft_event(i-1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
-%                 ec = ec - 1;
-%                 %if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%                   ec_add = 1;
-%                 %end
-%               else
-%                 keyboard
-%               end
-%             elseif strcmp(ns_evt{1}(ec-1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-%               ec = ec - 1;
-%               %if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%                 ec_add = 1;
-%               %end
-%             elseif ~strcmp(ns_evt{1}(ec-1),ft_event(i).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-%               ec = ec + 1;
-%               %if ~strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
-%               %  if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%                   ec_add = -1;
-%               %  end
-%               %end
-%             end
-%             %elseif cfg.eventinfo.usePhotodiodeDIN && ...
-%             %    strcmp(ns_evt{1}(ec),cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i).value,cfg.eventinfo.photodiodeDIN_str) && ...
-%             %    (abs(this_time_samp - prev_time_samp) <= photodiodeDIN_toleranceSamp || abs(this_time_ms - prev_time_ms) <= photodiodeDIN_toleranceMS)
-%             %  keyboard
-%             %  ec = ec - 1;
-%           end
-%         end
-%         
-%         if alignmentAttempts > 10
-%           keyboard
-%           if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value) && strcmp(ns_evt{1}(ec+3),ft_event(i+2).value)
-%             ec = ec + 1;
-%           elseif strcmp(ns_evt{1}(ec-1),ft_event(i).value) && strcmp(ns_evt{1}(ec),ft_event(i+1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i+2).value)
-%             ec = ec - 1;
-%           end
-%         end
-%       end
-%     end
-%     
-%     % put in the new ec index
-%     ecInd(ec) = i;
-%     
-%     ec = ec + ec_add;
-%   end
-% end
-% 
-% for i = 1:length(ns_evt)
-%   ns_evt{i} = ns_evt{i}(ecInd);
-% end
-
-%% go through the events
-
-% for ses = 1:length(cfg.eventinfo.sessionNames)
 ses = cfg.eventinfo.sessionNum;
 sesName = cfg.eventinfo.sessionNames{ses};
 % sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
@@ -527,79 +265,14 @@ for i = 1:length(ft_event)
   fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
   
   if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-    % found a trigger in the EEG file events; increment index if
-    % value is correct.
+    % found a trigger in the EEG file events; increment index if value is
+    % correct.
     
-    %if ~ismember(event(i).value,{'epoc'})
     if ismember(ft_event(i).value,triggers)
       ec = ec + 1;
     else
       continue
     end
-    
-%     ec_add = 0;
-%     if ~strcmp(ns_evt{1}(ec),ft_event(i).value) && ec > 1
-%       alignmentAttempts = 0;
-%       while ~strcmp(ns_evt{1}(ec),ft_event(i).value)
-%         alignmentAttempts = alignmentAttempts + 1;
-%         
-%         this_time_ms_str = ns_evt{5}(ec);
-%         this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-%         this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-%         prev_time_ms_str = ns_evt{5}(ec-1);
-%         prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-%         prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-%         
-%         if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-%           sameSample = false;
-%           
-%           if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%             % increment ec by 1 because fieldtrip collapses events with
-%             % the same trigger that are too close together
-%             ec = ec + 1;
-%             sameSample = true;
-%           end
-%           
-%           if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
-%             if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-%               % events in evt occurred within the same sample or ms
-%               % tolerance
-%               
-%               % increment ec by 1 because fieldtrip collapses events with
-%               % the same trigger that are too close together
-%               ec = ec + 1;
-%             end
-%           end
-%         elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-%           if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-%             % events in evt occurred within the same sample or ms
-%             % tolerance
-%             
-%             % put ec back in its prior state if the event codes
-%             % were not the same
-%             if strcmp(ns_evt{1}(ec-1),ft_event(i).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-%               % figure out whether to move ec forward or backward
-%               
-%             elseif strcmp(ns_evt{1}(ec-1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-%               ec = ec - 1;
-%               ec_add = 1;
-%             elseif ~strcmp(ns_evt{1}(ec-1),ft_event(i).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-%               ec = ec + 1;
-%               ec_add = -1;
-%             end
-%             %elseif cfg.eventinfo.usePhotodiodeDIN && ...
-%             %    strcmp(ns_evt{1}(ec),cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i).value,cfg.eventinfo.photodiodeDIN_str) && ...
-%             %    (abs(this_time_samp - prev_time_samp) <= photodiodeDIN_toleranceSamp || abs(this_time_ms - prev_time_ms) <= photodiodeDIN_toleranceMS)
-%             %  keyboard
-%             %  ec = ec - 1;
-%           end
-%         end
-%         
-%         if alignmentAttempts > 10
-%           keyboard
-%         end
-%       end
-%     end
     
     switch ft_event(i).value
       case 'STIM'
@@ -887,8 +560,5 @@ for i = 1:length(ft_event)
         %
         %       case cfg.eventinfo.photodiodeDIN_str
     end % switch
-    
-    % put ec back in its prior state
-    % ec = ec + ec_add;
   end
 end % i
