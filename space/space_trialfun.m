@@ -1,4 +1,4 @@
-function trl = space_trialfun2(cfg)
+function trl = space_trialfun(cfg)
 
 % operates using Net Station evt files and event structs
 
