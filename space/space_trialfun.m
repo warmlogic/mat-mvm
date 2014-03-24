@@ -132,6 +132,9 @@ if cfg.eventinfo.usePhotodiodeDIN
   photodiodeDIN_toleranceSamp = ceil((photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
 end
 
+% only keep the ft events with triggers
+ft_event = ft_event(ismember({ft_event.value},triggers));
+
 %% Alignment 1/3: read evt and put events with the same sample in alphabetical order
 
 % The header, as read by FieldTrip, is (usually) sorted alphabetically when
@@ -221,6 +224,11 @@ for i = 1:length(ft_event)
   end
 end
 
+% only keep the ns_evt indices that align with ft_event
+for i = 1:length(ns_evt)
+  ns_evt{i} = ns_evt{i}(ecInd);
+end
+
 %% Alignment 3/3: final comparison of Net Station and FieldTrip data
 
 % make sure the Net Station evt Code column and ft_event value field are in
@@ -228,14 +236,6 @@ end
 % rearranged alphabetically), then put the Net Station events in the same
 % order as the FieldTrip events, but only if the neighboring events are
 % aligned.
-
-% only keep the ft events with triggers
-ft_event = ft_event(ismember({ft_event.value},triggers));
-
-% only keep the ns_evt indices that align with ft_event
-for i = 1:length(ns_evt)
-  ns_evt{i} = ns_evt{i}(ecInd);
-end
 
 ns_evt_backup = ns_evt;
 
