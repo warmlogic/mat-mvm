@@ -132,7 +132,16 @@ if cfg.eventinfo.usePhotodiodeDIN
   photodiodeDIN_toleranceSamp = ceil((photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
 end
 
-%% read evt and put events with the same sample in alphabetical order
+%% Alignment 1/3: read evt and put events with the same sample in alphabetical order
+
+% The header, as read by FieldTrip, is (usually) sorted alphabetically when
+% events with different values occurred at the same sample (but not
+% necessarily the same millisecond). Therefore, events in the Net Station
+% evt file need to be rearranged, especially because the next section of
+% this function will remove "duplicate" events (defined as events with the
+% same value that occurred at the same sample). There is a third section of
+% this function to catch any events that should not be in alphabetical
+% order.
 
 % backup so we can access original data
 ns_evt_orig = ns_evt;
@@ -172,7 +181,11 @@ end
 %   ns_evt{i} = ns_evt{i}(ecInd);
 % end
 
-%% remove duplicate events (from fieldtrip's sample-based perspective)
+%% Alignment 2/3: remove duplicate events (from FieldTrip's sample-based perspective)
+
+% If two (or more) events with the same value string occurred at the same
+% sample, FieldTrip will only keep one of them. Therefore, we need to
+% remove the duplicate events from the Net Station evt file.
 
 ecInd = true(length(ns_evt{1}),1);
 
@@ -212,7 +225,13 @@ for i = 1:length(ft_event)
   end
 end
 
-%% final alignment of evt Code column and ft_event value field
+%% Alignment 3/3: final comparison of Net Station and FieldTrip data
+
+% make sure the Net Station evt Code column and ft_event value field are in
+% the same order. If they are not (e.g., if the events should not have been
+% rearranged alphabetically), then put the Net Station events in the same
+% order as the FieldTrip events, but only if the neighboring events are
+% aligned.
 
 % only keep the ft events with triggers
 ft_event = ft_event(ismember({ft_event.value},triggers));
@@ -385,8 +404,7 @@ for i = 1:length(ft_event)
             elseif length(this_event) == 1
               
               switch phaseName
-                case {'expo'}
-                  % or 'prac_expo'
+                case {'expo', 'prac_expo'}
                   
                   phaseCount = this_event.phaseCount;
                   trial = this_event.trial;
@@ -401,8 +419,7 @@ for i = 1:length(ft_event)
                   cr_recall_spellCorr = this_event.cr_recall_spellCorr;
                   rt = this_event.rt;
                   
-                case {'multistudy'}
-                  % or 'prac_multistudy'
+                case {'multistudy', 'prac_multistudy'}
                   
                   phaseCount = this_event.phaseCount;
                   trial = this_event.trial;
@@ -418,8 +435,7 @@ for i = 1:length(ft_event)
                   cr_recall_resp = this_event.cr_recall_resp;
                   cr_recall_spellCorr = this_event.cr_recall_spellCorr;
                   
-                case {'distract_math'}
-                  % or 'prac_distract_math'
+                case {'distract_math', 'prac_distract_math'}
                   
                   phaseCount = this_event.phaseCount;
                   trial = this_event.trial;
@@ -427,8 +443,7 @@ for i = 1:length(ft_event)
                   acc = this_event.acc;
                   rt = this_event.rt;
                   
-                case {'cued_recall'}
-                  % or 'prac_cued_recall'
+                case {'cued_recall', 'prac_cued_recall'}
                   
                   recog_responses = {'old', 'new'};
                   new_responses = {'sure', 'maybe'};
