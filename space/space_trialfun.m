@@ -211,10 +211,16 @@ for i = 1:length(ft_event)
       prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
       
       if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
-        % need to check on upcoming events; can't rely on comparing current
-        % NS and FT events because they might have the same value even
-        % though they're not the same exact event
-        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
+        % need to check whether these are the same events; can't rely on
+        % comparing current NS and FT events with ~strcmp because they
+        % might have the same value even though they're not the same exact
+        % event. So, check the event value for the next NS event vs the
+        % current FT event, and make it more robust by checking the sample
+        % offset
+        next_time_ms = (str2double(ns_evt{5}{ec+1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec+1}(11:13)));
+        next_time_samp = fix((next_time_ms / 1000) * ft_hdr.Fs);
+        
+        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && abs(next_time_samp - prev_time_samp) == abs(ft_event(i).sample - ft_event(i-1).sample)
           ecInd(ec) = false;
           ec = ec + 1;
         end
@@ -573,3 +579,5 @@ for i = 1:length(ft_event)
     end % switch
   end
 end % i
+
+fprintf('\n');
