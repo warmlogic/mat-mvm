@@ -170,7 +170,7 @@ if ana.useExpInfo
    ana.sessionNames = {'NEMO'};
   
   % phases occur within a session; for dealing with events.mat
-  ana.phaseNames = {{'TC_NEMO_fN400study','TC_NEMO_AO','TC_NEMO_fN400test'}};
+  ana.phaseNames = {{'TC_NEMO_AO','TC_NEMO_fN400study','TC_NEMO_fN400test'}};
   %ana.phaseNames = {{'expo'}};
   %ana.phaseNames = {{'multistudy'}};
   %ana.phaseNames = {{'distract_math'}};
