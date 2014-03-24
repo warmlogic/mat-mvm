@@ -141,7 +141,7 @@ end
 % how long after the event of interest can the DIN show up? Seems to occur
 % within about 6 to 9 ms, but can be delayed as much as 25 (or more)
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_toleranceMS')
-  ana.photodiodeDIN_toleranceMS = 50;
+  ana.photodiodeDIN_toleranceMS = 20;
 end
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
   ana.photodiodeDIN_str = 'DIN ';
