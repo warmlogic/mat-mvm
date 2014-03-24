@@ -55,7 +55,7 @@ exper.subjects = {
 %   'SPACE020';
 %   'SPACE021';
 %   'SPACE022';
-%   'SPACE027';
+%   'SPACE027'; % crazy DINs while session stopped
 %   'SPACE029';
 %   'SPACE037';
 %   'SPACE039'; % original EEG analyses stopped here
@@ -66,7 +66,7 @@ exper.subjects = {
 %   'SPACE028';
 %   'SPACE030';
 %   'SPACE032';
-  'SPACE034';
+%   'SPACE034';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
