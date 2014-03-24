@@ -119,7 +119,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
-ana.trialFxn = 'space_trialfun2';
+ana.trialFxn = 'space_trialfun';
 ana.allowTrialOverlap = true;
 ana.renumberSamplesContiguous = true;
 % files used when adding metadata to segmented trials
@@ -128,7 +128,7 @@ ana.metadata.types = {'eventStruct','nsEvt'};
 ana.useExpInfo = true;
 ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
 ana.usePhotodiodeDIN = true;
-ana.photodiodeDIN_toleranceMS = 40;
+ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
@@ -159,7 +159,6 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
-ana.cfg_cont = [];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};

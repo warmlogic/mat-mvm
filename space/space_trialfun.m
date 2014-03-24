@@ -132,1139 +132,448 @@ if cfg.eventinfo.usePhotodiodeDIN
   photodiodeDIN_toleranceSamp = ceil((photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
 end
 
-%% go through the events
+%% Alignment 1/3: read evt and put events with the same sample in alphabetical order
 
-% for ses = 1:length(cfg.eventinfo.sessionNames)
+% The header, as read by FieldTrip, is (usually) sorted alphabetically when
+% events with different values occurred at the same sample (but not
+% necessarily the same millisecond). Therefore, events in the Net Station
+% evt file need to be rearranged, especially because the next section of
+% this function will remove "duplicate" events (defined as events with the
+% same value that occurred at the same sample). There is a third section of
+% this function to catch any events that should not be in alphabetical
+% order.
+
+% backup so we can access original data
+ns_evt_orig = ns_evt;
+
+% % wait to change the values
+% ecInd = 1:length(ns_evt{1});
+
+for ec = 1:length(ns_evt{1})
+  if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+    this_time_ms_str = ns_evt{5}(ec);
+    this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+    this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+    prev_time_ms_str = ns_evt{5}(ec-1);
+    prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+    prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+    
+    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
+      if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
+        % change the values on the fly
+        for i = 1:length(ns_evt_orig)
+          ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
+          ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
+        end
+        
+        % % wait to change the values
+        % prevInd = ec - 1;
+        % ecInd(ec) = prevInd;
+        % ecInd(prevInd) = ec;
+      end
+    end
+  end
+  
+end
+
+% % wait to change the values
+% for i = 1:length(ns_evt)
+%   ns_evt{i} = ns_evt{i}(ecInd);
+% end
+
+%% Alignment 2/3: remove duplicate events (from FieldTrip's sample-based perspective)
+
+% If two (or more) events with the same value string occurred at the same
+% sample, FieldTrip will only keep one of them. Therefore, we need to
+% remove the duplicate events from the Net Station evt file.
+
+ecInd = true(length(ns_evt{1}),1);
+
+% keep track of how many real evt events we have counted
+ec = 0;
+  
+for i = 1:length(ft_event)
+  if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
+    % found a trigger in the EEG file events; increment index if
+    % value is correct.
+    
+    if ismember(ft_event(i).value,triggers)
+      ec = ec + 1;
+    else
+      continue
+    end
+    
+    if ec > 1 && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+      this_time_ms_str = ns_evt{5}(ec);
+      this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+      this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+      prev_time_ms_str = ns_evt{5}(ec-1);
+      prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+      prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+      
+      if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
+        % need to check on upcoming events; can't rely on comparing current
+        % NS and FT events because they might have the same value even
+        % though they're not the same exact event
+        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
+          ecInd(ec) = false;
+          ec = ec + 1;
+        end
+      end
+      
+    end
+  end
+end
+
+%% Alignment 3/3: final comparison of Net Station and FieldTrip data
+
+% make sure the Net Station evt Code column and ft_event value field are in
+% the same order. If they are not (e.g., if the events should not have been
+% rearranged alphabetically), then put the Net Station events in the same
+% order as the FieldTrip events, but only if the neighboring events are
+% aligned.
+
+% only keep the ft events with triggers
+ft_event = ft_event(ismember({ft_event.value},triggers));
+
+% only keep the ns_evt indices that align with ft_event
+for i = 1:length(ns_evt)
+  ns_evt{i} = ns_evt{i}(ecInd);
+end
+
+ns_evt_backup = ns_evt;
+
+% verify that our lists have the same event values
+
+% if length(ns_evt{1}) == length(ft_event(~ismember({ft_event.value},'epoc')))
+if length(ns_evt{1}) == length(ft_event)
+  for i = 1:length(ft_event)
+    if ~strcmp(ns_evt{1}{i},ft_event(i).value)
+      if strcmp(ns_evt{1}{i-1},ft_event(i-1).value) && strcmp(ns_evt{1}{i},ft_event(i+1).value) && strcmp(ns_evt{1}{i+1},ft_event(i).value) && strcmp(ns_evt{1}{i+2},ft_event(i+2).value)
+        % they're just out of order for some reason (probably due to
+        % alphabetical sorting), so put them back
+        for j = 1:length(ns_evt_orig)
+          ns_evt{j}(i) = ns_evt_backup{j}(i + 1);
+          ns_evt{j}(i + 1) = ns_evt_backup{j}(i);
+        end
+        
+      else
+        warning('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
+        keyboard
+      end
+    end
+  end
+else
+  warning('ns_evt and ft_event are not the same length! Need to fix alignment code.');
+  keyboard
+end
+
+%% go through events and add metadata to trl matrix
+
 ses = cfg.eventinfo.sessionNum;
 sesName = cfg.eventinfo.sessionNames{ses};
-sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
+% sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
+sesType = ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses});
 
-for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
-  phaseName = cfg.eventinfo.phaseNames{sesType}{pha};
-  %phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},phaseName));
-  phaseType = pha;
+% keep track of how many real evt events we have counted
+ec = 0;
+
+fprintf('FT event count of NS flags (out of %d): %s',length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
+
+for i = 1:length(ft_event)
+  fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
   
-  switch phaseName
+  if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
+    % found a trigger in the EEG file events; increment index if value is
+    % correct.
     
-    case {'expo', 'prac_expo'}
-      %% process the exposure phase
-      
-      fprintf('Processing %s...\n',phaseName);
-      
-      % keep track of how many real evt events we have counted
-      ec = 0;
-      
-      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
-      
-      for i = 1:length(ft_event)
-        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+    if ismember(ft_event(i).value,triggers)
+      ec = ec + 1;
+    else
+      continue
+    end
+    
+    switch ft_event(i).value
+      case 'STIM'
+        % set column types because Net Station evt files can vary
+        ns_evt_cols = {};
+        for ns = 1:size(ns_evt,2)
+          ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
+        end
+        cols.isExp = find(strcmp(ns_evt_cols,'expt'));
+        cols.phase = find(strcmp(ns_evt_cols,'phas'));
+        if isempty(cols.isExp) || isempty(cols.phase)
+          keyboard
+        end
         
-        if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-          % found a trigger in the EEG file events; increment index if
-          % value is correct.
+        % only get data from the real experiment, not the practice
+        if strcmpi(ns_evt{cols.isExp+1}{ec},'true')
+          phaseName = ns_evt{cols.phase+1}{ec};
+          phaseType = find(ismember(cfg.eventinfo.phaseNames{sesType},phaseName));
           
-          %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,triggers)
-            ec = ec + 1;
-          else
-            continue
+          % set column types because Net Station evt files can vary
+          cols.phaseCount = find(strcmp(ns_evt_cols,'pcou'));
+          cols.trial = find(strcmp(ns_evt_cols,'trln'));
+          switch phaseName
+            case {'multistudy', 'prac_multistudy', 'cued_recall', 'prac_cued_recall'}
+              cols.type = find(strcmp(ns_evt_cols,'type'));
+              if isempty(cols.phaseCount) || isempty(cols.trial) || isempty(cols.type)
+                keyboard
+              end
+            case {'expo', 'prac_expo', 'distract_math', 'prac_distract_math'}
+              if isempty(cols.phaseCount) || isempty(cols.trial)
+                keyboard
+              end
           end
           
-          % hack: 2 special cases: evt events occurred at (approximately)
-          % the same sample, but possibly at different MS. Since the evt
-          % use MS and FieldTrip events use samples, this can cause some
-          % screwy things to happen. Both events always exist in the evt
-          % file; however, when FT reads events, it seems to respect events
-          % with different trigger values (i.e., both events exist), but it
-          % ignores one of the two if they have the same trigger value. In
-          % the former case (both are present), sometimes they are in a
-          % slightly different order in the evt file compared to the events
-          % that FT reads due to two events having the same sample time but
-          % different MS times, so ec needs to get reset to its previous
-          % state. In the latter case (one was skipped), since FT
-          % completely skips duplicate events at the same sample, we simply
-          % need to increment ec by 1.
-          ec_add = 0;
-          if ec > 1
-            this_time_ms_str = ns_evt{5}(ec);
-            this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-            prev_time_ms_str = ns_evt{5}(ec-1);
-            prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+          % if we want to process this phase (set up in top-level script)
+          if ismember(phaseName,cfg.eventinfo.phaseNames{sesType})
             
-            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              sameSample = false;
-              
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-                % increment ec by 1 because fieldtrip collapses events with
-                % the same trigger that are too close together
-                ec = ec + 1;
-                sameSample = true;
-              end
-              
-              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
-                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                  % events in evt occurred within the same sample or ms
-                  % tolerance
-                  
-                  % increment ec by 1 because fieldtrip collapses events with
-                  % the same trigger that are too close together
-                  ec = ec + 1;
-                end
-              end
-            elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-                % events in evt occurred within the same sample or ms
-                % tolerance
+            % Critical: set up the stimulus type, as well as the event
+            % string to match eventValues
+            switch phaseName
+              case {'expo', 'prac_expo'}
                 
-                % put ec back in its prior state if the event codes
-                % were not the same
-                if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              %elseif cfg.eventinfo.usePhotodiodeDIN && ...
-              %    strcmp(ns_evt{1}(ec),cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i).value,cfg.eventinfo.photodiodeDIN_str) && ...
-              %    (abs(this_time_samp - prev_time_samp) <= photodiodeDIN_toleranceSamp || abs(this_time_ms - prev_time_ms) <= photodiodeDIN_toleranceMS)
-              %  keyboard
-              %  ec = ec - 1;
-              end
-            end
-          end
-          
-          switch ft_event(i).value
-            case 'STIM'
-              
-              if strcmp(ns_evt{1}(ec),ft_event(i).value)
+                stimType = 'EXPO_IMAGE';
+                evVal = 'expo_stim';
                 
-                % set column types because Net Station evt files can vary
-                ns_evt_cols = {};
-                for ns = 1:size(ns_evt,2)
-                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
+              case {'multistudy', 'prac_multistudy'}
+                
+                if strcmp(ns_evt{cols.type+1}{ec},'word')
+                  stimType = 'STUDY_WORD';
+                  evVal = 'multistudy_word';
+                elseif strcmp(ns_evt{cols.type+1}{ec},'image')
+                  stimType = 'STUDY_IMAGE';
+                  evVal = 'multistudy_image';
                 end
-                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
+                
+              case {'distract_math', 'prac_distract_math'}
+                
+                stimType = 'MATH_PROB';
+                evVal = 'distract_math_stim';
+                
+              case {'cued_recall', 'prac_cued_recall'}
+                
+                if strcmp(ns_evt{cols.type+1}{ec},'recognition')
+                  stimType = 'RECOGTEST_STIM';
+                  evVal = 'cued_recall_stim';
+                else
                   keyboard
                 end
                 
-                if strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName) &&...
-                    strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true')
-                  
-                  % set column types because Net Station evt files can vary
-                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
-                    keyboard
-                  end
-                  
-                  % Critical: set up the stimulus type, as well as the event
-                  % string to match eventValues
-                  stimType = 'EXPO_IMAGE';
-                  evVal = 'expo_stim';
-                  trl_order = cfg.eventinfo.trl_order.(evVal);
-                  
-                  % find where this event type occurs in the list
-                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                  if isempty(eventNumber)
-                    eventNumber = -1;
-                  end
-                  
-                  if length(eventNumber) == 1 && eventNumber ~= -1
-                    % set the times we need to segment before and after the
-                    % trigger
-                    prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
-                    poststimSec = cfg.eventinfo.prepost(eventNumber,2);
-                    
-                    % prestimulus period should be negative
-                    prestimSamp = -round(prestimSec * ft_hdr.Fs);
-                    poststimSamp = round(poststimSec * ft_hdr.Fs);
-                  else
-                    fprintf('event number not found for %s!\n',evVal);
-                    keyboard
-                  end
-                  
-                  % find the entry in the event struct
-                  this_event = events_all.(sesName).(phaseName).data(...
-                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                    );
-                  
-                  if length(this_event) > 1
-                    warning('More than one event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif isempty(this_event)
-                    warning('No event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif length(this_event) == 1
-                    
-                    phaseCount = this_event.phaseCount;
-                    trial = this_event.trial;
-                    stimNum = this_event.stimNum;
-                    i_catNum = this_event.i_catNum;
-                    targ = this_event.targ;
-                    spaced = this_event.spaced;
-                    lag = this_event.lag;
-                    expo_response = this_event.resp;
-                    cr_recog_acc = this_event.cr_recog_acc;
-                    cr_recall_resp = this_event.cr_recall_resp;
-                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
-                    
-                    rt = this_event.rt;
-                    
-                    % add it to the trial definition
-                    this_trl = trl_ini;
-                    
-                    % get the time of this event
-                    this_sample = ft_event(i).sample;
-                    
-                    % if we're using the photodiode DIN and we find one
-                    % within the threshold, replace the current sample time
-                    % with that of the DIN
-                    if cfg.eventinfo.usePhotodiodeDIN
-                      if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
-                        % if there is a DIN before and after the stim, pick
-                        % the closer one
-                        preDiff = (ft_event(i-1).sample - this_sample);
-                        postDiff = (ft_event(i+1).sample - this_sample);
-                        
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
-                          preFlag = true;
-                        else
-                          preFlag = false;
-                        end
-                        if postDiff <= photodiodeDIN_toleranceSamp
-                          postFlag = true;
-                        else
-                          postFlag = false;
-                        end
-                        
-                        if preFlag && ~postFlag
-                          % only the pre-DIN makes sense
-                          this_sample = ft_event(i-1).sample;
-                        elseif ~preFlag && postFlag
-                          % only the post-DIN makes sense
-                          this_sample = ft_event(i+1).sample;
-                        elseif preFlag && postFlag
-                          % choose the smaller one
-                          if abs(preDiff) < abs(postDiff)
-                            this_sample = ft_event(i-1).sample;
-                          elseif abs(preDiff) > abs(postDiff)
-                            this_sample = ft_event(i+1).sample;
-                          elseif abs(preDiff) == abs(postDiff)
-                            keyboard
-                          end
-                        end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        % apparently the ethernet tags can be delayed
-                        % enough that the DIN shows up first
-                        this_sample = ft_event(i-1).sample;
-                      end
-                    end
-                    
-                    % prestimulus sample
-                    this_trl(1) = this_sample + prestimSamp;
-                    % poststimulus sample
-                    this_trl(2) = this_sample + poststimSamp;
-                    % offset in samples
-                    this_trl(3) = prestimSamp;
-                    
-                    for to = 1:length(trl_order)
-                      thisInd = find(ismember(trl_order,trl_order{to}));
-                      if ~isempty(thisInd)
-                        if exist(trl_order{to},'var')
-                          this_trl(timeCols + thisInd) = eval(trl_order{to});
-                        else
-                          fprintf('variable %s does not exist!\n',trl_order{to});
-                          keyboard
-                        end
-                      end
-                    end
-                    
-                    % put all the trials together
-                    trl = cat(1,trl,double(this_trl));
-                    
-                  end % check the event struct
-                end % check the evt event
-                
-              else
-                % the count is off? EEG and evt events don't line up
-                keyboard
-                
-              end
-              
-            case 'RESP'
-              
-            case 'FIXT'
-              
-            case 'PROM'
-              
-            case 'REST'
-              
-            case 'REND'
-              
-            case 'DIN '
-              
-          end
-          
-          % put ec back in its prior state
-          ec = ec + ec_add;
-          
-        end
-      end % for
-      fprintf('\n');
-      
-    case {'multistudy', 'prac_multistudy'}
-      
-      %% process the multistudy phase
-      
-      fprintf('Processing %s...\n',phaseName);
-      
-      % keep track of how many real evt events we have counted
-      ec = 0;
-      
-      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
-      
-      for i = 1:length(ft_event)
-        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
-        
-        if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-          % found a trigger in the evt file; increment index if value is correct.
-          
-          %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,triggers)
-            ec = ec + 1;
-          else
-            continue
-          end
-          
-          % hack: 2 special cases: evt events occurred at (approximately)
-          % the same sample, but possibly at different MS. Since the evt
-          % use MS and FieldTrip events use samples, this can cause some
-          % screwy things to happen. Both events always exist in the evt
-          % file; however, when FT reads events, it seems to respect events
-          % with different trigger values (i.e., both events exist), but it
-          % ignores one of the two if they have the same trigger value. In
-          % the former case (both are present), sometimes they are in a
-          % slightly different order in the evt file compared to the events
-          % that FT reads due to two events having the same sample time but
-          % different MS times, so ec needs to get reset to its previous
-          % state. In the latter case (one was skipped), since FT
-          % completely skips duplicate events at the same sample, we simply
-          % need to increment ec by 1.
-          ec_add = 0;
-          if ec > 1
-            this_time_ms_str = ns_evt{5}(ec);
-            this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-            prev_time_ms_str = ns_evt{5}(ec-1);
-            prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-            
-            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              sameSample = false;
-              
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                % increment ec by 1 because fieldtrip collapses events with
-                % the same trigger that are too close together
-                ec = ec + 1;
-                sameSample = true;
-              end
-              
-              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
-                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                  % events in evt occurred within the same sample or ms
-                  % tolerance
-                  
-                  % increment ec by 1 because fieldtrip collapses events with
-                  % the same trigger that are too close together
-                  ec = ec + 1;
-                end
-              end
-            elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                % put ec back in its prior state if the event codes
-                % were not the same
-                if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              end
             end
-          end
-          
-          switch ft_event(i).value
-            case 'STIM'
-              
-              if strcmp(ns_evt{1}(ec),ft_event(i).value)
-                
-                % set column types because Net Station evt files can vary
-                ns_evt_cols = {};
-                for ns = 1:size(ns_evt,2)
-                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-                end
-                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                  keyboard
-                end
-                
-                if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                    strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
-                  
-                  % set column types because Net Station evt files can vary
-                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
-                    keyboard
-                  end
-                  
-                  % Critical: set up the stimulus type, as well as the
-                  % event string to match eventValues
-                  if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'word')
-                    stimType = 'STUDY_WORD';
-                    evVal = 'multistudy_word';
-                  elseif strcmp(ns_evt{cols.(phaseName).type+1}(ec),'image')
-                    stimType = 'STUDY_IMAGE';
-                    evVal = 'multistudy_image';
-                  end
-                  trl_order = cfg.eventinfo.trl_order.(evVal);
-                  
-                  % find where this event type occurs in the list
-                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                  if isempty(eventNumber)
-                    eventNumber = -1;
-                  end
-                  
-                  if length(eventNumber) == 1 && eventNumber ~= -1
-                    % set the times we need to segment before and after the
-                    % trigger
-                    prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
-                    poststimSec = cfg.eventinfo.prepost(eventNumber,2);
-                    
-                    % prestimulus period should be negative
-                    prestimSamp = -round(prestimSec * ft_hdr.Fs);
-                    poststimSamp = round(poststimSec * ft_hdr.Fs);
-                  else
-                    fprintf('event number not found for %s!\n',evVal);
-                    keyboard
-                  end
-                  
-                  % find the entry in the event struct
-                  this_event = events_all.(sesName).(phaseName).data(...
-                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                    );
-                  % exclude  buffers (lag~=-1)
-                  %  [events_all.(sesName).(phaseName).data.lag] ~= -1 ...
-                  
-                  if length(this_event) > 1
-                    warning('More than one event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif isempty(this_event)
-                    warning('No event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif length(this_event) == 1
-                    
-                    phaseCount = this_event.phaseCount;
-                    trial = this_event.trial;
-                    stimNum = this_event.stimNum;
-                    catNum = this_event.catNum;
-                    targ = this_event.targ;
-                    spaced = this_event.spaced;
-                    lag = this_event.lag;
-                    presNum = this_event.presNum;
-                    pairOrd = this_event.pairOrd;
-                    pairNum = this_event.pairNum;
-                    cr_recog_acc = this_event.cr_recog_acc;
-                    cr_recall_resp = this_event.cr_recall_resp;
-                    cr_recall_spellCorr = this_event.cr_recall_spellCorr;
-                    
-                    % add it to the trial definition
-                    this_trl = trl_ini;
-                    
-                    % get the time of this event
-                    this_sample = ft_event(i).sample;
-                    
-                    % if we're using the photodiode DIN and we find one
-                    % within the threshold, replace the current sample time
-                    % with that of the DIN
-                    if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
-                      if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
-                        % if there is a DIN before and after the stim, pick
-                        % the closer one
-                        preDiff = (ft_event(i-1).sample - this_sample);
-                        postDiff = (ft_event(i+1).sample - this_sample);
-                        
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
-                          preFlag = true;
-                        else
-                          preFlag = false;
-                        end
-                        if postDiff <= photodiodeDIN_toleranceSamp
-                          postFlag = true;
-                        else
-                          postFlag = false;
-                        end
-                        
-                        if preFlag && ~postFlag
-                          % only the pre-DIN makes sense
-                          this_sample = ft_event(i-1).sample;
-                        elseif ~preFlag && postFlag
-                          % only the post-DIN makes sense
-                          this_sample = ft_event(i+1).sample;
-                        elseif preFlag && postFlag
-                          % choose the smaller one
-                          if abs(preDiff) < abs(postDiff)
-                            this_sample = ft_event(i-1).sample;
-                          elseif abs(preDiff) > abs(postDiff)
-                            this_sample = ft_event(i+1).sample;
-                          elseif abs(preDiff) == abs(postDiff)
-                            keyboard
-                          end
-                        end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        % apparently the ethernet tags can be delayed
-                        % enough that the DIN shows up first
-                        this_sample = ft_event(i-1).sample;
-                      end
-                    end
-                    
-                    % prestimulus sample
-                    this_trl(1) = this_sample + prestimSamp;
-                    % poststimulus sample
-                    this_trl(2) = this_sample + poststimSamp;
-                    % offset in samples
-                    this_trl(3) = prestimSamp;
-                    
-                    for to = 1:length(trl_order)
-                      thisInd = find(ismember(trl_order,trl_order{to}));
-                      if ~isempty(thisInd)
-                        if exist(trl_order{to},'var')
-                          this_trl(timeCols + thisInd) = eval(trl_order{to});
-                        else
-                          fprintf('variable %s does not exist!\n',trl_order{to});
-                          keyboard
-                        end
-                      end
-                    end
-                    
-                    % put all the trials together
-                    trl = cat(1,trl,double(this_trl));
-                    
-                  end % check the event struct
-                end % check the evt event
-                
-              else
-                % the count is off? EEG and evt events don't line up
-                keyboard
-                
-              end
-              
-            case 'RESP'
-              
-            case 'FIXT'
-              
-            case 'PROM'
-              
-            case 'REST'
-              
-            case 'REND'
-              
-            case 'DIN '
-              
-          end
-          
-          % put ec back in its prior state
-          ec = ec + ec_add;
-          
-        end
-      end % for
-      fprintf('\n');
-      
-    case {'distract_math', 'prac_distract_math'}
-      
-      %% process the math distractor phase phase
-      
-      fprintf('Processing %s...\n',phaseName);
-      
-      % keep track of how many real evt events we have counted
-      ec = 0;
-      
-      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
-      
-      for i = 1:length(ft_event)
-        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
-        
-        if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-          % found a trigger in the evt file; increment index if value is correct.
-          
-          %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,triggers)
-            ec = ec + 1;
-          else
-            continue
-          end
-          
-          % hack: 2 special cases: evt events occurred at (approximately)
-          % the same sample, but possibly at different MS. Since the evt
-          % use MS and FieldTrip events use samples, this can cause some
-          % screwy things to happen. Both events always exist in the evt
-          % file; however, when FT reads events, it seems to respect events
-          % with different trigger values (i.e., both events exist), but it
-          % ignores one of the two if they have the same trigger value. In
-          % the former case (both are present), sometimes they are in a
-          % slightly different order in the evt file compared to the events
-          % that FT reads due to two events having the same sample time but
-          % different MS times, so ec needs to get reset to its previous
-          % state. In the latter case (one was skipped), since FT
-          % completely skips duplicate events at the same sample, we simply
-          % need to increment ec by 1.
-          ec_add = 0;
-          if ec > 1
-            this_time_ms_str = ns_evt{5}(ec);
-            this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-            prev_time_ms_str = ns_evt{5}(ec-1);
-            prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
             
-            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              sameSample = false;
-              
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                % increment ec by 1 because fieldtrip collapses events with
-                % the same trigger that are too close together
-                ec = ec + 1;
-                sameSample = true;
-              end
-              
-              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
-                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                  % events in evt occurred within the same sample or ms
-                  % tolerance
-                  
-                  % increment ec by 1 because fieldtrip collapses events with
-                  % the same trigger that are too close together
-                  ec = ec + 1;
-                end
-              end
-            elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                % put ec back in its prior state if the event codes
-                % were not the same
-                if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              end
-            end
-          end
-          
-          switch ft_event(i).value
-            case 'STIM'
-              
-              if strcmp(ns_evt{1}(ec),ft_event(i).value)
-                
-                % set column types because Net Station evt files can vary
-                ns_evt_cols = {};
-                for ns = 1:size(ns_evt,2)
-                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-                end
-                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                  keyboard
-                end
-                
-                if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                    strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
-                  
-                  % set column types because Net Station evt files can vary
-                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial)
-                    keyboard
-                  end
-                  
-                  % Critical: set up the stimulus type, as well as the
-                  % event string to match eventValues
-                  stimType = 'MATH_PROB';
-                  evVal = 'distract_math_stim';
-                  trl_order = cfg.eventinfo.trl_order.(evVal);
-                  
-                  % find where this event type occurs in the list
-                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                  if isempty(eventNumber)
-                    eventNumber = -1;
-                  end
-                  
-                  if length(eventNumber) == 1 && eventNumber ~= -1
-                    % set the times we need to segment before and after the
-                    % trigger
-                    prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
-                    poststimSec = cfg.eventinfo.prepost(eventNumber,2);
-                    
-                    % prestimulus period should be negative
-                    prestimSamp = -round(prestimSec * ft_hdr.Fs);
-                    poststimSamp = round(poststimSec * ft_hdr.Fs);
-                  else
-                    fprintf('event number not found for %s!\n',evVal);
-                    keyboard
-                  end
-                  
-                  % find the entry in the event struct
-                  this_event = events_all.(sesName).(phaseName).data(...
-                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                    );
-                  
-                  if length(this_event) > 1
-                    warning('More than one event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif isempty(this_event)
-                    warning('No event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif length(this_event) == 1
-                    
-                    phaseCount = this_event.phaseCount;
-                    trial = this_event.trial;
-                    response = this_event.resp;
-                    acc = this_event.acc;
-                    rt = this_event.rt;
-                    
-                    % add it to the trial definition
-                    this_trl = trl_ini;
-                    
-                    % get the time of this event
-                    this_sample = ft_event(i).sample;
-                    
-                    % if we're using the photodiode DIN and we find one
-                    % within the threshold, replace the current sample time
-                    % with that of the DIN
-                    if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
-                      if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
-                        % if there is a DIN before and after the stim, pick
-                        % the closer one
-                        preDiff = (ft_event(i-1).sample - this_sample);
-                        postDiff = (ft_event(i+1).sample - this_sample);
-                        
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
-                          preFlag = true;
-                        else
-                          preFlag = false;
-                        end
-                        if postDiff <= photodiodeDIN_toleranceSamp
-                          postFlag = true;
-                        else
-                          postFlag = false;
-                        end
-                        
-                        if preFlag && ~postFlag
-                          % only the pre-DIN makes sense
-                          this_sample = ft_event(i-1).sample;
-                        elseif ~preFlag && postFlag
-                          % only the post-DIN makes sense
-                          this_sample = ft_event(i+1).sample;
-                        elseif preFlag && postFlag
-                          % choose the smaller one
-                          if abs(preDiff) < abs(postDiff)
-                            this_sample = ft_event(i-1).sample;
-                          elseif abs(preDiff) > abs(postDiff)
-                            this_sample = ft_event(i+1).sample;
-                          elseif abs(preDiff) == abs(postDiff)
-                            keyboard
-                          end
-                        end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        % apparently the ethernet tags can be delayed
-                        % enough that the DIN shows up first
-                        this_sample = ft_event(i-1).sample;
-                      end
-                    end
-                    
-                    % prestimulus sample
-                    this_trl(1) = this_sample + prestimSamp;
-                    % poststimulus sample
-                    this_trl(2) = this_sample + poststimSamp;
-                    % offset in samples
-                    this_trl(3) = prestimSamp;
-                    
-                    for to = 1:length(trl_order)
-                      thisInd = find(ismember(trl_order,trl_order{to}));
-                      if ~isempty(thisInd)
-                        if exist(trl_order{to},'var')
-                          this_trl(timeCols + thisInd) = eval(trl_order{to});
-                        else
-                          fprintf('variable %s does not exist!\n',trl_order{to});
-                          keyboard
-                        end
-                      end
-                    end
-                    
-                    % put all the trials together
-                    trl = cat(1,trl,double(this_trl));
-                    
-                  end % check the event struct
-                end % check the evt event
-                
-              else
-                % the count is off? EEG and evt events don't line up
-                keyboard
-                
-              end
-              
-            case 'RESP'
-              
-            case 'FIXT'
-              
-            case 'PROM'
-              
-            case 'REST'
-              
-            case 'REND'
-              
-            case 'DIN '
-              
-          end
-          
-          % put ec back in its prior state
-          ec = ec + ec_add;
-          
-        end
-      end % for
-      fprintf('\n');
-      
-    case {'cued_recall', 'prac_cued_recall'}
-      
-      %% process the cued recall phase
-      
-      fprintf('Processing %s...\n',phaseName);
-      
-      recog_responses = {'old', 'new'};
-      new_responses = {'sure', 'maybe'};
-      
-      % keep track of how many real evt events we have counted
-      ec = 0;
-      
-      fprintf('%s NS event flag count (out of %d): %s',phaseName,length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
-      
-      for i = 1:length(ft_event)
-        fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
-        
-        if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-          % found a trigger in the evt file; increment index if value is correct.
-          
-          %if ~ismember(event(i).value,{'epoc'})
-          if ismember(ft_event(i).value,triggers)
-            ec = ec + 1;
-          else
-            continue
-          end
-          
-          % hack: 2 special cases: evt events occurred at (approximately)
-          % the same sample, but possibly at different MS. Since the evt
-          % use MS and FieldTrip events use samples, this can cause some
-          % screwy things to happen. Both events always exist in the evt
-          % file; however, when FT reads events, it seems to respect events
-          % with different trigger values (i.e., both events exist), but it
-          % ignores one of the two if they have the same trigger value. In
-          % the former case (both are present), sometimes they are in a
-          % slightly different order in the evt file compared to the events
-          % that FT reads due to two events having the same sample time but
-          % different MS times, so ec needs to get reset to its previous
-          % state. In the latter case (one was skipped), since FT
-          % completely skips duplicate events at the same sample, we simply
-          % need to increment ec by 1.
-          ec_add = 0;
-          if ec > 1
-            this_time_ms_str = ns_evt{5}(ec);
-            this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-            prev_time_ms_str = ns_evt{5}(ec-1);
-            prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+            % get the order of trl columns for this phase and event type
+            trl_order = cfg.eventinfo.trl_order.(evVal);
             
-            if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              sameSample = false;
-              
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                % increment ec by 1 because fieldtrip collapses events with
-                % the same trigger that are too close together
-                ec = ec + 1;
-                sameSample = true;
-              end
-              
-              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
-                if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                  % events in evt occurred within the same sample or ms
-                  % tolerance
-                  
-                  % increment ec by 1 because fieldtrip collapses events with
-                  % the same trigger that are too close together
-                  ec = ec + 1;
-                end
-              end
-            elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                % put ec back in its prior state if the event codes
-                % were not the same
-                if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                  ec = ec - 1;
-                  ec_add = 1;
-                elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                  ec = ec + 1;
-                  ec_add = -1;
-                end
-              end
+            % find where this event type occurs in the list
+            eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+            if isempty(eventNumber)
+              eventNumber = -1;
             end
-          end
-          
-          switch ft_event(i).value
-            case 'STIM'
+            
+            if length(eventNumber) == 1 && eventNumber ~= -1
+              % set the times we need to segment before and after the
+              % trigger
+              prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
+              poststimSec = cfg.eventinfo.prepost(eventNumber,2);
               
-              if strcmp(ns_evt{1}(ec),ft_event(i).value)
-                
-                % set column types because Net Station evt files can vary
-                ns_evt_cols = {};
-                for ns = 1:size(ns_evt,2)
-                  ns_evt_cols = cat(1,ns_evt_cols,ns_evt{ns}(ec));
-                end
-                cols.(phaseName).isExp = find(strcmp(ns_evt_cols,'expt'));
-                cols.(phaseName).phase = find(strcmp(ns_evt_cols,'phas'));
-                if isempty(cols.(phaseName).isExp) || isempty(cols.(phaseName).phase)
-                  keyboard
-                end
-                
-                if strcmpi(ns_evt{cols.(phaseName).isExp+1}(ec),'true') &&...
-                    strcmp(ns_evt{cols.(phaseName).phase+1}(ec),phaseName)
+              % prestimulus period should be negative
+              prestimSamp = -round(prestimSec * ft_hdr.Fs);
+              poststimSamp = round(poststimSec * ft_hdr.Fs);
+            else
+              fprintf('event number not found for %s!\n',evVal);
+              keyboard
+            end
+            
+            % find the entry in the event struct
+            this_event = events_all.(sesName).(phaseName).data(...
+              [events_all.(sesName).(phaseName).data.isExp] == 1 &...
+              ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
+              [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.phaseCount+1}{ec}) &...
+              ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
+              [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.trial+1}{ec}) ...
+              );
+            
+            if length(this_event) > 1
+              warning('More than one event found! Fix this script before continuing analysis.')
+              keyboard
+            elseif isempty(this_event)
+              warning('No event found! Fix this script before continuing analysis.')
+              keyboard
+            elseif length(this_event) == 1
+              
+              switch phaseName
+                case {'expo', 'prac_expo'}
                   
-                  % set column types because Net Station evt files can vary
-                  cols.(phaseName).phaseCount = find(strcmp(ns_evt_cols,'pcou'));
-                  cols.(phaseName).trial = find(strcmp(ns_evt_cols,'trln'));
-                  cols.(phaseName).type = find(strcmp(ns_evt_cols,'type'));
-                  if isempty(cols.(phaseName).phaseCount) || isempty(cols.(phaseName).trial) || isempty(cols.(phaseName).type)
-                    keyboard
-                  end
+                  phaseCount = this_event.phaseCount;
+                  trial = this_event.trial;
+                  stimNum = this_event.stimNum;
+                  i_catNum = this_event.i_catNum;
+                  targ = this_event.targ;
+                  spaced = this_event.spaced;
+                  lag = this_event.lag;
+                  expo_response = this_event.resp;
+                  cr_recog_acc = this_event.cr_recog_acc;
+                  cr_recall_resp = this_event.cr_recall_resp;
+                  cr_recall_spellCorr = this_event.cr_recall_spellCorr;
+                  rt = this_event.rt;
                   
-                  % Critical: set up the stimulus type, as well as the
-                  % event string to match eventValues
-                  if strcmp(ns_evt{cols.(phaseName).type+1}(ec),'recognition')
-                    stimType = 'RECOGTEST_STIM';
-                    evVal = 'cued_recall_stim';
+                case {'multistudy', 'prac_multistudy'}
+                  
+                  phaseCount = this_event.phaseCount;
+                  trial = this_event.trial;
+                  stimNum = this_event.stimNum;
+                  catNum = this_event.catNum;
+                  targ = this_event.targ;
+                  spaced = this_event.spaced;
+                  lag = this_event.lag;
+                  presNum = this_event.presNum;
+                  pairOrd = this_event.pairOrd;
+                  pairNum = this_event.pairNum;
+                  cr_recog_acc = this_event.cr_recog_acc;
+                  cr_recall_resp = this_event.cr_recall_resp;
+                  cr_recall_spellCorr = this_event.cr_recall_spellCorr;
+                  
+                case {'distract_math', 'prac_distract_math'}
+                  
+                  phaseCount = this_event.phaseCount;
+                  trial = this_event.trial;
+                  response = this_event.resp;
+                  acc = this_event.acc;
+                  rt = this_event.rt;
+                  
+                case {'cued_recall', 'prac_cued_recall'}
+                  
+                  recog_responses = {'old', 'new'};
+                  new_responses = {'sure', 'maybe'};
+                  
+                  phaseCount = this_event.phaseCount;
+                  trial = this_event.trial;
+                  stimNum = this_event.stimNum;
+                  i_catNum = this_event.i_catNum;
+                  targ = this_event.targ;
+                  spaced = this_event.spaced;
+                  lag = this_event.lag;
+                  pairNum = this_event.pairNum;
+                  
+                  if ~isempty(this_event.recog_resp) && ismember(this_event.recog_resp,recog_responses)
+                    recog_resp = find(ismember(recog_responses,this_event.recog_resp));
                   else
-                    keyboard
+                    recog_resp = 0;
                   end
-                  trl_order = cfg.eventinfo.trl_order.(evVal);
+                  recog_acc = this_event.recog_acc;
+                  recog_rt = this_event.recog_rt;
                   
-                  % find where this event type occurs in the list
-                  eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                  if isempty(eventNumber)
-                    eventNumber = -1;
-                  end
-                  
-                  if length(eventNumber) == 1 && eventNumber ~= -1
-                    % set the times we need to segment before and after the
-                    % trigger
-                    prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
-                    poststimSec = cfg.eventinfo.prepost(eventNumber,2);
-                    
-                    % prestimulus period should be negative
-                    prestimSamp = -round(prestimSec * ft_hdr.Fs);
-                    poststimSamp = round(poststimSec * ft_hdr.Fs);
+                  if ~isempty(this_event.new_resp) && ismember(this_event.new_resp,new_responses)
+                    new_resp = find(ismember(new_responses,this_event.new_resp));
                   else
-                    fprintf('event number not found for %s!\n',evVal);
-                    keyboard
+                    new_resp = 0;
                   end
+                  new_acc = this_event.new_acc;
+                  new_rt = this_event.new_rt;
                   
-                  % find the entry in the event struct
-                  this_event = events_all.(sesName).(phaseName).data(...
-                    [events_all.(sesName).(phaseName).data.isExp] == 1 &...
-                    ismember({events_all.(sesName).(phaseName).data.phaseName},{phaseName}) &...
-                    [events_all.(sesName).(phaseName).data.phaseCount] == str2double(ns_evt{cols.(phaseName).phaseCount+1}(ec)) &...
-                    ismember({events_all.(sesName).(phaseName).data.type},{stimType}) &...
-                    [events_all.(sesName).(phaseName).data.trial] == str2double(ns_evt{cols.(phaseName).trial+1}(ec)) ...
-                    );
-                  
-                  % exclude recog_resp == NO_RESPONSE
-                  % ismember({events_all.(sesName).(phaseName).data.recog_resp},{'old', 'new'}) &...
-                  % ismember({events_all.(sesName).(phaseName).data.new_resp},{'sure', 'maybe', ''}) ...
-                  
-                  if length(this_event) > 1
-                    warning('More than one event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif isempty(this_event)
-                    warning('No event found! Fix this script before continuing analysis.')
-                    keyboard
-                  elseif length(this_event) == 1
-                    
-                    phaseCount = this_event.phaseCount;
-                    trial = this_event.trial;
-                    stimNum = this_event.stimNum;
-                    i_catNum = this_event.i_catNum;
-                    targ = this_event.targ;
-                    spaced = this_event.spaced;
-                    lag = this_event.lag;
-                    pairNum = this_event.pairNum;
-                    
-                    if ~isempty(this_event.recog_resp) && ismember(this_event.recog_resp,recog_responses)
-                      recog_resp = find(ismember(recog_responses,this_event.recog_resp));
-                    else
-                      recog_resp = 0;
-                    end
-                    recog_acc = this_event.recog_acc;
-                    recog_rt = this_event.recog_rt;
-                    
-                    if ~isempty(this_event.new_resp) && ismember(this_event.new_resp,new_responses)
-                      new_resp = find(ismember(new_responses,this_event.new_resp));
-                    else
-                      new_resp = 0;
-                    end
-                    new_acc = this_event.new_acc;
-                    new_rt = this_event.new_rt;
-                    
-                    if ~isempty(this_event.recall_resp) && ~ismember(this_event.recall_resp,{'NO_RESPONSE'})
-                      recall_resp = 1;
-                    else
-                      recall_resp = 0;
-                    end
-                    recall_spellCorr = this_event.recall_spellCorr;
-                    recall_rt = this_event.recall_rt;
-                    
-                    % add it to the trial definition
-                    this_trl = trl_ini;
-                    
-                    % get the time of this event
-                    this_sample = ft_event(i).sample;
-                    
-                    % if we're using the photodiode DIN and we find one
-                    % within the threshold, replace the current sample time
-                    % with that of the DIN
-                    if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
-                      if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
-                        % if there is a DIN before and after the stim, pick
-                        % the closer one
-                        preDiff = (ft_event(i-1).sample - this_sample);
-                        postDiff = (ft_event(i+1).sample - this_sample);
-                        
-                        if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
-                          preFlag = true;
-                        else
-                          preFlag = false;
-                        end
-                        if postDiff <= photodiodeDIN_toleranceSamp
-                          postFlag = true;
-                        else
-                          postFlag = false;
-                        end
-                        
-                        if preFlag && ~postFlag
-                          % only the pre-DIN makes sense
-                          this_sample = ft_event(i-1).sample;
-                        elseif ~preFlag && postFlag
-                          % only the post-DIN makes sense
-                          this_sample = ft_event(i+1).sample;
-                        elseif preFlag && postFlag
-                          % choose the smaller one
-                          if abs(preDiff) < abs(postDiff)
-                            this_sample = ft_event(i-1).sample;
-                          elseif abs(preDiff) > abs(postDiff)
-                            this_sample = ft_event(i+1).sample;
-                          elseif abs(preDiff) == abs(postDiff)
-                            keyboard
-                          end
-                        end
-                      elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        this_sample = ft_event(i+1).sample;
-                      elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
-                        % apparently the ethernet tags can be delayed
-                        % enough that the DIN shows up first
-                        this_sample = ft_event(i-1).sample;
-                      end
-                    end
-                    
-                    % prestimulus sample
-                    this_trl(1) = this_sample + prestimSamp;
-                    % poststimulus sample
-                    this_trl(2) = this_sample + poststimSamp;
-                    % offset in samples
-                    this_trl(3) = prestimSamp;
-                    
-                    for to = 1:length(trl_order)
-                      thisInd = find(ismember(trl_order,trl_order{to}));
-                      if ~isempty(thisInd)
-                        if exist(trl_order{to},'var')
-                          this_trl(timeCols + thisInd) = eval(trl_order{to});
-                        else
-                          fprintf('variable %s does not exist!\n',trl_order{to});
-                          keyboard
-                        end
-                      end
-                    end
-                    
-                    % put all the trials together
-                    trl = cat(1,trl,double(this_trl));
-                    
-                  end % check the event struct
-                end % check the evt event
-                
-              else
-                % the count is off? EEG and evt events don't line up
-                keyboard
-                
+                  if ~isempty(this_event.recall_resp) && ~ismember(this_event.recall_resp,{'NO_RESPONSE'})
+                    recall_resp = 1;
+                  else
+                    recall_resp = 0;
+                  end
+                  recall_spellCorr = this_event.recall_spellCorr;
+                  recall_rt = this_event.recall_rt;
               end
               
-            case 'RESP'
+              % add it to the trial definition
+              this_trl = trl_ini;
               
-            case 'FIXT'
+              % get the time of this event
+              this_sample = ft_event(i).sample;
               
-            case 'PROM'
+              % if we're using the photodiode DIN and we find one
+              % within the threshold, replace the current sample time
+              % with that of the DIN
+              if cfg.eventinfo.usePhotodiodeDIN
+                if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
+                  % if there is a DIN before and after the stim, pick
+                  % the closer one
+                  preDiff = (ft_event(i-1).sample - this_sample);
+                  postDiff = (ft_event(i+1).sample - this_sample);
+                  
+                  if preDiff < 0 && abs(preDiff) <= photodiodeDIN_toleranceSamp
+                    preFlag = true;
+                  else
+                    preFlag = false;
+                  end
+                  if postDiff <= photodiodeDIN_toleranceSamp
+                    postFlag = true;
+                  else
+                    postFlag = false;
+                  end
+                  
+                  if preFlag && ~postFlag
+                    % only the pre-DIN makes sense
+                    this_sample = ft_event(i-1).sample;
+                  elseif ~preFlag && postFlag
+                    % only the post-DIN makes sense
+                    this_sample = ft_event(i+1).sample;
+                  elseif preFlag && postFlag
+                    % choose the smaller one
+                    if abs(preDiff) < abs(postDiff)
+                      this_sample = ft_event(i-1).sample;
+                    elseif abs(preDiff) > abs(postDiff)
+                      this_sample = ft_event(i+1).sample;
+                    elseif abs(preDiff) == abs(postDiff)
+                      keyboard
+                    end
+                  end
+                elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
+                  this_sample = ft_event(i+1).sample;
+                elseif strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i-1).sample - this_sample) < 0 && abs(ft_event(i-1).sample - this_sample) <= photodiodeDIN_toleranceSamp
+                  % apparently the ethernet tags can be delayed
+                  % enough that the DIN shows up first
+                  this_sample = ft_event(i-1).sample;
+                end
+              end
               
-            case 'REST'
+              % prestimulus sample
+              this_trl(1) = this_sample + prestimSamp;
+              % poststimulus sample
+              this_trl(2) = this_sample + poststimSamp;
+              % offset in samples
+              this_trl(3) = prestimSamp;
               
-            case 'REND'
+              for to = 1:length(trl_order)
+                thisInd = find(ismember(trl_order,trl_order{to}));
+                if ~isempty(thisInd)
+                  if exist(trl_order{to},'var')
+                    this_trl(timeCols + thisInd) = eval(trl_order{to});
+                  else
+                    fprintf('variable %s does not exist!\n',trl_order{to});
+                    keyboard
+                  end
+                end
+              end
               
-            case 'DIN '
+              % put all the trials together
+              trl = cat(1,trl,double(this_trl));
               
-          end
-          
-          % put ec back in its prior state
-          ec = ec + ec_add;
-          
-        end
-      end % for
-      fprintf('\n');
-      
-  end % switch phase
-end % pha
-% end % ses
+            end % only one event
+          else
+            % keyboard
+            continue
+          end % is a phase in this session
+        end % isExp
+        
+        %       case 'RESP'
+        %
+        %       case 'FIXT'
+        %
+        %       case 'PROM'
+        %
+        %       case 'REST'
+        %
+        %       case 'REND'
+        %
+        %       case cfg.eventinfo.photodiodeDIN_str
+    end % switch
+  end
+end % i
