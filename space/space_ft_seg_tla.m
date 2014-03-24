@@ -58,7 +58,15 @@ exper.subjects = {
 %   'SPACE027';
 %   'SPACE029';
 %   'SPACE037';
-  'SPACE039';
+%   'SPACE039'; % original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   'SPACE030';
+%   'SPACE032';
+  'SPACE034';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -111,7 +119,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
-ana.trialFxn = 'space_trialfun';
+ana.trialFxn = 'space_trialfun2';
 ana.allowTrialOverlap = true;
 ana.renumberSamplesContiguous = true;
 % files used when adding metadata to segmented trials
@@ -151,6 +159,7 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
+ana.cfg_cont = [];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};

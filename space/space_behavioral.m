@@ -2,8 +2,11 @@
 
 %% load the analysis details
 
+expName = 'SPACE';
+
 subDir = '';
-dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+behDir = fullfile(expName,'Behavioral','Sessions',subDir);
+eegDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
 serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
@@ -27,11 +30,13 @@ else
   error('Data directory not found.');
 end
 
+behDir = fullfile(dataroot,behDir);
+
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+procDir = fullfile(dataroot,eegDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
-  'SPACE001';
+  'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -47,15 +52,24 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+  'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
-  'SPACE019';
+  'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  'SPACE030';
+  'SPACE032';
+  'SPACE034';
   };
 
 % only one cell, with all session names
@@ -63,14 +77,15 @@ sesNames = {'session_1'};
 
 allowRecallSynonyms = true;
 
-% replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = true;
-
-[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+% % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
+% replaceDataroot = true;
+% 
+% [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
 saveFigs = true;
 if saveFigs
-  figsDir = fullfile(dataroot,dirs.behDir,'figs');
+  %figsDir = fullfile(dataroot,dirs.behDir,'figs');
+  figsDir = fullfile(behDir,'figs');
   if ~exist(figsDir,'dir')
     mkdir(figsDir);
   end
@@ -86,20 +101,39 @@ end
 
 collapsePhases = true;
 
-%% load the behavioral data
-
 if collapsePhases
-  behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results_collapsed.mat');
+  collapseStr = '_collapsed';
 else
-  behfile = fullfile(getenv('HOME'),'data','SPACE','Behavioral','Sessions','SPACE_behav_results.mat');
+  collapseStr = '';
 end
 
-load(behfile);
+%% split into quantile divisions?
+
+nDivisions = 1;
+% nDivisions = 2;
+% nDivisions = 3;
+% nDivisions = 4;
+
+if nDivisions > 1
+  quantStr = sprintf('_%dquantileDiv',nDivisions);
+else
+  quantStr = '';
+end
+
+%% load the behavioral data
+
+%resultsFile = fullfile(dataroot,dirs.behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+resultsFile = fullfile(behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+
+fprintf('Loading %s...',resultsFile);
+load(resultsFile);
+fprintf('Done.\n');
 
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{'SPACE001','SPACE017','SPACE019'}};
+% exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
@@ -359,32 +393,30 @@ data = struct;
 data.spaced = nan(sum(~exper.badSub),length(phases));
 data.massed = nan(sum(~exper.badSub),length(phases));
 
-% recog or recall
+% % d' (recog only)
+% dataMeasure = sprintf('%s_dp',test);ylimits = [0 4];
+% dataLabel = 'd''';
 
-% dataMeasure = sprintf('%s_rt',test);
-% dataLabel = 'Response Time (ms)';
+% % Response times (recog and recall)
+% % dataMeasure = sprintf('%s_rt',test);
+% % dataLabel = 'Response Time (ms)';
 % dataMeasure = sprintf('%s_rt_hit',test);
 % dataLabel = 'Response Time: Hits (ms)';
-% dataMeasure = sprintf('%s_rt_miss',test);
-% dataLabel = 'Response Time: Misses (ms)';
-
+% % dataMeasure = sprintf('%s_rt_miss',test);
+% % dataLabel = 'Response Time: Misses (ms)';
 % if strcmp(test,'recog')
 %   ylimits = [500 2500];
 % elseif strcmp(test,'recall')
 %   ylimits = [500 4000];
 % end
 
+% Hit rate / Accuracy (recog and recall)
 dataMeasure = sprintf('%s_hr',test);ylimits = [0 1];
 if strcmp(test,'recog')
   dataLabel = 'Hit Rate';
 elseif strcmp(test,'recall')
   dataLabel = 'Accuracy';
 end
-
-% recog only
-
-% dataMeasure = sprintf('%s_dp',test);ylimits = [0 4];
-% dataLabel = 'd''';
 
 tpCounter = 0;
 for p = 1:length(phases)

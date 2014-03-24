@@ -87,6 +87,12 @@ exper.badSub = false(length(subjects),1);
 % collapsePhases = true;
 collapsePhases = false;
 
+if collapsePhases
+  collapseStr = '_collapsed';
+else
+  collapseStr = '';
+end
+
 %% split into quantile divisions?
 
 % nDivisions = 1;
@@ -102,11 +108,8 @@ end
 
 %% load the behavioral data
 
-if collapsePhases
-  resultsFile = fullfile(behDir,sprintf('%s_behav_results%s_collapsed.mat',expName,quantStr));
-else
-  resultsFile = fullfile(behDir,sprintf('%s_behav_results%s.mat',expName,quantStr));
-end
+resultsFile = fullfile(behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+
 fprintf('Loading %s...',resultsFile);
 load(resultsFile);
 fprintf('Done.\n');
@@ -742,16 +745,25 @@ elseif nDivisions == 1
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) length(famLevel)], varnames);
 end
 
-%% NEW: RMANOVA - posttests subordinate only
+%% RMANOVA: subordinate only - session x training x image condition (x quantile)
 
 trainConds = {'TT','UU'};
 imgConds = {'normal','color','g'};
+imgStr = 'Color';
 
 % % trainConds = {'TT','UU','TU','UT'};
 % % trainConds = {'TT','UU'};
-% imgConds = {'g','g_hi8','g_lo8'};
+imgConds = {'g','g_hi8','g_lo8'};
+imgStr = 'SF';
 
-sesNames = {'posttest', 'posttest_delay'};
+sesNames = {'pretest', 'posttest'};
+sesStr = 'Pre/Post';
+
+% sesNames = {'pretest', 'posttest_delay'};
+% sesStr = 'Pre/Delay';
+
+% sesNames = {'posttest', 'posttest_delay'};
+% sesStr = 'Post/Delay';
 
 % famLevel = {'basic'};
 famLevel = {'subord'};
@@ -787,14 +799,14 @@ for sub = 1:length(subjects)
 end
 
 if nDivisions > 1
-  varnames = {'sesName', 'training', 'imgConds', 'Quantile'};
+  varnames = {sesStr, 'Training', imgStr, 'Quantile'};
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) nDivisions], varnames);
 elseif nDivisions == 1
-  varnames = {'sesName', 'training', 'imgConds'};
+  varnames = {sesStr, 'Training', imgStr};
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds)], varnames);
 end
 
-%% New: pre/post x sub/basic interaction x image condition (color and SF) (x training???)
+%% RMANOVA: pre/post x basic/sub x image condition (color and SF) (collapse TT+UU training)
 
 % subordinate only
 
@@ -824,8 +836,6 @@ measure = 'dp';
 
 anovaData = [];
 
-collapseTrain = true;
-
 for sub = 1:length(subjects)
   
   if ~exper.badSub(sub)
@@ -840,21 +850,11 @@ for sub = 1:length(subjects)
             collapsedData = [];
             
             for trn = 1:length(trainConds)
-              
-              cellData = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d);
-              
-              if collapseTrain
-                collapsedData = cat(2,collapsedData,cellData);
-              else
-                theseData = cat(2,theseData,cellData);
-              end
-              
+              collapsedData = cat(2,collapsedData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
             end
             
-            if collapseTrain
-              theseData = cat(2,theseData,nanmean(collapsedData));
-            end
-              
+            theseData = cat(2,theseData,nanmean(collapsedData));
+            
           end
         end
         
@@ -865,19 +865,74 @@ for sub = 1:length(subjects)
 end
 
 if nDivisions > 1
-  if collapseTrain
-    varnames = {sesStr, 'Basic/Subord', imgStr, 'Quantile'};
-    O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds) nDivisions], varnames);
-  else
-    varnames = {sesStr, 'Basic/Subord', imgStr, 'Quantile', 'Training'};
-    O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds) nDivisions length(trainConds)], varnames);
-  end
+  varnames = {sesStr, 'Basic/Subord', imgStr, 'Quantile'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds) nDivisions], varnames);
 elseif nDivisions == 1
-  if collapseTrain
-    varnames = {sesStr, 'Basic/Subord', imgStr};
-    O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds)], varnames);
-  else
-    varnames = {sesStr, 'Basic/Subord', imgStr, 'Training'};
-    O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds) length(trainConds)], varnames);
+  varnames = {sesStr, 'Basic/Subord', imgStr};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(imgConds)], varnames);
+end
+
+%% RMANOVA: pre/post x basic/sub x training x image condition
+
+% subordinate only
+
+% Would be good to show a pre/post by sub/basic interaction with followups
+% showing significant pre/post effects for subordinate but not basic.
+
+sesNames = {'pretest','posttest'};
+sesStr = 'Pre/Post';
+% sesNames = {'pretest','posttest_delay'};
+% sesStr = 'Pre/Delay';
+% sesNames = {'posttest'};
+% sesNames = {'posttest_delay'};
+
+imgConds = {'normal','color','g'};
+imgStr = 'Color';
+% imgConds = {'g','g_hi8','g_lo8'};
+% imgStr = 'SF';
+
+% trainConds = {'trained','untrained'};
+% trainConds = {'TT','UU','TU','UT'};
+trainConds = {'TT','UU'};
+famLevel = {'basic','subord'};
+
+phaseName = 'match_1';
+
+measure = 'dp';
+
+anovaData = [];
+
+collapseTrain = false;
+
+for sub = 1:length(subjects)
+  
+  if ~exper.badSub(sub)
+    
+    theseData = [];
+    
+    for ses = 1:length(sesNames)
+      for fam = 1:length(famLevel)
+        
+        for trn = 1:length(trainConds)
+          
+          for img = 1:length(imgConds)
+            for d = 1:nDivisions
+              theseData = cat(2,theseData,results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d));
+            end
+          end
+          
+        end
+        
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
   end
+end
+
+if nDivisions > 1
+  varnames = {sesStr, 'Basic/Subord', 'Training', imgStr, 'Quantile'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(trainConds) length(imgConds) nDivisions], varnames);
+elseif nDivisions == 1
+  varnames = {sesStr, 'Basic/Subord', 'Training', imgStr};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(famLevel) length(trainConds) length(imgConds)], varnames);
 end

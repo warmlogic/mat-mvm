@@ -1,3 +1,8 @@
+% % if path is not getting set properly, run these commands:
+% restoredefaultpath
+% rehash toolboxcache
+% savepath
+
 %% initialize
 
 myMatlabDir = fullfile(getenv('HOME'),'Documents','MATLAB');
@@ -167,28 +172,31 @@ vc_entries = cell2mat(cellfun(@(x) ~isempty(strfind(x,'.git')) | ~isempty(strfin
 % remove them
 rmpath(sprintf(repmat('%s',1,sum(vc_entries)),entries{vc_entries}));
 
+%% set better default colors using linspecer
+
+% http://www.mathworks.com/matlabcentral/fileexchange/42673-beautiful-and-distinguishable-line-colors-+-colormap
+
+% if exist('linspecer','file')
+%   set(0,'DefaultFigureColormap',linspecer);
+% end
+
+% % put it back to the default:
+% set(0,'DefaultFigureColormap',jet);
+
+% % Set the color order separately for each plot. Replace '8' with the
+% % number of lines you have.
+% set(0,'DefaultAxesColorOrder',linspecer(8))
+
+% % Increase line thickness to make nicer plots and better perceived color
+% % difference.
+
+% set(0,'DefaultLineLineWidth',2);
+% set(0,'DefaultLineLineWidth',1.2);
+set(0,'DefaultLineLineWidth',1.0);
+
 %% clean up
 %cd(myMatlabDir);
 
 clear *Dir *entries i entry conflictFiles
 
 %clearvars
-
-%% set better default colors using linspecer
-
-% http://www.mathworks.com/matlabcentral/fileexchange/42673-beautiful-and-distinguishable-line-colors-+-colormap
-
-if exist('linspecer','file')
-  set(0,'DefaultFigureColormap',linspecer);
-end
-
-% Set the color order separately for each plot. Replace '8' with the number
-% of lines you have.
-% set(0,'DefaultAxesColorOrder',linspecer(8))
-
-% Increase line thickness to make nicer plots and better perceived color
-% difference.
-
-% set(0,'DefaultLineLineWidth',2);
-% set(0,'DefaultLineLineWidth',1.2);
-set(0,'DefaultLineLineWidth',1.0);

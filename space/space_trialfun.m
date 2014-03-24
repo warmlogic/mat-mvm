@@ -100,7 +100,11 @@ if ismember('nsEvt', md.types)
 else
   %warning('Need to set up %s to find trigger types!',mfilename);
   %keyboard
-  triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
+  if cfg.eventinfo.usePhotodiodeDIN
+    triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', cfg.eventinfo.photodiodeDIN_str};
+  else
+    triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'};
+  end
 end
 
 % initialize the trl matrix
@@ -122,6 +126,11 @@ if maxTrlCols == -Inf
 end
 timeCols = 3;
 trl_ini = -1 * ones(1, timeCols + maxTrlCols);
+
+if cfg.eventinfo.usePhotodiodeDIN
+  photodiodeDIN_toleranceMS = cfg.eventinfo.photodiodeDIN_toleranceMS;
+  photodiodeDIN_toleranceSamp = ceil((photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
+end
 
 %% go through the events
 
@@ -187,14 +196,14 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
             if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
               sameSample = false;
               
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
                 % increment ec by 1 because fieldtrip collapses events with
                 % the same trigger that are too close together
                 ec = ec + 1;
                 sameSample = true;
               end
               
-              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
+              if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
                 if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
                   % events in evt occurred within the same sample or ms
                   % tolerance
@@ -205,7 +214,10 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 end
               end
             elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
+              if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
+                % events in evt occurred within the same sample or ms
+                % tolerance
+                
                 % put ec back in its prior state if the event codes
                 % were not the same
                 if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
@@ -215,6 +227,11 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                   ec = ec + 1;
                   ec_add = -1;
                 end
+              %elseif cfg.eventinfo.usePhotodiodeDIN && ...
+              %    strcmp(ns_evt{1}(ec),cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i).value,cfg.eventinfo.photodiodeDIN_str) && ...
+              %    (abs(this_time_samp - prev_time_samp) <= photodiodeDIN_toleranceSamp || abs(this_time_ms - prev_time_ms) <= photodiodeDIN_toleranceMS)
+              %  keyboard
+              %  ec = ec - 1;
               end
             end
           end
@@ -313,7 +330,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     % within the threshold, replace the current sample time
                     % with that of the DIN
                     if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_toleranceSamp = ceil((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
                       if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
                         % if there is a DIN before and after the stim, pick
                         % the closer one
