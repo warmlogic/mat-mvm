@@ -119,7 +119,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
-ana.trialFxn = 'space_trialfun2';
+ana.trialFxn = 'space_trialfun';
 ana.allowTrialOverlap = true;
 ana.renumberSamplesContiguous = true;
 % files used when adding metadata to segmented trials
