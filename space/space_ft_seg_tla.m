@@ -67,6 +67,8 @@ exper.subjects = {
 %   'SPACE030';
 %   'SPACE032';
 %   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
   };
 
 % The sessions that each subject ran; the strings in this cell are the

@@ -61,6 +61,10 @@ subjects = {
   'SPACE026';
   'SPACE028';
   'SPACE030';
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+%   'SPACE049';
   };
 
 % only one cell, with all session names
