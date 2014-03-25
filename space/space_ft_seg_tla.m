@@ -63,7 +63,7 @@ exper.subjects = {
 %   'SPACE024';
 %   'SPACE025';
 %   'SPACE026';
-%   'SPACE028';
+  'SPACE028';
 %   'SPACE030';
 %   'SPACE032';
 %   'SPACE034';
