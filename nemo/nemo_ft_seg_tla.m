@@ -151,7 +151,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 %% Convert the data to FieldTrip structs
 
 % raw data
-ana.segFxn = 'seg2ft';
+ana.segFxn = 'nemo_seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'nemo_trialfun';
@@ -273,29 +273,31 @@ ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'no'; %originally 'yes', but no bandpass filter used in NS processing
 ana.cfg_cont.bsfreq = [59 61];
 
-% artifact settings
-ana.artifact.type = {'ftAuto'}; %, {'ftManual', 'ftICA'};
-ana.artifact.reject = 'complete';
-ana.artifact.resumeManArtFT = false;
-ana.artifact.resumeICACompFT = false;
-% negative trlpadding: don't check that time (on both sides) for artifacts
-% ana.artifact.trlpadding = -0.5;
-ana.artifact.trlpadding = 0;
-ana.artifact.artpadding = 0.1;
-ana.artifact.fltpadding = 0;
-ana.artifact.threshmin = -70; %originally -150; - NS art det classic uses 70
-ana.artifact.threshmax = 70; %originally 150; - NS art det classic uses 70
-ana.artifact.threshrange = 250;
-ana.artifact.basic_art_z = 40;
-% ana.artifact.muscle_art_z = 60;
-ana.artifact.jump_art_z = 60;
-ana.artifact.threshmin_postICA = -100;
-ana.artifact.threshmax_postICA = 100;
-ana.artifact.threshrange_postICA = 150;
-ana.artifact.basic_art_z_postICA = 30;
-% ana.artifact.muscle_art_z_postICA = 50;
-ana.artifact.jump_art_z_postICA = 50;
-ana.overwrite.raw = 1;
+
+
+% % artifact settings
+% ana.artifact.type = {'ftAuto'}; %, {'ftManual', 'ftICA'};
+% ana.artifact.reject = 'complete';
+% ana.artifact.resumeManArtFT = false;
+% ana.artifact.resumeICACompFT = false;
+% % negative trlpadding: don't check that time (on both sides) for artifacts
+% % ana.artifact.trlpadding = -0.5;
+% ana.artifact.trlpadding = 0;
+% ana.artifact.artpadding = 0.1;
+% ana.artifact.fltpadding = 0;
+% ana.artifact.threshmin = -70; %originally -150; - NS art det classic uses 70
+% ana.artifact.threshmax = 70; %originally 150; - NS art det classic uses 70
+% ana.artifact.threshrange = 250;
+% ana.artifact.basic_art_z = 40;
+% % ana.artifact.muscle_art_z = 60;
+% ana.artifact.jump_art_z = 60;
+% ana.artifact.threshmin_postICA = -100;
+% ana.artifact.threshmax_postICA = 100;
+% ana.artifact.threshrange_postICA = 150;
+% ana.artifact.basic_art_z_postICA = 30;
+% % ana.artifact.muscle_art_z_postICA = 50;
+% ana.artifact.jump_art_z_postICA = 50;
+% ana.overwrite.raw = 1;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
