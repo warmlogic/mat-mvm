@@ -92,6 +92,142 @@ end
 timeCols = 3;
 trl_ini = -1 * ones(1, timeCols + maxTrlCols);
 
+%% Alignment 1/3: read evt and put events with the same sample in alphabetical order
+
+% The header, as read by FieldTrip, is (usually) sorted alphabetically when
+% events with different values occurred at the same sample (but not
+% necessarily the same millisecond). Therefore, events in the Net Station
+% evt file need to be rearranged, especially because the next section of
+% this function will remove "duplicate" events (defined as events with the
+% same value that occurred at the same sample). There is a third section of
+% this function to catch any events that should not be in alphabetical
+% order.
+
+% backup so we can access original data
+ns_evt_orig = ns_evt;
+
+% % wait to change the values
+% ecInd = 1:length(ns_evt{1});
+
+for ec = 1:length(ns_evt{1})
+  if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+    this_time_ms_str = ns_evt{5}(ec);
+    this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+    this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+    prev_time_ms_str = ns_evt{5}(ec-1);
+    prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+    prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+    
+    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
+      if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
+        % change the values on the fly
+        for i = 1:length(ns_evt_orig)
+          ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
+          ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
+        end
+        
+        % % wait to change the values
+        % prevInd = ec - 1;
+        % ecInd(ec) = prevInd;
+        % ecInd(prevInd) = ec;
+      end
+    end
+  end
+  
+end
+
+% % wait to change the values
+% for i = 1:length(ns_evt)
+%   ns_evt{i} = ns_evt{i}(ecInd);
+% end
+
+%% Alignment 2/3: remove duplicate events (from FieldTrip's sample-based perspective)
+
+% If two (or more) events with the same value string occurred at the same
+% sample, FieldTrip will only keep one of them. Therefore, we need to
+% remove the duplicate events from the Net Station evt file.
+
+ecInd = true(length(ns_evt{1}),1);
+
+% keep track of how many real evt events we have counted
+ec = 0;
+  
+for i = 1:length(ft_event)
+  if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
+    % found a trigger in the EEG file events; increment index if
+    % value is correct.
+    
+    if ismember(ft_event(i).value,triggers)
+      ec = ec + 1;
+    else
+      continue
+    end
+    
+    if ec > 1 && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+      this_time_ms_str = ns_evt{5}(ec);
+      this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+      this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+      prev_time_ms_str = ns_evt{5}(ec-1);
+      prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+      prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+      
+      if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
+        % need to check on upcoming events; can't rely on comparing current
+        % NS and FT events because they might have the same value even
+        % though they're not the same exact event
+        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
+          ecInd(ec) = false;
+          ec = ec + 1;
+        end
+      end
+      
+    end
+  end
+end
+
+%% Alignment 3/3: final comparison of Net Station and FieldTrip data
+
+% make sure the Net Station evt Code column and ft_event value field are in
+% the same order. If they are not (e.g., if the events should not have been
+% rearranged alphabetically), then put the Net Station events in the same
+% order as the FieldTrip events, but only if the neighboring events are
+% aligned.
+
+% only keep the ft events with triggers
+ft_event = ft_event(ismember({ft_event.value},triggers));
+
+% only keep the ns_evt indices that align with ft_event
+for i = 1:length(ns_evt)
+  ns_evt{i} = ns_evt{i}(ecInd);
+end
+
+ns_evt_backup = ns_evt;
+
+% verify that our lists have the same event values
+
+% if length(ns_evt{1}) == length(ft_event(~ismember({ft_event.value},'epoc')))
+if length(ns_evt{1}) == length(ft_event)
+  for i = 1:length(ft_event)
+    if ~strcmp(ns_evt{1}{i},ft_event(i).value)
+      if strcmp(ns_evt{1}{i-1},ft_event(i-1).value) && strcmp(ns_evt{1}{i},ft_event(i+1).value) && strcmp(ns_evt{1}{i+1},ft_event(i).value) && strcmp(ns_evt{1}{i+2},ft_event(i+2).value)
+        % they're just out of order for some reason (probably due to
+        % alphabetical sorting), so put them back
+        for j = 1:length(ns_evt_orig)
+          ns_evt{j}(i) = ns_evt_backup{j}(i + 1);
+          ns_evt{j}(i + 1) = ns_evt_backup{j}(i);
+        end
+        
+      else
+        warning('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
+        keyboard
+      end
+    end
+  end
+else
+  warning('ns_evt and ft_event are not the same length! Need to fix alignment code.');
+  keyboard
+end
+
 %% go through the events
 
 ses = cfg.eventinfo.sessionNum;
@@ -126,63 +262,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                 continue
             end
             
-            % hack: 2 special cases: evt events occurred at (approximately)
-            % the same sample, but possibly at different MS. Since the evt
-            % use MS and FieldTrip events use samples, this can cause some
-            % screwy things to happen. Both events always exist in the evt
-            % file; however, when FT reads events, it seems to respect events
-            % with different trigger values (i.e., both events exist), but it
-            % ignores one of the two if they have the same trigger value. In
-            % the former case (both are present), sometimes they are in a
-            % slightly different order in the evt file compared to the events
-            % that FT reads due to two events having the same sample time but
-            % different MS times, so ec needs to get reset to its previous
-            % state. In the latter case (one was skipped), since FT
-            % completely skips duplicate events at the same sample, we simply
-            % need to increment ec by 1.
-            ec_add = 0;
-            if ec > 1
-                this_time_ms_str = ns_evt{5}(ec);
-                this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-                prev_time_ms_str = ns_evt{5}(ec-1);
-                prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-                
-                if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    sameSample = false;
-                    
-                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                        % increment ec by 1 because fieldtrip collapses events with
-                        % the same trigger that are too close together
-                        ec = ec + 1;
-                        sameSample = true;
-                    end
-                    
-                    if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value)
-                        if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                            % events in evt occurred within the same sample or ms
-                            % tolerance
-                            
-                            % increment ec by 1 because fieldtrip collapses events with
-                            % the same trigger that are too close together
-                            ec = ec + 1;
-                        end
-                    end
-                elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) == 1
-                        % put ec back in its prior state if the event codes
-                        % were not the same
-                        if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                            ec = ec - 1;
-                            ec_add = 1;
-                        elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                            ec = ec + 1;
-                            ec_add = -1;
-                        end
-                    end
-                end
-            end
+ %%%Deleted hack%%%
             
             switch ft_event(i).value
                 %case 'TRSP'
@@ -470,10 +550,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                         keyboard
                     end
             end
-            
-            % put ec back in its prior state
-            ec = ec + ec_add;
-            
+          
         end
     end % for
     fprintf('\n');
