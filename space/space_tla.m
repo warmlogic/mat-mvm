@@ -438,6 +438,9 @@ end
 
 %% get the grand average
 
+% might need to remove avg field from data until this bug is resolved:
+% http://bugzilla.fcdonders.nl/show_bug.cgi?id=2471
+
 ga_tla = struct;
 
 for ses = 1:length(exper.sesStr)
@@ -451,6 +454,7 @@ for ses = 1:length(exper.sesStr)
   
   cfg_ft = [];
   cfg_ft.keepindividual = 'no';
+  %cfg_ft.parameter = 'trial';
   for typ = 1:length(ana.eventValues{ses})
     cfg_ana.conditions = ana.eventValues{ses}{typ};
     cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
@@ -549,9 +553,9 @@ cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 % cfg_plot.ylims = [-4 2; -4 2];
 % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-1 4; -1 4];
-cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+% cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-1 4; -1 4];
+% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
 % cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
 % cfg_plot.ylims = [-3 2; -2 3; -1 4];
@@ -978,14 +982,14 @@ cfg_ana = [];
 % cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% % cfg_ana.rois = {{'FC'}};
-% cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_ana.rois = {{'FC'}};
+cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
-cfg_ana.rois = {{'PI'}};
-% cfg_ana.rois = {{'E70','E71','E66','E75','E83','E76','E84'}};
-cfg_ana.latencies = [0.13 0.19];
-% cfg_ana.latencies = [0.14 0.19];
+% cfg_ana.rois = {{'PI'}};
+% % cfg_ana.rois = {{'E70','E71','E66','E75','E83','E76','E84'}};
+% cfg_ana.latencies = [0.13 0.19];
+% % cfg_ana.latencies = [0.14 0.19];
 
 % cfg_ana.rois = {{'E70','E71','E66'},{'E83','E76','E84'}};
 % % cfg_ana.rois = {{'E70','E66','E65','E69'},{'E83','E84','E89','E90'}};
@@ -1000,8 +1004,8 @@ cfg_ana.latencies = [0.13 0.19];
 % cfg_ana.rois = {{'LPS'},{'RPS'},{'LPS','RPS'}};
 % cfg_ana.latencies = [1.2 1.8; 1.2 1.8; 1.2 1.8];
 
-% cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
-cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
+cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
+% cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
 
 %cfg_ana.conditions = {{'all'}};
 %cfg_ana.conditions = {{'all_within_types'}};
@@ -1036,7 +1040,9 @@ sesNum = 1;
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
   cfg_ft.latency = cfg_ana.latencies(r,:);
-  cfg_plot.ylim = cfg_plot.ylims(r,:);
+  if cfg_plot.individ_plots || cfg_plot.line_plots
+    cfg_plot.ylim = cfg_plot.ylims(r,:);
+  end
   
   % use data_tla_avg because FieldTrip doesn't deal with dimord properly
   % when single-trials exist
