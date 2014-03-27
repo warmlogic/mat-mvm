@@ -21,13 +21,18 @@ if ~isempty(ptbDir)
   end
 end
 
-% %% set up eeg_toolbox path
-% eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox'));
-% if ~isempty(eeg_toolboxDir)
-%   eeg_toolboxDir = fullfile(myMatlabDir,eeg_toolboxDir.name);
-%   % add top folder and all subfolders
-%   addpath(genpath(eeg_toolboxDir));
-% end
+%% set up eeg_toolbox path
+
+%eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox'));
+%if ~isempty(eeg_toolboxDir)
+
+eeg_toolboxDir = fullfile(myMatlabDir,'eeg_toolbox');
+if exist(eeg_toolboxDir,'dir')
+  %eeg_toolboxDir = fullfile(myMatlabDir,eeg_toolboxDir.name);
+  
+  % add top folder and all subfolders
+  addpath(genpath(eeg_toolboxDir));
+end
 
 %% set up eeglab path
 
@@ -78,6 +83,17 @@ if exist(mvpaDir,'dir')
   % add the subdirectories for eeg_ana toolbox
   addpath(fullfile(mvpaDir,'core','learn'));
   addpath(fullfile(mvpaDir,'core','util'));
+  
+  %   % functions that get in the way; structure arguments as:
+  %   %
+  %   % conflictFiles = {{fxn, other package},{fxn, other package}};
+  %   conflictFiles = {{'isrow','MATLAB'}};
+  %   for i = 1:length(conflictFiles)
+  %     if exist(fullfile(mvpaDir,'afni_matlab',[conflictFiles{i}{1},'.m']),'file')
+  %       fprintf('Found a conflicting MVPA function %s.m that conflicts with %s''s function. Moving MVPA''s to %s_old.m.\n',conflictFiles{i}{1},conflictFiles{i}{2},conflictFiles{i}{1});
+  %       unix(sprintf('mv %s %s',fullfile(mvpaDir,'afni_matlab',[conflictFiles{i}{1},'.m']),fullfile(mvpaDir,'afni_matlab',[conflictFiles{i}{1},'_old.m'])));
+  %     end
+  %   end
 end
 
 %% set up fieldtrip path
@@ -87,7 +103,8 @@ end
 
 ftDir = fullfile(myMatlabDir,'fieldtrip');
 if exist(ftDir,'dir')
-  ftDir = fullfile(myMatlabDir,ftDir.name);
+  %ftDir = fullfile(myMatlabDir,ftDir.name);
+  
   % add only the top folder
   addpath(ftDir);
   % add the subdirectories that FT needs
@@ -154,7 +171,8 @@ end
 
 epDir = fullfile(myMatlabDir,'EP_Toolkit');
 if exist(epDir,'dir')
-  epDir = fullfile(myMatlabDir,epDir.name);
+  %epDir = fullfile(myMatlabDir,epDir.name);
+  
   % add top folder and all subfolders
   addpath(genpath(epDir));
 end
@@ -165,6 +183,7 @@ eatDir = dir(fullfile(myMatlabDir,'eeg_ana_*'));
 if ~isempty(eatDir)
   if length(eatDir) == 1
     eatDir = fullfile(myMatlabDir,eatDir.name);
+    
     % add top folder and all subfolders
     addpath(genpath(eatDir));
     
@@ -174,6 +193,7 @@ if ~isempty(eatDir)
       %fprintf('Removing %s and its subdirectories from path.\n',eatExtDir);
       rmpath(genpath(fullfile(eatExtDir,'eeglab')));
       rmpath(genpath(fullfile(eatExtDir,'mvpa')));
+      rmpath(genpath(fullfile(eatExtDir,'eeg_toolbox')));
     end
   else
     warning('More than one eeg_ana_* directory found, not adding to path.')
