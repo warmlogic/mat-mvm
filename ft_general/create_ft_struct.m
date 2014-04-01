@@ -124,7 +124,7 @@ if ~isfield(ana,'usePhotodiodeDIN')
   ana.usePhotodiodeDIN = false;
 end
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_toleranceMS')
-  ana.photodiodeDIN_toleranceMS = 75;
+  ana.photodiodeDIN_toleranceMS = 48; % 12 samples @ 250 Hz
 end
 if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
   ana.photodiodeDIN_str = 'DIN ';
