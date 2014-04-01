@@ -100,7 +100,11 @@ if ismember('nsEvt', md.types)
 else
   %warning('Need to set up %s to find trigger types!',mfilename);
   %keyboard
-  triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', 'DIN '};
+  if cfg.eventinfo.usePhotodiodeDIN
+    triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', cfg.eventinfo.photodiodeDIN_str};
+  else
+    triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'};
+  end
 end
 
 % initialize the trl matrix
@@ -122,6 +126,14 @@ if maxTrlCols == -Inf
 end
 timeCols = 3;
 trl_ini = -1 * ones(1, timeCols + maxTrlCols);
+
+if cfg.eventinfo.usePhotodiodeDIN
+  photodiodeDIN_toleranceMS = cfg.eventinfo.photodiodeDIN_toleranceMS;
+  photodiodeDIN_toleranceSamp = ceil((photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
+end
+
+% only keep the ft events with triggers
+ft_event = ft_event(ismember({ft_event.value},triggers));
 
 %% go through the events
 
@@ -333,7 +345,6 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                     % within the threshold, replace the current sample time
                     % with that of the DIN
                     if cfg.eventinfo.usePhotodiodeDIN
-                      photodiodeDIN_toleranceSamp = round((cfg.eventinfo.photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
                       if strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str)
                         % if there is a DIN before and after the stim, pick
                         % the closer one
