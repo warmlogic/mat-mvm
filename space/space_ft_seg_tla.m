@@ -186,12 +186,12 @@ ana.artifact.threshrange_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;
 % ana.artifact.muscle_art_z_postICA = 50;
 ana.artifact.jump_art_z_postICA = 50;
-ana.overwrite.raw = 1;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
+ana.overwrite.raw = 1;
 ana.overwrite.proc = 1;
 
 % any preprocessing? (run after processing artifacts)
