@@ -85,8 +85,8 @@ if cfg.eventinfo.useMetadata
     fclose(fid);
     fprintf('Done.\n');
     
-    evtToleranceMS = cfg.eventinfo.evtToleranceMS;
-    evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
+    %evtToleranceMS = cfg.eventinfo.evtToleranceMS;
+    %evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
   end
   
   if ismember('expParam', md.types)

@@ -384,7 +384,9 @@ for ses = 1:length(session)
         cfg.eventinfo.eventValues = eventValue_orig;
         cfg.eventinfo.prepost = prepost;
         
-        cfg.eventinfo.evtToleranceMS = ana.evtToleranceMS;
+        if isfield(ana,'evtToleranceMS')
+          cfg.eventinfo.evtToleranceMS = ana.evtToleranceMS;
+        end
         
         cfg.eventinfo.usePhotodiodeDIN = ana.usePhotodiodeDIN;
         if ana.usePhotodiodeDIN
