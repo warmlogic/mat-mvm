@@ -85,8 +85,8 @@ if cfg.eventinfo.useMetadata
     fclose(fid);
     fprintf('Done.\n');
     
-    evtToleranceMS = cfg.eventinfo.evtToleranceMS;
-    evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
+    %evtToleranceMS = cfg.eventinfo.evtToleranceMS;
+    %evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
   end
   
   if ismember('expParam', md.types)
@@ -322,6 +322,7 @@ for i = 1:length(ft_event)
               if isempty(cols.phaseCount) || isempty(cols.trial) || isempty(cols.type)
                 keyboard
               end
+              
             case {'expo', 'prac_expo', 'distract_math', 'prac_distract_math'}
               if isempty(cols.phaseCount) || isempty(cols.trial)
                 keyboard
@@ -335,12 +336,10 @@ for i = 1:length(ft_event)
             % string to match eventValues
             switch phaseName
               case {'expo', 'prac_expo'}
-                
                 stimType = 'EXPO_IMAGE';
                 evVal = 'expo_stim';
                 
               case {'multistudy', 'prac_multistudy'}
-                
                 if strcmp(ns_evt{cols.type+1}{ec},'word')
                   stimType = 'STUDY_WORD';
                   evVal = 'multistudy_word';
@@ -350,19 +349,16 @@ for i = 1:length(ft_event)
                 end
                 
               case {'distract_math', 'prac_distract_math'}
-                
                 stimType = 'MATH_PROB';
                 evVal = 'distract_math_stim';
                 
               case {'cued_recall', 'prac_cued_recall'}
-                
                 if strcmp(ns_evt{cols.type+1}{ec},'recognition')
                   stimType = 'RECOGTEST_STIM';
                   evVal = 'cued_recall_stim';
                 else
                   keyboard
                 end
-                
             end
             
             % get the order of trl columns for this phase and event type
@@ -407,7 +403,6 @@ for i = 1:length(ft_event)
               
               switch phaseName
                 case {'expo', 'prac_expo'}
-                  
                   phaseCount = this_event.phaseCount;
                   trial = this_event.trial;
                   stimNum = this_event.stimNum;
@@ -422,7 +417,6 @@ for i = 1:length(ft_event)
                   rt = this_event.rt;
                   
                 case {'multistudy', 'prac_multistudy'}
-                  
                   phaseCount = this_event.phaseCount;
                   trial = this_event.trial;
                   stimNum = this_event.stimNum;
@@ -438,7 +432,6 @@ for i = 1:length(ft_event)
                   cr_recall_spellCorr = this_event.cr_recall_spellCorr;
                   
                 case {'distract_math', 'prac_distract_math'}
-                  
                   phaseCount = this_event.phaseCount;
                   trial = this_event.trial;
                   response = this_event.resp;
@@ -446,7 +439,6 @@ for i = 1:length(ft_event)
                   rt = this_event.rt;
                   
                 case {'cued_recall', 'prac_cued_recall'}
-                  
                   recog_responses = {'old', 'new'};
                   new_responses = {'sure', 'maybe'};
                   

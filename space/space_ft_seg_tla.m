@@ -63,10 +63,12 @@ exper.subjects = {
 %   'SPACE024';
 %   'SPACE025';
 %   'SPACE026';
-%   'SPACE028';
+  'SPACE028';
 %   'SPACE030';
 %   'SPACE032';
 %   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -126,7 +128,7 @@ ana.renumberSamplesContiguous = true;
 ana.useMetadata = true;
 ana.metadata.types = {'eventStruct','nsEvt'};
 ana.useExpInfo = true;
-ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
+% ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
 ana.usePhotodiodeDIN = true;
 ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
@@ -172,9 +174,12 @@ ana.artifact.trlpadding = -0.7;
 % ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
-ana.artifact.threshmin = -150;
-ana.artifact.threshmax = 150;
-ana.artifact.threshrange = 250;
+% ana.artifact.threshmin = -150;
+% ana.artifact.threshmax = 150;
+% ana.artifact.threshrange = 250;
+ana.artifact.threshmin = -200;
+ana.artifact.threshmax = 200;
+ana.artifact.threshrange = 350;
 ana.artifact.basic_art_z = 60;
 % ana.artifact.muscle_art_z = 70;
 ana.artifact.jump_art_z = 70;
@@ -184,12 +189,12 @@ ana.artifact.threshrange_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;
 % ana.artifact.muscle_art_z_postICA = 50;
 ana.artifact.jump_art_z_postICA = 50;
-ana.overwrite.raw = 1;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
+ana.overwrite.raw = 1;
 ana.overwrite.proc = 1;
 
 % any preprocessing? (run after processing artifacts)

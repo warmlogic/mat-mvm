@@ -70,6 +70,8 @@ subjects = {
   'SPACE030';
   'SPACE032';
   'SPACE034';
+  'SPACE047';
+%   'SPACE049';
   };
 
 % only one cell, with all session names
@@ -77,10 +79,10 @@ sesNames = {'session_1'};
 
 allowRecallSynonyms = true;
 
-% % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-% replaceDataroot = true;
-% 
-% [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+% replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
+replaceDataroot = true;
+
+[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
 saveFigs = true;
 if saveFigs

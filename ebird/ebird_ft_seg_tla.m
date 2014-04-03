@@ -117,13 +117,15 @@ ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'ebird_trialfun';
+ana.allowTrialOverlap = false;
+ana.renumberSamplesContiguous = false;
 % files used when adding metadata to segmented trials
 ana.useMetadata = true;
 ana.metadata.types = {'eventStruct','nsEvt'};
 ana.useExpInfo = true;
-ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
+% ana.evtToleranceMS = 8; % 2 samples @ 250 Hz
 ana.usePhotodiodeDIN = true;
-ana.photodiodeDIN_toleranceMS = 40;
+ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
@@ -158,7 +160,7 @@ ana.cfg_cont.hpfreq = 0.1;
 ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
-ana.cfg_cont.bsfreq = 59:61;
+ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
 ana.artifact.type = {'ftManual', 'ftICA'};
@@ -166,26 +168,33 @@ ana.artifact.reject = 'complete';
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
 % % negative trlpadding: don't check that time (on both sides) for artifacts
+% IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% of extra time around trial epochs. Otherwise set to zero.
 % ana.artifact.trlpadding = -0.5;
 ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
-ana.artifact.threshmin = -150;
-ana.artifact.threshmax = 150;
-ana.artifact.basic_art_z = 40;
-ana.artifact.muscle_art_z = 60;
-ana.artifact.jump_art_z = 60;
-ana.artifact.threshmin_postICA = -150;
-ana.artifact.threshmax_postICA = 150;
+% ana.artifact.threshmin = -150;
+% ana.artifact.threshmax = 150;
+% ana.artifact.threshrange = 250;
+ana.artifact.threshmin = -200;
+ana.artifact.threshmax = 200;
+ana.artifact.threshrange = 350;
+ana.artifact.basic_art_z = 60;
+% ana.artifact.muscle_art_z = 70;
+ana.artifact.jump_art_z = 70;
+ana.artifact.threshmin_postICA = -100;
+ana.artifact.threshmax_postICA = 100;
+ana.artifact.threshrange_postICA = 150;
 ana.artifact.basic_art_z_postICA = 30;
-ana.artifact.muscle_art_z_postICA = 50;
+% ana.artifact.muscle_art_z_postICA = 50;
 ana.artifact.jump_art_z_postICA = 50;
-ana.overwrite.raw = 1;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
+ana.overwrite.raw = 1;
 ana.overwrite.proc = 1;
 
 % any preprocessing? (run after processing artifacts)
