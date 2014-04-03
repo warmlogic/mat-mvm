@@ -92,6 +92,9 @@ end
 timeCols = 3;
 trl_ini = -1 * ones(1, timeCols + maxTrlCols);
 
+% only keep the ft events with triggers
+ft_event = ft_event(ismember({ft_event.value},triggers));
+
 %% Alignment 1/3: read evt and put events with the same sample in alphabetical order
 
 % The header, as read by FieldTrip, is (usually) sorted alphabetically when
@@ -110,30 +113,28 @@ ns_evt_orig = ns_evt;
 % ecInd = 1:length(ns_evt{1});
 
 for ec = 1:length(ns_evt{1})
-  if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-    this_time_ms_str = ns_evt{5}(ec);
-    this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-    this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-    prev_time_ms_str = ns_evt{5}(ec-1);
-    prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-    prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-    
-    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-      if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
-        % change the values on the fly
-        for i = 1:length(ns_evt_orig)
-          ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
-          ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
-        end
+    if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+        this_time_ms = (str2double(ns_evt{5}{ec}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec}(8:9)) * 1000) + (str2double(ns_evt{5}{ec}(11:13)));
+        this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+        prev_time_ms = (str2double(ns_evt{5}{ec-1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec-1}(11:13)));
+        prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
         
-        % % wait to change the values
-        % prevInd = ec - 1;
-        % ecInd(ec) = prevInd;
-        % ecInd(prevInd) = ec;
-      end
+        if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
+            if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
+                % change the values on the fly
+                for i = 1:length(ns_evt_orig)
+                    ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
+                    ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
+                end
+                
+                % % wait to change the values
+                % prevInd = ec - 1;
+                % ecInd(ec) = prevInd;
+                % ecInd(prevInd) = ec;
+            end
+        end
     end
-  end
-  
+    
 end
 
 % % wait to change the values
@@ -151,38 +152,47 @@ ecInd = true(length(ns_evt{1}),1);
 
 % keep track of how many real evt events we have counted
 ec = 0;
-  
+
 for i = 1:length(ft_event)
-  if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-    % found a trigger in the EEG file events; increment index if
-    % value is correct.
-    
-    if ismember(ft_event(i).value,triggers)
-      ec = ec + 1;
-    else
-      continue
-    end
-    
-    if ec > 1 && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-      this_time_ms_str = ns_evt{5}(ec);
-      this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-      this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-      prev_time_ms_str = ns_evt{5}(ec-1);
-      prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-      prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-      
-      if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
-        % need to check on upcoming events; can't rely on comparing current
-        % NS and FT events because they might have the same value even
-        % though they're not the same exact event
-        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
-          ecInd(ec) = false;
-          ec = ec + 1;
+    if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
+        % found a trigger in the EEG file events; increment index if
+        % value is correct.
+        
+        if ismember(ft_event(i).value,triggers)
+            ec = ec + 1;
+        else
+            continue
         end
-      end
-      
+        
+        if ec > 1 && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+            this_time_ms = (str2double(ns_evt{5}{ec}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec}(8:9)) * 1000) + (str2double(ns_evt{5}{ec}(11:13)));
+            this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
+            prev_time_ms = (str2double(ns_evt{5}{ec-1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec-1}(11:13)));
+            prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
+            
+            if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
+                % need to check whether these are the same events; can't rely on
+                % comparing current NS and FT events with ~strcmp because they
+                % might have the same value even though they're not the same exact
+                % event. So, check the event value for the next NS event vs the
+                % current FT event, and make it more robust by checking the sample
+                % offset
+                next_time_ms = (str2double(ns_evt{5}{ec+1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec+1}(11:13)));
+                next_time_samp = fix((next_time_ms / 1000) * ft_hdr.Fs);
+                
+                if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && abs(next_time_samp - prev_time_samp) == abs(ft_event(i).sample - ft_event(i-1).sample)
+                    ecInd(ec) = false;
+                    ec = ec + 1;
+                end
+            end
+            
+        end
     end
-  end
+end
+
+% only keep the ns_evt indices that align with ft_event
+for i = 1:length(ns_evt)
+    ns_evt{i} = ns_evt{i}(ecInd);
 end
 
 %% Alignment 3/3: final comparison of Net Station and FieldTrip data
@@ -193,39 +203,31 @@ end
 % order as the FieldTrip events, but only if the neighboring events are
 % aligned.
 
-% only keep the ft events with triggers
-ft_event = ft_event(ismember({ft_event.value},triggers));
-
-% only keep the ns_evt indices that align with ft_event
-for i = 1:length(ns_evt)
-  ns_evt{i} = ns_evt{i}(ecInd);
-end
-
 ns_evt_backup = ns_evt;
 
 % verify that our lists have the same event values
 
 % if length(ns_evt{1}) == length(ft_event(~ismember({ft_event.value},'epoc')))
 if length(ns_evt{1}) == length(ft_event)
-  for i = 1:length(ft_event)
-    if ~strcmp(ns_evt{1}{i},ft_event(i).value)
-      if strcmp(ns_evt{1}{i-1},ft_event(i-1).value) && strcmp(ns_evt{1}{i},ft_event(i+1).value) && strcmp(ns_evt{1}{i+1},ft_event(i).value) && strcmp(ns_evt{1}{i+2},ft_event(i+2).value)
-        % they're just out of order for some reason (probably due to
-        % alphabetical sorting), so put them back
-        for j = 1:length(ns_evt_orig)
-          ns_evt{j}(i) = ns_evt_backup{j}(i + 1);
-          ns_evt{j}(i + 1) = ns_evt_backup{j}(i);
+    for i = 1:length(ft_event)
+        if ~strcmp(ns_evt{1}{i},ft_event(i).value)
+            if strcmp(ns_evt{1}{i-1},ft_event(i-1).value) && strcmp(ns_evt{1}{i},ft_event(i+1).value) && strcmp(ns_evt{1}{i+1},ft_event(i).value) && strcmp(ns_evt{1}{i+2},ft_event(i+2).value)
+                % they're just out of order for some reason (probably due to
+                % alphabetical sorting), so put them back
+                for j = 1:length(ns_evt_orig)
+                    ns_evt{j}(i) = ns_evt_backup{j}(i + 1);
+                    ns_evt{j}(i + 1) = ns_evt_backup{j}(i);
+                end
+                
+            else
+                warning('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
+                keyboard
+            end
         end
-        
-      else
-        warning('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
-        keyboard
-      end
     end
-  end
 else
-  warning('ns_evt and ft_event are not the same length! Need to fix alignment code.');
-  keyboard
+    warning('ns_evt and ft_event are not the same length! Need to fix alignment code.');
+    keyboard
 end
 
 %% go through the events
@@ -261,73 +263,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
             else
                 continue
             end
-            
-<<<<<<< HEAD
-            % hack: 2 special cases: evt events occurred at (approximately)
-            % the same sample, but possibly at different MS. Since the evt
-            % use MS and FieldTrip events use samples, this can cause some
-            % screwy things to happen. Both events always exist in the evt
-            % file; however, when FT reads events, it seems to respect events
-            % with different trigger values (i.e., both events exist), but it
-            % ignores one of the two if they have the same trigger value. In
-            % the former case (both are present), sometimes they are in a
-            % slightly different order in the evt file compared to the events
-            % that FT reads due to two events having the same sample time but
-            % different MS times, so ec needs to get reset to its previous
-            % state. In the latter case (one was skipped), since FT
-            % completely skips duplicate events at the same sample, we simply
-            % need to increment ec by 1.
-            ec_add = 0;
-            if ec > 1
-                this_time_ms_str = ns_evt{5}(ec);
-                this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
-                this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-                prev_time_ms_str = ns_evt{5}(ec-1);
-                prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
-                prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
-                
-                if strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    sameSample = false;
-                    
-                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-                        % increment ec by 1 because fieldtrip collapses events with
-                        % the same trigger that are too close together
-                        ec = ec + 1;
-                        sameSample = true;
-                    end
-                    
-                    if ~sameSample && ~strcmp(ft_event(i).value,ft_event(i-1).value) && strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ~strcmp(ns_evt{1}(ec+1),ft_event(i+1).value)
-                        if abs(this_time_samp - prev_time_samp) <= evtToleranceSamp || abs(this_time_ms - prev_time_ms) <= evtToleranceMS
-                            % events in evt occurred within the same sample or ms
-                            % tolerance
-                            
-                            % increment ec by 1 because fieldtrip collapses events with
-                            % the same trigger that are too close together
-                            ec = ec + 1;
-                        end
-                    end
-                elseif ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-                    if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
-                        % events in evt occurred within the same sample or ms
-                        % tolerance
-                        
-                        % put ec back in its prior state if the event codes
-                        % were not the same
-                        if strcmp(ns_evt{1}(ec-1),ft_event(i).value)
-                            ec = ec - 1;
-                            ec_add = 1;
-                        elseif strcmp(ns_evt{1}(ec+1),ft_event(i).value)
-                            ec = ec + 1;
-                            ec_add = -1;
-                        end
-                        
-                    end
-                end
-            end
-=======
- %%%Deleted hack%%%
->>>>>>> master
-            
+            %%%Deleted Hack%%%
             switch ft_event(i).value
                 %case 'TRSP'
                 case {'prm+','trg+','stm+'}
@@ -364,7 +300,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             cols.(phaseName).accuracy = find(strcmp(ns_evt_cols,'eval'));
                             cols.(phaseName).reaction_time = find(strcmp(ns_evt_cols,'rtim'));
                             cols.(phaseName).random_number = find(strcmp(ns_evt_cols,'rnum'));
-
+                            
                             if isempty(cols.(phaseName).trial)
                                 keyboard
                             end
@@ -521,7 +457,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             
                             % Critical: set up the stimulus type, as well as the
                             % event string to match eventValues
-                            if strcmp(ns_evt{cols.(phaseName).cell_label}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) <= 150) 
+                            if strcmp(ns_evt{cols.(phaseName).cell_label}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) <= 150)
                                 evVal = 'ao_standard_corr';
                             elseif strcmp(ns_evt{cols.(phaseName).cell_label}(trspInd),'12') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
                                 evVal = 'ao_target_corr';
@@ -530,7 +466,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'6')
                                 evVal = 'study_targ_AA_rel';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'8')
-                                evVal = 'study_targ_AA_unrel';    
+                                evVal = 'study_targ_AA_unrel';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'1')
                                 evVal = 'study_targ_CA_rel';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'3')
@@ -538,7 +474,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'10') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
                                 evVal = 'test_targ_A_new_corr';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'8') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
-                                evVal = 'test_targ_AA_unrel_corr';  
+                                evVal = 'test_targ_AA_unrel_corr';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'3') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
                                 evVal = 'test_targ_CA_unrel_corr';
                             else
@@ -580,7 +516,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                     end
                                 end
                             end
-                                                      
+                            
                             % add it to the trial definition
                             this_trl = trl_ini;
                             
@@ -616,7 +552,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                         keyboard
                     end
             end
-          
+            
         end
     end % for
     fprintf('\n');

@@ -49,11 +49,6 @@ if ismember('preRejManual',ana.artifact.type)
 else
   rejArt_preRejManual = false;
 end
-if ismember('rawThresh',ana.artifact.type)
-  rejArt_rawThresh = true;
-else
-  rejArt_rawThresh = false;
-end
 
 % if ismember('trialNum',ana.artifact.type)
 %   if ~isfield(ana.artifact,'trialNum')
@@ -252,48 +247,6 @@ if rejArt_rmBadChan && ~isempty(badChan)
 elseif rejArt_rmBadChan && isempty(badChan)
   fprintf('No bad channels to reject!\n');
 end
-
-if rejArt_rawThresh
-    
-    %fast threshold in mV used for marking blinks
-    thresh = 70;
-    %a,b,c,d values of running average
-    params = [.5, .5, .975, .025];
-    
-    % init the two running averages
-    fast = zeros(1,length(data));
-    slow = zeros(1,length(data));
-    %ind = logical(zeros(1,length(dat)));
-    
-    % params
-    a = params(1);
-    b = params(2);
-    c = params(3);
-    d = params(4);
-    
-    fast_start = 0;
-    slow_start = mean(data(1:10));
-    
-    for i = 1:length(data)
-        % update the running averages
-        if i > 1
-            fast(i) = a*fast(i-1) + b*(data(i)-slow(i-1));
-            slow(i) = c*slow(i-1) + d*data(i);
-        else
-            fast(i) = a*fast_start + b*(data(i)-slow_start);
-            slow(i) = c*slow_start + d*data(i);
-        end
-        
-        % check for thresh
-        %ind(i) = abs(fast(i))>=thresh;
-        
-    end
-    
-    % check for thresh
-    data = logical(abs(fast)>=thresh);
-    
-end
-
 
 if rejArt_nsAuto
   % make sure the file with NS artifact info exists
