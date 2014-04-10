@@ -548,15 +548,15 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
     end
     if ~isempty(theseArt)
       if ~exist('artfctdef','var')
-        artfctdef = cfg_manArt.artfctdef;
+        artfctdef = cfg.artfctdef;
       else
-      for i = 1:length(theseArt)
-        if isfield(artfctdef,theseArt{i})
-          artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
-        else
-          artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+        for i = 1:length(theseArt)
+          if isfield(artfctdef,theseArt{i})
+            artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+          else
+            artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+          end
         end
-      end
       end
     end
   else
