@@ -67,17 +67,23 @@ badChanDiff = logical((abs(fast)-abs(slow))>=diff_threshold);
 badChanVar = logical(var == 0);
     
 
-% make 1 bad channel variable?
+% make 1 bad channel variable from the previous 3
 badChanLong = cat(2,badChanFast,badChanDiff,badChanVar);
 
 % if a channel is bad for >20% of segments, reject ch from whole recording
-y=zeros(size(badChanLong));
+% find how many times a channel is bad in badChanLong
+count=zeros(size(badChanLong));
 
 for i = 1:length(badChanLong)
-   y(i) = sum(badChanLong==badChanLong(i));    
+   count(i) = sum(badChanLong==badChanLong(i));    
     
 end
-
+% for each channel, if it's count value is larger than .20*length of data,
+% deselct it for the whole session - or set as bad for whole session?
+for i = 1:length(data)
+    
+    
+end
 
 
 
