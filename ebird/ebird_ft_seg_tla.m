@@ -64,7 +64,7 @@ exper.subjects = {
 % create_ft_struct' for more information.
 exper.sessions = {{'session_1'}};
 % exper.sessions = {{'session_2'}};
-% exper.sessions = {{'session_1'}, {'session_2'}};
+% exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 % exper.sessions = {...
 %   {'session_1'}, ...
 %   {'session_2'}, ...
@@ -130,7 +130,8 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-  ana.sessionNames = {'pretest'};
+%   ana.sessionNames = {'pretest'};
+  ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
@@ -141,7 +142,8 @@ if ana.useExpInfo
 %     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
-  ana.phaseNames = {{'match'}};
+%   ana.phaseNames = {{'match'}};
+  ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
@@ -163,7 +165,8 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
-ana.artifact.type = {'ftManual', 'ftICA'};
+% ana.artifact.type = {'ftManual', 'ftICA'};
+ana.artifact.type = {'ftAuto'};
 ana.artifact.reject = 'complete';
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
@@ -213,12 +216,12 @@ cfg_proc = [];
 cfg_proc.keeptrials = 'yes';
 
 % set the save directories
-%[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 [dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',false);
+% [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 
 % create the raw and processed structs for each sub, ses, & event value
-% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
+% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 
 process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
 
