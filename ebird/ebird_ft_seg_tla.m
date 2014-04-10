@@ -130,8 +130,8 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-%   ana.sessionNames = {'pretest'};
-  ana.sessionNames = {'pretest','posttest','posttest_delay'};
+  ana.sessionNames = {'pretest'};
+%   ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
@@ -142,8 +142,8 @@ if ana.useExpInfo
 %     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
-%   ana.phaseNames = {{'match'}};
-  ana.phaseNames = {{'match'}, {'match'}, {'match'}};
+  ana.phaseNames = {{'match'}};
+%   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
