@@ -648,6 +648,42 @@ if rejArt_ftManual
     ana.artifact.fltpadding = 0;
   end
   
+  % set up baseline correction before artifact detection
+  if ~isfield(ana.artifact,'preArtBaseline')
+    ana.artifact.preArtBaseline = [];
+  else
+    if ischar(ana.artifact.preArtBaseline)
+      if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
+        ana.artifact.preArtBaseline = [-Inf Inf];
+      elseif strcmp(ana.artifact.preArtBaseline,'no')
+        ana.artifact.preArtBaseline = [];
+      else
+        error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
+      end
+    else
+      if length(ana.artifact.preArtBaseline) ~= 2
+        fprintf('you set ana.artifact.preArtBaseline = ');
+        disp(ana.artifact.preArtBaseline);
+        error('must be a vector with a start and end value, denoted in seconds.');
+      end
+    end
+  end
+  % do the baseline correct
+  if ~isempty(ana.artifact.preArtBaseline)
+    cfg_tlb = [];
+    cfg_tlb.baseline = ana.artifact.preArtBaseline;
+    cfg_tlb.parameter = 'trial';
+    cfg_tlb.channel = 'all';
+    data = ft_timelockbaseline(cfg_tlb,data);
+  end
+  %if ana.artifact.preArtBaseline
+  %  % optionally perform baseline correction on each trial
+  %  fprintf('baseline correcting data \n');
+  %  for t=1:length(data.trial)
+  %    data.trial{t} = ft_preproc_baselinecorrect(data.trial{t});
+  %  end
+  %end
+  
   keepRepairingChannels = true;
   while keepRepairingChannels
     if ~exist('badChan_str','var')
@@ -2057,6 +2093,42 @@ if rejArt_ftAuto
   
   % get the trial definition for automated FT artifact rejection
   trl = ft_findcfg(data.cfg,'trl');
+  
+  % set up baseline correction before artifact detection
+  if ~isfield(ana.artifact,'preArtBaseline')
+    ana.artifact.preArtBaseline = [];
+  else
+    if ischar(ana.artifact.preArtBaseline)
+      if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
+        ana.artifact.preArtBaseline = [-Inf Inf];
+      elseif strcmp(ana.artifact.preArtBaseline,'no')
+        ana.artifact.preArtBaseline = [];
+      else
+        error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
+      end
+    else
+      if length(ana.artifact.preArtBaseline) ~= 2
+        fprintf('you set ana.artifact.preArtBaseline = ');
+        disp(ana.artifact.preArtBaseline);
+        error('must be a vector with a start and end value, denoted in seconds.');
+      end
+    end
+  end
+  % do the baseline correct
+  if ~isempty(ana.artifact.preArtBaseline)
+    cfg_tlb = [];
+    cfg_tlb.baseline = ana.artifact.preArtBaseline;
+    cfg_tlb.parameter = 'trial';
+    cfg_tlb.channel = 'all';
+    data = ft_timelockbaseline(cfg_tlb,data);
+  end
+  %if ana.artifact.preArtBaseline
+  %  % optionally perform baseline correction on each trial
+  %  fprintf('baseline correcting data \n');
+  %  for t=1:length(data.trial)
+  %    data.trial{t} = ft_preproc_baselinecorrect(data.trial{t});
+  %  end
+  %end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for threshold artifacts
