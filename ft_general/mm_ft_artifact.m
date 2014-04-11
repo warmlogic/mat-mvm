@@ -1011,7 +1011,7 @@ if rejArt_ftManual
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       
-      fprintf('\nChecking for (basic) zvalue artifacts at z=%d%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
+      fprintf('\nChecking for (basic) zvalue artifacts at z=%.1f%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
       
       % auto mark zvalue artifacts
       [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
@@ -1058,7 +1058,7 @@ if rejArt_ftManual
       %       % interactive artifact viewer
       %       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       %
-      %       fprintf('\nChecking for muscle artifacts at z=%d%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
+      %       fprintf('\nChecking for muscle artifacts at z=%.1f%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
       %
       %       % auto mark muscle artifacts
       %       [cfg, artifact_muscle] = ft_artifact_zvalue(cfg,data);
@@ -1090,7 +1090,7 @@ if rejArt_ftManual
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       
-      fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      fprintf('\nChecking for jump artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark jump artifacts
       [cfg, artifact_jump] = ft_artifact_zvalue(cfg,data);
@@ -1765,7 +1765,7 @@ if rejArt_ftICA
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       
-      fprintf('Checking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      fprintf('Checking for (basic) zvalue artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark some artifacts
       [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
@@ -1806,7 +1806,7 @@ if rejArt_ftICA
       %       % interactive artifact viewer
       %       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       %
-      %       fprintf('\nChecking for muscle artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      %       fprintf('\nChecking for muscle artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
       %
       %       % auto mark muscle artifacts
       %       [cfg, artifact_muscle] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
@@ -1838,7 +1838,7 @@ if rejArt_ftICA
       % interactive artifact viewer
       cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
       
-      fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+      fprintf('\nChecking for jump artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
       
       % auto mark jump artifacts
       [cfg, artifact_jump] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
@@ -2203,7 +2203,7 @@ if rejArt_ftAuto
   % interactive artifact viewer
   %cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
   
-  fprintf('Checking for (basic) zvalue artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+  fprintf('Checking for (basic) zvalue artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
   
   % auto mark some artifacts
   [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
@@ -2235,7 +2235,7 @@ if rejArt_ftAuto
   % interactive artifact viewer
   %cfg.artfctdef.zvalue.interactive = ft_autoCheckArt_interactive;
   
-  fprintf('\nChecking for jump artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+  fprintf('\nChecking for jump artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
   
   % auto mark jump artifacts
   [cfg, artifact_jump] = ft_artifact_zvalue(cfg, data);
@@ -2272,7 +2272,7 @@ if rejArt_ftAuto
     % interactive artifact viewer
     %cfg.artfctdef.zvalue.interactive = 'yes';
     
-    fprintf('\nChecking for EOG artifacts at z=%d...\n',cfg.artfctdef.zvalue.cutoff);
+    fprintf('\nChecking for EOG artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
     [cfg, artifact_EOG] = ft_artifact_zvalue(cfg,data);
   else
     warning('Not using EGI HydroCel GSN 128/129 electrode file! EOG artifacts are not being assessed!!');
