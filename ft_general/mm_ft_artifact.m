@@ -670,18 +670,21 @@ if rejArt_ftManual
   end
   % do the baseline correct
   if ~isempty(ana.artifact.preArtBaseline)
-    cfg_tlb = [];
-    cfg_tlb.baseline = ana.artifact.preArtBaseline;
-    cfg_tlb.parameter = 'trial';
-    cfg_tlb.channel = 'all';
-    data = ft_timelockbaseline(cfg_tlb,data);
+    tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
+    tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
+    % optionally perform baseline correction on each trial
+    fprintf('baseline correcting data...');
+    for t = 1:length(data.trial)
+      data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
+    end
+    fprintf('Done.\n');
   end
-  %if ana.artifact.preArtBaseline
-  %  % optionally perform baseline correction on each trial
-  %  fprintf('baseline correcting data \n');
-  %  for t=1:length(data.trial)
-  %    data.trial{t} = ft_preproc_baselinecorrect(data.trial{t});
-  %  end
+  %if ~isempty(ana.artifact.preArtBaseline)
+  %  cfg_tlb = [];
+  %  cfg_tlb.baseline = ana.artifact.preArtBaseline;
+  %  cfg_tlb.parameter = 'trial';
+  %  cfg_tlb.channel = 'all';
+  %  data = ft_timelockbaseline(cfg_tlb,data);
   %end
   
   keepRepairingChannels = true;
@@ -2078,7 +2081,7 @@ if rejArt_ftAuto
     ana.artifact.jump_art_z_postICA = 50;
   end
   if ~isfield(ana.artifact,'eog_art_z_postICA')
-    ana.artifact.eog_art_z_postICA = 4;
+    ana.artifact.eog_art_z_postICA = 3.5;
   end
   
   if ~isfield(ana.artifact,'threshmin_postICA')
@@ -2116,18 +2119,21 @@ if rejArt_ftAuto
   end
   % do the baseline correct
   if ~isempty(ana.artifact.preArtBaseline)
-    cfg_tlb = [];
-    cfg_tlb.baseline = ana.artifact.preArtBaseline;
-    cfg_tlb.parameter = 'trial';
-    cfg_tlb.channel = 'all';
-    data = ft_timelockbaseline(cfg_tlb,data);
+    tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
+    tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
+    % optionally perform baseline correction on each trial
+    fprintf('baseline correcting data...');
+    for t = 1:length(data.trial)
+      data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
+    end
+    fprintf('Done.\n');
   end
-  %if ana.artifact.preArtBaseline
-  %  % optionally perform baseline correction on each trial
-  %  fprintf('baseline correcting data \n');
-  %  for t=1:length(data.trial)
-  %    data.trial{t} = ft_preproc_baselinecorrect(data.trial{t});
-  %  end
+  %if ~isempty(ana.artifact.preArtBaseline)
+  %  cfg_tlb = [];
+  %  cfg_tlb.baseline = ana.artifact.preArtBaseline;
+  %  cfg_tlb.parameter = 'trial';
+  %  cfg_tlb.channel = 'all';
+  %  data = ft_timelockbaseline(cfg_tlb,data);
   %end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2246,9 +2252,9 @@ if rejArt_ftAuto
     % cutoff and padding
     % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
     %cfg.artfctdef.zvalue.channel = 'all';
-    cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125'};
+    cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125','E8','E25'};
     cfg.artfctdef.zvalue.cutoff      = ana.artifact.eog_art_z_postICA;
-    cfg.artfctdef.zvalue.trlpadding = ana.artifact.artpadding;
+    cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
     if strcmp(cfg.continuous,'yes')
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
     elseif strcmp(cfg.continuous,'no')
