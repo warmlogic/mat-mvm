@@ -1350,42 +1350,42 @@ if rejArt_ftICA
     ana.artifact.fltpadding = 0;
   end
   
-  if isfield(ana.artifact,'basic_art_z_postICA')
-    basic_art_z_postICA_default = ana.artifact.basic_art_z_postICA;
-  elseif ~isfield(ana.artifact,'basic_art_z_postICA')
-    basic_art_z_postICA_default = 30;
-    ana.artifact.basic_art_z_postICA = basic_art_z_postICA_default;
+  if isfield(ana.artifact,'basic_art_z_finalCheck')
+    basic_art_z_finalCheck_default = ana.artifact.basic_art_z_finalCheck;
+  elseif ~isfield(ana.artifact,'basic_art_z_finalCheck')
+    basic_art_z_finalCheck_default = 30;
+    ana.artifact.basic_art_z_finalCheck = basic_art_z_finalCheck_default;
   end
-%   if isfield(ana.artifact,'muscle_art_z_postICA')
-%     muscle_art_z_postICA_default = ana.artifact.muscle_art_z_postICA;
-%   elseif ~isfield(ana.artifact,'muscle_art_z_postICA')
-%     muscle_art_z_postICA_default = 40;
-%     ana.artifact.muscle_art_z_postICA = muscle_art_z_postICA_default;
+%   if isfield(ana.artifact,'muscle_art_z_finalCheck')
+%     muscle_art_z_finalCheck_default = ana.artifact.muscle_art_z_finalCheck;
+%   elseif ~isfield(ana.artifact,'muscle_art_z_finalCheck')
+%     muscle_art_z_finalCheck_default = 40;
+%     ana.artifact.muscle_art_z_finalCheck = muscle_art_z_finalCheck_default;
 %   end
-  if isfield(ana.artifact,'jump_art_z_postICA')
-    jump_art_z_postICA_default = ana.artifact.jump_art_z_postICA;
-  elseif ~isfield(ana.artifact,'jump_art_z_postICA')
-    jump_art_z_postICA_default = 50;
-    ana.artifact.jump_art_z_postICA = jump_art_z_postICA_default;
+  if isfield(ana.artifact,'jump_art_z_finalCheck')
+    jump_art_z_finalCheck_default = ana.artifact.jump_art_z_finalCheck;
+  elseif ~isfield(ana.artifact,'jump_art_z_finalCheck')
+    jump_art_z_finalCheck_default = 50;
+    ana.artifact.jump_art_z_finalCheck = jump_art_z_finalCheck_default;
   end
   
-  if isfield(ana.artifact,'threshmin_postICA')
-    threshmin_postICA_default = ana.artifact.threshmin_postICA;
-  elseif ~isfield(ana.artifact,'threshmin_postICA')
-    threshmin_postICA_default = -100;
-    ana.artifact.threshmin_postICA = threshmin_postICA_default;
+  if isfield(ana.artifact,'threshmin_finalCheck')
+    threshmin_finalCheck_default = ana.artifact.threshmin_finalCheck;
+  elseif ~isfield(ana.artifact,'threshmin_finalCheck')
+    threshmin_finalCheck_default = -100;
+    ana.artifact.threshmin_finalCheck = threshmin_finalCheck_default;
   end
-  if isfield(ana.artifact,'threshmax_postICA')
-    threshmax_postICA_default = ana.artifact.threshmax_postICA;
-  elseif ~isfield(ana.artifact,'threshmax_postICA')
-    threshmax_postICA_default = 100;
-    ana.artifact.threshmax_postICA = threshmax_postICA_default;
+  if isfield(ana.artifact,'threshmax_finalCheck')
+    threshmax_finalCheck_default = ana.artifact.threshmax_finalCheck;
+  elseif ~isfield(ana.artifact,'threshmax_finalCheck')
+    threshmax_finalCheck_default = 100;
+    ana.artifact.threshmax_finalCheck = threshmax_finalCheck_default;
   end
-  if isfield(ana.artifact,'threshrange_postICA')
-    threshrange_postICA_default = ana.artifact.threshrange_postICA;
-  elseif ~isfield(ana.artifact,'threshrange_postICA')
-    threshrange_postICA_default = 150;
-    ana.artifact.threshrange_postICA = threshrange_postICA_default;
+  if isfield(ana.artifact,'threshrange_finalCheck')
+    threshrange_finalCheck_default = ana.artifact.threshrange_finalCheck;
+  elseif ~isfield(ana.artifact,'threshrange_finalCheck')
+    threshrange_finalCheck_default = 150;
+    ana.artifact.threshrange_finalCheck = threshrange_finalCheck_default;
   end
   
   % set the file to save after running ICA, in case MATLAB crashes
@@ -1628,60 +1628,60 @@ if rejArt_ftICA
       
       if ft_customZvals_prompt
         if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
-          threshmin_postICA = 1;
-          while threshmin_postICA >= 0
-            threshmin_postICA = input(sprintf('\nAt what minimum (negative) voltage do you want to threshold (default=%d)?\n\n',threshmin_postICA_default));
+          threshmin_finalCheck = 1;
+          while threshmin_finalCheck >= 0
+            threshmin_finalCheck = input(sprintf('\nAt what minimum (negative) voltage do you want to threshold (default=%d)?\n\n',threshmin_finalCheck_default));
           end
-          if isempty(threshmin_postICA)
-            threshmin_postICA = threshmin_postICA_default;
+          if isempty(threshmin_finalCheck)
+            threshmin_finalCheck = threshmin_finalCheck_default;
           end
-          ana.artifact.threshmin_postICA = threshmin_postICA;
+          ana.artifact.threshmin_finalCheck = threshmin_finalCheck;
           
-          threshmax_postICA = -1;
-          while threshmax_postICA <= 0
-            threshmax_postICA = input(sprintf('\nAt what maximum (positive) voltage do you want to threshold (default=%d)?\n\n',threshmax_postICA_default));
+          threshmax_finalCheck = -1;
+          while threshmax_finalCheck <= 0
+            threshmax_finalCheck = input(sprintf('\nAt what maximum (positive) voltage do you want to threshold (default=%d)?\n\n',threshmax_finalCheck_default));
           end
-          if isempty(threshmax_postICA)
-            threshmax_postICA = threshmax_postICA_default;
+          if isempty(threshmax_finalCheck)
+            threshmax_finalCheck = threshmax_finalCheck_default;
           end
-          ana.artifact.threshmax_postICA = threshmax_postICA;
+          ana.artifact.threshmax_finalCheck = threshmax_finalCheck;
           
-          threshrange_postICA = -1;
-          while threshrange_postICA <= 0
-            threshrange_postICA = input(sprintf('\nAt what peak-to-peak range (positive) voltage do you want to threshold (default=%d)?\n\n',threshrange_postICA_default));
+          threshrange_finalCheck = -1;
+          while threshrange_finalCheck <= 0
+            threshrange_finalCheck = input(sprintf('\nAt what peak-to-peak range (positive) voltage do you want to threshold (default=%d)?\n\n',threshrange_finalCheck_default));
           end
-          if isempty(threshrange_postICA)
-            threshrange_postICA = threshrange_postICA_default;
+          if isempty(threshrange_finalCheck)
+            threshrange_finalCheck = threshrange_finalCheck_default;
           end
-          ana.artifact.threshrange_postICA = threshrange_postICA;
+          ana.artifact.threshrange_finalCheck = threshrange_finalCheck;
         end
         
         basic_art_z = -1;
         while basic_art_z <= 0
-          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_postICA_default));
+          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_finalCheck_default));
         end
         if isempty(basic_art_z)
-          basic_art_z = basic_art_z_postICA_default;
+          basic_art_z = basic_art_z_finalCheck_default;
         end
-        ana.artifact.basic_art_z_postICA = basic_art_z;
+        ana.artifact.basic_art_z_finalCheck = basic_art_z;
         
         %muscle_art_z = -1;
         %while muscle_art_z <= 0
-        %  muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_postICA_default));
+        %  muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_finalCheck_default));
         %end
         %if isempty(muscle_art_z)
-        %  muscle_art_z = muscle_art_z_postICA_default;
+        %  muscle_art_z = muscle_art_z_finalCheck_default;
         %end
-        %ana.artifact.muscle_art_z_postICA = muscle_art_z;
+        %ana.artifact.muscle_art_z_finalCheck = muscle_art_z;
         
         jump_art_z = -1;
         while jump_art_z <= 0
-          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_postICA_default));
+          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_finalCheck_default));
         end
         if isempty(jump_art_z)
-          jump_art_z = jump_art_z_postICA_default;
+          jump_art_z = jump_art_z_finalCheck_default;
         end
-        ana.artifact.jump_art_z_postICA = jump_art_z;
+        ana.artifact.jump_art_z_finalCheck = jump_art_z;
       end
       
       ft_autoCheckArt_interactive_default = 'no';
@@ -1734,9 +1734,9 @@ if rejArt_ftICA
         cfg.artfctdef.threshold.bpfreq = [0.3 30];
         cfg.artfctdef.threshold.bpfiltord = 4;
         
-        cfg.artfctdef.threshold.min = ana.artifact.threshmin_postICA;
-        cfg.artfctdef.threshold.max = ana.artifact.threshmax_postICA;
-        cfg.artfctdef.threshold.range = ana.artifact.threshrange_postICA;
+        cfg.artfctdef.threshold.min = ana.artifact.threshmin_finalCheck;
+        cfg.artfctdef.threshold.max = ana.artifact.threshmax_finalCheck;
+        cfg.artfctdef.threshold.range = ana.artifact.threshrange_finalCheck;
         
         fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %.1f uV and below %.1f uV or out of peak-to-peak range %.1f uV%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,cfg.artfctdef.threshold.range,exclStr);
         
@@ -1756,7 +1756,7 @@ if rejArt_ftICA
       cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_postICA;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_finalCheck;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -1782,7 +1782,7 @@ if rejArt_ftICA
       %       % cutoff and padding
       %       % select a set of channels on which to run the artifact detection
       %       cfg.artfctdef.zvalue.channel = 'all';
-      %       cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z_postICA;
+      %       cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z_finalCheck;
       %       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       %       if strcmp(cfg.continuous,'yes')
       %         cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
@@ -1823,7 +1823,7 @@ if rejArt_ftICA
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_postICA;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_finalCheck;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -2074,24 +2074,24 @@ if rejArt_ftAuto
     badChan_str = {};
   end
   
-  if ~isfield(ana.artifact,'basic_art_z_postICA')
-    ana.artifact.basic_art_z_postICA = 30;
+  if ~isfield(ana.artifact,'basic_art_z_finalCheck')
+    ana.artifact.basic_art_z_finalCheck = 30;
   end
-  if ~isfield(ana.artifact,'jump_art_z_postICA')
-    ana.artifact.jump_art_z_postICA = 50;
+  if ~isfield(ana.artifact,'jump_art_z_finalCheck')
+    ana.artifact.jump_art_z_finalCheck = 50;
   end
-  if ~isfield(ana.artifact,'eog_art_z_postICA')
-    ana.artifact.eog_art_z_postICA = 3.5;
+  if ~isfield(ana.artifact,'eog_art_z_finalCheck')
+    ana.artifact.eog_art_z_finalCheck = 3.5;
   end
   
-  if ~isfield(ana.artifact,'threshmin_postICA')
-    ana.artifact.threshmin_postICA = -100;
+  if ~isfield(ana.artifact,'threshmin_finalCheck')
+    ana.artifact.threshmin_finalCheck = -100;
   end
-  if ~isfield(ana.artifact,'threshmax_postICA')
-    ana.artifact.threshmax_postICA = 100;
+  if ~isfield(ana.artifact,'threshmax_finalCheck')
+    ana.artifact.threshmax_finalCheck = 100;
   end
-  if ~isfield(ana.artifact,'threshrange_postICA')
-    ana.artifact.threshrange_postICA = 150;
+  if ~isfield(ana.artifact,'threshrange_finalCheck')
+    ana.artifact.threshrange_finalCheck = 150;
   end
   
   % get the trial definition for automated FT artifact rejection
@@ -2172,9 +2172,9 @@ if rejArt_ftAuto
     cfg.artfctdef.threshold.bpfreq = [0.3 30];
     cfg.artfctdef.threshold.bpfiltord = 4;
     
-    cfg.artfctdef.threshold.min = ana.artifact.threshmin_postICA;
-    cfg.artfctdef.threshold.max = ana.artifact.threshmax_postICA;
-    cfg.artfctdef.threshold.range = ana.artifact.threshrange_postICA;
+    cfg.artfctdef.threshold.min = ana.artifact.threshmin_finalCheck;
+    cfg.artfctdef.threshold.max = ana.artifact.threshmax_finalCheck;
+    cfg.artfctdef.threshold.range = ana.artifact.threshrange_finalCheck;
     
     fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %.1f uV and below %.1f uV or out of peak-to-peak range %.1f uV%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,cfg.artfctdef.threshold.range,exclStr);
     
@@ -2194,7 +2194,7 @@ if rejArt_ftAuto
   cfg.trl = trl;
   
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_postICA;
+  cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_finalCheck;
   cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
   cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -2220,7 +2220,7 @@ if rejArt_ftAuto
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_postICA;
+  cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_finalCheck;
   cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
   cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -2253,7 +2253,7 @@ if rejArt_ftAuto
     % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
     %cfg.artfctdef.zvalue.channel = 'all';
     cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125','E8','E25'};
-    cfg.artfctdef.zvalue.cutoff      = ana.artifact.eog_art_z_postICA;
+    cfg.artfctdef.zvalue.cutoff      = ana.artifact.eog_art_z_finalCheck;
     cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
     if strcmp(cfg.continuous,'yes')
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
