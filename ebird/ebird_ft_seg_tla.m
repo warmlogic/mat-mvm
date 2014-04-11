@@ -108,6 +108,7 @@ end
 % Use the FT chan locs file
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
+exper.refChan = 'Cz';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 %% Convert the data to FieldTrip structs
@@ -196,6 +197,8 @@ ana.artifact.threshrange_finalCheck = 250;
 ana.artifact.basic_art_z_finalCheck = 30;
 % ana.artifact.muscle_art_z_finalCheck = 50;
 ana.artifact.jump_art_z_finalCheck = 50;
+% eog_art_z_finalCheck is only used with ftAuto
+ana.artifact.eog_art_z_finalCheck = 3.5;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
@@ -209,7 +212,7 @@ cfg_pp = [];
 % average rereference
 cfg_pp.reref = 'yes';
 cfg_pp.refchannel = 'all';
-cfg_pp.implicitref = 'Cz';
+cfg_pp.implicitref = exper.refChan;
 % do a baseline correction
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
