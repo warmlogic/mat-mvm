@@ -1055,7 +1055,7 @@ if rejArt_ftManual
         fprintf('\nChecking for (basic) zvalue artifacts at z=%.1f%s...\n',cfg.artfctdef.zvalue.cutoff,exclStr);
         
         % auto mark zvalue artifacts
-        [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
+        [cfg, artifact_basic] = ft_artifact_zvalue(cfg, data);
       end
       
       %       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1145,7 +1145,7 @@ if rejArt_ftManual
       
       cfg_manArt = [];
       if ana.artifact.basic_art
-        cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue;
+        cfg_manArt.artfctdef.basic.artifact = artifact_basic;
       end
       %cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
       if ana.artifact.jump_art
@@ -1502,7 +1502,7 @@ if rejArt_ftAuto
     fprintf('Checking for (basic) zvalue artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
     
     % auto mark some artifacts
-    [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
+    [cfg, artifact_basic] = ft_artifact_zvalue(cfg, data);
   end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1584,8 +1584,8 @@ if rejArt_ftAuto
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
-  if ana.artifact.zvalue_art
-    cfg.artfctdef.zvalue.artifact = artifact_zvalue;
+  if ana.artifact.basic_art
+    cfg.artfctdef.basic.artifact = artifact_basic;
   end
   if ana.artifact.jump_art
     cfg.artfctdef.jump.artifact = artifact_jump;
@@ -2137,7 +2137,7 @@ if rejArt_ftICA
         fprintf('Checking for (basic) zvalue artifacts at z=%.1f...\n',cfg.artfctdef.zvalue.cutoff);
         
         % auto mark some artifacts
-        [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
+        [cfg, artifact_basic] = ft_artifact_zvalue(cfg, data_toCheckForArtifacts);
       end
       
       %       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2221,7 +2221,7 @@ if rejArt_ftICA
       
       cfg_manArt = [];
       if ana.artifact.basic_art_postICA
-        cfg_manArt.artfctdef.zvalue.artifact = artifact_zvalue;
+        cfg_manArt.artfctdef.basic.artifact = artifact_basic;
       end
       %cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
       if ana.artifact.jump_art_postICA
