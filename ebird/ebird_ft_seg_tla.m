@@ -33,8 +33,10 @@ exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
-exper.prepost = {[-0.2 1.0]};
+% exper.prepost = {[-0.2 1.0]};
+exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
   %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
