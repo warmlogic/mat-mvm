@@ -250,10 +250,12 @@ end
 
 %% do the rejection
 
+if ~isfield(ana.artifact,'reject')
+  ana.artifact.reject = 'complete';
+end
+
 cfg = [];
-% cfg.continuous = 'no';
-% cfg.trl = ft_findcfg(data.cfg,'trl');
-cfg.artfctdef.reject = 'complete';
+cfg.artfctdef.reject = ana.artifact.reject;
 
 cfg.artfctdef.blink.artifact = data.sampleinfo(foundBlink,:);
 cfg.artfctdef.manybadchan.artifact = data.sampleinfo(foundTooManyBadChan,:);
