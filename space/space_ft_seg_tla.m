@@ -187,10 +187,10 @@ ana.artifact.trlpadding = -0.7;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 
-ana.artifact.thresh = false;
-% ana.artifact.threshmin = -150;
-% ana.artifact.threshmax = 150;
-% ana.artifact.threshrange = 250;
+ana.artifact.thresh = true;
+ana.artifact.threshmin = -150;
+ana.artifact.threshmax = 150;
+ana.artifact.threshrange = 250;
 ana.artifact.basic_art = true;
 ana.artifact.basic_art_z = 30;
 ana.artifact.jump_art = true;
