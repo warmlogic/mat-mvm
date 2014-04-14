@@ -57,7 +57,7 @@ exper.subjects = {
 %   'SPACE022';
 %   'SPACE027'; % crazy DINs while session stopped
 %   'SPACE029';
-%   'SPACE037';
+  'SPACE037';
 %   'SPACE039'; % original EEG analyses stopped here
 %   'SPACE023';
 %   'SPACE024';
@@ -69,7 +69,7 @@ exper.subjects = {
 %   'SPACE034';
 %   'SPACE047';
 %   'SPACE049';
-  'SPACE036';
+%   'SPACE036';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -165,11 +165,19 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
+ana.artifact.preArtBaseline = 'yes';
+
+% ana.artifact.type = {'nsClassic'};
+% ana.artifact.checkArtSec = [-0.2 1.0];
+% ana.artifact.fast_threshold = 100;
+% ana.artifact.diff_threshold = 50;
+% ana.artifact.rejectTrial_nBadChan = 10;
+% ana.artifact.repairChan_percentBadTrials = 20;
+
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.reject = 'complete';
 ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeICACompFT = false;
-ana.artifact.preArtBaseline = 'yes';
 % negative trlpadding: don't check that time (on both sides) for artifacts.
 % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
 % of extra time around trial epochs. Otherwise set to zero.
