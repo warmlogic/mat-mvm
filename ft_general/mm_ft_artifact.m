@@ -576,51 +576,53 @@ if (rejArt_nsAuto || rejArt_zeroVar) && foundArt
   data = ft_rejectartifact(cfg,data);
 end
 
+%% baseline data before artifact detection
+
+% set up baseline correction before artifact detection
+if ~isfield(ana.artifact,'preArtBaseline')
+  ana.artifact.preArtBaseline = [];
+else
+  if ischar(ana.artifact.preArtBaseline)
+    if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
+      ana.artifact.preArtBaseline = [-Inf Inf];
+    elseif strcmp(ana.artifact.preArtBaseline,'no')
+      ana.artifact.preArtBaseline = [];
+    else
+      error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
+    end
+  else
+    if length(ana.artifact.preArtBaseline) ~= 2
+      fprintf('you set ana.artifact.preArtBaseline = ');
+      disp(ana.artifact.preArtBaseline);
+      error('must be a vector with a start and end value, denoted in seconds.');
+    end
+  end
+end
+% do the baseline correct
+if ~isempty(ana.artifact.preArtBaseline)
+  tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
+  tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
+  % optionally perform baseline correction on each trial
+  fprintf('baseline correcting data...');
+  for t = 1:length(data.trial)
+    data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
+  end
+  fprintf('Done.\n');
+end
+%if ~isempty(ana.artifact.preArtBaseline)
+%  cfg_tlb = [];
+%  cfg_tlb.baseline = ana.artifact.preArtBaseline;
+%  cfg_tlb.parameter = 'trial';
+%  cfg_tlb.channel = 'all';
+%  data = ft_timelockbaseline(cfg_tlb,data);
+%end
+
 %% approximate Net Station Artifact Classic
 
 if rejArt_nsClassic
   if ~exist('badChan_str','var')
     badChan_str = {};
   end
-  
-  % set up baseline correction before artifact detection
-  if ~isfield(ana.artifact,'preArtBaseline')
-    ana.artifact.preArtBaseline = [];
-  else
-    if ischar(ana.artifact.preArtBaseline)
-      if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
-        ana.artifact.preArtBaseline = [-Inf Inf];
-      elseif strcmp(ana.artifact.preArtBaseline,'no')
-        ana.artifact.preArtBaseline = [];
-      else
-        error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
-      end
-    else
-      if length(ana.artifact.preArtBaseline) ~= 2
-        fprintf('you set ana.artifact.preArtBaseline = ');
-        disp(ana.artifact.preArtBaseline);
-        error('must be a vector with a start and end value, denoted in seconds.');
-      end
-    end
-  end
-  % do the baseline correct
-  if ~isempty(ana.artifact.preArtBaseline)
-    tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
-    tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
-    % optionally perform baseline correction on each trial
-    fprintf('baseline correcting data...');
-    for t = 1:length(data.trial)
-      data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
-    end
-    fprintf('Done.\n');
-  end
-  %if ~isempty(ana.artifact.preArtBaseline)
-  %  cfg_tlb = [];
-  %  cfg_tlb.baseline = ana.artifact.preArtBaseline;
-  %  cfg_tlb.parameter = 'trial';
-  %  cfg_tlb.channel = 'all';
-  %  data = ft_timelockbaseline(cfg_tlb,data);
-  %end
   
   if ~exist('badEv','var') || isempty(badEv)
     badEv = [];
@@ -705,45 +707,6 @@ if rejArt_ftManual
   if ~isfield(ana.artifact,'fltpadding')
     ana.artifact.fltpadding = 0;
   end
-  
-  % set up baseline correction before artifact detection
-  if ~isfield(ana.artifact,'preArtBaseline')
-    ana.artifact.preArtBaseline = [];
-  else
-    if ischar(ana.artifact.preArtBaseline)
-      if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
-        ana.artifact.preArtBaseline = [-Inf Inf];
-      elseif strcmp(ana.artifact.preArtBaseline,'no')
-        ana.artifact.preArtBaseline = [];
-      else
-        error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
-      end
-    else
-      if length(ana.artifact.preArtBaseline) ~= 2
-        fprintf('you set ana.artifact.preArtBaseline = ');
-        disp(ana.artifact.preArtBaseline);
-        error('must be a vector with a start and end value, denoted in seconds.');
-      end
-    end
-  end
-  % do the baseline correct
-  if ~isempty(ana.artifact.preArtBaseline)
-    tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
-    tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
-    % optionally perform baseline correction on each trial
-    fprintf('baseline correcting data...');
-    for t = 1:length(data.trial)
-      data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
-    end
-    fprintf('Done.\n');
-  end
-  %if ~isempty(ana.artifact.preArtBaseline)
-  %  cfg_tlb = [];
-  %  cfg_tlb.baseline = ana.artifact.preArtBaseline;
-  %  cfg_tlb.parameter = 'trial';
-  %  cfg_tlb.channel = 'all';
-  %  data = ft_timelockbaseline(cfg_tlb,data);
-  %end
   
   keepRepairingChannels = true;
   while keepRepairingChannels
@@ -1408,42 +1371,42 @@ if rejArt_ftICA
     ana.artifact.fltpadding = 0;
   end
   
-  if isfield(ana.artifact,'basic_art_z_finalCheck')
-    basic_art_z_finalCheck_default = ana.artifact.basic_art_z_finalCheck;
-  elseif ~isfield(ana.artifact,'basic_art_z_finalCheck')
-    basic_art_z_finalCheck_default = 30;
-    ana.artifact.basic_art_z_finalCheck = basic_art_z_finalCheck_default;
+  if isfield(ana.artifact,'basic_art_z_postICA')
+    basic_art_z_postICA_default = ana.artifact.basic_art_z_postICA;
+  elseif ~isfield(ana.artifact,'basic_art_z_postICA')
+    basic_art_z_postICA_default = 30;
+    ana.artifact.basic_art_z_postICA = basic_art_z_postICA_default;
   end
-%   if isfield(ana.artifact,'muscle_art_z_finalCheck')
-%     muscle_art_z_finalCheck_default = ana.artifact.muscle_art_z_finalCheck;
-%   elseif ~isfield(ana.artifact,'muscle_art_z_finalCheck')
-%     muscle_art_z_finalCheck_default = 40;
-%     ana.artifact.muscle_art_z_finalCheck = muscle_art_z_finalCheck_default;
+%   if isfield(ana.artifact,'muscle_art_z_postICA')
+%     muscle_art_z_postICA_default = ana.artifact.muscle_art_z_postICA;
+%   elseif ~isfield(ana.artifact,'muscle_art_z_postICA')
+%     muscle_art_z_postICA_default = 40;
+%     ana.artifact.muscle_art_z_postICA = muscle_art_z_postICA_default;
 %   end
-  if isfield(ana.artifact,'jump_art_z_finalCheck')
-    jump_art_z_finalCheck_default = ana.artifact.jump_art_z_finalCheck;
-  elseif ~isfield(ana.artifact,'jump_art_z_finalCheck')
-    jump_art_z_finalCheck_default = 50;
-    ana.artifact.jump_art_z_finalCheck = jump_art_z_finalCheck_default;
+  if isfield(ana.artifact,'jump_art_z_postICA')
+    jump_art_z_postICA_default = ana.artifact.jump_art_z_postICA;
+  elseif ~isfield(ana.artifact,'jump_art_z_postICA')
+    jump_art_z_postICA_default = 50;
+    ana.artifact.jump_art_z_postICA = jump_art_z_postICA_default;
   end
   
-  if isfield(ana.artifact,'threshmin_finalCheck')
-    threshmin_finalCheck_default = ana.artifact.threshmin_finalCheck;
-  elseif ~isfield(ana.artifact,'threshmin_finalCheck')
-    threshmin_finalCheck_default = -100;
-    ana.artifact.threshmin_finalCheck = threshmin_finalCheck_default;
+  if isfield(ana.artifact,'threshmin_postICA')
+    threshmin_postICA_default = ana.artifact.threshmin_postICA;
+  elseif ~isfield(ana.artifact,'threshmin_postICA')
+    threshmin_postICA_default = -100;
+    ana.artifact.threshmin_postICA = threshmin_postICA_default;
   end
-  if isfield(ana.artifact,'threshmax_finalCheck')
-    threshmax_finalCheck_default = ana.artifact.threshmax_finalCheck;
-  elseif ~isfield(ana.artifact,'threshmax_finalCheck')
-    threshmax_finalCheck_default = 100;
-    ana.artifact.threshmax_finalCheck = threshmax_finalCheck_default;
+  if isfield(ana.artifact,'threshmax_postICA')
+    threshmax_postICA_default = ana.artifact.threshmax_postICA;
+  elseif ~isfield(ana.artifact,'threshmax_postICA')
+    threshmax_postICA_default = 100;
+    ana.artifact.threshmax_postICA = threshmax_postICA_default;
   end
-  if isfield(ana.artifact,'threshrange_finalCheck')
-    threshrange_finalCheck_default = ana.artifact.threshrange_finalCheck;
-  elseif ~isfield(ana.artifact,'threshrange_finalCheck')
-    threshrange_finalCheck_default = 150;
-    ana.artifact.threshrange_finalCheck = threshrange_finalCheck_default;
+  if isfield(ana.artifact,'threshrange_postICA')
+    threshrange_postICA_default = ana.artifact.threshrange_postICA;
+  elseif ~isfield(ana.artifact,'threshrange_postICA')
+    threshrange_postICA_default = 150;
+    ana.artifact.threshrange_postICA = threshrange_postICA_default;
   end
   
   % set the file to save after running ICA, in case MATLAB crashes
@@ -1686,60 +1649,60 @@ if rejArt_ftICA
       
       if ft_customZvals_prompt
         if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
-          threshmin_finalCheck = 1;
-          while threshmin_finalCheck >= 0
-            threshmin_finalCheck = input(sprintf('\nAt what minimum (negative) voltage do you want to threshold (default=%d)?\n\n',threshmin_finalCheck_default));
+          threshmin_postICA = 1;
+          while threshmin_postICA >= 0
+            threshmin_postICA = input(sprintf('\nAt what minimum (negative) voltage do you want to threshold (default=%d)?\n\n',threshmin_postICA_default));
           end
-          if isempty(threshmin_finalCheck)
-            threshmin_finalCheck = threshmin_finalCheck_default;
+          if isempty(threshmin_postICA)
+            threshmin_postICA = threshmin_postICA_default;
           end
-          ana.artifact.threshmin_finalCheck = threshmin_finalCheck;
+          ana.artifact.threshmin_postICA = threshmin_postICA;
           
-          threshmax_finalCheck = -1;
-          while threshmax_finalCheck <= 0
-            threshmax_finalCheck = input(sprintf('\nAt what maximum (positive) voltage do you want to threshold (default=%d)?\n\n',threshmax_finalCheck_default));
+          threshmax_postICA = -1;
+          while threshmax_postICA <= 0
+            threshmax_postICA = input(sprintf('\nAt what maximum (positive) voltage do you want to threshold (default=%d)?\n\n',threshmax_postICA_default));
           end
-          if isempty(threshmax_finalCheck)
-            threshmax_finalCheck = threshmax_finalCheck_default;
+          if isempty(threshmax_postICA)
+            threshmax_postICA = threshmax_postICA_default;
           end
-          ana.artifact.threshmax_finalCheck = threshmax_finalCheck;
+          ana.artifact.threshmax_postICA = threshmax_postICA;
           
-          threshrange_finalCheck = -1;
-          while threshrange_finalCheck <= 0
-            threshrange_finalCheck = input(sprintf('\nAt what peak-to-peak range (positive) voltage do you want to threshold (default=%d)?\n\n',threshrange_finalCheck_default));
+          threshrange_postICA = -1;
+          while threshrange_postICA <= 0
+            threshrange_postICA = input(sprintf('\nAt what peak-to-peak range (positive) voltage do you want to threshold (default=%d)?\n\n',threshrange_postICA_default));
           end
-          if isempty(threshrange_finalCheck)
-            threshrange_finalCheck = threshrange_finalCheck_default;
+          if isempty(threshrange_postICA)
+            threshrange_postICA = threshrange_postICA_default;
           end
-          ana.artifact.threshrange_finalCheck = threshrange_finalCheck;
+          ana.artifact.threshrange_postICA = threshrange_postICA;
         end
         
         basic_art_z = -1;
         while basic_art_z <= 0
-          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_finalCheck_default));
+          basic_art_z = input(sprintf('\nAt what z-value threshold do you want to check BASIC artifacts (default=%d)?\n\n',basic_art_z_postICA_default));
         end
         if isempty(basic_art_z)
-          basic_art_z = basic_art_z_finalCheck_default;
+          basic_art_z = basic_art_z_postICA_default;
         end
-        ana.artifact.basic_art_z_finalCheck = basic_art_z;
+        ana.artifact.basic_art_z_postICA = basic_art_z;
         
         %muscle_art_z = -1;
         %while muscle_art_z <= 0
-        %  muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_finalCheck_default));
+        %  muscle_art_z = input(sprintf('\nAt what z-value threshold do you want to check MUSCLE artifacts (default=%d)?\n\n',muscle_art_z_postICA_default));
         %end
         %if isempty(muscle_art_z)
-        %  muscle_art_z = muscle_art_z_finalCheck_default;
+        %  muscle_art_z = muscle_art_z_postICA_default;
         %end
-        %ana.artifact.muscle_art_z_finalCheck = muscle_art_z;
+        %ana.artifact.muscle_art_z_postICA = muscle_art_z;
         
         jump_art_z = -1;
         while jump_art_z <= 0
-          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_finalCheck_default));
+          jump_art_z = input(sprintf('\nAt what z-value threshold do you want to check JUMP artifacts (default=%d)?\n\n',jump_art_z_postICA_default));
         end
         if isempty(jump_art_z)
-          jump_art_z = jump_art_z_finalCheck_default;
+          jump_art_z = jump_art_z_postICA_default;
         end
-        ana.artifact.jump_art_z_finalCheck = jump_art_z;
+        ana.artifact.jump_art_z_postICA = jump_art_z;
       end
       
       ft_autoCheckArt_interactive_default = 'no';
@@ -1792,9 +1755,9 @@ if rejArt_ftICA
         cfg.artfctdef.threshold.bpfreq = [0.3 30];
         cfg.artfctdef.threshold.bpfiltord = 4;
         
-        cfg.artfctdef.threshold.min = ana.artifact.threshmin_finalCheck;
-        cfg.artfctdef.threshold.max = ana.artifact.threshmax_finalCheck;
-        cfg.artfctdef.threshold.range = ana.artifact.threshrange_finalCheck;
+        cfg.artfctdef.threshold.min = ana.artifact.threshmin_postICA;
+        cfg.artfctdef.threshold.max = ana.artifact.threshmax_postICA;
+        cfg.artfctdef.threshold.range = ana.artifact.threshrange_postICA;
         
         fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %.1f uV and below %.1f uV or out of peak-to-peak range %.1f uV%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,cfg.artfctdef.threshold.range,exclStr);
         
@@ -1814,7 +1777,7 @@ if rejArt_ftICA
       cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
       
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_finalCheck;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_postICA;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -1840,7 +1803,7 @@ if rejArt_ftICA
       %       % cutoff and padding
       %       % select a set of channels on which to run the artifact detection
       %       cfg.artfctdef.zvalue.channel = 'all';
-      %       cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z_finalCheck;
+      %       cfg.artfctdef.zvalue.cutoff      = ana.artifact.muscle_art_z_postICA;
       %       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       %       if strcmp(cfg.continuous,'yes')
       %         cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
@@ -1881,7 +1844,7 @@ if rejArt_ftICA
       % cutoff and padding
       % select a set of channels on which to run the artifact detection
       cfg.artfctdef.zvalue.channel = 'all';
-      cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_finalCheck;
+      cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_postICA;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
       cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -2132,72 +2095,48 @@ if rejArt_ftAuto
     badChan_str = {};
   end
   
-  if ~isfield(ana.artifact,'basic_art_z_finalCheck')
-    ana.artifact.basic_art_z_finalCheck = 30;
+  if ~isfield(ana.artifact,'basic_art') || isempty(ana.artifact.basic_art)
+    ana.artifact.basic_art = true;
   end
-  if ~isfield(ana.artifact,'jump_art_z_finalCheck')
-    ana.artifact.jump_art_z_finalCheck = 50;
-  end
-  if ~isfield(ana.artifact,'eog_art_z_finalCheck')
-    ana.artifact.eog_art_z_finalCheck = 3.5;
+  if ~isfield(ana.artifact,'basic_art_z')
+    ana.artifact.basic_art_z = 30;
   end
   
-  if ~isfield(ana.artifact,'threshmin_finalCheck')
-    ana.artifact.threshmin_finalCheck = -100;
+  if ~isfield(ana.artifact,'jump_art') || isempty(ana.artifact.jump_art)
+    ana.artifact.jump_art = true;
   end
-  if ~isfield(ana.artifact,'threshmax_finalCheck')
-    ana.artifact.threshmax_finalCheck = 100;
+  if ~isfield(ana.artifact,'jump_art_z')
+    ana.artifact.jump_art_z = 50;
   end
-  if ~isfield(ana.artifact,'threshrange_finalCheck')
-    ana.artifact.threshrange_finalCheck = 150;
+  
+  if ~isfield(ana.artifact,'eog_art') || isempty(ana.artifact.eog_art)
+    ana.artifact.eog_art = true;
+  end
+  if ~isfield(ana.artifact,'eog_art_z')
+    ana.artifact.eog_art_z = 3.5;
+  end
+  
+  if ~isfield(ana.artifact,'thresh_art') || isempty(ana.artifact.thresh_art)
+    ana.artifact.thresh_art = true;
+  end
+  if ~isfield(ana.artifact,'threshmin')
+    ana.artifact.threshmin = -100;
+  end
+  if ~isfield(ana.artifact,'threshmax')
+    ana.artifact.threshmax = 100;
+  end
+  if ~isfield(ana.artifact,'threshrange')
+    ana.artifact.threshrange = 150;
   end
   
   % get the trial definition for automated FT artifact rejection
   trl = ft_findcfg(data.cfg,'trl');
   
-  % set up baseline correction before artifact detection
-  if ~isfield(ana.artifact,'preArtBaseline')
-    ana.artifact.preArtBaseline = [];
-  else
-    if ischar(ana.artifact.preArtBaseline)
-      if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
-        ana.artifact.preArtBaseline = [-Inf Inf];
-      elseif strcmp(ana.artifact.preArtBaseline,'no')
-        ana.artifact.preArtBaseline = [];
-      else
-        error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
-      end
-    else
-      if length(ana.artifact.preArtBaseline) ~= 2
-        fprintf('you set ana.artifact.preArtBaseline = ');
-        disp(ana.artifact.preArtBaseline);
-        error('must be a vector with a start and end value, denoted in seconds.');
-      end
-    end
-  end
-  % do the baseline correct
-  if ~isempty(ana.artifact.preArtBaseline)
-    tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
-    tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
-    % optionally perform baseline correction on each trial
-    fprintf('baseline correcting data...');
-    for t = 1:length(data.trial)
-      data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
-    end
-    fprintf('Done.\n');
-  end
-  %if ~isempty(ana.artifact.preArtBaseline)
-  %  cfg_tlb = [];
-  %  cfg_tlb.baseline = ana.artifact.preArtBaseline;
-  %  cfg_tlb.parameter = 'trial';
-  %  cfg_tlb.channel = 'all';
-  %  data = ft_timelockbaseline(cfg_tlb,data);
-  %end
-  
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for threshold artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
+  if ana.artifact.thresh_art
   if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
     cfg = [];
     cfg.continuous = 'no';
@@ -2230,9 +2169,9 @@ if rejArt_ftAuto
     cfg.artfctdef.threshold.bpfreq = [0.3 30];
     cfg.artfctdef.threshold.bpfiltord = 4;
     
-    cfg.artfctdef.threshold.min = ana.artifact.threshmin_finalCheck;
-    cfg.artfctdef.threshold.max = ana.artifact.threshmax_finalCheck;
-    cfg.artfctdef.threshold.range = ana.artifact.threshrange_finalCheck;
+    cfg.artfctdef.threshold.min = ana.artifact.threshmin;
+    cfg.artfctdef.threshold.max = ana.artifact.threshmax;
+    cfg.artfctdef.threshold.range = ana.artifact.threshrange;
     
     fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %.1f uV and below %.1f uV or out of peak-to-peak range %.1f uV%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,cfg.artfctdef.threshold.range,exclStr);
     
@@ -2241,18 +2180,20 @@ if rejArt_ftAuto
   else
     warning('Not using EGI HydroCel GSN 128/129 electrode file! Threshold artifacts are not being assessed!!');
   end
+  end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for zvalue artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
+  if ana.artifact.zvalue_art
   cfg = [];
   cfg.continuous = 'no';
   % get the trial definition for automated FT artifact rejection
   cfg.trl = trl;
   
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z_finalCheck;
+  cfg.artfctdef.zvalue.cutoff = ana.artifact.basic_art_z;
   cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
   cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -2265,11 +2206,13 @@ if rejArt_ftAuto
   
   % auto mark some artifacts
   [cfg, artifact_zvalue] = ft_artifact_zvalue(cfg, data);
+  end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for jump artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
+  if ana.artifact.jump_art
   cfg = [];
   cfg.continuous = 'no';
   % get the trial definition for automated FT artifact rejection
@@ -2278,7 +2221,7 @@ if rejArt_ftAuto
   % cutoff and padding
   % select a set of channels on which to run the artifact detection
   cfg.artfctdef.zvalue.channel = 'all';
-  cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z_finalCheck;
+  cfg.artfctdef.zvalue.cutoff = ana.artifact.jump_art_z;
   cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
   cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
   cfg.artfctdef.zvalue.fltpadding = ana.artifact.fltpadding;
@@ -2297,11 +2240,13 @@ if rejArt_ftAuto
   
   % auto mark jump artifacts
   [cfg, artifact_jump] = ft_artifact_zvalue(cfg, data);
+  end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % look for EOG artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
+  if ana.artifact.eog_art
   if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
     cfg = [];
     cfg.trl = trl;
@@ -2311,7 +2256,7 @@ if rejArt_ftAuto
     % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
     %cfg.artfctdef.zvalue.channel = 'all';
     cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125','E8','E25'};
-    cfg.artfctdef.zvalue.cutoff      = ana.artifact.eog_art_z_finalCheck;
+    cfg.artfctdef.zvalue.cutoff      = ana.artifact.eog_art_z;
     cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
     if strcmp(cfg.continuous,'yes')
       cfg.artfctdef.zvalue.artpadding = ana.artifact.artpadding;
@@ -2335,18 +2280,27 @@ if rejArt_ftAuto
   else
     warning('Not using EGI HydroCel GSN 128/129 electrode file! EOG artifacts are not being assessed!!');
   end
+  end
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % reject the automatically defined artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
   cfg = [];
-  cfg.artfctdef.zvalue.artifact = artifact_zvalue;
-  cfg.artfctdef.jump.artifact = artifact_jump;
+  if ana.artifact.zvalue_art
+    cfg.artfctdef.zvalue.artifact = artifact_zvalue;
+  end
+  if ana.artifact.jump_art
+    cfg.artfctdef.jump.artifact = artifact_jump;
+  end
   %cfg.artfctdef.muscle.artifact = artifact_muscle;
   if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
-    cfg.artfctdef.eog.artifact = artifact_EOG;
-    cfg.artfctdef.threshold.artifact = artifact_thresh;
+    if ana.artifact.eog_art
+      cfg.artfctdef.eog.artifact = artifact_EOG;
+    end
+    if ana.artifact.thresh_art
+      cfg.artfctdef.threshold.artifact = artifact_thresh;
+    end
   end
   
   % initialize to store whether there was an artifact for each trial
@@ -2360,11 +2314,13 @@ if rejArt_ftAuto
   autoEv = zeros(size(data.sampleinfo,1), 1);
   
   % find out what kind of artifacts we're dealing with
-  fn = fieldnames(cfg.artfctdef);
   theseArt = {};
-  for i = 1:length(fn)
-    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
-      theseArt = cat(2,theseArt,fn{i});
+  if isfield(cfg,'artfctdef')
+    fn = fieldnames(cfg.artfctdef);
+    for i = 1:length(fn)
+      if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+        theseArt = cat(2,theseArt,fn{i});
+      end
     end
   end
   % find out which samples were marked as artifacts
