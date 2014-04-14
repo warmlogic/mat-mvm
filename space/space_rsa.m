@@ -66,7 +66,8 @@ subjects = {
   'SPACE032';
   'SPACE034';
   'SPACE047';
-%   'SPACE049';
+  'SPACE049';
+  'SPACE036';
   };
 
 % only one cell, with all session names

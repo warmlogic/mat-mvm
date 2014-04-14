@@ -30,7 +30,7 @@ function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,ev
 % ARTIFACT INFORMATION:
 %
 % ana.artifact.type can be 'none', 'nsAuto', 'zeroVar', 'preRejManual',
-% 'ftManual', 'ftICA', 'badChanManual', 'badChanEP', and/or 'rmBadChan'.
+% 'ftManual', 'ftICA', 'badChanManual', 'badChanEP', 'rmBadChan', 'nsClassic'.
 % Default is {'none'}.
 %
 % It can be one of those strings or a cell array of multiple strings (e.g.,
@@ -118,7 +118,7 @@ if ischar(ana.artifact.type)
   ana.artifact.type = {ana.artifact.type};
 end
 
-artifactOpts = {'none','nsAuto','zeroVar','badChanManual','badChanEP','rmBadChan','preRejManual','ftAuto','ftManual','ftICA'};
+artifactOpts = {'none','nsClassic','nsAuto','zeroVar','badChanManual','badChanEP','rmBadChan','preRejManual','ftAuto','ftManual','ftICA'};
 
 if any(~ismember(ana.artifact.type,artifactOpts))
   wrongType = ana.artifact.type(~ismember(ana.artifact.type,artifactOpts));

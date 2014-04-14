@@ -71,7 +71,8 @@ subjects = {
   'SPACE032';
   'SPACE034';
   'SPACE047';
-%   'SPACE049';
+  'SPACE049';
+  'SPACE036';
   };
 
 % only one cell, with all session names
@@ -379,7 +380,7 @@ fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f,
   p);
 
 
-%% Plot recognition: spaced vs massed
+%% Plot: spaced vs massed
 
 sesName = 'oneDay';
 % test = 'recog';
@@ -399,6 +400,14 @@ data.massed = nan(sum(~exper.badSub),length(phases));
 % dataMeasure = sprintf('%s_dp',test);ylimits = [0 4];
 % dataLabel = 'd''';
 
+% Hit rate / Accuracy (recog and recall)
+dataMeasure = sprintf('%s_hr',test);ylimits = [0 1];
+if strcmp(test,'recog')
+  dataLabel = 'Hit Rate';
+elseif strcmp(test,'recall')
+  dataLabel = 'Accuracy';
+end
+
 % % Response times (recog and recall)
 % % dataMeasure = sprintf('%s_rt',test);
 % % dataLabel = 'Response Time (ms)';
@@ -411,14 +420,6 @@ data.massed = nan(sum(~exper.badSub),length(phases));
 % elseif strcmp(test,'recall')
 %   ylimits = [500 4000];
 % end
-
-% Hit rate / Accuracy (recog and recall)
-dataMeasure = sprintf('%s_hr',test);ylimits = [0 1];
-if strcmp(test,'recog')
-  dataLabel = 'Hit Rate';
-elseif strcmp(test,'recall')
-  dataLabel = 'Accuracy';
-end
 
 tpCounter = 0;
 for p = 1:length(phases)

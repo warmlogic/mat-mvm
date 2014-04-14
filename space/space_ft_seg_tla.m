@@ -57,18 +57,19 @@ exper.subjects = {
 %   'SPACE022';
 %   'SPACE027'; % crazy DINs while session stopped
 %   'SPACE029';
-%   'SPACE037';
+  'SPACE037';
 %   'SPACE039'; % original EEG analyses stopped here
 %   'SPACE023';
 %   'SPACE024';
 %   'SPACE025';
 %   'SPACE026';
-  'SPACE028';
+%   'SPACE028';
 %   'SPACE030';
 %   'SPACE032';
 %   'SPACE034';
 %   'SPACE047';
 %   'SPACE049';
+%   'SPACE036';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -113,6 +114,7 @@ end
 % Use the FT chan locs file
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
+exper.refChan = 'Cz';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 %% Convert the data to FieldTrip structs
@@ -163,6 +165,17 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
+ana.artifact.preArtBaseline = 'yes';
+
+% ana.artifact.type = {'nsClassic'};
+% ana.artifact.reject = 'complete';
+% ana.artifact.checkArtSec = [-0.2 1.0];
+% ana.artifact.fast_threshold = 100;
+% ana.artifact.diff_threshold = 50;
+% ana.artifact.rejectTrial_nBadChan = 10;
+% ana.artifact.repairChan_percentBadTrials = 20;
+% ana.artifact.allowBadNeighborChan = false;
+
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.reject = 'complete';
 ana.artifact.resumeManArtFT = false;
@@ -183,12 +196,12 @@ ana.artifact.threshrange = 350;
 ana.artifact.basic_art_z = 60;
 % ana.artifact.muscle_art_z = 70;
 ana.artifact.jump_art_z = 70;
-ana.artifact.threshmin_postICA = -100;
-ana.artifact.threshmax_postICA = 100;
-ana.artifact.threshrange_postICA = 150;
-ana.artifact.basic_art_z_postICA = 30;
-% ana.artifact.muscle_art_z_postICA = 50;
-ana.artifact.jump_art_z_postICA = 50;
+ana.artifact.threshmin_finalCheck = -100;
+ana.artifact.threshmax_finalCheck = 100;
+ana.artifact.threshrange_finalCheck = 150;
+ana.artifact.basic_art_z_finalCheck = 30;
+% ana.artifact.muscle_art_z_finalCheck = 50;
+ana.artifact.jump_art_z_finalCheck = 50;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
@@ -202,7 +215,7 @@ cfg_pp = [];
 % average rereference
 cfg_pp.reref = 'yes';
 cfg_pp.refchannel = 'all';
-cfg_pp.implicitref = 'Cz';
+cfg_pp.implicitref = exper.refChan;
 % do a baseline correction
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];

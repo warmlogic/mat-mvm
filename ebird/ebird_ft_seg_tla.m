@@ -64,7 +64,7 @@ exper.subjects = {
 % create_ft_struct' for more information.
 exper.sessions = {{'session_1'}};
 % exper.sessions = {{'session_2'}};
-% exper.sessions = {{'session_1'}, {'session_2'}};
+% exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 % exper.sessions = {...
 %   {'session_1'}, ...
 %   {'session_2'}, ...
@@ -108,6 +108,7 @@ end
 % Use the FT chan locs file
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
+exper.refChan = 'Cz';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 %% Convert the data to FieldTrip structs
@@ -131,6 +132,7 @@ if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
   ana.sessionNames = {'pretest'};
+%   ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
@@ -142,6 +144,7 @@ if ana.useExpInfo
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
   ana.phaseNames = {{'match'}};
+%   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
@@ -163,32 +166,49 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
-ana.artifact.type = {'ftManual', 'ftICA'};
+ana.artifact.preArtBaseline = 'yes';
+
+ana.artifact.type = {'nsClassic'};
 ana.artifact.reject = 'complete';
-ana.artifact.resumeManArtFT = false;
-ana.artifact.resumeICACompFT = false;
-% % negative trlpadding: don't check that time (on both sides) for artifacts
-% IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
-% of extra time around trial epochs. Otherwise set to zero.
-% ana.artifact.trlpadding = -0.5;
-ana.artifact.trlpadding = 0;
-ana.artifact.artpadding = 0.1;
-ana.artifact.fltpadding = 0;
-% ana.artifact.threshmin = -150;
-% ana.artifact.threshmax = 150;
-% ana.artifact.threshrange = 250;
-ana.artifact.threshmin = -200;
-ana.artifact.threshmax = 200;
-ana.artifact.threshrange = 350;
-ana.artifact.basic_art_z = 60;
-% ana.artifact.muscle_art_z = 70;
-ana.artifact.jump_art_z = 70;
-ana.artifact.threshmin_postICA = -100;
-ana.artifact.threshmax_postICA = 100;
-ana.artifact.threshrange_postICA = 150;
-ana.artifact.basic_art_z_postICA = 30;
-% ana.artifact.muscle_art_z_postICA = 50;
-ana.artifact.jump_art_z_postICA = 50;
+ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.fast_threshold = 100;
+ana.artifact.diff_threshold = 50;
+ana.artifact.rejectTrial_nBadChan = 10;
+ana.artifact.repairChan_percentBadTrials = 20;
+ana.artifact.allowBadNeighborChan = false;
+
+% % ana.artifact.type = {'ftManual', 'ftICA'};
+% ana.artifact.type = {'ftAuto'};
+% ana.artifact.reject = 'complete';
+% ana.artifact.resumeManArtFT = false;
+% ana.artifact.resumeICACompFT = false;
+% % % negative trlpadding: don't check that time (on both sides) for artifacts
+% % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% % of extra time around trial epochs. Otherwise set to zero.
+% % ana.artifact.trlpadding = -0.5;
+% ana.artifact.trlpadding = 0;
+% ana.artifact.artpadding = 0.1;
+% ana.artifact.fltpadding = 0;
+% % ana.artifact.threshmin = -150;
+% % ana.artifact.threshmax = 150;
+% % ana.artifact.threshrange = 250;
+% ana.artifact.threshmin = -200;
+% ana.artifact.threshmax = 200;
+% ana.artifact.threshrange = 350;
+% ana.artifact.basic_art_z = 60;
+% % ana.artifact.muscle_art_z = 70;
+% ana.artifact.jump_art_z = 70;
+% % ana.artifact.threshmin_finalCheck = -100;
+% % ana.artifact.threshmax_finalCheck = 100;
+% % ana.artifact.threshrange_finalCheck = 150;
+% ana.artifact.threshmin_finalCheck = -150;
+% ana.artifact.threshmax_finalCheck = 150;
+% ana.artifact.threshrange_finalCheck = 250;
+% ana.artifact.basic_art_z_finalCheck = 30;
+% % ana.artifact.muscle_art_z_finalCheck = 50;
+% ana.artifact.jump_art_z_finalCheck = 50;
+% % eog_art_z_finalCheck is only used with ftAuto
+% ana.artifact.eog_art_z_finalCheck = 3.5;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
@@ -202,7 +222,7 @@ cfg_pp = [];
 % average rereference
 cfg_pp.reref = 'yes';
 cfg_pp.refchannel = 'all';
-cfg_pp.implicitref = 'Cz';
+cfg_pp.implicitref = exper.refChan;
 % do a baseline correction
 cfg_pp.demean = 'yes';
 cfg_pp.baselinewindow = [-0.2 0];
@@ -213,12 +233,12 @@ cfg_proc = [];
 cfg_proc.keeptrials = 'yes';
 
 % set the save directories
-%[dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 [dirs,files] = mm_ft_setSaveDirs_multiSes(exper,ana,cfg_proc,dirs,files,'tla',false);
+% [dirs,files] = mm_ft_setSaveDirs(exper,ana,cfg_proc,dirs,files,'tla');
 
 % create the raw and processed structs for each sub, ses, & event value
-% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
+% [exper] = create_ft_struct(ana,cfg_pp,exper,dirs,files);
 
 process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
 
