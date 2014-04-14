@@ -131,7 +131,7 @@ b = params(2);
 c = params(3);
 d = params(4);
 
-if ~allowBadNeighborChan
+if ~ana.artifact.allowBadNeighborChan
   % check on neighbors
   cfg_nb = [];
   % cfg_nb.method = 'triangulation';
@@ -180,7 +180,7 @@ for tr = 1:nTrial
     foundBlink(tr) = true;
   end
   
-  if ~allowBadNeighborChan
+  if ~ana.artifact.allowBadNeighborChan
     if any(foundThresh(tr,:))
       % check on neighboring channels
       
@@ -219,7 +219,7 @@ if ana.artifact.rejectTrial_nBadChan > 0
 end
 
 % see if there are bad neighbors, excluding eye channels
-if ~allowBadNeighborChan
+if ~ana.artifact.allowBadNeighborChan
   foundBadNeighborChan = logical(sum(hasBadNeighbor(:,~ismember(data.label,eyeAndNeighbChan)),2));
 end
 
@@ -236,7 +236,7 @@ for tr = 1:nTrial
   cfgChannelRepair.trials = trials;
   
   if any(foundArt(tr,:)) && ~foundBlink(tr) && ~foundTooManyBadChan(tr)
-    if allowBadNeighborChan || (~allowBadNeighborChan && ~foundBadNeighborChan(tr))
+    if ana.artifact.allowBadNeighborChan || (~ana.artifact.allowBadNeighborChan && ~foundBadNeighborChan(tr))
       cfgChannelRepair.badchannel = data.label(foundArt(tr,:));
       
       fprintf('\nTrial %d: using method=''%s'' to repair %d channels:%s\n',tr,cfgChannelRepair.method,length(cfgChannelRepair.badchannel),sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}));
@@ -257,7 +257,7 @@ cfg.artfctdef.reject = 'complete';
 
 cfg.artfctdef.blink.artifact = data.sampleinfo(foundBlink,:);
 cfg.artfctdef.manybadchan.artifact = data.sampleinfo(foundTooManyBadChan,:);
-if ~allowBadNeighborChan
+if ~ana.artifact.allowBadNeighborChan
   cfg.artfctdef.badneighborchan.artifact = data.sampleinfo(foundBadNeighborChan,:);
 end
 
