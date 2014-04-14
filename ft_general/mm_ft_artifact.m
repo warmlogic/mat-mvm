@@ -994,11 +994,12 @@ if rejArt_ftManual
           %   '-E23', '-E18', '-E16', '-E10', '-E3', ...
           %   '-E19', '-E11', '-E4'};
           
-          % exclude eye channels and neighbors and all periphery channels - assumes we're using EGI's HCGSN
+          % exclude eye channels and neighbors and all peripheral channels - assumes we're using EGI's HCGSN
           cfg.artfctdef.threshold.channel = {'all', '-E1', '-E8', '-E14', '-E17', '-E21', '-E25', '-E32', '-E38', '-E43', '-E44', '-E48', '-E49', '-E56', '-E57', '-E63', '-E64', '-E68', '-E69', '-E73', '-E74', '-E81', '-E82', '-E88', '-E89', '-E94', '-E95', '-E99', '-E100', '-E107', '-E113', '-E114', '-E119', '-E120', '-E121', '-E125', '-E126', '-E127', '-E128', ...
             '-E26', '-E22', '-E15', '-E9', '-E2', ...
             '-E23', '-E18', '-E16', '-E10', '-E3', ...
             '-E19', '-E11', '-E4'};
+          exclStr = ' (excludes eye channels and neighbors and peripheral channels)';
           
           cfg.artfctdef.threshold.bpfilter = 'yes';
           cfg.artfctdef.threshold.bpfreq = [0.3 30];
@@ -1008,7 +1009,7 @@ if rejArt_ftManual
           cfg.artfctdef.threshold.max = ana.artifact.threshmax;
           cfg.artfctdef.threshold.range = ana.artifact.threshrange;
           
-          fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %.1f uV and below %.1f uV, or peak-to-peak range of %.1f (excludes eye channels and neighbors and periphery channels)...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,cfg.artfctdef.threshold.range);
+          fprintf('\nUsing EGI HydroCel GSN...\nChecking for voltages above %.1f uV and below %.1f uV, or peak-to-peak range of %.1f%s...\n',cfg.artfctdef.threshold.max,cfg.artfctdef.threshold.min,cfg.artfctdef.threshold.range,exclStr);
           
           % auto mark zvalue artifacts
           [cfg, artifact_thresh] = ft_artifact_threshold(cfg, data);
@@ -1449,9 +1450,9 @@ if rejArt_ftAuto
       % cfg.artfctdef.threshold.channel = {'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'};
       % exclStr = ' (excludes eye channels)';
       
-      % exclude eye channels and all the channels around the periphery - assumes we're using EGI's HCGSN
-      cfg.artfctdef.threshold.channel = {'all', '-E1', '-E8', '-E14', '-E17', '-E21', '-E25', '-E32', '-E38', '-E43', '-E44', '-E48', '-E49', '-E56', '-E57', '-E63', '-E64', '-E68', '-E69', '-E73', '-E74', '-E81', '-E82', '-E88', '-E89', '-E94', '-E95', '-E99', '-E100', '-E107', '-E113', '-E114', '-E119', '-E120', '-E121', '-E125', '-E126', '-E127', '-E128'};
-      exclStr = ' (excludes eye channels and peripheral channels)';
+      % % exclude eye channels and all the channels around the periphery - assumes we're using EGI's HCGSN
+      % cfg.artfctdef.threshold.channel = {'all', '-E1', '-E8', '-E14', '-E17', '-E21', '-E25', '-E32', '-E38', '-E43', '-E44', '-E48', '-E49', '-E56', '-E57', '-E63', '-E64', '-E68', '-E69', '-E73', '-E74', '-E81', '-E82', '-E88', '-E89', '-E94', '-E95', '-E99', '-E100', '-E107', '-E113', '-E114', '-E119', '-E120', '-E121', '-E125', '-E126', '-E127', '-E128'};
+      % exclStr = ' (excludes eye channels and peripheral channels)';
       
       % % exclude eye channels and neighbors - assumes we're using EGI's HCGSN
       % cfg.artfctdef.threshold.channel = {'all', ...
@@ -1461,6 +1462,13 @@ if rejArt_ftAuto
       %   '-E23', '-E18', '-E16', '-E10', '-E3', ...
       %   '-E19', '-E11', '-E4'};
       % exclStr = ' (excludes eye channels and neighbors)';
+      
+      % exclude eye channels and neighbors and all peripheral channels - assumes we're using EGI's HCGSN
+      cfg.artfctdef.threshold.channel = {'all', '-E1', '-E8', '-E14', '-E17', '-E21', '-E25', '-E32', '-E38', '-E43', '-E44', '-E48', '-E49', '-E56', '-E57', '-E63', '-E64', '-E68', '-E69', '-E73', '-E74', '-E81', '-E82', '-E88', '-E89', '-E94', '-E95', '-E99', '-E100', '-E107', '-E113', '-E114', '-E119', '-E120', '-E121', '-E125', '-E126', '-E127', '-E128', ...
+        '-E26', '-E22', '-E15', '-E9', '-E2', ...
+        '-E23', '-E18', '-E16', '-E10', '-E3', ...
+        '-E19', '-E11', '-E4'};
+      exclStr = ' (excludes eye channels and neighbors and peripheral channels)';
       
       cfg.artfctdef.threshold.bpfilter = 'yes';
       cfg.artfctdef.threshold.bpfreq = [0.3 30];
