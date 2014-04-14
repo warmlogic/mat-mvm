@@ -274,8 +274,8 @@ end
 
 ses = cfg.eventinfo.sessionNum;
 sesName = cfg.eventinfo.sessionNames{ses};
-% sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
-sesType = ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses});
+sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
+% sesType = ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses});
 
 % keep track of how many real evt events we have counted
 ec = 0;
