@@ -168,11 +168,13 @@ ana.cfg_cont.bsfreq = [59 61];
 ana.artifact.preArtBaseline = 'yes';
 
 % ana.artifact.type = {'nsClassic'};
+% ana.artifact.reject = 'complete';
 % ana.artifact.checkArtSec = [-0.2 1.0];
 % ana.artifact.fast_threshold = 100;
 % ana.artifact.diff_threshold = 50;
 % ana.artifact.rejectTrial_nBadChan = 10;
 % ana.artifact.repairChan_percentBadTrials = 20;
+% ana.artifact.allowBadNeighborChan = false;
 
 ana.artifact.type = {'ftManual', 'ftICA'};
 ana.artifact.reject = 'complete';
