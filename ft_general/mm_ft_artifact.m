@@ -622,7 +622,11 @@ if rejArt_nsClassic
   %  data = ft_timelockbaseline(cfg_tlb,data);
   %end
   
-  [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,[]);
+  if ~exist('badEv','var') || isempty(badEv)
+    badEv = [];
+  end
+  
+  [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv);
 end
 
 %% visual artifact inspection (manual)
