@@ -22,8 +22,12 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-exper.eventValues = {{'match_stim'}};
+% exper.eventValues = {{'match_stim'}};
+exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
+% exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}, ...
+%   {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, ...
+%   {'match_stim'}, {'match_stim'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative).
 % Construct as a cell with one Nx2 matrix per session where N is
