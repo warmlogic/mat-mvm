@@ -457,9 +457,9 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             
                             % Critical: set up the stimulus type, as well as the
                             % event string to match eventValues
-                            if strcmp(ns_evt{cols.(phaseName).cell_label}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) <= 150)
+                            if strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) <= 150)
                                 evVal = 'ao_standard_corr';
-                            elseif strcmp(ns_evt{cols.(phaseName).cell_label}(trspInd),'12') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
+                            elseif strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'12') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
                                 evVal = 'ao_target_corr';
                             elseif strcmp(ns_evt{1}(ec),'prm+') && strcmp(phaseName,'TC_NEMO_fN400study')
                                 evVal = 'study_prime';
@@ -477,8 +477,8 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                                 evVal = 'test_targ_AA_unrel_corr';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'3') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
                                 evVal = 'test_targ_CA_unrel_corr';
-                            else
-                                keyboard
+                            %else
+                                %keyboard
                             end
                             
                             trl_order = cfg.eventinfo.trl_order.(evVal);

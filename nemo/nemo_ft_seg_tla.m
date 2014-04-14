@@ -146,12 +146,13 @@ end
 % Use the FT chan locs file
 files.elecfile = 'GSN-HydroCel-129.sfp';
 files.locsFormat = 'besa_sfp';
+exper.refChan = 'Cz';
 ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 %% Convert the data to FieldTrip structs
 
 % raw data
-ana.segFxn = 'nemo_seg2ft';
+ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
 ana.trialFxn = 'nemo_trialfun';
@@ -273,7 +274,17 @@ ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'no'; %originally 'yes', but no bandpass filter used in NS processing
 ana.cfg_cont.bsfreq = [59 61];
 
+% artifact settings
+ana.artifact.preArtBaseline = 'yes';
 
+ana.artifact.type = {'nsClassic'};
+ana.artifact.reject = 'complete';
+ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.fast_threshold = 100;
+ana.artifact.diff_threshold = 50;
+ana.artifact.rejectTrial_nBadChan = 10;
+ana.artifact.repairChan_percentBadTrials = 20;
+ana.artifact.allowBadNeighborChan = false;
 
 % % artifact settings
 % ana.artifact.type = {'ftAuto'}; %, {'ftManual', 'ftICA'};
@@ -303,6 +314,7 @@ ana.cfg_cont.bsfreq = [59 61];
 ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
+ana.overwrite.raw = 1;
 ana.overwrite.proc = 1;
 
 % any preprocessing? (run after processing artifacts)
@@ -310,7 +322,7 @@ cfg_pp = [];
 % average rereference
 cfg_pp.reref = 'yes';
 cfg_pp.refchannel = 'all';
-cfg_pp.implicitref = 'Cz';
+cfg_pp.implicitref = exper.refChan;
 % do a baseline correction
 cfg_pp.demean = 'no'; %originally 'yes', but no baseline corr used in NS processing
 cfg_pp.baselinewindow = [-0.2 0];
