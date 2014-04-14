@@ -19,6 +19,11 @@ badChan_str = {};
 %% set the artifact processing parameters
 
 % figure out which artifact options we're using
+if ismember('nsClassic',ana.artifact.type)
+  rejArt_nsClassic = true;
+else
+  rejArt_nsClassic = false;
+end
 if ismember('nsAuto',ana.artifact.type)
   rejArt_nsAuto = true;
 else
@@ -569,6 +574,55 @@ end
 if (rejArt_nsAuto || rejArt_zeroVar) && foundArt
   cfg.artfctdef.reject = ana.artifact.reject;
   data = ft_rejectartifact(cfg,data);
+end
+
+%% approximate Net Station Artifact Classic
+
+if rejArt_nsClassic
+  if ~exist('badChan_str','var')
+    badChan_str = {};
+  end
+  
+  % set up baseline correction before artifact detection
+  if ~isfield(ana.artifact,'preArtBaseline')
+    ana.artifact.preArtBaseline = [];
+  else
+    if ischar(ana.artifact.preArtBaseline)
+      if strcmp(ana.artifact.preArtBaseline,'yes') || strcmp(ana.artifact.preArtBaseline,'all')
+        ana.artifact.preArtBaseline = [-Inf Inf];
+      elseif strcmp(ana.artifact.preArtBaseline,'no')
+        ana.artifact.preArtBaseline = [];
+      else
+        error('incorrect string ''%s'' for ana.artifact.preArtBaseline',ana.artifact.preArtBaseline);
+      end
+    else
+      if length(ana.artifact.preArtBaseline) ~= 2
+        fprintf('you set ana.artifact.preArtBaseline = ');
+        disp(ana.artifact.preArtBaseline);
+        error('must be a vector with a start and end value, denoted in seconds.');
+      end
+    end
+  end
+  % do the baseline correct
+  if ~isempty(ana.artifact.preArtBaseline)
+    tbeg = nearest(data.time{1}, ana.artifact.preArtBaseline(1));
+    tend = nearest(data.time{1}, ana.artifact.preArtBaseline(2));
+    % optionally perform baseline correction on each trial
+    fprintf('baseline correcting data...');
+    for t = 1:length(data.trial)
+      data.trial{t} = ft_preproc_baselinecorrect(data.trial{t},tbeg,tend);
+    end
+    fprintf('Done.\n');
+  end
+  %if ~isempty(ana.artifact.preArtBaseline)
+  %  cfg_tlb = [];
+  %  cfg_tlb.baseline = ana.artifact.preArtBaseline;
+  %  cfg_tlb.parameter = 'trial';
+  %  cfg_tlb.channel = 'all';
+  %  data = ft_timelockbaseline(cfg_tlb,data);
+  %end
+  
+  [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv);
 end
 
 %% visual artifact inspection (manual)
