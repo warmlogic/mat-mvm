@@ -169,6 +169,7 @@ ana.cfg_cont.bsfreq = [59 61];
 ana.artifact.preArtBaseline = 'yes';
 
 ana.artifact.type = {'nsClassic'};
+ana.artifact.reject = 'complete';
 ana.artifact.checkArtSec = [-Inf Inf];
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
