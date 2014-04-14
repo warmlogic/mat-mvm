@@ -166,10 +166,12 @@ ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
+ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes';
 
-ana.artifact.type = {'nsClassic'};
-ana.artifact.reject = 'complete';
+ana.artifact.type = {'nsClassic','ftAuto'};
+
+% set up for nsClassic
 ana.artifact.checkArtSec = [-Inf Inf];
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
@@ -177,38 +179,65 @@ ana.artifact.rejectTrial_nBadChan = 10;
 ana.artifact.repairChan_percentBadTrials = 20;
 ana.artifact.allowBadNeighborChan = false;
 
-% % ana.artifact.type = {'ftManual', 'ftICA'};
-% ana.artifact.type = {'ftAuto'};
-% ana.artifact.reject = 'complete';
+% set up for ftAuto following nsClassic
+% % negative trlpadding: don't check that time (on both sides) for artifacts
+% IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% of extra time around trial epochs. Otherwise set to zero.
+% ana.artifact.trlpadding = -0.5;
+ana.artifact.trlpadding = 0;
+ana.artifact.artpadding = 0.1;
+ana.artifact.fltpadding = 0;
+
+ana.artifact.thresh = true;
+ana.artifact.threshmin = -150;
+ana.artifact.threshmax = 150;
+ana.artifact.threshrange = 250;
+ana.artifact.basic_art = true;
+ana.artifact.basic_art_z = 30;
+ana.artifact.jump_art = true;
+ana.artifact.jump_art_z = 50;
+% eog_art is only used with ftAuto
+ana.artifact.eog_art = false;
+% ana.artifact.eog_art_z = 3.5;
+
+% ana.artifact.type = {'ftManual', 'ftICA'};
+% % ana.artifact.type = {'ftAuto', 'ftICA'};
+% % ana.artifact.type = {'ftAuto'};
 % ana.artifact.resumeManArtFT = false;
 % ana.artifact.resumeICACompFT = false;
-% % % negative trlpadding: don't check that time (on both sides) for artifacts
+% % negative trlpadding: don't check that time (on both sides) for artifacts.
 % % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
 % % of extra time around trial epochs. Otherwise set to zero.
-% % ana.artifact.trlpadding = -0.5;
 % ana.artifact.trlpadding = 0;
 % ana.artifact.artpadding = 0.1;
 % ana.artifact.fltpadding = 0;
+% 
+% % set up for ftManual/ftAuto
+% ana.artifact.thresh = true;
 % % ana.artifact.threshmin = -150;
 % % ana.artifact.threshmax = 150;
 % % ana.artifact.threshrange = 250;
 % ana.artifact.threshmin = -200;
 % ana.artifact.threshmax = 200;
 % ana.artifact.threshrange = 350;
+% ana.artifact.basic_art = true;
 % ana.artifact.basic_art_z = 60;
-% % ana.artifact.muscle_art_z = 70;
+% ana.artifact.jump_art = true;
 % ana.artifact.jump_art_z = 70;
-% % ana.artifact.threshmin_finalCheck = -100;
-% % ana.artifact.threshmax_finalCheck = 100;
-% % ana.artifact.threshrange_finalCheck = 150;
-% ana.artifact.threshmin_finalCheck = -150;
-% ana.artifact.threshmax_finalCheck = 150;
-% ana.artifact.threshrange_finalCheck = 250;
-% ana.artifact.basic_art_z_finalCheck = 30;
-% % ana.artifact.muscle_art_z_finalCheck = 50;
-% ana.artifact.jump_art_z_finalCheck = 50;
-% % eog_art_z_finalCheck is only used with ftAuto
-% ana.artifact.eog_art_z_finalCheck = 3.5;
+% % eog_art is only used with ftAuto
+% ana.artifact.eog_art = false;
+% ana.artifact.eog_art_z = 3.5;
+% 
+% % set up for ftICA
+% ana.artifact.thresh_postICA = true;
+% ana.artifact.threshmin_postICA = -100;
+% ana.artifact.threshmax_postICA = 100;
+% ana.artifact.threshrange_postICA = 150;
+% ana.artifact.basic_art_postICA = true;
+% ana.artifact.basic_art_z_postICA = 30;
+% ana.artifact.jump_art_postICA = true;
+% ana.artifact.jump_art_z_postICA = 50;
+
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
