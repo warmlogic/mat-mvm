@@ -14,7 +14,7 @@ function ebird_ftprocess_tla_wrapper(whichStages)
 %  whichStages: the stage number(s) to run (default = 1:2)
 %
 % Output:
-%  time-frequency data
+%  timelock data
 
 % check/handle arguments
 error(nargchk(0,1,nargin))
@@ -281,7 +281,11 @@ timeOut  = {2,2}; % in HOURS
 
 if runLocally == 0
   % need to export DISPLAY to an offscreen buffer for MATLAB DCS graphics
-  sched = findResource();
+  if exist('parcluster','file')
+    sched = parcluster();
+  else
+    sched = findResource();
+  end
   if strcmp(sched.Type, 'generic')
     setenv('DISPLAY', 'dream:99');
   end
@@ -348,7 +352,7 @@ if runLocally == 0
   
   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
   
-  exper = getAllOutputArguments(job);
+  %exper = getAllOutputArguments(job);
   
   % get the trial counts together across subjects, sessions, and events
   %[exper] = mm_ft_concatTrialCounts_cluster(job,exper,allSubjects);
@@ -460,7 +464,11 @@ function job = newJob(dirs)
 %   dirs -- data structure with necessary fields like data locations
 
 % Set up scheduler, job
-sched = findResource();
+if exist('parcluster','file')
+  sched = parcluster();
+else
+  sched = findResource();
+end
 job = createJob(sched);
 % define the directories to add to worker sessions' matlab path
 homeDir = getenv('HOME');
