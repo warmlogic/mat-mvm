@@ -1413,8 +1413,8 @@ if rejArt_ftAuto
     ana.artifact.eog_art_z = 3.5;
   end
   
-  if ~isfield(ana.artifact,'thresh_art') || isempty(ana.artifact.thresh_art)
-    ana.artifact.thresh_art = true;
+  if ~isfield(ana.artifact,'thresh') || isempty(ana.artifact.thresh)
+    ana.artifact.thresh = true;
   end
   if ~isfield(ana.artifact,'threshmin')
     ana.artifact.threshmin = -100;
@@ -1433,7 +1433,7 @@ if rejArt_ftAuto
   % look for threshold artifacts
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
-  if ana.artifact.thresh_art
+  if ana.artifact.thresh
     if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
       cfg = [];
       cfg.continuous = 'no';
@@ -1595,7 +1595,7 @@ if rejArt_ftAuto
     if ana.artifact.eog_art
       cfg.artfctdef.eog.artifact = artifact_EOG;
     end
-    if ana.artifact.thresh_art
+    if ana.artifact.thresh
       cfg.artfctdef.threshold.artifact = artifact_thresh;
     end
   end
