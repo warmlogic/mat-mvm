@@ -457,93 +457,103 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             
                             % Critical: set up the stimulus type, as well as the
                             % event string to match eventValues
-                            if strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) <= 150)
-                                evVal = 'ao_standard_corr';
+                            segmentThisEvent = true;
+                            if ~strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
+                                segmentThisEvent = false;
+                            elseif strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) <= 150)
+                                evVal = 'AO_Standard_COR';
+                            elseif strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'11') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1') && (str2double(ns_evt{cols.(phaseName).random_number+1}(trspInd)) > 150)
+                                % do not want to segment when random number
+                                % is greater than 150
+                                segmentThisEvent = false;
+                                %evVal = 'UNNEEDED';
                             elseif strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'12') && strcmp(phaseName,'TC_NEMO_AO') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
-                                evVal = 'ao_target_corr';
+                                evVal = 'AO_Target_COR';
                             elseif strcmp(ns_evt{1}(ec),'prm+') && strcmp(phaseName,'TC_NEMO_fN400study')
                                 evVal = 'study_prime';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'6')
-                                evVal = 'study_targ_AA_rel';
+                                evVal = 'Target_AA_REL_COR';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'8')
-                                evVal = 'study_targ_AA_unrel';
+                                evVal = 'Target_AA_UNR_COR';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'1')
-                                evVal = 'study_targ_CA_rel';
+                                evVal = 'Target_CA_REL_COR';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400study') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'3')
-                                evVal = 'study_targ_CA_unrel';
+                                evVal = 'Target_CA_UNR_COR';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'10') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
-                                evVal = 'test_targ_A_new_corr';
+                                evVal = 'Test_A_NEW_COR';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'8') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
-                                evVal = 'test_targ_AA_unrel_corr';
+                                evVal = 'Test_AA_OLD_COR';
                             elseif strcmp(ns_evt{1}(ec),'trg+') && strcmp(phaseName,'TC_NEMO_fN400test') && strcmp(ns_evt{cols.(phaseName).cell_label+1}(trspInd),'3') && strcmp(ns_evt{cols.(phaseName).accuracy+1}(trspInd),'1')
-                                evVal = 'test_targ_CA_unrel_corr';
-                            %else
-                                %keyboard
-                            end
-                            
-                            trl_order = cfg.eventinfo.trl_order.(evVal);
-                            
-                            % find where this event type occurs in the list
-                            eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
-                            if isempty(eventNumber)
-                                eventNumber = -1;
-                            end
-                            
-                            if length(eventNumber) == 1 && eventNumber ~= -1
-                                % set the times we need to segment before and after the
-                                % trigger
-                                prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
-                                poststimSec = cfg.eventinfo.prepost(eventNumber,2);
-                                
-                                % prestimulus period should be negative
-                                prestimSamp = -round(prestimSec * ft_hdr.Fs);
-                                poststimSamp = round(poststimSec * ft_hdr.Fs);
+                                evVal = 'Test_CA_OLD_COR';
                             else
-                                fprintf('event number not found for %s!\n',evVal);
                                 keyboard
                             end
                             
-                            % dynamically assign values to variables, as
-                            % named by the field names under
-                            % cols.(phaseName)
-                            colFn = fieldnames(cols.(phaseName));
-                            for fn = 1:length(colFn)
-                                if ~exist(colFn{fn},'var')
-                                    if isstrprop(ns_evt{cols.(phaseName).(colFn{fn})+1}{trspInd},'digit')
-                                        eval(sprintf('%s = str2double(ns_evt{cols.%s.%s+1}{%d});',colFn{fn},phaseName,colFn{fn},trspInd));
-                                    else
-                                        eval(sprintf('%s = -1;',colFn{fn}))
+                            if segmentThisEvent
+                                trl_order = cfg.eventinfo.trl_order.(evVal);
+                                
+                                % find where this event type occurs in the list
+                                eventNumber = find(ismember(cfg.trialdef.eventvalue,evVal));
+                                if isempty(eventNumber)
+                                    eventNumber = -1;
+                                end
+                                
+                                if length(eventNumber) == 1 && eventNumber ~= -1
+                                    % set the times we need to segment before and after the
+                                    % trigger
+                                    prestimSec = abs(cfg.eventinfo.prepost(eventNumber,1));
+                                    poststimSec = cfg.eventinfo.prepost(eventNumber,2);
+                                    
+                                    % prestimulus period should be negative
+                                    prestimSamp = -round(prestimSec * ft_hdr.Fs);
+                                    poststimSamp = round(poststimSec * ft_hdr.Fs);
+                                else
+                                    fprintf('event number not found for %s!\n',evVal);
+                                    keyboard
+                                end
+                                
+                                % dynamically assign values to variables, as
+                                % named by the field names under
+                                % cols.(phaseName)
+                                colFn = fieldnames(cols.(phaseName));
+                                for fn = 1:length(colFn)
+                                    if ~exist(colFn{fn},'var')
+                                        if isstrprop(ns_evt{cols.(phaseName).(colFn{fn})+1}{trspInd},'digit')
+                                            eval(sprintf('%s = str2double(ns_evt{cols.%s.%s+1}{%d});',colFn{fn},phaseName,colFn{fn},trspInd));
+                                        else
+                                            eval(sprintf('%s = -1;',colFn{fn}))
+                                        end
                                     end
                                 end
-                            end
-                            
-                            % add it to the trial definition
-                            this_trl = trl_ini;
-                            
-                            % get the time of this event
-                            this_sample = ft_event(i).sample;
-                            
-                            % prestimulus sample
-                            this_trl(1) = this_sample + prestimSamp;
-                            % poststimulus sample
-                            this_trl(2) = this_sample + poststimSamp;
-                            % offset in samples
-                            this_trl(3) = prestimSamp;
-                            
-                            for to = 1:length(trl_order)
-                                thisInd = find(ismember(trl_order,trl_order{to}));
-                                if ~isempty(thisInd)
-                                    if exist(trl_order{to},'var')
-                                        this_trl(timeCols + thisInd) = eval(trl_order{to});
-                                    else
-                                        fprintf('variable %s does not exist!\n',trl_order{to});
-                                        keyboard
+                                
+                                % add it to the trial definition
+                                this_trl = trl_ini;
+                                
+                                % get the time of this event
+                                this_sample = ft_event(i).sample;
+                                
+                                % prestimulus sample
+                                this_trl(1) = this_sample + prestimSamp;
+                                % poststimulus sample
+                                this_trl(2) = this_sample + poststimSamp;
+                                % offset in samples
+                                this_trl(3) = prestimSamp;
+                                
+                                for to = 1:length(trl_order)
+                                    thisInd = find(ismember(trl_order,trl_order{to}));
+                                    if ~isempty(thisInd)
+                                        if exist(trl_order{to},'var')
+                                            this_trl(timeCols + thisInd) = eval(trl_order{to});
+                                        else
+                                            fprintf('variable %s does not exist!\n',trl_order{to});
+                                            keyboard
+                                        end
                                     end
                                 end
+                                
+                                % put all the trials together
+                                trl = cat(1,trl,double(this_trl));
                             end
-                            
-                            % put all the trials together
-                            trl = cat(1,trl,double(this_trl));
                             
                         end % check the evt event
                         
