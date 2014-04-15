@@ -235,14 +235,18 @@ for tr = 1:nTrial
   trials(tr) = true;
   cfgChannelRepair.trials = trials;
   
-  if any(foundArt(tr,:)) && ~foundBlink(tr) && ~foundTooManyBadChan(tr)
+  if any(foundArt(tr,~fullyRepairChan)) && ~foundBlink(tr) && ~foundTooManyBadChan(tr)
     if ana.artifact.allowBadNeighborChan || (~ana.artifact.allowBadNeighborChan && ~foundBadNeighborChan(tr))
-      cfgChannelRepair.badchannel = data.label(foundArt(tr,:));
+      theseBadChan = data.label(foundArt(tr,:));
+      theseBadChan = theseBadChan(~ismember(theseBadChan,fullyRepairChan_str));
       
-      fprintf('\nTrial %d: using method=''%s'' to repair %d channels:%s\n',tr,cfgChannelRepair.method,length(cfgChannelRepair.badchannel),sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}));
-      
-      repaired_data = ft_channelrepair(cfgChannelRepair, data);
-      data.trial{tr} = repaired_data.trial{1};
+      if ~isempty(theseBadChan)
+        cfgChannelRepair.badchannel = theseBadChan;
+        fprintf('\nTrial %d: using method=''%s'' to repair %d channels:%s\n',tr,cfgChannelRepair.method,length(cfgChannelRepair.badchannel),sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}));
+        
+        repaired_data = ft_channelrepair(cfgChannelRepair, data);
+        data.trial{tr} = repaired_data.trial{1};
+      end
     end
   end
   
