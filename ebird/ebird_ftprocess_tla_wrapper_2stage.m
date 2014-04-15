@@ -306,7 +306,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    [exper] = stageFun{i}(ana,cfg_pp,exper,dirs,files,runLocally,timeOut{i});
+    stageFun{i}(ana,cfg_pp,exper,dirs,files,runLocally,timeOut{i});
   elseif i == 2
     stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -323,7 +323,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [exper] = stage1(ana,cfg_pp,exper,dirs,files,runLocally,timeOut)
+function stage1(ana,cfg_pp,exper,dirs,files,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -354,19 +354,6 @@ if runLocally == 0
   
   %exper = getAllOutputArguments(job);
   
-  % get the trial counts together across subjects, sessions, and events
-  %[exper] = mm_ft_concatTrialCounts_cluster(job,exper,allSubjects);
-
-%   % save the analysis details; overwrite if it already exists
-%   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
-%   %if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-%   fprintf('Done.\n');
-%   %else
-%   %  error('Not saving! %s already exists.\n',saveFile);
-%   %end
-  
   % final step: destroy the job because this doesn't happen in runJob
   destroy(job);
   
@@ -383,17 +370,7 @@ else
   ana.usePeer = 0;
   
   % Local: run all the subjects
-  [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
-  
-%   % save the analysis details; overwrite if it already exists
-%   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
-%   %if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-%   fprintf('Done.\n');
-%   %else
-%   %  error('Not saving! %s already exists.\n',saveFile);
-%   %end
+  create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
   
   % turn the diary off
   diary off
@@ -413,8 +390,9 @@ if runLocally == 0
   %adFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
   %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
   
-  %sdFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr,'subjectDetails.mat');
-  %load(sdFile,'exper','ana','dirs','files','cfg_pp');
+  sesNames = cellflat(exper.sessions);
+  replaceDataroot = false;
+  [exper,ana,dirs,files] = mm_loadAD(dirs.saveDirProc,exper.subjects,sesNames,replaceDataroot);
   
   % save the original subjects array so we can set exper to have single
   % subjects, one for each task created
@@ -426,10 +404,8 @@ if runLocally == 0
     % Dream: create one task for each subject
     exper.subjects = allSubjects(i);
     
-    %inArg = {ana,cfg_proc,exper,dirs};
     inArg = {ana,cfg_proc,exper,dirs,files,cfg_pp};
     
-    % save the exper struct (output 1) so we can use it later
     createTask(job,@process_ft_data_multiSes,0,inArg);
   end
   
@@ -451,7 +427,6 @@ else
   ana.usePeer = 0;
   
   % Local: run all the subjects
-  %process_ft_data(ana,cfg_proc,exper,dirs);
   process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
   
   % turn the diary off
@@ -471,10 +446,12 @@ else
 end
 job = createJob(sched);
 % define the directories to add to worker sessions' matlab path
-homeDir = getenv('HOME');
-myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
-p = path();
-set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p, dirs.dataroot});
+if verLessThan('matlab','8.3')
+  homeDir = getenv('HOME');
+  myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
+  p = path();
+  set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p, dirs.dataroot});
+end
 
 function runJob( job, timeOut, logFile )
 % runJob Submits and waits on job to finish or timeout
@@ -505,7 +482,9 @@ end
 
 % Capture command window output from all tasks
 alltasks = get(job, 'Tasks');
-set(alltasks, 'CaptureCommandWindowOutput', true);
+if verLessThan('matlab','8.3')
+  set(alltasks, 'CaptureCommandWindowOutput', true);
+end
 
 % Submit Job/Tasks and wait for completion (or timeout)
 submit(job)
