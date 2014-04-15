@@ -55,8 +55,8 @@ if ~iscell(exper.eventValues)
   exper.eventValues = {{exper.eventValues}};
 elseif iscell(exper.eventValues) && ~iscell(exper.eventValues{1})
   exper.eventValues = {exper.eventValues};
-% elseif iscell(exper.eventValues) && iscell(exper.eventValues{1})
-%   fprintf('good eventValues setup!\n');
+  % elseif iscell(exper.eventValues) && iscell(exper.eventValues{1})
+  %   fprintf('good eventValues setup!\n');
 end
 
 % make sure exper.sessions is a cell
@@ -64,8 +64,8 @@ if ~iscell(exper.sessions)
   exper.sessions = {{exper.sessions}};
 elseif iscell(exper.sessions) && ~iscell(exper.sessions{1})
   exper.sessions = {exper.sessions};
-% elseif iscell(exper.sessions) && iscell(exper.sessions{1})
-%   fprintf('good sessions setup!\n');
+  % elseif iscell(exper.sessions) && iscell(exper.sessions{1})
+  %   fprintf('good sessions setup!\n');
 end
 
 if length(exper.eventValues) ~= length(exper.sessions)
@@ -205,57 +205,57 @@ fprintf('Converting NetStation to FieldTrip...\n');
 % initialize for the sesStr
 exper.sesStr = cell(size(exper.sessions));
 
-for sub = 1:length(exper.subjects)
-  for ses = 1:length(exper.sessions)
-    
-    if size(exper.prepost{ses},1) ~= length(exper.eventValues{ses})
-      error('Number of entries in exper.prepost{ses} does not match that of exper.eventValues{ses}!\nConstruct exper.prepost as a cell with one Nx2 matrix per session where N is length(exper.eventValues{ses}); e.g. exper.prepost = {[-1.0 2.0; -1.0 2.0], [-1.0 2.0; -1.0 2.0]} for two sessions with two events each.');
-    end
-    
-    % make sure event values are sorted
-    if ~issorted(exper.eventValues{ses})
-      [exper.eventValues{ses}, evInd] = sort(exper.eventValues{ses});
-      exper.prepost{ses} = exper.prepost{ses}(evInd,:);
-    end
-    
-    % back up original field values because that is how we access the data
-    eventValues_orig = exper.eventValues{ses};
-    for i = 1:length(exper.eventValues{ses})
-      % look for illegal characters
-      for ic = 1:length(illegalStructFieldChars)
-        if ~isempty(strfind(exper.eventValues{ses}{i},illegalStructFieldChars{ic}))
-          exper.eventValues{ses}{i} = strrep(exper.eventValues{ses}{i},illegalStructFieldChars{ic},replaceIllegalCharWith);
-        end
-      end
-      % cannot start a struct field with a number
-      if isstrprop(exper.eventValues{ses}{i}(1),'digit')
-        exper.eventValues{ses}{i} = [appendInFrontOfNum,exper.eventValues{ses}{i}];
+for ses = 1:length(exper.sessions)
+  
+  if size(exper.prepost{ses},1) ~= length(exper.eventValues{ses})
+    error('Number of entries in exper.prepost{ses} does not match that of exper.eventValues{ses}!\nConstruct exper.prepost as a cell with one Nx2 matrix per session where N is length(exper.eventValues{ses}); e.g. exper.prepost = {[-1.0 2.0; -1.0 2.0], [-1.0 2.0; -1.0 2.0]} for two sessions with two events each.');
+  end
+  
+  % make sure event values are sorted
+  if ~issorted(exper.eventValues{ses})
+    [exper.eventValues{ses}, evInd] = sort(exper.eventValues{ses});
+    exper.prepost{ses} = exper.prepost{ses}(evInd,:);
+  end
+  
+  % back up original field values because that is how we access the data
+  eventValues_orig = exper.eventValues{ses};
+  for i = 1:length(exper.eventValues{ses})
+    % look for illegal characters
+    for ic = 1:length(illegalStructFieldChars)
+      if ~isempty(strfind(exper.eventValues{ses}{i},illegalStructFieldChars{ic}))
+        exper.eventValues{ses}{i} = strrep(exper.eventValues{ses}{i},illegalStructFieldChars{ic},replaceIllegalCharWith);
       end
     end
-    
-    % turn the session name into a string
-    if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-      sesStr = exper.sessions{ses}{1};
-      for i = 2:length(exper.sessions{ses})
-        sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
-      end
-    elseif ~iscell(exper.sessions{ses})
-      sesStr = exper.sessions{ses};
-    elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
-      sesStr = cell2mat(exper.sessions{ses});
+    % cannot start a struct field with a number
+    if isstrprop(exper.eventValues{ses}{i}(1),'digit')
+      exper.eventValues{ses}{i} = [appendInFrontOfNum,exper.eventValues{ses}{i}];
     end
-    % store the sesStr
-    exper.sesStr{ses} = sesStr;
-    
-    % initialize to store the bad channel information
-    exper.badChan.(exper.sesStr{ses}) = cell(length(exper.subjects),1);
-
-    % initialize to store trial counts and bad events (if using artifacts)
-    for evVal = 1:length(exper.eventValues{ses})
-      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
-      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+  end
+  
+  % turn the session name into a string
+  if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+    sesStr = exper.sessions{ses}{1};
+    for i = 2:length(exper.sessions{ses})
+      sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
     end
-    
+  elseif ~iscell(exper.sessions{ses})
+    sesStr = exper.sessions{ses};
+  elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
+    sesStr = cell2mat(exper.sessions{ses});
+  end
+  % store the sesStr
+  exper.sesStr{ses} = sesStr;
+  
+  % initialize to store the bad channel information
+  exper.badChan.(sesStr) = cell(length(exper.subjects),1);
+  
+  % initialize to store trial counts and bad events (if using artifacts)
+  for evVal = 1:length(exper.eventValues{ses})
+    exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
+    exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+  end
+  
+  for sub = 1:length(exper.subjects)
     % set the location to save the data and make sure it exists
     saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
     if ~exist(saveDirRawFile,'dir')
@@ -315,7 +315,7 @@ for sub = 1:length(exper.subjects)
     
     % store the bad channel information
     %exper.badChan{sub,ses} = badChan;
-    exper.badChan.(exper.sesStr{ses}){sub} = badChan;
+    exper.badChan.(sesStr){sub} = badChan;
     % store the bad event information
     % exper.badEv{sub,ses} = badEv;
     
@@ -346,8 +346,8 @@ for sub = 1:length(exper.subjects)
       if size(ft_raw.(eventVal).trial,2) > 0
         % store the number of trials for this event value
         %exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
-        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
+        exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
+        exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
         
         % set outputfile so the raw data is saved; especially useful for
         % implementing analyses with the peer toolbox
@@ -390,20 +390,38 @@ for sub = 1:length(exper.subjects)
     saveFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr,'subjectDetails.mat');
     % back up original exper struct
     exper_orig = exper;
+    sesEvValues = exper.eventValues{ses};
     % include only this subject
     exper.subjects = exper.subjects(sub);
     exper.sessions = exper.sessions(ses);
-    exper.sesStr = exper.sesStr(ses);
-    exper.badChan = exper.badChan.(exper.sesStr{ses})(sub);
-    for evVal = 1:length(exper.eventValues{ses})
-      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
-      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+    % % do not discard all of this because of how mm_loadAD works
+    %exper.eventValues = exper.eventValues(ses);
+    %exper.prepost = exper.prepost(ses);
+    %exper.sesStr = {sesStr};
+    exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
+    for evVal = 1:length(sesEvValues)
+      exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+      exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
     end
+    %fn = fieldnames(exper.nTrials);
+    %for f = 1:length(fn)
+    %  if f ~= ses
+    %    if isfield(exper.badChan,fn{f})
+    %      exper.badChan = rmfield(exper.badChan,fn{f});
+    %    end
+    %    if isfield(exper.nTrials,fn{f})
+    %      exper.nTrials = rmfield(exper.nTrials,fn{f});
+    %    end
+    %    if isfield(exper.badEv,fn{f})
+    %      exper.badEv = rmfield(exper.badEv,fn{f});
+    %    end
+    %  end
+    %end
     save(saveFile,'exper','ana','dirs','files','cfg_pp');
     % restore original exper struct
     exper = exper_orig;
     
-  end % for exper.sessions
-end % for exper.subjects
+  end % for exper.subjects
+end % for exper.sessions
 
 end

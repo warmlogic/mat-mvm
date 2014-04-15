@@ -22,38 +22,53 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-exper.eventValues = {{'match_stim'}};
+% exper.eventValues = {{'match_stim'}};
+exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
+% exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}, ...
+%   {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, ...
+%   {'match_stim'}, {'match_stim'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative).
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
-exper.prepost = {[-0.2 1.0]};
+% exper.prepost = {[-0.2 1.0]};
+exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
-%   'EBIRD049';
-%   'EBIRD002';
-%   'EBIRD003';
-%   'EBIRD004';
-%   'EBIRD005';
-%   'EBIRD006';
-%   'EBIRD007';
-%   'EBIRD008';
-%   'EBIRD009';
-%   'EBIRD010';
-%   'EBIRD011';
-%   'EBIRD012';
-%   'EBIRD013';
-%   'EBIRD014';
-%   'EBIRD015';
-%   'EBIRD016';
-%   'EBIRD017';
-%   'EBIRD018';
-%   'EBIRD019';
-%   'EBIRD020';
+  %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
+  %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
+  %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
+  %'EBIRD004'; % DNF. Dropout. Last session: 8.
+  'EBIRD005';
+  %'EBIRD006'; % DNF. Dropout. Last session: 2.
+  'EBIRD007';
+  'EBIRD008';
+  'EBIRD009';
+  'EBIRD010';
+  'EBIRD011';
+  'EBIRD012';
+  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+  %'EBIRD014'; % DNF. Rejected. Last session: 1.
+  %'EBIRD015'; % DNF. Lost in HD crash.
+  %'EBIRD016'; % DNF. Lost in HD crash.
+  %'EBIRD017'; % DNF. Lost in HD crash.
+  'EBIRD018';
+  'EBIRD019';
+  'EBIRD020';
   'EBIRD021';
+  %'EBIRD022'; % DNF. Dropout. Last session: 8.
+  %'EBIRD023'; % DNF. Dropout. Last session: 1.
+  'EBIRD024';
+  'EBIRD025';
+  'EBIRD027';
+  'EBIRD029';
+  'EBIRD032';
+  'EBIRD034';
+  'EBIRD042';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -62,9 +77,9 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {{'session_1'}};
+% exper.sessions = {{'session_1'}};
 % exper.sessions = {{'session_2'}};
-% exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
+exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 % exper.sessions = {...
 %   {'session_1'}, ...
 %   {'session_2'}, ...
@@ -131,8 +146,8 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-  ana.sessionNames = {'pretest'};
-%   ana.sessionNames = {'pretest','posttest','posttest_delay'};
+%   ana.sessionNames = {'pretest'};
+  ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
@@ -143,8 +158,8 @@ if ana.useExpInfo
 %     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
-  ana.phaseNames = {{'match'}};
-%   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
+%   ana.phaseNames = {{'match'}};
+  ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   

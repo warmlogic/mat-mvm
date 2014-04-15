@@ -24,6 +24,7 @@ exper.eegFileExt = 'raw';
 % corrct events
 exper.eventValues = {{'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'}};
 % exper.eventValues = {{'expo_stim'}};
+% exper.eventValues = {{'expo_stim'},{'expo_stim'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative).
 % Construct as a cell with one Nx2 matrix per session where N is
@@ -31,6 +32,7 @@ exper.eventValues = {{'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_
 % in exper.eventValues.
 exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-1.0 2.0]};
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
 %   'SPACE001';
@@ -79,6 +81,7 @@ exper.subjects = {
 % data is saved for each subject because of the option to combine sessions.
 % See 'help create_ft_struct' for more information.
 exper.sessions = {{'session_1'}};
+%exper.sessions = {{'session_1'},{'session_2'}};
 
 %% set up file and directory handling parameters
 
@@ -137,10 +140,12 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'oneDay'};
+  %ana.sessionNames = {'oneDay','oneDay2'};
   
   % phases occur within a session; for dealing with events.mat
   ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
   %ana.phaseNames = {{'expo'}};
+  %ana.phaseNames = {{'expo'},{'expo'}};
   %ana.phaseNames = {{'multistudy'}};
   %ana.phaseNames = {{'distract_math'}};
   %ana.phaseNames = {{'cued_recall'}};
@@ -168,14 +173,16 @@ ana.cfg_cont.bsfreq = [59 61];
 ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes';
 
-% ana.artifact.type = {'nsClassic','ftAuto'};
-% 
+% % ana.artifact.type = {'nsClassic','ftAuto'};
+% ana.artifact.type = {'nsClassic'};
+
 % % set up for nsClassic
 % ana.artifact.checkArtSec = [-0.2 1.0];
 % ana.artifact.fast_threshold = 100;
 % ana.artifact.diff_threshold = 50;
 % ana.artifact.rejectTrial_nBadChan = 10;
 % ana.artifact.repairChan_percentBadTrials = 20;
+% %ana.artifact.repairChan_percentBadTrials = 10;
 % ana.artifact.allowBadNeighborChan = false;
 % 
 % % set up for ftAuto following nsClassic

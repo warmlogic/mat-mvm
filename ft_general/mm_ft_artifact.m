@@ -49,6 +49,11 @@ if ismember('rmBadChan',ana.artifact.type)
 else
   rejArt_rmBadChan = false;
 end
+if ismember('repairBadChan',ana.artifact.type)
+  rejArt_repairBadChan = true;
+else
+  rejArt_repairBadChan = false;
+end
 if ismember('preRejManual',ana.artifact.type)
   rejArt_preRejManual = true;
 else
@@ -250,6 +255,17 @@ if rejArt_rmBadChan && ~isempty(badChan)
   data = ft_rejectvisual(cfg_rv,data);
 elseif rejArt_rmBadChan && isempty(badChan)
   fprintf('No bad channels to reject!\n');
+end
+
+if rejArt_repairBadChan && ~isempty(badChan)
+  cfgChannelRepair = [];
+  cfgChannelRepair.channel = 'all';
+  cfgChannelRepair.method = 'spline';
+  cfgChannelRepair.elecfile = elecfile;
+  
+  cfgChannelRepair.badchannel = eval(sprintf('{%s};',sprintf(repmat(' ''E%d''',1,length(badChan)),badChan)));
+  
+  data = ft_channelrepair(cfgChannelRepair,data);
 end
 
 if rejArt_nsAuto

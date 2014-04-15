@@ -89,17 +89,18 @@ if ana.usePeer
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
       
-      % turn the session name into a string for easier printing
-      if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-        sesStr = exper.sessions{ses}{1};
-        for i = 2:length(exper.sessions{ses})
-          sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
-        end
-      elseif ~iscell(exper.sessions{ses})
-        sesStr = exper.sessions{ses};
-      elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
-        sesStr = cell2mat(exper.sessions{ses});
-      end
+%       % turn the session name into a string for easier printing
+%       if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+%         sesStr = exper.sessions{ses}{1};
+%         for i = 2:length(exper.sessions{ses})
+%           sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
+%         end
+%       elseif ~iscell(exper.sessions{ses})
+%         sesStr = exper.sessions{ses};
+%       elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
+%         sesStr = cell2mat(exper.sessions{ses});
+%       end
+      sesStr = exper.sesStr{ses};
       
       saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
       saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
@@ -113,14 +114,32 @@ if ana.usePeer
       proc_subDetailFile = fullfile(saveDirProcFile,'subjectDetails.mat');
       % back up original exper struct
       orig_exper = exper;
+      sesEvValues = exper.eventValues{ses};
       % include only this subject
       exper.subjects = exper.subjects(sub);
       exper.sessions = exper.sessions(ses);
-      exper.badChan = exper.badChan(sub,ses);
-      for evVal = 1:length(exper.eventValues{ses})
-        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
-        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+      %exper.eventValues = exper.eventValues(ses);
+      %exper.prepost = exper.prepost(ses);
+      %exper.sesStr = {sesStr};
+      exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
+      for evVal = 1:length(sesEvValues)
+        exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+        exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
       end
+      %fn = fieldnames(exper.nTrials);
+      %for f = 1:length(fn)
+      %  if f ~= ses
+      %    if isfield(exper.badChan,fn{f})
+      %      exper.badChan = rmfield(exper.badChan,fn{f});
+      %    end
+      %    if isfield(exper.nTrials,fn{f})
+      %      exper.nTrials = rmfield(exper.nTrials,fn{f});
+      %    end
+      %    if isfield(exper.badEv,fn{f})
+      %      exper.badEv = rmfield(exper.badEv,fn{f});
+      %    end
+      %  end
+      %end
       save(proc_subDetailFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
       exper = orig_exper;
       
@@ -158,17 +177,18 @@ else
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
       
-      % turn the session name into a string for easier printing
-      if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
-        sesStr = exper.sessions{ses}{1};
-        for i = 2:length(exper.sessions{ses})
-          sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
-        end
-      elseif ~iscell(exper.sessions{ses})
-        sesStr = exper.sessions{ses};
-      elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
-        sesStr = cell2mat(exper.sessions{ses});
-      end
+%       % turn the session name into a string for easier printing
+%       if iscell(exper.sessions{ses}) && length(exper.sessions{ses}) > 1
+%         sesStr = exper.sessions{ses}{1};
+%         for i = 2:length(exper.sessions{ses})
+%           sesStr = cat(2,sesStr,'_',exper.sessions{ses}{i});
+%         end
+%       elseif ~iscell(exper.sessions{ses})
+%         sesStr = exper.sessions{ses};
+%       elseif iscell(exper.sessions{ses}) && length(exper.sessions{ses}) == 1
+%         sesStr = cell2mat(exper.sessions{ses});
+%       end
+      sesStr = exper.sesStr{ses};
       
       saveDirRawFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr);
       saveDirProcFile = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
@@ -182,14 +202,32 @@ else
       proc_subDetailFile = fullfile(saveDirProcFile,'subjectDetails.mat');
       % back up original exper struct
       orig_exper = exper;
+      sesEvValues = exper.eventValues{ses};
       % include only this subject
       exper.subjects = exper.subjects(sub);
       exper.sessions = exper.sessions(ses);
-      exper.badChan = exper.badChan(sub,ses);
-      for evVal = 1:length(exper.eventValues{ses})
-        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
-        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+      %exper.eventValues = exper.eventValues(ses);
+      %exper.prepost = exper.prepost(ses);
+      %exper.sesStr = {sesStr};
+      exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
+      for evVal = 1:length(sesEvValues)
+        exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+        exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
       end
+      %fn = fieldnames(exper.nTrials);
+      %for f = 1:length(fn)
+      %  if f ~= ses
+      %    if isfield(exper.badChan,fn{f})
+      %      exper.badChan = rmfield(exper.badChan,fn{f});
+      %    end
+      %    if isfield(exper.nTrials,fn{f})
+      %      exper.nTrials = rmfield(exper.nTrials,fn{f});
+      %    end
+      %    if isfield(exper.badEv,fn{f})
+      %      exper.badEv = rmfield(exper.badEv,fn{f});
+      %    end
+      %  end
+      %end
       save(proc_subDetailFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
       exper = orig_exper;
       
