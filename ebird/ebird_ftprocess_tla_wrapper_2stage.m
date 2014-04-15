@@ -277,7 +277,8 @@ cfg_proc.keeptrials = 'yes';
 %stageFun = {@stage1};
 %timeOut  = {2}; % in HOURS
 stageFun = {@stage1,@stage2};
-timeOut  = {2,2}; % in HOURS
+% timeOut  = {2,2}; % in HOURS
+timeOut  = {18,18}; % in HOURS
 
 if runLocally == 0
   % need to export DISPLAY to an offscreen buffer for MATLAB DCS graphics
