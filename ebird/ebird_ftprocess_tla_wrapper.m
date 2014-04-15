@@ -69,31 +69,31 @@ exper.subjects = {
   %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
   %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
   %'EBIRD004'; % DNF. Dropout. Last session: 8.
-%   'EBIRD005';
-%   %'EBIRD006'; % DNF. Dropout. Last session: 2.
-%   'EBIRD007';
-%   'EBIRD008';
-%   'EBIRD009';
-%   'EBIRD010';
-%   'EBIRD011';
-%   'EBIRD012';
-%   %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-%   %'EBIRD014'; % DNF. Rejected. Last session: 1.
-%   %'EBIRD015'; % DNF. Lost in HD crash.
-%   %'EBIRD016'; % DNF. Lost in HD crash.
-%   %'EBIRD017'; % DNF. Lost in HD crash.
-%   'EBIRD018';
-%   'EBIRD019';
-%   'EBIRD020';
-%   'EBIRD021';
-%   %'EBIRD022'; % DNF. Dropout. Last session: 8.
-%   %'EBIRD023'; % DNF. Dropout. Last session: 1.
-%   'EBIRD024';
-%   'EBIRD025';
-%   'EBIRD027';
-%   'EBIRD029';
-%   'EBIRD032';
-%   'EBIRD034';
+  'EBIRD005';
+  %'EBIRD006'; % DNF. Dropout. Last session: 2.
+  'EBIRD007';
+  'EBIRD008';
+  'EBIRD009';
+  'EBIRD010';
+  'EBIRD011';
+  'EBIRD012';
+  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+  %'EBIRD014'; % DNF. Rejected. Last session: 1.
+  %'EBIRD015'; % DNF. Lost in HD crash.
+  %'EBIRD016'; % DNF. Lost in HD crash.
+  %'EBIRD017'; % DNF. Lost in HD crash.
+  'EBIRD018';
+  'EBIRD019';
+  'EBIRD020';
+  'EBIRD021';
+  %'EBIRD022'; % DNF. Dropout. Last session: 8.
+  %'EBIRD023'; % DNF. Dropout. Last session: 1.
+  'EBIRD024';
+  'EBIRD025';
+  'EBIRD027';
+  'EBIRD029';
+  'EBIRD032';
+  'EBIRD034';
   'EBIRD042';
   };
 
@@ -136,7 +136,7 @@ dirs.localDir = fullfile(getenv('HOME'),'data');
 % pick the right dirs.dataroot
 if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
-  runLocally = 0;
+  runLocally = 1;
 elseif isfield(dirs,'serverLocalDir') && exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
   runLocally = 1;
