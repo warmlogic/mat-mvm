@@ -18,7 +18,8 @@ function ebird_ftprocess_tla_wrapper(whichStages)
 
 % check/handle arguments
 error(nargchk(0,1,nargin))
-STAGES = 1:2;
+% STAGES = 1:2;
+STAGES = 1;
 if nargin == 1
   STAGES = whichStages;
 end
@@ -68,31 +69,31 @@ exper.subjects = {
   %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
   %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
   %'EBIRD004'; % DNF. Dropout. Last session: 8.
-  'EBIRD005';
-  %'EBIRD006'; % DNF. Dropout. Last session: 2.
-  'EBIRD007';
-  'EBIRD008';
-  'EBIRD009';
-  'EBIRD010';
-  'EBIRD011';
-  'EBIRD012';
-  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-  %'EBIRD014'; % DNF. Rejected. Last session: 1.
-  %'EBIRD015'; % DNF. Lost in HD crash.
-  %'EBIRD016'; % DNF. Lost in HD crash.
-  %'EBIRD017'; % DNF. Lost in HD crash.
-  'EBIRD018';
-  'EBIRD019';
-  'EBIRD020';
-  'EBIRD021';
-  %'EBIRD022'; % DNF. Dropout. Last session: 8.
-  %'EBIRD023'; % DNF. Dropout. Last session: 1.
-  'EBIRD024';
-  'EBIRD025';
-  'EBIRD027';
-  'EBIRD029';
-  'EBIRD032';
-  'EBIRD034';
+%   'EBIRD005';
+%   %'EBIRD006'; % DNF. Dropout. Last session: 2.
+%   'EBIRD007';
+%   'EBIRD008';
+%   'EBIRD009';
+%   'EBIRD010';
+%   'EBIRD011';
+%   'EBIRD012';
+%   %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+%   %'EBIRD014'; % DNF. Rejected. Last session: 1.
+%   %'EBIRD015'; % DNF. Lost in HD crash.
+%   %'EBIRD016'; % DNF. Lost in HD crash.
+%   %'EBIRD017'; % DNF. Lost in HD crash.
+%   'EBIRD018';
+%   'EBIRD019';
+%   'EBIRD020';
+%   'EBIRD021';
+%   %'EBIRD022'; % DNF. Dropout. Last session: 8.
+%   %'EBIRD023'; % DNF. Dropout. Last session: 1.
+%   'EBIRD024';
+%   'EBIRD025';
+%   'EBIRD027';
+%   'EBIRD029';
+%   'EBIRD032';
+%   'EBIRD034';
   'EBIRD042';
   };
 
@@ -135,7 +136,7 @@ dirs.localDir = fullfile(getenv('HOME'),'data');
 % pick the right dirs.dataroot
 if isfield(dirs,'serverDir') && exist(dirs.serverDir,'dir')
   dirs.dataroot = dirs.serverDir;
-  runLocally = 1;
+  runLocally = 0;
 elseif isfield(dirs,'serverLocalDir') && exist(dirs.serverLocalDir,'dir')
   dirs.dataroot = dirs.serverLocalDir;
   runLocally = 1;
@@ -274,10 +275,10 @@ cfg_proc.keeptrials = 'yes';
 %% set up for running stages and specifics for Dream
 
 % name(s) of the functions for different stages of processing
-%stageFun = {@stage1};
-%timeOut  = {2}; % in HOURS
-stageFun = {@stage1,@stage2};
-timeOut  = {2,2}; % in HOURS
+stageFun = {@stage1};
+timeOut  = {2}; % in HOURS
+% stageFun = {@stage1,@stage2};
+% timeOut  = {2,2}; % in HOURS
 
 if runLocally == 0
   % need to export DISPLAY to an offscreen buffer for MATLAB DCS graphics
@@ -306,9 +307,9 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    [exper] = stageFun{i}(ana,cfg_pp,exper,dirs,files,runLocally,timeOut{i});
-  elseif i == 2
     stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
+  %elseif i == 2
+  %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
   
   fprintf('STAGE%d END TIME: %s\n',i, datestr(now,13));
@@ -323,7 +324,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [exper] = stage1(ana,cfg_pp,exper,dirs,files,runLocally,timeOut)
+function stage1(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -348,6 +349,11 @@ if runLocally == 0
     
     % save the exper struct (output 1) so we can use it later
     createTask(job,@create_ft_struct_multiSes,1,inArg);
+    
+    inArg2 = {ana,cfg_proc,exper,dirs,files,cfg_pp};
+    
+    % save the exper struct (output 1) so we can use it later
+    createTask(job,@process_ft_data_multiSes,0,inArg2);
   end
   
   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
@@ -385,6 +391,8 @@ else
   % Local: run all the subjects
   [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files);
   
+  process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
+  
 %   % save the analysis details; overwrite if it already exists
 %   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
 %   %if ~exist(saveFile,'file')
@@ -399,64 +407,64 @@ else
   diary off
 end
 
-function stage2(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut)
-% stage2: process the input files with FieldTrip based on the analysis
-% parameters
-
-%% Process the data
-if runLocally == 0
-  %% Dream: create one task for each subject (i.e., submit one to each node)
-  
-  % start a new job
-  job = newJob(dirs);
-  
-  %adFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
-  %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
-  
-  %sdFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr,'subjectDetails.mat');
-  %load(sdFile,'exper','ana','dirs','files','cfg_pp');
-  
-  % save the original subjects array so we can set exper to have single
-  % subjects, one for each task created
-  allSubjects = exper.subjects;
-  
-  for i = 1:length(allSubjects)
-    fprintf('Processing %s...\n',allSubjects{i});
-    
-    % Dream: create one task for each subject
-    exper.subjects = allSubjects(i);
-    
-    %inArg = {ana,cfg_proc,exper,dirs};
-    inArg = {ana,cfg_proc,exper,dirs,files,cfg_pp};
-    
-    % save the exper struct (output 1) so we can use it later
-    createTask(job,@process_ft_data_multiSes,0,inArg);
-  end
-  
-  runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage2_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
-  
-  % final step: destroy the job because this doesn't happen in runJob
-  destroy(job);
-  
-else
-  %% run the function locally
-  
-  % create a log of the command window output
-  thisRun = [exper.name,'_stage2_',datestr(now,'ddmmmyyyy-HHMMSS')];
-  % turn the diary on
-  diary(fullfile(dirs.saveDirProc,[thisRun,'.log']));
-  
-  % use the peer toolbox
-  %ana.usePeer = 1;
-  ana.usePeer = 0;
-  
-  % Local: run all the subjects
-  %process_ft_data(ana,cfg_proc,exper,dirs);
-  process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
-  
-  % turn the diary off
-  diary off
-end
+% function stage2(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut)
+% % stage2: process the input files with FieldTrip based on the analysis
+% % parameters
+% 
+% %% Process the data
+% if runLocally == 0
+%   %% Dream: create one task for each subject (i.e., submit one to each node)
+%   
+%   % start a new job
+%   job = newJob(dirs);
+%   
+%   %adFile = fullfile(dirs.saveDirProc,'analysisDetails.mat');
+%   %[exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_ft_loadAD(adFile,true);
+%   
+%   %sdFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr,'subjectDetails.mat');
+%   %load(sdFile,'exper','ana','dirs','files','cfg_pp');
+%   
+%   % save the original subjects array so we can set exper to have single
+%   % subjects, one for each task created
+%   allSubjects = exper.subjects;
+%   
+%   for i = 1:length(allSubjects)
+%     fprintf('Processing %s...\n',allSubjects{i});
+%     
+%     % Dream: create one task for each subject
+%     exper.subjects = allSubjects(i);
+%     
+%     %inArg = {ana,cfg_proc,exper,dirs};
+%     inArg = {ana,cfg_proc,exper,dirs,files,cfg_pp};
+%     
+%     % save the exper struct (output 1) so we can use it later
+%     createTask(job,@process_ft_data_multiSes,0,inArg);
+%   end
+%   
+%   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage2_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
+%   
+%   % final step: destroy the job because this doesn't happen in runJob
+%   destroy(job);
+%   
+% else
+%   %% run the function locally
+%   
+%   % create a log of the command window output
+%   thisRun = [exper.name,'_stage2_',datestr(now,'ddmmmyyyy-HHMMSS')];
+%   % turn the diary on
+%   diary(fullfile(dirs.saveDirProc,[thisRun,'.log']));
+%   
+%   % use the peer toolbox
+%   %ana.usePeer = 1;
+%   ana.usePeer = 0;
+%   
+%   % Local: run all the subjects
+%   %process_ft_data(ana,cfg_proc,exper,dirs);
+%   process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
+%   
+%   % turn the diary off
+%   diary off
+% end
 
 function job = newJob(dirs)
 % newJob Creates a new PCT job and sets job's dependencies
@@ -470,11 +478,13 @@ else
   sched = findResource();
 end
 job = createJob(sched);
-% define the directories to add to worker sessions' matlab path
-homeDir = getenv('HOME');
-myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
-p = path();
-set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p, dirs.dataroot});
+if verLessThan('matlab','8.3')
+  % define the directories to add to worker sessions' matlab path
+  homeDir = getenv('HOME');
+  myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
+  p = path();
+  set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p, dirs.dataroot});
+end
 
 function runJob( job, timeOut, logFile )
 % runJob Submits and waits on job to finish or timeout
@@ -505,7 +515,9 @@ end
 
 % Capture command window output from all tasks
 alltasks = get(job, 'Tasks');
-set(alltasks, 'CaptureCommandWindowOutput', true);
+if verLessThan('matlab','8.3')
+  set(alltasks, 'CaptureCommandWindowOutput', true);
+end
 
 % Submit Job/Tasks and wait for completion (or timeout)
 submit(job)
