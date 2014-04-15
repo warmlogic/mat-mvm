@@ -23,16 +23,16 @@ exper.eegFileExt = 'raw';
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
 exper.eventValues = {{'expo_stim', 'multistudy_image', 'multistudy_word', 'cued_recall_stim'}};
-%exper.eventValues = {{'expo_stim'}};
-%exper.eventValues = {{'expo_stim'},{'expo_stim'}};
+% exper.eventValues = {{'expo_stim'}};
+% exper.eventValues = {{'expo_stim'},{'expo_stim'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative).
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
 exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
-%exper.prepost = {[-1.0 2.0]};
-%exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
+% exper.prepost = {[-1.0 2.0]};
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
 %   'SPACE001';
