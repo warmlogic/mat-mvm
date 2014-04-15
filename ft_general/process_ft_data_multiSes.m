@@ -118,28 +118,28 @@ if ana.usePeer
       % include only this subject
       exper.subjects = exper.subjects(sub);
       exper.sessions = exper.sessions(ses);
-      exper.eventValues = exper.eventValues(ses);
-      exper.prepost = exper.prepost(ses);
-      exper.sesStr = {sesStr};
+      %exper.eventValues = exper.eventValues(ses);
+      %exper.prepost = exper.prepost(ses);
+      %exper.sesStr = {sesStr};
       exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
       for evVal = 1:length(sesEvValues)
         exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
         exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
       end
-      fn = fieldnames(exper.nTrials);
-      for f = 1:length(fn)
-        if f ~= ses
-          if isfield(exper.badChan,fn{f})
-            exper.badChan = rmfield(exper.badChan,fn{f});
-          end
-          if isfield(exper.nTrials,fn{f})
-            exper.nTrials = rmfield(exper.nTrials,fn{f});
-          end
-          if isfield(exper.badEv,fn{f})
-            exper.badEv = rmfield(exper.badEv,fn{f});
-          end
-        end
-      end
+      %fn = fieldnames(exper.nTrials);
+      %for f = 1:length(fn)
+      %  if f ~= ses
+      %    if isfield(exper.badChan,fn{f})
+      %      exper.badChan = rmfield(exper.badChan,fn{f});
+      %    end
+      %    if isfield(exper.nTrials,fn{f})
+      %      exper.nTrials = rmfield(exper.nTrials,fn{f});
+      %    end
+      %    if isfield(exper.badEv,fn{f})
+      %      exper.badEv = rmfield(exper.badEv,fn{f});
+      %    end
+      %  end
+      %end
       save(proc_subDetailFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
       exper = orig_exper;
       
@@ -206,28 +206,28 @@ else
       % include only this subject
       exper.subjects = exper.subjects(sub);
       exper.sessions = exper.sessions(ses);
-      exper.eventValues = exper.eventValues(ses);
-      exper.prepost = exper.prepost(ses);
-      exper.sesStr = {sesStr};
+      %exper.eventValues = exper.eventValues(ses);
+      %exper.prepost = exper.prepost(ses);
+      %exper.sesStr = {sesStr};
       exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
       for evVal = 1:length(sesEvValues)
         exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
         exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
       end
-      fn = fieldnames(exper.nTrials);
-      for f = 1:length(fn)
-        if f ~= ses
-          if isfield(exper.badChan,fn{f})
-            exper.badChan = rmfield(exper.badChan,fn{f});
-          end
-          if isfield(exper.nTrials,fn{f})
-            exper.nTrials = rmfield(exper.nTrials,fn{f});
-          end
-          if isfield(exper.badEv,fn{f})
-            exper.badEv = rmfield(exper.badEv,fn{f});
-          end
-        end
-      end
+      %fn = fieldnames(exper.nTrials);
+      %for f = 1:length(fn)
+      %  if f ~= ses
+      %    if isfield(exper.badChan,fn{f})
+      %      exper.badChan = rmfield(exper.badChan,fn{f});
+      %    end
+      %    if isfield(exper.nTrials,fn{f})
+      %      exper.nTrials = rmfield(exper.nTrials,fn{f});
+      %    end
+      %    if isfield(exper.badEv,fn{f})
+      %      exper.badEv = rmfield(exper.badEv,fn{f});
+      %    end
+      %  end
+      %end
       save(proc_subDetailFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
       exper = orig_exper;
       
