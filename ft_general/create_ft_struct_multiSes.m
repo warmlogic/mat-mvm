@@ -248,12 +248,12 @@ for sub = 1:length(exper.subjects)
     exper.sesStr{ses} = sesStr;
     
     % initialize to store the bad channel information
-    exper.badChan.(exper.sesStr{ses}) = cell(length(exper.subjects),1);
+    exper.badChan.(sesStr) = cell(length(exper.subjects),1);
 
     % initialize to store trial counts and bad events (if using artifacts)
     for evVal = 1:length(exper.eventValues{ses})
-      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
-      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+      exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
+      exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
     end
     
     % set the location to save the data and make sure it exists
@@ -315,7 +315,7 @@ for sub = 1:length(exper.subjects)
     
     % store the bad channel information
     %exper.badChan{sub,ses} = badChan;
-    exper.badChan.(exper.sesStr{ses}){sub} = badChan;
+    exper.badChan.(sesStr){sub} = badChan;
     % store the bad event information
     % exper.badEv{sub,ses} = badEv;
     
@@ -346,8 +346,8 @@ for sub = 1:length(exper.subjects)
       if size(ft_raw.(eventVal).trial,2) > 0
         % store the number of trials for this event value
         %exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
-        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
+        exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
+        exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
         
         % set outputfile so the raw data is saved; especially useful for
         % implementing analyses with the peer toolbox
@@ -393,11 +393,27 @@ for sub = 1:length(exper.subjects)
     % include only this subject
     exper.subjects = exper.subjects(sub);
     exper.sessions = exper.sessions(ses);
-    exper.sesStr = exper.sesStr(ses);
-    exper.badChan = exper.badChan.(exper.sesStr{ses})(sub);
+    exper.eventValues = exper.eventValues(ses);
+    exper.prepost = exper.prepost(ses);
+    exper.sesStr = {sesStr};
+    exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
     for evVal = 1:length(exper.eventValues{ses})
-      exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
-      exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+      exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub);
+      exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = exper.badEv.(sesStr).(exper.eventValues{ses}{evVal})(sub);
+    end
+    fn = fieldnames(exper.nTrials);
+    for f = 1:length(fn)
+      if f ~= ses
+        if isfield(exper.badChan,fn{f})
+          exper.badChan = rmfield(exper.badChan,fn{f});
+        end
+        if isfield(exper.nTrials,fn{f})
+          exper.nTrials = rmfield(exper.nTrials,fn{f});
+        end
+        if isfield(exper.badEv,fn{f})
+          exper.badEv = rmfield(exper.badEv,fn{f});
+        end
+      end
     end
     save(saveFile,'exper','ana','dirs','files','cfg_pp');
     % restore original exper struct
