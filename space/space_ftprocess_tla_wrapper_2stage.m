@@ -166,8 +166,8 @@ if ana.useExpInfo
   ana.sessionNames = {'oneDay'};
   
   % phases occur within a session; for dealing with events.mat
-  ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
-  %ana.phaseNames = {{'expo'}};
+  %ana.phaseNames = {{'expo', 'multistudy', 'cued_recall'}};
+  ana.phaseNames = {{'expo'}};
   %ana.phaseNames = {{'multistudy'}};
   %ana.phaseNames = {{'distract_math'}};
   %ana.phaseNames = {{'cued_recall'}};
