@@ -118,7 +118,7 @@ if ischar(ana.artifact.type)
   ana.artifact.type = {ana.artifact.type};
 end
 
-artifactOpts = {'none','nsClassic','nsAuto','zeroVar','badChanManual','badChanEP','rmBadChan','preRejManual','ftAuto','ftManual','ftICA'};
+artifactOpts = {'none','nsClassic','nsAuto','zeroVar','badChanManual','badChanEP','rmBadChan','repairBadChan','preRejManual','ftAuto','ftManual','ftICA'};
 
 if any(~ismember(ana.artifact.type,artifactOpts))
   wrongType = ana.artifact.type(~ismember(ana.artifact.type,artifactOpts));
