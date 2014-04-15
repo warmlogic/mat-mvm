@@ -276,7 +276,8 @@ cfg_proc.keeptrials = 'yes';
 
 % name(s) of the functions for different stages of processing
 stageFun = {@stage1};
-timeOut  = {2}; % in HOURS
+% timeOut  = {2}; % in HOURS
+timeOut  = {18}; % in HOURS
 % stageFun = {@stage1,@stage2};
 % timeOut  = {2,2}; % in HOURS
 
@@ -345,17 +346,21 @@ if runLocally == 0
     % Dream: create one task for each subject
     exper.subjects = allSubjects(i);
     
-    inArg = {ana,cfg_pp,exper,dirs,files};
+    % inArg = {ana,cfg_pp,exper,dirs,files};
     % save the exper struct (output 1) so we can use it later
-    createTask(job,@create_ft_struct_multiSes,1,inArg);
+    %createTask(job,@create_ft_struct_multiSes,1,inArg);
     
-    inArg2 = {ana,cfg_proc,exper,dirs,files,cfg_pp};
-    createTask(job,@process_ft_data_multiSes,0,inArg2);
+    inArg = {ana,cfg_pp,exper,dirs,files,cfg_proc};
+    createTask(job,@create_ft_struct_multiSes_cluster,1,inArg);
+    
   end
   
   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
   
-  %exper = getAllOutputArguments(job);
+  % % exper = getAllOutputArguments(job);
+  %tasks = get(job,'Tasks');
+  %exper = tasks(i).OutputArguments{1};
+  %process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
   
   % get the trial counts together across subjects, sessions, and events
   %[exper] = mm_ft_concatTrialCounts_cluster(job,exper,allSubjects);
