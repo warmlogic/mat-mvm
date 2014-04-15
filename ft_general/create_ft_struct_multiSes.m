@@ -390,6 +390,7 @@ for sub = 1:length(exper.subjects)
     saveFile = fullfile(dirs.saveDirRaw,exper.subjects{sub},sesStr,'subjectDetails.mat');
     % back up original exper struct
     exper_orig = exper;
+    sesEvValues = exper.eventValues{ses};
     % include only this subject
     exper.subjects = exper.subjects(sub);
     exper.sessions = exper.sessions(ses);
@@ -397,9 +398,9 @@ for sub = 1:length(exper.subjects)
     exper.prepost = exper.prepost(ses);
     exper.sesStr = {sesStr};
     exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
-    for evVal = 1:length(exper.eventValues{ses})
-      exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub);
-      exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = exper.badEv.(sesStr).(exper.eventValues{ses}{evVal})(sub);
+    for evVal = 1:length(sesEvValues)
+      exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+      exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
     end
     fn = fieldnames(exper.nTrials);
     for f = 1:length(fn)

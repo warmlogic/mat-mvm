@@ -114,6 +114,7 @@ if ana.usePeer
       proc_subDetailFile = fullfile(saveDirProcFile,'subjectDetails.mat');
       % back up original exper struct
       orig_exper = exper;
+      sesEvValues = exper.eventValues{ses};
       % include only this subject
       exper.subjects = exper.subjects(sub);
       exper.sessions = exper.sessions(ses);
@@ -121,9 +122,9 @@ if ana.usePeer
       exper.prepost = exper.prepost(ses);
       exper.sesStr = {sesStr};
       exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
-      for evVal = 1:length(exper.eventValues{ses})
-        exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub);
-        exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = exper.badEv.(sesStr).(exper.eventValues{ses}{evVal})(sub);
+      for evVal = 1:length(sesEvValues)
+        exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+        exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
       end
       fn = fieldnames(exper.nTrials);
       for f = 1:length(fn)
@@ -201,6 +202,7 @@ else
       proc_subDetailFile = fullfile(saveDirProcFile,'subjectDetails.mat');
       % back up original exper struct
       orig_exper = exper;
+      sesEvValues = exper.eventValues{ses};
       % include only this subject
       exper.subjects = exper.subjects(sub);
       exper.sessions = exper.sessions(ses);
@@ -208,9 +210,9 @@ else
       exper.prepost = exper.prepost(ses);
       exper.sesStr = {sesStr};
       exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
-      for evVal = 1:length(exper.eventValues{ses})
-        exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub);
-        exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = exper.badEv.(sesStr).(exper.eventValues{ses}{evVal})(sub);
+      for evVal = 1:length(sesEvValues)
+        exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+        exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
       end
       fn = fieldnames(exper.nTrials);
       for f = 1:length(fn)
