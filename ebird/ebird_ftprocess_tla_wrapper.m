@@ -346,13 +346,10 @@ if runLocally == 0
     exper.subjects = allSubjects(i);
     
     inArg = {ana,cfg_pp,exper,dirs,files};
-    
     % save the exper struct (output 1) so we can use it later
     createTask(job,@create_ft_struct_multiSes,1,inArg);
     
     inArg2 = {ana,cfg_proc,exper,dirs,files,cfg_pp};
-    
-    % save the exper struct (output 1) so we can use it later
     createTask(job,@process_ft_data_multiSes,0,inArg2);
   end
   
