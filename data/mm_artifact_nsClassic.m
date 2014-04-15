@@ -249,7 +249,6 @@ for tr = 1:nTrial
       end
     end
   end
-  
 end
 
 %% do the rejection
