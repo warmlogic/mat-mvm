@@ -340,6 +340,59 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
+%% PCA
+
+sub = 1;
+ses = 1;
+evVal = 1;
+
+thisROI = {'center109'};
+% thisROI = {'all129'};
+% thisROI = {'LPI', 'PI', 'RPI'};
+% thisROI = {'LPS'};
+% thisROI = {'LPS', 'RPS'};
+% thisROI = {'LAS', 'RAS'};
+% thisROI = {'Fz'};
+% thisROI = {'Cz'};
+% thisROI = {'Pz'};
+% thisROI = {'PI'};
+% thisROI = {'posterior'};
+% thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
+% thisROI = {'E70', 'E83'};
+% thisROI = {'E83'};
+if all(ismember(thisROI,ana.elecGroupsStr))
+  elecInd = ismember(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
+elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.label))
+  elecInd = ismember(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.label,unique(thisROI));
+else
+  error('Cannot find specified electrode(s)');
+end
+
+latency = [0 1.0];
+tbeg = nearest(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time, latency(1));
+tend = nearest(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.time, latency(2));
+
+% need to use built-in PCA function:
+% /Applications/MATLAB_R2014a.app/toolbox/stats/stats/pca.m
+
+trialNum = 1;
+
+dat = squeeze(data_tla.(exper.sesStr{ses}).word_RgH_rc_spac_p1.sub(sub).data.trial(trialNum,elecInd,tbeg:tend))';
+
+% [coeff] = builtin('pca',dat);
+[coeff, score, latent] = pca(dat);
+figure;
+imagesc(coeff);
+figure;
+imagesc(score*coeff);
+
+covdata = cov(dat);
+[V,D] = eigs(covdata,4);
+figure;
+imagesc(V);
+axis xy;
+
+
 %% convert to scalp current density
 
 if ~exist('data_tla_backup','var')
@@ -421,16 +474,17 @@ latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 
 standardize = true;
 
-distanceMetric = 'euclidean';
+% distanceMetric = 'euclidean';
 % distanceMetric = 'seuclidean';
 % distanceMetric = 'spearman';
 % distanceMetric = 'cosine';
-% distanceMetric = 'correlation';
+distanceMetric = 'correlation';
 
-if strcmp(distanceMetric,'correlation')
-  warning('need to do a Fischer Z-transform before t-test/ANOVA');
-  %http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
-end
+% if strcmp(distanceMetric,'correlation')
+%   % not sure this is true; only if independent
+%   warning('need to do a Fisher Z-transform before t-test/ANOVA');
+%   %http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
+% end
 
 parameter = 'trial';
 plotit = false;
@@ -514,14 +568,18 @@ for d = 1:length(dataTypes)
           fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
         end
         timeS = latencies(lat1,:);
-        timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
+        %timeInd1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
+        timeInd1 = nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, timeS(1)):nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, timeS(2));
+        %tbeg = nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, timeS(1));
+        %tend = nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, timeS(2));
         
         for lat2 = 1:size(latencies,1)
           if verbose
             fprintf('\t\t%.2f sec to %.2f sec...\n',latencies(lat2,1),latencies(lat2,2));
           end
           timeS = latencies(lat2,:);
-          timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
+          %timeInd2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time >= timeS(1) - 0.0001 & data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time <= timeS(2) + 0.0001;
+          timeInd2 = nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time, timeS(1)):nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.time, timeS(2));
           
           if standardize
             nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1);
@@ -701,7 +759,9 @@ for ses = 1:length(exper.sessions)
         data2 = data2(threshSub);
         
         if strcmp(distanceMetric,'correlation')
-          % need to do a Fischer Z-transform before t-test/ANOVA
+          % not sure this is true; only if independent
+          %
+          % need to do a Fisher Z-transform before t-test/ANOVA
           %
           % http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
           data1 = data1(:);
