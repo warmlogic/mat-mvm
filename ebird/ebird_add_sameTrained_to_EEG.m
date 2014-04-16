@@ -116,6 +116,7 @@ for sub = 1:length(full_exper.subjects)
     sesDirRaw = fullfile(full_dirs.saveDirRaw,full_exper.subjects{sub},full_exper.sesStr{ses});
     sesDirProc = fullfile(full_dirs.saveDirProc,full_exper.subjects{sub},full_exper.sesStr{ses});
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the Raw subject details file
     sdFileRaw = fullfile(sesDirRaw,'subjectDetails.mat');
     load(sdFileRaw);
@@ -127,6 +128,7 @@ for sub = 1:length(full_exper.subjects)
     save(sdFileRaw,'exper','ana','dirs','files','cfg_pp','-v7');
     clear exper ana dirs files cfg_pp
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the Proc subject details file
     sdFileProc = fullfile(sesDirProc,'subjectDetails.mat');
     load(sdFileProc);
@@ -138,6 +140,7 @@ for sub = 1:length(full_exper.subjects)
     save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
     clear exper ana dirs files cfg_pp cfg_proc
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the raw EEG file (variable: data)
     eegFileRaw = fullfile(sesDirRaw,eegFileNameRaw);
     load(eegFileRaw);
@@ -184,9 +187,13 @@ for sub = 1:length(full_exper.subjects)
     save(eegFileRaw,'data','-v7');
     clear new_trialinfo data
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the processed EEG file (variable: data)
     eegFileProc = fullfile(sesDirProc,eegFileNameProc);
     load(eegFileProc);
+    
+    % put in another column
+    new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
     
     % add in sameTrained data
     for i = 1:size(data.trialinfo,1)
@@ -225,7 +232,6 @@ for sub = 1:length(full_exper.subjects)
     
     % save the updated processed EEG file
     save(eegFileProc,'data','-v7');
-    clear data
-    
+    clear new_trialinfo data
   end
 end
