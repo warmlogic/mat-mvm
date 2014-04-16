@@ -143,6 +143,15 @@ keeptrials = false;
 % overwrite ana.eventValues with the new split events
 ana.eventValues = ana.eventValuesSplit;
 
+%% decide who to kick out based on trial counts
+
+% Subjects with bad behavior
+exper.badBehSub = {{},{},{}};
+
+% exclude subjects with low event counts
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert');
+% [exper,ana] = mm_threshSubs(exper,ana,1);
+
 %% Test plots to make sure data look ok
 
 cfg_ft = [];
@@ -220,15 +229,6 @@ end
 %   end
 % end
 
-%% decide who to kick out based on trial counts
-
-% Subjects with bad behavior
-exper.badBehSub = {{}};
-
-% exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,15);
-% [exper,ana] = mm_threshSubs(exper,ana,1);
-
 %% get the grand average
 
 ga_tla = struct;
@@ -237,43 +237,47 @@ for ses = 1:length(exper.sesStr)
   % set up strings to put in grand average function
   cfg_ana = [];
   cfg_ana.is_ga = 0;
-  cfg_ana.conditions = ana.eventValues{ses};
+  %cfg_ana.conditions = ana.eventValues{ses};
   cfg_ana.data_str = 'data_tla';
   % cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
-  cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+  %cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
   
   cfg_ft = [];
   cfg_ft.keepindividual = 'no';
-  %for ses = 1:length(exper.sesStr)
-    for evVal = 1:length(ana.eventValues{ses})
+  %cfg_ft.parameter = 'trial';
+  for typ = 1:length(ana.eventValues{ses})
+    cfg_ana.conditions = ana.eventValues{ses}{typ};
+    cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+    
+    for evVal = 1:length(ana.eventValues{ses}{typ})
       %tic
-      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{evVal});
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{typ}{evVal});
       %ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
-      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal})));
+      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       fprintf('Done.\n');
       %toc
     end
-  %end
-end
-
-% turn keeptrial data into average for statistical functions because proper
-% processing of dimord is currently broken
-
-data_tla_avg = struct;
-
-cfg = [];
-cfg.keeptrials = 'no';
-
-for ses = 1:length(exper.sesStr)
-  for evVal = 1:length(ana.eventValues{ses})
-    for sub = 1:length(exper.subjects)
-      fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{evVal});
-      if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data,'avg')
-        data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data);
-      end
-    end
   end
 end
+
+% % turn keeptrial data into average for statistical functions because proper
+% % processing of dimord is currently broken
+% 
+% data_tla_avg = struct;
+% 
+% cfg = [];
+% cfg.keeptrials = 'no';
+% 
+% for ses = 1:length(exper.sesStr)
+%   for evVal = 1:length(ana.eventValues{ses})
+%     for sub = 1:length(exper.subjects)
+%       fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{evVal});
+%       if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data,'avg')
+%         data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data);
+%       end
+%     end
+%   end
+% end
 
 %% plot the conditions - simple
 
