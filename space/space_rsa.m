@@ -473,16 +473,17 @@ latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 
 standardize = true;
 
-distanceMetric = 'euclidean';
+% distanceMetric = 'euclidean';
 % distanceMetric = 'seuclidean';
 % distanceMetric = 'spearman';
 % distanceMetric = 'cosine';
-% distanceMetric = 'correlation';
+distanceMetric = 'correlation';
 
-if strcmp(distanceMetric,'correlation')
-  warning('need to do a Fischer Z-transform before t-test/ANOVA');
-  %http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
-end
+% if strcmp(distanceMetric,'correlation')
+%   % not sure this is true; only if independent
+%   warning('need to do a Fisher Z-transform before t-test/ANOVA');
+%   %http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
+% end
 
 parameter = 'trial';
 plotit = false;
@@ -757,7 +758,9 @@ for ses = 1:length(exper.sessions)
         data2 = data2(threshSub);
         
         if strcmp(distanceMetric,'correlation')
-          % need to do a Fischer Z-transform before t-test/ANOVA
+          % not sure this is true; only if independent
+          %
+          % need to do a Fisher Z-transform before t-test/ANOVA
           %
           % http://www.mathworks.com/matlabcentral/fileexchange/25367-homogeneity-test-for-multiple-correlation-coefficients/content/fisherz.m
           data1 = data1(:);
