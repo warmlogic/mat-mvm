@@ -25,6 +25,10 @@ function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,pr
 
 %% setup
 
+% whether to exclude a bad subject in any session from all sessions,
+% regardless of whether they were good in the others
+collapseSessions = false;
+
 if ~exist('printDirection','var') || isempty(printDirection)
   printDirection = 'horiz';
 end
@@ -55,7 +59,7 @@ for ses = 1:length(exper.sesStr)
   %eventValues = ana.eventValues{ses};
   
   % initialize to store who is below threshold
-  exper.nTrials.(exper.sesStr{ses}).lowNum = false(length(exper.subjects),length(exper.sessions));
+  exper.nTrials.(exper.sesStr{ses}).lowNum = false(length(exper.subjects),1);
   
   % figure out who is below threshold
   for sub = 1:length(exper.subjects)
@@ -150,15 +154,20 @@ for ses = 1:length(exper.sessions)
 end
 exper.badSub = logical(exper.badSub);
 
+if collapseSessions
+  exper.badSub = logical(sum(exper.badSub,2));
+  exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
+end
+
 if sum(~exper.badSub) > 0
   % print a summary
-  fprintf('\nNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',sum(~exper.badSub),thresh);
   for ses = 1:length(exper.sessions)
+    fprintf('\nSession %s:\n\tNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',exper.sesStr{ses},sum(~exper.badSub(:,ses)),thresh);
     for evVal = 1:length(ana.eventValues{ses})
       for es = 1:length(ana.eventValues{ses}{evVal})
-        meanTrials = mean(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub));
-        semTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
-        stdTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub),0,1);
+        meanTrials = mean(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub(:,ses)));
+        semTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub(:,ses)),0,1)/sqrt(sum(~exper.badSub(:,ses)));
+        stdTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub(:,ses)),0,1);
         fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',ana.eventValues{ses}{evVal}{es},meanTrials,semTrials,stdTrials);
       end
     end
