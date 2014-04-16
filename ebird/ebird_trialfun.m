@@ -431,6 +431,7 @@ for i = 1:length(ft_event)
                   imgCond = find(ismember(image_conditions,this_event.imgCond));
                   isSubord = this_event.isSubord;
                   trained = this_event.trained;
+                  sameTrained = this_event.sameTrained;
                   sameSpecies = this_event.sameSpecies;
                   response = ismember(match_responses,this_event.resp);
                   if any(response)
