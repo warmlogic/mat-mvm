@@ -1,6 +1,33 @@
 %% load the analysis details
 
-procDir = '/Volumes/curranlab/Data/EBIRD/EEG/Sessions/ftpp/ft_data/data_art_nsClassic_ftAuto/tla';
+expName = 'EBIRD';
+
+subDir = '';
+dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+  %runLocally = 1;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+  %runLocally = 1;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+  %runLocally = 0;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+  %runLocally = 1;
+else
+  error('Data directory not found.');
+end
+
+procDir = fullfile(dataroot,dataDir,'ft_data/data_art_nsClassic_ftAuto/tla');
 
 subjects = {
   %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
