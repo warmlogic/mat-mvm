@@ -287,24 +287,24 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
+cfg_plot.is_ga = 1;
+cfg_plot.excludeBadSub = 1;
+
 % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'LAS'},{'LPS'}};
-% cfg_plot.rois = {{'posterior'}};
+% cfg_plot.rois = {{'LAS'},{'LPS'}};
+cfg_plot.rois = {{'posterior'}};
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
 cfg_plot.ylims = [-8 8; -8 8];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-cfg_plot.is_ga = 1;
-cfg_plot.excludeBadSub = 1;
-
-cfg_ft.xlim = [-0.2 1.0];
-cfg_plot.rois = {{'E70'},{'E83'}};
-cfg_plot.ylims = [-10 10; -10 10];
-cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -317,8 +317,8 @@ cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
 sesNum = 1;
-% cfg_plot.condByROI = repmat(ana.eventValues(sesNum),size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -327,7 +327,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
+  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
