@@ -103,12 +103,15 @@ stInd = find(ismember(new_trl_order_match_stim,{'sameTrained'}));
 eegFileNameRaw = 'data_raw_match_stim.mat';
 eegFileNameProc = 'data_tla_match_stim.mat';
 
-%% processing the data
-
+%% processing the data: put sameTrained into EEG data.trialinfo
 
 for sub = 1:length(full_exper.subjects)
+  fprintf('Processing subject %s...\n',full_exper.subjects{sub});
+  
   eventsFile = fullfile(full_dirs.dataroot,full_dirs.behDir,full_exper.subjects{sub},'events','events.mat');
+  fprintf('Loading events: %s...',eventsFile);
   load(eventsFile);
+  fprintf('Done.\n');
   
   for ses = 1:length(full_exper.sessions)
     sesEv = events.(evSesNames{ses}).(phaseName).data;
@@ -119,36 +122,47 @@ for sub = 1:length(full_exper.subjects)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the Raw subject details file
     sdFileRaw = fullfile(sesDirRaw,'subjectDetails.mat');
+    fprintf('Loading raw subject details: %s...',sdFileRaw);
     load(sdFileRaw);
+    fprintf('Done.\n');
     
     % overwrite trl_order for match_stim with new one
     ana.trl_order.match_stim = new_trl_order_match_stim;
     
     % save the new subject details file
+    fprintf('Saving raw subject details: %s...',sdFileRaw);
     save(sdFileRaw,'exper','ana','dirs','files','cfg_pp','-v7');
+    fprintf('Done.\n');
     clear exper ana dirs files cfg_pp
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the Proc subject details file
     sdFileProc = fullfile(sesDirProc,'subjectDetails.mat');
+    fprintf('Loading processed subject details: %s...',sdFileProc);
     load(sdFileProc);
+    fprintf('Done.\n');
     
     % overwrite trl_order for match_stim with new one
     ana.trl_order.match_stim = new_trl_order_match_stim;
     
     % save the new subject details file
+    fprintf('Saving processed subject details: %s...',sdFileProc);
     save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
+    fprintf('Done.\n');
     clear exper ana dirs files cfg_pp cfg_proc
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the raw EEG file (variable: data)
     eegFileRaw = fullfile(sesDirRaw,eegFileNameRaw);
+    fprintf('Loading raw EEG: %s...',eegFileRaw);
     load(eegFileRaw);
+    fprintf('Done.\n');
     
     % put in another column
     new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
     
     % add in sameTrained data
+    fprintf('Adding sameTrained status to raw trialinfo...');
     for i = 1:size(data.trialinfo,1)
       phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
       trial = data.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
@@ -182,20 +196,26 @@ for sub = 1:length(full_exper.subjects)
     end
     % replace the old trialinfo with the new one
     data.trialinfo = new_trialinfo;
+    fprintf('Done.\n');
     
     % save the updated raw EEG file
+    fprintf('Saving raw EEG: %s...',eegFileRaw);
     save(eegFileRaw,'data','-v7');
+    fprintf('Done.\n');
     clear new_trialinfo data
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the processed EEG file (variable: data)
     eegFileProc = fullfile(sesDirProc,eegFileNameProc);
+    fprintf('Loading processed EEG: %s...',eegFileProc);
     load(eegFileProc);
+    fprintf('Done.\n');
     
     % put in another column
     new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
     
     % add in sameTrained data
+    fprintf('Adding sameTrained status to processed trialinfo...');
     for i = 1:size(data.trialinfo,1)
       phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
       trial = data.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
@@ -229,9 +249,12 @@ for sub = 1:length(full_exper.subjects)
     end
     % replace the old trialinfo with the new one
     data.trialinfo = new_trialinfo;
+    fprintf('Done.\n');
     
     % save the updated processed EEG file
+    fprintf('Saving processed EEG: %s...',eegFileProc);
     save(eegFileProc,'data','-v7');
+    fprintf('Done.\n');
     clear new_trialinfo data
   end
 end
