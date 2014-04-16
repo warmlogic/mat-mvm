@@ -62,7 +62,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030';
+  'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -316,8 +316,9 @@ end
 %   ana.eventValues = {exper.eventValues};
 % end
 
-% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
-[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+keeptrials = true;
+% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
 
 % %% get rid of the bad channels
 % 
@@ -391,10 +392,10 @@ end
 
 %% RSA - very basic
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
-dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % % testing out SCD
 % dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
@@ -731,6 +732,8 @@ for ses = 1:length(exper.sessions)
 end % ses
 
 %% run it for p1 vs p2 comparing across stim types (p1 image, p2 word)
+
+% looking for evidence of the image (defined by p1) during word p2
 
 dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
   {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};

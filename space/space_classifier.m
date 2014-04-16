@@ -62,7 +62,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030';
+  'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';

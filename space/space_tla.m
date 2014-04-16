@@ -60,7 +60,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030';
+  'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -336,7 +336,8 @@ end
 %   ana.eventValues = {exper.eventValues};
 % end
 
-keeptrials = true;
+% keeptrials = true;
+keeptrials = false;
 % [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
 [data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
 
