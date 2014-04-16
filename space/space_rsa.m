@@ -426,6 +426,8 @@ for sub = 1:length(exper.subjects)
   end
 end
 
+save(fullfile(dirs.saveDirProc,'data_scd.mat'),'data_tla','-v7.3');
+
 % cfg_tla = [];
 % cfg_tla.keeptrials = 'no';
 % c = ft_timelockanalysis(cfg_tla,b);
