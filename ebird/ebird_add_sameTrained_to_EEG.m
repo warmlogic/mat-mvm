@@ -45,40 +45,40 @@ subjects = {
   %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
   %'EBIRD004'; % DNF. Dropout. Last session: 8.
   'EBIRD005';
-%   %'EBIRD006'; % DNF. Dropout. Last session: 2.
-%   'EBIRD007';
-%   'EBIRD008';
-%   'EBIRD009';
-%   'EBIRD010';
-%   'EBIRD011';
-%   'EBIRD012';
-%   %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-%   %'EBIRD014'; % DNF. Rejected. Last session: 1.
-%   %'EBIRD015'; % DNF. Lost in HD crash.
-%   %'EBIRD016'; % DNF. Lost in HD crash.
-%   %'EBIRD017'; % DNF. Lost in HD crash.
-%   'EBIRD018';
-%   'EBIRD019';
-%   'EBIRD020';
-%   'EBIRD021';
-%   %'EBIRD022'; % DNF. Dropout. Last session: 8.
-%   %'EBIRD023'; % DNF. Dropout. Last session: 1.
-%   'EBIRD024';
-%   'EBIRD025';
-%   'EBIRD027';
-%   'EBIRD029';
-%   'EBIRD032';
-%   'EBIRD034';
-%   'EBIRD042';
+  %'EBIRD006'; % DNF. Dropout. Last session: 2.
+  'EBIRD007';
+  'EBIRD008';
+  'EBIRD009';
+  'EBIRD010';
+  'EBIRD011';
+  'EBIRD012';
+  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+  %'EBIRD014'; % DNF. Rejected. Last session: 1.
+  %'EBIRD015'; % DNF. Lost in HD crash.
+  %'EBIRD016'; % DNF. Lost in HD crash.
+  %'EBIRD017'; % DNF. Lost in HD crash.
+  'EBIRD018';
+  'EBIRD019';
+  'EBIRD020';
+  'EBIRD021';
+  %'EBIRD022'; % DNF. Dropout. Last session: 8.
+  %'EBIRD023'; % DNF. Dropout. Last session: 1.
+  'EBIRD024';
+  'EBIRD025';
+  'EBIRD027';
+  'EBIRD029';
+  'EBIRD032';
+  'EBIRD034';
+  'EBIRD042';
   };
 
 % only one cell, with all session names
-% sesNames = {'session_1','session_8','session_9'};
-sesNames = {'session_1'};
+sesNames = {'session_1','session_8','session_9'};
+% sesNames = {'session_1'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-% replaceDataroot = false;
-replaceDataroot = true;
+replaceDataroot = false;
+% replaceDataroot = true;
 
 [full_exper,full_ana,full_dirs,full_files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
@@ -198,7 +198,7 @@ for sub = 1:length(full_exper.subjects)
     save(eegFileRaw,'data','-v7');
     fprintf('Done.\n');
     
-    %clear new_trialinfo data
+    %clear data new_trialinfo
     clear data
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
