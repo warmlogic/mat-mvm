@@ -33,41 +33,41 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 subjects = {
   %'SPACE001'; % low trial counts
   'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019';
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  'SPACE030';
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019';
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   'SPACE030';
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -338,6 +338,24 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+
+%% PCA
+
+% need to use built-in PCA function:
+% /Applications/MATLAB_R2014a.app/toolbox/stats/stats/pca.m
+
+trialNum = 1;
+
+dat = squeeze(data_tla.session_1.word_RgH_rc_spac_p1.sub(1).data.trial(trialNum,:,:))';
+
+% [coeff] = builtin('pca',dat);
+[coeff, score, latent] = pca(dat);
+
+covdata = cov(dat);
+[V,D] = eigs(covdata,4);
+imagesc(V);
+axis xy;
+
 
 %% convert to scalp current density
 
