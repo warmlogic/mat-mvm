@@ -78,6 +78,7 @@ sesNames = {'session_1'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;
+% replaceDataroot = false;
 
 [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
@@ -161,7 +162,7 @@ for sub = 1:length(full_exper.subjects)
     % put in another column
     new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
     
-    % add in sameTrained data
+    % add in sameTrained status
     fprintf('Adding sameTrained status to raw trialinfo...');
     for i = 1:size(data.trialinfo,1)
       phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
@@ -212,16 +213,16 @@ for sub = 1:length(full_exper.subjects)
     fprintf('Done.\n');
     
     % put in another column
-    new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
+    new_trialinfo = cat(2,timelock.trialinfo(:,1:stInd-1),zeros(size(timelock.trialinfo,1),1),timelock.trialinfo(:,stInd:end));
     
-    % add in sameTrained data
+    % add in sameTrained status
     fprintf('Adding sameTrained status to processed trialinfo...');
-    for i = 1:size(data.trialinfo,1)
-      phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
-      trial = data.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
-      exemplarNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
-      isSubord = data.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
-      stimNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
+    for i = 1:size(timelock.trialinfo,1)
+      phaseCount = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
+      trial = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
+      exemplarNum = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
+      isSubord = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
+      stimNum = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
       if stimNum == 1
         type = 'MATCH_STIM1';
       elseif stimNum == 2
@@ -248,13 +249,13 @@ for sub = 1:length(full_exper.subjects)
       end
     end
     % replace the old trialinfo with the new one
-    data.trialinfo = new_trialinfo;
+    timelock.trialinfo = new_trialinfo;
     fprintf('Done.\n');
     
     % save the updated processed EEG file
     fprintf('Saving processed EEG: %s...',eegFileProc);
-    save(eegFileProc,'data','-v7');
+    save(eegFileProc,'timelock','-v7');
     fprintf('Done.\n');
-    clear new_trialinfo data
+    clear new_trialinfo timelock
   end
 end
