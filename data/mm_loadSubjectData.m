@@ -96,56 +96,61 @@ for sub = 1:length(exper.subjects)
         if length(fn) == 1
           data_fn = cell2mat(fn);
           
-          if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) == 4
-            if strcmp(loadMethod,'seg')
-              % use ft_freqdescriptives to average over individual trials
-              % if desired and the data is appropriate
-              fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal});
-              cfg_fd = [];
-              cfg_fd.keeptrials = 'no';
-              data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
-              
-            elseif strcmp(loadMethod,'trialinfo')
-              trl_order = ana.trl_order.(eventValues{ses}{evVal});
-              
-              for es = 1:length(ana.eventValuesSplit{ses}{evVal})
-                fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
-                
-                expr = ana.trl_expr{ses}{evVal}{es};
-                
-                for to = 1:length(trl_order)
-                  % replace the field name in the logical expression
-                  % ana.trl_expr{ses}{es} with the column number found in
-                  % ana.trl_order.(eventValues{ses}{evVal})
-                  
-                  % find the column number
-                  fieldNum = find(ismember(trl_order,trl_order{to}));
-                  
-                  % set up the string to be replaced
-                  r_exp = ['\<' trl_order{to} '\>'];
-                  % set up the replacement string
-                  r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
-                  
-                  expr = regexprep(expr,r_exp,r_str);
-                end
-                
+          if strcmp(ftype,'pow')
+            if keeptrials == 0 && strcmp(ftype,'pow') && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) == 4
+              if strcmp(loadMethod,'seg')
+                % use ft_freqdescriptives to average over individual trials
+                % if desired and the data is appropriate
+                fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal});
                 cfg_fd = [];
-                cfg_fd.trials = eval(expr);
                 cfg_fd.keeptrials = 'no';
-                data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
-                % put in the trial counts
-                exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg_fd.trials);
-              end % es
+                data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                
+              elseif strcmp(loadMethod,'trialinfo')
+                trl_order = ana.trl_order.(eventValues{ses}{evVal});
+                
+                for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+                  fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
+                  
+                  expr = ana.trl_expr{ses}{evVal}{es};
+                  
+                  for to = 1:length(trl_order)
+                    % replace the field name in the logical expression
+                    % ana.trl_expr{ses}{es} with the column number found in
+                    % ana.trl_order.(eventValues{ses}{evVal})
+                    
+                    % find the column number
+                    fieldNum = find(ismember(trl_order,trl_order{to}));
+                    
+                    % set up the string to be replaced
+                    r_exp = ['\<' trl_order{to} '\>'];
+                    % set up the replacement string
+                    r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
+                    
+                    expr = regexprep(expr,r_exp,r_str);
+                  end
+                  
+                  cfg_fd = [];
+                  cfg_fd.trials = eval(expr);
+                  cfg_fd.keeptrials = 'no';
+                  data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                  % put in the trial counts
+                  exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg_fd.trials);
+                end % es
+              end
+              
+            elseif keeptrials == 0 && ~strcmp(ftype,'pow')
+              error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},ftype);
+            elseif keeptrials == 0 && ~isfield(subSesEvData.(data_fn),'powspctrm')
+              error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal});
+            elseif keeptrials == 0 && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) ~= 4
+              error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},ndims(subSesEvData.(data_fn).powspctrm));
             end
-            
-          elseif keeptrials == 0 && ~strcmp(ftype,'pow')
-            error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},ftype);
-          elseif keeptrials == 0 && ~isfield(subSesEvData.(data_fn),'powspctrm')
-            error('\n%s %s %s: Can only keep trials with ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal});
-          elseif keeptrials == 0 && isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) ~= 4
-            error('\n%s %s %s: Can only keep trials for ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},ndims(subSesEvData.(data_fn).powspctrm));
-          else
+          elseif strcmp(ftype,'tla')
             if strcmp(loadMethod,'seg')
+              if ~keeptrials
+                error('need to keep trials')
+              end
               data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data = subSesEvData.(data_fn);
               
             elseif strcmp(loadMethod,'trialinfo')
@@ -174,7 +179,11 @@ for sub = 1:length(exper.subjects)
                 
                 cfg = [];
                 cfg.trials = eval(expr);
-                cfg.keeptrials = 'yes';
+                if keeptrials
+                  cfg.keeptrials = 'yes';
+                else
+                  cfg.keeptrials = 'no';
+                end
                 if any(cfg.trials == 1)
                   data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
                   %data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
@@ -189,7 +198,7 @@ for sub = 1:length(exper.subjects)
               end % es
               
             end % loadMethod
-          end % keeptrials
+          end % ftype
         else
           error('More than one field in data struct! There should only be one.\n');
         end

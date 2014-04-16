@@ -49,20 +49,20 @@ exper.eegFileExt = 'raw';
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
 % exper.eventValues = {{'match_stim'}};
-% exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
+exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
-exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}, ...
-  {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, ...
-  {'match_stim'}, {'match_stim'}};
+% exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}, ...
+%   {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, ...
+%   {'match_stim'}, {'match_stim'}};
 
 % pre- and post-stimulus times to read, in seconds (pre is negative).
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
 % exper.prepost = {[-0.2 1.0]};
-% exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
+exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
-exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
   %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
@@ -105,17 +105,17 @@ exper.subjects = {
 % create_ft_struct' for more information.
 % exper.sessions = {{'session_1'}};
 % exper.sessions = {{'session_2'}};
-% exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
-exper.sessions = {...
-  {'session_1'}, ...
-  {'session_2'}, ...
-  {'session_3'}, ...
-  {'session_4'}, ...
-  {'session_5'}, ...
-  {'session_6'}, ...
-  {'session_7'}, ...
-  {'session_8'}, ...
-  {'session_9'}};
+exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
+% exper.sessions = {...
+%   {'session_1'}, ...
+%   {'session_2'}, ...
+%   {'session_3'}, ...
+%   {'session_4'}, ...
+%   {'session_5'}, ...
+%   {'session_6'}, ...
+%   {'session_7'}, ...
+%   {'session_8'}, ...
+%   {'session_9'}};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POSSIBLY MODIFY THIS STUFF
@@ -174,21 +174,21 @@ ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
-  ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
+%   ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest'};
-%   ana.sessionNames = {'pretest','posttest','posttest_delay'};
+  ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
   %ana.sessionNames = {'train2'};
   
   % phases occur within a session; for dealing with events.mat
-  ana.phaseNames = {...
-    {'match'}, {'nametrain', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
-    {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
-    {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
+%   ana.phaseNames = {...
+%     {'match'}, {'nametrain', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
+%     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
+%     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
 %   ana.phaseNames = {{'match'}};
-%   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
+  ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
@@ -276,7 +276,8 @@ cfg_proc.keeptrials = 'yes';
 
 % name(s) of the functions for different stages of processing
 stageFun = {@stage1};
-timeOut  = {2}; % in HOURS
+% timeOut  = {2}; % in HOURS
+timeOut  = {18}; % in HOURS
 % stageFun = {@stage1,@stage2};
 % timeOut  = {2,2}; % in HOURS
 
@@ -345,17 +346,21 @@ if runLocally == 0
     % Dream: create one task for each subject
     exper.subjects = allSubjects(i);
     
-    inArg = {ana,cfg_pp,exper,dirs,files};
+    % inArg = {ana,cfg_pp,exper,dirs,files};
     % save the exper struct (output 1) so we can use it later
-    createTask(job,@create_ft_struct_multiSes,1,inArg);
+    %createTask(job,@create_ft_struct_multiSes,1,inArg);
     
-    inArg2 = {ana,cfg_proc,exper,dirs,files,cfg_pp};
-    createTask(job,@process_ft_data_multiSes,0,inArg2);
+    inArg = {ana,cfg_pp,exper,dirs,files,cfg_proc};
+    createTask(job,@create_ft_struct_multiSes_cluster,1,inArg);
+    
   end
   
   runJob(job,timeOut,fullfile(dirs.saveDirProc,[exper.name,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
   
-  %exper = getAllOutputArguments(job);
+  % % exper = getAllOutputArguments(job);
+  %tasks = get(job,'Tasks');
+  %exper = tasks(i).OutputArguments{1};
+  %process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
   
   % get the trial counts together across subjects, sessions, and events
   %[exper] = mm_ft_concatTrialCounts_cluster(job,exper,allSubjects);

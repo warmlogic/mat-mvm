@@ -611,7 +611,9 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions));
+  if exist('linspecer','file')
+    cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions));
+  end
   
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));

@@ -1,33 +1,69 @@
 %% load the analysis details
 
-procDir = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/match_stim_eq0_art_ftManual_ftICA/tla';
+expName = 'EBIRD';
 
-exper.subjects = {
-%   'EBIRD049';
-%   'EBIRD002';
-%   'EBIRD003';
-%   'EBIRD004';
-%   'EBIRD005';
-%   'EBIRD006';
-%   'EBIRD007';
-%   'EBIRD008';
-%   'EBIRD009';
-%   'EBIRD010';
-%   'EBIRD011';
-%   'EBIRD012';
-%   'EBIRD013';
-%   'EBIRD014';
-%   'EBIRD015';
-%   'EBIRD016';
-%   'EBIRD017';
-%   'EBIRD018';
-%   'EBIRD019';
-%   'EBIRD020';
+subDir = '';
+dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+  %runLocally = 1;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+  %runLocally = 1;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+  %runLocally = 0;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+  %runLocally = 1;
+else
+  error('Data directory not found.');
+end
+
+procDir = fullfile(dataroot,dataDir,'ft_data/data_art_nsClassic_ftAuto/tla');
+
+subjects = {
+  %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
+  %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
+  %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
+  %'EBIRD004'; % DNF. Dropout. Last session: 8.
+  'EBIRD005';
+  %'EBIRD006'; % DNF. Dropout. Last session: 2.
+  'EBIRD007';
+  'EBIRD008';
+  'EBIRD009';
+  'EBIRD010';
+  'EBIRD011';
+  'EBIRD012';
+  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+  %'EBIRD014'; % DNF. Rejected. Last session: 1.
+  %'EBIRD015'; % DNF. Lost in HD crash.
+  %'EBIRD016'; % DNF. Lost in HD crash.
+  %'EBIRD017'; % DNF. Lost in HD crash.
+  'EBIRD018';
+  'EBIRD019';
+  'EBIRD020';
   'EBIRD021';
+  %'EBIRD022'; % DNF. Dropout. Last session: 8.
+  %'EBIRD023'; % DNF. Dropout. Last session: 1.
+  'EBIRD024';
+  'EBIRD025';
+  'EBIRD027';
+  'EBIRD029';
+  'EBIRD032';
+  'EBIRD034';
+  'EBIRD042';
   };
 
 % only one cell, with all session names
-sesNames = {'session_1'};
+sesNames = {'session_1','session_8','session_9'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = false;
@@ -69,47 +105,61 @@ ana = mm_ft_elecGroups(ana);
 % trained
 % sameSpecies
 
-ana.eventValues = {{'match_stim'}};
-ana.eventValuesSplit = {{...
-  {'stim1_basic_color', 'stim1_basic_g', 'stim1_basic_g_hi8', 'stim1_basic_g_lo8', 'stim1_basic_norm', ...
+
+
+ana.eventValues = repmat({{'match_stim'}},1,length(exper.sessions));
+ana.eventValuesSplit = repmat({...
+  {{'stim1_basic_color', 'stim1_basic_g', 'stim1_basic_g_hi8', 'stim1_basic_g_lo8', 'stim1_basic_norm', ...
   'stim1_subord_color', 'stim1_subord_g', 'stim1_subord_g_hi8', 'stim1_subord_g_lo8', 'stim1_subord_norm', ...
   'stim2_basic_color', 'stim2_basic_g', 'stim2_basic_g_hi8', 'stim2_basic_g_lo8', 'stim2_basic_norm', ...
   'stim2_subord_color', 'stim2_subord_g', 'stim2_subord_g_hi8', 'stim2_subord_g_lo8', 'stim2_subord_norm'} ...
-  }};
-ana.trl_expr = {{...
-  {sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim'))), ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues,'match_stim')))} ...
-  }};
+  }},1,length(exper.sessions));
 
-% make sure ana.eventValues is set properly
-if ~iscell(ana.eventValues{1})
-  ana.eventValues = {ana.eventValues};
+ana.trl_expr = cell(1,length(exper.sessions));
+
+for ses = 1:length(exper.sessions)
+  if ismember(exper.sessions{ses},{'session_1','session_8','session_9'})
+    ana.trl_expr{ses} = {...
+      {...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2000 & acc == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+      }...
+      };
+  end
 end
-if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
-  ana.eventValues = {exper.eventValues};
-end
+
+% % make sure ana.eventValues is set properly
+% if ~iscell(ana.eventValues{1})
+%   ana.eventValues = {ana.eventValues};
+% end
+% if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
+%   ana.eventValues = {exper.eventValues};
+% end
 
 %% load in the subject data
 
-[data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+
+keeptrials = false;
+[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
 
 % %% get rid of the bad channels
 % 
@@ -119,6 +169,15 @@ end
 
 % overwrite ana.eventValues with the new split events
 ana.eventValues = ana.eventValuesSplit;
+
+%% decide who to kick out based on trial counts
+
+% Subjects with bad behavior
+exper.badBehSub = {{},{},{}};
+
+% exclude subjects with low event counts
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert');
+% [exper,ana] = mm_threshSubs(exper,ana,1);
 
 %% Test plots to make sure data look ok
 
@@ -197,15 +256,6 @@ end
 %   end
 % end
 
-%% decide who to kick out based on trial counts
-
-% Subjects with bad behavior
-exper.badBehSub = {{}};
-
-% exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,1);
-% [exper,ana] = mm_threshSubs(exper,ana,1);
-
 %% get the grand average
 
 ga_tla = struct;
@@ -214,43 +264,47 @@ for ses = 1:length(exper.sesStr)
   % set up strings to put in grand average function
   cfg_ana = [];
   cfg_ana.is_ga = 0;
-  cfg_ana.conditions = ana.eventValues{ses};
+  %cfg_ana.conditions = ana.eventValues{ses};
   cfg_ana.data_str = 'data_tla';
   % cfg_ana.sub_str = mm_ft_catSubStr(cfg_ana,exper);
-  cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+  %cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
   
   cfg_ft = [];
   cfg_ft.keepindividual = 'no';
-  %for ses = 1:length(exper.sesStr)
-    for evVal = 1:length(ana.eventValues{ses})
+  %cfg_ft.parameter = 'trial';
+  for typ = 1:length(ana.eventValues{ses})
+    cfg_ana.conditions = ana.eventValues{ses}{typ};
+    cfg_ana.sub_str = mm_catSubStr_multiSes(cfg_ana,exper,ses);
+    
+    for evVal = 1:length(ana.eventValues{ses}{typ})
       %tic
-      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{evVal});
+      fprintf('Running ft_timelockgrandaverage on %s...',ana.eventValues{ses}{typ}{evVal});
       %ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal}){ses}));
-      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{evVal})));
+      ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',cfg_ana.sub_str.(ana.eventValues{ses}{typ}{evVal})));
       fprintf('Done.\n');
       %toc
     end
-  %end
-end
-
-% turn keeptrial data into average for statistical functions because proper
-% processing of dimord is currently broken
-
-data_tla_avg = struct;
-
-cfg = [];
-cfg.keeptrials = 'no';
-
-for ses = 1:length(exper.sesStr)
-  for evVal = 1:length(ana.eventValues{ses})
-    for sub = 1:length(exper.subjects)
-      fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{evVal});
-      if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data,'avg')
-        data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data);
-      end
-    end
   end
 end
+
+% % turn keeptrial data into average for statistical functions because proper
+% % processing of dimord is currently broken
+% 
+% data_tla_avg = struct;
+% 
+% cfg = [];
+% cfg.keeptrials = 'no';
+% 
+% for ses = 1:length(exper.sesStr)
+%   for evVal = 1:length(ana.eventValues{ses})
+%     for sub = 1:length(exper.subjects)
+%       fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{evVal});
+%       if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data,'avg')
+%         data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}).sub(sub).data);
+%       end
+%     end
+%   end
+% end
 
 %% plot the conditions - simple
 
@@ -260,24 +314,24 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
+cfg_plot.is_ga = 1;
+cfg_plot.excludeBadSub = 1;
+
 % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'LAS'},{'LPS'}};
-% cfg_plot.rois = {{'posterior'}};
+% cfg_plot.rois = {{'LAS'},{'LPS'}};
+cfg_plot.rois = {{'posterior'}};
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
 cfg_plot.ylims = [-8 8; -8 8];
 cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-cfg_plot.is_ga = 1;
-cfg_plot.excludeBadSub = 1;
-
-cfg_ft.xlim = [-0.2 1.0];
-cfg_plot.rois = {{'E70'},{'E83'}};
-cfg_plot.ylims = [-10 10; -10 10];
-cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
@@ -290,8 +344,8 @@ cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
 sesNum = 1;
-% cfg_plot.condByROI = repmat(ana.eventValues(sesNum),size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -300,7 +354,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,ga_tla);
+  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
