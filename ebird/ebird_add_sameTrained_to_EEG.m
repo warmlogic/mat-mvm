@@ -120,13 +120,15 @@ for sub = 1:length(full_exper.subjects)
     load(sdFileRaw);
     fprintf('Done.\n');
     
-    % overwrite trl_order for match_stim with new one
-    ana.trl_order.match_stim = new_trl_order_match_stim;
-    
-    % save the new subject details file
-    fprintf('Saving raw subject details: %s...',sdFileRaw);
-    save(sdFileRaw,'exper','ana','dirs','files','cfg_pp','-v7');
-    fprintf('Done.\n');
+    if length(ana.trl_order.match_stim) ~= length(new_trl_order_match_stim)
+      % overwrite trl_order for match_stim with new one
+      ana.trl_order.match_stim = new_trl_order_match_stim;
+      
+      % save the new subject details file
+      fprintf('Saving raw subject details: %s...',sdFileRaw);
+      save(sdFileRaw,'exper','ana','dirs','files','cfg_pp','-v7');
+      fprintf('Done.\n');
+    end
     clear exper ana dirs files cfg_pp
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,14 +138,16 @@ for sub = 1:length(full_exper.subjects)
     load(sdFileProc);
     fprintf('Done.\n');
     
-    % overwrite trl_order for match_stim with new one
-    ana.trl_order.match_stim = new_trl_order_match_stim;
-    
-    % save the new subject details file
-    fprintf('Saving processed subject details: %s...',sdFileProc);
-    save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
-    fprintf('Done.\n');
-    clear exper ana dirs files cfg_pp cfg_proc
+    if length(ana.trl_order.match_stim) ~= length(new_trl_order_match_stim)
+      % overwrite trl_order for match_stim with new one
+      ana.trl_order.match_stim = new_trl_order_match_stim;
+      
+      % save the new subject details file
+      fprintf('Saving processed subject details: %s...',sdFileProc);
+      save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
+      fprintf('Done.\n');
+      clear exper ana dirs files cfg_pp cfg_proc
+    end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the raw EEG file (variable: data)
@@ -152,108 +156,113 @@ for sub = 1:length(full_exper.subjects)
     load(eegFileRaw);
     fprintf('Done.\n');
     
-    % add in sameTrained status
-    fprintf('Adding sameTrained status to raw EEG trialinfo...');
-    
-    % put in another column
-    new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
-    
-    for i = 1:size(data.trialinfo,1)
-      phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
-      trial = data.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
-      exemplarNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
-      isSubord = data.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
-      stimNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
-      if stimNum == 1
-        type = 'MATCH_STIM1';
-      elseif stimNum == 2
-        type = 'MATCH_STIM2';
-      else
-        fprintf('stimNum does not match either 1 or 2\n');
-        keyboard
-      end
+    if size(data.trialinfo,2) ~= length(new_trl_order_match_stim)
+      % add in sameTrained status
+      fprintf('Adding sameTrained status to raw EEG trialinfo...');
       
-      % find the corresponding event
-      thisEv = sesEv([sesEv.phaseCount] == phaseCount & [sesEv.trial] == trial & [sesEv.exemplarNum] == exemplarNum & [sesEv.isSubord] == isSubord & ismember({sesEv.type},type));
-      if length(thisEv) == 1
-        % put sameTrained in the right place in new_trialinfo
-        new_trialinfo(i,stInd) = thisEv.sameTrained;
-      elseif length(thisEv) > 1
-        fprintf('found too many events\n');
-        keyboard
-      elseif isempty(thisEv)
-        fprintf('did not find any events\n');
-        keyboard
-      else
-        fprintf('what happened?\n');
-        keyboard
+      % put in another column
+      new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
+      
+      for i = 1:size(data.trialinfo,1)
+        phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
+        trial = data.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
+        exemplarNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
+        isSubord = data.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
+        stimNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
+        if stimNum == 1
+          type = 'MATCH_STIM1';
+        elseif stimNum == 2
+          type = 'MATCH_STIM2';
+        else
+          fprintf('stimNum does not match either 1 or 2\n');
+          keyboard
+        end
+        
+        % find the corresponding event
+        thisEv = sesEv([sesEv.phaseCount] == phaseCount & [sesEv.trial] == trial & [sesEv.exemplarNum] == exemplarNum & [sesEv.isSubord] == isSubord & ismember({sesEv.type},type));
+        if length(thisEv) == 1
+          % put sameTrained in the right place in new_trialinfo
+          new_trialinfo(i,stInd) = thisEv.sameTrained;
+        elseif length(thisEv) > 1
+          fprintf('found too many events\n');
+          keyboard
+        elseif isempty(thisEv)
+          fprintf('did not find any events\n');
+          keyboard
+        else
+          fprintf('what happened?\n');
+          keyboard
+        end
       end
+      % replace the old trialinfo with the new one
+      data.trialinfo = new_trialinfo;
+      fprintf('Done.\n');
+      
+      % save the updated raw EEG file
+      fprintf('Saving raw EEG: %s...',eegFileRaw);
+      save(eegFileRaw,'data','-v7');
+      fprintf('Done.\n');
+      
+      %clear data new_trialinfo
+      clear data
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % load the processed EEG file (variable: data)
+      eegFileProc = fullfile(sesDirProc,eegFileNameProc);
+      fprintf('Loading processed EEG: %s...',eegFileProc);
+      load(eegFileProc);
+      fprintf('Done.\n');
+      
+      % add in sameTrained status
+      fprintf('Adding sameTrained status to processed EEG trialinfo...');
+      
+      %     % put in another column
+      %     new_trialinfo = cat(2,timelock.trialinfo(:,1:stInd-1),zeros(size(timelock.trialinfo,1),1),timelock.trialinfo(:,stInd:end));
+      %
+      %     for i = 1:size(timelock.trialinfo,1)
+      %       phaseCount = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
+      %       trial = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
+      %       exemplarNum = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
+      %       isSubord = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
+      %       stimNum = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
+      %       if stimNum == 1
+      %         type = 'MATCH_STIM1';
+      %       elseif stimNum == 2
+      %         type = 'MATCH_STIM2';
+      %       else
+      %         fprintf('stimNum does not match either 1 or 2\n');
+      %         keyboard
+      %       end
+      %
+      %       % find the corresponding event
+      %       thisEv = sesEv([sesEv.phaseCount] == phaseCount & [sesEv.trial] == trial & [sesEv.exemplarNum] == exemplarNum & [sesEv.isSubord] == isSubord & ismember({sesEv.type},type));
+      %       if length(thisEv) == 1
+      %         % put sameTrained in the right place in new_trialinfo
+      %         new_trialinfo(i,stInd) = thisEv.sameTrained;
+      %       elseif length(thisEv) > 1
+      %         fprintf('found too many events\n');
+      %         keyboard
+      %       elseif isempty(thisEv)
+      %         fprintf('did not find any events\n');
+      %         keyboard
+      %       else
+      %         fprintf('what happened?\n');
+      %         keyboard
+      %       end
+      %     end
+      
+      % replace the old trialinfo with the new one
+      timelock.trialinfo = new_trialinfo;
+      fprintf('Done.\n');
+      
+      % save the updated processed EEG file
+      fprintf('Saving processed EEG: %s...',eegFileProc);
+      save(eegFileProc,'timelock','-v7');
+      fprintf('Done.\n');
+      clear timelock new_trialinfo
+    else
+      fprintf('already modified! moving on.\n');
+      clear data
     end
-    % replace the old trialinfo with the new one
-    data.trialinfo = new_trialinfo;
-    fprintf('Done.\n');
-    
-    % save the updated raw EEG file
-    fprintf('Saving raw EEG: %s...',eegFileRaw);
-    save(eegFileRaw,'data','-v7');
-    fprintf('Done.\n');
-    
-    %clear data new_trialinfo
-    clear data
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % load the processed EEG file (variable: data)
-    eegFileProc = fullfile(sesDirProc,eegFileNameProc);
-    fprintf('Loading processed EEG: %s...',eegFileProc);
-    load(eegFileProc);
-    fprintf('Done.\n');
-    
-    % add in sameTrained status
-    fprintf('Adding sameTrained status to processed EEG trialinfo...');
-    
-%     % put in another column
-%     new_trialinfo = cat(2,timelock.trialinfo(:,1:stInd-1),zeros(size(timelock.trialinfo,1),1),timelock.trialinfo(:,stInd:end));
-%     
-%     for i = 1:size(timelock.trialinfo,1)
-%       phaseCount = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
-%       trial = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
-%       exemplarNum = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
-%       isSubord = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
-%       stimNum = timelock.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
-%       if stimNum == 1
-%         type = 'MATCH_STIM1';
-%       elseif stimNum == 2
-%         type = 'MATCH_STIM2';
-%       else
-%         fprintf('stimNum does not match either 1 or 2\n');
-%         keyboard
-%       end
-%       
-%       % find the corresponding event
-%       thisEv = sesEv([sesEv.phaseCount] == phaseCount & [sesEv.trial] == trial & [sesEv.exemplarNum] == exemplarNum & [sesEv.isSubord] == isSubord & ismember({sesEv.type},type));
-%       if length(thisEv) == 1
-%         % put sameTrained in the right place in new_trialinfo
-%         new_trialinfo(i,stInd) = thisEv.sameTrained;
-%       elseif length(thisEv) > 1
-%         fprintf('found too many events\n');
-%         keyboard
-%       elseif isempty(thisEv)
-%         fprintf('did not find any events\n');
-%         keyboard
-%       else
-%         fprintf('what happened?\n');
-%         keyboard
-%       end
-%     end
-    
-    % replace the old trialinfo with the new one
-    timelock.trialinfo = new_trialinfo;
-    fprintf('Done.\n');
-    
-    % save the updated processed EEG file
-    fprintf('Saving processed EEG: %s...',eegFileProc);
-    save(eegFileProc,'timelock','-v7');
-    fprintf('Done.\n');
-    clear timelock new_trialinfo
   end
 end
