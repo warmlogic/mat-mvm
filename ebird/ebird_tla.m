@@ -1,33 +1,42 @@
 %% load the analysis details
 
-procDir = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/match_stim_eq0_art_ftManual_ftICA/tla';
+procDir = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/data_art_nsClassic_ftAuto/tla';
 
-exper.subjects = {
-%   'EBIRD049';
-%   'EBIRD002';
-%   'EBIRD003';
-%   'EBIRD004';
-%   'EBIRD005';
-%   'EBIRD006';
-%   'EBIRD007';
-%   'EBIRD008';
-%   'EBIRD009';
-%   'EBIRD010';
-%   'EBIRD011';
-%   'EBIRD012';
-%   'EBIRD013';
-%   'EBIRD014';
-%   'EBIRD015';
-%   'EBIRD016';
-%   'EBIRD017';
-%   'EBIRD018';
-%   'EBIRD019';
-%   'EBIRD020';
+subjects = {
+  %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
+  %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
+  %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
+  %'EBIRD004'; % DNF. Dropout. Last session: 8.
+  'EBIRD005';
+  %'EBIRD006'; % DNF. Dropout. Last session: 2.
+  'EBIRD007';
+  'EBIRD008';
+  'EBIRD009';
+  'EBIRD010';
+  'EBIRD011';
+  'EBIRD012';
+  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+  %'EBIRD014'; % DNF. Rejected. Last session: 1.
+  %'EBIRD015'; % DNF. Lost in HD crash.
+  %'EBIRD016'; % DNF. Lost in HD crash.
+  %'EBIRD017'; % DNF. Lost in HD crash.
+  'EBIRD018';
+  'EBIRD019';
+  'EBIRD020';
   'EBIRD021';
+  %'EBIRD022'; % DNF. Dropout. Last session: 8.
+  %'EBIRD023'; % DNF. Dropout. Last session: 1.
+  'EBIRD024';
+  'EBIRD025';
+  'EBIRD027';
+  'EBIRD029';
+  'EBIRD032';
+  'EBIRD034';
+  'EBIRD042';
   };
 
 % only one cell, with all session names
-sesNames = {'session_1'};
+sesNames = {'session_1','session_8','session_9'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = false;
@@ -109,7 +118,8 @@ end
 
 %% load in the subject data
 
-[data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+keeptrials = false;
+[data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
 
 % %% get rid of the bad channels
 % 
@@ -203,7 +213,7 @@ end
 exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,1);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,15);
 % [exper,ana] = mm_threshSubs(exper,ana,1);
 
 %% get the grand average
