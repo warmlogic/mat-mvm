@@ -330,8 +330,8 @@ cfg_plot.excludeBadSub = 1;
 
 % same as Scott et al. (2008)
 cfg_plot.rois = {{'LPI2'},{'RPI2'}};
-cfg_plot.ylims = [-8 8; -8 8];
-cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+cfg_plot.ylims = [-2 6; -2 6];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % cfg_ft.xlim = [-0.2 1.0];
 % cfg_plot.rois = {{'E70'},{'E83'}};
@@ -348,9 +348,25 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
 
-sesNum = 1;
-cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
+
+% sesNum = [1 2];
+sesNum = [2];
+% cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -359,9 +375,70 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  mm_ft_simpleplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
+
+%% find the peak of N170
+
+cfg = [];
+cfg.conditions = cellflat(ana.eventValues{1});
+cfg.data_str = 'ga_tla';
+cfg.is_ga = true;
+cfg.excludeBadSub = true;
+
+sesNum = 1;
+
+ana_str = mm_catSubStr_multiSes2(cfg,exper,sesNum);
+
+cfg_ft = [];
+% cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'posterior'})});
+% cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPS', 'RPS', 'LPI', 'RPI', 'LPS2', 'RPS2', 'LPI2', 'RPI2', 'PS', 'PI'})});
+cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPI', 'RPI', 'LPI2', 'RPI2', 'PI'})});
+cfg_ft.channel{end+1} = 'E81';
+
+cfg_ft.latency = [0 0.5];
+
+ga_allCond = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',ana_str));
+
+
+%% find peaks
+
+cfg = [];
+cfg.latency = [0.155 0.211];
+
+ga_n170 = ft_selectdata_new(cfg,ga_allCond);
+
+[y,i] = sort(mean(ga_n170.avg,2));
+
+ga_n170.label(i)'
+y'
+
+cfg = [];
+cfg.latency = [0.23 0.33];
+
+ga_n250 = ft_selectdata_new(cfg,ga_allCond);
+
+[y,i] = sort(mean(ga_n250.avg,2));
+
+ga_n250.label(i)'
+y'
+
+%% plot peaks
+
+cfg_ft = [];
+cfg_ft.showlabels = 'yes';
+% cfg_ft.interactive = 'yes';
+cfg_ft.interactive = 'no';
+cfg_ft.showoutline = 'yes';
+cfg_ft.fontsize = 9;
+cfg_ft.ylim = [-2 5];
+cfg_ft.layout = ft_prepare_layout([],ana);
+
+figure
+ft_multiplotER(cfg_ft,ga_allCond);
+
 
 %% subplots of each subject's ERPs
 
