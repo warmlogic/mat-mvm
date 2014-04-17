@@ -1,3 +1,4 @@
+function ebird_fix_trialinfo()
 % EBIRD: because of how the session number got passed to seg2ft.m (or
 % really, did not get passed and what was passed was misinterpreted; fixed
 % on april 16 2014), the wrong events were selected for sessions > 1, and
@@ -73,8 +74,8 @@ sesNames = {'session_1','session_8','session_9'};
 % sesNames = {'session_8'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-% replaceDataroot = false;
-replaceDataroot = true;
+replaceDataroot = false;
+% replaceDataroot = true;
 
 [full_exper,full_ana,full_dirs,full_files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
 
@@ -85,11 +86,11 @@ evSesNames = {'pretest','posttest','posttest_delay'};
 phaseName = 'match';
 % evVal = {'match_stim'};
 
-old_trl_order_match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameSpecies', 'response', 'rt', 'acc'};
+% old_trl_order_match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameSpecies', 'response', 'rt', 'acc'};
 new_trl_order_match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameTrained', 'sameSpecies', 'response', 'rt', 'acc'};
 
-% index of sameTrained data
-stInd = find(ismember(new_trl_order_match_stim,{'sameTrained'}));
+% % index of sameTrained data
+% stInd = find(ismember(new_trl_order_match_stim,{'sameTrained'}));
 
 eegFileNameRaw = 'data_raw_match_stim.mat';
 eegFileNameProc = 'data_tla_match_stim.mat';
@@ -116,7 +117,7 @@ for sub = 1:length(full_exper.subjects)
     sesEv = sesEv(ismember({sesEv.type},evTypes));
     
     % only keep the good events
-    sesEv = sesEv(~full_exper.badEv.(full_exper.sesStr{ses}).match_stim{1});
+    sesEv = sesEv(~full_exper.badEv.(full_exper.sesStr{ses}).match_stim{sub});
     
     sesDirRaw = fullfile(full_dirs.saveDirRaw,full_exper.subjects{sub},full_exper.sesStr{ses});
     sesDirProc = fullfile(full_dirs.saveDirProc,full_exper.subjects{sub},full_exper.sesStr{ses});
@@ -172,7 +173,13 @@ for sub = 1:length(full_exper.subjects)
     fprintf('Fixing trialinfo in raw EEG trialinfo...');
     
     % initialize
-    new_trialinfo = zeros(size(data.trialinfo,1),length(new_trl_order_match_stim));
+    %new_trialinfo = zeros(size(data.trialinfo,1),length(new_trl_order_match_stim));
+    new_trialinfo = zeros(length(sesEv),length(new_trl_order_match_stim));
+    
+    if length(sesEv) ~= size(data.sampleinfo,1)
+      fprintf('\nWrong length for events!\n');
+      keyboard
+    end
     
     for i = 1:length(sesEv)
       
