@@ -1,7 +1,7 @@
-function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
@@ -379,7 +379,7 @@ for ses = 1:length(session)
       if ana.useExpInfo
         cfg.eventinfo.trl_order = ana.trl_order;
         cfg.eventinfo.sessionNames = ana.sessionNames;
-        cfg.eventinfo.sessionNum = ses;
+        cfg.eventinfo.sessionNum = sesNum_orig;
         cfg.eventinfo.phaseNames = ana.phaseNames;
         cfg.eventinfo.eventValues = eventValue_orig;
         cfg.eventinfo.prepost = prepost;
