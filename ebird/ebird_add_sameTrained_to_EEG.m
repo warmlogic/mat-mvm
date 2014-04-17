@@ -146,8 +146,8 @@ for sub = 1:length(full_exper.subjects)
       fprintf('Saving processed subject details: %s...',sdFileProc);
       save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
       fprintf('Done.\n');
-      clear exper ana dirs files cfg_pp cfg_proc
     end
+    clear exper ana dirs files cfg_pp cfg_proc
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the raw EEG file (variable: data)
