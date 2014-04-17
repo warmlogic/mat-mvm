@@ -83,6 +83,7 @@ replaceDataroot = true;
 evSesNames = {'pretest','posttest','posttest_delay'};
 % use the collapsed phasename
 phaseName = 'match';
+% evVal = {'match_stim'};
 
 old_trl_order_match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameSpecies', 'response', 'rt', 'acc'};
 new_trl_order_match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameTrained', 'sameSpecies', 'response', 'rt', 'acc'};
@@ -92,6 +93,13 @@ stInd = find(ismember(new_trl_order_match_stim,{'sameTrained'}));
 
 eegFileNameRaw = 'data_raw_match_stim.mat';
 eegFileNameProc = 'data_tla_match_stim.mat';
+
+evTypes = {'MATCH_STIM1','MATCH_STIM2'};
+
+image_conditions = sort({'color', 'g', 'g_hi8', 'g_lo8', 'normal'});
+match_responses = {'same', 'diff'};
+
+timeCols = 3;
 
 %% processing the data: put sameTrained into EEG data.trialinfo
 
@@ -105,6 +113,8 @@ for sub = 1:length(full_exper.subjects)
   
   for ses = 1:length(full_exper.sessions)
     sesEv = events.(evSesNames{ses}).(phaseName).data;
+    % select only the events that we segmented
+    sesEv = sesEv(ismember({sesEv.type},evTypes));
     
     sesDirRaw = fullfile(full_dirs.saveDirRaw,full_exper.subjects{sub},full_exper.sesStr{ses});
     sesDirProc = fullfile(full_dirs.saveDirProc,full_exper.subjects{sub},full_exper.sesStr{ses});
@@ -125,7 +135,7 @@ for sub = 1:length(full_exper.subjects)
       save(sdFileRaw,'exper','ana','dirs','files','cfg_pp','-v7');
       fprintf('Done.\n');
     end
-    clear exper ana dirs files cfg_pp
+    %clear exper ana dirs files cfg_pp
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the Proc subject details file
@@ -143,7 +153,7 @@ for sub = 1:length(full_exper.subjects)
       save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
       fprintf('Done.\n');
     end
-    clear exper ana dirs files cfg_pp cfg_proc
+    %clear exper ana dirs files cfg_pp cfg_proc
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % load the raw EEG file (variable: data)
@@ -156,38 +166,56 @@ for sub = 1:length(full_exper.subjects)
       % add in sameTrained status
       fprintf('Adding sameTrained status to raw EEG trialinfo...');
       
-      % put in another column
-      new_trialinfo = cat(2,data.trialinfo(:,1:stInd-1),zeros(size(data.trialinfo,1),1),data.trialinfo(:,stInd:end));
+      % initialize
+      new_trialinfo = zeros(size(data.trialinfo,1),length(new_trl_order_match_stim));
       
       for i = 1:size(data.trialinfo,1)
-        phaseCount = data.trialinfo(i,ismember(old_trl_order_match_stim,'phaseCount'));
-        trial = data.trialinfo(i,ismember(old_trl_order_match_stim,'trial'));
-        exemplarNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'exemplarNum'));
-        isSubord = data.trialinfo(i,ismember(old_trl_order_match_stim,'isSubord'));
-        stimNum = data.trialinfo(i,ismember(old_trl_order_match_stim,'stimNum'));
-        if stimNum == 1
-          type = 'MATCH_STIM1';
-        elseif stimNum == 2
-          type = 'MATCH_STIM2';
-        else
-          fprintf('stimNum does not match either 1 or 2\n');
-          keyboard
-        end
-        
-        % find the corresponding event
-        thisEv = sesEv([sesEv.phaseCount] == phaseCount & [sesEv.trial] == trial & [sesEv.exemplarNum] == exemplarNum & [sesEv.isSubord] == isSubord & ismember({sesEv.type},type));
-        if length(thisEv) == 1
-          % put sameTrained in the right place in new_trialinfo
-          new_trialinfo(i,stInd) = thisEv.sameTrained;
-        elseif length(thisEv) > 1
-          fprintf('found too many events\n');
-          keyboard
-        elseif isempty(thisEv)
-          fprintf('did not find any events\n');
-          keyboard
-        else
-          fprintf('what happened?\n');
-          keyboard
+        evCount = 0;
+        if ~exper.badEv.(full_exper.sesStr{ses}).match_stim{1}(i)
+          evCount = evCount + 1;
+          
+          % eventNumber match only had 1 event type so we can hardcode this
+          eventNumber = 1;
+          sesType = find(ismember(ana.sessionNames,ana.sessionNames{ses}));
+          phaseType = find(ismember(ana.phaseNames{sesType},phaseName));
+          phaseCount = events.(evSesNames{ses}).(phaseName).data(evCount).phaseCount;
+          trial = events.(evSesNames{ses}).(phaseName).data(evCount).trial;
+          familyNum = events.(evSesNames{ses}).(phaseName).data(evCount).familyNum;
+          speciesNum = events.(evSesNames{ses}).(phaseName).data(evCount).speciesNum;
+          exemplarNum = events.(evSesNames{ses}).(phaseName).data(evCount).exemplarNum;
+          if strcmp(events.(evSesNames{ses}).(phaseName).data(evCount).type,'MATCH_STIM1')
+            stimNum = 1;
+          elseif strcmp(events.(evSesNames{ses}).(phaseName).data(evCount).type,'MATCH_STIM2')
+            stimNum = 2;
+          end
+          imgCond = find(ismember(image_conditions,events.(evSesNames{ses}).(phaseName).data(evCount).imgCond));
+          isSubord = events.(evSesNames{ses}).(phaseName).data(evCount).isSubord;
+          trained = events.(evSesNames{ses}).(phaseName).data(evCount).trained;
+          sameTrained = events.(evSesNames{ses}).(phaseName).data(evCount).sameTrained;
+          sameSpecies = events.(evSesNames{ses}).(phaseName).data(evCount).sameSpecies;
+          response = ismember(match_responses,events.(evSesNames{ses}).(phaseName).data(evCount).resp);
+          if any(response)
+            response = find(response);
+          elseif ~any(response) && strcmp(this_event.resp,'none')
+            response = 0;
+          else
+            keyboard
+          end
+          rt = events.(evSesNames{ses}).(phaseName).data(evCount).rt;
+          acc = events.(evSesNames{ses}).(phaseName).data(evCount).acc;
+          
+          for to = 1:length(new_trl_order_match_stim)
+            thisInd = find(ismember(new_trl_order_match_stim,new_trl_order_match_stim{to}));
+            if ~isempty(thisInd)
+              if exist(trl_order{to},'var')
+                new_trialinfo(evCount,timeCols + thisInd) = eval(new_trl_order_match_stim{to});
+              else
+                fprintf('variable %s does not exist!\n',new_trl_order_match_stim{to});
+                keyboard
+              end
+            end
+          end
+          
         end
       end
       % replace the old trialinfo with the new one
