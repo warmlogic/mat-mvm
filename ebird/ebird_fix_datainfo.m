@@ -41,30 +41,30 @@ subjects = {
   %'EBIRD004'; % DNF. Dropout. Last session: 8.
   'EBIRD005';
   %'EBIRD006'; % DNF. Dropout. Last session: 2.
-%   'EBIRD007';
-%   'EBIRD008';
-%   'EBIRD009';
-%   'EBIRD010';
-%   'EBIRD011';
-%   'EBIRD012';
-%   %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-%   %'EBIRD014'; % DNF. Rejected. Last session: 1.
-%   %'EBIRD015'; % DNF. Lost in HD crash.
-%   %'EBIRD016'; % DNF. Lost in HD crash.
-%   %'EBIRD017'; % DNF. Lost in HD crash.
-%   'EBIRD018';
-%   'EBIRD019';
-%   'EBIRD020';
-%   'EBIRD021';
-%   %'EBIRD022'; % DNF. Dropout. Last session: 8.
-%   %'EBIRD023'; % DNF. Dropout. Last session: 1.
-%   'EBIRD024';
-%   'EBIRD025';
-%   'EBIRD027';
-%   'EBIRD029';
-%   'EBIRD032';
-%   'EBIRD034';
-%   'EBIRD042';
+  'EBIRD007';
+  'EBIRD008';
+  'EBIRD009';
+  'EBIRD010';
+  'EBIRD011';
+  'EBIRD012';
+  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+  %'EBIRD014'; % DNF. Rejected. Last session: 1.
+  %'EBIRD015'; % DNF. Lost in HD crash.
+  %'EBIRD016'; % DNF. Lost in HD crash.
+  %'EBIRD017'; % DNF. Lost in HD crash.
+  'EBIRD018';
+  'EBIRD019';
+  'EBIRD020';
+  'EBIRD021';
+  %'EBIRD022'; % DNF. Dropout. Last session: 8.
+  %'EBIRD023'; % DNF. Dropout. Last session: 1.
+  'EBIRD024';
+  'EBIRD025';
+  'EBIRD027';
+  'EBIRD029';
+  'EBIRD032';
+  'EBIRD034';
+  'EBIRD042';
   };
 
 % only one cell, with all session names
@@ -136,6 +136,8 @@ for sub = 1:length(full_exper.subjects)
       fprintf('Saving raw subject details: %s...',sdFileRaw);
       save(sdFileRaw,'exper','ana','dirs','files','cfg_pp','-v7');
       fprintf('Done.\n');
+    else
+      fprintf('No need to resave raw subject details.\n');
     end
     clear exper ana dirs files cfg_pp
     
@@ -154,6 +156,8 @@ for sub = 1:length(full_exper.subjects)
       fprintf('Saving processed subject details: %s...',sdFileProc);
       save(sdFileProc,'exper','ana','dirs','files','cfg_pp','cfg_proc','-v7');
       fprintf('Done.\n');
+    else
+      fprintf('No need to resave processed subject details.\n');
     end
     clear exper ana dirs files cfg_pp cfg_proc
     
@@ -163,8 +167,6 @@ for sub = 1:length(full_exper.subjects)
     fprintf('Loading raw EEG: %s...',eegFileRaw);
     load(eegFileRaw);
     fprintf('Done.\n');
-    
-    %     if size(data.trialinfo,2) ~= length(new_trl_order_match_stim)
     
     % add in sameTrained status
     fprintf('Fixing trialinfo in raw EEG trialinfo...');
@@ -249,9 +251,5 @@ for sub = 1:length(full_exper.subjects)
     save(eegFileProc,'timelock','-v7');
     fprintf('Done.\n');
     clear timelock new_trialinfo
-    %     else
-    %       fprintf('already modified! moving on.\n');
-    %       clear data
-    %     end
   end
 end
