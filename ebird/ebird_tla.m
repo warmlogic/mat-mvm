@@ -322,11 +322,16 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-% cfg_plot.rois = {{'LAS'},{'LPS'}};
-cfg_plot.rois = {{'posterior'}};
-% cfg_plot.rois = {{'LPS'},{'RPS'}};
+% % cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.rois = {{'posterior'}};
+% % cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-8 8; -8 8];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+
+% same as Scott et al. (2008)
+cfg_plot.rois = {{'LPI2'},{'RPI2'}};
 cfg_plot.ylims = [-8 8; -8 8];
-cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_ft.xlim = [-0.2 1.0];
 % cfg_plot.rois = {{'E70'},{'E83'}};
