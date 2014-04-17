@@ -99,8 +99,6 @@ evTypes = {'MATCH_STIM1','MATCH_STIM2'};
 image_conditions = sort({'color', 'g', 'g_hi8', 'g_lo8', 'normal'});
 match_responses = {'same', 'diff'};
 
-timeCols = 3;
-
 %% processing the data: put sameTrained into EEG data.trialinfo
 
 for sub = 1:length(full_exper.subjects)
@@ -164,7 +162,7 @@ for sub = 1:length(full_exper.subjects)
     
     if size(data.trialinfo,2) ~= length(new_trl_order_match_stim)
       % add in sameTrained status
-      fprintf('Adding sameTrained status to raw EEG trialinfo...');
+      fprintf('Fixing trialinfo in raw EEG trialinfo...');
       
       % initialize
       new_trialinfo = zeros(size(data.trialinfo,1),length(new_trl_order_match_stim));
@@ -208,7 +206,7 @@ for sub = 1:length(full_exper.subjects)
             thisInd = find(ismember(new_trl_order_match_stim,new_trl_order_match_stim{to}));
             if ~isempty(thisInd)
               if exist(trl_order{to},'var')
-                new_trialinfo(evCount,timeCols + thisInd) = eval(new_trl_order_match_stim{to});
+                new_trialinfo(evCount,thisInd) = eval(new_trl_order_match_stim{to});
               else
                 fprintf('variable %s does not exist!\n',new_trl_order_match_stim{to});
                 keyboard
@@ -238,7 +236,7 @@ for sub = 1:length(full_exper.subjects)
       fprintf('Done.\n');
       
       % add in sameTrained status
-      fprintf('Adding sameTrained status to processed EEG trialinfo...');
+      fprintf('Fixing trialinfo in processed EEG trialinfo...');
       
       %     % put in another column
       %     new_trialinfo = cat(2,timelock.trialinfo(:,1:stInd-1),zeros(size(timelock.trialinfo,1),1),timelock.trialinfo(:,stInd:end));
