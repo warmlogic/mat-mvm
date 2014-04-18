@@ -121,8 +121,8 @@ for fn = 1:length(fn_trl_ord)
   end
 end
 if maxTrlCols == -Inf
-  fprintf('Did not set maximum number of trialinfo columns!\n');
-  keyboard
+  error('Did not set maximum number of trialinfo columns!\n');
+  %keyboard
 end
 timeCols = 3;
 trl_ini = -1 * ones(1, timeCols + maxTrlCols);
@@ -260,14 +260,16 @@ if length(ns_evt{1}) == length(ft_event)
         end
         
       else
-        warning('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
-        keyboard
+        error('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
+        %warning('Index %d does not have the same value! ns_evt: %s, ft_event: %s',i,ns_evt{1}{i},ft_event(i).value);
+        %keyboard
       end
     end
   end
 else
-  warning('ns_evt and ft_event are not the same length! Need to fix alignment code.');
-  keyboard
+  error('ns_evt and ft_event are not the same length! Need to fix alignment code.');
+  %warning('ns_evt and ft_event are not the same length! Need to fix alignment code.');
+  %keyboard
 end
 
 %% go through events and add metadata to trl matrix
@@ -305,7 +307,8 @@ for i = 1:length(ft_event)
         cols.isExp = find(strcmp(ns_evt_cols,'expt'));
         cols.phase = find(strcmp(ns_evt_cols,'phas'));
         if isempty(cols.isExp) || isempty(cols.phase)
-          keyboard
+          error('isExp and phase columns not found!');
+          %keyboard
         end
         
         % only get data from the real experiment, not the practice
@@ -325,7 +328,8 @@ for i = 1:length(ft_event)
               cols.snum = find(strcmp(ns_evt_cols,'snum'));
               
               if isempty(cols.phaseCount) || isempty(cols.trial) || isempty(cols.snum)
-                keyboard
+                error('match: phaseCount, trial, or snum columns not found!');
+                %keyboard
               end
               
             case {'nametrain', 'prac_nametrain', 'name', 'prac_name'}
@@ -334,7 +338,8 @@ for i = 1:length(ft_event)
               cols.block = find(strcmp(ns_evt_cols,'bloc'));
               
               if isempty(cols.phaseCount) || isempty(cols.trial) || isempty(cols.block)
-                keyboard
+                error('nametrain: phaseCount, trial, or block column not found!');
+                %keyboard
               end
           end
           
@@ -354,7 +359,8 @@ for i = 1:length(ft_event)
                 elseif stimNum == 2
                   stimType = 'MATCH_STIM2';
                 else
-                  keyboard
+                  error('stimNum %d does not correspond to MATCH_STIM!',stimNum);
+                  %keyboard
                 end
                 evVal = 'match_stim';
                 
@@ -386,8 +392,9 @@ for i = 1:length(ft_event)
               prestimSamp = -round(prestimSec * ft_hdr.Fs);
               poststimSamp = round(poststimSec * ft_hdr.Fs);
             else
-              fprintf('event number not found for %s!\n',evVal);
-              keyboard
+              error('event number not found for %s!\n',evVal);
+              %fprintf('event number not found for %s!\n',evVal);
+              %keyboard
             end
             
             % find the entry in the event struct
@@ -413,11 +420,13 @@ for i = 1:length(ft_event)
             end
             
             if length(this_event) > 1
-              warning('More than one event found! Fix this script before continuing analysis.')
-              keyboard
+              error('More than one event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %warning('More than one event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %keyboard
             elseif isempty(this_event)
-              warning('No event found! Fix this script before continuing analysis.')
-              keyboard
+              error('No event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %warning('No event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %keyboard
             elseif length(this_event) == 1
               
               switch phaseName
@@ -439,7 +448,8 @@ for i = 1:length(ft_event)
                   elseif ~any(response) && strcmp(this_event.resp,'none')
                     response = 0;
                   else
-                    keyboard
+                    error('response (%s) not found in match_responses list',this_event.resp);
+                    %keyboard
                   end
                   rt = this_event.rt;
                   acc = this_event.acc;
@@ -498,7 +508,8 @@ for i = 1:length(ft_event)
                     elseif abs(preDiff) > abs(postDiff)
                       this_sample = ft_event(i+1).sample;
                     elseif abs(preDiff) == abs(postDiff)
-                      keyboard
+                      error('same exact difference offset! figure out what to do.');
+                      %keyboard
                     end
                   end
                 elseif strcmp(ft_event(i+1).value,cfg.eventinfo.photodiodeDIN_str) && ~strcmp(ft_event(i-1).value,cfg.eventinfo.photodiodeDIN_str) && (ft_event(i+1).sample - this_sample) <= photodiodeDIN_toleranceSamp
@@ -523,8 +534,9 @@ for i = 1:length(ft_event)
                   if exist(trl_order{to},'var')
                     this_trl(timeCols + thisInd) = eval(trl_order{to});
                   else
-                    fprintf('variable %s does not exist!\n',trl_order{to});
-                    keyboard
+                    error('variable %s does not exist (ec = %d)!\n',trl_order{to},ec);
+                    %fprintf('variable %s does not exist (ec = %d)!\n',trl_order{to},ec);
+                    %keyboard
                   end
                 end
               end

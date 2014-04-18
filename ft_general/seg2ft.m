@@ -272,8 +272,9 @@ for ses = 1:length(session)
         c = [c1; c2];
         cfg_cont = cell2struct(c,fn,1);
       else
-        fprintf('Non-unique field names in ana.cfg_cont!\n');
-        keyboard
+        error('Non-unique field names in ana.cfg_cont!\n');
+        %fprintf('Non-unique field names in ana.cfg_cont!\n');
+        %keyboard
       end
     else
       warning('%s: The field ana.cfg_cont does not exist. Using defaults for preprocessing continuous data!',mfilename);
@@ -287,7 +288,7 @@ for ses = 1:length(session)
       cfg_cont.hpfilttype = 'but';
       cfg_cont.hpfiltord = 4;
       cfg_cont.bsfilter = 'yes';
-      cfg_cont.bsfreq = 59:61;
+      cfg_cont.bsfreq = [59 61];
       % % cfg_cont.dftfilter = 'yes';
       % % cfg_cont.dftfreq = [60 120 180];
     end
