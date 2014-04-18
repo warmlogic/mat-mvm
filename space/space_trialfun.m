@@ -316,6 +316,13 @@ for i = 1:length(ft_event)
           % set column types because Net Station evt files can vary
           cols.phaseCount = find(strcmp(ns_evt_cols,'pcou'));
           cols.trial = find(strcmp(ns_evt_cols,'trln'));
+          
+          if length(phaseType) > 1
+            % choose the phase that corresponds to this count, not that it
+            % really matters because they all have the same name...
+            phaseType = phaseType(str2double(ns_evt{cols.phaseCount+1}{ec}));
+          end
+          
           switch phaseName
             case {'multistudy', 'prac_multistudy', 'cued_recall', 'prac_cued_recall'}
               cols.type = find(strcmp(ns_evt_cols,'type'));

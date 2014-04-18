@@ -320,6 +320,12 @@ for i = 1:length(ft_event)
           cols.phaseCount = find(strcmp(ns_evt_cols,'pcou'));
           cols.trial = find(strcmp(ns_evt_cols,'trln'));
           
+          if length(phaseType) > 1
+            % choose the phase that corresponds to this count, not that it
+            % really matters because they all have the same name...
+            phaseType = phaseType(str2double(ns_evt{cols.phaseCount+1}{ec}));
+          end
+          
           switch phaseName
             case {'match', 'prac_match'}
               image_conditions = sort({'color', 'g', 'g_hi8', 'g_lo8', 'normal'});
@@ -344,7 +350,8 @@ for i = 1:length(ft_event)
           end
           
           % set the phase name with phase count for event struct
-          phaseName_pc = sprintf('%s_%s',phaseName,ns_evt{cols.phaseCount+1}{ec});
+          %phaseName_pc = sprintf('%s_%s',phaseName,ns_evt{cols.phaseCount+1}{ec});
+          phaseName_pc = sprintf('%s_%d',phaseName,str2double(ns_evt{cols.phaseCount+1}{ec}));
           
           % if we want to process this phase (set up in top-level script)
           if ismember(phaseName,cfg.eventinfo.phaseNames{sesType})
