@@ -55,9 +55,9 @@ exper.subjects = {
 %  'TC_NEMO-011';
 %  'TC_NEMO-012';
 %  'TC_NEMO-013';
-  'TC_NEMO-014';
+%  'TC_NEMO-014';
 %  'TC_NEMO-015';
-%  'TC_NEMO-016';
+  'TC_NEMO-016';
 %  'TC_NEMO-017';
 %  'TC_NEMO-018';
 %  'TC_NEMO-019';
@@ -278,6 +278,7 @@ ana.artifact.type = {'nsClassic'};
 
 % set up for nsClassic
 ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.blink_threshold = 70;
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
 ana.artifact.rejectTrial_nBadChan = 10;
