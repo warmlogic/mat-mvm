@@ -400,7 +400,13 @@ cfg_ft.channel{end+1} = 'E81';
 
 cfg_ft.latency = [0 0.5];
 
+
+cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'RPI2'})});
+
 ga_allCond = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',ana_str));
+
+figure
+ft_singleplotER(cfg_ft,ga_allCond);
 
 
 %% find peaks
@@ -471,6 +477,69 @@ posnegdiff = pos_max - abs(neg_min);
 
 ga_allCond.label(i)'
 y'
+
+%% BIG ANOVA
+
+% test day (3) x image condition (5) x stim1/stim2 (2) x training basic/suborde (2) x hemi (2)
+
+sessions = {'session_1', 'session_8', 'session_9'};
+% sessions = {'session_1', 'session_8'};
+
+imgConds = {'norm','g','g_hi8','g_lo8','color'};
+training = {'basic', 'subord'};
+
+stimNum = [1 2];
+
+hemis = {'LPI2','RPI2'};
+
+allBadSub = logical(sum(exper.badSub,2));
+
+cfg = [];
+% cfg.latency = [0.155 0.211]; % N170
+% cfg.latency = [0.152 0.212]; % N170
+cfg.latency = [0.23 0.33]; % N250
+
+tbeg = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%d_%s_%s',stimNum(1),training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
+tend = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%d_%s_%s',stimNum(1),training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  %if ~allBadSub(sub)
+    theseData = [];
+    for ses = 1:length(sessions)
+      for im = 1:length(imgConds)
+        
+        for sn = 1:length(stimNum)
+          for tr = 1:length(training)
+            
+            condition = sprintf('stim%d_%s_%s',stimNum(sn),training{tr},imgConds{im});
+            
+            for h = 1:length(hemis)
+              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis(h))});
+              %dat = ft_selectdata_new(cfg,data_tla.(exper.sesStr{ses}).(condition).sub(sub).data);
+              %theseData = cat(2,theseData,mean(mean(dat.avg,1),2));
+              
+              % % collapse hemis
+              % cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis)});
+              
+              elecInd = ismember(data_tla.(exper.sesStr{ses}).(condition).sub(sub).data.label,cfg.channel);
+              theseData = cat(2,theseData,mean(mean(data_tla.(exper.sesStr{ses}).(condition).sub(sub).data.avg(elecInd,tbeg:tend),1),2));
+              
+            end
+          end
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  %end
+end
+
+varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord','Hemisphere'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(exper.sesStr) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
+
+% varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord'};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training)], varnames);
 
 %% subplots of each subject's ERPs
 
