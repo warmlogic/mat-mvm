@@ -1,12 +1,13 @@
-function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_slidingWindowThresh(data,ana,elecfile,badChan_str,badEv)
 
-% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_slidingWindowThresh(data,ana,elecfile,badChan_str,badEv)
 %
-% Simulate Net Station's Artifact Detection Classic
+% Was trying to simulate Net Station's Artifact Detection Classic
+% but really this just does a pretty good sliding window threshold detection
 %
 % Set up in wrapper script:
 %
-% ana.artifact.type = {'nsClassic'};
+% ana.artifact.type = {'slidingWindowThresh'};
 %
 % % time (in seconds) to check; use [-Inf Inf] to check the entire trial
 % ana.artifact.checkArtSec = [-Inf Inf];
