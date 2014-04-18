@@ -278,11 +278,54 @@ for tr = 1:nTrial
             if any(abs(fast(eog_lower_right,:)) + abs(fast(eog_upper_right,:)) > 2*ana.artifact.blink_threshold)
                 foundBlink(tr) = true;
             end
+        elseif ~isempty(eog_lower_left) && isempty(eog_upper_left)
+            if any(abs(fast(eog_lower_left,:)) > ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif isempty(eog_lower_left) && ~isempty(eog_upper_left)
+            if any(abs(fast(eog_upper_left,:)) > ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif ~isempty(eog_lower_right) && isempty(eog_upper_right)
+            if any(abs(fast(eog_lower_right,:)) > ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif isempty(eog_lower_right) && ~isempty(eog_upper_right)
+            if any(abs(fast(eog_upper_right,:)) > ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+            if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
+            if any(abs(fast(eog_horiz_left,:)) > ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+            if any(abs(fast(eog_horiz_right,:)) > ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif isempty(eog_lower_left) && isempty(eog_upper_left) && isempty(eog_lower_right) && isempty(eog_upper_right)
+            warning('Cannot check for eyeblinks because all eye channels are bad!');
         end
         
-        if ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
-            if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
-                foundEyeMove(tr) = true;
+        if ~foundBlink(tr)
+            if ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+                if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
+                    keyboard
+                    foundEyeMove(tr) = true;
+                end
+            elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
+                if any(abs(fast(eog_horiz_left,:)) > 1*ana.artifact.blink_threshold)
+                    foundEyeMove(tr) = true;
+                end
+            elseif isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+                if any(abs(fast(eog_horiz_right,:)) > 1*ana.artifact.blink_threshold)
+                    foundEyeMove(tr) = true;
+                end
+            elseif isempty(eog_horiz_left) && isempty(eog_horiz_right)
+                warning('Cannot check for eye movements because both horizontal eye channels are bad!');
             end
         end
         
