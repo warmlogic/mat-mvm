@@ -420,8 +420,9 @@ for ses = 1:length(session)
     warning('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.',...
       sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     
-    % something is wrong, figure it out; or dbcont
-    keyboard
+    % something is wrong in your trialfun, figure it out; or dbcont
+    %keyboard
+    %error('something is wrong in your trialfun, figure it out');
     
     % set an empty cell and return to the calling function
     ft_raw.data.trial = {};
