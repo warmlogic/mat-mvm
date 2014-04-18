@@ -217,6 +217,7 @@ ana.artifact.type = {'nsClassic','ftAuto'};
 
 % set up for nsClassic
 ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.blink_threshold = 70;
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
 ana.artifact.rejectTrial_nBadChan = 10;
