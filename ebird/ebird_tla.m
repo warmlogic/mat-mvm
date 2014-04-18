@@ -439,6 +439,38 @@ cfg_ft.layout = ft_prepare_layout([],ana);
 figure
 ft_multiplotER(cfg_ft,ga_allCond);
 
+%% plot 90
+
+cfg_ft = [];
+cfg_ft.channel = {'E90'};
+
+figure
+ft_singleplotER(cfg_ft,ga_allCond);
+
+%% peak to peak
+
+pospeak = [0.1 0.15];
+
+negpeak = [0.15 0.2];
+
+cfg = [];
+cfg.latency = pospeak;
+ga_pos = ft_selectdata_new(cfg,ga_allCond);
+
+
+cfg = [];
+cfg.latency = negpeak;
+ga_neg = ft_selectdata_new(cfg,ga_allCond);
+
+pos_max = max(ga_pos.avg,[],2);
+neg_min = min(ga_neg.avg,[],2);
+
+posnegdiff = pos_max - abs(neg_min);
+
+[y,i] = sort(posnegdiff);
+
+ga_allCond.label(i)'
+y'
 
 %% subplots of each subject's ERPs
 
