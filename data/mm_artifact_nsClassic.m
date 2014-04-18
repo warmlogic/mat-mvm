@@ -53,6 +53,10 @@ if ~isfield(ana.artifact,'diff_threshold')
   ana.artifact.diff_threshold = 50;
 end
 
+if ~isfield(ana.artifact,'blink_threshold')
+  ana.artifact.blink_threshold = 70;
+end
+
 %values for running avg
 params = [.5, .5, .975, .025];
 
@@ -118,6 +122,7 @@ fullyRepairChan = false(nChan,1);
 % set up matrices to store whether artifacts were found; we always reject
 % blinks and trials with too many bad channels
 foundBlink = false(nTrial,1);
+foundEyeMove = false(nTrial,1);
 foundTooManyBadChan = false(nTrial,1);
 
 % whether we reject the trial due to these depends on the number of bad
@@ -168,17 +173,14 @@ for tr = 1:nTrial
   end
   
   % check for any threshold violations at every sample
+  % by subtracting min mV from max mV and comparing the difference to
+  % threshold
   badChanFast = any(abs(fast) >= ana.artifact.fast_threshold,2);
   
   % DIFFERENTIAL AVG is difference between a slower & faster moving avg
   badChanDiff = any((abs(fast)-abs(slow)) >= ana.artifact.diff_threshold,2);
   
   foundThresh(tr,:) = logical(badChanFast + badChanDiff);
-  
-  % denote whether we found a blink
-  if any(foundThresh(tr,ismember(data.label,eyeChan)))
-    foundBlink(tr) = true;
-  end
   
   if ~ana.artifact.allowBadNeighborChan
     if any(foundThresh(tr,:))
@@ -207,8 +209,95 @@ foundArt = logical(foundThresh + foundDead);
 
 % repair channel on all trials if it was bad on more than a given percent
 fullyRepairChan(sum(foundArt,1) > nTrialThresh) = true;
+
+% were any eye channels bad?
+if ~fullyRepairChan(25)
+    eog_upper_left = 25;
+elseif ~fullyRepairChan(21)
+    eog_upper_left = 21;
+elseif ~fullyRepairChan(32)
+    eog_upper_left = 32;
+else
+    eog_upper_left = [];
+end
+if ~fullyRepairChan(8)
+    eog_upper_right = 8;
+elseif ~fullyRepairChan(14)
+    eog_upper_right = 14;
+elseif ~fullyRepairChan(1)
+    eog_upper_right = 1;
+else
+    eog_upper_right = [];
+end
+if ~fullyRepairChan(127)
+    eog_lower_left = 127;
+else
+    eog_lower_left = [];
+end
+if ~fullyRepairChan(126)
+    eog_lower_right = 126;
+else
+    eog_lower_right = [];
+end
+if ~fullyRepairChan(125)
+    eog_horiz_left = 125;
+else
+    eog_horiz_left = [];
+end
+if ~fullyRepairChan(128)
+    eog_horiz_right = 128;
+else
+    eog_horiz_right = [];
+end
+
+for tr = 1:nTrial
+    %if any(foundArt(tr,ismember(data.label,eyeAndNeighbChan)))
+    if any(foundArt(tr,:))
+        fast = zeros(nChan,nSamp);
+        slow = zeros(nChan,nSamp);
+        
+        fast_start = 0;
+        slow_start = mean(data.trial{tr}(:,tbeg:tbeg+10),2);
+        
+        for i = tbeg:tend
+            % update the running averages
+            if i > 1
+                fast(:,i) = a*fast(:,i-1) + b*(data.trial{tr}(:,i)-slow(:,i-1));
+                slow(:,i) = c*slow(:,i-1) + d*data.trial{tr}(:,i);
+            else
+                fast(:,i) = a*fast_start + b*(data.trial{tr}(:,i)-slow_start);
+                slow(:,i) = c*slow_start + d*data.trial{tr}(:,i);
+            end
+        end
+        
+        if ~isempty(eog_lower_left) && ~isempty(eog_upper_left)
+            if any(abs(fast(eog_lower_left,:)) + abs(fast(eog_upper_left,:)) > 2*ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        elseif ~isempty(eog_lower_right) && ~isempty(eog_upper_right)
+            if any(abs(fast(eog_lower_right,:)) + abs(fast(eog_upper_right,:)) > 2*ana.artifact.blink_threshold)
+                foundBlink(tr) = true;
+            end
+        end
+        
+        if ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+            if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
+                foundEyeMove(tr) = true;
+            end
+        end
+        
+    end
+end
+
+fprintf('**********************************************************************');
+totalbadevents = sum(logical(sum(foundArt,2)));
+fprintf('\nTotal number of bad events: %d\n',totalbadevents);
+totalbadchans = sum(foundArt(:));
+fprintf('\nTotal number of bad channels across all events: %d\n',totalbadchans);
+fprintf('**********************************************************************\n');
+
 if ana.artifact.doNotRepairEyes
-  fullyRepairChan(ismember(data.label,eyeAndNeighbChan)) = false;
+  fullyRepairChan(ismember(data.label,eyeChan)) = false;
 end
 % turn it into a cell array
 fullyRepairChan_str = cat(1,badChan_str,data.label(fullyRepairChan));
@@ -235,7 +324,7 @@ for tr = 1:nTrial
   trials(tr) = true;
   cfgChannelRepair.trials = trials;
   
-  if any(foundArt(tr,~fullyRepairChan)) && ~foundBlink(tr) && ~foundTooManyBadChan(tr)
+  if any(foundArt(tr,~fullyRepairChan)) && ~foundBlink(tr) && ~foundEyeMove(tr) && ~foundTooManyBadChan(tr)
     if ana.artifact.allowBadNeighborChan || (~ana.artifact.allowBadNeighborChan && ~foundBadNeighborChan(tr))
       theseBadChan = data.label(foundArt(tr,:));
       theseBadChan = theseBadChan(~ismember(theseBadChan,fullyRepairChan_str));
@@ -261,6 +350,7 @@ cfg = [];
 cfg.artfctdef.reject = ana.artifact.reject;
 
 cfg.artfctdef.blink.artifact = data.sampleinfo(foundBlink,:);
+cfg.artfctdef.eyemove.artifact = data.sampleinfo(foundEyeMove,:);
 cfg.artfctdef.manybadchan.artifact = data.sampleinfo(foundTooManyBadChan,:);
 if ~ana.artifact.allowBadNeighborChan
   cfg.artfctdef.badneighborchan.artifact = data.sampleinfo(foundBadNeighborChan,:);
