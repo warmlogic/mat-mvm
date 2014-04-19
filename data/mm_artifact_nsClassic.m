@@ -313,7 +313,6 @@ for tr = 1:nTrial
         if ~foundBlink(tr)
             if ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
                 if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
-                    keyboard
                     foundEyeMove(tr) = true;
                 end
             elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
