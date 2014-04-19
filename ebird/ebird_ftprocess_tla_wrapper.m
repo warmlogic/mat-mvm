@@ -103,9 +103,6 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-% exper.sessions = {{'session_1'}};
-% exper.sessions = {{'session_2'}};
-% exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 exper.sessions = {...
   {'session_1'}, ...
   {'session_2'}, ...
@@ -116,6 +113,10 @@ exper.sessions = {...
   {'session_7'}, ...
   {'session_8'}, ...
   {'session_9'}};
+% exper.sessions = {{'session_1'}};
+% exper.sessions = {{'session_2'}};
+% exper.sessions = {{'session_1'},{'session_2'}};
+% exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% POSSIBLY MODIFY THIS STUFF
@@ -176,21 +177,19 @@ if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest'};
-%   ana.sessionNames = {'pretest','posttest','posttest_delay'};
-%   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
-  %ana.sessionNames = {'train2'};
+%   ana.sessionNames = {'pretest', 'train1'};
+%   ana.sessionNames = {'pretest','posttest','posttest_delay'};
   
   % phases occur within a session; for dealing with events.mat
   ana.phaseNames = {...
     {'match'}, {'nametrain', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
-%   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
 %   ana.phaseNames = {{'match'}};
-%   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
-  %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
+%   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
+%   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
