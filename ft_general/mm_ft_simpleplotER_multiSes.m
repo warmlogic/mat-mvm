@@ -85,7 +85,7 @@ end
       %legend(strrep(cfg_plot.conditions,'_','-'),'Location',cfg_plot.legendloc);
       for c = 1:length(cfg_plot.conditions)
         condInd = condInd + 1;
-        legend_conds{condInd} = sprintf('%s-%s',legend_conds{condInd},exper.sesStr{ses});
+        legend_conds{condInd} = sprintf('%s-%s',legend_conds{condInd},exper.sesStr{sesNum(ses)});
       end
     end
   end
