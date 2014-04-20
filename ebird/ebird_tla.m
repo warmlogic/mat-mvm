@@ -180,7 +180,7 @@ ana.eventValues = ana.eventValuesSplit;
 exper.badBehSub = {{},{},{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert');
 % [exper,ana] = mm_threshSubs(exper,ana,1);
 
 %% Test plots to make sure data look ok
@@ -513,16 +513,18 @@ y'
 
 % test day (3) x image condition (5) x stim1/stim2 (2) x training basic/subord (2) x hemi (2)
 
-% sessions = {'session_1', 'session_8', 'session_9'};
-sessions = {'session_1', 'session_8'};
+% sessions = {'ses1', 'ses8', 'ses9'};
+sessions = {'ses1', 'ses8'};
+% sessions = {'ses1', 'ses9'};
+% sessions = {'ses8', 'ses9'};
 
-imgConds = {'norm','g','color'};
-% imgConds = {'g','g_hi8','g_lo8'};
+% imgConds = {'norm','g','color'};
+imgConds = {'g','g_hi8','g_lo8'};
 
 training = {'basic', 'subord'};
 
-stimNum = [1 2];
-% stimNum = [2];
+stimNum = {'1' '2'};
+% stimNum = {'2'};
 
 hemis = {'LPI2','RPI2'};
 
@@ -535,8 +537,8 @@ cfg.latency = [0.156 0.208];
 
 % cfg.latency = [0.23 0.33]; % N250
 
-tbeg = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%d_%s_%s',stimNum(1),training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
-tend = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%d_%s_%s',stimNum(1),training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
+tbeg = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
+tend = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
 
 anovaData = [];
 
@@ -549,7 +551,7 @@ for sub = 1:length(exper.subjects)
         for sn = 1:length(stimNum)
           for tr = 1:length(training)
             
-            condition = sprintf('stim%d_%s_%s',stimNum(sn),training{tr},imgConds{im});
+            condition = sprintf('stim%s_%s_%s',stimNum{sn},training{tr},imgConds{im});
             
             for h = 1:length(hemis)
               cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis(h))});
@@ -572,12 +574,16 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord','Hemisphere'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
-% 
+levelnames = {sessions imgConds stimNum training hemis};
+O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames,[],[],[],[],[],[],levelnames);
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
+
 % varnames = {'testDay', 'ImgCond','Basic/Subord','Hemisphere'};
+% levelnames = {sessions imgConds training hemis};
 % O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(training) length(hemis)], varnames);
 
 % varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord'};
+% levelnames = {sessions imgConds stimNum training};
 % O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training)], varnames);
 
 %% subplots of each subject's ERPs
