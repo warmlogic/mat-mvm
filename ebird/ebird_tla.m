@@ -2,7 +2,11 @@
 
 expName = 'EBIRD';
 
-subDir = '';
+% subDir = '';
+subDir = 'new_art';
+if ~isempty(subDir)
+  warning('Loading data from subDir ''%s''...',subDir);
+end
 dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
 serverDir = fullfile(filesep,'Volumes','curranlab','Data');
@@ -66,9 +70,9 @@ subjects = {
 sesNames = {'session_1','session_8','session_9'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = false;
+replaceDataroot = true;
 
-[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot,[],subDir);
 
 
 % adFile = '/Users/matt/data/EBIRD/EEG/Sessions/ftpp/ft_data/match_stim_eq0_art_ftManual_ftICA/tla/analysisDetails.mat';
@@ -329,8 +333,8 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 % same as Scott et al. (2008)
-% cfg_plot.rois = {{'LPI2'},{'RPI2'}};
-cfg_plot.rois = {{'LPI2','RPI2'}};
+cfg_plot.rois = {{'LPI2'},{'RPI2'}};
+% cfg_plot.rois = {{'LPI2','RPI2'}};
 cfg_plot.ylims = [-2 6; -2 6];
 cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
@@ -351,14 +355,24 @@ cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
 
-% sesNum = [1 2];
-sesNum = [1];
+sesNum = [1 2];
+sesNum = [1 3];
+sesNum = [2 3];
+% sesNum = [1];
 % sesNum = [2];
 % sesNum = [3];
 % cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+
 % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
+
 % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
@@ -375,6 +389,12 @@ cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basi
 % cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
 
+% cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
+% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
+
+% cfg_ft.graphcolor = 'rmbckgrmbckg';
+cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
+cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -383,6 +403,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
+
   %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   mm_ft_simpleplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
@@ -416,10 +437,11 @@ ga_allCond = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',ana_str));
 figure
 ft_singleplotER(cfg_ft,ga_allCond);
 
-%% find peaks
+%% find peak N170
 
 cfg = [];
-cfg.latency = [0.155 0.211];
+% cfg.latency = [0.155 0.211];
+cfg.latency = [0.156 0.208];
 
 ga_n170 = ft_selectdata_new(cfg,ga_allCond);
 
@@ -427,6 +449,8 @@ ga_n170 = ft_selectdata_new(cfg,ga_allCond);
 
 ga_n170.label(i)'
 y'
+
+%% find peak N250
 
 cfg = [];
 cfg.latency = [0.23 0.33];
@@ -460,7 +484,7 @@ cfg_ft.channel = {'E90'};
 figure
 ft_singleplotER(cfg_ft,ga_allCond);
 
-%% peak to peak
+%% peak to peak N170
 
 pospeak = [0.1 0.15];
 
@@ -498,6 +522,7 @@ imgConds = {'norm','g','color'};
 training = {'basic', 'subord'};
 
 stimNum = [1 2];
+% stimNum = [2];
 
 hemis = {'LPI2','RPI2'};
 
@@ -505,7 +530,9 @@ allBadSub = logical(sum(exper.badSub,2));
 
 cfg = [];
 % cfg.latency = [0.155 0.211]; % N170
-cfg.latency = [0.152 0.212]; % N170
+% cfg.latency = [0.152 0.212]; % N170
+cfg.latency = [0.156 0.208];
+
 % cfg.latency = [0.23 0.33]; % N250
 
 tbeg = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%d_%s_%s',stimNum(1),training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
@@ -546,6 +573,9 @@ end
 
 varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord','Hemisphere'};
 O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
+% 
+% varnames = {'testDay', 'ImgCond','Basic/Subord','Hemisphere'};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(training) length(hemis)], varnames);
 
 % varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord'};
 % O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training)], varnames);
