@@ -356,8 +356,8 @@ cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
 
 sesNum = [1 2];
-sesNum = [1 3];
-sesNum = [2 3];
+% sesNum = [1 3];
+% sesNum = [2 3];
 % sesNum = [1];
 % sesNum = [2];
 % sesNum = [3];
@@ -513,13 +513,13 @@ y'
 
 % test day (3) x image condition (5) x stim1/stim2 (2) x training basic/subord (2) x hemi (2)
 
-% sessions = {'ses1', 'ses8', 'ses9'};
-sessions = {'ses1', 'ses8'};
-% sessions = {'ses1', 'ses9'};
-% sessions = {'ses8', 'ses9'};
+% sessions = {'session_1', 'session_8', 'session_9'};
+sessions = {'session_1', 'session_8'};
+% sessions = {'session_1', 'session_9'};
+% sessions = {'session_8', 'session_9'};
 
-% imgConds = {'norm','g','color'};
-imgConds = {'g','g_hi8','g_lo8'};
+imgConds = {'norm','g','color'};
+% imgConds = {'g','g_hi8','g_lo8'};
 
 training = {'basic', 'subord'};
 
@@ -531,14 +531,14 @@ hemis = {'LPI2','RPI2'};
 allBadSub = logical(sum(exper.badSub,2));
 
 cfg = [];
-% cfg.latency = [0.155 0.211]; % N170
-% cfg.latency = [0.152 0.212]; % N170
-cfg.latency = [0.156 0.208];
+% cfg.latency = [0.155 0.211]; % N170 (Scott)
+% cfg.latency = [0.152 0.212]; % N170 (initial guess)
+cfg.latency = [0.156 0.208]; % N170 (use this)
 
-% cfg.latency = [0.23 0.33]; % N250
+cfg.latency = [0.234 0.334]; % N250
 
-tbeg = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
-tend = nearest(data_tla.(exper.sesStr{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
+tbeg = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
+tend = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
 
 anovaData = [];
 
@@ -555,14 +555,14 @@ for sub = 1:length(exper.subjects)
             
             for h = 1:length(hemis)
               cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis(h))});
-              %dat = ft_selectdata_new(cfg,data_tla.(exper.sesStr{ses}).(condition).sub(sub).data);
+              %dat = ft_selectdata_new(cfg,data_tla.(sessions{ses}).(condition).sub(sub).data);
               %theseData = cat(2,theseData,mean(mean(dat.avg,1),2));
               
               % % collapse hemis
               % cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis)});
               
-              elecInd = ismember(data_tla.(exper.sesStr{ses}).(condition).sub(sub).data.label,cfg.channel);
-              theseData = cat(2,theseData,mean(mean(data_tla.(exper.sesStr{ses}).(condition).sub(sub).data.avg(elecInd,tbeg:tend),1),2));
+              elecInd = ismember(data_tla.(sessions{ses}).(condition).sub(sub).data.label,cfg.channel);
+              theseData = cat(2,theseData,mean(mean(data_tla.(sessions{ses}).(condition).sub(sub).data.avg(elecInd,tbeg:tend),1),2));
               
             end
           end
@@ -574,8 +574,203 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord','Hemisphere'};
-levelnames = {sessions imgConds stimNum training hemis};
+
+lev_sessions = {'pre','post'};
+% lev_sessions = {'pre','delay'};
+% lev_sessions = {'post','delay'};
+
+lev_imgConds = {'cong','gray','incon'};
+% lev_imgConds = {'gray','g_hi8','g_lo8'};
+
+lev_stimNum = {'s1' 's2'};
+% lev_stimNum = {'s2'};
+
+lev_hemis = {'left','right'};
+
+levelnames = {lev_sessions lev_imgConds lev_stimNum training lev_hemis};
+
 O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames,[],[],[],[],[],[],levelnames);
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
+
+% varnames = {'testDay', 'ImgCond','Basic/Subord','Hemisphere'};
+% levelnames = {sessions imgConds training hemis};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(training) length(hemis)], varnames);
+
+% varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord'};
+% levelnames = {sessions imgConds stimNum training};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training)], varnames);
+
+%% normal condition only ANOVA
+
+% test day (3) x image condition (5) x stim1/stim2 (2) x training basic/subord (2) x hemi (2)
+
+sessions = {'session_1', 'session_8', 'session_9'};
+% sessions = {'session_1', 'session_8'};
+% sessions = {'session_1', 'session_9'};
+% sessions = {'session_8', 'session_9'};
+
+% imgConds = {'norm'};
+% imgConds = {'g'};
+imgConds = {'color'};
+% imgConds = {'norm','g','color'};
+% imgConds = {'g','g_hi8','g_lo8'};
+
+training = {'basic', 'subord'};
+
+stimNum = {'1' '2'};
+% stimNum = {'2'};
+
+hemis = {'LPI2','RPI2'};
+
+allBadSub = logical(sum(exper.badSub,2));
+
+cfg = [];
+% cfg.latency = [0.155 0.211]; % N170 (Scott)
+% cfg.latency = [0.152 0.212]; % N170 (initial guess)
+cfg.latency = [0.156 0.208]; % N170 (use this)
+
+% cfg.latency = [0.234 0.334]; % N250
+
+tbeg = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
+tend = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  if ~allBadSub(sub)
+    theseData = [];
+    for ses = 1:length(sessions)
+      for im = 1:length(imgConds)
+        
+        for sn = 1:length(stimNum)
+          for tr = 1:length(training)
+            
+            condition = sprintf('stim%s_%s_%s',stimNum{sn},training{tr},imgConds{im});
+            
+            for h = 1:length(hemis)
+              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis(h))});
+              %dat = ft_selectdata_new(cfg,data_tla.(sessions{ses}).(condition).sub(sub).data);
+              %theseData = cat(2,theseData,mean(mean(dat.avg,1),2));
+              
+              % % collapse hemis
+              % cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis)});
+              
+              elecInd = ismember(data_tla.(sessions{ses}).(condition).sub(sub).data.label,cfg.channel);
+              theseData = cat(2,theseData,mean(mean(data_tla.(sessions{ses}).(condition).sub(sub).data.avg(elecInd,tbeg:tend),1),2));
+              
+            end
+          end
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+varnames = {'testDay','StimNum','Basic/Subord','Hemisphere'};
+
+lev_sessions = {'pre','post','delay'};
+% lev_sessions = {'pre','post'};
+% lev_sessions = {'pre','delay'};
+% lev_sessions = {'post','delay'};
+
+% lev_imgConds = {'cong','gray','incon'};
+% lev_imgConds = {'gray','g_hi8','g_lo8'};
+
+lev_stimNum = {'s1' 's2'};
+% lev_stimNum = {'s2'};
+
+lev_hemis = {'left','right'};
+
+levelnames = {lev_sessions lev_stimNum training lev_hemis};
+
+O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(stimNum) length(training) length(hemis)], varnames,[],[],[],[],[],[],levelnames);
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
+
+% varnames = {'testDay', 'ImgCond','Basic/Subord','Hemisphere'};
+% levelnames = {sessions imgConds training hemis};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(training) length(hemis)], varnames);
+
+% varnames = {'testDay', 'ImgCond','StimNum','Basic/Subord'};
+% levelnames = {sessions imgConds stimNum training};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training)], varnames);
+
+%% Pretest ANOVA
+
+% test day (3) x image condition (5) x stim1/stim2 (2) x training basic/subord (2) x hemi (2)
+
+sessions = {'session_1'};
+
+imgConds = {'norm','g','color'};
+% imgConds = {'g','g_hi8','g_lo8'};
+
+training = {'basic', 'subord'};
+
+stimNum = {'1' '2'};
+% stimNum = {'2'};
+
+hemis = {'LPI2','RPI2'};
+
+allBadSub = logical(sum(exper.badSub,2));
+
+cfg = [];
+% cfg.latency = [0.155 0.211]; % N170 (Scott)
+% cfg.latency = [0.152 0.212]; % N170 (initial guess)
+cfg.latency = [0.156 0.208]; % N170 (use this)
+
+cfg.latency = [0.234 0.334]; % N250
+
+tbeg = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
+tend = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  if ~allBadSub(sub)
+    theseData = [];
+    for ses = 1:length(sessions)
+      for im = 1:length(imgConds)
+        
+        for sn = 1:length(stimNum)
+          for tr = 1:length(training)
+            
+            condition = sprintf('stim%s_%s_%s',stimNum{sn},training{tr},imgConds{im});
+            
+            for h = 1:length(hemis)
+              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis(h))});
+              %dat = ft_selectdata_new(cfg,data_tla.(sessions{ses}).(condition).sub(sub).data);
+              %theseData = cat(2,theseData,mean(mean(dat.avg,1),2));
+              
+              % % collapse hemis
+              % cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis)});
+              
+              elecInd = ismember(data_tla.(sessions{ses}).(condition).sub(sub).data.label,cfg.channel);
+              theseData = cat(2,theseData,mean(mean(data_tla.(sessions{ses}).(condition).sub(sub).data.avg(elecInd,tbeg:tend),1),2));
+              
+            end
+          end
+        end
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+varnames = {'ImgCond','StimNum','Basic/Subord','Hemisphere'};
+
+%lev_sessions = {'pre'};
+
+lev_imgConds = {'cong','gray','incon'};
+% lev_imgConds = {'gray','g_hi8','g_lo8'};
+
+lev_stimNum = {'s1' 's2'};
+% lev_stimNum = {'s2'};
+
+lev_hemis = {'left','right'};
+
+levelnames = {lev_imgConds lev_stimNum training lev_hemis};
+
+O = teg_repeated_measures_ANOVA(anovaData, [length(imgConds) length(stimNum) length(training) length(hemis)], varnames,[],[],[],[],[],[],levelnames);
 % O = teg_repeated_measures_ANOVA(anovaData, [length(sessions) length(imgConds) length(stimNum) length(training) length(hemis)], varnames);
 
 % varnames = {'testDay', 'ImgCond','Basic/Subord','Hemisphere'};
