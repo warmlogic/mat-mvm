@@ -105,8 +105,19 @@ elseif isfield(cfg_ana,'roi')
   end
 end
 
+% % collapse bad subjects across session
+% if size(exper.badSub,2) > 1
+%   exper.badSub = logical(sum(exper.badSub,2));
+% end
+
+collapseSessions = true;
+if collapseSessions
+  exper.badSub = logical(sum(exper.badSub,2));
+  exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
+end
+
 % exclude the bad subjects from the subject count
-cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub);
+cfg_ana.numSub = length(exper.subjects) - sum(exper.badSub(:,sesNum));
 
 % % make sure cfg_ana.conditions is set correctly
 % if ~isfield(cfg_ana,'condMethod') || isempty(cfg_ana.condMethod)
@@ -139,7 +150,8 @@ end
 % get times, data, SEM
 for evVal = 1:length(allConds)
   ev = allConds{evVal};
-  cfg_ana.values.(ev) = nan(cfg_ana.numSub,length(exper.sessions));
+  %cfg_ana.values.(ev) = nan(cfg_ana.numSub,length(exper.sessions));
+  cfg_ana.values.(ev) = nan(cfg_ana.numSub,1);
   goodSubInd = 0;
   for sub = 1:length(exper.subjects)
     %for ses = 1:length(exper.sessions)
@@ -159,7 +171,8 @@ for evVal = 1:length(allConds)
       end
       
       cfg_ana.timesel.(ev) = find(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time >= cfg_ft.latency(1) & data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time <= cfg_ft.latency(2));
-      cfg_ana.values.(ev)(goodSubInd,sesNum) = mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
+      %cfg_ana.values.(ev)(goodSubInd,sesNum) = mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
+      cfg_ana.values.(ev)(goodSubInd) = mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
     end
     %end % ses
   end % sub
@@ -219,7 +232,7 @@ fprintf('ROI: %s; Times: %.3f--%.3f s\n',strrep(cfg_plot.chan_str,'_',' '),cfg_f
 fprintf('-------------------------------------\n\n');
 
 % print GA and sub avg voltages
-cfg_ana.goodSub = exper.subjects(~exper.badSub);
+cfg_ana.goodSub = exper.subjects(~exper.badSub(:,sesNum));
 if length(exper.subjects{1}) > 7
   tabchar = '\t';
 else
