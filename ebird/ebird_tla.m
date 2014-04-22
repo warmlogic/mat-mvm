@@ -366,11 +366,11 @@ sesNum = [1 2];
 % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
 
 % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
 
 % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
 
 % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
@@ -408,6 +408,420 @@ for r = 1:length(cfg_plot.rois)
   mm_ft_simpleplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
+
+%% lineplot of the conditions
+
+cfg_ft = [];
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_ft.parameter = 'avg';
+
+cfg_plot = [];
+
+cfg_ft.latency = [0.156 0.208]; % N170 (use this)
+% cfg_ft.latency = [0.234 0.334]; % N250
+
+cfg_plot.is_ga = 0;
+cfg_plot.excludeBadSub = 1;
+
+% %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+% % cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.rois = {{'posterior'}};
+% % cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-8 8; -8 8];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+
+% same as Scott et al. (2008)
+cfg_plot.rois = {{'LPI2'},{'RPI2'}};
+% cfg_plot.rois = {{'LPI2','RPI2'}};
+cfg_plot.ylims = [-2 6; -2 6];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+
+% outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% for each event type; each event type cell holds strings for its
+% conditions
+
+% cfg_plot.condByTypeByROI = {...
+%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+
+%cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
+
+% sesNum = [1 2];
+% sesNum = [1 3];
+% sesNum = [2 3];
+sesNum = [1];
+% sesNum = [2];
+% sesNum = [3];
+% cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_basic_g' 'stim2_basic_g_hi8' 'stim2_basic_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_subord_norm' 'stim2_subord_g' 'stim2_subord_g_hi8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+
+
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+
+% cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
+% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
+
+% cfg_ft.graphcolor = 'rmbckgrmbckg';
+cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
+cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
+
+collapseSessions = false;
+if collapseSessions
+  exper.badSub = logical(sum(exper.badSub,2));
+  exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
+end
+
+for r = 1:length(cfg_plot.rois)
+  cfg_plot.roi = cfg_plot.rois{r};
+  cfg_plot.legendloc = cfg_plot.legendlocs{r};
+  cfg_ft.ylim = cfg_plot.ylims(r,:);
+  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  cfg_plot.conditions = cfg_plot.condByROI{r};
+  
+
+  %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+%   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
+  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
+end
+
+%% LINES: break pre/post tests into different graphs - training x img cond
+
+% pretest only will collapse across training
+
+dataMeasure = 'dp';
+dataLabel = 'd''';
+ylimits = [0 4];
+
+% dataMeasure = 'rt_hit';
+% dataLabel = 'Response Time: Hits';
+% ylimits = [0 5000];
+
+% dataMeasure = 'hr';
+% dataLabel = 'Hit Rate';
+% ylimits = [0 1];
+
+% dataMeasure = 'c';
+% dataLabel = 'Response bias (criterion; c)';
+% ylimits = [-0.6 0.6];
+% % positive/conservative bias indicates a tendency to say 'new', whereas
+% % negative/liberal bias indicates a tendency to say 'old'
+
+% dataMeasure = 'Br';
+% dataLabel = 'Response bias index (Br)';
+% ylimits = [0 1];
+
+% dataMeasure = 'Pr';
+% dataLabel = 'Discrimination index (Pr)';
+% ylimits = [0 1];
+
+sessions = {'session_1', 'session_8', 'session_9'};
+sessions_str = {'Pretest', 'Posttest','Delay'};
+
+% if collapsePhases
+phases = {'match'};
+% else
+%   phases = {'match_1'};
+% end
+% training = {'trained','untrained'};
+
+naming = {'basic','subord'};
+naming_str = {'Basic','Subord'};
+% naming = {'subord'};
+
+% training = {'TT','UU','TU','UT'};
+% trainStr = {'Trained','Untrained','TU','UT'};
+
+% training = {'TT','UU'};
+% trainingStr = {'Trained', 'Untrained'};
+
+stimNum = {'1','2'};
+% stimNum_str = {'Stim1','Stim2'};
+stimNum_str = {'1','2'};
+
+hemis = {'LPI2','RPI2'};
+hemis_str = {'Left','Right'};
+
+imgConds = {'norm','color','g'};
+imgConds_str = {'Congruent','Incongruent','Gray'};
+groupname = 'Color';
+
+% imgConds = {'g','g_hi8','g_lo8'};
+% imgConds_str = {'Gray','Hi8','Lo8'};
+% groupname = 'SpatialFreq';
+
+allBadSub = logical(sum(exper.badSub,2));
+
+cfg = [];
+% cfg.latency = [0.155 0.211]; % N170 (Scott)
+% cfg.latency = [0.152 0.212]; % N170 (initial guess)
+cfg.latency = [0.156 0.208]; % N170 (use this)
+component_str = 'N170';
+
+% cfg.latency = [0.234 0.334]; % N250
+% component_str = 'N250';
+
+tbeg = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
+tend = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
+
+%anovaData = [];
+%theseData = [];
+
+data_sub = nan(length(sessions),length(imgConds),length(naming),length(stimNum),length(hemis),length(subjects));
+
+for ses = 1:length(sessions)
+  for im = 1:length(imgConds)
+    
+    for n = 1:length(naming)
+      for sn = 1:length(stimNum)
+        
+        condition = sprintf('stim%s_%s_%s',stimNum{sn},naming{n},imgConds{im});
+        
+        for h = 1:length(hemis)
+          for sub = 1:length(exper.subjects)
+            if ~allBadSub(sub)
+              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis{h})});
+              %dat = ft_selectdata_new(cfg,data_tla.(sessions{ses}).(condition).sub(sub).data);
+              %theseData = cat(2,theseData,mean(mean(dat.avg,1),2));
+              
+              % % collapse hemis
+              % cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,hemis)});
+              
+              elecInd = ismember(data_tla.(sessions{ses}).(condition).sub(sub).data.label,cfg.channel);
+              data_sub(ses,im,n,sn,h,sub) = mean(mean(data_tla.(sessions{ses}).(condition).sub(sub).data.avg(elecInd,tbeg:tend),1),2);
+              
+            end
+          end
+        end
+      end
+    end
+    %anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+% for s = 1:length(sessions)
+%   for p = 1:length(phases)
+%     for i = 1:length(imgConds)
+%       
+%       %collapseData = [];
+%       
+%       for t = 1:length(training)
+%         for n = 1:length(naming)
+%           data(t,i,s,p,:) = results.(sessions{s}).(phases{p}).(training{t}).(imgConds{i}).(naming{n}).(dataMeasure);
+%         end
+%       end
+%       
+%     end
+%   end
+% end
+
+% % stats
+% [h, p, ci, stats] = ttest(squeeze(data.(dataMeasure).(naming{1})(:,1,1,1,1)),squeeze(data.(dataMeasure).(naming{1})(:,2,1,1,1)));
+
+%% Make line plots
+
+% make some plots
+
+saveFigs = true;
+
+cfg_plot = [];
+cfg_plot.linewidth = 2;
+% cfg_plot.marksize = 10;
+cfg_plot.marksize = 15;
+cfg_plot.errwidth = 1;
+cfg_plot.errBarEndMarkerInd = [4 5 7 8];
+cfg_plot.removeErrBarEnds = 1;
+
+cfg_plot.xlabel = 'Conditions';
+cfg_plot.xlabel = '';
+cfg_plot.ylabel = 'Voltage (\muV)';
+
+if strcmp(component_str,'N170')
+  cfg_plot.ylim = [-0.5 3.5];
+elseif strcmp(component_str,'N250')
+  cfg_plot.ylim = [3 7];
+end
+
+cfg_plot.linespec = {'ko','ks','ko','ks','ko','ks'};
+
+if strcmp(groupname,'Color')
+  cfg_plot.markcolor = {[1 1 1],[1 1 1],[0 0 0],[0 0 0],[0.6 0.6 0.6],[0.6 0.6 0.6]};
+elseif strcmp(groupname,'SpatialFreq')
+  cfg_plot.markcolor = {[0.6 0.6 0.6],[0.6 0.6 0.6],[1 1 1],[1 1 1],[0 0 0],[0 0 0]};
+end
+
+cfg_plot.plotLegend = true;
+
+cfg_plot.legendtext = naming_str;
+
+% for p = 1:length(phases)
+for s = 1:length(sessions)
+  for h = 1:length(hemis)
+    for sn = 1:length(stimNum)
+      
+      data_mean = [];
+      data_sem = [];
+      %data_mean = nan(length(naming),length(imgConds));
+      %data_sem = nan(length(naming),length(imgConds));
+      
+      thisTitle = sprintf('%s: %s: %s, %s hemi, Stim%s',groupname,component_str,sessions_str{s},hemis_str{h},stimNum_str{sn});
+      figFileName = sprintf('%s_%s_%s_%s_s%s',groupname,component_str,sessions_str{s},hemis_str{h},stimNum_str{sn});
+      
+      cfg_plot.plot_order = cell(1,prod([length(naming),length(imgConds)]));
+      cfg_plot.rename_conditions = cell(1,prod([length(naming),length(imgConds)]));
+      
+      poCount = 0;
+      for im = 1:length(imgConds)
+        for n = 1:length(naming)
+          poCount = poCount + 1;
+          
+          condition = sprintf('%s_%s',imgConds{im},naming{n});
+          cfg_plot.plot_order{poCount} = condition;
+          %cfg_plot.rename_conditions{poCount} = sprintf('%s %s',imgConds_str{im},naming_str{n});
+          cfg_plot.rename_conditions{poCount} = sprintf('%s-%s',imgConds_str{im},naming_str{n}(1));
+          
+          data_mean.(condition) = nanmean(data_sub(s,im,n,sn,h,:),6);
+          data_sem.(condition) = nanstd(data_sub(s,im,n,sn,h,:),0,6) ./ sqrt(sum(~allBadSub));
+        end
+      end
+      
+      hpm = nan(1,length(cfg_plot.plot_order));
+      
+      figure
+      % plot the lines
+      eval(sprintf('plot([%s],cfg_plot.linespec{1},''LineWidth'',cfg_plot.linewidth);',sprintf(repmat('data_mean.%s ',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:})));
+      hold on
+      for c = 1:length(cfg_plot.plot_order)
+        % errorbars
+        heb = errorbar(c,mean(data_mean.(cfg_plot.plot_order{c}),1),data_sem.(cfg_plot.plot_order{c}),cfg_plot.linespec{c},'LineWidth',cfg_plot.errwidth);
+        % remove errorbar ends
+        if cfg_plot.removeErrBarEnds
+          chil = get(heb,'Children');
+          xdata = get(chil(2),'XData');
+          ydata = get(chil(2),'YData');
+          xdata(cfg_plot.errBarEndMarkerInd) = NaN;
+          ydata(cfg_plot.errBarEndMarkerInd) = NaN;
+          set(chil(2),'XData',xdata);
+          set(chil(2),'YData',ydata);
+          set(heb,'Children',chil);
+        end
+        % plot the markers
+        hpm(c) = plot(c,mean(data_mean.(cfg_plot.plot_order{c}),1),cfg_plot.linespec{c},'LineWidth',cfg_plot.linewidth,'MarkerSize',cfg_plot.marksize,'MarkerFaceColor',cfg_plot.markcolor{c});
+        
+        text(c,  cfg_plot.ylim(1)-.2, cfg_plot.rename_conditions{c}, 'Rotation', 15, 'FontSize', 18, 'HorizontalAlignment', 'center');
+      end
+      if cfg_plot.plotLegend
+        legend(hpm(1:length(cfg_plot.legendtext)),cfg_plot.legendtext);
+      end
+      
+      cfg_plot.xlim = [0.5 (length(cfg_plot.rename_conditions) + .5)];
+      
+      plot([cfg_plot.xlim(1) cfg_plot.xlim(2)],[0 0],'k--'); % horizontal
+      
+      hold off
+      
+      set(gcf,'Name',sprintf('%s',thisTitle))
+      
+      title(thisTitle);
+      
+      % make it look good
+      axis([cfg_plot.xlim(1) cfg_plot.xlim(2) cfg_plot.ylim(1) cfg_plot.ylim(2)])
+      xlabel(cfg_plot.xlabel);
+      ylabel(cfg_plot.ylabel);
+      set(gca,'XTick',(1:length(cfg_plot.rename_conditions)))
+      set(gca,'XTickLabel',[])
+      %set(gca,'XTickLabel',strrep(cfg_plot.rename_conditions,'_',''))
+      set(gca,'YTick',(cfg_plot.ylim(1):.5:cfg_plot.ylim(2)))
+      axis square
+      publishfig(gcf,0);
+      
+      if saveFigs
+        print(gcf,'-dpng',fullfile(dirs.saveDirFigs,figFileName));
+      end
+      
+    end
+  end
+end
+
+%           %else
+%           %  data_mean = nanmean(data_sub(:,:,s,p,:),5);
+%           %  data_sem = nanstd(data_sub(:,:,s,p,:),0,5) ./ sqrt(sum(~allBadSub));
+%           %end
+%           
+%           bw_legend = imgCondsStr;
+%           
+%           bw_title = sprintf('%s: %s, %s',groupname,sessions_str{s},naming{n});
+%           %bw_title = sprintf('%s%s: %s: %s',upper(naming{n}(1)),naming{n}(2:end),strrep(phases{p},'_','\_'),strrep(imgConds{i},'_','\_'));
+%           %bw_groupnames = {'Pretest', 'Posttest', 'Delay'};
+%           if strcmp(sessions{s},'pretest')
+%             bw_groupnames = [];
+%             axis_x = 1.5;
+%           else
+%             bw_groupnames = trainingStr;
+%             %axis_x = length(training) + 1.5;
+%             axis_x = length(training) + 0.5;
+%           end
+%           %bw_xlabel = 'Test day';
+%           bw_xlabel = [];
+%           bw_ylabel = dataLabel;
+%           if exist('linspecer','file')
+%             bw_colormap = 'linspecer';
+%           else
+%             bw_colormap = 'gray';
+%           end
+%           bw_data = data_mean;
+%           bw_errors = data_sem;
+%           h = barweb(bw_data,bw_errors,[],bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend,[],'plot');
+%           set(h.legend,'Location','NorthEast');
+%           axis([0.5 axis_x ylimits(1) ylimits(2)]);
+%           
+%           if length(sessions) == 1 && strcmp(sessions{s},'pretest')
+%             xlabel('Collapsed');
+%           end
+%           publishfig(gcf,0);
+%           
+%           if saveFigs
+%             %print(gcf,figFormat,figRes,fullfile(figsDir,sprintf('prepost_trainUn_%s_%s_%s_%s_%s',phases{p},dataMeasure,sessions{s},naming{n},groupname)));
+%           end
+%         end
+%       end
+%     end
+%   end
+% end
+% end
 
 %% find the peak of N170
 
@@ -869,87 +1283,6 @@ end
 %   mm_ft_plotERP(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_tla);
 % end
 
-%% RSA - very basic
-thisROI = 'PI';
-elecInd = ismember(data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.label,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
-
-dataType = 'word_RgH_rc_spac';
-% dataType = 'img_RgH_rc_spac';
-% dataType = 'word_RgH_rc_mass';
-% dataType = 'img_RgH_rc_mass';
-
-% dataType = 'word_RgH_fo_spac';
-% dataType = 'img_RgH_fo_spac';
-% dataType = 'word_RgH_fo_mass';
-% dataType = 'img_RgH_fo_mass';
-
-phaseCountCol = 4;
-stimNumCol = 6;
-categNumCol = 7;
-
-distanceMetric = 'euclidean';
-% distanceMetric = 'seuclidean';
-% distanceMetric = 'spearman';
-% distanceMetric = 'cosine';
-% distanceMetric = 'correlation';
-
-if strcmp(distanceMetric,'euclidean')
-  distanceScale = [0 100];
-elseif strcmp(distanceMetric,'spearman') || strcmp(distanceMetric,'correlation') || strcmp(distanceMetric,'cosine')
-  distanceScale = [0 2];
-elseif strcmp(distanceMetric,'seuclidean')
-  distanceScale = [0 20];
-else
-  distanceScale = [];
-end
-
-% timeS = [0.1 0.8];
-timeS = [0.0 1.0];
-timeInd = data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.time >= timeS(1) & data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data.time <= timeS(2);
-
-for i = 1:size(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial,1)
-  %p1_trlInd = 1;
-  p1_trlInd = i;
-  p1_phaseCount = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,phaseCountCol);
-  p1_stimNum = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,stimNumCol);
-  p1_categNum = data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trialinfo(p1_trlInd,categNumCol);
-  
-  p2_trlInd = find(...
-    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-    data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trialinfo(:,categNumCol) == p1_categNum);
-  %p2_trlInd = 1;
-  
-  if ~isempty(p2_trlInd)
-    % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
-    % distances are measured between observations
-    
-    % rows = samples; cols = channels
-    p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd))';
-    p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd))';
-    
-    % rows = channels; cols = samples
-    %p1_data = squeeze(data_tla.(sprintf('%s_p1',dataType)).sub(1).ses(1).data.trial(p1_trlInd,elecInd,timeInd));
-    %p2_data = squeeze(data_tla.(sprintf('%s_p2',dataType)).sub(1).ses(1).data.trial(p2_trlInd,elecInd,timeInd));
-    
-    D = pdist2(p1_data,p2_data,distanceMetric);
-    
-    figure;
-    if exist('distanceScale','var') && ~isempty(distanceScale)
-      imagesc(linspace(timeS(1),timeS(2),size(p1_data,1)),linspace(timeS(1),timeS(2),size(p2_data,1)),D,distanceScale);
-    else
-      imagesc(linspace(timeS(1),timeS(2),size(p1_data,1)),linspace(timeS(1),timeS(2),size(p2_data,1)),D);
-    end
-    h = colorbar;
-    set(get(h,'YLabel'),'string','Dissimilarity');
-    title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
-    xlabel('P1');
-    ylabel('P2');
-  else
-    fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
-  end
-end
-
 %% make some GA plots
 
 cfg_ft = [];
@@ -1132,9 +1465,17 @@ cfg_ana = [];
 % cfg_ana.rois = {{'FS'},{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
 % cfg_ana.latencies = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
 
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_ana.rois = {{'FC'}};
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
+
+cfg_ana.rois = {{'LPI2','RPI2'},{'LPI2','RPI2'},{'LPI2','RPI2'}};
+
+cfg_ana.latencies = [0.156 0.208; 0.156 0.208; 0.156 0.208];
+
+% cfg.latency = [0.156 0.208]; % N170 (use this)
+% 
+% cfg.latency = [0.234 0.334]; % N250
+
 
 % % LF O/N
 % cfg_ana.rois = {{'RAS'},{'RAS'},{'RAI'},{'RAI'}};
@@ -1149,8 +1490,11 @@ cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 %cfg_ana.conditions = {{'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},{'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'}};
 %cfg_ana.conditions = {{'RHSC','RCR'},{'RHSI','RCR'},{'RHSC','RHSI'}}; % {'RH','RCR'},
 %cfg_ana.conditions = {{'SC','CR'},{'SI','CR'},{'SC','SI'}}; % {'RH','CR'},
-cfg_ana.conditions = {{'Face','House'}};
-cfg_ana.conditions = {{'RgH','CR'}};
+% cfg_ana.conditions = {{'Face','House'}};
+% cfg_ana.conditions = {{'RgH','CR'}};
+
+cfg_ana.conditions = {{'stim2_basic_norm' 'stim2_subord_norm'} {'stim2_basic_g' 'stim2_subord_g'} {'stim2_basic_color' 'stim2_subord_color'}};
+
 
 %cfg_ana.conditions = {{'all'}};
 %cfg_ana.conditions = {{'all_within_types'}};
@@ -1166,19 +1510,21 @@ cfg_ft.correctm = 'fdr';
 % line plot parameters
 cfg_plot = [];
 cfg_plot.individ_plots = 0;
-cfg_plot.line_plots = 0;
+cfg_plot.line_plots = 1;
 %cfg_plot.ylims = [-4 -1; -4 -1; -4 -1; 1 4; 1 4; 1 4; -4 -1; 1 4; 1 4; 1 4];
 %cfg_plot.ylims = [-4 -1; 1 4; 1 4];
 % cfg_plot.ylims = [-5 -2; -5 -2; -5 -2; 1.5 4.5; 1.5 4.5;];
-cfg_plot.ylims = [-5 -2; 1.5 4.5];
+cfg_plot.ylims = [-2 6; -2 6; -2 6];
 %cfg_plot.plot_order = {'CR2','H2','HSC2','HSI2','CR6','H6','HSC6','HSI6'};
 %cfg_plot.plot_order = {'RHSC','RHSI','RCR'};
 % cfg_plot.plot_order = {'SC','SI','CR'};
 %cfg_plot.rename_conditions = {'SC','SI','CR'};
 % cfg_plot.xlabel = 'Condition';
-% cfg_plot.ylabel = 'Voltage (\muV)';
+cfg_plot.ylabel = 'Voltage (\muV)';
 cfg_plot.xlabel = '';
-cfg_plot.ylabel = '';
+% cfg_plot.ylabel = '';
+
+sesNum = 1;
 
 for r = 1:length(cfg_ana.rois)
   cfg_ana.roi = cfg_ana.rois{r};
@@ -1187,7 +1533,8 @@ for r = 1:length(cfg_ana.rois)
   
   % use data_tla_avg because FieldTrip doesn't deal with dimord properly
   % when single-trials exist
-  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg);
+  %mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg,sesNum);
+  mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla,sesNum);
 end
 
 %% output some values
