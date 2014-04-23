@@ -957,7 +957,7 @@ cfg_plot.legendtext = naming_str;
 
 ylimits = cfg_plot.ylim;
 
-cfg_plot.axisxy = false;
+cfg_plot.axisxy = true;
 
 % for p = 1:length(phases)
 for s = 1:length(sessions)
@@ -1026,8 +1026,8 @@ for s = 1:length(sessions)
       bw_data = data_mean;
       bw_errors = data_sem;
       bw_width = 0.75;
-      hbw = barweb(bw_data,bw_errors,bw_width,bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend,[],'plot');
-      set(hbw.legend,'Location','NorthEast');
+      hbp = barweb(bw_data,bw_errors,bw_width,bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend,[],'plot');
+      set(hbp.legend,'Location','NorthEast');
       axis([0.5 axis_x ylimits(1) ylimits(2)]);
       
       %if length(sessions) == 1 && strcmp(sessions{s},'pretest')
@@ -1038,7 +1038,8 @@ for s = 1:length(sessions)
       if cfg_plot.axisxy
         %axis xy;
         set(gca,'YDir','reverse');
-        set(h.legend,'Location','SouthWest');
+        set(hbp.legend,'Location','SouthWest');
+        sprintf('%s_flip',figFileName);
       end
       
       if saveFigs
