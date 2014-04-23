@@ -693,9 +693,10 @@ phases = {'match'};
 % end
 % training = {'trained','untrained'};
 
-naming = {'basic','subord'};
-naming_str = {'Basic','Subord'};
-% naming = {'subord'};
+% naming = {'basic','subord'};
+% naming_str = {'Basic','Subord'};
+naming = {'subord'};
+naming_str = {'Subord'};
 
 % training = {'TT','UU','TU','UT'};
 % trainStr = {'Trained','Untrained','TU','UT'};
@@ -733,8 +734,8 @@ cfg = [];
 cfg.latency = [0.156 0.208]; % N170 (use this)
 component_str = 'N170';
 
-cfg.latency = [0.234 0.334]; % N250
-component_str = 'N250';
+% cfg.latency = [0.234 0.334]; % N250
+% component_str = 'N250';
 
 tbeg = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
 tend = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
@@ -918,6 +919,136 @@ for s = 1:length(sessions)
   end
 end
 
+%% bar plots of subordinate
+
+% make some plots
+
+saveFigs = true;
+
+cfg_plot = [];
+cfg_plot.linewidth = 2;
+% cfg_plot.marksize = 10;
+cfg_plot.marksize = 15;
+cfg_plot.errwidth = 1;
+cfg_plot.errBarEndMarkerInd = [4 5 7 8];
+cfg_plot.removeErrBarEnds = 1;
+
+cfg_plot.xlabel = 'Conditions';
+cfg_plot.xlabel = '';
+cfg_plot.ylabel = 'Voltage (\muV)';
+
+if strcmp(component_str,'N170')
+  cfg_plot.ylim = [-0.5 3.5];
+elseif strcmp(component_str,'N250')
+  cfg_plot.ylim = [3 7];
+end
+
+cfg_plot.linespec = {'ko','ks','ko','ks','ko','ks'};
+
+if strcmp(groupname,'Color')
+  cfg_plot.markcolor = {[1 1 1],[1 1 1],[0 0 0],[0 0 0],[0.6 0.6 0.6],[0.6 0.6 0.6]};
+elseif strcmp(groupname,'SpatialFreq')
+  cfg_plot.markcolor = {[0.6 0.6 0.6],[0.6 0.6 0.6],[1 1 1],[1 1 1],[0 0 0],[0 0 0]};
+end
+
+cfg_plot.plotLegend = true;
+
+cfg_plot.legendtext = naming_str;
+
+ylimits = cfg_plot.ylim;
+
+cfg_plot.axisxy = false;
+
+% for p = 1:length(phases)
+for s = 1:length(sessions)
+  for h = 1:length(hemis)
+    %for sn = 1:length(stimNum)
+      
+      %thisTitle = sprintf('%s: %s: %s, %s hemi, Stim%s',groupname,component_str,sessions_str{s},hemis_str{h},stimNum_str{sn});
+      %figFileName = sprintf('%s_%s_%s_%s_s%s',groupname,component_str,sessions_str{s},hemis_str{h},stimNum_str{sn});
+      thisTitle = sprintf('%s: %s: %s, %s hemi',groupname,component_str,sessions_str{s},hemis_str{h});
+      figFileName = sprintf('bar_%s_%s_%s_%s',groupname,component_str,sessions_str{s},hemis_str{h});
+      
+      cfg_plot.plot_order = cell(1,prod([length(naming),length(imgConds)]));
+      cfg_plot.rename_conditions = cell(1,prod([length(naming),length(imgConds)]));
+      
+      data_mean = [];
+      data_sem = [];
+      %data_mean = nan(length(naming),length(imgConds));
+      %data_sem = nan(length(naming),length(imgConds));
+      
+      poCount = 0;
+      for im = 1:length(imgConds)
+        for n = 1:length(naming)
+          poCount = poCount + 1;
+          
+          condition = sprintf('%s_%s',imgConds{im},naming{n});
+          cfg_plot.plot_order{poCount} = condition;
+          %cfg_plot.rename_conditions{poCount} = sprintf('%s %s',imgConds_str{im},naming_str{n});
+          cfg_plot.rename_conditions{poCount} = sprintf('%s-%s',imgConds_str{im},naming_str{n}(1));
+          
+          %data_mean.(condition) = nanmean(nanmean(data_sub(s,im,n,:,h,:),4),6);
+          %data_sem.(condition) = nanstd(nanmean(data_sub(s,im,n,:,h,:),4),0,6) ./ sqrt(sum(~allBadSub));
+          
+          data_mean = cat(2,data_mean,nanmean(nanmean(data_sub(s,im,n,:,h,:),4),6));
+          data_sem = cat(2,data_sem,nanstd(nanmean(data_sub(s,im,n,:,h,:),4),0,6) ./ sqrt(sum(~allBadSub)));
+        end
+      end
+      
+      
+      bw_legend = imgConds_str;
+      
+      bw_title = thisTitle;
+      %bw_title = sprintf('%s: %s, %s',groupname,sesStr{s},naming{n});
+      %bw_title = sprintf('%s%s: %s: %s',upper(naming{n}(1)),naming{n}(2:end),strrep(phases{p},'_','\_'),strrep(imgConds{i},'_','\_'));
+      %bw_groupnames = {'Pretest', 'Posttest', 'Delay'};
+      if strcmp(sessions{s},'session_1')
+        bw_groupnames = [];
+        axis_x = 1.5;
+      else
+        %bw_groupnames = trainingStr;
+        bw_groupnames = [];
+        
+        %axis_x = length(training) + 1.5;
+        %axis_x = length(training) + 0.5;
+        axis_x = 1.5;
+      end
+      %bw_xlabel = 'Test day';
+      bw_xlabel = [];
+      bw_ylabel = cfg_plot.ylabel;
+      %if exist('linspecer','file')
+      %  bw_colormap = 'linspecer';
+      %else
+      %  bw_colormap = 'gray';
+      %end
+      
+      bw_colormap = flipud(jet);
+      bw_data = data_mean;
+      bw_errors = data_sem;
+      bw_width = 0.75;
+      hbw = barweb(bw_data,bw_errors,bw_width,bw_groupnames,bw_title,bw_xlabel,bw_ylabel,bw_colormap,[],bw_legend,[],'plot');
+      set(hbw.legend,'Location','NorthEast');
+      axis([0.5 axis_x ylimits(1) ylimits(2)]);
+      
+      %if length(sessions) == 1 && strcmp(sessions{s},'pretest')
+      %  xlabel('Collapsed');
+      %end
+      publishfig(gcf,0);
+      
+      if cfg_plot.axisxy
+        %axis xy;
+        set(gca,'YDir','reverse');
+        set(h.legend,'Location','SouthWest');
+      end
+      
+      if saveFigs
+        print(gcf,'-dpng',fullfile(dirs.saveDirFigs,figFileName));
+        %print(gcf,figFormat,figRes,fullfile(figsDir,sprintf('prepost_trainUn_%s_%s_%s_%s_%s',phases{p},dataMeasure,sessions{s},naming{n},groupname)));
+      end
+      
+      
+  end
+end
 %% Make line plots - separate session (collapse hemi, stimNum)
 
 % make some plots
