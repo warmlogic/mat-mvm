@@ -734,8 +734,8 @@ cfg = [];
 cfg.latency = [0.156 0.208]; % N170 (use this)
 component_str = 'N170';
 
-% cfg.latency = [0.234 0.334]; % N250
-% component_str = 'N250';
+cfg.latency = [0.234 0.334]; % N250
+component_str = 'N250';
 
 tbeg = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(1));
 tend = nearest(data_tla.(sessions{1}).(sprintf('stim%s_%s_%s',stimNum{1},training{1},imgConds{1})).sub(1).data.time,cfg.latency(2));
@@ -957,7 +957,7 @@ cfg_plot.legendtext = naming_str;
 
 ylimits = cfg_plot.ylim;
 
-cfg_plot.axisxy = true;
+cfg_plot.axisxy = false;
 
 % for p = 1:length(phases)
 for s = 1:length(sessions)
@@ -1039,7 +1039,7 @@ for s = 1:length(sessions)
         %axis xy;
         set(gca,'YDir','reverse');
         set(hbp.legend,'Location','SouthWest');
-        sprintf('%s_flip',figFileName);
+        figFileName = sprintf('%s_flip',figFileName);
       end
       
       if saveFigs
