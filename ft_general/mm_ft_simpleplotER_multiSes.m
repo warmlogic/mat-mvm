@@ -99,6 +99,10 @@ end
     %axis xy;
     set(gca,'YDir','reverse');
   end
+  
+  ylabel('Voltage (\muV)');
+  xlabel('Time (s)');
+  
 % end
 
 end
