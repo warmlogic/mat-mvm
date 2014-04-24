@@ -144,6 +144,10 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 % exper.badSub = zeros(size(subjects));
 exper.badSub = ismember(subjects,exper.badBehSub{1});
 
+%% ANOVA
+
+
+
 %% ttest stuff
 
 alpha = 0.05;
