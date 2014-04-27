@@ -395,7 +395,8 @@ save(fullfile(dirs.saveDirProc,'data_scd.mat'),'data_tla','-v7.3');
 
 % Start with images first
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [-0.2 0];
@@ -421,7 +422,7 @@ evVal = 1;
 % thisROI = {'center91'};
 thisROI = {'center109'};
 % thisROI = {'all129'};
-thisROI = {'LPI', 'PI', 'RPI'};
+% thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
 % thisROI = {'LPS', 'RPS'};
 % thisROI = {'LAS', 'RAS'};
@@ -528,7 +529,7 @@ for d = 1:length(dataTypes)
               
               %subD(i) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
               %subD_corr(i,j,lat1) = pdist2(dat1(:)',dat2(:)',distanceMetric);
-              subD_corr(i,j,lat1) = corr(dat1(:),dat2(:));
+              subD_corr(i,j,lat1) = 1 - corr(dat1(:),dat2(:));
             end
             
           end
@@ -985,7 +986,7 @@ for d = 1:length(dataTypes)
   end % sub
 end % dataTypes
 
-%% stats
+%% stats - comparing across time
 
 % data1_str = 'word_RgH_rc_spac';
 % data2_str = 'word_RgH_rc_mass';
@@ -1733,6 +1734,32 @@ hold off
 
 %% correlation
 
+% collapse?
+collapsePhases = true;
+if collapsePhases
+  collapseStr = '_collapsed';
+else
+  collapseStr = '';
+end
+
+% split into quantile divisions?
+nDivisions = 1;
+% nDivisions = 2;
+% nDivisions = 3;
+% nDivisions = 4;
+if nDivisions > 1
+  quantStr = sprintf('_%dquantileDiv',nDivisions);
+else
+  quantStr = '';
+end
+
+% load the behavioral data
+resultsFile = fullfile(dataroot,dirs.behDir,sprintf('%s_behav_results%s%s.mat',exper.name,quantStr,collapseStr));
+fprintf('Loading %s...',resultsFile);
+load(resultsFile);
+fprintf('Done.\n');
+
+
 corrType = 'Pearson';
 % corrType = 'Spearman';
 
@@ -1796,6 +1823,7 @@ end
 %% RM ANOVA - p1 vs p2: spac x stimType x memory x time
 
 cnds = {'word_RgH_rc_spac', 'img_RgH_rc_spac', 'word_RgH_fo_spac', 'img_RgH_fo_spac', 'word_RgH_rc_mass', 'img_RgH_rc_mass', 'word_RgH_fo_mass', 'img_RgH_fo_mass'};
+% cnds = {'word_RgH_rc_spac', 'word_RgH_fo_spac', 'word_RgH_rc_mass', 'word_RgH_fo_mass'};
 
 nThresh = 1;
 
@@ -1833,7 +1861,12 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'spacing','subseqMem','stimType','time'};
+levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'word', 'img'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
+
+% varnames = {'spacing','subseqMem','time'};
+% levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2 4], varnames,[],[],[],[],[],[],levelnames);
 
 %% RM ANOVA - p1 vs p2: spac x memory x time
 
@@ -1875,7 +1908,9 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'spacing','subseqMem','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(D.(cnds{cnd}).dissim,3)], varnames);
+levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
+
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(D.(cnds{cnd}).dissim,3)], varnames,[],[],[],[],[],[],levelnames);
 
 %% RM ANOVA - p1 vs p2: spac x time (trying with SCD)
 
