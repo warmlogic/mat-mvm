@@ -1708,9 +1708,9 @@ for sub = 1:length(exper.subjects)
       
       for cnd = 1:length(cnds)
         
-        for t = 1:size(D.(cnds{cnd}).dissim,3)
+        for t = 1:size(D.(cnds{cnd}).within,3)
           
-          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
+          theseData = cat(2,theseData,D.(cnds{cnd}).within(sub,ses,t));
           
         end
       end
@@ -1721,17 +1721,17 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'spacing','subseqMem','stimType','time'};
-levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'word', 'img'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames,[],[],[],[],[],[],levelnames);
+levelnames = {{'spac','mass'}, {'rc', 'fo'}, {'word', 'img'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 size(D.(cnds{cnd}).within,3)], varnames,[],[],[],[],[],[],levelnames);
 
 % varnames = {'spacing','subseqMem','time'};
-% levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
-% O = teg_repeated_measures_ANOVA(anovaData, [2 2 4], varnames,[],[],[],[],[],[],levelnames);
+% levelnames = {{'spac','mass'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(D.(cnds{cnd}).within,3)], varnames,[],[],[],[],[],[],levelnames);
 
 %% RM ANOVA - p1 vs p2: spac x memory x time
 
 cnds = {'word_RgH_rc_spac', 'word_RgH_fo_spac', 'word_RgH_rc_mass', 'word_RgH_fo_mass'};
-cnds = {'img_RgH_rc_spac', 'img_RgH_fo_spac', 'img_RgH_rc_mass', 'img_RgH_fo_mass'};
+% cnds = {'img_RgH_rc_spac', 'img_RgH_fo_spac', 'img_RgH_rc_mass', 'img_RgH_fo_mass'};
 
 nThresh = 1;
 
@@ -1756,9 +1756,9 @@ for sub = 1:length(exper.subjects)
       
       for cnd = 1:length(cnds)
         
-        for t = 1:size(D.(cnds{cnd}).dissim,3)
+        for t = 1:size(D.(cnds{cnd}).within,3)
           
-          theseData = cat(2,theseData,D.(cnds{cnd}).dissim(sub,ses,t));
+          theseData = cat(2,theseData,D.(cnds{cnd}).within(sub,ses,t));
           
         end
       end
@@ -1769,9 +1769,9 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'spacing','subseqMem','time'};
-levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
+levelnames = {{'spac','mass'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
 
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(D.(cnds{cnd}).dissim,3)], varnames,[],[],[],[],[],[],levelnames);
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(D.(cnds{cnd}).within,3)], varnames,[],[],[],[],[],[],levelnames);
 
 %% RM ANOVA - p1 vs p2: spac x time (trying with SCD)
 
