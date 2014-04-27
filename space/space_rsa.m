@@ -289,7 +289,7 @@ sub = 1;
 ses = 1;
 evVal = 1;
 
-thisROI = {'center109'};
+thisROI = {'center101'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
@@ -422,7 +422,8 @@ ses = 1;
 evVal = 1;
 
 % thisROI = {'center91'};
-thisROI = {'center109'};
+% thisROI = {'center101'};
+thisROI = {'posterior_noPeriph'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
@@ -531,7 +532,8 @@ for d = 1:length(dataTypes)
               
               %subD(i) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
               %subD_corr(i,j,lat1) = pdist2(dat1(:)',dat2(:)',distanceMetric);
-              subD_corr(i,j,lat1) = 1 - corr(dat1(:),dat2(:));
+              %subD_corr(i,j,lat1) = 1 - corr(dat1(:),dat2(:));
+              subD_corr(i,j,lat1) = corr(dat1(:),dat2(:));
             end
             
           end
@@ -772,7 +774,7 @@ ses = 1;
 evVal = 1;
 
 % thisROI = {'center91'};
-thisROI = {'center109'};
+thisROI = {'center101'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
@@ -1769,11 +1771,11 @@ measure = 'recall_hr';
 % measure = 'recall_rt';
 % measure = 'recall_rt_hit';
 
-% distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
-%   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
+distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
+  'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % distcases = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
-distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass'};
+% distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass'};
 
 for t = 1:size(D.(distcases{1}).dissim,3)
   fprintf('\n');
@@ -1873,7 +1875,7 @@ O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames,[],[],[],[],[],[]
 
 %% RM ANOVA - p1 vs p2: spac x memory x time
 
-% cnds = {'word_RgH_rc_spac', 'word_RgH_fo_spac', 'word_RgH_rc_mass', 'word_RgH_fo_mass'};
+cnds = {'word_RgH_rc_spac', 'word_RgH_fo_spac', 'word_RgH_rc_mass', 'word_RgH_fo_mass'};
 cnds = {'img_RgH_rc_spac', 'img_RgH_fo_spac', 'img_RgH_rc_mass', 'img_RgH_fo_mass'};
 
 nThresh = 1;
