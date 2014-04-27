@@ -471,6 +471,8 @@ end
 
 % try using both pdist2 and corr, with Pearson and Spearman corr
 
+fprintf('Running corr on %d electrodes in%s...\n',sum(elecInd),sprintf(repmat(' %s',1,length(thisROI)),thisROI{:}));
+
 % initialize to store the distance values
 D = struct;
 for d = 1:length(dataTypes)
