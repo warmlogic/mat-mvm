@@ -396,7 +396,9 @@ save(fullfile(dirs.saveDirProc,'data_scd.mat'),'data_tla','-v7.3');
 % Start with images first
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
-dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass', ...
+  'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
 latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [-0.2 0];
@@ -1770,7 +1772,8 @@ measure = 'recall_hr';
 % distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
 %   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
-distcases = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
+% distcases = {'word_RgH_rc_spac', 'word_RgH_rc_mass'};
+distcases = {'img_RgH_rc_spac', 'img_RgH_rc_mass'};
 
 for t = 1:size(D.(distcases{1}).dissim,3)
   fprintf('\n');
@@ -1862,7 +1865,7 @@ end
 
 varnames = {'spacing','subseqMem','stimType','time'};
 levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'word', 'img'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames,[],[],[],[],[],[],levelnames);
 
 % varnames = {'spacing','subseqMem','time'};
 % levelnames = {{'mass','spac'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
@@ -1870,7 +1873,8 @@ O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 4], varnames);
 
 %% RM ANOVA - p1 vs p2: spac x memory x time
 
-cnds = {'word_RgH_rc_spac', 'word_RgH_fo_spac', 'word_RgH_rc_mass', 'word_RgH_fo_mass'};
+% cnds = {'word_RgH_rc_spac', 'word_RgH_fo_spac', 'word_RgH_rc_mass', 'word_RgH_fo_mass'};
+cnds = {'img_RgH_rc_spac', 'img_RgH_fo_spac', 'img_RgH_rc_mass', 'img_RgH_fo_mass'};
 
 nThresh = 1;
 
