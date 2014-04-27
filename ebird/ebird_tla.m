@@ -558,9 +558,11 @@ for r = 1:length(cfg_plot.rois)
 %   imgCond = 'LoSF';
   
   legendLoc = 'SouthEast';
-  legend({sprintf('%s Basic %s Pretest',stimStr,imgCond) sprintf('%s Subord %s Pretest',stimStr,imgCond) sprintf('%s Basic %s 1-Day Posttest',stimStr,imgCond) sprintf('%s Subord %s 1-Day Posttest',stimStr,imgCond)},'Location',legendLoc);
+  legend({sprintf('%s Basic Pretest %s',stimStr,imgCond) sprintf('%s Subord Pretest %s',stimStr,imgCond) sprintf('%s Basic 1-Day Posttest %s',stimStr,imgCond) sprintf('%s Subord 1-Day Posttest %s',stimStr,imgCond)},'Location',legendLoc);
+  %legend({sprintf('%s Basic %s Pretest',stimStr,imgCond) sprintf('%s Subord %s Pretest',stimStr,imgCond) sprintf('%s Basic %s 1-Day Posttest',stimStr,imgCond) sprintf('%s Subord %s 1-Day Posttest',stimStr,imgCond)},'Location',legendLoc);
+  %legend off
   
-  saveFigs = false;
+  saveFigs = true;
   
   figFileName = sprintf('ERP_%s_%s_basic_subord_prepost',imgCond,stimStr);
   
@@ -1548,8 +1550,8 @@ cfg = [];
 cfg.latency = [0.156 0.208]; % N170 (use this)
 component_str = 'N170';
 
-% cfg.latency = [0.234 0.334]; % N250
-% component_str = 'N250';
+cfg.latency = [0.234 0.334]; % N250
+component_str = 'N250';
 
 sessions = {'session_1', 'session_8', 'session_9'};
 lev_sessions = {'pre','post','delay'};
@@ -1567,9 +1569,9 @@ groupname = 'Color';
 imgConds = {'norm','color','g'};
 lev_imgConds = {'cong','incon','gray'};
 
-% groupname = 'SpatialFreq';
-% imgConds = {'g','g_hi8','g_lo8'};
-% lev_imgConds = {'gray','g_hi8','g_lo8'};
+groupname = 'SpatialFreq';
+imgConds = {'g','g_hi8','g_lo8'};
+lev_imgConds = {'gray','g_hi8','g_lo8'};
 
 training = {'basic', 'subord'};
 
