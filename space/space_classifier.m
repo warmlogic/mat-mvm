@@ -33,41 +33,41 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 subjects = {
   %'SPACE001'; low trial counts
   'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019'; low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   'SPACE030'; % low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -108,29 +108,54 @@ ana = mm_ft_elecGroups(ana);
 sesNum = 1;
 
 ana.eventValues = {{'expo_stim','multistudy_word'}};
+% ana.eventValues = {{'expo_stim','multistudy_word','multistudy_image'}};
 ana.eventValuesSplit = { ...
   {{'Face','House'} ...
-  {'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
+  { ...
+  'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
   'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
-  }} ...
+  } ...
+%   { ...
+%   'img_RgH_rc_spac' ,'img_RgH_rc_mass' ...
+%   'img_RgH_fo_spac' ,'img_RgH_fo_mass' ...
+%   } ...
+  } ...
   };
 if allowRecallSynonyms
   ana.trl_expr = {...
     {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
     sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-    {sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+    {...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word')))}} ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+    } ...
+%     {...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     } ...
+    } ...
     };
 else
   ana.trl_expr = {...
     {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
     sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-    {sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+    { ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word')))}} ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+    } ...
+%     { ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+%     } ...
+    } ...
     };
 end
 
@@ -414,6 +439,7 @@ thisROI = 'center109';
 % latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [0.0 0.5; 0.5 1.0];
+% latencies = [0.2 0.8];
 
 parameter = 'trial';
 
@@ -442,6 +468,7 @@ standardizeTrain = true;
 
 % test on p2 word
 dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
+% dataTypes_test = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass'};
 equateTestTrials = false;
 standardizeTest = true;
 standardizeTestSeparately = false;
@@ -576,16 +603,20 @@ for sub = 1:length(exper.subjects)
         %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
         facehouse = dml.enet('family','binomial','alpha',alpha);
         facehouse = facehouse.train(dat_train,imageCategory_train);
+        %facehouse_svm = dml.svm;
+        %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
         fprintf('Done.\n');
         facehouseClass{sub,ses,lat} = facehouse;
         trainLambda(sub,ses,lat) = facehouse.lambda;
         trainWeights{sub,ses,lat} = facehouse.weights;
+        
         
 %         cfg = [];
 %         %cfg.parameter = 'trial';
 %         %cfg.layout = 'GSN-HydroCel-129.sfp';
 %         %cfg.method = 'crossvalidate_mm';
 %         cfg.mva = dml.enet('family','binomial','alpha',alpha);
+%         %cfg.mva = dml.svm;
 %         cfg.statistic = {'accuracy', 'binomial', 'contingency', 'confusion'};
 %         cfg.compact = true;
 %         cfg.verbose = true;
@@ -606,15 +637,16 @@ for sub = 1:length(exper.subjects)
 %           facehouse2 = dml.crossvalidator('mva',cfg.mva,'type',cfg.type,'stat',cfg.statistic,'resample',cfg.resample,'compact',cfg.compact,'verbose',cfg.verbose);
 %         end
 %         facehouse2 = facehouse2.train(dat_train,imageCategory_train);
-        
+%         
 %         keyboard
+%         
 %         trainClass = struct;
-%         trainClass.model = facehouse.model;
+%         trainClass.model = facehouse2.model;
 %         %trainClass.obj = facehouse;
 %         
 %         if length(trainClass.model) > 1
 %           fn = fieldnames(trainClass.model{1});
-%           for i=1:length(stat.model)
+%           for i=1:length(trainClass.model)
 %           for k=1:length(fn)
 %             if numel(trainClass.model{i}.(fn{k}))==prod(dim(2:end))
 %               trainClass.model{i}.(fn{k}) = squeeze(reshape(trainClass.model{i}.(fn{k}),dim(2:end)));
@@ -635,10 +667,20 @@ for sub = 1:length(exper.subjects)
 %         trainClass.label = data_train.(dataTypes_train{1}).label;
 %         
 %         if length(trainClass.model) > 1
-%           trainClass.mymodel = trainClass.model{1}.weights;
+%           %trainClass.mymodel = trainClass.model{1}.weights;
+%           %trainClass.mymodel = trainClass.model{1}.primal;
+%           
+%           trainClass.mymodel = [];
+%           for m = 1:length(trainClass.model)
+%             trainClass.mymodel = cat(3,trainClass.mymodel,trainClass.model{m}.weights);
+%             %trainClass.mymodel = cat(3,trainClass.mymodel,trainClass.model{m}.primal);
+%           end
+%           trainClass.mymodel = mean(trainClass.mymodel,3);
 %         else
 %           trainClass.mymodel = trainClass.model.weights;
+%           %trainClass.mymodel = trainClass.model.primal;
 %         end
+%         trainClass.mymodel = meanmodel;
 %         cfg = [];
 %         cfg.parameter = 'mymodel';
 %         cfg.layout = 'GSN-HydroCel-129.sfp';
@@ -647,6 +689,7 @@ for sub = 1:length(exper.subjects)
 %         cfg.colorbar = 'yes';
 %         cfg.interplimits= 'electrodes';
 %         ft_topoplotER(cfg,trainClass);
+        
         
         fprintf('\t\tSetting up testing data...\n');
         % set up the test data
@@ -753,6 +796,7 @@ for sub = 1:length(exper.subjects)
             fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test,1),sum(faceInd),sum(houseInd));
             fprintf('\t\tRunning classifier on testing data...');
             Z = facehouse.test(dat_test);
+            %Z = facehouse_svm.test(dat_test);
             fprintf('Done.\n');
             
             % find which category it fit best
@@ -814,6 +858,9 @@ for sub = 1:length(exper.subjects)
               
               if ~isempty(thisEventInd) && length(thisEventInd) == 1
                 pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
+                
+                % % verifying that images are classified correctly
+                % pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd).catNum;
                 pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
               elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
                 %keyboard
@@ -839,7 +886,7 @@ for sub = 1:length(exper.subjects)
           
           % whether to standardize the testing data
           if standardizeTest
-            fprintf('\t\tStandardizing the testing data (%s)...',dataTypes_test{d});
+            fprintf('\t\tStandardizing the testing data...');
             
             m = dml.standardizer;
             m = m.train(dat_test);
@@ -873,6 +920,7 @@ for sub = 1:length(exper.subjects)
             fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test(datInd,:),1),sum(faceInd),sum(houseInd));
             fprintf('\t\tRunning classifier on testing data...');
             Z = facehouse.test(dat_test(datInd,:));
+            %Z = facehouse_svm.test(dat_test(datInd,:));
             fprintf('Done.\n');
             
             % find which category it fit best
@@ -908,7 +956,7 @@ for sub = 1:length(exper.subjects)
 end % sub
 
 %save(sprintf('fhClass_100HzLP_fhC_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','facehouseClass','trainLambda','trainWeights','-v7.3');
-save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','trainLambda','trainWeights');
+% save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc','continTab','trainLambda','trainWeights');
 
 %% classifier face/house performance
 
