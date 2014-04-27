@@ -128,16 +128,16 @@ sesNum = 1;
 
 % ana.trl_order.multistudy_image = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
 
-% ana.eventValues = {{'multistudy_image','multistudy_word'}};
-ana.eventValues = {{'multistudy_word'}};
+ana.eventValues = {{'multistudy_image','multistudy_word'}};
+% ana.eventValues = {{'multistudy_word'}};
 ana.eventValuesSplit = { ...
   { ...
-%   { ...
-%   %'img_onePres' ...
-%   'img_RgH_rc_spac_p1','img_RgH_rc_spac_p2','img_RgH_rc_mass_p1','img_RgH_rc_mass_p2' ...
-%   'img_RgH_fo_spac_p1','img_RgH_fo_spac_p2','img_RgH_fo_mass_p1','img_RgH_fo_mass_p2' ...
-%   %'img_RgM_spac_p1','img_RgM_spac_p2','img_RgM_mass_p1','img_RgM_mass_p2' ...
-%   } ...
+  { ...
+  %'img_onePres' ...
+  'img_RgH_rc_spac_p1','img_RgH_rc_spac_p2','img_RgH_rc_mass_p1','img_RgH_rc_mass_p2' ...
+  'img_RgH_fo_spac_p1','img_RgH_fo_spac_p2','img_RgH_fo_mass_p1','img_RgH_fo_mass_p2' ...
+  %'img_RgM_spac_p1','img_RgM_spac_p2','img_RgM_mass_p1','img_RgM_mass_p2' ...
+  } ...
   { ...
   %'word_onePres' ...
   'word_RgH_rc_spac_p1','word_RgH_rc_spac_p2','word_RgH_rc_mass_p1','word_RgH_rc_mass_p2' ...
@@ -146,24 +146,25 @@ ana.eventValuesSplit = { ...
   } ...
   } ...
   };
+
 if allowRecallSynonyms
   ana.trl_expr = { ...
     { ...
-%     { ...
-%     %sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     } ...
+    { ...
+    %sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    } ...
     { ...
     %sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
@@ -184,21 +185,21 @@ if allowRecallSynonyms
 else
   ana.trl_expr = { ...
     { ...
-%     { ...
-%     %sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%     } ...
+    { ...
+    %sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+    } ...
     { ...
     %sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
@@ -217,64 +218,6 @@ else
     } ...
     };
 end
-
-% ana.eventValues = {{'multistudy_image', 'multistudy_word'}};
-% ana.eventValuesSplit = { ...
-%   {{'img_onePres' ...
-%   'img_RgH_spac_p1','img_RgH_spac_p2','img_RgH_mass_p1','img_RgH_mass_p2' ...
-%   %'img_RgM_spac_p1','img_RgM_spac_p2','img_RgM_mass_p1','img_RgM_mass_p2' ...
-%   } ...
-%   {'word_onePres' ...
-%   'word_RgH_spac_p1','word_RgH_spac_p2','word_RgH_mass_p1','word_RgH_mass_p2' ...
-%   %'word_RgM_spac_p1','word_RgM_spac_p2','word_RgM_mass_p1','word_RgM_mass_p2' ...
-%   }} ...
-%   };
-% ana.trl_expr = { ...
-%   {{ ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   } ...
-%   { ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   %sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 0  & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   }} ...
-%   };
-
-% ana.eventValues = {{'multistudy_image','multistudy_word'}};
-% ana.eventValuesSplit = {...
-%   {{'img_onePres', 'img_spac_p1','img_spac_p2','img_mass_p1','img_mass_p2'} ...
-%   {'word_onePres', 'word_spac_p1','word_spac_p2','word_mass_p1','word_mass_p2'}} ...
-%   };
-% ana.trl_expr = {...
-%   {{...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-%   } ...
-%   {...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == -1 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   sprintf('eventNumber == %d & targ == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-%   }} ...
-%   };
 
 %% recognition events
 
@@ -444,6 +387,335 @@ save(fullfile(dirs.saveDirProc,'data_scd.mat'),'data_tla','-v7.3');
 %     data_tla.session_1 = rmfield(data_tla.session_1,fn{i});
 %   end
 % end
+
+%% RSA setup
+
+% For each P1, if P2 exists, compare to every other P2 (its repeated trial
+% and all other trials). This makes a RDM.
+
+% Start with images first
+
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+
+latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+% latencies = [-0.2 0];
+
+% latencies = [0.1 0.9];
+
+standardize = false;
+
+% distanceMetric = 'euclidean';
+% distanceMetric = 'seuclidean';
+% distanceMetric = 'spearman';
+% distanceMetric = 'cosine';
+distanceMetric = 'correlation';
+
+parameter = 'trial';
+plotit = false;
+verbose = false;
+
+sub = 1;
+ses = 1;
+evVal = 1;
+
+% thisROI = {'center91'};
+thisROI = {'center109'};
+% thisROI = {'all129'};
+thisROI = {'LPI', 'PI', 'RPI'};
+% thisROI = {'LPS'};
+% thisROI = {'LPS', 'RPS'};
+% thisROI = {'LAS', 'RAS'};
+% thisROI = {'Fz'};
+% thisROI = {'Cz'};
+% thisROI = {'Pz'};
+% thisROI = {'PI'};
+% thisROI = {'posterior'};
+% thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
+% thisROI = {'E70', 'E83'};
+% thisROI = {'E83'};
+if all(ismember(thisROI,ana.elecGroupsStr))
+  elecInd = ismember(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
+elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.label))
+  elecInd = ismember(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{1}).sub(sub).data.label,unique(thisROI));
+else
+  error('Cannot find specified electrode(s)');
+end
+
+% simAcross = 'time';
+% simAcross = 'chan';
+
+% column numbers in trialinfo
+% trialNumCol = 5;
+phaseCountCol = 4;
+stimNumCol = 6;
+categNumCol = 7;
+pairNumCol = 13;
+
+% if plotit
+if strcmp(distanceMetric,'euclidean')
+  distanceScale = [0 100];
+elseif strcmp(distanceMetric,'spearman') || strcmp(distanceMetric,'correlation') || strcmp(distanceMetric,'cosine')
+  distanceScale = [0 2];
+elseif strcmp(distanceMetric,'seuclidean')
+  distanceScale = [0 20];
+else
+  distanceScale = [];
+end
+% end
+
+%% RSA - new - run it for p1 vs p2
+
+% try using both pdist2 and corr, with Pearson and Spearman corr
+
+% initialize to store the distance values
+D = struct;
+for d = 1:length(dataTypes)
+%   fprintf('%s\n',dataTypes{d});
+%   D.(dataTypes{d}).nTrial
+  D.(dataTypes{d}).dissim = nan(length(exper.subjects),length(exper.sessions),size(latencies,1));
+  D.(dataTypes{d}).nTrial = nan(length(exper.subjects),length(exper.sessions));
+end
+
+for d = 1:length(dataTypes)
+  dataType = dataTypes{d};
+  
+  fprintf('Processing %s...\n',dataType);
+  
+  for sub = 1:length(exper.subjects)
+    for ses = 1:length(exper.sessions)
+      if ~exper.badSub(sub,ses)
+        fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
+        
+        p1_ind = [];
+        p2_ind = [];
+        for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+          %p1_trlInd = 1;
+          p1_trlInd = i;
+          p1_phaseCount = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
+          
+          p2_trlInd = find(...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
+          %p2_trlInd = 1;
+          
+          %d1 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+          %d2 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1));
+          
+          if ~isempty(p2_trlInd)
+            p1_ind = cat(2,p1_ind,p1_trlInd);
+            p2_ind = cat(2,p2_ind,p2_trlInd);
+          end
+        end
+        
+        %subD = nan(size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1),1);
+        subD_corr = nan(length(p1_ind),length(p2_ind),size(latencies,1));
+        
+        for i = 1:length(p1_ind)
+          for j = 1:length(p2_ind)
+            
+            for lat1 = 1:size(latencies,1)
+              if verbose
+                fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+              end
+              timeInd1 = false(1,length(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time));
+              timeInd1(nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, latencies(lat1,1)):nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, latencies(lat1,2))) = true;
+              
+              dat1 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(p1_ind(i),elecInd,timeInd1));
+              dat2 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(p2_ind(j),elecInd,timeInd1));
+              
+              %subD(i) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
+              %subD_corr(i,j,lat1) = pdist2(dat1(:)',dat2(:)',distanceMetric);
+              subD_corr(i,j,lat1) = corr(dat1(:),dat2(:));
+            end
+            
+          end
+        end
+        
+        for lat1 = 1:size(latencies,1)
+          D.(dataType).dissim(sub,ses,lat1) = nanmean(diag(subD_corr(:,:,lat1)));
+        end
+      
+%       for lat1 = 1:size(latencies,1)
+%         if verbose
+%           fprintf('\t%.2f sec to %.2f sec...\n',latencies(lat1,1),latencies(lat1,2));
+%         end
+%         timeInd1 = false(1,length(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time));
+%         timeInd1(nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, latencies(lat1,1)):nearest(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time, latencies(lat1,2))) = true;
+%         
+%         if standardize
+%           nTrl1 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1);
+%           nTrl2 = size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter),1);
+%           data_cat = cat(1, ...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd1), ...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd1));
+%           dim = size(data_cat);
+%           dat = reshape(data_cat, dim(1), prod(dim(2:end)));
+%           
+%           mu = nanmean(dat);
+%           sigma = nanstd(dat);
+%           
+%           dat_z = dat;
+%           idx = ~isnan(mu);
+%           dat_z(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+%           idx = ~isnan(sigma) & ~(sigma==0);
+%           dat_z(:,idx) = bsxfun(@rdivide,dat_z(:,idx),sigma(idx));
+%           dat_z_ravel = reshape(dat_z,dim);
+%           
+%           % put it back
+%           %data_tla.(fn{f}).sub(sub).ses(ses).data.(parameter) = dat_z_ravel;
+%           dat1 = dat_z_ravel(1:nTrl1,:,:);
+%           dat2 = dat_z_ravel(nTrl1+1:nTrl1+nTrl2,:,:);
+%         else
+%           dat1 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd1);
+%           dat2 = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter)(:,elecInd,timeInd1);
+%         end
+%         
+%         
+%         for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.(parameter),1)
+%           p2_trlInd = i;
+%           p2_phaseCount = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(p2_trlInd,phaseCountCol);
+%           p2_stimNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(p2_trlInd,stimNumCol);
+%           p2_categNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(p2_trlInd,categNumCol);
+%           
+%           p1_trlInd = find(...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p2_phaseCount & ...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p2_stimNum & ...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p2_categNum);
+%           
+%           %d1 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+%           %d2 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1));
+%           
+%           if ~isempty(p1_trlInd)
+%             fprintf('P2=%d, P1=%d\n',p2_trlInd,p1_trlInd);
+%             
+%             for j = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+%               if sum(elecInd) == 1
+%                 p1_data = squeeze(dat1(j,:,:));
+%                 p2_data = squeeze(dat2(i,:,:));
+%               elseif sum(elecInd) > 1
+%                 p1_data = squeeze(dat1(j,:,:))';
+%                 p2_data = squeeze(dat2(i,:,:))';
+%               end
+%               
+%               subD_corr(i,j) = corr(p1_data(:),p2_data(:));
+%               
+%             end
+%           end
+%         end
+%         
+%         for i = 1:size(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+%           %p1_trlInd = 1;
+%           p1_trlInd = i;
+%           p1_phaseCount = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
+%           p1_stimNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
+%           p1_categNum = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
+%           
+%           p2_trlInd = find(...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+%             data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
+%           %p2_trlInd = 1;
+%           
+%           %d1 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+%           %d2 = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1));
+%           
+%           if ~isempty(p2_trlInd)
+%             % pdist2: rows (dim 1) are observations; columns (dim 2) are variables;
+%             % distances are measured between observations
+%             
+%             if sum(elecInd) == 1
+%               p1_data = squeeze(dat1(p1_trlInd,:,:));
+%               p2_data = squeeze(dat2(p2_trlInd,:,:));
+%             elseif sum(elecInd) > 1
+%               p1_data = squeeze(dat1(p1_trlInd,:,:))';
+%               p2_data = squeeze(dat2(p2_trlInd,:,:))';
+%             end
+%             
+%             %           if strcmp(simAcross,'time')
+%             %             % rows = samples; cols = channels
+%             %             if sum(elecInd) == 1
+%             %               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+%             %               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1));
+%             %             elseif sum(elecInd) > 1
+%             %               p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1))';
+%             %               p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1))';
+%             %             end
+%             %
+%             %             if plotit
+%             %               xaxis = linspace(latencies(lat1,1),latencies(lat1,2),size(p1_data,1));
+%             %               yaxis = linspace(latencies(lat1,1),latencies(lat1,2),size(p2_data,1));
+%             %             end
+%             %           elseif strcmp(simAcross,'chan')
+%             %             % rows = channels; cols = samples
+%             %             p1_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
+%             %             p2_data = squeeze(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1));
+%             %
+%             %             if plotit
+%             %               xaxis = 1:sum(elecInd);
+%             %               yaxis = 1:sum(elecInd);
+%             %
+%             %               elecLabels_x = data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label(elecInd);
+%             %               elecLabels_y = data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.label(elecInd);
+%             %             end
+%             %           end
+%             
+%             subD(i) = pdist2(p1_data(:)',p2_data(:)',distanceMetric);
+%             %subD(i) = corr(p1_data(:),p2_data(:));
+%             
+%             if plotit
+%               figure;
+%               if exist('distanceScale','var') && ~isempty(distanceScale)
+%                 imagesc(xaxis,yaxis,D,distanceScale);
+%               else
+%                 imagesc(xaxis,yaxis,D);
+%               end
+%               
+%               if strcmp(simAcross,'chan')
+%                 set(gca,'XTickLabel',elecLabels_x);
+%                 set(gca,'YTickLabel',elecLabels_y);
+%               end
+%               
+%               title(sprintf('%s (%d vs %d): phaseCount=%d stimNum=%d categNum=%d\n',strrep(dataType,'_','-'),p1_trlInd,p2_trlInd,p1_phaseCount,p1_stimNum,p1_categNum));
+%               if strcmp(simAcross,'time')
+%                 xlabel('P1: Time (s)');
+%                 ylabel('P2: Time (s)');
+%               elseif strcmp(simAcross,'chan')
+%                 xlabel('P1: Electrode');
+%                 ylabel('P2: Electrode');
+%               end
+%               
+%               hc = colorbar;
+%               set(get(hc,'YLabel'),'string','Dissimilarity');
+%             end
+%             
+%             %     figure;
+%             %     plot(linspace(latencies(lat1,1),latencies(lat1,2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1),2)),'b');
+%             %     hold on
+%             %     plot(linspace(latencies(lat1,1),latencies(lat1,2),size(p1_data,1)),squeeze(mean(data_tla.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1),2)),'r');
+%             %     %plot(linspace(latencies(lat1,1),latencies(lat1,2),size(p2_data,1)),p2_data,'r');
+%             %     hold off
+%             %     axis([latencies(lat1,1) latencies(lat1,2) -20 20]);
+%             
+%           else
+%             if verbose
+%               fprintf('%s: No p2 found for p1 phaseCount=%d stimNum=%d categNum=%d\n',dataType,p1_phaseCount,p1_stimNum,p1_categNum);
+%             end
+%           end
+%         end % trials
+        
+        %D.(dataType).dissim(sub,ses,lat1) = nanmean(subD);
+      %end % lat1
+      %D.(dataType).nTrial(sub,ses) = sum(~isnan(subD));
+      
+      D.(dataType).nTrial(sub,ses) = length(p1_ind);
+      end
+    end
+  end % sub
+end % dataTypes
+
 
 %% RSA - very basic
 
@@ -1283,7 +1555,6 @@ end % ses
 
 %% run it for p1 vs p2
 
-ses = 1;
 evVal = 1;
 
 % initialize to store the distance values
