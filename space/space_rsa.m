@@ -62,7 +62,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030'; % low trial counts
+  %'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -536,22 +536,22 @@ for d = 1:length(dataTypes)
               
               if standardize_individ
                 blm = nanmean(dat1,2);
-                % % only demean
-                % dat1 = bsxfun(@minus,dat1,blm);
+                % only demean
+                dat1 = bsxfun(@minus,dat1,blm);
                 
-                % std across time
-                blstd = nanstd(dat1,0,2);
-                % z-transform
-                dat1 = bsxfun(@rdivide,bsxfun(@minus,dat1,blm),blstd);
+%                 % std across time
+%                 blstd = nanstd(dat1,0,2);
+%                 % z-transform
+%                 dat1 = bsxfun(@rdivide,bsxfun(@minus,dat1,blm),blstd);
                 
                 blm = nanmean(dat2,2);
-                % % only demean
-                % dat2 = bsxfun(@minus,dat2,blm);
+                % only demean
+                dat2 = bsxfun(@minus,dat2,blm);
                 
-                % std across time
-                blstd = nanstd(dat2,0,2);
-                % z-transform
-                dat2 = bsxfun(@rdivide,bsxfun(@minus,dat2,blm),blstd);
+%                 % std across time
+%                 blstd = nanstd(dat2,0,2);
+%                 % z-transform
+%                 dat2 = bsxfun(@rdivide,bsxfun(@minus,dat2,blm),blstd);
               end
               
               %subD_corr(i,j,lat1) = pdist2(dat1(:)',dat2(:)',distanceMetric);
