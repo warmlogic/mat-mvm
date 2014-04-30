@@ -379,8 +379,8 @@ stimNumCol = 6;
 categNumCol = 7;
 % pairNumCol = 13;
 
-thisROI = {'center109'};
-% thisROI = {'all129'};
+% thisROI = {'center109'};
+thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
 % thisROI = {'LPS', 'RPS'};
@@ -394,7 +394,8 @@ thisROI = {'center109'};
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
 cfg_sel = [];
-cfg_sel.latency = [0.2 0.8];
+% cfg_sel.latency = [0.2 0.8];
+cfg_sel.latency = [0 0.3];
 cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgovertime = 'yes';
 
@@ -420,7 +421,6 @@ for d = 1:length(dataTypes)
         p1_ind = [];
         p2_ind = [];
         for i = 1:size(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
-          %p1_trlInd = 1;
           p1_trlInd = i;
           p1_phaseCount = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
           p1_stimNum = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
@@ -430,10 +430,6 @@ for d = 1:length(dataTypes)
             data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
             data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
             data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
-          %p2_trlInd = 1;
-          
-          %d1 = squeeze(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trial(p1_trlInd,elecInd,timeInd1));
-          %d2 = squeeze(data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trial(p2_trlInd,elecInd,timeInd1));
           
           if ~isempty(p2_trlInd)
             p1_ind = cat(2,p1_ind,p1_trlInd);
@@ -445,6 +441,9 @@ for d = 1:length(dataTypes)
           
           data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
           data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
+          
+          %data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
+          %data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
           
           for f = 1:size(freqs,1)
             cfg_sel.foilim = freqs(f,:);
@@ -458,24 +457,123 @@ for d = 1:length(dataTypes)
             data_p2(:,:,f) = dat2.(parameter);
           end
           
-          similarity = nan(size(data_p1,1),size(data_p2,1),5);
+          %similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
+          similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,2));
           
           for i = 1:size(data_p1,1)
             for j = 1:size(data_p2,1)
+              %dat_p1 = squeeze(data_p1(i,:,:));
+              %dat_p2 = squeeze(data_p2(j,:,:));
               
-            [coeff1, score1, latent1] = pca(squeeze(data_p1(i,:,:)));
-            
-            [coeff2, score2, latent2] = pca(squeeze(data_p2(j,:,:)));
-            
-            for sc = 1:size(score1,2)
-              similarity(i,j,sc) = dot(score1(:,sc) / norm(score1(:,sc)), score2(:,sc) / norm(score2(:,sc)));
-            end
-            
+              dat_p1 = squeeze(data_p1(i,:,:))';
+              dat_p2 = squeeze(data_p2(j,:,:))';
+              
+              % observations = rows = electrode
+              % variables = columns = freq
+              
+              % cov_dat_p1 = cov(dat_p1);
+              
+              % subtract the mean across observations from the variables
+              dat_p1 = bsxfun(@minus,dat_p1,mean(dat_p1,1));
+              % get the covariance matrix
+              cov_dat_p1 = (dat_p1' * dat_p1) ./ (size(dat_p1,1) - 1);
+              
+              % eig returns vectors and values in ascneding order
+              [eigvec_p1, eigval_p1] = eig(cov_dat_p1);
+              eigval_p1 = diag(eigval_p1);
+              % components in increasing order, convert to descending order
+              eigvec_p1 = eigvec_p1(:,end:-1:1);
+              eigval_p1 = eigval_p1(end:-1:1);
+              
+              % kaiser criterion keeps eigenvalues > 1
+              pass_kaiserCrit_p1 = eigval_p1 > 1;
+              
+              % percent variance explained
+              eigval_p1 = (eigval_p1 ./ sum(eigval_p1)) .* 100;
+              % analytic: keep PC if percent variance explained is above
+              % 100 / number of variables
+              pass_analytic_p1 = eigval_p1 > (100 / size(eigval_p1,1));
+              
+              % cov_dat_p2 = cov(dat_p2);
+              
+              % subtract the mean across observations from the variables
+              dat_p2 = bsxfun(@minus,dat_p2,mean(dat_p2,1));
+              % get the covariance matrix
+              cov_dat_p2 = (dat_p2' * dat_p2) ./ (size(dat_p2,1) - 1);
+              
+              % eig returns vectors and values in ascneding order
+              [eigvec_p2, eigval_p2] = eig(cov_dat_p2);
+              eigval_p2 = diag(eigval_p2);
+              % components in increasing order, convert to descending order
+              eigvec_p2 = eigvec_p2(:,end:-1:1);
+              eigval_p2 = eigval_p2(end:-1:1);
+              
+              % kaiser criterion keeps eigenvalues > 1
+              pass_kaiserCrit_p2 = eigval_p2 > 1;
+              
+              % percent variance explained
+              eigval_p2 = (eigval_p2 ./ sum(eigval_p2)) .* 100;
+              % analytic: keep PC if percent variance explained is above
+              % 100 / number of variables
+              pass_analytic_p2 = eigval_p2 > (100 / size(eigval_p2,1));
+              
+              pcnum = 1;
+              figure(1)
+              clf
+              topoplot(double(eigvec_p1(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
+              figure(2)
+              clf
+              topoplot(double(eigvec_p2(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
+              
+              % compute similarity for each principle component
+              for sc = 1:size(eigvec_p1,2)
+                similarity(i,j,sc) = dot(eigvec_p1(:,sc) / norm(eigvec_p1(:,sc)), eigvec_p2(:,sc) / norm(eigvec_p2(:,sc)));
+              end
+              
+
+              
+%               % eigvec contains the eigenvectors of covariance matrix of X.
+%               % Each column contains a PC across frequency space, each row
+%               % contains the weights (component loadings) of each
+%               % frequency.
+%               %
+%               % score is the mean centered data multiplied by the
+%               % eigenvectors, which is the data in PC space
+%               %
+%               % eigval contains the eigenvalues
+%               
+%               [eigvec_p1, score_p1, eigval_p1] = pca(dat_p1,'Algorithm','eig','NumComponents',size(dat_p1,2));
+%               % kaiser criterion keeps eigenvalues > 1
+%               pass_kaiserCrit_p1 = eigval_p1 > 1;
+%               
+%               % percent variance explained
+%               eigval_p1 = (eigval_p1 ./ sum(eigval_p1)) .* 100;
+%               
+%               % analytic: keep PC if percent variance explained is above
+%               % 100 / number of variables
+%               pass_analytic_p1 = eigval_p1 > (100 / size(eigval_p1,1));
+%               
+%               [eigvec_p2, score2, eigval_p2] = pca(dat_p2,'Algorithm','eig');
+%               % kaiser criterion keeps eigenvalues > 1
+%               pass_kaiserCrit_p2 = eigval_p2 > 1;
+%               
+%               % percent variance explained
+%               eigval_p2 = (eigval_p2 ./ sum(eigval_p2)) .* 100;
+%               
+%               % analytic: keep PC if percent variance explained is above
+%               % 100 / number of variables
+%               pass_analytic_p2 = eigval_p2 > (100 / size(eigval_p2,1));
+%               
+%               % compute similarity for each principle component
+%               for sc = 1:size(eigvec_p1,2)
+%                 similarity(i,j,sc) = dot(eigvec_p1(:,sc) / norm(eigvec_p1(:,sc)), eigvec_p2(:,sc) / norm(eigvec_p2(:,sc)));
+%               end
+              
             end
           end
           
           for sc = 1:size(similarity,3)
-            figure;
+            figure
             imagesc(similarity(:,:,sc));
             colorbar;
             axis square
