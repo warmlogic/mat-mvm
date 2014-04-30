@@ -1082,7 +1082,10 @@ for sub = 1:length(exper.subjects)
 end % sub
 
 %save(sprintf('fhClass_100HzLP_fhC_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','facehouseClass','trainLambda','trainWeights','-v7.3');
-save(sprintf('fhClass_%dfoldAcrossTrain_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',nfolds,synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc_matrix');
+save(sprintf('fhClass_%dfoldAcrossTrain_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',nfolds,synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc_matrix','testAUC_matrix');
+
+figure; imagesc(latencies(:,1),latencies(:,1),squeeze(mean(testAcc_matrix(:,1,:,:),1))'); axis xy; axis square; colorbar;title('Accuracy');
+figure; imagesc(latencies(:,1),latencies(:,1),squeeze(mean(testAUC_matrix(:,1,:,:),1))'); axis xy; axis square; colorbar;title('Area Under Curve');
 
 %% classifier face/house performance
 
