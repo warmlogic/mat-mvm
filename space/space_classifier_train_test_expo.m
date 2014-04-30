@@ -441,17 +441,22 @@ thisROI = 'center101';
 % latencies = [0.0 0.5; 0.5 1.0];
 % latencies = [0.2 0.8];
 
-% Twenty-one 200 ms overlapping windows, every 40 ms
 classif_start = 0;
 classif_end = 1.0;
 
-% % overlapping
+% % Twenty-one 200 ms overlapping windows, every 40 ms
 % classif_width = 0.2;
 % window_spacing = 0.04;
 
 % not overlapping
 classif_width = 0.1;
 window_spacing = 0.1;
+
+% % bigger windows
+% classif_start = 0.1;
+% classif_end = 1.0;
+% classif_width = 0.3;
+% window_spacing = 0.3;
 
 latencies = [classif_start:window_spacing:(classif_end - classif_width); (classif_start+classif_width):window_spacing:classif_end]';
 
@@ -508,8 +513,8 @@ train_catNumCol = 7;
 % data2_trials = data_tla.(exper.sesStr{ses}).House.sub(sub).data;
 
 % testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test);
-testAcc_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1),length(dataTypes_train));
-%testAUC_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1),length(dataTypes_test));
+testAcc_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1));
+testAUC_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1));
 
 nfolds = 5;
 
@@ -718,12 +723,12 @@ for sub = 1:length(exper.subjects)
             
             thisLat_acc = cat(2,thisLat_acc,mean(I == imageCategory_train(facehouse.testfolds{nf})));
             
-            %[X,Y,T,AUC] = perfcurve(imageCategory_train(facehouse.testfolds{nf}),I,2);
-            %thisLat_AUC = cat(2,thisLat_AUC,AUC);
+            [X,Y,T,AUC] = perfcurve(imageCategory_train(facehouse.testfolds{nf}),I,2);
+            thisLat_AUC = cat(2,thisLat_AUC,AUC);
           end
           
-          testAcc_matrix(sub,ses,lat,lat2,d) = mean(thisLat_acc);
-          %testAUC_matrix(sub,ses,lat,lat2,d) = mean(thisLat_AUC);
+          testAcc_matrix(sub,ses,lat,lat2) = mean(thisLat_acc);
+          testAUC_matrix(sub,ses,lat,lat2) = mean(thisLat_AUC);
         end
         
         
