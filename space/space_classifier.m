@@ -33,41 +33,41 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 subjects = {
   %'SPACE001'; low trial counts
   'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019'; low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  %'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   %'SPACE030'; % low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -391,41 +391,41 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 %% lowpass filter and segment for ERPs
 
-data_tla_backup = data_tla;
-
-lpfilt = false;
-
-if lpfilt
-  sampleRate = 250;
-  lpfreq = 40;
-  lofiltord = 4;
-  lpfilttype = 'but';
-end
-
-cfg_sel = [];
-cfg_sel.latency = [-0.2 1.0];
-
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-        
-        if lpfilt
-          for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
-            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
-              squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
-              sampleRate,lpfreq,lofiltord,lpfilttype);
-          end
-        end
-        
-        % select
-        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-        
-      end
-    end
-  end
-end
+% data_tla_backup = data_tla;
+% 
+% lpfilt = false;
+% 
+% if lpfilt
+%   sampleRate = 250;
+%   lpfreq = 40;
+%   lofiltord = 4;
+%   lpfilttype = 'but';
+% end
+% 
+% cfg_sel = [];
+% cfg_sel.latency = [-0.2 1.0];
+% 
+% for ses = 1:length(exper.sesStr)
+%   for typ = 1:length(ana.eventValues{ses})
+%     for evVal = 1:length(ana.eventValues{ses}{typ})
+%       for sub = 1:length(exper.subjects)
+%         fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+%         
+%         if lpfilt
+%           for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
+%             data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
+%               squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
+%               sampleRate,lpfreq,lofiltord,lpfilttype);
+%           end
+%         end
+%         
+%         % select
+%         data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+%         
+%       end
+%     end
+%   end
+% end
 
 %% classifier - use face/house to predict image paired with P2 word
 
@@ -434,12 +434,19 @@ end
 
 % thisROI = 'all129';
 % thisROI = 'center91';
-thisROI = 'center109';
+thisROI = 'center101';
 
 % latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
-latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [0.0 0.5; 0.5 1.0];
 % latencies = [0.2 0.8];
+
+classif_start = 0;
+classif_end = 1.0;
+classif_width = 0.2;
+window_spacing = 0.04;
+
+latencies = [classif_start:window_spacing:(classif_end - classif_width); (classif_start+classif_width):window_spacing:classif_end]';
 
 parameter = 'trial';
 
@@ -956,7 +963,7 @@ for sub = 1:length(exper.subjects)
 end % sub
 
 %save(sprintf('fhClass_100HzLP_fhC_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','facehouseClass','trainLambda','trainWeights','-v7.3');
-% save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc','continTab','trainLambda','trainWeights');
+save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc','continTab','trainLambda','trainWeights');
 
 %% classifier face/house performance
 
@@ -1011,7 +1018,8 @@ for sub = 1:length(exper.subjects)
 end
 
 varnames = {'spacing','subseqMem','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(testAcc,3)], varnames);
+levelnames = {{'spac','mass'}, {'rc', 'fo'}, {'.1-.3', '.3-.5', '.5-.7', '.7-.9'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 size(testAcc,3)], varnames,[],[],[],[],[],[],levelnames);
 
 %% plot spacing x subsequent memory interaction
 
