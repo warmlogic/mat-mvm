@@ -395,9 +395,11 @@ thisROI = {'all129'};
 % thisROI = {'E83'};
 cfg_sel = [];
 % cfg_sel.latency = [0.2 0.8];
-cfg_sel.latency = [0 0.3];
+% cfg_sel.latency = [0 0.3];
+cfg_sel.latency = [0.4 0.6];
 cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgovertime = 'yes';
+% cfg_sel.avgovertime = 'no';
 
 for d = 1:length(dataTypes)
   dataType = dataTypes{d};
@@ -462,16 +464,18 @@ for d = 1:length(dataTypes)
           
           for i = 1:size(data_p1,1)
             for j = 1:size(data_p2,1)
-              %dat_p1 = squeeze(data_p1(i,:,:));
-              %dat_p2 = squeeze(data_p2(j,:,:));
+              % % dat_p1 = squeeze(data_p1(i,:,:));
+              % % dat_p2 = squeeze(data_p2(j,:,:));
               
               dat_p1 = squeeze(data_p1(i,:,:))';
               dat_p2 = squeeze(data_p2(j,:,:))';
               
-              % observations = rows = electrode
-              % variables = columns = freq
+              % % observations = rows = electrode
+              % % variables = columns = freq
               
-              % cov_dat_p1 = cov(dat_p1);
+              %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+              % Manually run PCA
+              %%%%%%%%%%%%%%%%%%%%%%%%%%%%
               
               % subtract the mean across observations from the variables
               dat_p1 = bsxfun(@minus,dat_p1,mean(dat_p1,1));
@@ -526,12 +530,14 @@ for d = 1:length(dataTypes)
               topoplot(double(eigvec_p2(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
               
               % compute similarity for each principle component
-              for sc = 1:size(eigvec_p1,2)
-                similarity(i,j,sc) = dot(eigvec_p1(:,sc) / norm(eigvec_p1(:,sc)), eigvec_p2(:,sc) / norm(eigvec_p2(:,sc)));
+              for pc = 1:size(eigvec_p1,2)
+                similarity(i,j,pc) = dot(eigvec_p1(:,pc) / norm(eigvec_p1(:,pc)), eigvec_p2(:,pc) / norm(eigvec_p2(:,pc)));
               end
               
-
-              
+%               %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               % Use Matlab's PCA
+%               %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%               
 %               % eigvec contains the eigenvectors of covariance matrix of X.
 %               % Each column contains a PC across frequency space, each row
 %               % contains the weights (component loadings) of each
@@ -542,7 +548,7 @@ for d = 1:length(dataTypes)
 %               %
 %               % eigval contains the eigenvalues
 %               
-%               [eigvec_p1, score_p1, eigval_p1] = pca(dat_p1,'Algorithm','eig','NumComponents',size(dat_p1,2));
+%               [eigvec_p1, score_p1, eigval_p1] = pca(dat_p1,'Algorithm','eig');
 %               % kaiser criterion keeps eigenvalues > 1
 %               pass_kaiserCrit_p1 = eigval_p1 > 1;
 %               
@@ -565,16 +571,16 @@ for d = 1:length(dataTypes)
 %               pass_analytic_p2 = eigval_p2 > (100 / size(eigval_p2,1));
 %               
 %               % compute similarity for each principle component
-%               for sc = 1:size(eigvec_p1,2)
-%                 similarity(i,j,sc) = dot(eigvec_p1(:,sc) / norm(eigvec_p1(:,sc)), eigvec_p2(:,sc) / norm(eigvec_p2(:,sc)));
+%               for pc = 1:size(eigvec_p1,2)
+%                 similarity(i,j,pc) = dot(eigvec_p1(:,pc) / norm(eigvec_p1(:,pc)), eigvec_p2(:,pc) / norm(eigvec_p2(:,pc)));
 %               end
               
             end
           end
           
-          for sc = 1:size(similarity,3)
+          for pc = 1:size(similarity,3)
             figure
-            imagesc(similarity(:,:,sc));
+            imagesc(similarity(:,:,pc));
             colorbar;
             axis square
           end
