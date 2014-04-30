@@ -486,8 +486,8 @@ standardizeTrain = true;
 
 train_catNumCol = 7;
 
-% test on p2 word
-dataTypes_test = dataTypes_train;
+% % test on p2 word
+% dataTypes_test = dataTypes_train;
 % dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
 % dataTypes_test = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass'};
 % equateTestTrials = false;
@@ -507,17 +507,17 @@ dataTypes_test = dataTypes_train;
 % data1_trials = data_tla.(exper.sesStr{ses}).Face.sub(sub).data;
 % data2_trials = data_tla.(exper.sesStr{ses}).House.sub(sub).data;
 
-testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
-testAcc_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1),length(dataTypes_test));
+% testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test);
+testAcc_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1),length(dataTypes_train));
 %testAUC_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1),length(dataTypes_test));
 
 nfolds = 5;
 
-% contingency table
-continTab = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
-trainLambda = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
-trainWeights = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
-facehouseClass = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+% % contingency table
+% continTab = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
+% trainLambda = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+% trainWeights = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+% facehouseClass = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
 
 %% run classifier
 
@@ -670,21 +670,21 @@ for sub = 1:length(exper.subjects)
             data_train2 = struct;
             
             % select the data
-            for d = 1:length(dataTypes_test)
+            for d = 1:length(dataTypes_train)
               cfg_data.trials = trlIndTrain{d};
-              data_train2.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+              data_train2.(dataTypes_train{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
             end
             
             % get the category number for each training image
-            imageCategory_train = data_train2.(dataTypes_test{1}).trialinfo(:,train_catNumCol);
-            for d = 2:length(dataTypes_test)
-              imageCategory_train = cat(1,imageCategory_train,data_train2.(dataTypes_test{d}).trialinfo(:,train_catNumCol));
+            imageCategory_train = data_train2.(dataTypes_train{1}).trialinfo(:,train_catNumCol);
+            for d = 2:length(dataTypes_train)
+              imageCategory_train = cat(1,imageCategory_train,data_train2.(dataTypes_train{d}).trialinfo(:,train_catNumCol));
             end
             
             % pull out the data and concatenate (for DMLT)
-            dat_train2 = data_train2.(dataTypes_test{1}).(parameter);
-            for d = 2:length(dataTypes_test)
-              dat_train2 = cat(1,dat_train2,data_train2.(dataTypes_test{d}).(parameter));
+            dat_train2 = data_train2.(dataTypes_train{1}).(parameter);
+            for d = 2:length(dataTypes_train)
+              dat_train2 = cat(1,dat_train2,data_train2.(dataTypes_train{d}).(parameter));
             end
             
             % unroll channels and timepoints within each trial
