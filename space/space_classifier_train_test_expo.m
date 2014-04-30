@@ -33,41 +33,41 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 subjects = {
   %'SPACE001'; low trial counts
   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   %'SPACE019'; low trial counts
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
-%   'SPACE037';
-%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-%   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   %'SPACE030'; % low trial counts
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
-%   'SPACE036';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  %'SPACE019'; low trial counts
+  'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
+  'SPACE037';
+  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  %'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
+  'SPACE036';
   };
 
 % only one cell, with all session names
@@ -107,14 +107,15 @@ ana = mm_ft_elecGroups(ana);
 
 sesNum = 1;
 
-ana.eventValues = {{'expo_stim','multistudy_word'}};
+ana.eventValues = {{'expo_stim'}};
+% ana.eventValues = {{'expo_stim','multistudy_word'}};
 % ana.eventValues = {{'expo_stim','multistudy_word','multistudy_image'}};
 ana.eventValuesSplit = { ...
   {{'Face','House'} ...
-  { ...
-  'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
-  'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
-  } ...
+%   { ...
+%   'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
+%   'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
+%   } ...
 %   { ...
 %   'img_RgH_rc_spac' ,'img_RgH_rc_mass' ...
 %   'img_RgH_fo_spac' ,'img_RgH_fo_mass' ...
@@ -125,12 +126,12 @@ if allowRecallSynonyms
   ana.trl_expr = {...
     {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
     sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-    {...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    } ...
+%     {...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     } ...
 %     {...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
@@ -143,12 +144,12 @@ else
   ana.trl_expr = {...
     {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
     sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-    { ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    } ...
+%     { ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     } ...
 %     { ...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
@@ -444,13 +445,13 @@ thisROI = 'center101';
 classif_start = 0;
 classif_end = 1.0;
 
-% % Twenty-one 200 ms overlapping windows, every 40 ms
-% classif_width = 0.2;
-% window_spacing = 0.04;
+% Twenty-one 200 ms overlapping windows, every 40 ms
+classif_width = 0.2;
+window_spacing = 0.04;
 
-% not overlapping
-classif_width = 0.1;
-window_spacing = 0.1;
+% % not overlapping
+% classif_width = 0.1;
+% window_spacing = 0.1;
 
 % % bigger windows
 % classif_start = 0.1;
@@ -661,7 +662,7 @@ for sub = 1:length(exper.subjects)
         
         for lat2 = 1:size(latencies,1)
           thisLat_acc = [];
-          %thisLat_AUC = [];
+          thisLat_AUC = [];
           
           if lat2 ~= lat
             %fprintf('\t%.2fs to %.2fs...\n',latencies(lat2,1),latencies(lat2,2));
@@ -723,7 +724,7 @@ for sub = 1:length(exper.subjects)
             
             thisLat_acc = cat(2,thisLat_acc,mean(I == imageCategory_train(facehouse.testfolds{nf})));
             
-            [X,Y,T,AUC] = perfcurve(imageCategory_train(facehouse.testfolds{nf}),I,2);
+            [X,Y,T,AUC] = perfcurve(imageCategory_train(facehouse.testfolds{nf}),Z(:,1),1);
             thisLat_AUC = cat(2,thisLat_AUC,AUC);
           end
           
