@@ -401,6 +401,8 @@ cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgovertime = 'yes';
 % cfg_sel.avgovertime = 'no';
 
+similarity_all = cell(length(exper.subjects),length(exper.sessions),length(dataTypes));
+
 for d = 1:length(dataTypes)
   dataType = dataTypes{d};
   
@@ -460,130 +462,194 @@ for d = 1:length(dataTypes)
           end
           
           %similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
-          similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,2));
           
-          for i = 1:size(data_p1,1)
-            for j = 1:size(data_p2,1)
-              % % dat_p1 = squeeze(data_p1(i,:,:));
-              % % dat_p2 = squeeze(data_p2(j,:,:));
-              
-              dat_p1 = squeeze(data_p1(i,:,:))';
-              dat_p2 = squeeze(data_p2(j,:,:))';
-              
-              % % observations = rows = electrode
-              % % variables = columns = freq
-              
-              %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-              % Manually run PCA
-              %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-              
-              % subtract the mean across observations from the variables
-              dat_p1 = bsxfun(@minus,dat_p1,mean(dat_p1,1));
-              % get the covariance matrix
-              cov_dat_p1 = (dat_p1' * dat_p1) ./ (size(dat_p1,1) - 1);
-              
-              % eig returns vectors and values in ascneding order
-              [eigvec_p1, eigval_p1] = eig(cov_dat_p1);
-              eigval_p1 = diag(eigval_p1);
-              % components in increasing order, convert to descending order
-              eigvec_p1 = eigvec_p1(:,end:-1:1);
-              eigval_p1 = eigval_p1(end:-1:1);
-              
-              % kaiser criterion keeps eigenvalues > 1
-              pass_kaiserCrit_p1 = eigval_p1 > 1;
-              
-              % percent variance explained
-              eigval_p1 = (eigval_p1 ./ sum(eigval_p1)) .* 100;
-              % analytic: keep PC if percent variance explained is above
-              % 100 / number of variables
-              pass_analytic_p1 = eigval_p1 > (100 / size(eigval_p1,1));
-              
-              % cov_dat_p2 = cov(dat_p2);
-              
-              % subtract the mean across observations from the variables
-              dat_p2 = bsxfun(@minus,dat_p2,mean(dat_p2,1));
-              % get the covariance matrix
-              cov_dat_p2 = (dat_p2' * dat_p2) ./ (size(dat_p2,1) - 1);
-              
-              % eig returns vectors and values in ascneding order
-              [eigvec_p2, eigval_p2] = eig(cov_dat_p2);
-              eigval_p2 = diag(eigval_p2);
-              % components in increasing order, convert to descending order
-              eigvec_p2 = eigvec_p2(:,end:-1:1);
-              eigval_p2 = eigval_p2(end:-1:1);
-              
-              % kaiser criterion keeps eigenvalues > 1
-              pass_kaiserCrit_p2 = eigval_p2 > 1;
-              
-              % percent variance explained
-              eigval_p2 = (eigval_p2 ./ sum(eigval_p2)) .* 100;
-              % analytic: keep PC if percent variance explained is above
-              % 100 / number of variables
-              pass_analytic_p2 = eigval_p2 > (100 / size(eigval_p2,1));
-              
-              pcnum = 1;
-              figure(1)
-              clf
-              topoplot(double(eigvec_p1(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
-              figure(2)
-              clf
-              topoplot(double(eigvec_p2(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
-              
-              % compute similarity for each principle component
-              for pc = 1:size(eigvec_p1,2)
-                similarity(i,j,pc) = dot(eigvec_p1(:,pc) / norm(eigvec_p1(:,pc)), eigvec_p2(:,pc) / norm(eigvec_p2(:,pc)));
-              end
-              
+          % measure similarity between all event pairs
+          similarity = nan(size(data_p1,1)+size(data_p2,1),size(data_p1,1)+size(data_p2,1));
+          
+          % unroll electrodes and frequency data in the second dimension
+          dim1 = size(data_p1);
+          dim2 = size(data_p2);
+          data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
+          
+%           % % Matlab covariance
+%           % cov_dat_p1_p2 = cov(data_p1_p2');
+%           
+%           % Matlab PCA
+%           [eigvec_p1_p2, score_p1_p2, eigval_p1_p2] = pca(data_p1_p2','Algorithm','eig');
+%           % kaiser criterion keeps eigenvalues >= 1
+%           pass_kaiserCrit_p1_p2 = eigval_p1_p2 >= 1;
+%           
+%           % percent variance explained
+%           eigval_p1_p2 = (eigval_p1_p2 ./ sum(eigval_p1_p2)) .* 100;
+%           % analytic: keep PC if percent variance explained is above
+%           % 100 / number of variables
+%           pass_analytic_p1_p2 = eigval_p1_p2 > (100 / size(eigval_p1_p2,1));
+%           
+%           pc = 2;
+%           a = eigvec_p1_p2(:,pc)' * data_p1_p2';
+%           b =  eigvec_p1_p2' * data_p1_p2;
+%           c =  crit_eigvec' * data_p1_p2;
+          
+          
+          % % observations = rows = event
+          % % variables = columns = electrode x freq (unrolled)
+          
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          % Manually run PCA across all events at the same time
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          
+          % subtract the mean across observations from the variables
+          data_p1_p2 = bsxfun(@minus,data_p1_p2,mean(data_p1_p2,2));
+          % get the covariance matrix
+          cov_dat_p1_p2 = (data_p1_p2 * data_p1_p2') ./ (size(data_p1_p2,2) - 1);
+          
+          % eig returns vectors and values in ascneding order
+          [eigvec_p1_p2, eigval_p1_p2] = eig(cov_dat_p1_p2);
+          eigval_p1_p2 = diag(eigval_p1_p2);
+          % components in increasing order, convert to descending order
+          eigvec_p1_p2 = eigvec_p1_p2(:,end:-1:1);
+          eigval_p1_p2 = eigval_p1_p2(end:-1:1);
+          
+          % kaiser criterion keeps eigenvalues >= 1
+          pass_kaiserCrit_p1_p2 = eigval_p1_p2 >= 1;
+          
+          % percent variance explained
+          eigval_p1_p2 = (eigval_p1_p2 ./ sum(eigval_p1_p2)) .* 100;
+          % analytic: keep PC if percent variance explained is above
+          % 100 / number of variables
+          pass_analytic_p1_p2 = eigval_p1_p2 > (100 / size(eigval_p1_p2,1));
+          
+          crit_eigvec = eigvec_p1_p2(:,pass_kaiserCrit_p1_p2);
+          for i = 1:size(crit_eigvec,1)
+            for j = 1:size(crit_eigvec,1)
+              similarity(i,j) = dot(crit_eigvec(i,:) / norm(crit_eigvec(i,:)), crit_eigvec(j,:) / norm(crit_eigvec(j,:)));
+            end
+          end
+          
+          similarity_all{sub,ses,d} = similarity;
+          
+%           for i = 1:size(data_p1,1)
+%             for j = 1:size(data_p2,1)
+%               % % dat_p1 = squeeze(data_p1(i,:,:));
+%               % % dat_p2 = squeeze(data_p2(j,:,:));
+%               
+%               dat_p1 = squeeze(data_p1(i,:,:))';
+%               dat_p2 = squeeze(data_p2(j,:,:))';
+%               
+%               % % observations = rows = electrode
+%               % % variables = columns = freq
+%               
 %               %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%               % Use Matlab's PCA
+%               % Manually run PCA
 %               %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %               
-%               % eigvec contains the eigenvectors of covariance matrix of X.
-%               % Each column contains a PC across frequency space, each row
-%               % contains the weights (component loadings) of each
-%               % frequency.
-%               %
-%               % score is the mean centered data multiplied by the
-%               % eigenvectors, which is the data in PC space
-%               %
-%               % eigval contains the eigenvalues
+%               % subtract the mean across observations from the variables
+%               dat_p1 = bsxfun(@minus,dat_p1,mean(dat_p1,1));
+%               % get the covariance matrix
+%               cov_dat_p1 = (dat_p1' * dat_p1) ./ (size(dat_p1,1) - 1);
 %               
-%               [eigvec_p1, score_p1, eigval_p1] = pca(dat_p1,'Algorithm','eig');
-%               % kaiser criterion keeps eigenvalues > 1
-%               pass_kaiserCrit_p1 = eigval_p1 > 1;
+%               % eig returns vectors and values in ascneding order
+%               [eigvec_p1, eigval_p1] = eig(cov_dat_p1);
+%               eigval_p1 = diag(eigval_p1);
+%               % components in increasing order, convert to descending order
+%               eigvec_p1 = eigvec_p1(:,end:-1:1);
+%               eigval_p1 = eigval_p1(end:-1:1);
+%               
+%               % kaiser criterion keeps eigenvalues >= 1
+%               pass_kaiserCrit_p1 = eigval_p1 >= 1;
 %               
 %               % percent variance explained
 %               eigval_p1 = (eigval_p1 ./ sum(eigval_p1)) .* 100;
-%               
 %               % analytic: keep PC if percent variance explained is above
 %               % 100 / number of variables
 %               pass_analytic_p1 = eigval_p1 > (100 / size(eigval_p1,1));
 %               
-%               [eigvec_p2, score2, eigval_p2] = pca(dat_p2,'Algorithm','eig');
-%               % kaiser criterion keeps eigenvalues > 1
-%               pass_kaiserCrit_p2 = eigval_p2 > 1;
+%               % cov_dat_p2 = cov(dat_p2);
+%               
+%               % subtract the mean across observations from the variables
+%               dat_p2 = bsxfun(@minus,dat_p2,mean(dat_p2,1));
+%               % get the covariance matrix
+%               cov_dat_p2 = (dat_p2' * dat_p2) ./ (size(dat_p2,1) - 1);
+%               
+%               % eig returns vectors and values in ascneding order
+%               [eigvec_p2, eigval_p2] = eig(cov_dat_p2);
+%               eigval_p2 = diag(eigval_p2);
+%               % components in increasing order, convert to descending order
+%               eigvec_p2 = eigvec_p2(:,end:-1:1);
+%               eigval_p2 = eigval_p2(end:-1:1);
+%               
+%               % kaiser criterion keeps eigenvalues >= 1
+%               pass_kaiserCrit_p2 = eigval_p2 >= 1;
 %               
 %               % percent variance explained
 %               eigval_p2 = (eigval_p2 ./ sum(eigval_p2)) .* 100;
-%               
 %               % analytic: keep PC if percent variance explained is above
 %               % 100 / number of variables
 %               pass_analytic_p2 = eigval_p2 > (100 / size(eigval_p2,1));
+%               
+%               pcnum = 1;
+%               figure(1)
+%               clf
+%               topoplot(double(eigvec_p1(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
+%               figure(2)
+%               clf
+%               topoplot(double(eigvec_p2(:,pcnum)),'GSN-HydroCel-129_noFid.sfp','electrodes','off','plotrad',.53);
 %               
 %               % compute similarity for each principle component
 %               for pc = 1:size(eigvec_p1,2)
 %                 similarity(i,j,pc) = dot(eigvec_p1(:,pc) / norm(eigvec_p1(:,pc)), eigvec_p2(:,pc) / norm(eigvec_p2(:,pc)));
 %               end
-              
-            end
-          end
+%               
+% %               %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %               % Use Matlab's PCA
+% %               %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %               
+% %               % eigvec contains the eigenvectors of covariance matrix of X.
+% %               % Each column contains a PC across frequency space, each row
+% %               % contains the weights (component loadings) of each
+% %               % frequency.
+% %               %
+% %               % score is the mean centered data multiplied by the
+% %               % eigenvectors, which is the data in PC space
+% %               %
+% %               % eigval contains the eigenvalues
+% %               
+% %               [eigvec_p1, score_p1, eigval_p1] = pca(dat_p1,'Algorithm','eig');
+% %               % kaiser criterion keeps eigenvalues >= 1
+% %               pass_kaiserCrit_p1 = eigval_p1 >= 1;
+% %               
+% %               % percent variance explained
+% %               eigval_p1 = (eigval_p1 ./ sum(eigval_p1)) .* 100;
+% %               
+% %               % analytic: keep PC if percent variance explained is above
+% %               % 100 / number of variables
+% %               pass_analytic_p1 = eigval_p1 > (100 / size(eigval_p1,1));
+% %               
+% %               [eigvec_p2, score2, eigval_p2] = pca(dat_p2,'Algorithm','eig');
+% %               % kaiser criterion keeps eigenvalues >= 1
+% %               pass_kaiserCrit_p2 = eigval_p2 >= 1;
+% %               
+% %               % percent variance explained
+% %               eigval_p2 = (eigval_p2 ./ sum(eigval_p2)) .* 100;
+% %               
+% %               % analytic: keep PC if percent variance explained is above
+% %               % 100 / number of variables
+% %               pass_analytic_p2 = eigval_p2 > (100 / size(eigval_p2,1));
+% %               
+% %               % compute similarity for each principle component
+% %               for pc = 1:size(eigvec_p1,2)
+% %                 similarity(i,j,pc) = dot(eigvec_p1(:,pc) / norm(eigvec_p1(:,pc)), eigvec_p2(:,pc) / norm(eigvec_p2(:,pc)));
+% %               end
+%               
+%             end
+%           end
           
-          for pc = 1:size(similarity,3)
-            figure
-            imagesc(similarity(:,:,pc));
-            colorbar;
-            axis square
-          end
+%           for pc = 1:size(similarity,3)
+%             figure
+%             imagesc(similarity(:,:,pc));
+%             colorbar;
+%             axis square
+%           end
           
         end
         
