@@ -923,10 +923,10 @@ plotit = true;
 mean_similarity = struct;
 for d = 1:length(dataTypes)
   mean_similarity.(dataTypes{d}) = [];
-  %for sub = 1:length(subjects_all)
-  %  for ses = 1:length(sesNames_all)
-  for sub = 1:length(exper.subjects)
-    for ses = 1:length(exper.sessions)
+  for sub = 1:length(subjects_all)
+   for ses = 1:length(sesNames_all)
+%   for sub = 1:length(exper.subjects)
+%     for ses = 1:length(exper.sessions)
       
       % Average Pres1--Pres2 similarity
       mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d},size(similarity_all{sub,ses,d},1) / 2)));
