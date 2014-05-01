@@ -647,7 +647,7 @@ for sub = 1:length(subjects_all)
 
     %% similarity stuff
     
-    if ~exper.badSub(sub,ses)
+    if ~exper.badSub(1,1)
       fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
       
       for d = 1:length(dataTypes)
