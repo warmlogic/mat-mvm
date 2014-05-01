@@ -918,7 +918,7 @@ end % sub
 
 %% stats
 
-plotit = true;
+plotit = false;
 
 mean_similarity = struct;
 for d = 1:length(dataTypes)
