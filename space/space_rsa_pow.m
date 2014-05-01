@@ -406,12 +406,12 @@ cfg_sel.avgovertime = 'yes';
 % eig_criterion = 'kaiser';
 eig_criterion = 'analytic';
 
-similarity_all = cell(length(exper.subjects),length(exper.sessions),length(dataTypes));
+similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes));
 
-for sub = 1:length(exper.subjects)
+for sub = 1:length(subjects_all)
   subjects = subjects_all(sub);
   
-  for ses = 1:length(exper.sessions)
+  for ses = 1:length(sesNames_all)
     sesNames = sesNames_all(ses);
     
     %% do a thing where we load in each subject and session as we go
