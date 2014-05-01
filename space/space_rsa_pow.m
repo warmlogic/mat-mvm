@@ -33,41 +33,41 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 subjects = {
   %'SPACE001'; % low trial counts
   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   %'SPACE019';
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
-%   'SPACE037';
-%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-%   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   %'SPACE030'; % low trial counts
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
-%   'SPACE036';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  %'SPACE019';
+  'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
+  'SPACE037';
+  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  %'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
+  'SPACE036';
   };
 
 % only one cell, with all session names
@@ -366,7 +366,8 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 %% average power bands for P1-P2 trials
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 parameter = 'powspctrm';
 
@@ -379,8 +380,8 @@ stimNumCol = 6;
 categNumCol = 7;
 % pairNumCol = 13;
 
-% thisROI = {'center109'};
-thisROI = {'all129'};
+thisROI = {'center109'};
+% thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
 % thisROI = {'LPS', 'RPS'};
@@ -395,11 +396,14 @@ thisROI = {'all129'};
 % thisROI = {'E83'};
 cfg_sel = [];
 % cfg_sel.latency = [0.2 0.8];
-% cfg_sel.latency = [0 0.3];
-cfg_sel.latency = [0.4 0.6];
+cfg_sel.latency = [0 0.8];
+% cfg_sel.latency = [0.4 0.6];
 cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgovertime = 'yes';
 % cfg_sel.avgovertime = 'no';
+
+% eig_criterion = 'kaiser';
+eig_criterion = 'analytic';
 
 similarity_all = cell(length(exper.subjects),length(exper.sessions),length(dataTypes));
 
@@ -443,22 +447,26 @@ for d = 1:length(dataTypes)
         
         if ~isempty(p1_ind) && ~isempty(p2_ind)
           
-          data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
-          data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
-          
-          %data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
-          %data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
+          if strcmp(cfg_sel.avgovertime,'yes')
+            data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
+            data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
+          elseif strcmp(cfg_sel.avgovertime,'no')
+            tbeg = nearest(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time,cfg_sel.latency(1));
+            tend = nearest(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time,cfg_sel.latency(2));
+            data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+            data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+          end
           
           for f = 1:size(freqs,1)
             cfg_sel.foilim = freqs(f,:);
             
             cfg_sel.trials = p1_ind;
             dat1 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data);
-            data_p1(:,:,f) = dat1.(parameter);
+            data_p1(:,:,f,:) = dat1.(parameter);
             
             cfg_sel.trials = p2_ind;
             dat2 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data);
-            data_p2(:,:,f) = dat2.(parameter);
+            data_p2(:,:,f,:) = dat2.(parameter);
           end
           
           %similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
@@ -510,22 +518,27 @@ for d = 1:length(dataTypes)
           eigvec_p1_p2 = eigvec_p1_p2(:,end:-1:1);
           eigval_p1_p2 = eigval_p1_p2(end:-1:1);
           
-          % kaiser criterion keeps eigenvalues >= 1
-          pass_kaiserCrit_p1_p2 = eigval_p1_p2 >= 1;
+          if strcmp(eig_criterion,'kaiser')
+            % kaiser criterion keeps eigenvalues >= 1
+            pass_kaiserCrit_p1_p2 = eigval_p1_p2 >= 1;
+            crit_eigvec = eigvec_p1_p2(:,pass_kaiserCrit_p1_p2);
+          elseif strcmp(eig_criterion,'analytic')
+            % percent variance explained
+            eigval_p1_p2 = (eigval_p1_p2 ./ sum(eigval_p1_p2)) .* 100;
+            % analytic: keep PC if percent variance explained is above
+            % 100 / number of variables
+            pass_analytic_p1_p2 = eigval_p1_p2 > (100 / size(eigval_p1_p2,1));
+            crit_eigvec = eigvec_p1_p2(:,pass_analytic_p1_p2);
+          end
           
-          % percent variance explained
-          eigval_p1_p2 = (eigval_p1_p2 ./ sum(eigval_p1_p2)) .* 100;
-          % analytic: keep PC if percent variance explained is above
-          % 100 / number of variables
-          pass_analytic_p1_p2 = eigval_p1_p2 > (100 / size(eigval_p1_p2,1));
-          
-          crit_eigvec = eigvec_p1_p2(:,pass_kaiserCrit_p1_p2);
+          % compute the similarity
           for i = 1:size(crit_eigvec,1)
             for j = 1:size(crit_eigvec,1)
               similarity(i,j) = dot(crit_eigvec(i,:) / norm(crit_eigvec(i,:)), crit_eigvec(j,:) / norm(crit_eigvec(j,:)));
             end
           end
           
+          % add it to the full set
           similarity_all{sub,ses,d} = similarity;
           
 %           for i = 1:size(data_p1,1)
@@ -658,6 +671,31 @@ for d = 1:length(dataTypes)
   end
 end
 
+% stats
+
+plotit = false;
+
+mean_similarity = struct;
+for d = 1:length(dataTypes)
+  mean_similarity.(dataTypes{d}) = [];
+  for sub = 1:length(exper.subjects)
+    for ses = 1:length(exper.sessions)
+      
+      % Average Pres1--Pres2 similarity
+      mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d},size(similarity_all{sub,ses,d},1) / 2)));
+      
+      if plotit
+        figure
+        imagesc(similarity_all{sub,ses,d});
+        colorbar;
+        axis square;
+        title(strrep(dataTypes{d},'_','-'));
+      end
+    end
+  end
+end
+
+disp(mean_similarity);
 
 %% PCA
 
