@@ -374,7 +374,7 @@ parameter = 'powspctrm';
 
 freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 
-latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
