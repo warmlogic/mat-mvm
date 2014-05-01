@@ -666,8 +666,8 @@ for sub = 1:length(subjects_all)
         
         p1_ind = [];
         p2_ind = [];
-        for i = 1:size(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
-          p1_trlInd = i;
+        for p = 1:size(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+          p1_trlInd = p;
           p1_phaseCount = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
           p1_stimNum = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
           p1_categNum = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
@@ -769,10 +769,17 @@ for sub = 1:length(subjects_all)
             crit_eigvec = eigvec_p1_p2(:,pass_analytic_p1_p2);
           end
           
+          % project to PCA space only using good eigenvectors
+          data_p1_p2_pcaspace = crit_eigvec' * data_p1_p2;
+          data_p1_p2_dspace = crit_eigvec * data_p1_p2_pcaspace;
+          
+          % % test
+          % figure;plot(data_p1_p2(1,:),'b');hold on;plot(data_p1_p2_dspace(1,:),'r');
+          
           % compute the similarity
-          for i = 1:size(crit_eigvec,1)
-            for j = 1:size(crit_eigvec,1)
-              similarity(i,j) = dot(crit_eigvec(i,:) / norm(crit_eigvec(i,:)), crit_eigvec(j,:) / norm(crit_eigvec(j,:)));
+          for i = 1:size(data_p1_p2_dspace,1)
+            for j = 1:size(data_p1_p2_dspace,1)
+              similarity(i,j) = dot(data_p1_p2_dspace(i,:) / norm(data_p1_p2_dspace(i,:)), data_p1_p2_dspace(j,:) / norm(data_p1_p2_dspace(j,:)));
             end
           end
           
@@ -904,18 +911,20 @@ for sub = 1:length(subjects_all)
           
         end
         
-      end
+      end % d
     end
-  end
-end
+  end % ses
+end % sub
 
-% stats
+%% stats
 
-plotit = false;
+plotit = true;
 
 mean_similarity = struct;
 for d = 1:length(dataTypes)
   mean_similarity.(dataTypes{d}) = [];
+  %for sub = 1:length(subjects_all)
+  %  for ses = 1:length(sesNames_all)
   for sub = 1:length(exper.subjects)
     for ses = 1:length(exper.sessions)
       
