@@ -407,16 +407,21 @@ cfg_sel.avgovertime = 'yes';
 eig_criterion = 'analytic';
 
 similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes));
+similarity_ntrials = nan(length(subjects_all),length(sesNames_all),length(dataTypes));
 
 for sub = 1:length(subjects_all)
   subjects = subjects_all(sub);
+  subStr = subjects_all{sub};
   
   for ses = 1:length(sesNames_all)
     sesNames = sesNames_all(ses);
+    sesStr = sesNames_all{ses};
     
     %% do a thing where we load in each subject and session as we go
     
     [exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot,replaceDatatype);
+    
+    subNum = find(ismember(exper.subjects,subjects_all(sub)));
     
     %% set up channel groups
     
@@ -648,7 +653,7 @@ for sub = 1:length(subjects_all)
     %% similarity stuff
     
     if ~exper.badSub(1,1)
-      fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
+      fprintf('\t%s %s...\n',subStr,sesStr);
       
       for d = 1:length(dataTypes)
         dataType = dataTypes{d};
@@ -656,26 +661,26 @@ for sub = 1:length(subjects_all)
         fprintf('Processing %s...\n',dataType);
         
         if all(ismember(thisROI,ana.elecGroupsStr))
-          elecInd = ismember(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
-        elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label))
-          elecInd = ismember(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label,unique(thisROI));
+          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
+        elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label))
+          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label,unique(thisROI));
         else
           error('Cannot find specified electrode(s)');
         end
-        cfg_sel.channel = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.label(elecInd);
+        cfg_sel.channel = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label(elecInd);
         
         p1_ind = [];
         p2_ind = [];
-        for p = 1:size(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+        for p = 1:size(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.(parameter),1)
           p1_trlInd = p;
-          p1_phaseCount = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
-          p1_stimNum = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
-          p1_categNum = data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
+          p1_phaseCount = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,categNumCol);
           
           p2_trlInd = find(...
-            data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-            data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-            data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
+            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,categNumCol) == p1_categNum);
           
           if ~isempty(p2_trlInd)
             p1_ind = cat(2,p1_ind,p1_trlInd);
@@ -689,8 +694,8 @@ for sub = 1:length(subjects_all)
             data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
             data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
           elseif strcmp(cfg_sel.avgovertime,'no')
-            tbeg = nearest(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time,cfg_sel.latency(1));
-            tend = nearest(data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data.time,cfg_sel.latency(2));
+            tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
+            tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
             data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
             data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
           end
@@ -699,11 +704,11 @@ for sub = 1:length(subjects_all)
             cfg_sel.foilim = freqs(f,:);
             
             cfg_sel.trials = p1_ind;
-            dat1 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data);
+            dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data);
             data_p1(:,:,f,:) = dat1.(parameter);
             
             cfg_sel.trials = p2_ind;
-            dat2 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data);
+            dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
             data_p2(:,:,f,:) = dat2.(parameter);
           end
           
@@ -785,6 +790,8 @@ for sub = 1:length(subjects_all)
           
           % add it to the full set
           similarity_all{sub,ses,d} = similarity;
+          similarity_ntrials(sub,ses,d) = length(p1_ind);
+          
           
 %           for i = 1:size(data_p1,1)
 %             for j = 1:size(data_p2,1)
