@@ -694,18 +694,18 @@ for sub = 1:length(subjects_all)
         
         if ~isempty(p1_ind) && ~isempty(p2_ind)
           
-          if strcmp(cfg_sel.avgovertime,'yes')
-            data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
-            data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
-          elseif strcmp(cfg_sel.avgovertime,'no')
-            tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
-            tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
-            data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
-            data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
-          end
-          
           for lat = 1:size(latencies,1)
             cfg_sel.latency = latencies(lat,:);
+            
+            if strcmp(cfg_sel.avgovertime,'yes')
+              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
+              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
+            elseif strcmp(cfg_sel.avgovertime,'no')
+              tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
+              tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
+              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+            end
             
             for f = 1:size(freqs,1)
               cfg_sel.foilim = freqs(f,:);
@@ -718,11 +718,6 @@ for sub = 1:length(subjects_all)
               dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
               data_p2(:,:,f,:) = dat2.(parameter);
             end
-            
-            %similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
-            
-            % measure similarity between all event pairs
-            similarity = nan(size(data_p1,1)+size(data_p2,1),size(data_p1,1)+size(data_p2,1));
             
             % unroll electrodes and frequency data in the second dimension
             dim1 = size(data_p1);
@@ -783,6 +778,8 @@ for sub = 1:length(subjects_all)
               % 100 / number of variables
               pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
               crit_evec = evec_p1_p2(:,pass_analytic_p1_p2);
+            elseif strcmp(eig_criterion,'none')
+              crit_evec = evec_p1_p2;
             end
             
             %%%%%%
@@ -800,22 +797,27 @@ for sub = 1:length(subjects_all)
             % % test
             % figure;plot(data_p1_p2(1,:),'b');hold on;plot(data_p1_p2_dspace(1,:),'r');
             
-            % compute similarity on weights/loadings using PCs that passed
-            % criterion
-            for i = 1:size(crit_evec,1)
-              for j = 1:size(crit_evec,1)
-                similarity(i,j) = dot(crit_evec(i,:) / norm(crit_evec(i,:)), crit_evec(j,:) / norm(crit_evec(j,:)));
-              end
-            end
+            %similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
             
-            % compute similarity in PC space using PCs that passed criterion
-            %
-            % But this does not have the same number of rows as events!
-            for i = 1:size(data_p1_p2_pcspace,1)
-              for j = 1:size(data_p1_p2_pcspace,1)
-                similarity(i,j) = dot(data_p1_p2_pcspace(i,:) / norm(data_p1_p2_pcspace(i,:)), data_p1_p2_pcspace(j,:) / norm(data_p1_p2_pcspace(j,:)));
-              end
-            end
+            % measure similarity between all event pairs
+            similarity = nan(size(data_p1,1)+size(data_p2,1),size(data_p1,1)+size(data_p2,1));
+            
+%             % compute similarity on weights/loadings using PCs that passed
+%             % criterion
+%             for i = 1:size(crit_evec,1)
+%               for j = 1:size(crit_evec,1)
+%                 similarity(i,j) = dot(crit_evec(i,:) / norm(crit_evec(i,:)), crit_evec(j,:) / norm(crit_evec(j,:)));
+%               end
+%             end
+%             
+%             % compute similarity in PC space using PCs that passed criterion
+%             %
+%             % But this does not have the same number of rows as events!
+%             for i = 1:size(data_p1_p2_pcspace,1)
+%               for j = 1:size(data_p1_p2_pcspace,1)
+%                 similarity(i,j) = dot(data_p1_p2_pcspace(i,:) / norm(data_p1_p2_pcspace(i,:)), data_p1_p2_pcspace(j,:) / norm(data_p1_p2_pcspace(j,:)));
+%               end
+%             end
             
             % compute the similarity after projecting back to data space
             % using PCs that passed criterion
@@ -838,7 +840,7 @@ for sub = 1:length(subjects_all)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,'RSA_PCA_%s.mat',date),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,'RSA_PCA_%dlat_%s.mat',size(latencies,1),date),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
