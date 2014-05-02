@@ -650,8 +650,8 @@ fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
 
 anovaData = [];
 
-for sub = 1:length(subjects_all)
-    for ses = 1:length(sesNames_all)
+for sub = 1:length(exper.subjects)
+    for ses = 1:length(exper.sesStr)
       theseData = [];
       
       for d = 1:length(dataTypes)
