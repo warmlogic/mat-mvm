@@ -283,6 +283,8 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
+%% set up similarity analysis
+
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
@@ -343,6 +345,8 @@ eig_criterion = 'analytic';
 similarity_all = cell(length(exper.sessions),length(exper.sessions),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(exper.sessions),length(exper.sessions),length(dataTypes),size(latencies,1));
 
+%% calculate similarity
+
 for sub = 1:length(exper.subjects)
   subStr = exper.subjects{sub};
   
@@ -350,8 +354,6 @@ for sub = 1:length(exper.subjects)
     sesStr = exper.sesStr{ses};
     
     %sesNum = find(ismember(exper.sessions{ses},exper.sesStr(ses)));
-    
-    %% similarity stuff
     
     if ~exper.badSub(sub,ses)
       fprintf('\t%s %s...\n',subStr,sesStr);
@@ -385,12 +387,12 @@ for sub = 1:length(exper.subjects)
           p1_phaseCount = data_tla.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
           p1_stimNum = data_tla.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
           p1_categNum = data_tla.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
-          p1_pairNum = data_tla.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.trialinfo(p1_trlInd,pairNumCol);
+          p1_pairNum = data_tla.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(sub).data.trialinfo(p1_trlInd,pairNumCol);
           
           p2_trlInd = find(...
-            data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,pairNumCol) == p1_pairNum & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,categNumCol) ~= p1_categNum);
+            data_tla.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_tla.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(sub).data.trialinfo(:,pairNumCol) == p1_pairNum & ...
+            data_tla.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(sub).data.trialinfo(:,categNumCol) ~= p1_categNum);
 %           p2_trlInd = find(...
 %             data_tla.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
 %             data_tla.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
