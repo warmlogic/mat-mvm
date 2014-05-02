@@ -567,28 +567,19 @@ dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo
   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % 0 to 1, in 200 ms chunks
-latInd = [1 5];
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0'}};
+% latInd = [1 5];
+
+% % 0-0.5, 0.5-1
+% latInd = [7 8];
 
 % % 0.1 to 0.9, in 200 ms chunks
-% latInd = [6 9];
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.1-0.3', '0.3-0.5', '0.5-0.7', '0.7-0.9'}};
-
-% % 0-0.3, 0.3-0.6, 0.6-0.9
-% latInd = [10 12];
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.3', '0.3-0.6', '0.6-0.9'}};
-
-% % 0-0.5, 0.3-0.8, 0.5-1
-% latInd = [13 15];
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.5', '0.3-0.8', '0.5-1.0'}};
-
-% % 0 to 1, in 600 ms chunks
-% latInd = [16 20];
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.6', '0.1-0.7', '0.2-0.8', '0.3-0.9', '0.4-1.0'}};
+% latInd = [9 12];
 
 % % 0 to 1 in 800 ms chunks
-% latInd = [21 23];
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.8', '0.1-0.9', '0.2-1.0'}};
+% latInd = [13 15];
+
+% 0-0.3, 0.3-0.6, 0.6-0.9
+latInd = [16 18];
 
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
@@ -608,6 +599,12 @@ for sub = 1:length(exper.subjects)
     anovaData = cat(1,anovaData,theseData);
 end
 
+latStr = cell(1,length(latInd(1):latInd(2)));
+for i = 1:length(latStr)
+  latStr{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
+end
+levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
+
 varnames = {'stimType','subseqMem','spacing','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
@@ -619,30 +616,34 @@ fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
-% % 0-0.5
-% lat = 13;
-% % 0.5-1.0
-% lat = 15;
-% % 0.3-0.8
-% lat = 14;
-
-% % 0-0.6
-% lat = 16;
-% % 0.1-0.7
-% lat = 17;
-% % 0.2-0.8
-% lat = 18;
-% 0.3-0.9
-lat = 19;
-% % 0.4-1.0
-% lat = 20;
+% 0.2-0.8
+lat=6;
 
 % % 0-0.8
-% lat = 21;
+% lat = 13;
 % % 0.1-0.9
-% lat = 22;
+% lat = 14;
 % % 0.2-1.0
-% lat = 23;
+% lat = 15;
+
+
+% % % 0-0.5
+% % lat = 13;
+% % % 0.5-1.0
+% % lat = 15;
+% % % 0.3-0.8
+% % lat = 14;
+% 
+% % % 0-0.6
+% % lat = 16;
+% % % 0.1-0.7
+% % lat = 17;
+% % % 0.2-0.8
+% % lat = 18;
+% % % 0.3-0.9
+% % lat = 19;
+% % % 0.4-1.0
+% % lat = 20;
 
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));

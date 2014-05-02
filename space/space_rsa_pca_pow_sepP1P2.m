@@ -629,24 +629,18 @@ end
 
 % % 0 to 1, in 200 ms chunks
 % latInd = [1 5];
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0'}};
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6 9];
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.1-0.3', '0.3-0.5', '0.5-0.7', '0.7-0.9'}};
 
 % % 0-0.3, 0.3-0.6, 0.6-0.9
 % latInd = [10 12];
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.3', '0.3-0.6', '0.6-0.9'}};
 
 % % 0-0.5, 0.3-0.8, 0.5-1
 % latInd = [13 15];
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.5', '0.3-0.8', '0.5-1.0'}};
 
 % 0 to 1, in 600 ms chunks
 latInd = [16 20];
-levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.6', '0.1-0.7', '0.2-0.8', '0.3-0.9', '0.4-1.0'}};
-
 
 % % 0 to 1 in 800 ms chunks
 % latInd = [21 23];
@@ -669,6 +663,12 @@ for sub = 1:length(subjects_all)
     end
     anovaData = cat(1,anovaData,theseData);
 end
+
+latStr = cell(1,length(latInd(1):latInd(2)));
+for i = 1:length(latStr)
+  latStr{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
+end
+levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
 
 varnames = {'subseqMem','spacing','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
