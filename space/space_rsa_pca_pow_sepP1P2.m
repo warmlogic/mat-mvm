@@ -139,6 +139,8 @@ eig_criterion = 'kaiser';
 % % events/components.
 % eig_criterion = 'analytic';
 
+%% calculate similarity
+
 similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
 
@@ -677,11 +679,18 @@ end
 
 %% RMANOVA
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dtypes_str
 
-% % 0 to 1, in 200 ms chunks
-% latInd = [1 5];
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0];
+
+% 0 to 1, in 200 ms chunks
+latInd = [1 5];
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6 9];
@@ -689,15 +698,14 @@ end
 % % 0-0.3, 0.3-0.6, 0.6-0.9
 % latInd = [10 12];
 
-% % 0-0.5, 0.3-0.8, 0.5-1
-% latInd = [13 15];
+% % 0-0.5, 0.5-1
+% latInd = [13 14];
 
-% 0 to 1, in 600 ms chunks
-latInd = [16 20];
+% % 0 to 1, in 600 ms chunks
+% latInd = [16 20];
 
 % % 0 to 1 in 800 ms chunks
 % latInd = [21 23];
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.8', '0.1-0.9', '0.2-1.0'}};
 
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
