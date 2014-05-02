@@ -847,7 +847,7 @@ for sub = 1:length(subjects_all)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_%dlat_%s.mat',size(latencies,1),date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%dlat_%s.mat',size(latencies,1),date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
@@ -884,16 +884,28 @@ end
 
 %% RMANOVA
 
+
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
 
 % % 0 to 1, in 200 ms chunks
 % latInd = [1 5];
 % levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0'}};
 
-% 0-0.5, 0.5-1
-latInd = [7 8];
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.5', '0.5-1.0'}};
+% % 0-0.5, 0.5-1
+% latInd = [7 8];
+% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.5', '0.5-1.0'}};
+
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
+
+% latInd = [1 4];
+% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.1-0.3', '0.3-0.5', '0.5-0.7', '0.7-0.9'}};
+
+% 0-0.3, 0.3-0.6, 0.6-0.9
+latInd = [8 10];
+levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.3', '0.3-0.6', '0.6-0.9'}};
 
 anovaData = [];
 
@@ -920,7 +932,17 @@ dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo
 
 %theseLat = latencies(1:5,:);
 
-lat = 6;
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
+% lat = 6;
+
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
+
+% 0-0.8
+lat = 5;
+% % 0.1-0.9
+% lat = 6;
+% % 0.2-1.0
+% lat = 7;
 
 anovaData = [];
 
