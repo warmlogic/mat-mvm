@@ -719,22 +719,42 @@ fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
 
 %% RMANOVA - no time dimension
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
-%theseLat = latencies(1:5,:);
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0];
 
-% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
-% lat = 6;
+% 0-0.5
+lat = 13;
+% % 0.5-1.0
+% lat = 14;
 
-% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
+% % 0.3-0.8
+% lat = 15;
 
-% 0-0.8
-lat = 5;
+% % 0-0.6
+% lat = 16;
+% % 0.1-0.7
+% lat = 17;
+% % 0.2-0.8
+% lat = 18;
+% % 0.3-0.9
+% lat = 19;
+% % 0.4-1.0
+% lat = 20;
+
+% % 0-0.8
+% lat = 21;
 % % 0.1-0.9
-% lat = 6;
+% lat = 22;
 % % 0.2-1.0
-% lat = 7;
+% lat = 23;
 
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
