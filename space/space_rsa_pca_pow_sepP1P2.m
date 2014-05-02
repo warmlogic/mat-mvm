@@ -588,9 +588,14 @@ save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_sepP1P2_%dlat_%s.mat',size(l
 
 plotit = false;
 
+dtypes_str = cell(1,length(dataTypes));
+
 mean_similarity = struct;
 for d = 1:length(dataTypes)
-  mean_similarity.(dataTypes{d}) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
+  dtype_str = sprintf('%s_%s',dataTypes{d}{1},dataTypes{d}{2});
+  dtypes_str{d} = dtype_str;
+  
+  mean_similarity.(dtype_str) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
   for lat = 1:size(latencies,1)
     
     for sub = 1:length(subjects_all)
@@ -599,7 +604,7 @@ for d = 1:length(dataTypes)
         %     for ses = 1:length(exper.sessions)
         
         % Average Pres1--Pres2 similarity
-        mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
+        mean_similarity.(dtype_str)(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
         %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
         
         if plotit
@@ -619,43 +624,93 @@ end
 
 %% RMANOVA
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % % 0 to 1, in 200 ms chunks
 % latInd = [1 5];
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0'}};
+% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0'}};
 
-% 0-0.5, 0.5-1
-latInd = [7 8];
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.5', '0.5-1.0'}};
+% % 0.1 to 0.9, in 200 ms chunks
+% latInd = [6 9];
+% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.1-0.3', '0.3-0.5', '0.5-0.7', '0.7-0.9'}};
+
+% % 0-0.3, 0.3-0.6, 0.6-0.9
+% latInd = [10 12];
+% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.3', '0.3-0.6', '0.6-0.9'}};
+
+% % 0-0.5, 0.3-0.8, 0.5-1
+% latInd = [13 15];
+% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.5', '0.3-0.8', '0.5-1.0'}};
+
+% 0 to 1, in 600 ms chunks
+latInd = [16 20];
+levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.6', '0.1-0.7', '0.2-0.8', '0.3-0.9', '0.4-1.0'}};
+
+
+% % 0 to 1 in 800 ms chunks
+% latInd = [21 23];
+% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.8', '0.1-0.9', '0.2-1.0'}};
+
 
 anovaData = [];
+
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
 
 for sub = 1:length(subjects_all)
     for ses = 1:length(sesNames_all)
       theseData = [];
       
-      for d = 1:length(dataTypes)
+      for d = 1:length(dtypes_str)
         for lat = latInd(1):latInd(2)
-          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
+          theseData = cat(2,theseData,mean_similarity.(dtypes_str{d})(sub,ses,lat));
         end
       end
     end
     anovaData = cat(1,anovaData,theseData);
 end
 
-varnames = {'stimType','subseqMem','spacing','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+varnames = {'subseqMem','spacing','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+
+fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
 
 %% RMANOVA - no time dimension
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 %theseLat = latencies(1:5,:);
 
-lat = 6;
+% % 0-0.5
+% lat = 13;
+% % 0.5-1.0
+% lat = 15;
+% % 0.3-0.8
+% lat = 14;
+
+% % 0-0.6
+% lat = 16;
+% % 0.1-0.7
+% lat = 17;
+% % 0.2-0.8
+% lat = 18;
+% 0.3-0.9
+lat = 19;
+% % 0.4-1.0
+% lat = 20;
+
+% % 0-0.8
+% lat = 21;
+% % 0.1-0.9
+% lat = 22;
+% % 0.2-1.0
+% lat = 23;
+
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
 
 anovaData = [];
 
@@ -663,15 +718,17 @@ for sub = 1:length(subjects_all)
     for ses = 1:length(sesNames_all)
       theseData = [];
       
-      for d = 1:length(dataTypes)
-          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
+      for d = 1:length(dtypes_str)
+          theseData = cat(2,theseData,mean_similarity.(dtypes_str{d})(sub,ses,lat));
       end
     end
     anovaData = cat(1,anovaData,theseData);
 end
 
 % no time dimension
-varnames = {'stimType','subseqMem','spacing'};
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+varnames = {'subseqMem','spacing'};
+levelnames = {{'rc', 'fo'}, {'spac','mass'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
 
+fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
