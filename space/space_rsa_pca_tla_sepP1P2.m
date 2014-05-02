@@ -548,7 +548,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%sAvgT_%s.mat',size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%sAvgT_sepP1P2_%s.mat',size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
