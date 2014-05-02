@@ -652,11 +652,10 @@ levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.6', '0.1-0.7', '0.2-0.8', '
 % latInd = [21 23];
 % levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.8', '0.1-0.9', '0.2-1.0'}};
 
-
-anovaData = [];
-
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
+
+anovaData = [];
 
 for sub = 1:length(subjects_all)
     for ses = 1:length(sesNames_all)

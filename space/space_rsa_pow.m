@@ -907,6 +907,9 @@ dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo
 latInd = [8 10];
 levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.3', '0.3-0.6', '0.6-0.9'}};
 
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
+
 anovaData = [];
 
 for sub = 1:length(subjects_all)
@@ -924,6 +927,9 @@ end
 
 varnames = {'stimType','subseqMem','spacing','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+
+fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
 
 %% RMANOVA - no time dimension
 
@@ -944,6 +950,9 @@ lat = 5;
 % % 0.2-1.0
 % lat = 7;
 
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
+
 anovaData = [];
 
 for sub = 1:length(subjects_all)
@@ -961,6 +970,9 @@ end
 varnames = {'stimType','subseqMem','spacing'};
 levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+
+fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 
 %% convert to scalp current density
 

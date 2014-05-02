@@ -590,6 +590,8 @@ levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.2', '0.2-0.
 % latInd = [21 23];
 % levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, {'0.0-0.8', '0.1-0.9', '0.2-1.0'}};
 
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
 
 anovaData = [];
 
@@ -609,3 +611,60 @@ end
 varnames = {'stimType','subseqMem','spacing','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
+fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+
+%% RMANOVA - no time dimension
+
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+% % 0-0.5
+% lat = 13;
+% % 0.5-1.0
+% lat = 15;
+% % 0.3-0.8
+% lat = 14;
+
+% % 0-0.6
+% lat = 16;
+% % 0.1-0.7
+% lat = 17;
+% % 0.2-0.8
+% lat = 18;
+% 0.3-0.9
+lat = 19;
+% % 0.4-1.0
+% lat = 20;
+
+% % 0-0.8
+% lat = 21;
+% % 0.1-0.9
+% lat = 22;
+% % 0.2-1.0
+% lat = 23;
+
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
+
+anovaData = [];
+
+for sub = 1:length(subjects_all)
+    for ses = 1:length(sesNames_all)
+      theseData = [];
+      
+      for d = 1:length(dataTypes)
+          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
+      end
+    end
+    anovaData = cat(1,anovaData,theseData);
+end
+
+% no time dimension
+varnames = {'stimType','subseqMem','spacing'};
+levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+
+
+fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
