@@ -290,7 +290,7 @@ parameter = 'trial';
 
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
+latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0; 0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
@@ -318,8 +318,8 @@ cfg_sel = [];
 % cfg_sel.latency = [0 0.5];
 % cfg_sel.latency = [0 0.8];
 % cfg_sel.latency = [0.4 0.6];
-cfg_sel.avgoverfreq = 'yes';
-cfg_sel.avgovertime = 'yes';
+% cfg_sel.avgoverfreq = 'yes';
+cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'no';
 
 % % keep components with eigenvalue >= 1
@@ -387,26 +387,22 @@ for sub = 1:length(exper.subjects)
             cfg_sel.latency = latencies(lat,:);
             
             if strcmp(cfg_sel.avgovertime,'yes')
-              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
-              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
+              data_p1 = nan(length(p1_ind),length(cfg_sel.channel));
+              data_p2 = nan(length(p2_ind),length(cfg_sel.channel));
             elseif strcmp(cfg_sel.avgovertime,'no')
               tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
               tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
-              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
-              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),length(tbeg:tend));
+              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),length(tbeg:tend));
             end
             
-            for f = 1:size(freqs,1)
-              cfg_sel.foilim = freqs(f,:);
-              
-              cfg_sel.trials = p1_ind;
-              dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data);
-              data_p1(:,:,f,:) = dat1.(parameter);
-              
-              cfg_sel.trials = p2_ind;
-              dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
-              data_p2(:,:,f,:) = dat2.(parameter);
-            end
+            cfg_sel.trials = p1_ind;
+            dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data);
+            data_p1(:,:,:) = dat1.(parameter);
+            
+            cfg_sel.trials = p2_ind;
+            dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
+            data_p2(:,:,:) = dat2.(parameter);
             
             % unroll electrodes and frequency data in the second dimension
             dim1 = size(data_p1);
@@ -529,7 +525,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_%dlat_%s.mat',size(latencies,1),date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%s.mat',size(latencies,1),date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
