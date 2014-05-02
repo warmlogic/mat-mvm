@@ -283,14 +283,20 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
+%% set up similarity analysis
+
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 parameter = 'trial';
 
-% freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
-
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0; 0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
+latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+  0 0.3; 0.3 0.6; 0.6 0.9; ...
+  0 0.5; 0.5 1.0; ...
+  0.3 0.8; ...
+  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+  0 0.8; 0.1 0.9; 0.2 1.0];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
@@ -322,17 +328,19 @@ cfg_sel = [];
 cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'no';
 
-% % keep components with eigenvalue >= 1
-% eig_criterion = 'kaiser';
+% keep components with eigenvalue >= 1
+eig_criterion = 'kaiser';
 
-% compute the percent explained variance expected from each component if
-% all events are uncorrelated with each other; keep it if above this level.
-% So, each component would explain 100/n, where n is the number of
-% events/components.
-eig_criterion = 'analytic';
+% % compute the percent explained variance expected from each component if
+% % all events are uncorrelated with each other; keep it if above this level.
+% % So, each component would explain 100/n, where n is the number of
+% % events/components.
+% eig_criterion = 'analytic';
 
 similarity_all = cell(length(exper.sessions),length(exper.sessions),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(exper.sessions),length(exper.sessions),length(dataTypes),size(latencies,1));
+
+%% run similarity comparison
 
 for sub = 1:length(exper.subjects)
   subStr = exper.subjects{sub};
@@ -341,8 +349,6 @@ for sub = 1:length(exper.subjects)
     sesStr = exper.sesStr{ses};
     
     %sesNum = find(ismember(exper.sessions{ses},exper.sesStr(ses)));
-    
-    %% similarity stuff
     
     if ~exper.badSub(sub,ses)
       fprintf('\t%s %s...\n',subStr,sesStr);
@@ -410,63 +416,35 @@ for sub = 1:length(exper.subjects)
             dim2 = size(data_p2);
             data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
             
-            %           % % Matlab covariance
-            %           % cov_dat_p1_p2 = cov(data_p1_p2');
-            %
-            %           % Matlab PCA (why doesn't it return all eigenvectors?)
-            %           % variables: columns = event
-            %           % observations/instances: rows = electrode x freq (unrolled)
-            %
-            %           [evec_p1_p2, score_p1_p2, eval_p1_p2] = pca(data_p1_p2','Algorithm','eig');
-            %           % kaiser criterion keeps eigenvalues >= 1
-            %           pass_kaiserCrit_p1_p2 = eval_p1_p2 >= 1;
-            %
-            %           % percent variance explained
-            %           eval_p1_p2 = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-            %           % analytic: keep PC if percent variance explained is above
-            %           % 100 / number of variables
-            %           pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
-            %
-            %           pc = 2;
-            %           a = evec_p1_p2(:,pc)' * data_p1_p2';
-            %           b =  evec_p1_p2' * data_p1_p2;
-            %           c =  crit_evec' * data_p1_p2;
-            
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Manually run PCA across all events at the same time
+            % Compute similarity
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-            % % variables: rows = event
-            % % observations/instances: columns = electrode x time (unrolled)
+            % variables: columns = electrode x time (unrolled)
+            % observations/instances: rows = events
             
-            % subtract the mean across observations from the variables
-            data_p1_p2 = bsxfun(@minus,data_p1_p2,mean(data_p1_p2,2));
-            % get the covariance matrix; diagonals contain the variance of
-            % each variable (event); normalize by n-1, where n is the number
-            % of observations (or instances)
-            cov_dat_p1_p2 = (data_p1_p2 * data_p1_p2') ./ (size(data_p1_p2,2) - 1);
-            
-            % eig returns vectors and values in ascneding order
-            [evec_p1_p2, eval_p1_p2] = eig(cov_dat_p1_p2);
-            eval_p1_p2 = diag(eval_p1_p2);
-            % components in increasing order, convert to descending order
-            evec_p1_p2 = evec_p1_p2(:,end:-1:1);
-            eval_p1_p2 = eval_p1_p2(end:-1:1);
+            % apply PCA to data
+            [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(data_p1_p2), 'Economy', true);
             
             if strcmp(eig_criterion,'kaiser')
-              % kaiser criterion keeps eigenvalues >= 1
-              pass_kaiserCrit_p1_p2 = eval_p1_p2 >= 1;
-              crit_evec = evec_p1_p2(:,pass_kaiserCrit_p1_p2);
+              crit_eig = eval_p1_p2 >= 1;
             elseif strcmp(eig_criterion,'analytic')
-              % percent variance explained
-              eval_p1_p2 = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
               % analytic: keep PC if percent variance explained is above
               % 100 / number of variables
-              pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
-              crit_evec = evec_p1_p2(:,pass_analytic_p1_p2);
+              
+              % convert to percent variance explained
+              eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+              crit_eig = eval_PVE > (100 / size(eval_PVE,1));
+              %crit_evec = evec_p1_p2(:,pass_analytic_p1_p2);
             elseif strcmp(eig_criterion,'none')
-              crit_evec = evec_p1_p2;
+              crit_eig = true(length(eval_p1_p2),1);
             end
+            % remove features with eigenvalues that didn't pass criterion
+            %
+            % evec_p1_p2 (coeff) lets you map from PCA space to original
+            % feature space
+            evec_p1_p2 = evec_p1_p2(:, crit_eig);
+            feature_vectors = data_pcaspace(:, crit_eig);
             
             %%%%%%
             % more feature selection is done here (my paradigm is about
@@ -475,46 +453,126 @@ for sub = 1:length(exper.subjects)
             % thinking about how to select the most important features.)
             %%%%%%
             
-            % project to PC space using eigenvectors that passed criterion
-            data_p1_p2_pcspace = crit_evec' * data_p1_p2;
-            % project to data space using eigenvectors that passed criterion
-            data_p1_p2_dspace = crit_evec * data_p1_p2_pcspace;
+            % dummy selection. replace with actual technique for selecting
+            % important features.
+            %
+            % important: for autocorrelation, only use study events for selection
+            select_inds = true(1, size(feature_vectors, 2));
             
-            % % test
-            % figure;plot(data_p1_p2(1,:),'b');hold on;plot(data_p1_p2_dspace(1,:),'r');
+            evec_p1_p2 = evec_p1_p2(:, select_inds);
+            feature_vectors = feature_vectors(:, select_inds);
             
-            %similarity = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
+            % normalize the vector lengths of each event
+            feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
             
-            % measure similarity between all event pairs
-            similarity = nan(size(data_p1,1)+size(data_p2,1),size(data_p1,1)+size(data_p2,1));
+            % compute the similarities between each pair of events
+            similarities = 1 - squareform(pdist(feature_vectors, 'cosine'));
             
-%             % compute similarity on weights/loadings using PCs that passed
-%             % criterion
-%             for i = 1:size(crit_evec,1)
-%               for j = 1:size(crit_evec,1)
-%                 similarity(i,j) = dot(crit_evec(i,:) / norm(crit_evec(i,:)), crit_evec(j,:) / norm(crit_evec(j,:)));
-%               end
+%             %           % % Matlab covariance
+%             %           % cov_dat_p1_p2 = cov(data_p1_p2');
+%             %
+%             %           % Matlab PCA (why doesn't it return all eigenvectors?)
+%             %           % variables: columns = event
+%             %           % observations/instances: rows = electrode x freq (unrolled)
+%             %
+%             %           [evec_p1_p2, score_p1_p2, eval_p1_p2] = pca(data_p1_p2','Algorithm','eig');
+%             %           % kaiser criterion keeps eigenvalues >= 1
+%             %           pass_kaiserCrit_p1_p2 = eval_p1_p2 >= 1;
+%             %
+%             %           % percent variance explained
+%             %           eval_p1_p2 = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+%             %           % analytic: keep PC if percent variance explained is above
+%             %           % 100 / number of variables
+%             %           pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
+%             %
+%             %           pc = 2;
+%             %           a = evec_p1_p2(:,pc)' * data_p1_p2';
+%             %           b =  evec_p1_p2' * data_p1_p2;
+%             %           c =  crit_evec' * data_p1_p2;
+%             
+%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             % Manually run PCA across all events at the same time
+%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             
+%             % % variables: rows = event
+%             % % observations/instances: columns = electrode x time (unrolled)
+%             
+%             % subtract the mean across observations from the variables
+%             data_p1_p2 = bsxfun(@minus,data_p1_p2,mean(data_p1_p2,2));
+%             % get the covariance matrix; diagonals contain the variance of
+%             % each variable (event); normalize by n-1, where n is the number
+%             % of observations (or instances)
+%             cov_dat_p1_p2 = (data_p1_p2 * data_p1_p2') ./ (size(data_p1_p2,2) - 1);
+%             
+%             % eig returns vectors and values in ascneding order
+%             [evec_p1_p2, eval_p1_p2] = eig(cov_dat_p1_p2);
+%             eval_p1_p2 = diag(eval_p1_p2);
+%             % components in increasing order, convert to descending order
+%             evec_p1_p2 = evec_p1_p2(:,end:-1:1);
+%             eval_p1_p2 = eval_p1_p2(end:-1:1);
+%             
+%             if strcmp(eig_criterion,'kaiser')
+%               % kaiser criterion keeps eigenvalues >= 1
+%               pass_kaiserCrit_p1_p2 = eval_p1_p2 >= 1;
+%               crit_evec = evec_p1_p2(:,pass_kaiserCrit_p1_p2);
+%             elseif strcmp(eig_criterion,'analytic')
+%               % percent variance explained
+%               eval_p1_p2 = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+%               % analytic: keep PC if percent variance explained is above
+%               % 100 / number of variables
+%               pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
+%               crit_evec = evec_p1_p2(:,pass_analytic_p1_p2);
+%             elseif strcmp(eig_criterion,'none')
+%               crit_evec = evec_p1_p2;
 %             end
 %             
-%             % compute similarity in PC space using PCs that passed criterion
-%             %
-%             % But this does not have the same number of rows as events!
-%             for i = 1:size(data_p1_p2_pcspace,1)
-%               for j = 1:size(data_p1_p2_pcspace,1)
-%                 similarity(i,j) = dot(data_p1_p2_pcspace(i,:) / norm(data_p1_p2_pcspace(i,:)), data_p1_p2_pcspace(j,:) / norm(data_p1_p2_pcspace(j,:)));
+%             %%%%%%
+%             % more feature selection is done here (my paradigm is about
+%             % comparing individual event representations, so the
+%             % autocorrelation criterion is not appropriate. I'm still
+%             % thinking about how to select the most important features.)
+%             %%%%%%
+%             
+%             % project to PC space using eigenvectors that passed criterion
+%             data_p1_p2_pcspace = crit_evec' * data_p1_p2;
+%             % project to data space using eigenvectors that passed criterion
+%             data_p1_p2_dspace = crit_evec * data_p1_p2_pcspace;
+%             
+%             % % test
+%             % figure;plot(data_p1_p2(1,:),'b');hold on;plot(data_p1_p2_dspace(1,:),'r');
+%             
+%             %similarities = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
+%             
+%             % measure similarities between all event pairs
+%             similarities = nan(size(data_p1,1)+size(data_p2,1),size(data_p1,1)+size(data_p2,1));
+%             
+% %             % compute similarities on weights/loadings using PCs that passed
+% %             % criterion
+% %             for i = 1:size(crit_evec,1)
+% %               for j = 1:size(crit_evec,1)
+% %                 similarities(i,j) = dot(crit_evec(i,:) / norm(crit_evec(i,:)), crit_evec(j,:) / norm(crit_evec(j,:)));
+% %               end
+% %             end
+% %             
+% %             % compute similarities in PC space using PCs that passed criterion
+% %             %
+% %             % But this does not have the same number of rows as events!
+% %             for i = 1:size(data_p1_p2_pcspace,1)
+% %               for j = 1:size(data_p1_p2_pcspace,1)
+% %                 similarities(i,j) = dot(data_p1_p2_pcspace(i,:) / norm(data_p1_p2_pcspace(i,:)), data_p1_p2_pcspace(j,:) / norm(data_p1_p2_pcspace(j,:)));
+% %               end
+% %             end
+%             
+%             % compute the similarities after projecting back to data space
+%             % using PCs that passed criterion
+%             for i = 1:size(data_p1_p2_dspace,1)
+%               for j = 1:size(data_p1_p2_dspace,1)
+%                 similarities(i,j) = dot(data_p1_p2_dspace(i,:) / norm(data_p1_p2_dspace(i,:)), data_p1_p2_dspace(j,:) / norm(data_p1_p2_dspace(j,:)));
 %               end
 %             end
             
-            % compute the similarity after projecting back to data space
-            % using PCs that passed criterion
-            for i = 1:size(data_p1_p2_dspace,1)
-              for j = 1:size(data_p1_p2_dspace,1)
-                similarity(i,j) = dot(data_p1_p2_dspace(i,:) / norm(data_p1_p2_dspace(i,:)), data_p1_p2_dspace(j,:) / norm(data_p1_p2_dspace(j,:)));
-              end
-            end
-            
             % add it to the full set
-            similarity_all{sub,ses,d,lat} = similarity;
+            similarity_all{sub,ses,d,lat} = similarities;
             similarity_ntrials(sub,ses,d,lat) = length(p1_ind);
             
           end % lat
@@ -526,7 +584,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%sAvgT_%s.mat',size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%dlat_%sAvgT_%s.mat',eig_criterion,size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 

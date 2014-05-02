@@ -80,13 +80,10 @@ replaceDataroot = true;
 
 replaceDatatype = {'tla','pow'};
 
-%% average power bands for P1-P2 trials
+%% set up similarity analysis; average power bands for P1-P2 trials
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-dataTypes = {{'img_RgH_rc_spac', 'word_RgH_rc_spac'}, {'img_RgH_rc_mass', 'word_RgH_rc_mass'}, ...
-  {'img_RgH_fo_spac', 'word_RgH_fo_spac'}, {'img_RgH_fo_mass', 'word_RgH_fo_mass'}};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 parameter = 'powspctrm';
 
@@ -105,7 +102,7 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 phaseCountCol = 4;
 stimNumCol = 6;
 categNumCol = 7;
-pairNumCol = 13;
+% pairNumCol = 13;
 
 thisROI = {'center109'};
 % thisROI = {'all129'};
@@ -141,6 +138,8 @@ eig_criterion = 'kaiser';
 
 similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
+
+%% run similarity analysis
 
 for sub = 1:length(subjects_all)
   subjects = subjects_all(sub);
@@ -390,44 +389,31 @@ for sub = 1:length(subjects_all)
       fprintf('\t%s %s...\n',subStr,sesStr);
       
       for d = 1:length(dataTypes)
-        %dataType = dataTypes{d};
+        dataType = dataTypes{d};
         
-        if iscell(dataTypes{d}) && length(dataTypes{d}) == 2
-          dtype_p1 = dataTypes{d}{1};
-          dtype_p2 = dataTypes{d}{2};
-        else
-          dtype_p1 = dataTypes{d};
-          dtype_p2 = dataTypes{d};
-        end
-        
-        fprintf('Processing %s P1 vs %s P2...\n',dtype_p1,dtype_p2);
+        fprintf('Processing %s...\n',dataType);
         
         if all(ismember(thisROI,ana.elecGroupsStr))
-          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
-        elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.label))
-          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.label,unique(thisROI));
+          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
+        elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label))
+          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label,unique(thisROI));
         else
           error('Cannot find specified electrode(s)');
         end
-        cfg_sel.channel = data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.label(elecInd);
+        cfg_sel.channel = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label(elecInd);
         
         p1_ind = [];
         p2_ind = [];
-        for p = 1:size(data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.(parameter),1)
+        for p = 1:size(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.(parameter),1)
           p1_trlInd = p;
-          p1_phaseCount = data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.trialinfo(p1_trlInd,phaseCountCol);
-          p1_stimNum = data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.trialinfo(p1_trlInd,stimNumCol);
-          p1_categNum = data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.trialinfo(p1_trlInd,categNumCol);
-          p1_pairNum = data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.trialinfo(p1_trlInd,pairNumCol);
+          p1_phaseCount = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,categNumCol);
           
           p2_trlInd = find(...
-            data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,pairNumCol) == p1_pairNum & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,categNumCol) ~= p1_categNum);
-%           p2_trlInd = find(...
-%             data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-%             data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-%             data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data.trialinfo(:,categNumCol) == p1_categNum);
+            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,categNumCol) == p1_categNum);
           
           if ~isempty(p2_trlInd)
             p1_ind = cat(2,p1_ind,p1_trlInd);
@@ -444,8 +430,8 @@ for sub = 1:length(subjects_all)
               data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
               data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
             elseif strcmp(cfg_sel.avgovertime,'no')
-              tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.time,cfg_sel.latency(1));
-              tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data.time,cfg_sel.latency(2));
+              tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
+              tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
               data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
               data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
             end
@@ -454,11 +440,11 @@ for sub = 1:length(subjects_all)
               cfg_sel.foilim = freqs(f,:);
               
               cfg_sel.trials = p1_ind;
-              dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dtype_p1)).sub(subNum).data);
+              dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data);
               data_p1(:,:,f,:) = dat1.(parameter);
               
               cfg_sel.trials = p2_ind;
-              dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dtype_p2)).sub(subNum).data);
+              dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
               data_p2(:,:,f,:) = dat2.(parameter);
             end
             
@@ -635,20 +621,15 @@ for sub = 1:length(subjects_all)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%dlat_%sAvgT_%sAvgF_sepP1P2_%s.mat',eig_criterion,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%dlat_%sAvgT_%sAvgF_%s.mat',eig_criterion,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
 plotit = false;
 
-dtypes_str = cell(1,length(dataTypes));
-
 mean_similarity = struct;
 for d = 1:length(dataTypes)
-  dtype_str = sprintf('%s_%s',dataTypes{d}{1},dataTypes{d}{2});
-  dtypes_str{d} = dtype_str;
-  
-  mean_similarity.(dtype_str) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
+  mean_similarity.(dataTypes{d}) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
   for lat = 1:size(latencies,1)
     
     for sub = 1:length(subjects_all)
@@ -657,7 +638,7 @@ for d = 1:length(dataTypes)
         %     for ses = 1:length(exper.sessions)
         
         % Average Pres1--Pres2 similarity
-        mean_similarity.(dtype_str)(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
+        mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
         %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
         
         if plotit
@@ -677,27 +658,24 @@ end
 
 %% RMANOVA
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
 
 % % 0 to 1, in 200 ms chunks
 % latInd = [1 5];
 
-% % 0.1 to 0.9, in 200 ms chunks
-% latInd = [6 9];
+% % 0-0.5, 0.5-1
+% latInd = [7 8];
 
-% % 0-0.3, 0.3-0.6, 0.6-0.9
-% latInd = [10 12];
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
 
-% % 0-0.5, 0.3-0.8, 0.5-1
-% latInd = [13 15];
+% latInd = [1 4];
 
-% 0 to 1, in 600 ms chunks
-latInd = [16 20];
-
-% % 0 to 1 in 800 ms chunks
-% latInd = [21 23];
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}, {'0.0-0.8', '0.1-0.9', '0.2-1.0'}};
+% 0-0.3, 0.3-0.6, 0.6-0.9
+latInd = [8 10];
 
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
@@ -708,9 +686,9 @@ for sub = 1:length(subjects_all)
     for ses = 1:length(sesNames_all)
       theseData = [];
       
-      for d = 1:length(dtypes_str)
+      for d = 1:length(dataTypes)
         for lat = latInd(1):latInd(2)
-          theseData = cat(2,theseData,mean_similarity.(dtypes_str{d})(sub,ses,lat));
+          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
         end
       end
     end
@@ -723,43 +701,30 @@ for i = 1:length(latStr)
 end
 levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
 
-varnames = {'subseqMem','spacing','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+varnames = {'stimType','subseqMem','spacing','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
 fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
 
 %% RMANOVA - no time dimension
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+  'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 %theseLat = latencies(1:5,:);
 
-% % 0-0.5
-% lat = 13;
-% % 0.5-1.0
-% lat = 15;
-% % 0.3-0.8
-% lat = 14;
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; 0.2 0.8; 0 0.5; 0.5 1.0];
+% lat = 6;
 
-% % 0-0.6
-% lat = 16;
-% % 0.1-0.7
-% lat = 17;
-% % 0.2-0.8
-% lat = 18;
-% 0.3-0.9
-lat = 19;
-% % 0.4-1.0
-% lat = 20;
+% latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; 0 0.8; 0.1 0.9; 0.2 1.0; 0 0.3; 0.3 0.6; 0.6 0.9];
 
-% % 0-0.8
-% lat = 21;
+% 0-0.8
+lat = 5;
 % % 0.1-0.9
-% lat = 22;
+% lat = 6;
 % % 0.2-1.0
-% lat = 23;
+% lat = 7;
 
 fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
@@ -770,17 +735,18 @@ for sub = 1:length(subjects_all)
     for ses = 1:length(sesNames_all)
       theseData = [];
       
-      for d = 1:length(dtypes_str)
-          theseData = cat(2,theseData,mean_similarity.(dtypes_str{d})(sub,ses,lat));
+      for d = 1:length(dataTypes)
+          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
       end
     end
     anovaData = cat(1,anovaData,theseData);
 end
 
 % no time dimension
-varnames = {'subseqMem','spacing'};
-levelnames = {{'rc', 'fo'}, {'spac','mass'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
+varnames = {'stimType','subseqMem','spacing'};
+levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
 
-fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
+fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+
