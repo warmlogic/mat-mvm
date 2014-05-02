@@ -406,7 +406,13 @@ cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgovertime = 'yes';
 % cfg_sel.avgovertime = 'no';
 
+% % keep components with eigenvalue >= 1
 % eig_criterion = 'kaiser';
+
+% compute the percent explained variance expected from each component if
+% all events are uncorrelated with each other; keep it if above this level.
+% So, each component would explain 100/n, where n is the number of
+% events/components.
 eig_criterion = 'analytic';
 
 similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
