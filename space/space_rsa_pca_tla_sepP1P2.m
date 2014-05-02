@@ -554,16 +554,23 @@ save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%sAvgT_sepP1P2_%s.mat'
 
 plotit = false;
 
+dtypes_str = cell(1,length(dataTypes));
+
 mean_similarity = struct;
 for d = 1:length(dataTypes)
-  mean_similarity.(dataTypes{d}) = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+  dtype_str = sprintf('%s_%s',dataTypes{d}{1},dataTypes{d}{2});
+  dtypes_str{d} = dtype_str;
+  
+  mean_similarity.(dtype_str) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
   for lat = 1:size(latencies,1)
     
-    for sub = 1:length(exper.subjects)
-      for ses = 1:length(exper.sesStr)
+    for sub = 1:length(subjects_all)
+      for ses = 1:length(sesNames_all)
+        %   for sub = 1:length(exper.subjects)
+        %     for ses = 1:length(exper.sessions)
         
         % Average Pres1--Pres2 similarity
-        mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
+        mean_similarity.(dtype_str)(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
         %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
         
         if plotit
