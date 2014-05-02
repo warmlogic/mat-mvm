@@ -331,8 +331,8 @@ cfg_sel.avgovertime = 'no';
 % events/components.
 eig_criterion = 'analytic';
 
-similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
-similarity_ntrials = nan(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
+similarity_all = cell(length(exper.sessions),length(exper.sessions),length(dataTypes),size(latencies,1));
+similarity_ntrials = nan(length(exper.sessions),length(exper.sessions),length(dataTypes),size(latencies,1));
 
 for sub = 1:length(exper.subjects)
   subStr = exper.subjects{sub};
@@ -340,8 +340,7 @@ for sub = 1:length(exper.subjects)
   for ses = 1:length(exper.sessions)
     sesStr = exper.sesStr{ses};
     
-    subNum = sub;
-    %sesNum = find(ismember(exper.sessions{ses},sesNames_all(ses)));
+    %sesNum = find(ismember(exper.sessions{ses},exper.sesStr(ses)));
     
     %% similarity stuff
     
@@ -354,26 +353,26 @@ for sub = 1:length(exper.subjects)
         fprintf('Processing %s...\n',dataType);
         
         if all(ismember(thisROI,ana.elecGroupsStr))
-          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
-        elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label))
-          elecInd = ismember(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label,unique(thisROI));
+          elecInd = ismember(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)})));
+        elseif ~all(ismember(thisROI,ana.elecGroupsStr)) && all(ismember(thisROI,data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.label))
+          elecInd = ismember(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.label,unique(thisROI));
         else
           error('Cannot find specified electrode(s)');
         end
-        cfg_sel.channel = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.label(elecInd);
+        cfg_sel.channel = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.label(elecInd);
         
         p1_ind = [];
         p2_ind = [];
-        for p = 1:size(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.(parameter),1)
+        for p = 1:size(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
           p1_trlInd = p;
-          p1_phaseCount = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,phaseCountCol);
-          p1_stimNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,stimNumCol);
-          p1_categNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,categNumCol);
+          p1_phaseCount = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
           
           p2_trlInd = find(...
-            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,categNumCol) == p1_categNum);
+            data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
           
           if ~isempty(p2_trlInd)
             p1_ind = cat(2,p1_ind,p1_trlInd);
@@ -386,23 +385,25 @@ for sub = 1:length(exper.subjects)
           for lat = 1:size(latencies,1)
             cfg_sel.latency = latencies(lat,:);
             
-            if strcmp(cfg_sel.avgovertime,'yes')
-              data_p1 = nan(length(p1_ind),length(cfg_sel.channel));
-              data_p2 = nan(length(p2_ind),length(cfg_sel.channel));
-            elseif strcmp(cfg_sel.avgovertime,'no')
-              tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
-              tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
-              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),length(tbeg:tend));
-              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),length(tbeg:tend));
-            end
+%             if strcmp(cfg_sel.avgovertime,'yes')
+%               data_p1 = nan(length(p1_ind),length(cfg_sel.channel));
+%               data_p2 = nan(length(p2_ind),length(cfg_sel.channel));
+%             elseif strcmp(cfg_sel.avgovertime,'no')
+%               tbeg = nearest(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.time,cfg_sel.latency(1));
+%               tend = nearest(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.time,cfg_sel.latency(2));
+%               data_p1 = nan(length(p1_ind),length(cfg_sel.channel),length(tbeg:tend));
+%               data_p2 = nan(length(p2_ind),length(cfg_sel.channel),length(tbeg:tend));
+%             end
             
             cfg_sel.trials = p1_ind;
-            dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data);
-            data_p1(:,:,:) = dat1.(parameter);
+            dat1 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data);
+            %data_p1(:,:,:) = dat1.(parameter);
+            data_p1 = dat1.(parameter);
             
             cfg_sel.trials = p2_ind;
-            dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
-            data_p2(:,:,:) = dat2.(parameter);
+            dat2 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
+            %data_p2(:,:,:) = dat2.(parameter);
+            data_p2 = dat2.(parameter);
             
             % unroll electrodes and frequency data in the second dimension
             dim1 = size(data_p1);
@@ -436,7 +437,7 @@ for sub = 1:length(exper.subjects)
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             % % variables: rows = event
-            % % observations/instances: columns = electrode x freq (unrolled)
+            % % observations/instances: columns = electrode x time (unrolled)
             
             % subtract the mean across observations from the variables
             data_p1_p2 = bsxfun(@minus,data_p1_p2,mean(data_p1_p2,2));
@@ -525,7 +526,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%s.mat',size(latencies,1),date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%dlat_%s.mat',size(latencies,1),date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
@@ -533,13 +534,11 @@ plotit = false;
 
 mean_similarity = struct;
 for d = 1:length(dataTypes)
-  mean_similarity.(dataTypes{d}) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
+  mean_similarity.(dataTypes{d}) = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
   for lat = 1:size(latencies,1)
     
-    for sub = 1:length(subjects_all)
-      for ses = 1:length(sesNames_all)
-        %   for sub = 1:length(exper.subjects)
-        %     for ses = 1:length(exper.sessions)
+    for sub = 1:length(exper.subjects)
+      for ses = 1:length(exper.sesStr)
         
         % Average Pres1--Pres2 similarity
         mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
