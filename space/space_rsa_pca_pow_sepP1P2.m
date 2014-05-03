@@ -130,8 +130,8 @@ cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgovertime = 'yes';
 % cfg_sel.avgovertime = 'no';
 
-% keep components with eigenvalue >= 1
-eig_criterion = 'kaiser';
+% % keep components with eigenvalue >= 1
+% eig_criterion = 'kaiser';
 
 % % compute the percent explained variance expected from each component if
 % % all events are uncorrelated with each other; keep it if above this level.
@@ -139,10 +139,13 @@ eig_criterion = 'kaiser';
 % % events/components.
 % eig_criterion = 'analytic';
 
-%% calculate similarity
+% keep components that cumulatively explain at least 85% of the variance
+eig_criterion = 'CV85';
 
 similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
+
+%% calculate similarity
 
 for sub = 1:length(subjects_all)
   subjects = subjects_all(sub);
@@ -510,6 +513,12 @@ for sub = 1:length(subjects_all)
             evec_p1_p2_crit = evec_p1_p2(:, crit_eig);
             feature_vectors = data_pcaspace(:, crit_eig);
             
+            % dummy selection. replace with actual technique for selecting
+            % important features.
+            %
+            % important: for autocorrelation, only use study events for selection
+            select_inds = true(1, size(feature_vectors, 2));
+            
             %%%%%%
             % more feature selection is done here (my paradigm is about
             % comparing individual event representations, so the
@@ -517,11 +526,36 @@ for sub = 1:length(subjects_all)
             % thinking about how to select the most important features.)
             %%%%%%
             
-            % dummy selection. replace with actual technique for selecting
-            % important features.
-            %
-            % important: for autocorrelation, only use study events for selection
-            select_inds = true(1, size(feature_vectors, 2));
+%             % attempt at autocorrelation measure
+%             listNums = unique(dat1.trialinfo(:,4));
+%             %select_inds = false(size(feature_vectors,2),1);
+%             select_inds = true(size(feature_vectors,2),1);
+%             for f = 1:size(feature_vectors,2)
+%               r_lists = nan(length(listNums),1);
+%               
+%               for l = 1:length(listNums)
+%                 % this will only go through the Pres1 items
+%                 thisList_fv = feature_vectors(dat1.trialinfo(:,4) == listNums(l),f);
+%                 
+%                 r = xcorr(thisList_fv,1,'coeff');
+%                 r = r(1);
+%                 
+%                 %r = corrcoef(thisList_fv);
+%                 
+%                 Frz = 0.5 .* log((1 + r) ./ (1 - r));
+%                 
+%                 r_lists(l) = Frz;
+%               end
+%               
+%               %r_bar = exp((2*sum(r_lists)) - 1) / exp((2*sum(r_lists)) + 1);
+%               r_bar = (0.5 .* log((1 + sum(r_lists)) ./ (1 - sum(r_lists))))^-1;
+%               
+%               % select features that are autocorrelated
+%               if r_bar > 0
+%                 %select_inds(f) = true;
+%                 select_inds(f) = false;
+%               end
+%             end
             
             evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
             feature_vectors = feature_vectors(:, select_inds);
