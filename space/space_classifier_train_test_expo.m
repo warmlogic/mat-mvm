@@ -385,7 +385,7 @@ ana.eventValues = ana.eventValuesSplit;
 
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
