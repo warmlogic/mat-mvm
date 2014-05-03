@@ -615,7 +615,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%dlat_%sAvgT_sepP1P2_%s.mat',eig_criterion,size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%dlat_%sAvgT_sepP1P2_%s.mat',eig_criterion,thisROI,size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
@@ -628,13 +628,13 @@ for d = 1:length(dataTypes)
   dtype_str = sprintf('%s_%s',dataTypes{d}{1},dataTypes{d}{2});
   dtypes_str{d} = dtype_str;
   
-  mean_similarity.(dtype_str) = nan(length(subjects_all),length(sesNames_all),size(latencies,1));
+  mean_similarity.(dtype_str) = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
   for lat = 1:size(latencies,1)
     
-    for sub = 1:length(subjects_all)
-      for ses = 1:length(sesNames_all)
-        %   for sub = 1:length(exper.subjects)
-        %     for ses = 1:length(exper.sessions)
+    for sub = 1:length(exper.subjects)
+      for ses = 1:length(exper.sesStr)
+        %     for sub = 1:length(subjects_all)
+        %       for ses = 1:length(sesNames_all)
         
         % Average Pres1--Pres2 similarity
         mean_similarity.(dtype_str)(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
@@ -686,7 +686,7 @@ latInd = [1 5];
 % % 0 to 1 in 800 ms chunks
 % latInd = [21 23];
 
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('=======================================\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
 
 anovaData = [];
@@ -697,7 +697,7 @@ for sub = 1:length(exper.subjects)
       
       for d = 1:length(dataTypes)
         for lat = latInd(1):latInd(2)
-          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
+          theseData = cat(2,theseData,mean_similarity.(dtypes_str{d})(sub,ses,lat));
         end
       end
     end
@@ -708,13 +708,13 @@ latStr = cell(1,length(latInd(1):latInd(2)));
 for i = 1:length(latStr)
   latStr{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
 end
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
+levelnames = {{'rc', 'fo'}, {'spac','mass'}, latStr};
 
-varnames = {'stimType','subseqMem','spacing','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+varnames = {'subseqMem','spacing','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
 fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+fprintf('=======================================\n\n');
 
 %% RMANOVA - no time dimension
 
@@ -754,7 +754,7 @@ lat = 13;
 % % 0.2-1.0
 % lat = 23;
 
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('=======================================\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
 
 anovaData = [];
@@ -771,10 +771,10 @@ for sub = 1:length(subjects_all)
 end
 
 % no time dimension
-varnames = {'stimType','subseqMem','spacing'};
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+varnames = {'subseqMem','spacing'};
+levelnames = {{'rc', 'fo'}, {'spac','mass'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
 
 
 fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+fprintf('=======================================\n\n');

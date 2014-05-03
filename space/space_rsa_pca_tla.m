@@ -597,7 +597,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%dlat_%sAvgT_%s.mat',eig_criterion,size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,thisROI,size(latencies,1),cfg_sel.avgovertime,date)),'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
@@ -662,7 +662,7 @@ latInd = [1 5];
 % % 0 to 1 in 800 ms chunks
 % latInd = [21 23];
 
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('=======================================\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
 
 anovaData = [];
@@ -690,7 +690,7 @@ varnames = {'stimType','subseqMem','spacing','time'};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
 fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+fprintf('=======================================\n\n');
 
 %% RMANOVA - no time dimension
 
@@ -731,7 +731,7 @@ lat = 13;
 % % 0.2-1.0
 % lat = 23;
 
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
+fprintf('=======================================\n');
 fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
 
 anovaData = [];
@@ -754,4 +754,4 @@ O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],l
 
 
 fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
-fprintf('%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n');
+fprintf('=======================================\n\n');
