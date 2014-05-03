@@ -689,7 +689,9 @@ for sub = 1:length(subjects_all)
   end % ses
 end % sub
 
-save(fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%dlat_%sAvgT_%sAvgF_sepP1P2_%s.mat',eig_criterion,thisROI,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date)),'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
+roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%dlat_%sAvgT_%sAvgF_sepP1P2_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
+save(saveFile,'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
 
 %% stats
 
