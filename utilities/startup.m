@@ -98,14 +98,13 @@ end
 
 %% set up fieldtrip path
 
-ftDir = dir(fullfile(myMatlabDir,'fieldtrip-*'));
-if isempty(ftDir)
-  ftDir = fullfile(myMatlabDir,'fieldtrip');
-else
-  ftDir = fullfile(myMatlabDir,ftDir.name);
-end
+%ftDir = dir(fullfile(myMatlabDir,'fieldtrip-*'));
+%if ~isempty(ftDir)
 
+ftDir = fullfile(myMatlabDir,'fieldtrip');
 if exist(ftDir,'dir')
+  %ftDir = fullfile(myMatlabDir,ftDir.name);
+  
   % add only the top folder
   addpath(ftDir);
   % add the subdirectories that FT needs
@@ -157,6 +156,13 @@ dmltDir = fullfile(myMatlabDir,'DMLT');
 if exist(dmltDir,'dir')
   % add top folder and all subfolders
   addpath(genpath(dmltDir));
+  
+  % remove the murphy toolbox because pca conflicts with matlab's function
+  dlmtExtDir = fullfile(dmltDir,'external');
+  if exist(dlmtExtDir,'dir')
+    %fprintf('Removing %s and its subdirectories from path.\n',fullfile(dlmtExtDir,'murphy'));
+    rmpath(genpath(fullfile(dlmtExtDir,'murphy')));
+  end
 end
 
 % if you get an error because libgfortran is not installed, follow the
