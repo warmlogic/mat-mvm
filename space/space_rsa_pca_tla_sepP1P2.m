@@ -453,7 +453,17 @@ for sub = 1:length(exper.subjects)
               % convert to percent variance explained
               eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
               crit_eig = eval_PVE > (100 / size(eval_PVE,1));
-              %crit_evec = evec_p1_p2(:,pass_analytic_p1_p2);
+            elseif strcmp(eig_criterion,'CV85')
+              % Cumulative variance 85%: keep PCs that explain at least 85%
+              % of variance
+              
+              % convert to percent variance explained
+              eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+              eval_CV = cumsum(eval_PVE);
+              cutoff_eval = find(eval_CV>=85,1,'first');
+              
+              crit_eig = false(size(eval_p1_p2));
+              crit_eig(1:cutoff_eval) = true;
             elseif strcmp(eig_criterion,'none')
               crit_eig = true(length(eval_p1_p2),1);
             end
@@ -461,7 +471,7 @@ for sub = 1:length(exper.subjects)
             %
             % evec_p1_p2 (coeff) lets you map from PCA space to original
             % feature space
-            evec_p1_p2 = evec_p1_p2(:, crit_eig);
+            evec_p1_p2_crit = evec_p1_p2(:, crit_eig);
             feature_vectors = data_pcaspace(:, crit_eig);
             
             %%%%%%
@@ -477,7 +487,7 @@ for sub = 1:length(exper.subjects)
             % important: for autocorrelation, only use study events for selection
             select_inds = true(1, size(feature_vectors, 2));
             
-            evec_p1_p2 = evec_p1_p2(:, select_inds);
+            evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
             feature_vectors = feature_vectors(:, select_inds);
             
             % normalize the vector lengths of each event
