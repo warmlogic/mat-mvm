@@ -528,8 +528,8 @@ for sub = 1:length(subjects_all)
             
 %             % attempt at autocorrelation measure
 %             listNums = unique(dat1.trialinfo(:,4));
-%             %select_inds = false(size(feature_vectors,2),1);
-%             select_inds = true(size(feature_vectors,2),1);
+%             select_inds = false(size(feature_vectors,2),1);
+%             %select_inds = true(size(feature_vectors,2),1);
 %             for f = 1:size(feature_vectors,2)
 %               r_lists = nan(length(listNums),1);
 %               
@@ -552,8 +552,8 @@ for sub = 1:length(subjects_all)
 %               
 %               % select features that are autocorrelated
 %               if r_bar > 0
-%                 %select_inds(f) = true;
-%                 select_inds(f) = false;
+%                 select_inds(f) = true;
+%                 %select_inds(f) = false;
 %               end
 %             end
             
