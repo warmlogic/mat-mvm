@@ -435,7 +435,8 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % thisROI = 'all129';
 % thisROI = 'center91';
-thisROI = 'center101';
+% thisROI = 'center101';
+thisROI = 'center109';
 
 % latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 % latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
