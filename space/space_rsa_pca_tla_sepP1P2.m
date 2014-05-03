@@ -748,7 +748,7 @@ lat = 13;
 % lat = 20;
 
 % % 0-0.8
-% lat = 21;
+lat = 21;
 % % 0.1-0.9
 % lat = 22;
 % % 0.2-1.0
@@ -764,7 +764,7 @@ for sub = 1:length(exper.subjects)
       theseData = [];
       
       for d = 1:length(dataTypes)
-          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
+          theseData = cat(2,theseData,mean_similarity.(dtypes_str{d})(sub,ses,lat));
       end
     end
     anovaData = cat(1,anovaData,theseData);
