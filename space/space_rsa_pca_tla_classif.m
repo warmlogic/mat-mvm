@@ -432,8 +432,8 @@ cfg_sel.avgovertime = 'no';
 % keep components that cumulatively explain at least 85% of the variance
 eig_criterion = 'CV85';
 
-similarity_all = cell(length(exper.subjects),length(exper.sessions),length(dataTypes),size(latencies,1));
-similarity_ntrials = nan(length(exper.subjects),length(exper.sessions),length(dataTypes),size(latencies,1));
+similarity_all = cell(length(exper.subjects),length(exper.sesStr),length(dataTypes),size(latencies,1));
+similarity_ntrials = nan(length(exper.subjects),length(exper.sesStr),length(dataTypes),size(latencies,1));
 
 %% run similarity comparison
 
