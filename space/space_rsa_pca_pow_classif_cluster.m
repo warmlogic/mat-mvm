@@ -664,7 +664,7 @@ for sub = 1:length(subjects_all)
     elseif ischar(thisROI)
       roi_str = thisROI;
     end
-    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_pow_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
+    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_pow_classif_%s_%s_%dlat_%sAvgT_%sAvgF_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
     save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
   end % ses
 end % sub
