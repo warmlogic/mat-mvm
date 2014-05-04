@@ -597,7 +597,11 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+if iscell(thisROI)
+  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+elseif ischar(thisROI)
+  roi_str = thisROI;
+end
 saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
