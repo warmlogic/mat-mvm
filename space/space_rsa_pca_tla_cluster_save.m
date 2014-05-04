@@ -72,7 +72,7 @@ thisDate = '03-May-2014';
 
 for sub = 1:length(subjects)
   for ses = 1:length(sesNames)
-    savedFile = fullfile(saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,thisDate));
+    savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,thisDate));
     subData = load(savedFile);
     
     exper = subData.exper;
