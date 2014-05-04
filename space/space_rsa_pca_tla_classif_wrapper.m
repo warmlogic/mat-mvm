@@ -74,8 +74,8 @@ subjects = {
   'SPACE036';
   };
 
-% % only one cell, with all session names
-% sesNames = {'session_1'};
+% only one cell, with all session names
+sesNames = {'session_1'};
 
 %% set up for running stages and specifics for Dream
 
@@ -113,8 +113,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    %stageFun{i}(expName,saveDirProc,subjects,sesNames,runLocally,timeOut{i});
-    stageFun{i}(expName,saveDirProc,subjects,runLocally,timeOut{i});
+    stageFun{i}(expName,saveDirProc,subjects,sesNames,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -131,8 +130,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%function stage1(expName,saveDirProc,subjects,sesNames,runLocally,timeOut)
-function stage1(expName,saveDirProc,subjects,runLocally,timeOut)
+function stage1(expName,saveDirProc,subjects,sesNames,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -148,17 +146,17 @@ if runLocally == 0
   %allSubjects = subjects;
   
   for i = 1:length(subjects)
-    fprintf('Processing %s...\n',subjects{i});
-    
     % Dream: create one task for each subject
-    thisSub = subjects(i);
+    thisSub = subjects{i};
+    thisSes = sesNames{1};
+    
+    fprintf('Processing %s %s...\n',thisSub,thisSes);
     
     % inArg = {ana,cfg_pp,exper,dirs,files};
     % save the exper struct (output 1) so we can use it later
     %createTask(job,@create_ft_struct_multiSes,1,inArg);
     
-    %inArg = {thisSub,sesNames};
-    inArg = {thisSub};
+    inArg = {thisSub,thisSes};
     createTask(job,@space_rsa_pca_tla_classif_cluster,0,inArg);
     
   end
@@ -181,8 +179,7 @@ else
   %ana.usePeer = 0;
   
   % Local: run all the subjects
-  %space_rsa_pca_tla_classif_cluster(subjects,sesNames);
-  space_rsa_pca_tla_classif_cluster(subjects);
+  space_rsa_pca_tla_classif_cluster(subjects,sesNames);
   
 %   % save the analysis details; overwrite if it already exists
 %   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));

@@ -1,8 +1,16 @@
-function space_rsa_pca_tla_classif_cluster(subjects)
+function space_rsa_pca_tla_classif_cluster(subjects,sesNames)
 
 % space RSA
 
 %% load the analysis details
+
+% make sure these are cell arrays
+if ~iscell(subjects)
+  subjects = {subjects};
+end
+if ~iscell(sesNames)
+  sesNames = {sesNames};
+end
 
 subDir = '';
 dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
@@ -73,7 +81,7 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 %   };
 
 % % only one cell, with all session names
-sesNames = {'session_1'};
+% sesNames = {'session_1'};
 
 allowRecallSynonyms = true;
 
