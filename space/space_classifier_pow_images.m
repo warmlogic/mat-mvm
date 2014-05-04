@@ -506,9 +506,12 @@ window_spacing = 0.2;
 
 latencies = [classif_start:window_spacing:(classif_end - classif_width); (classif_start+classif_width):window_spacing:classif_end]';
 
-% freqs = [3 50];
+% latencies = [0 0.8];
+% latencies = [0.2 0.3];
 
-freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
+% freqs = [3 50];
+% freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
+freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 
 avgoverfreq = 'yes';
 avgoverchan = 'no';
@@ -537,7 +540,7 @@ alpha = 0.2;
 % train on expo faces and houses
 dataTypes_train = {'Face', 'House'};
 equateTrainTrials = true;
-standardizeTrain = true;
+standardizeTrain = false;
 
 train_categNumCol = 7;
 
@@ -547,7 +550,7 @@ train_categNumCol = 7;
 dataTypes_test = {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1', 'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1', ...
   'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'};
 equateTestTrials = false;
-standardizeTest = true;
+standardizeTest = false;
 standardizeTestSeparately = false;
 
 test_sesName = 'oneDay';
