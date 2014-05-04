@@ -98,13 +98,19 @@ end
 
 %% set up fieldtrip path
 
-%ftDir = dir(fullfile(myMatlabDir,'fieldtrip-*'));
-%if ~isempty(ftDir)
-
+% find the right FT directory
 ftDir = fullfile(myMatlabDir,'fieldtrip');
+if ~exist(ftDir,'dir')
+  ftDir = dir(fullfile(myMatlabDir,'fieldtrip-*'));
+  if ~isempty(ftDir)
+    ftDir = fullfile(myMatlabDir,ftDir.name);
+  else
+    warning('No FieldTrip directory found!');
+    ftDir = fullfile(myMatlabDir,'fieldtrip');
+  end
+end
+
 if exist(ftDir,'dir')
-  %ftDir = fullfile(myMatlabDir,ftDir.name);
-  
   % add only the top folder
   addpath(ftDir);
   % add the subdirectories that FT needs
