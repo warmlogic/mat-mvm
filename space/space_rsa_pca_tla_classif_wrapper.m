@@ -104,7 +104,7 @@ end
 
 %capture diary and time statistics
 thisRun = [expName,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
-diary(fullfile(dirs.saveDirProc,[thisRun '.log']));
+diary(fullfile(saveDirProc,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
 for i = STAGES
@@ -139,7 +139,7 @@ if runLocally == 0
   %% Dream: create one task for each subject (i.e., submit one to each node)
   
   % start a new job
-  job = newJob(dirs);
+  job = newJob([]);
   
   % save the original subjects array so we can set exper to have single
   % subjects, one for each task created
@@ -211,7 +211,11 @@ if verLessThan('matlab','8.3')
   homeDir = getenv('HOME');
   myMatlabDir = fullfile(homeDir,'Documents','MATLAB');
   p = path();
-  set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p, dirs.dataroot});
+  if ~isempty(dirs)
+    set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p, dirs.dataroot});
+  else
+    set(job, 'PathDependencies', {homeDir, myMatlabDir, pwd(), p});
+  end
 end
 
 function runJob( job, timeOut, logFile )
