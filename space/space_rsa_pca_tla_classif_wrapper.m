@@ -103,7 +103,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %capture diary and time statistics
-thisRun = [exper.name,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
+thisRun = [expName,'_overview_',datestr(now,'ddmmmyyyy-HHMMSS')];
 diary(fullfile(dirs.saveDirProc,[thisRun '.log']));
 tStart = tic;
 fprintf('START TIME: %s\n',datestr(now,13));
