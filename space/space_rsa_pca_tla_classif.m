@@ -713,6 +713,11 @@ load(rsaFile);
 
 plotit = false;
 
+noNans = true(length(exper.subjects),length(exper.sesStr));
+
+nTrialThresh = 6;
+passTrlThresh = true(length(exper.subjects),length(exper.sesStr));
+
 mean_similarity = struct;
 for d = 1:length(dataTypes)
   mean_similarity.(dataTypes{d}) = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
@@ -722,15 +727,23 @@ for d = 1:length(dataTypes)
       for ses = 1:length(exper.sesStr)
         
         % Average Pres1--Pres2 similarity
-        mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
-        %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
-        
-        if plotit
-          figure
-          imagesc(similarity_all{sub,ses,d,lat});
-          colorbar;
-          axis square;
-          title(sprintf('%s, %.2f to %.2f',strrep(dataTypes{d},'_','-'),latencies(lat,1),latencies(lat,2)));
+        if ~isempty(diag(similarity_all{sub,ses,d,lat}))
+          if similarity_ntrials(sub,ses,d,lat) < nTrialThresh
+            passTrlThresh(sub,ses) = false;
+          end
+          
+          mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
+          %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
+          
+          if plotit
+            figure
+            imagesc(similarity_all{sub,ses,d,lat});
+            colorbar;
+            axis square;
+            title(sprintf('%s, %.2f to %.2f',strrep(dataTypes{d},'_','-'),latencies(lat,1),latencies(lat,2)));
+          end
+        else
+          noNans(sub,ses) = false;
         end
       end
     end
@@ -755,13 +768,13 @@ end
 %   0 0.8; 0.1 0.9; 0.2 1.0];
 
 % 0 to 1, in 200 ms chunks
-latInd = [1 5];
+% latInd = [1 5];
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6 9];
 
 % % 0-0.3, 0.3-0.6, 0.6-0.9
-% latInd = [10 12];
+latInd = [10 12];
 
 % % 0-0.5, 0.5-1
 % latInd = [13 14];
@@ -778,6 +791,7 @@ fprintf('Latency: %.1f-%.1f\n\n',latencies(latInd(1),1),latencies(latInd(2),2));
 anovaData = [];
 
 for sub = 1:length(exper.subjects)
+  if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
     for ses = 1:length(exper.sesStr)
       theseData = [];
       
@@ -788,16 +802,21 @@ for sub = 1:length(exper.subjects)
       end
     end
     anovaData = cat(1,anovaData,theseData);
+  end
 end
 
 latStr = cell(1,length(latInd(1):latInd(2)));
 for i = 1:length(latStr)
   latStr{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
 end
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
 
-varnames = {'stimType','subseqMem','spacing','time'};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
+% varnames = {'stimType','subseqMem','spacing','time'};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+
+levelnames = {{'rc', 'fo'}, {'spac','mass'}, latStr};
+varnames = {'subseqMem','spacing','time'};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
 fprintf('Latency: %.1f-%.1f\n',latencies(latInd(1),1),latencies(latInd(2),2));
 fprintf('=======================================\n\n');
@@ -816,7 +835,7 @@ fprintf('=======================================\n\n');
 %   0 0.8; 0.1 0.9; 0.2 1.0];
 
 % 0-0.5
-lat = 13;
+% lat = 13;
 % % 0.5-1.0
 % lat = 14;
 
@@ -828,7 +847,7 @@ lat = 13;
 % % 0.1-0.7
 % lat = 17;
 % % 0.2-0.8
-% lat = 18;
+lat = 18;
 % % 0.3-0.9
 % lat = 19;
 % % 0.4-1.0
@@ -847,6 +866,8 @@ fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
 anovaData = [];
 
 for sub = 1:length(exper.subjects)
+  if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
+%   if all(noNans(sub,:))
     for ses = 1:length(exper.sesStr)
       theseData = [];
       
@@ -855,12 +876,18 @@ for sub = 1:length(exper.subjects)
       end
     end
     anovaData = cat(1,anovaData,theseData);
+  end
 end
 
 % no time dimension
-varnames = {'stimType','subseqMem','spacing'};
-levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+
+% varnames = {'stimType','subseqMem','spacing'};
+% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+
+varnames = {'subseqMem','spacing'};
+levelnames = {{'rc', 'fo'}, {'spac','mass'}};
+O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
 
 
 fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
