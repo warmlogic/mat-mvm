@@ -28,6 +28,10 @@ end
 
 expName = 'SPACE';
 
+% saveDirProc = getenv('HOME');
+% saveDirProc = fullfile(filesep,'data','projects','curranlab',expName);
+saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+
 runLocally = 0;
 
 subjects = {
@@ -109,7 +113,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    stageFun{i}(expName,subjects,sesNames,runLocally,timeOut{i});
+    stageFun{i}(expName,saveDirProc,subjects,sesNames,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -126,12 +130,9 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function stage1(expName,subjects,sesNames,runLocally,timeOut)
+function stage1(expName,saveDirProc,subjects,sesNames,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
-
-% saveDirProc = getenv('HOME');
-saveDirProc = fullfile(filesep,'data','projects','curranlab',expName);
 
 %% Process the data
 if runLocally == 0
