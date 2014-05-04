@@ -704,6 +704,11 @@ end
 saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
+%% load
+
+rsaFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_tla_classif_CV85_center109_23lat_noAvgT_cluster.mat';
+load(rsaFile);
+
 %% stats
 
 plotit = false;
