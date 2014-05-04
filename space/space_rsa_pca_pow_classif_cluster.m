@@ -406,7 +406,7 @@ for sub = 1:length(subjects_all)
       % get the category number for each training image
       imageCategory_train = [];
       for dt = 1:length(dataTypes_train)
-        imageCategory_train = cat(1,imageCategory_train,data_pow.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data.trialinfo(trlIndTrain{dt},train_categNumCol));
+        imageCategory_train = cat(1,imageCategory_train,data_pow.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data.trialinfo(trlIndTrain{dt},categNumCol));
       end
       
       for lat = 1:size(latencies,1)
