@@ -90,6 +90,9 @@ for sub = 1:length(subjects)
   end
 end
 
+exper.subjects = subjects;
+exper.sesNames = sesNames;
+
 saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_cluster.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime));
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
