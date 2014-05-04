@@ -330,6 +330,7 @@ cfg_sel = [];
 % cfg_sel.latency = [0 0.8];
 % cfg_sel.latency = [0.4 0.6];
 % cfg_sel.avgoverfreq = 'yes';
+cfg_sel.avgoverchan = 'no';
 cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'no';
 
