@@ -396,6 +396,7 @@ stimNumCol = 6;
 categNumCol = 7;
 % pairNumCol = 13;
 
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
@@ -695,7 +696,11 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+if iscell(thisROI)
+  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+elseif ischar(thisROI)
+  roi_str = thisROI;
+end
 saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
