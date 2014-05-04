@@ -1,4 +1,4 @@
-function space_rsa_pca_tla_classif_cluster(subjects,sesNames)
+function space_rsa_pca_tla_classif_cluster(subjects)
 
 % space RSA
 
@@ -73,7 +73,7 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 %   };
 
 % % only one cell, with all session names
-% sesNames = {'session_1'};
+sesNames = {'session_1'};
 
 allowRecallSynonyms = true;
 

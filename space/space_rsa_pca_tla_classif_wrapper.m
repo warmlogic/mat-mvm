@@ -74,8 +74,8 @@ subjects = {
   'SPACE036';
   };
 
-% only one cell, with all session names
-sesNames = {'session_1'};
+% % only one cell, with all session names
+% sesNames = {'session_1'};
 
 %% set up for running stages and specifics for Dream
 
@@ -113,7 +113,8 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    stageFun{i}(expName,saveDirProc,subjects,sesNames,runLocally,timeOut{i});
+    %stageFun{i}(expName,saveDirProc,subjects,sesNames,runLocally,timeOut{i});
+    stageFun{i}(expName,saveDirProc,subjects,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -130,7 +131,8 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function stage1(expName,saveDirProc,subjects,sesNames,runLocally,timeOut)
+%function stage1(expName,saveDirProc,subjects,sesNames,runLocally,timeOut)
+function stage1(expName,saveDirProc,subjects,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -143,19 +145,20 @@ if runLocally == 0
   
   % save the original subjects array so we can set exper to have single
   % subjects, one for each task created
-  allSubjects = subjects;
+  %allSubjects = subjects;
   
-  for i = 1:length(allSubjects)
-    fprintf('Processing %s...\n',allSubjects{i});
+  for i = 1:length(subjects)
+    fprintf('Processing %s...\n',subjects{i});
     
     % Dream: create one task for each subject
-    thisSub = allSubjects(i);
+    thisSub = subjects(i);
     
     % inArg = {ana,cfg_pp,exper,dirs,files};
     % save the exper struct (output 1) so we can use it later
     %createTask(job,@create_ft_struct_multiSes,1,inArg);
     
-    inArg = {thisSub,sesNames};
+    %inArg = {thisSub,sesNames};
+    inArg = {thisSub};
     createTask(job,@space_rsa_pca_tla_classif_cluster,0,inArg);
     
   end
@@ -178,7 +181,8 @@ else
   %ana.usePeer = 0;
   
   % Local: run all the subjects
-  space_rsa_pca_tla_classif_cluster(subjects,sesNames);
+  %space_rsa_pca_tla_classif_cluster(subjects,sesNames);
+  space_rsa_pca_tla_classif_cluster(subjects);
   
 %   % save the analysis details; overwrite if it already exists
 %   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
