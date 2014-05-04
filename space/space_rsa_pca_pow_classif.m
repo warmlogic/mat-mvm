@@ -426,21 +426,27 @@ for sub = 1:length(subjects_all)
           
           % get the first frequency
           cfg_sel.foilim = freqs(1,:);
-          allFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+          thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+          
+          dat_train_d = thisFreq.(parameter);
           
           for f = 2:size(freqs,1)
             cfg_sel.foilim = freqs(f,:);
             
             % select the data
             thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
-            cfg_app = [];
-            cfg_app.parameter = parameter;
-            allFreq = ft_appendfreq(cfg_app,allFreq,thisFreq);
+            
+            dat_train_d = cat(3,dat_train_d,thisFreq.(parameter));
+            
+            %cfg_app = [];
+            %cfg_app.parameter = parameter;
+            %allFreq = ft_appendfreq(cfg_app,allFreq,thisFreq);
           end
           
-          dat_train = cat(1,dat_train,allFreq.(parameter));
+          dat_train = cat(1,dat_train,dat_train_d);
         end
-        clear allFreq thisFreq
+        %clear allFreq thisFreq
+        clear thisFreq dat_train_d
         
         dim = size(dat_train);
         dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
@@ -497,18 +503,20 @@ for sub = 1:length(subjects_all)
             
             cfg_sel.foilim = freqs(1,:);
             data_p1 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data);
+            data_p1 = data_p1.(parameter);
             for f = 2:size(freqs,1)
               cfg_sel.foilim = freqs(f,:);
               
               % select the data
               thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data);
-              cfg_app = [];
-              cfg_app.parameter = parameter;
-              data_p1 = ft_appendfreq(cfg_app,data_p1,thisFreq);
+              data_p1 = cat(3,data_p1,thisFreq.(parameter));
+              %cfg_app = [];
+              %cfg_app.parameter = parameter;
+              %data_p1 = ft_appendfreq(cfg_app,data_p1,thisFreq);
             end
             clear thisFreq
-            data_p1 = data_p1.(parameter);
-            dim = size(dat1);
+            %data_p1 = data_p1.(parameter);
+            dim = size(data_p1);
             data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
             
             Z = facehouse.test(zscore(data_p1));
@@ -528,18 +536,20 @@ for sub = 1:length(subjects_all)
             
             cfg_sel.foilim = freqs(1,:);
             data_p2 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data);
+            data_p2 = data_p2.(parameter);
             for f = 2:size(freqs,1)
               cfg_sel.foilim = freqs(f,:);
               
               % select the data
               thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data);
-              cfg_app = [];
-              cfg_app.parameter = parameter;
-              data_p2 = ft_appendfreq(cfg_app,data_p2,thisFreq);
+              data_p2 = cat(3,data_p2,thisFreq.(parameter));
+              %cfg_app = [];
+              %cfg_app.parameter = parameter;
+              %data_p2 = ft_appendfreq(cfg_app,data_p2,thisFreq);
             end
             clear thisFreq
-            data_p2 = data_p2.(parameter);
-            dim = size(dat1);
+            %data_p2 = data_p2.(parameter);
+            dim = size(data_p2);
             data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
             
 %             dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
