@@ -43,6 +43,7 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
+thisDate = '04-May-2014';
 thisROI = {'center109'};
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -52,6 +53,7 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0];
 
+% thisDate = '04-May-2014';
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 %   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -80,8 +82,6 @@ similarity_ntrials = nan(length(subjects),length(sesNames),length(dataTypes),siz
 
 expName = 'SPACE';
 saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
-
-thisDate = '04-May-2014';
 
 for sub = 1:length(subjects)
   for ses = 1:length(sesNames)
