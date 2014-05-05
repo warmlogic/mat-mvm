@@ -64,8 +64,8 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0];
 
+avgovertime = 'yes';
 avgoverfreq = 'yes';
-avgovertime = 'no';
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
@@ -112,5 +112,5 @@ exper.sesNames = sesNames;
 
 saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_pow_classif_%s_%s_%dlat_%sAvgT_%sAvgF_cluster.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq));
 fprintf('Saving %s...\n',saveFile);
-save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
 fprintf('Done.\n');
