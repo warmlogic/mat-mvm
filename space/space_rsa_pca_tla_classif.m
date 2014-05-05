@@ -706,7 +706,32 @@ save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies
 
 %% load
 
-rsaFile = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_tla_classif_CV85_center109_23lat_noAvgT_cluster.mat';
+% thisROI = {'center109'};
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0];
+
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+  0 0.3; 0.3 0.6; 0.6 0.9; ...
+  0 0.5; 0.5 1.0; ...
+  0.3 0.8; ...
+  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+  0 0.8; 0.1 0.9; 0.2 1.0;
+  0 1.0];
+
+if iscell(thisROI)
+  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+elseif ischar(thisROI)
+  roi_str = thisROI;
+end
+
+rsaFile = sprintf('/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_tla_classif_CV85_%s_%dlat_noAvgT_cluster.mat',roi_str,size(latencies,1));
 load(rsaFile);
 
 %% stats
@@ -715,7 +740,7 @@ plotit = false;
 
 noNans = true(length(exper.subjects),length(exper.sesStr));
 
-nTrialThresh = 6;
+nTrialThresh = 4;
 passTrlThresh = true(length(exper.subjects),length(exper.sesStr));
 
 mean_similarity = struct;
@@ -753,6 +778,7 @@ end
 
 % disp(mean_similarity);
 
+fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & passTrlThresh));
 
 %% RMANOVA
 
@@ -774,10 +800,10 @@ end
 % latInd = [6 9];
 
 % % 0-0.3, 0.3-0.6, 0.6-0.9
-latInd = [10 12];
+% latInd = [10 12];
 
-% % 0-0.5, 0.5-1
-% latInd = [13 14];
+% % 0-0.5, 0.5-1 *****
+latInd = [13 14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16 20];
@@ -846,12 +872,12 @@ fprintf('=======================================\n\n');
 % lat = 16;
 % % 0.1-0.7
 % lat = 17;
-% % 0.2-0.8
-lat = 18;
+% % 0.2-0.8 ***
+% lat = 18;
 % % 0.3-0.9
 % lat = 19;
-% % 0.4-1.0
-% lat = 20;
+% % 0.4-1.0 **
+lat = 20;
 
 % % 0-0.8
 % lat = 21;
@@ -888,7 +914,6 @@ end
 varnames = {'subseqMem','spacing'};
 levelnames = {{'rc', 'fo'}, {'spac','mass'}};
 O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
-
 
 fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
 fprintf('=======================================\n\n');
