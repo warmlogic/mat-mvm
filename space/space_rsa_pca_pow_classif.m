@@ -100,7 +100,8 @@ classifRequireP2 = true;
 parameter = 'powspctrm';
 
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
-freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
+% freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
+freqs = [4 8; 8 12; 12 30; 30 50];
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -801,7 +802,7 @@ if iscell(thisROI)
 elseif ischar(thisROI)
   roi_str = thisROI;
 end
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%dlat_%sAvgT_%sAvgF_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s.mat',eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
 save(saveFile,'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
 
 %% load
