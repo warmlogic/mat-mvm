@@ -150,7 +150,7 @@ cfg_sel = [];
 % cfg_sel.latency = [0.4 0.6];
 cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgoverchan = 'no';
-% cfg_sel.avgovertime = 'yes';
+% cfg_sel.avgovertime = 'no';
 cfg_sel.avgovertime = 'yes';
 
 % % keep components with eigenvalue >= 1
