@@ -741,7 +741,7 @@ plotit = false;
 
 noNans = true(length(exper.subjects),length(exper.sesStr));
 
-nTrialThresh = 4;
+nTrialThresh = 3;
 passTrlThresh = true(length(exper.subjects),length(exper.sesStr));
 
 mean_similarity = struct;
