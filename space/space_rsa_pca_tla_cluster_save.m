@@ -85,7 +85,13 @@ thisDate = '03-May-2014';
 for sub = 1:length(subjects)
   for ses = 1:length(sesNames)
     savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),avgovertime,thisDate));
-    subData = load(savedFile);
+    if exist(savedFile,'file')
+      fprintf('Loading %s...\n',savedFile);
+      subData = load(savedFile);
+      fprintf('Done.\n');
+    else
+      error('Does not exist: %s',savedFile);
+    end
     
     exper = subData.exper;
     cfg_sel = subData.cfg_sel;
@@ -104,5 +110,7 @@ exper.subjects = subjects;
 exper.sesNames = sesNames;
 
 saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_cluster.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime));
+fprintf('Saving %s...\n',saveFile);
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+fprintf('Done.\n');
 
