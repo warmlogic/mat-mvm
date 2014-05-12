@@ -64,6 +64,9 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0];
 
+freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
+% freqs = [4 8; 8 12; 12 30; 30 50];
+
 avgovertime = 'yes';
 avgoverfreq = 'yes';
 
@@ -85,7 +88,7 @@ saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessio
 
 for sub = 1:length(subjects)
   for ses = 1:length(sesNames)
-    savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_pow_classif_%s_%s_%dlat_%sAvgT_%sAvgF_%s.mat',eig_criterion,roi_str,size(latencies,1),avgovertime,avgoverfreq,thisDate));
+    savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_pow_classif_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s.mat',eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,avgoverfreq,thisDate));
     if exist(savedFile,'file')
       fprintf('Loading %s...\n',savedFile);
       subData = load(savedFile);
