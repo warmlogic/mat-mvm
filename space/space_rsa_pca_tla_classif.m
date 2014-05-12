@@ -445,10 +445,8 @@ for sub = 1:length(exper.subjects)
             feature_vectors = data_pcaspace(:, crit_eig);
             
             %%%%%%
-            % more feature selection done here?
+            % more feature selection done here? use dummy selection for now
             %%%%%%
-            
-            % dummy selection for now
             select_inds = true(1, size(feature_vectors, 2));
             
             evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
@@ -679,9 +677,9 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2','~/Desktop/similarity_spacXsm.eps');
+% print(gcf,'-depsc2','~/Desktop/similarity_spacXsm.eps');
 
-%% plot RSA spacing x subsequent memory interaction
+%% plot RSA spacing x time interaction
 
 latInd = [13 14];
 theseSub = noNans & passTrlThresh;
@@ -747,8 +745,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2','~/Desktop/similarity_spacXtime.eps');
-
+% print(gcf,'-depsc2','~/Desktop/similarity_spacXtime.eps');
 
 %% RMANOVA - no time dimension
 
