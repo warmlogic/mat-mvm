@@ -313,11 +313,8 @@ for sub = 1:length(exper.subjects)
         end
         
         fprintf('\t\tTraining classifier...');
-        %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
         facehouse = dml.enet('family','binomial','alpha',alpha);
         facehouse = facehouse.train(dat_train,imageCategory_train);
-        %facehouse_svm = dml.svm;
-        %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
         fprintf('Done.\n');
         
         for d = 1:length(dataTypes)
