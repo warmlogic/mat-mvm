@@ -529,7 +529,11 @@ for d = 1:length(dataTypes)
             passTrlThresh(sub,ses) = false;
           end
           
+          % zscore? values are essentially at zero
+          %mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(zscore(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
+          
           mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
+          
           %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
           
           if plotit
