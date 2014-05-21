@@ -192,14 +192,18 @@ classifRequireP2 = true;
 
 parameter = 'trial';
 
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-  0 0.3; 0.3 0.6; 0.6 0.9; ...
-  0 0.5; 0.5 1.0; ...
-  0.3 0.8; ...
-  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-  0 0.8; 0.1 0.9; 0.2 1.0;
-  0 1.0];
+accurateClassifSelect = false;
+
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
+
+latencies = [0 0.5; 0.5 1.0];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
@@ -255,22 +259,24 @@ for sub = 1:length(exper.subjects)
     if ~exper.badSub(sub,ses)
       fprintf('\t%s %s...\n',exper.subjects{sub},exper.sesStr{ses});
       
-      % equate the training categories
-      trlIndTrain = cell(length(dataTypes_train),1);
-      if equateTrainTrials
-        nTrainTrial = nan(length(dataTypes_train),1);
-        for dt = 1:length(dataTypes_train)
-          nTrainTrial(dt) = size(data_tla.(sesStr).(dataTypes_train{dt}).sub(sub).data.(parameter),1);
-        end
-        fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
-        for dt = 1:length(dataTypes_train)
-          trlInd = randperm(nTrainTrial(dt));
-          trlIndTrain{dt,1} = sort(trlInd(1:min(nTrainTrial)));
-        end
-      else
-        fprintf('\tNot equating training category trial counts.\n');
-        for dt = 1:length(dataTypes_train)
-          trlIndTrain{dt,1} = 'all';
+      if accurateClassifSelect
+        % equate the training categories
+        trlIndTrain = cell(length(dataTypes_train),1);
+        if equateTrainTrials
+          nTrainTrial = nan(length(dataTypes_train),1);
+          for dt = 1:length(dataTypes_train)
+            nTrainTrial(dt) = size(data_tla.(sesStr).(dataTypes_train{dt}).sub(sub).data.(parameter),1);
+          end
+          fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
+          for dt = 1:length(dataTypes_train)
+            trlInd = randperm(nTrainTrial(dt));
+            trlIndTrain{dt,1} = sort(trlInd(1:min(nTrainTrial)));
+          end
+        else
+          fprintf('\tNot equating training category trial counts.\n');
+          for dt = 1:length(dataTypes_train)
+            trlIndTrain{dt,1} = 'all';
+          end
         end
       end
       
@@ -279,43 +285,48 @@ for sub = 1:length(exper.subjects)
         cfg_sel.latency = latencies(lat,:);
         cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
         
-        % select the training data
-        data_train = struct;
-        
-        % select the data
-        for dt = 1:length(dataTypes_train)
-          cfg_sel.trials = trlIndTrain{dt};
-          data_train.(dataTypes_train{dt}) = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data);
-        end
-        
-        % get the category number for each training image
-        imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,categNumCol);
-        for dt = 2:length(dataTypes_train)
-          imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{dt}).trialinfo(:,categNumCol));
-        end
-        
-        % concatenate the data
-        dat_train = data_train.(dataTypes_train{1}).(parameter);
-        for dt = 2:length(dataTypes_train)
-          dat_train = cat(1,dat_train,data_train.(dataTypes_train{dt}).(parameter));
-        end
-        
-        dim = size(dat_train);
-        dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
-        
-        if standardizeTrain
-          fprintf('\t\tStandardizing the training data...');
+        if accurateClassifSelect
+          % select the training data
+          data_train = struct;
           
-          m = dml.standardizer;
-          m = m.train(dat_train);
-          dat_train = m.test(dat_train);
+          % select the data
+          for dt = 1:length(dataTypes_train)
+            cfg_sel.trials = trlIndTrain{dt};
+            data_train.(dataTypes_train{dt}) = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data);
+          end
+          
+          % get the category number for each training image
+          imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,categNumCol);
+          for dt = 2:length(dataTypes_train)
+            imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{dt}).trialinfo(:,categNumCol));
+          end
+          
+          % concatenate the data
+          dat_train = data_train.(dataTypes_train{1}).(parameter);
+          for dt = 2:length(dataTypes_train)
+            dat_train = cat(1,dat_train,data_train.(dataTypes_train{dt}).(parameter));
+          end
+          
+          dim = size(dat_train);
+          dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
+          
+          if standardizeTrain
+            fprintf('\t\tStandardizing the training data...');
+            
+            m = dml.standardizer;
+            m = m.train(dat_train);
+            dat_train = m.test(dat_train);
+            fprintf('Done.\n');
+          end
+          
+          fprintf('\t\tTraining classifier...');
+          %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
+          facehouse = dml.enet('family','binomial','alpha',alpha);
+          facehouse = facehouse.train(dat_train,imageCategory_train);
+          %facehouse_svm = dml.svm;
+          %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
           fprintf('Done.\n');
         end
-        
-        fprintf('\t\tTraining classifier...');
-        facehouse = dml.enet('family','binomial','alpha',alpha);
-        facehouse = facehouse.train(dat_train,imageCategory_train);
-        fprintf('Done.\n');
         
         for d = 1:length(dataTypes)
           dataType = dataTypes{d};
@@ -343,48 +354,50 @@ for sub = 1:length(exper.subjects)
             end
           end
           
-          % attempt to classifiy exposure trials
-          probabilityClassP1 = nan(length(p1_ind),2);
-          correctClassP1 = true(size(p1_ind));
-          if classifRequireP1
-            for p = 1:length(p1_ind)
-              cfg_sel.trials = p1_ind(p);
-              dat1 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data);
-              data_p1 = dat1.(parameter);
-              dim = size(data_p1);
-              data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
-              
-              Z = facehouse.test(zscore(data_p1));
-              probabilityClassP1(p,:) = Z;
-              
-              [Y,I] = max(Z,[],2);
-              
-              correctClassP1(p) = I == imageCategory_test(p);
+          if accurateClassifSelect
+            % attempt to classifiy exposure trials
+            probabilityClassP1 = nan(length(p1_ind),2);
+            correctClassP1 = true(size(p1_ind));
+            if classifRequireP1
+              for p = 1:length(p1_ind)
+                cfg_sel.trials = p1_ind(p);
+                dat1 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data);
+                data_p1 = dat1.(parameter);
+                dim = size(data_p1);
+                data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
+                
+                Z = facehouse.test(zscore(data_p1));
+                probabilityClassP1(p,:) = Z;
+                
+                [Y,I] = max(Z,[],2);
+                
+                correctClassP1(p) = I == imageCategory_test(p);
+              end
             end
-          end
-          
-          probabilityClassP2 = nan(length(p1_ind),2);
-          correctClassP2 = true(size(p2_ind));
-          if classifRequireP2
-            for p = 1:length(p2_ind)
-              cfg_sel.trials = p2_ind(p);
-              dat2 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
-              data_p2 = dat2.(parameter);
-              dim = size(data_p2);
-              data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
-              
-              Z = facehouse.test(zscore(data_p2));
-              probabilityClassP2(p,:) = Z;
-              
-              [Y,I] = max(Z,[],2);
-              
-              correctClassP2(p) = I == imageCategory_test(p);
+            
+            probabilityClassP2 = nan(length(p1_ind),2);
+            correctClassP2 = true(size(p2_ind));
+            if classifRequireP2
+              for p = 1:length(p2_ind)
+                cfg_sel.trials = p2_ind(p);
+                dat2 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
+                data_p2 = dat2.(parameter);
+                dim = size(data_p2);
+                data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
+                
+                Z = facehouse.test(zscore(data_p2));
+                probabilityClassP2(p,:) = Z;
+                
+                [Y,I] = max(Z,[],2);
+                
+                correctClassP2(p) = I == imageCategory_test(p);
+              end
             end
+            
+            % only compare these trials
+            p1_ind = p1_ind(correctClassP1 & correctClassP2);
+            p2_ind = p2_ind(correctClassP1 & correctClassP2);
           end
-          
-          % only compare these trials
-          p1_ind = p1_ind(correctClassP1 & correctClassP2);
-          p2_ind = p2_ind(correctClassP1 & correctClassP2);
           
           if ~isempty(p1_ind) && ~isempty(p2_ind)
             
@@ -468,12 +481,18 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
+if accurateClassifSelect
+  classif_str = 'classif';
+else
+  classif_str = 'noClassif';
+end
+
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
   roi_str = thisROI;
 end
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%dlat_%sAvgT_%s.mat',classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
 %% load
@@ -529,11 +548,7 @@ for d = 1:length(dataTypes)
             passTrlThresh(sub,ses) = false;
           end
           
-          % zscore? values are essentially at zero
-          %mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(zscore(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
-          
           mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
-          
           %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
           
           if plotit
