@@ -298,8 +298,25 @@ ana.eventValues = ana.eventValuesSplit;
 % exper.badBehSub = {{}};
 exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
 
+evToCheck = { ...
+  { ...
+  { ...
+  'img_onePres' ...
+  'img_RgH_rc_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_spac_p2','img_RgH_fo_mass_p2' ...
+  %'img_RgH_rc_spac_p1','img_RgH_rc_mass_p1','img_RgH_fo_spac_p1','img_RgH_fo_mass_p1' ...
+  %'img_RgM_spac_p1,'img_RgM_mass_p1'','img_RgM_spac_p2','img_RgM_mass_p2' ...
+  } ...
+  { ...
+  'word_onePres' ...
+  'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_spac_p2','word_RgH_fo_mass_p2' ...
+  %'word_RgH_rc_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_spac_p1','word_RgH_fo_mass_p1' ...
+  %'word_RgM_spac_p1','word_RgM_mass_p1','word_RgM_spac_p2','word_RgM_mass_p2' ...
+  } ...
+  } ...
+  };
+
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,9,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
@@ -414,26 +431,26 @@ for ses = 1:length(exper.sesStr)
   end
 end
 
-% turn keeptrial data into average for statistical functions because proper
-% processing of dimord is currently broken
-
-data_tla_avg = struct;
-
-cfg = [];
-cfg.keeptrials = 'no';
-
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-        if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'avg')
-          data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-        end
-      end
-    end
-  end
-end
+% % turn keeptrial data into average for statistical functions because proper
+% % processing of dimord is currently broken
+% 
+% data_tla_avg = struct;
+% 
+% cfg = [];
+% cfg.keeptrials = 'no';
+% 
+% for ses = 1:length(exper.sesStr)
+%   for typ = 1:length(ana.eventValues{ses})
+%     for evVal = 1:length(ana.eventValues{ses}{typ})
+%       for sub = 1:length(exper.subjects)
+%         fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+%         if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'avg')
+%           data_tla_avg.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_timelockanalysis(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+%         end
+%       end
+%     end
+%   end
+% end
 
 %% lowpass filter and segment for ERPs
 
@@ -489,17 +506,17 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-cfg_plot.rois = {{'LAS'},{'RAS'}};
-cfg_plot.ylims = [-4 2; -4 2];
-cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+% cfg_plot.rois = {{'LAS'},{'RAS'}};
+% cfg_plot.ylims = [-4 2; -4 2];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 % cfg_plot.rois = {{'FC'},{'FS'}};
 % cfg_plot.ylims = [-4 2; -4 2];
 % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-% cfg_plot.rois = {{'LPS'},{'RPS'}};
-% cfg_plot.ylims = [-1 4; -1 4];
-% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.ylims = [-1 4; -1 4];
+cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
 % cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
 % cfg_plot.ylims = [-3 2; -2 3; -1 4];
@@ -750,13 +767,19 @@ cfg_plot.excludeBadSub = 1;
 %%%%%%%%%%%%%%%
 
 cfg_plot.ftFxn = 'ft_singleplotER';
+cfg_plot.rois = {{'LPS','RPS'}};
+cfg_plot.ylims = [-2 5];
 % cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
-cfg_plot.rois = {{'PI'}};
-cfg_plot.ylims = [-2 3];
+% cfg_plot.rois = {{'PI'}};
+
+% cfg_plot.rois = {{'LPI2'}};
+% cfg_plot.ylims = [-3 3];
+
 % cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
-cfg_plot.x_bounds = [0.13 0.19];
+% cfg_plot.x_bounds = [0.13 0.19];
+cfg_plot.x_bounds = [0.14 0.2];
 cfg_plot.plotLegend = 1;
 cfg_plot.legendlocs = {'NorthWest'};
 
@@ -765,12 +788,16 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
 % cfg_plot.ylabel = '';
 
-% cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-6 6];
+cfg_plot.ftFxn = 'ft_topoplotER';
+% cfg_plot.ylims = [-2 2];
 % %cfg_plot.ylims = 'maxmin';
-% %cfg_ft.marker = 'on';
+cfg_ft.marker = 'off';
 % cfg_ft.marker = 'labels';
 % cfg_ft.markerfontsize = 9;
+
+% cfg_ft.xlim = [0.13 0.19];
+cfg_ft.xlim = [0:0.1:1.0];
+
 % %cfg_ft.comment = 'no';
 % % cfg_plot.rois = {'all'};
 % % cfg_ft.xlim = [0 1.2]; % time
@@ -932,6 +959,10 @@ cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_ana.rois = {{'FC'}};
 cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
 
+% cfg_ana.rois = {{'LPI2'}};
+% % cfg_ana.rois = {{'E70','E71','E66','E75','E83','E76','E84'}};
+% cfg_ana.latencies = [0.14 0.2];
+
 % cfg_ana.rois = {{'PI'}};
 % % cfg_ana.rois = {{'E70','E71','E66','E75','E83','E76','E84'}};
 % cfg_ana.latencies = [0.13 0.19];
@@ -993,6 +1024,8 @@ for r = 1:length(cfg_ana.rois)
   % use data_tla_avg because FieldTrip doesn't deal with dimord properly
   % when single-trials exist
   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,data_tla_avg,sesNum);
+  
+%   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 end
 
 %% output some values
