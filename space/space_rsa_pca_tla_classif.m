@@ -203,6 +203,8 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0];
 
+latencies = [0.0 0.5; 0.5 1.0];
+
 % column numbers in trialinfo
 % trialNumCol = 5;
 phaseCountCol = 4;
@@ -326,155 +328,251 @@ for sub = 1:length(exper.subjects)
           fprintf('Done.\n');
         end
         
+        data_p1_append_str = [];
+        data_p2_append_str = [];
+        dTypes_p1 = [];
+        dTypes_p2 = [];
+        
         for d = 1:length(dataTypes)
-          dataType = dataTypes{d};
+          data_p1_append_str = cat(2,data_p1_append_str,sprintf(',data_tla.%s.%s_p1.sub(%d).data',sesStr,dataTypes{d},sub));
+          data_p2_append_str = cat(2,data_p2_append_str,sprintf(',data_tla.%s.%s_p2.sub(%d).data',sesStr,dataTypes{d},sub));
           
-          fprintf('Processing %s...\n',dataType);
+          dTypes_p1 = cat(2,dTypes_p1,d*ones(1,size(data_tla.(sesStr).(sprintf('%s_p1',dataTypes{d})).sub(sub).data.(parameter),1)));
+          dTypes_p2 = cat(2,dTypes_p2,d*ones(1,size(data_tla.(sesStr).(sprintf('%s_p2',dataTypes{d})).sub(sub).data.(parameter),1)));
+        end
+        
+        cfg_ad = [];
+        data_p1 = eval(sprintf('ft_appenddata(cfg_ad%s);',data_p1_append_str));
+        data_p2 = eval(sprintf('ft_appenddata(cfg_ad%s);',data_p2_append_str));
+        
+        p1_ind = [];
+        p2_ind = [];
+        imageCategory_test = []; % 1=face, 2=house
+        
+        for p = 1:length(data_p1.(parameter))
+          p1_trlInd = p;
+          p1_phaseCount = data_p1.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_p1.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_p1.trialinfo(p1_trlInd,categNumCol);
           
-          p1_ind = [];
-          p2_ind = [];
-          imageCategory_test = []; % 1=face, 2=house
-          for p = 1:size(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
-            p1_trlInd = p;
-            p1_phaseCount = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
-            p1_stimNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
-            p1_categNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
-            
-            p2_trlInd = find(...
-              data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-              data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-              data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
-            
-            if ~isempty(p2_trlInd)
+          p2_trlInd = find(...
+            data_p2.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_p2.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_p2.trialinfo(:,categNumCol) == p1_categNum);
+          
+          if ~isempty(p2_trlInd)
+            if length(p2_trlInd) == 1
               p1_ind = cat(2,p1_ind,p1_trlInd);
               p2_ind = cat(2,p2_ind,p2_trlInd);
               imageCategory_test = cat(2,imageCategory_test,p1_categNum);
+            else
+              warning('more than one p2 trial found');
+              keyboard
+            end
+          end
+        end
+        
+        %         for d = 1:length(dataTypes)
+        %           dataType = dataTypes{d};
+        %           fprintf('Processing %s...\n',dataType);
+        %
+        %           p1_ind = [];
+        %           p2_ind = [];
+        %           imageCategory_test = []; % 1=face, 2=house
+        %           for p = 1:size(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
+        %             p1_trlInd = p;
+        %             p1_phaseCount = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
+        %             p1_stimNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
+        %             p1_categNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
+        %
+        %             p2_trlInd = find(...
+        %               data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+        %               data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
+        %               data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
+        %
+        %             if ~isempty(p2_trlInd)
+        %               p1_ind = cat(2,p1_ind,p1_trlInd);
+        %               p2_ind = cat(2,p2_ind,p2_trlInd);
+        %               imageCategory_test = cat(2,imageCategory_test,p1_categNum);
+        %             end
+        %           end
+        
+        if accurateClassifSelect
+          % attempt to classifiy exposure trials
+          probabilityClassP1 = nan(length(p1_ind),2);
+          correctClassP1 = true(size(p1_ind));
+          if classifRequireP1
+            for p = 1:length(p1_ind)
+              cfg_sel.trials = p1_ind(p);
+              dat1 = ft_selectdata_new(cfg_sel,data_p1);
+              data_p1 = dat1.(parameter);
+              dim = size(data_p1);
+              data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
+              
+              Z = facehouse.test(zscore(data_p1));
+              probabilityClassP1(p,:) = Z;
+              
+              [Y,I] = max(Z,[],2);
+              
+              correctClassP1(p) = I == imageCategory_test(p);
             end
           end
           
-          if accurateClassifSelect
-            % attempt to classifiy exposure trials
-            probabilityClassP1 = nan(length(p1_ind),2);
-            correctClassP1 = true(size(p1_ind));
-            if classifRequireP1
-              for p = 1:length(p1_ind)
-                cfg_sel.trials = p1_ind(p);
-                dat1 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data);
-                data_p1 = dat1.(parameter);
-                dim = size(data_p1);
-                data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
-                
-                Z = facehouse.test(zscore(data_p1));
-                probabilityClassP1(p,:) = Z;
-                
-                [Y,I] = max(Z,[],2);
-                
-                correctClassP1(p) = I == imageCategory_test(p);
-              end
+          probabilityClassP2 = nan(length(p1_ind),2);
+          correctClassP2 = true(size(p2_ind));
+          if classifRequireP2
+            for p = 1:length(p2_ind)
+              cfg_sel.trials = p2_ind(p);
+              dat2 = ft_selectdata_new(cfg_sel,data_p2);
+              data_p2 = dat2.(parameter);
+              dim = size(data_p2);
+              data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
+              
+              Z = facehouse.test(zscore(data_p2));
+              probabilityClassP2(p,:) = Z;
+              
+              [Y,I] = max(Z,[],2);
+              
+              correctClassP2(p) = I == imageCategory_test(p);
             end
-            
-            probabilityClassP2 = nan(length(p1_ind),2);
-            correctClassP2 = true(size(p2_ind));
-            if classifRequireP2
-              for p = 1:length(p2_ind)
-                cfg_sel.trials = p2_ind(p);
-                dat2 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
-                data_p2 = dat2.(parameter);
-                dim = size(data_p2);
-                data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
-                
-                Z = facehouse.test(zscore(data_p2));
-                probabilityClassP2(p,:) = Z;
-                
-                [Y,I] = max(Z,[],2);
-                
-                correctClassP2(p) = I == imageCategory_test(p);
-              end
-            end
-            
-            % only compare these trials
-            p1_ind = p1_ind(correctClassP1 & correctClassP2);
-            p2_ind = p2_ind(correctClassP1 & correctClassP2);
           end
           
-          if ~isempty(p1_ind) && ~isempty(p2_ind)
+          % only compare these trials
+          p1_ind = p1_ind(correctClassP1 & correctClassP2);
+          p2_ind = p2_ind(correctClassP1 & correctClassP2);
+        end
+        
+        if ~isempty(p1_ind) && ~isempty(p2_ind)
+          dTypes_p1 = dTypes_p1(p1_ind);
+          dTypes_p2 = dTypes_p2(p2_ind);
+          
+          cfg_sel.trials = p1_ind;
+          dat1 = ft_selectdata_new(cfg_sel,data_p1);
+          cfg_sel.trials = p2_ind;
+          dat2 = ft_selectdata_new(cfg_sel,data_p2);
+          
+          data_p1 = nan(length(dat1.(parameter)),size(dat1.(parameter){1},1),size(dat1.(parameter){1},2));
+          data_p2 = nan(length(dat2.(parameter)),size(dat2.(parameter){1},1),size(dat2.(parameter){1},2));
+          for d = 1:size(data_p1,1)
+            data_p1(d,:,:) = dat1.(parameter){d};
+            data_p2(d,:,:) = dat2.(parameter){d};
+          end
+          
+          %data_p1 = dat1.(parameter);
+          %data_p2 = dat2.(parameter);
+          
+          % unroll data for each trial in the second dimension
+          dim1 = size(data_p1);
+          dim2 = size(data_p2);
+          data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
+          
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          % Compute similarity
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          
+          % variables: columns = electrode x time (unrolled)
+          % observations/instances: rows = events
+          
+          % apply PCA to data
+          [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(data_p1_p2), 'Economy', true);
+          
+          if strcmp(eig_criterion,'kaiser')
+            crit_eig = eval_p1_p2 >= 1;
+          elseif strcmp(eig_criterion,'analytic')
+            % analytic: keep PC if percent variance explained is above
+            % 100 / number of variables
             
-            cfg_sel.trials = p1_ind;
-            dat1 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data);
-            data_p1 = dat1.(parameter);
+            % convert to percent variance explained
+            eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+            crit_eig = eval_PVE > (100 / size(eval_PVE,1));
+          elseif strcmp(eig_criterion,'CV85')
+            % Cumulative variance 85%: keep PCs that explain at least 85%
+            % of variance
             
-            cfg_sel.trials = p2_ind;
-            dat2 = ft_selectdata_new(cfg_sel,data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
-            data_p2 = dat2.(parameter);
+            % convert to percent variance explained
+            eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+            eval_CV = cumsum(eval_PVE);
+            cutoff_eval = find(eval_CV>=85,1,'first');
             
-            % unroll data for each trial in the second dimension
-            dim1 = size(data_p1);
-            dim2 = size(data_p2);
-            data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Compute similarity
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            % variables: columns = electrode x time (unrolled)
-            % observations/instances: rows = events
-            
-            % apply PCA to data
-            [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(data_p1_p2), 'Economy', true);
-            
-            if strcmp(eig_criterion,'kaiser')
-              crit_eig = eval_p1_p2 >= 1;
-            elseif strcmp(eig_criterion,'analytic')
-              % analytic: keep PC if percent variance explained is above
-              % 100 / number of variables
-              
-              % convert to percent variance explained
-              eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-              crit_eig = eval_PVE > (100 / size(eval_PVE,1));
-            elseif strcmp(eig_criterion,'CV85')
-              % Cumulative variance 85%: keep PCs that explain at least 85%
-              % of variance
-              
-              % convert to percent variance explained
-              eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-              eval_CV = cumsum(eval_PVE);
-              cutoff_eval = find(eval_CV>=85,1,'first');
-              
-              crit_eig = false(size(eval_p1_p2));
-              crit_eig(1:cutoff_eval) = true;
-            elseif strcmp(eig_criterion,'none')
-              crit_eig = true(length(eval_p1_p2),1);
-            end
-            % remove features with eigenvalues that didn't pass criterion
-            %
-            % evec_p1_p2 (coeff) lets you map from PCA space to original
-            % feature space
-            evec_p1_p2_crit = evec_p1_p2(:, crit_eig);
-            feature_vectors = data_pcaspace(:, crit_eig);
-            
-            %%%%%%
-            % more feature selection done here? use dummy selection for now
-            %%%%%%
-            select_inds = true(1, size(feature_vectors, 2));
-            
-            evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
-            feature_vectors = feature_vectors(:, select_inds);
-            
-            % normalize the vector lengths of each event
-            feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
-            
-            % compute the similarities between each pair of events
-            similarities = 1 - squareform(pdist(feature_vectors, 'cosine'));
-            
-            % add it to the full set
-            similarity_all{sub,ses,d,lat} = similarities;
-            similarity_ntrials(sub,ses,d,lat) = length(p1_ind);
-            
-          end % lat
+            crit_eig = false(size(eval_p1_p2));
+            crit_eig(1:cutoff_eval) = true;
+          elseif strcmp(eig_criterion,'none')
+            crit_eig = true(length(eval_p1_p2),1);
+          end
+          % remove features with eigenvalues that didn't pass criterion
+          %
+          % evec_p1_p2 (coeff) lets you map from PCA space to original
+          % feature space
+          evec_p1_p2_crit = evec_p1_p2(:, crit_eig);
+          feature_vectors = data_pcaspace(:, crit_eig);
+          
+          %%%%%%
+          % more feature selection done here? use dummy selection for now
+          %%%%%%
+          select_inds = true(1, size(feature_vectors, 2));
+          
+          evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
+          feature_vectors = feature_vectors(:, select_inds);
+          
+          % normalize the vector lengths of each event
+          feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
+          
+          % compute the similarities between each pair of events
+          similarities = 1 - squareform(pdist(feature_vectors, 'cosine'));
+          
+          
+          %             feature_vectors = data_pcaspace(:, crit_eig);
+          %
+          %             %%%%%%
+          %             % more feature selection done here? use dummy selection for now
+          %             %%%%%%
+          %             select_inds = true(1, size(feature_vectors, 2));
+          %
+          %             evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
+          %             feature_vectors = feature_vectors(:, select_inds);
+          %
+          %             feature_vectors = zscore(feature_vectors,0,2);
+          %
+          %             % normalize the vector lengths of each event
+          %             feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
+          %
+          %             % compute the similarities between each pair of events
+          %             similarities_zpre = 1 - squareform(pdist(feature_vectors, 'cosine'));
+          %
+          %
+          %             feature_vectors = data_pcaspace(:, crit_eig);
+          %
+          %             %%%%%%
+          %             % more feature selection done here? use dummy selection for now
+          %             %%%%%%
+          %             select_inds = true(1, size(feature_vectors, 2));
+          %
+          %             evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
+          %             feature_vectors = feature_vectors(:, select_inds);
+          %
+          %
+          %             % normalize the vector lengths of each event
+          %             feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
+          %
+          %             feature_vectors = zscore(feature_vectors,0,2);
+          %             % compute the similarities between each pair of events
+          %             similarities_zpost = 1 - squareform(pdist(feature_vectors, 'cosine'));
+          
+          
+          
+          % add it to the full set
+          for d = 1:length(dataTypes)
+            similarity_all{sub,ses,d,lat} = similarities(cat(2,dTypes_p1,dTypes_p2) == d,cat(2,dTypes_p1,dTypes_p2) == d);
+            similarity_ntrials(sub,ses,d,lat) = sum(cat(2,dTypes_p1,dTypes_p2) == d);
+            %similarity_all{sub,ses,d,lat} = similarities;
+            %similarity_ntrials(sub,ses,d,lat) = length(p1_ind);
+          end
           
         end % ~isempty
         
-      end % d
+      end % lat
+      
+      %end % d
     end % ~badSub
   end % ses
 end % sub
