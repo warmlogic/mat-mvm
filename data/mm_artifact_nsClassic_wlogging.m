@@ -1,6 +1,6 @@
-function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic_wlogging(subject,dirs,data,ana,elecfile,badChan_str,badEv)
 
-% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(subject,dirs,data,ana,elecfile,badChan_str,badEv)
 %
 % Simulate Net Station's Artifact Detection Classic
 %
@@ -43,6 +43,13 @@ function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data
 %
 
 %% set up
+% log for info
+resultsDir = fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results',subject);
+if ~exist(resultsDir, 'dir')
+  resultsDir = mkdir(fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results'),subject);
+end
+resultsFileLoc = fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results',subject);
+resultsFile = fopen(fullfile(resultsFileLoc,'nsClassic_results.txt'), 'w');
 
 %fast avg threshold
 if ~isfield(ana.artifact,'fast_threshold')
@@ -77,7 +84,7 @@ end
 
 % allow bad neighboring channels
 if ~isfield(ana.artifact,'allowBadNeighborChan')
-  ana.artifact.allowBadNeighborChan = false;
+  ana.artifact.allowBadNeighborChan = true;
 end
 
 % fully repair the channel if it is bad in more than X% of trials (do not
@@ -88,7 +95,7 @@ end
 nTrialThresh = fix(nTrial * (ana.artifact.repairChan_percentBadTrials / 100));
 
 if ~isfield(ana.artifact,'doNotRepairEyes')
-  ana.artifact.doNotRepairEyes = true;
+  ana.artifact.doNotRepairEyes = false;
 end
 
 if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
@@ -332,12 +339,8 @@ for tr = 1:nTrial
     end
 end
 
-fprintf('**********************************************************************');
-totalbadevents = sum(logical(sum(foundArt,2)));
-fprintf('\nTotal number of bad events: %d\n',totalbadevents);
-totalbadchans = sum(foundArt(:));
-fprintf('\nTotal number of bad channels across all events: %d\n',totalbadchans);
-fprintf('**********************************************************************\n');
+
+
 
 if ana.artifact.doNotRepairEyes
   fullyRepairChan(ismember(data.label,eyeChan)) = false;
@@ -375,12 +378,88 @@ for tr = 1:nTrial
       if ~isempty(theseBadChan)
         cfgChannelRepair.badchannel = theseBadChan;
         fprintf('\nTrial %d: using method=''%s'' to repair %d channels:%s\n',tr,cfgChannelRepair.method,length(cfgChannelRepair.badchannel),sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}));
-        
+        fprintf(resultsFile,'\nTrial %d: Repairing %d channels:%s\n',tr,length(cfgChannelRepair.badchannel),sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}));
+
         repaired_data = ft_channelrepair(cfgChannelRepair, data);
         data.trial{tr} = repaired_data.trial{1};
       end
     end
   end
+end
+
+%% figures & log for results
+
+% log information
+
+% channels repaired by segment - prints during repair
+fprintf(resultsFile,'\nEnd of channels repaired by trial.\n\n');
+
+% total segments marked bad b/c of blinks
+totalBlinks = sum(logical(sum(foundBlink,2)));
+fprintf(resultsFile,'\nBlink artifacts (automatically rejected): %d\n', totalBlinks);
+
+% total segments marked bad b/c of eye movement
+totalEyeMove = sum(logical(sum(foundEyeMove,2)));
+fprintf(resultsFile,'\nEye movement artifacts (automatically rejected): %d\n', totalEyeMove);
+
+% total segments marked bad b/c of too many bad channels
+totalTooManyBadChan = sum(logical(sum(foundTooManyBadChan,2)));
+fprintf(resultsFile,'\nToo many bad channels (automatically rejected): %d\n', totalTooManyBadChan);
+
+% total segments marked bad
+totalbadevents = sum(logical(sum(foundArt,2)));
+fprintf(resultsFile,'\nTotal number of segments with artifacts: %d\n',totalbadevents);
+
+% # of bad channels (repaired & rejected?)
+totalbadchans = sum(foundArt(:));
+fprintf(resultsFile,'\nTotal number of bad channels across all events: %d\n',totalbadchans);
+
+% channels bad for the entire recording
+if ~isempty(fullyRepairChan_str)
+    for i = 1:length(fullyRepairChan_str)
+        fprintf(resultsFile,'\nChannels repaired across entire recording: %d\n',fullyRepairChan_str{i});
+    end
+else
+    fprintf(resultsFile,'\nChannels repaired across entire recording: 0\n');
+end
+
+% prints a figure for each trial in foundArt, with subplot for each
+% artifact type labeled by artifact type and trial
+for tr = 1:nTrial
+    if any(foundArt(tr,:))
+        h = figure;
+        figName = num2str(tr);
+        hold on
+        subplot(3,1,[1,1]);
+        plot(data.trial{tr},'LineWidth',1)
+        ylim([-100 100]);
+        title(sprintf('foundArt_%s', num2str(tr)));
+        if any(foundBlink(tr,:))
+            subplot(3,1,[2,2]);
+            hold on
+            plot(data.trial{tr}(eog_upper_left,:),'m','LineWidth',1)
+            plot(data.trial{tr}(eog_lower_left,:),'k','LineWidth',1)
+            plot(data.trial{tr}(eog_horiz_left,:),'b','LineWidth',2)
+            plot(data.trial{tr}(eog_horiz_right,:),'r','LineWidth',2)
+            hold off
+            ylim([-100 100]);
+            title(sprintf('foundBlink_%s', num2str(tr)));
+        end
+        if any(foundEyeMove(tr,:))
+            subplot(3,1,[3,3]);
+            hold on
+            plot(data.trial{tr}(eog_upper_left,:),'m','LineWidth',1)
+            plot(data.trial{tr}(eog_lower_left,:),'k','LineWidth',1)
+            plot(data.trial{tr}(eog_horiz_left,:),'b','LineWidth',2)
+            plot(data.trial{tr}(eog_horiz_right,:),'r','LineWidth',2)
+            hold off
+            ylim([-100 100]);
+            title(sprintf('foundEyeMove_%s', num2str(tr)));
+        end
+        hold off
+        saveas(h,fullfile(resultsFileLoc, figName),'png');
+        close(h);
+    end
 end
 
 %% do the rejection
@@ -395,8 +474,17 @@ cfg.artfctdef.reject = ana.artifact.reject;
 cfg.artfctdef.blink.artifact = data.sampleinfo(foundBlink,:);
 cfg.artfctdef.eyemove.artifact = data.sampleinfo(foundEyeMove,:);
 cfg.artfctdef.manybadchan.artifact = data.sampleinfo(foundTooManyBadChan,:);
+
+% totalBlinks = sum(logical(sum(foundBlink,2)));
+% fprintf(resultsFile,'Blink artifacts: %d\n', totalBlinks);
+% totalEyeMove = sum(foundEyeMove,:);
+% fprintf(resultsFile,'Eye movement artifacts: %d\n', totalEyeMove);
+% totalTooManyBadChan = sum(foundTooManyBadChan,:);
+% fprintf(resultsFile,'Too many bad channels: %d\n', totalTooManyBadChan);
+
 if ~ana.artifact.allowBadNeighborChan
   cfg.artfctdef.badneighborchan.artifact = data.sampleinfo(foundBadNeighborChan,:);
+  fprintf(resultsFile,'Blink artifacts: %d\n',data.sampleinfo(foundBadNeighborChan,:));
 end
 
 % initialize to store whether there was an artifact for each trial
@@ -478,6 +566,8 @@ if ~isempty(fullyRepairChan_str)
   cfgChannelRepair.elecfile = elecfile;
   fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
   data = ft_channelrepair(cfgChannelRepair, data);
+  fprintf(resultsFile,'Done.\n');
+  fclose(resultsFile);
   fprintf('Done.\n')
 end
 

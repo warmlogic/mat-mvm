@@ -56,8 +56,8 @@ exper.subjects = {
 %  'TC_NEMO-012';
 %  'TC_NEMO-013';
 %  'TC_NEMO-014';
-%  'TC_NEMO-015';
-  'TC_NEMO-016';
+  'TC_NEMO-015';
+%  'TC_NEMO-016';
 %  'TC_NEMO-017';
 %  'TC_NEMO-018';
 %  'TC_NEMO-019';
@@ -283,7 +283,7 @@ ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
 ana.artifact.rejectTrial_nBadChan = 10;
 ana.artifact.repairChan_percentBadTrials = 20;
-ana.artifact.allowBadNeighborChan = false;
+ana.artifact.allowBadNeighborChan = true;
 
 % % set up for ftAuto following nsClassic
 % % % negative trlpadding: don't check that time (on both sides) for artifacts
