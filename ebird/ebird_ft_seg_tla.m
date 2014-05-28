@@ -165,7 +165,7 @@ if ana.useExpInfo
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
-  ana.trl_order.match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameSpecies', 'response', 'rt', 'acc'};
+  ana.trl_order.match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameTrained', 'sameSpecies', 'response', 'rt', 'acc'};
   ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
   ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
 end
@@ -188,6 +188,7 @@ ana.artifact.type = {'nsClassic','ftAuto'};
 
 % set up for nsClassic
 ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.blink_threshold = 70;
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
 ana.artifact.rejectTrial_nBadChan = 10;

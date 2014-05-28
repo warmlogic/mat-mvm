@@ -33,41 +33,41 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 subjects = {
   %'SPACE001'; low trial counts
   'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019'; low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  %'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   %'SPACE030'; low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -78,7 +78,8 @@ allowRecallSynonyms = true;
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;
 
-[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+replaceDatatype = {'tla','pow'};
+[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot,replaceDatatype);
 
 files.figPrintFormat = 'png';
 files.saveFigs = true;
@@ -358,24 +359,102 @@ end
 %     sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & recog_rt < 3000 & new_resp ~= 0 & new_acc == 1',find(ismember(exper.eventValues{sesNum},'cued_recall_stim')))}}};
 % end
 
-%% load in the subject data
+%% load in the subject data - new loading workflow - pow
 
-% % make sure ana.eventValues is set properly
-% if ~iscell(ana.eventValues{1})
-%   ana.eventValues = {ana.eventValues};
-% end
-% if ~isfield(ana,'eventValues') || isempty(ana.eventValues{1})
-%   ana.eventValues = {exper.eventValues};
-% end
+cfg = [];
 
-% [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
-[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',1,'trialinfo');
+% cfg.loadMethod = 'seg';
+cfg.loadMethod = 'trialinfo';
+cfg.latency = 'all';
+cfg.frequency = 'all';
 
-% %% get rid of the bad channels
-%
-% cfg = [];
-% cfg.printRoi = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% [data_tla] = mm_rmBadChan(cfg,exper,ana,data_tla);
+cfg.keeptrials = 'yes';
+% cfg.equatetrials = 'no';
+% %cfg.equatetrials = 'yes';
+
+% type of input (used in the filename to load)
+cfg.ftype = 'pow';
+% cfg.ftype = 'fourier';
+
+% type of output: 'pow', 'coh', 'phase'
+cfg.output = 'pow';
+
+% transformation: 'log10', 'log', 'vec'
+cfg.transform = 'log10';
+% cfg.transform = 'vec';
+
+% normalization of single or average trials
+% cfg.norm_trials = 'single'; % Grandchamp & Delorme (2011)
+cfg.norm_trials = 'average';
+
+% baseline type
+% % 'zscore', 'absolute', 'relchange', 'relative', 'db'
+cfg.baseline_type = 'zscore';
+% cfg.baseline_type = 'absolute';
+% cfg.baseline_type = 'relchange';
+% cfg.baseline_type = 'relative';
+% cfg.baseline_type = 'db';
+
+% baseline period
+%cfg.baseline_time = [-0.2 0];
+% cfg.baseline_time = [-0.3 0];
+cfg.baseline_time = [-0.3 -0.1];
+
+% at what data stage should it be baseline corrected?
+cfg.baseline_data = 'pow';
+% mod is not an option
+% % cfg.baseline_data = 'mod';
+
+%cfg.saveFile = true;
+cfg.saveFile = false;
+
+% only keep induced data by removing evoked?
+cfg.rmevoked = 'no';
+cfg.rmevokedfourier = 'no';
+cfg.rmevokedpow = 'no';
+% cfg.rmevoked = 'yes';
+% cfg.rmevokedfourier = 'yes';
+% cfg.rmevokedpow = 'no';
+if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
+  % load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+  
+  % local testing
+  %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
+end
+
+if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
+  eq_str = '_eq';
+else
+  eq_str = '';
+end
+if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
+  kt_str = '_trials';
+else
+  kt_str = '_avg';
+end
+if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
+  indu_str = '_induced';
+else
+  indu_str = '_whole';
+end
+saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
+
+if exist(saveFile,'file')
+  fprintf('Loading saved file: %s\n',saveFile);
+  load(saveFile);
+else
+  fprintf('Running mm_ft_loadData_multiSes\n');
+  if exist('data_evoked','var')
+    [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
+  else
+    [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
+  end
+  if cfg.saveFile
+    fprintf('Saving %s...\n',saveFile);
+    save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
+  end
+end
+fprintf('Done.\n');
 
 % overwrite ana.eventValues with the new split events
 ana.eventValues = ana.eventValuesSplit;
@@ -384,50 +463,12 @@ ana.eventValues = ana.eventValuesSplit;
 
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
-%% lowpass filter and segment for ERPs
-
-% data_tla_backup = data_tla;
-% 
-% lpfilt = false;
-% 
-% if lpfilt
-%   sampleRate = 250;
-%   lpfreq = 40;
-%   lofiltord = 4;
-%   lpfilttype = 'but';
-% end
-% 
-% cfg_sel = [];
-% cfg_sel.latency = [-0.2 1.0];
-% 
-% for ses = 1:length(exper.sesStr)
-%   for typ = 1:length(ana.eventValues{ses})
-%     for evVal = 1:length(ana.eventValues{ses}{typ})
-%       for sub = 1:length(exper.subjects)
-%         fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-%         
-%         if lpfilt
-%           for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
-%             data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
-%               squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
-%               sampleRate,lpfreq,lofiltord,lpfilttype);
-%           end
-%         end
-%         
-%         % select
-%         data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-%         
-%       end
-%     end
-%   end
-% end
-
-%% classifier - use face/house to predict image paired with P2 word
+%% classifier setup - use face/house to predict image paired with P2 word
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', ...
 %   'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'};
@@ -441,6 +482,7 @@ thisROI = 'center101';
 % latencies = [0.0 0.5; 0.5 1.0];
 % latencies = [0.2 0.8];
 
+% Twenty-one 200 ms overlapping windows, every 40 ms
 classif_start = 0;
 classif_end = 1.0;
 classif_width = 0.2;
@@ -448,7 +490,13 @@ window_spacing = 0.04;
 
 latencies = [classif_start:window_spacing:(classif_end - classif_width); (classif_start+classif_width):window_spacing:classif_end]';
 
-parameter = 'trial';
+freqs = [3 50];
+
+avgoverfreq = 'no';
+avgoverchan = 'no';
+avgovertime = 'no';
+
+parameter = 'powspctrm';
 
 if allowRecallSynonyms
   synStr = 'syn';
@@ -473,12 +521,22 @@ dataTypes_train = {'Face', 'House'};
 equateTrainTrials = true;
 standardizeTrain = true;
 
+train_catNumCol = 7;
+
 % test on p2 word
 dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
 % dataTypes_test = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass'};
 equateTestTrials = false;
 standardizeTest = true;
 standardizeTestSeparately = false;
+
+test_sesName = 'oneDay';
+test_phaseName = 'multistudy';
+test_phaseCountCol = 4;
+test_trialCol = 5;
+test_stimNumCol = 6;
+test_presNumCol = 11;
+test_pairNumCol = 13;
 
 % data1 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data;
 % data2 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data;
@@ -492,12 +550,16 @@ trainLambda = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1))
 trainWeights = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
 facehouseClass = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
 
+%% classifier
+
 for sub = 1:length(exper.subjects)
   fprintf('%s...',exper.subjects{sub});
   for ses = 1:length(exper.sesStr)
     fprintf('%s...',exper.sesStr{ses});
     
     if ~exper.badSub(sub,ses)
+      % load the events file so we know what category each study word was
+      % paired with
       eventsFile = fullfile(dirs.dataroot,dirs.behDir,exper.subjects{sub},'events','events.mat');
       if exist(eventsFile,'file')
         fprintf('Loading events file...');
@@ -512,7 +574,7 @@ for sub = 1:length(exper.subjects)
       if equateTrainTrials
         nTrainTrial = nan(length(dataTypes_train),1);
         for d = 1:length(dataTypes_train)
-          nTrainTrial(d) = size(data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
+          nTrainTrial(d) = size(data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
         end
         fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
         for d = 1:length(dataTypes_train)
@@ -531,7 +593,7 @@ for sub = 1:length(exper.subjects)
       if equateTestTrials
         nTestTrial = nan(length(dataTypes_test),1);
         for d = 1:length(dataTypes_test)
-          nTestTrial(d) = size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
+          nTestTrial(d) = size(data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
         end
         fprintf('Equating testing categories to have %d trials.\n',min(nTestTrial));
         for d = 1:length(dataTypes_test)
@@ -551,31 +613,32 @@ for sub = 1:length(exper.subjects)
         cfg_data = [];
         cfg_data.latency = latencies(lat,:);
         cfg_data.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
-        cfg_data.avgoverchan = 'no';
-        cfg_data.avgovertime = 'no';
-        % cfg_data.avgovertime = 'yes';
+        cfg_data.foilim = freqs;
+        cfg_data.avgovertime = avgovertime;
+        cfg_data.avgoverchan = avgoverchan;
+        cfg_data.avgoverfreq = avgoverfreq;
         
         data_train = struct;
         
         % select the data
         for d = 1:length(dataTypes_train)
           cfg_data.trials = trlIndTrain{d};
-          data_train.(dataTypes_train{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+          data_train.(dataTypes_train{d}) = ft_selectdata_new(cfg_data,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
         end
         
         % get the category number for each training image
-        catNumCol = 7;
-        imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,catNumCol);
+        imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,train_catNumCol);
         for d = 2:length(dataTypes_train)
-          imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{d}).trialinfo(:,catNumCol));
+          imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{d}).trialinfo(:,train_catNumCol));
         end
         
-        % concatenate the data
+        % pull out the data and concatenate (for DMLT)
         dat_train = data_train.(dataTypes_train{1}).(parameter);
         for d = 2:length(dataTypes_train)
           dat_train = cat(1,dat_train,data_train.(dataTypes_train{d}).(parameter));
         end
         
+        % unroll channels and timepoints within each trial
         dim = size(dat_train);
         dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
         %dat_train_ravel = reshape(dat_train,dim);
@@ -645,20 +708,21 @@ for sub = 1:length(exper.subjects)
 %         end
 %         facehouse2 = facehouse2.train(dat_train,imageCategory_train);
 %         
-%         keyboard
+% %         keyboard
 %         
 %         trainClass = struct;
 %         trainClass.model = facehouse2.model;
 %         %trainClass.obj = facehouse;
 %         
+%         % reshape the weights so they align with electrodes and samples
 %         if length(trainClass.model) > 1
 %           fn = fieldnames(trainClass.model{1});
 %           for i=1:length(trainClass.model)
-%           for k=1:length(fn)
-%             if numel(trainClass.model{i}.(fn{k}))==prod(dim(2:end))
-%               trainClass.model{i}.(fn{k}) = squeeze(reshape(trainClass.model{i}.(fn{k}),dim(2:end)));
+%             for k=1:length(fn)
+%               if numel(trainClass.model{i}.(fn{k}))==prod(dim(2:end))
+%                 trainClass.model{i}.(fn{k}) = squeeze(reshape(trainClass.model{i}.(fn{k}),dim(2:end)));
+%               end
 %             end
-%           end
 %           end
 %         elseif length(trainClass.model) == 1
 %           fn = fieldnames(trainClass.model);
@@ -668,26 +732,37 @@ for sub = 1:length(exper.subjects)
 %             end
 %           end
 %         end
-%         trainClass.trial = [];
 %         
-%         trainClass.dimord = 'chan';
-%         trainClass.label = data_train.(dataTypes_train{1}).label;
-%         
+%         % average the models
 %         if length(trainClass.model) > 1
 %           %trainClass.mymodel = trainClass.model{1}.weights;
 %           %trainClass.mymodel = trainClass.model{1}.primal;
 %           
 %           trainClass.mymodel = [];
+%           trainClass.mybias = [];
+%           trainClass.mylambda = [];
 %           for m = 1:length(trainClass.model)
 %             trainClass.mymodel = cat(3,trainClass.mymodel,trainClass.model{m}.weights);
+%             trainClass.mybias = cat(3,trainClass.mybias,trainClass.model{m}.bias);
+%             trainClass.mylambda = cat(3,trainClass.mylambda,trainClass.model{m}.lambda);
+%             
 %             %trainClass.mymodel = cat(3,trainClass.mymodel,trainClass.model{m}.primal);
 %           end
 %           trainClass.mymodel = mean(trainClass.mymodel,3);
+%           trainClass.mybias = mean(trainClass.mybias,3);
+%           trainClass.mylambda = mean(trainClass.mylambda,3);
 %         else
 %           trainClass.mymodel = trainClass.model.weights;
+%           trainClass.mybias = trainClass.model.bias;
+%           trainClass.mylambda = trainClass.model.lambda;
 %           %trainClass.mymodel = trainClass.model.primal;
 %         end
-%         trainClass.mymodel = meanmodel;
+        
+%         % plot it
+%         trainClass.dimord = 'chan';
+%         trainClass.label = data_train.(dataTypes_train{1}).label;
+%         % dummy trial
+%         trainClass.trial = [];
 %         cfg = [];
 %         cfg.parameter = 'mymodel';
 %         cfg.layout = 'GSN-HydroCel-129.sfp';
@@ -702,48 +777,40 @@ for sub = 1:length(exper.subjects)
         % set up the test data
         data_test = struct;
         
-        sesName = 'oneDay';
-        phaseName = 'multistudy';
-        phaseCountCol = 4;
-        trialCol = 5;
-        stimNumCol = 6;
-        presNumCol = 11;
-        pairNumCol = 13;
-        
         if standardizeTestSeparately
           for d = 1:length(dataTypes_test)
             % select the data
             %for d = 1:length(dataTypes_test)
             cfg_data.trials = trlIndTest{d};
-            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
             %end
             
             % find whether p2 words were paired with a face or a house
             pairedCategory_test = [];
             %for d = 1:length(dataTypes_test)
             for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
-              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
+              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,test_phaseCountCol);
               
               thisEventInd = find(...
-                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
                 );
               
               if isempty(thisEventInd)
                 thisEventInd = find(...
-                  ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                  ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
                   );
               end
               
               if ~isempty(thisEventInd) && length(thisEventInd) == 1
-                pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
+                pairCatNum = events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data(thisEventInd+1).catNum;
                 pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
               elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
                 %keyboard
@@ -836,35 +903,35 @@ for sub = 1:length(exper.subjects)
           % select the data
           for d = 1:length(dataTypes_test)
             cfg_data.trials = trlIndTest{d};
-            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
           end
           
           % find whether p2 words were paired with a face or a house
           pairedCategory_test = [];
           for d = 1:length(dataTypes_test)
             for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
-              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
+              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,test_phaseCountCol);
               
               thisEventInd = find(...
-                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+                [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
                 );
               
               if isempty(thisEventInd)
                 thisEventInd = find(...
-                  ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
+                  ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+                  [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
                   );
               end
               
               if ~isempty(thisEventInd) && length(thisEventInd) == 1
-                pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
+                pairCatNum = events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data(thisEventInd+1).catNum;
                 
                 % % verifying that images are classified correctly
                 % pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd).catNum;
@@ -1170,10 +1237,10 @@ typ = 1;
 sub = 1;
 ses = 1;
 
-% data1 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data;
-% data2 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data;
-data1 = data_tla.(exper.sesStr{ses}).img_onePres.sub(sub).data;
-data2 = data_tla.(exper.sesStr{ses}).word_onePres.sub(sub).data;
+% data1 = data_pow.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data;
+% data2 = data_pow.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data;
+data1 = data_pow.(exper.sesStr{ses}).img_onePres.sub(sub).data;
+data2 = data_pow.(exper.sesStr{ses}).word_onePres.sub(sub).data;
 
 cfg = [];
 cfg.parameter = 'trial';
@@ -1189,17 +1256,17 @@ cfg.channel = 'all';
 cfg.avgoverchan = 'no';
 cfg.avgovertime = 'yes';
 
-% data1 = ft_selectdata_new(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data);
-% data2 = ft_selectdata_new(cfg,data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data);
+% data1 = ft_selectdata_new(cfg,data_pow.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data);
+% data2 = ft_selectdata_new(cfg,data_pow.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data);
 
-% data1 = ft_selectdata_old(data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data,...
+% data1 = ft_selectdata_old(data_pow.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data,...
 %   'param',cfg.parameter,...
 %   'toilim',cfg.latency,...
 %   'channel',cfg.channel,...
 %   'avgoverchan',cfg.avgoverchan,...
 %   'avgovertime',cfg.avgovertime);
 %
-% data2 = ft_selectdata_old(data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data,...
+% data2 = ft_selectdata_old(data_pow.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data,...
 %   'param',cfg.parameter,...
 %   'toilim',cfg.latency,...
 %   'channel',cfg.channel,...
@@ -1235,8 +1302,8 @@ ft_topoplotER(cfg,stat);
 %       minEv = Inf;
 %       min_d = [];
 %       for d = 1:length(dataTypes_train)
-%         if size(data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1) < minEv
-%           minEv = size(data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
+%         if size(data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1) < minEv
+%           minEv = size(data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
 %           min_d = d;
 %         end
 %       end
@@ -1247,11 +1314,11 @@ ft_topoplotER(cfg,stat);
 %         else
 %           cfg.trials = randperm(minEv);
 %         end
-%         data_train.(dataTypes_train{d}) = ft_selectdata_new(cfg,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+%         data_train.(dataTypes_train{d}) = ft_selectdata_new(cfg,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
 %       end
 %     else
 %       for d = 1:length(dataTypes_train)
-%         data_train.(dataTypes_train{d}) = data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data;
+%         data_train.(dataTypes_train{d}) = data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data;
 %       end
 %     end
 
@@ -1262,8 +1329,8 @@ ft_topoplotER(cfg,stat);
 %       minEv = Inf;
 %       min_d = [];
 %       for d = 1:length(dataTypes_test)
-%         if size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1) < minEv
-%           minEv = size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
+%         if size(data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1) < minEv
+%           minEv = size(data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
 %           min_d = d;
 %         end
 %       end
@@ -1274,11 +1341,11 @@ ft_topoplotER(cfg,stat);
 %         else
 %           cfg.trials = randperm(minEv);
 %         end
-%         data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+%         data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg,data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
 %       end
 %     else
 %       for d = 1:length(dataTypes_test)
-%         data_test.(dataTypes_test{d}) = data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data;
+%         data_test.(dataTypes_test{d}) = data_pow.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data;
 %       end
 %     end
 

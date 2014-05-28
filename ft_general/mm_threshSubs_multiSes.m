@@ -1,4 +1,4 @@
-function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,printDirection)
+function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,printDirection,eventValues)
 %MM_THRESHSUBS_MULTISES Mark subjects as bad when they have fewer than X events
 %
 %   [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,printDirection)
@@ -24,6 +24,28 @@ function [exper,ana] = mm_threshSubs_multiSes(exper,ana,thresh,commonGoodChan,pr
 %
 
 %% setup
+
+% whether to exclude a bad subject in any session from all sessions,
+% regardless of whether they were good in the others
+collapseSessions = false;
+
+
+if nargin < 6
+  eventValues = [];
+  if nargin < 5
+    printDirection = [];
+    if nargin < 4
+      commonGoodChan = [];
+      if nargin < 3
+        thresh = [];
+      end
+    end
+  end
+end
+
+if ~exist('eventValues','var') || isempty(eventValues)
+  eventValues = ana.eventValues;
+end
 
 if ~exist('printDirection','var') || isempty(printDirection)
   printDirection = 'horiz';
@@ -51,19 +73,16 @@ for ses = 1:length(exper.sesStr)
     exper.badBehSub{ses} = sort(exper.badBehSub{ses}(ismember(exper.badBehSub{ses},exper.subjects)));
   end
   
-  % get the events from ana; those are the ones we care about for analysis
-  %eventValues = ana.eventValues{ses};
-  
   % initialize to store who is below threshold
-  exper.nTrials.(exper.sesStr{ses}).lowNum = false(length(exper.subjects),length(exper.sessions));
+  exper.nTrials.(exper.sesStr{ses}).lowNum = false(length(exper.subjects),1);
   
   % figure out who is below threshold
   for sub = 1:length(exper.subjects)
     %for ses = 1:length(exper.sessions)
-    for evVal = 1:length(ana.eventValues{ses})
-      for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+    for evVal = 1:length(eventValues{ses})
+      for es = 1:length(eventValues{ses}{evVal})
         % compare nTrials to threshold
-        if exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(sub) < exper.nTrials.(exper.sesStr{ses}).thresh
+        if exper.nTrials.(exper.sesStr{ses}).(eventValues{ses}{evVal}{es})(sub) < exper.nTrials.(exper.sesStr{ses}).thresh
           exper.nTrials.(exper.sesStr{ses}).lowNum(sub) = true;
         end
       end
@@ -91,29 +110,29 @@ for ses = 1:length(exper.sessions)
   fprintf('========================\n');
   fprintf('Session: %s\n',exper.sesStr{ses});
   fprintf('========================\n');
-  for evVal = 1:length(ana.eventValues{ses})
+  for evVal = 1:length(eventValues{ses})
     if strcmp(printDirection,'horiz')
-    fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(ana.eventValues{ses}{evVal})),ana.eventValues{ses}{evVal}{:}));
+    fprintf('Subject%s%s\n',sprintf(tabchar_sub),sprintf(repmat('\t%s',1,length(eventValues{ses}{evVal})),eventValues{ses}{evVal}{:}));
     elseif strcmp(printDirection,'vert')
       fprintf('Subject\n');
     end
     for sub = 1:length(exper.subjects)
       subStr = exper.subjects{sub};
-      for es = 1:length(ana.eventValues{ses}{evVal})
+      for es = 1:length(eventValues{ses}{evVal})
         if strcmp(printDirection,'horiz')
           tabchar_ev = '';
-          if length(ana.eventValues{ses}{evVal}{es}) > tabLimit
-            for i = 1:floor(length(ana.eventValues{ses}{evVal}{es}) / tabLimit)
+          if length(eventValues{ses}{evVal}{es}) > tabLimit
+            for i = 1:floor(length(eventValues{ses}{evVal}{es}) / tabLimit)
               tabchar_ev = cat(2,tabchar_ev,'\t');
             end
           end
           
-          subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(sub),sprintf(tabchar_ev)));
+          subStr = cat(2,subStr,sprintf('\t%d%s',exper.nTrials.(exper.sesStr{ses}).(eventValues{ses}{evVal}{es})(sub),sprintf(tabchar_ev)));
         elseif strcmp(printDirection,'vert')
           if es == 1
             subStr = sprintf('%s\n',subStr);
           end
-          subStr = cat(2,subStr,sprintf('\t%s: %d\n',ana.eventValues{ses}{evVal}{es},exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(sub)));
+          subStr = cat(2,subStr,sprintf('\t%s: %d\n',eventValues{ses}{evVal}{es},exper.nTrials.(exper.sesStr{ses}).(eventValues{ses}{evVal}{es})(sub)));
         end
       end
       fprintf('%s\n',subStr);
@@ -150,16 +169,21 @@ for ses = 1:length(exper.sessions)
 end
 exper.badSub = logical(exper.badSub);
 
+if collapseSessions
+  exper.badSub = logical(sum(exper.badSub,2));
+  exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
+end
+
 if sum(~exper.badSub) > 0
   % print a summary
-  fprintf('\nNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',sum(~exper.badSub),thresh);
   for ses = 1:length(exper.sessions)
-    for evVal = 1:length(ana.eventValues{ses})
-      for es = 1:length(ana.eventValues{ses}{evVal})
-        meanTrials = mean(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub));
-        semTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub),0,1)/sqrt(sum(~exper.badSub));
-        stdTrials = std(exper.nTrials.(exper.sesStr{ses}).(ana.eventValues{ses}{evVal}{es})(~exper.badSub),0,1);
-        fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',ana.eventValues{ses}{evVal}{es},meanTrials,semTrials,stdTrials);
+    fprintf('\nSession %s:\n\tNumber of events included in EEG analyses (%d subjects; threshold: %d events):\n',exper.sesStr{ses},sum(~exper.badSub(:,ses)),thresh);
+    for evVal = 1:length(eventValues{ses})
+      for es = 1:length(eventValues{ses}{evVal})
+        meanTrials = mean(exper.nTrials.(exper.sesStr{ses}).(eventValues{ses}{evVal}{es})(~exper.badSub(:,ses)));
+        semTrials = std(exper.nTrials.(exper.sesStr{ses}).(eventValues{ses}{evVal}{es})(~exper.badSub(:,ses)),0,1)/sqrt(sum(~exper.badSub(:,ses)));
+        stdTrials = std(exper.nTrials.(exper.sesStr{ses}).(eventValues{ses}{evVal}{es})(~exper.badSub(:,ses)),0,1);
+        fprintf('%s:\tM=%.3f,\tSEM=%.3f,\tSD=%.3f\n',eventValues{ses}{evVal}{es},meanTrials,semTrials,stdTrials);
       end
     end
   end

@@ -1,7 +1,7 @@
-function [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files)
-%CREATE_FT_STRUCT_MULTISES: Create a FieldTrip data structure from NS files
+function [exper] = create_ft_struct_multiSes_cluster(ana,cfg_pp,exper,dirs,files,cfg_proc)
+%CREATE_FT_STRUCT_MULTISES_CLUSTER: Create a FieldTrip data structure from NS files
 %
-% [exper] = create_ft_struct_multiSes(ana,cfg_pp,exper,dirs,files)
+% [exper] = create_ft_struct_multiSes_cluster(ana,cfg_pp,exper,dirs,files,cfg_proc)
 %
 % The default function (set in ana.segFxn) that this function calls is
 % SEG2FT. See 'HELP SEG2FT' for more information.
@@ -423,5 +423,9 @@ for ses = 1:length(exper.sessions)
     
   end % for exper.subjects
 end % for exper.sessions
+
+% key modification for cluster version: do the processing of raw data
+% within this script
+process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp);
 
 end

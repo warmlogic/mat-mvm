@@ -67,7 +67,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030';
+  'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -136,7 +136,7 @@ fprintf('Done.\n');
 
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
 
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
@@ -148,6 +148,147 @@ exper.badSub = ismember(subjects,exper.badBehSub{1});
 
 alpha = 0.05;
 tails = 'both';
+
+%% expo - reaction time
+
+ses = 'oneDay';
+phase = 'expo';
+test = 'rating';
+measure = 'rating_rt';
+
+manip = 'Faces';
+data1 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
+data1_str = sprintf('%s %s %s',manip,test,measure);
+manip = 'HouseInside';
+data2 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
+data2_str = sprintf('%s %s %s',manip,test,measure);
+
+d = mm_effect_size('within',data1,data2);
+[h, p, ci, stats] = ttest(data1,data2,alpha,tails);
+
+fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.5f\n', ...
+  data1_str, ...
+  mean(data1), ...
+  std(data1) / sqrt(length(data1)), ...
+  data2_str, ...
+  mean(data2), ...
+  std(data2) / sqrt(length(data2)), ...
+  stats.df, ...
+  stats.tstat, ...
+  d, ...
+  std(data1 - data2),...
+  std(data1 - data2) / sqrt(length(data1)),...
+  p);
+
+%% expo - rating
+
+ses = 'oneDay';
+phase = 'expo';
+test = 'rating';
+measure = 'rating_resp';
+
+manip = 'Faces';
+data1 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
+data1_str = sprintf('%s %s %s',manip,test,measure);
+manip = 'HouseInside';
+data2 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
+data2_str = sprintf('%s %s %s',manip,test,measure);
+
+d = mm_effect_size('within',data1,data2);
+[h, p, ci, stats] = ttest(data1,data2,alpha,tails);
+
+fprintf('%s (M=%.2f; SEM=%.2f) vs\t%s (M=%.2f; SEM=%.2f):\n\tt(%d)=%.2f, d=%.2f, SD=%.2f, SEM=%.2f, p=%.11f\n', ...
+  data1_str, ...
+  mean(data1), ...
+  std(data1) / sqrt(length(data1)), ...
+  data2_str, ...
+  mean(data2), ...
+  std(data2) / sqrt(length(data2)), ...
+  stats.df, ...
+  stats.tstat, ...
+  d, ...
+  std(data1 - data2),...
+  std(data1 - data2) / sqrt(length(data1)),...
+  p);
+
+%% ANOVA - test - recognition - spacing (spaced/massed) X category (Faces/HouseInside)
+
+ses = 'oneDay';
+phase = 'cued_recall';
+test = 'recog';
+% measure = 'recog_hr';
+measure = 'recog_dp';
+measure = 'recog_rt';
+% measure = 'recog_rt_hit';
+% measure = 'recog_rt_miss';
+
+spacings = {'massed','spaced'};
+stimCats = {'Faces', 'HouseInside'};
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  if ~exper.badSub(sub,:)
+    %for ses = 1:length(exper.sesStr)
+    theseData = [];
+    
+    for sp = 1:length(spacings)
+      for st = 1:length(stimCats)
+        theseData = cat(2,theseData,results.(ses).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
+      end
+    end
+    %end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
+% varnames = {'stimType','subseqMem','spacing','time'};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+
+levelnames = {spacings, stimCats};
+varnames = {'spacing','img_cat'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
+
+%% ANOVA - test - recall - spacing (spaced/massed) X category (Faces/HouseInside)
+
+ses = 'oneDay';
+phase = 'cued_recall';
+test = 'recall';
+measure = 'recall_hr';
+% measure = 'recall_rt';
+% measure = 'recall_rt_hit';
+% measure = 'recall_rt_miss';
+
+spacings = {'massed','spaced'};
+stimCats = {'Faces', 'HouseInside'};
+
+anovaData = [];
+
+for sub = 1:length(exper.subjects)
+  if ~exper.badSub(sub,:)
+    %for ses = 1:length(exper.sesStr)
+    theseData = [];
+    
+    for sp = 1:length(spacings)
+      for st = 1:length(stimCats)
+        theseData = cat(2,theseData,results.(ses).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
+      end
+    end
+    %end
+    anovaData = cat(1,anovaData,theseData);
+  end
+end
+
+% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
+% varnames = {'stimType','subseqMem','spacing','time'};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
+
+levelnames = {spacings, stimCats};
+varnames = {'spacing','img_cat'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
+
+
 
 %% recog
 

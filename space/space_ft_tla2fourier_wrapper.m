@@ -56,31 +56,43 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
-  'SPACE001';
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  'SPACE019';
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
+%   'SPACE001';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   'SPACE019';
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
+  'SPACE036';
   };
 
 % only one cell, with all session names
@@ -119,8 +131,8 @@ if cfg_ana.splitTrials
   % whether to see if files are too big to combine (RAM limit issue)
   cfg_ana.checkSplitFileSizeForSaving = false;
   if cfg_ana.checkSplitFileSizeForSaving
-    % approximate limit in MB that the combined files can reach; otherwise will
-    % keep the split files
+    % approximate limit in MB that the combined files can reach; otherwise
+    % will keep the split files
     cfg_ana.combineSavingLimitMB = 3000;
   end
 end
@@ -180,7 +192,7 @@ end
 
 % name(s) of the functions for different stages of processing
 stageFun = {@stage1};
-timeOut  = {3}; % in HOURS
+timeOut  = {4}; % in HOURS
 % stageFun = {@stage1,@stage2};
 % timeOut  = {2,2}; % in HOURS
 

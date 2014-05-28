@@ -1,7 +1,7 @@
-function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
@@ -272,8 +272,9 @@ for ses = 1:length(session)
         c = [c1; c2];
         cfg_cont = cell2struct(c,fn,1);
       else
-        fprintf('Non-unique field names in ana.cfg_cont!\n');
-        keyboard
+        error('Non-unique field names in ana.cfg_cont!\n');
+        %fprintf('Non-unique field names in ana.cfg_cont!\n');
+        %keyboard
       end
     else
       warning('%s: The field ana.cfg_cont does not exist. Using defaults for preprocessing continuous data!',mfilename);
@@ -287,7 +288,7 @@ for ses = 1:length(session)
       cfg_cont.hpfilttype = 'but';
       cfg_cont.hpfiltord = 4;
       cfg_cont.bsfilter = 'yes';
-      cfg_cont.bsfreq = 59:61;
+      cfg_cont.bsfreq = [59 61];
       % % cfg_cont.dftfilter = 'yes';
       % % cfg_cont.dftfreq = [60 120 180];
     end
@@ -379,7 +380,7 @@ for ses = 1:length(session)
       if ana.useExpInfo
         cfg.eventinfo.trl_order = ana.trl_order;
         cfg.eventinfo.sessionNames = ana.sessionNames;
-        cfg.eventinfo.sessionNum = ses;
+        cfg.eventinfo.sessionNum = sesNum_orig;
         cfg.eventinfo.phaseNames = ana.phaseNames;
         cfg.eventinfo.eventValues = eventValue_orig;
         cfg.eventinfo.prepost = prepost;
@@ -419,8 +420,9 @@ for ses = 1:length(session)
     warning('Returning an empty dataset for %s. This will save an error file when running the ft_*analysis function.',...
       sprintf(repmat('''%s'' ',1,length(eventValue_orig)),eventValue_orig{:}));
     
-    % something is wrong, figure it out; or dbcont
-    keyboard
+    % something is wrong in your trialfun, figure it out; or dbcont
+    %keyboard
+    %error('something is wrong in your trialfun, figure it out');
     
     % set an empty cell and return to the calling function
     ft_raw.data.trial = {};

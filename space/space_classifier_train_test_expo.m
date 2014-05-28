@@ -107,14 +107,15 @@ ana = mm_ft_elecGroups(ana);
 
 sesNum = 1;
 
-ana.eventValues = {{'expo_stim','multistudy_word'}};
+ana.eventValues = {{'expo_stim'}};
+% ana.eventValues = {{'expo_stim','multistudy_word'}};
 % ana.eventValues = {{'expo_stim','multistudy_word','multistudy_image'}};
 ana.eventValuesSplit = { ...
   {{'Face','House'} ...
-  { ...
-  'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
-  'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
-  } ...
+%   { ...
+%   'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
+%   'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
+%   } ...
 %   { ...
 %   'img_RgH_rc_spac' ,'img_RgH_rc_mass' ...
 %   'img_RgH_fo_spac' ,'img_RgH_fo_mass' ...
@@ -125,12 +126,12 @@ if allowRecallSynonyms
   ana.trl_expr = {...
     {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
     sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-    {...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    } ...
+%     {...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     } ...
 %     {...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
@@ -143,12 +144,12 @@ else
   ana.trl_expr = {...
     {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
     sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-    { ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-    } ...
+%     { ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+%     } ...
 %     { ...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
 %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
@@ -434,19 +435,36 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 
 % thisROI = 'all129';
 % thisROI = 'center91';
-thisROI = 'center101';
+% thisROI = 'center101';
+thisROI = 'center109';
 
-% latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 % latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [0.0 0.5; 0.5 1.0];
 % latencies = [0.2 0.8];
 
 classif_start = 0;
 classif_end = 1.0;
+
+% Twenty-one 200 ms overlapping windows, every 40 ms
 classif_width = 0.2;
 window_spacing = 0.04;
 
+% % not overlapping
+% classif_width = 0.1;
+% window_spacing = 0.1;
+
+% % bigger windows
+% classif_start = 0.1;
+% classif_end = 1.0;
+% classif_width = 0.3;
+% window_spacing = 0.3;
+
 latencies = [classif_start:window_spacing:(classif_end - classif_width); (classif_start+classif_width):window_spacing:classif_end]';
+
+avgoverchan = 'no';
+avgovertime = 'no';
+% avgovertime = 'yes';
 
 parameter = 'trial';
 
@@ -473,24 +491,42 @@ dataTypes_train = {'Face', 'House'};
 equateTrainTrials = true;
 standardizeTrain = true;
 
-% test on p2 word
-dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
+train_catNumCol = 7;
+
+% % test on p2 word
+% dataTypes_test = dataTypes_train;
+% dataTypes_test = {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'};
 % dataTypes_test = {'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass'};
-equateTestTrials = false;
-standardizeTest = true;
-standardizeTestSeparately = false;
+% equateTestTrials = false;
+% standardizeTest = true;
+% standardizeTestSeparately = false;
+
+% test_sesName = 'oneDay';
+% test_phaseName = 'multistudy';
+% test_phaseCountCol = 4;
+% test_trialCol = 5;
+% test_stimNumCol = 6;
+% test_presNumCol = 11;
+% test_pairNumCol = 13;
 
 % data1 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{1}).sub(sub).data;
 % data2 = data_tla.(exper.sesStr{ses}).(ana.eventValues{typ}{2}).sub(sub).data;
 % data1_trials = data_tla.(exper.sesStr{ses}).Face.sub(sub).data;
 % data2_trials = data_tla.(exper.sesStr{ses}).House.sub(sub).data;
 
-testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
-% contingency table
-continTab = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
-trainLambda = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
-trainWeights = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
-facehouseClass = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+% testAcc = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test);
+testAcc_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1));
+testAUC_matrix = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1),size(latencies,1));
+
+nfolds = 5;
+
+% % contingency table
+% continTab = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1),length(dataTypes_test));
+% trainLambda = nan(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+% trainWeights = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+% facehouseClass = cell(length(exper.subjects),length(exper.sesStr),size(latencies,1));
+
+%% run classifier
 
 for sub = 1:length(exper.subjects)
   fprintf('%s...',exper.subjects{sub});
@@ -498,6 +534,8 @@ for sub = 1:length(exper.subjects)
     fprintf('%s...',exper.sesStr{ses});
     
     if ~exper.badSub(sub,ses)
+      % load the events file so we know what category each study word was
+      % paired with
       eventsFile = fullfile(dirs.dataroot,dirs.behDir,exper.subjects{sub},'events','events.mat');
       if exist(eventsFile,'file')
         fprintf('Loading events file...');
@@ -526,24 +564,24 @@ for sub = 1:length(exper.subjects)
         end
       end
       
-      % equate the testing categories
-      trlIndTest = cell(length(dataTypes_test),1);
-      if equateTestTrials
-        nTestTrial = nan(length(dataTypes_test),1);
-        for d = 1:length(dataTypes_test)
-          nTestTrial(d) = size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
-        end
-        fprintf('Equating testing categories to have %d trials.\n',min(nTestTrial));
-        for d = 1:length(dataTypes_test)
-          trlInd = randperm(nTestTrial(d));
-          trlIndTest{d,1} = sort(trlInd(1:min(nTestTrial)));
-        end
-      else
-        fprintf('\tNot equating testing category trial counts.\n');
-        for d = 1:length(dataTypes_test)
-          trlIndTest{d,1} = 'all';
-        end
-      end
+%       % equate the testing categories
+%       trlIndTest = cell(length(dataTypes_test),1);
+%       if equateTestTrials
+%         nTestTrial = nan(length(dataTypes_test),1);
+%         for d = 1:length(dataTypes_test)
+%           nTestTrial(d) = size(data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data.(parameter),1);
+%         end
+%         fprintf('Equating testing categories to have %d trials.\n',min(nTestTrial));
+%         for d = 1:length(dataTypes_test)
+%           trlInd = randperm(nTestTrial(d));
+%           trlIndTest{d,1} = sort(trlInd(1:min(nTestTrial)));
+%         end
+%       else
+%         fprintf('\tNot equating testing category trial counts.\n');
+%         for d = 1:length(dataTypes_test)
+%           trlIndTest{d,1} = 'all';
+%         end
+%       end
       
       for lat = 1:size(latencies,1)
         fprintf('\t%.2fs to %.2fs...\n',latencies(lat,1),latencies(lat,2));
@@ -551,9 +589,8 @@ for sub = 1:length(exper.subjects)
         cfg_data = [];
         cfg_data.latency = latencies(lat,:);
         cfg_data.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
-        cfg_data.avgoverchan = 'no';
-        cfg_data.avgovertime = 'no';
-        % cfg_data.avgovertime = 'yes';
+        cfg_data.avgoverchan = avgoverchan;
+        cfg_data.avgovertime = avgovertime;
         
         data_train = struct;
         
@@ -564,18 +601,18 @@ for sub = 1:length(exper.subjects)
         end
         
         % get the category number for each training image
-        catNumCol = 7;
-        imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,catNumCol);
+        imageCategory_train = data_train.(dataTypes_train{1}).trialinfo(:,train_catNumCol);
         for d = 2:length(dataTypes_train)
-          imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{d}).trialinfo(:,catNumCol));
+          imageCategory_train = cat(1,imageCategory_train,data_train.(dataTypes_train{d}).trialinfo(:,train_catNumCol));
         end
         
-        % concatenate the data
+        % pull out the data and concatenate (for DMLT)
         dat_train = data_train.(dataTypes_train{1}).(parameter);
         for d = 2:length(dataTypes_train)
           dat_train = cat(1,dat_train,data_train.(dataTypes_train{d}).(parameter));
         end
         
+        % unroll channels and timepoints within each trial
         dim = size(dat_train);
         dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
         %dat_train_ravel = reshape(dat_train,dim);
@@ -607,15 +644,94 @@ for sub = 1:length(exper.subjects)
         end
         
         fprintf('\t\tTraining classifier...');
-        %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
-        facehouse = dml.enet('family','binomial','alpha',alpha);
+%         %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
+%         facehouse = dml.enet('family','binomial','alpha',alpha);
+%         facehouse = facehouse.train(dat_train,imageCategory_train);
+%         %facehouse_svm = dml.svm;
+%         %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
+%         fprintf('Done.\n');
+%         facehouseClass{sub,ses,lat} = facehouse;
+%         trainLambda(sub,ses,lat) = facehouse.lambda;
+%         trainWeights{sub,ses,lat} = facehouse.weights;
+        
+        % train using cross validation; fills in the diagonal on matrix
+        facehouse = dml.crossvalidator('mva', dml.enet('family','binomial','alpha',alpha), 'type', 'nfold', 'folds', nfolds, 'compact', false, 'verbose', true);
         facehouse = facehouse.train(dat_train,imageCategory_train);
-        %facehouse_svm = dml.svm;
-        %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
         fprintf('Done.\n');
-        facehouseClass{sub,ses,lat} = facehouse;
-        trainLambda(sub,ses,lat) = facehouse.lambda;
-        trainWeights{sub,ses,lat} = facehouse.weights;
+        
+        %facehouse.statistic('accuracy')
+        
+        for lat2 = 1:size(latencies,1)
+          thisLat_acc = [];
+          thisLat_AUC = [];
+          
+          if lat2 ~= lat
+            %fprintf('\t%.2fs to %.2fs...\n',latencies(lat2,1),latencies(lat2,2));
+            
+            cfg_data = [];
+            cfg_data.latency = latencies(lat2,:);
+            cfg_data.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+            cfg_data.avgoverchan = avgoverchan;
+            cfg_data.avgovertime = avgovertime;
+            
+            data_train2 = struct;
+            
+            % select the data
+            for d = 1:length(dataTypes_train)
+              cfg_data.trials = trlIndTrain{d};
+              data_train2.(dataTypes_train{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+            end
+            
+            % get the category number for each training image
+            imageCategory_train = data_train2.(dataTypes_train{1}).trialinfo(:,train_catNumCol);
+            for d = 2:length(dataTypes_train)
+              imageCategory_train = cat(1,imageCategory_train,data_train2.(dataTypes_train{d}).trialinfo(:,train_catNumCol));
+            end
+            
+            % pull out the data and concatenate (for DMLT)
+            dat_train2 = data_train2.(dataTypes_train{1}).(parameter);
+            for d = 2:length(dataTypes_train)
+              dat_train2 = cat(1,dat_train2,data_train2.(dataTypes_train{d}).(parameter));
+            end
+            
+            % unroll channels and timepoints within each trial
+            dim = size(dat_train2);
+            dat_train2 = reshape(dat_train2, dim(1), prod(dim(2:end)));
+            %dat_train_ravel = reshape(dat_train2,dim);
+            
+            % whether to standardize the training data
+            if standardizeTrain
+              fprintf('\t\tStandardizing the training data (part deux)...');
+              
+              m = dml.standardizer;
+              m = m.train(dat_train2);
+              dat_train2 = m.test(dat_train2);
+              
+              fprintf('Done.\n');
+            end
+            
+          end
+          
+          % get the data for the other time bins; fills in off-diagonal
+          for nf = 1:nfolds
+            if lat2 ~= lat
+              % only test using the testfold trials from this fold
+              Z = facehouse.mva{nf}.test(dat_train2(facehouse.testfolds{nf},:));
+            else
+              Z = facehouse.result{nf};
+            end
+            
+            [~,I] = max(Z,[],2);
+            
+            thisLat_acc = cat(2,thisLat_acc,mean(I == imageCategory_train(facehouse.testfolds{nf})));
+            
+            [X,Y,T,AUC] = perfcurve(imageCategory_train(facehouse.testfolds{nf}),Z(:,1),1);
+            thisLat_AUC = cat(2,thisLat_AUC,AUC);
+          end
+          
+          testAcc_matrix(sub,ses,lat,lat2) = mean(thisLat_acc);
+          testAUC_matrix(sub,ses,lat,lat2) = mean(thisLat_AUC);
+        end
         
         
 %         cfg = [];
@@ -645,20 +761,21 @@ for sub = 1:length(exper.subjects)
 %         end
 %         facehouse2 = facehouse2.train(dat_train,imageCategory_train);
 %         
-%         keyboard
+% %         keyboard
 %         
 %         trainClass = struct;
 %         trainClass.model = facehouse2.model;
 %         %trainClass.obj = facehouse;
 %         
+%         % reshape the weights so they align with electrodes and samples
 %         if length(trainClass.model) > 1
 %           fn = fieldnames(trainClass.model{1});
 %           for i=1:length(trainClass.model)
-%           for k=1:length(fn)
-%             if numel(trainClass.model{i}.(fn{k}))==prod(dim(2:end))
-%               trainClass.model{i}.(fn{k}) = squeeze(reshape(trainClass.model{i}.(fn{k}),dim(2:end)));
+%             for k=1:length(fn)
+%               if numel(trainClass.model{i}.(fn{k}))==prod(dim(2:end))
+%                 trainClass.model{i}.(fn{k}) = squeeze(reshape(trainClass.model{i}.(fn{k}),dim(2:end)));
+%               end
 %             end
-%           end
 %           end
 %         elseif length(trainClass.model) == 1
 %           fn = fieldnames(trainClass.model);
@@ -668,26 +785,37 @@ for sub = 1:length(exper.subjects)
 %             end
 %           end
 %         end
-%         trainClass.trial = [];
 %         
-%         trainClass.dimord = 'chan';
-%         trainClass.label = data_train.(dataTypes_train{1}).label;
-%         
+%         % average the models
 %         if length(trainClass.model) > 1
 %           %trainClass.mymodel = trainClass.model{1}.weights;
 %           %trainClass.mymodel = trainClass.model{1}.primal;
 %           
 %           trainClass.mymodel = [];
+%           trainClass.mybias = [];
+%           trainClass.mylambda = [];
 %           for m = 1:length(trainClass.model)
 %             trainClass.mymodel = cat(3,trainClass.mymodel,trainClass.model{m}.weights);
+%             trainClass.mybias = cat(3,trainClass.mybias,trainClass.model{m}.bias);
+%             trainClass.mylambda = cat(3,trainClass.mylambda,trainClass.model{m}.lambda);
+%             
 %             %trainClass.mymodel = cat(3,trainClass.mymodel,trainClass.model{m}.primal);
 %           end
 %           trainClass.mymodel = mean(trainClass.mymodel,3);
+%           trainClass.mybias = mean(trainClass.mybias,3);
+%           trainClass.mylambda = mean(trainClass.mylambda,3);
 %         else
 %           trainClass.mymodel = trainClass.model.weights;
+%           trainClass.mybias = trainClass.model.bias;
+%           trainClass.mylambda = trainClass.model.lambda;
 %           %trainClass.mymodel = trainClass.model.primal;
 %         end
-%         trainClass.mymodel = meanmodel;
+        
+%         % plot it
+%         trainClass.dimord = 'chan';
+%         trainClass.label = data_train.(dataTypes_train{1}).label;
+%         % dummy trial
+%         trainClass.trial = [];
 %         cfg = [];
 %         cfg.parameter = 'mymodel';
 %         cfg.layout = 'GSN-HydroCel-129.sfp';
@@ -698,263 +826,255 @@ for sub = 1:length(exper.subjects)
 %         ft_topoplotER(cfg,trainClass);
         
         
-        fprintf('\t\tSetting up testing data...\n');
-        % set up the test data
-        data_test = struct;
-        
-        sesName = 'oneDay';
-        phaseName = 'multistudy';
-        phaseCountCol = 4;
-        trialCol = 5;
-        stimNumCol = 6;
-        presNumCol = 11;
-        pairNumCol = 13;
-        
-        if standardizeTestSeparately
-          for d = 1:length(dataTypes_test)
-            % select the data
-            %for d = 1:length(dataTypes_test)
-            cfg_data.trials = trlIndTest{d};
-            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
-            %end
-            
-            % find whether p2 words were paired with a face or a house
-            pairedCategory_test = [];
-            %for d = 1:length(dataTypes_test)
-            for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
-              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
-              
-              thisEventInd = find(...
-                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
-                );
-              
-              if isempty(thisEventInd)
-                thisEventInd = find(...
-                  ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
-                  );
-              end
-              
-              if ~isempty(thisEventInd) && length(thisEventInd) == 1
-                pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
-                pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
-              elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
-                %keyboard
-                error('Found more than one event!');
-              elseif isempty(thisEventInd)
-                %keyboard
-                error('No events found!');
-              end
-            end
-            %end
-            
-            % get the test data
-            dat_test = data_test.(dataTypes_test{d}).(parameter);
-            
-            % concatenate the data
-            %dat_test = data_test.(dataTypes_test{1}).(parameter);
-            %for d = 2:length(dataTypes_test)
-            %  dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
-            %end
-            
-            dim = size(dat_test);
-            dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
-            %dat_test_ravel = reshape(dat_test,dim);
-            
-            % whether to standardize the testing data
-            if standardizeTest
-              fprintf('\t\tStandardizing the testing data (%s)...',dataTypes_test{d});
-              
-              m = dml.standardizer;
-              m = m.train(dat_test);
-              dat_test = m.test(dat_test);
-              %dat_test_ravel = reshape(dat_test,dim);
-              
-              %       mu = nanmean(dat);
-              %       sigma = nanstd(dat);
-              %
-              %       dat = dat;
-              %       idx = ~isnan(mu);
-              %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
-              %       idx = ~isnan(sigma) & ~(sigma==0);
-              %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
-              %       dat_ravel = reshape(dat,dim);
-              %
-              %       % put it back
-              %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
-              %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
-              
-              fprintf('Done.\n');
-            end
-            
-            %cv = cv.train(dat_test,pairedCategory_test);
-            
-            faceInd = pairedCategory_test == 1;
-            houseInd = pairedCategory_test == 2;
-            
-            fprintf('\t\tTest data: %s\n',dataTypes_test{d});
-            fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test,1),sum(faceInd),sum(houseInd));
-            fprintf('\t\tRunning classifier on testing data...');
-            Z = facehouse.test(dat_test);
-            %Z = facehouse_svm.test(dat_test);
-            fprintf('Done.\n');
-            
-            % find which category it fit best
-            [Y,I] = max(Z,[],2);
-            
-            testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test);
-            
-            %[I pairedCategory_test]
-            fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
-            
-            
-            faceCorr = pairedCategory_test(faceInd) == I(faceInd);
-            faceWrong = pairedCategory_test(faceInd) ~= I(faceInd);
-            houseCorr = pairedCategory_test(houseInd) == I(houseInd);
-            houseWrong = pairedCategory_test(houseInd) ~= I(houseInd);
-            
-            continTab{sub,ses,lat,d} = [sum(faceCorr), sum(faceWrong); sum(houseWrong), sum(houseCorr)];
-            
-            % contingency table
-            fprintf('\n');
-            fprintf('\t\tPredicted\n');
-            fprintf('\t\t%s\t%s\n',dataTypes_train{1},dataTypes_train{2});
-            fprintf('True\t%s\t%d\t%d\n',dataTypes_train{1},continTab{sub,ses,lat,d}(1,1),continTab{sub,ses,lat,d}(1,2));
-            fprintf('\t%s\t%d\t%d\n',dataTypes_train{2},continTab{sub,ses,lat,d}(2,1),continTab{sub,ses,lat,d}(2,2));
-            fprintf('\n');
-          end % d
-        else
-          % standardize test data together
-          
-          % select the data
-          for d = 1:length(dataTypes_test)
-            cfg_data.trials = trlIndTest{d};
-            data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
-          end
-          
-          % find whether p2 words were paired with a face or a house
-          pairedCategory_test = [];
-          for d = 1:length(dataTypes_test)
-            for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
-              phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,phaseCountCol);
-              
-              thisEventInd = find(...
-                ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
-                );
-              
-              if isempty(thisEventInd)
-                thisEventInd = find(...
-                  ismember({events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,trialCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,stimNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,presNumCol) & ...
-                  [events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,pairNumCol) ...
-                  );
-              end
-              
-              if ~isempty(thisEventInd) && length(thisEventInd) == 1
-                pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd+1).catNum;
-                
-                % % verifying that images are classified correctly
-                % pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd).catNum;
-                pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
-              elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
-                %keyboard
-                error('Found more than one event!');
-              elseif isempty(thisEventInd)
-                %keyboard
-                error('No events found!');
-              end
-            end
-          end
-          
-          % concatenate the data
-          dat_test = data_test.(dataTypes_test{1}).(parameter);
-          testDataIndices = ones(size(data_test.(dataTypes_test{1}).(parameter),1),1);
-          for d = 2:length(dataTypes_test)
-            dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
-            testDataIndices = cat(1,testDataIndices,d * ones(size(data_test.(dataTypes_test{d}).(parameter),1),1));
-          end
-          
-          dim = size(dat_test);
-          dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
-          %dat_test_ravel = reshape(dat_test,dim);
-          
-          % whether to standardize the testing data
-          if standardizeTest
-            fprintf('\t\tStandardizing the testing data...');
-            
-            m = dml.standardizer;
-            m = m.train(dat_test);
-            dat_test = m.test(dat_test);
-            %dat_test_ravel = reshape(dat_test,dim);
-            
-            %       mu = nanmean(dat);
-            %       sigma = nanstd(dat);
-            %
-            %       dat = dat;
-            %       idx = ~isnan(mu);
-            %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
-            %       idx = ~isnan(sigma) & ~(sigma==0);
-            %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
-            %       dat_ravel = reshape(dat,dim);
-            %
-            %       % put it back
-            %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
-            %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
-            
-            fprintf('Done.\n');
-          end
-          
-          for d = 1:length(dataTypes_test)
-            datInd = testDataIndices == d;
-            thisPairedCategory_test = pairedCategory_test(datInd,:);
-            faceInd = thisPairedCategory_test == 1;
-            houseInd = thisPairedCategory_test == 2;
-            
-            fprintf('\t\tTest data: %s\n',dataTypes_test{d});
-            fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test(datInd,:),1),sum(faceInd),sum(houseInd));
-            fprintf('\t\tRunning classifier on testing data...');
-            Z = facehouse.test(dat_test(datInd,:));
-            %Z = facehouse_svm.test(dat_test(datInd,:));
-            fprintf('Done.\n');
-            
-            % find which category it fit best
-            [Y,I] = max(Z,[],2);
-            
-            testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test(datInd,:));
-            
-            %[I pairedCategory_test]
-            fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
-            
-            faceCorr = thisPairedCategory_test(faceInd) == I(faceInd);
-            faceWrong = thisPairedCategory_test(faceInd) ~= I(faceInd);
-            houseCorr = thisPairedCategory_test(houseInd) == I(houseInd);
-            houseWrong = thisPairedCategory_test(houseInd) ~= I(houseInd);
-            
-            continTab{sub,ses,lat,d} = [sum(faceCorr), sum(faceWrong); sum(houseWrong), sum(houseCorr)];
-            
-            % contingency table
-            fprintf('\n');
-            fprintf('\t\tPredicted\n');
-            fprintf('\t\t%s\t%s\n',dataTypes_train{1},dataTypes_train{2});
-            fprintf('True\t%s\t%d\t%d\n',dataTypes_train{1},continTab{sub,ses,lat,d}(1,1),continTab{sub,ses,lat,d}(1,2));
-            fprintf('\t%s\t%d\t%d\n',dataTypes_train{2},continTab{sub,ses,lat,d}(2,1),continTab{sub,ses,lat,d}(2,2));
-            fprintf('\n');
-          end % d
-          
-        end
+%         fprintf('\t\tSetting up testing data...\n');
+%         % set up the test data
+%         data_test = struct;
+%         
+%         if standardizeTestSeparately
+%           for d = 1:length(dataTypes_test)
+%             % select the data
+%             %for d = 1:length(dataTypes_test)
+%             cfg_data.trials = trlIndTest{d};
+%             data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+%             %end
+%             
+%             % find whether p2 words were paired with a face or a house
+%             pairedCategory_test = [];
+%             %for d = 1:length(dataTypes_test)
+%             for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
+%               phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,test_phaseCountCol);
+%               
+%               thisEventInd = find(...
+%                 ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
+%                 );
+%               
+%               if isempty(thisEventInd)
+%                 thisEventInd = find(...
+%                   ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
+%                   );
+%               end
+%               
+%               if ~isempty(thisEventInd) && length(thisEventInd) == 1
+%                 pairCatNum = events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data(thisEventInd+1).catNum;
+%                 pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
+%               elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
+%                 %keyboard
+%                 error('Found more than one event!');
+%               elseif isempty(thisEventInd)
+%                 %keyboard
+%                 error('No events found!');
+%               end
+%             end
+%             %end
+%             
+%             % get the test data
+%             dat_test = data_test.(dataTypes_test{d}).(parameter);
+%             
+%             % concatenate the data
+%             %dat_test = data_test.(dataTypes_test{1}).(parameter);
+%             %for d = 2:length(dataTypes_test)
+%             %  dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
+%             %end
+%             
+%             dim = size(dat_test);
+%             dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
+%             %dat_test_ravel = reshape(dat_test,dim);
+%             
+%             % whether to standardize the testing data
+%             if standardizeTest
+%               fprintf('\t\tStandardizing the testing data (%s)...',dataTypes_test{d});
+%               
+%               m = dml.standardizer;
+%               m = m.train(dat_test);
+%               dat_test = m.test(dat_test);
+%               %dat_test_ravel = reshape(dat_test,dim);
+%               
+%               %       mu = nanmean(dat);
+%               %       sigma = nanstd(dat);
+%               %
+%               %       dat = dat;
+%               %       idx = ~isnan(mu);
+%               %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+%               %       idx = ~isnan(sigma) & ~(sigma==0);
+%               %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
+%               %       dat_ravel = reshape(dat,dim);
+%               %
+%               %       % put it back
+%               %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
+%               %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
+%               
+%               fprintf('Done.\n');
+%             end
+%             
+%             %cv = cv.train(dat_test,pairedCategory_test);
+%             
+%             faceInd = pairedCategory_test == 1;
+%             houseInd = pairedCategory_test == 2;
+%             
+%             fprintf('\t\tTest data: %s\n',dataTypes_test{d});
+%             fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test,1),sum(faceInd),sum(houseInd));
+%             fprintf('\t\tRunning classifier on testing data...');
+%             Z = facehouse.test(dat_test);
+%             %Z = facehouse_svm.test(dat_test);
+%             fprintf('Done.\n');
+%             
+%             % find which category it fit best
+%             [Y,I] = max(Z,[],2);
+%             
+%             testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test);
+%             
+%             %[I pairedCategory_test]
+%             fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
+%             
+%             
+%             faceCorr = pairedCategory_test(faceInd) == I(faceInd);
+%             faceWrong = pairedCategory_test(faceInd) ~= I(faceInd);
+%             houseCorr = pairedCategory_test(houseInd) == I(houseInd);
+%             houseWrong = pairedCategory_test(houseInd) ~= I(houseInd);
+%             
+%             continTab{sub,ses,lat,d} = [sum(faceCorr), sum(faceWrong); sum(houseWrong), sum(houseCorr)];
+%             
+%             % contingency table
+%             fprintf('\n');
+%             fprintf('\t\tPredicted\n');
+%             fprintf('\t\t%s\t%s\n',dataTypes_train{1},dataTypes_train{2});
+%             fprintf('True\t%s\t%d\t%d\n',dataTypes_train{1},continTab{sub,ses,lat,d}(1,1),continTab{sub,ses,lat,d}(1,2));
+%             fprintf('\t%s\t%d\t%d\n',dataTypes_train{2},continTab{sub,ses,lat,d}(2,1),continTab{sub,ses,lat,d}(2,2));
+%             fprintf('\n');
+%           end % d
+%         else
+%           % standardize test data together
+%           
+%           % select the data
+%           for d = 1:length(dataTypes_test)
+%             cfg_data.trials = trlIndTest{d};
+%             data_test.(dataTypes_test{d}) = ft_selectdata_new(cfg_data,data_tla.(exper.sesStr{ses}).(dataTypes_test{d}).sub(sub).data);
+%           end
+%           
+%           % find whether p2 words were paired with a face or a house
+%           pairedCategory_test = [];
+%           for d = 1:length(dataTypes_test)
+%             for i = 1:size(data_test.(dataTypes_test{d}).(parameter),1)
+%               phaseNum = data_test.(dataTypes_test{d}).trialinfo(i,test_phaseCountCol);
+%               
+%               thisEventInd = find(...
+%                 ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_IMAGE') & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+%                 [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
+%                 );
+%               
+%               if isempty(thisEventInd)
+%                 thisEventInd = find(...
+%                   ismember({events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.type},'STUDY_WORD') & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.trial] == data_test.(dataTypes_test{d}).trialinfo(i,test_trialCol) & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.stimNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_stimNumCol) & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.presNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_presNumCol) & ...
+%                   [events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data.pairNum] == data_test.(dataTypes_test{d}).trialinfo(i,test_pairNumCol) ...
+%                   );
+%               end
+%               
+%               if ~isempty(thisEventInd) && length(thisEventInd) == 1
+%                 pairCatNum = events.(test_sesName).(sprintf('%s_%d',test_phaseName,phaseNum)).data(thisEventInd+1).catNum;
+%                 
+%                 % % verifying that images are classified correctly
+%                 % pairCatNum = events.(sesName).(sprintf('%s_%d',phaseName,phaseNum)).data(thisEventInd).catNum;
+%                 pairedCategory_test = cat(1,pairedCategory_test,pairCatNum);
+%               elseif ~isempty(thisEventInd) && length(thisEventInd) > 1
+%                 %keyboard
+%                 error('Found more than one event!');
+%               elseif isempty(thisEventInd)
+%                 %keyboard
+%                 error('No events found!');
+%               end
+%             end
+%           end
+%           
+%           % concatenate the data
+%           dat_test = data_test.(dataTypes_test{1}).(parameter);
+%           testDataIndices = ones(size(data_test.(dataTypes_test{1}).(parameter),1),1);
+%           for d = 2:length(dataTypes_test)
+%             dat_test = cat(1,dat_test,data_test.(dataTypes_test{d}).(parameter));
+%             testDataIndices = cat(1,testDataIndices,d * ones(size(data_test.(dataTypes_test{d}).(parameter),1),1));
+%           end
+%           
+%           dim = size(dat_test);
+%           dat_test = reshape(dat_test, dim(1), prod(dim(2:end)));
+%           %dat_test_ravel = reshape(dat_test,dim);
+%           
+%           % whether to standardize the testing data
+%           if standardizeTest
+%             fprintf('\t\tStandardizing the testing data...');
+%             
+%             m = dml.standardizer;
+%             m = m.train(dat_test);
+%             dat_test = m.test(dat_test);
+%             %dat_test_ravel = reshape(dat_test,dim);
+%             
+%             %       mu = nanmean(dat);
+%             %       sigma = nanstd(dat);
+%             %
+%             %       dat = dat;
+%             %       idx = ~isnan(mu);
+%             %       dat(:,idx) = bsxfun(@minus,dat(:,idx),mu(idx));
+%             %       idx = ~isnan(sigma) & ~(sigma==0);
+%             %       dat(:,idx) = bsxfun(@rdivide,dat(:,idx),sigma(idx));
+%             %       dat_ravel = reshape(dat,dim);
+%             %
+%             %       % put it back
+%             %       data1.(parameter) = dat_z_ravel(1:size(data1.(parameter),1),:,:);
+%             %       data2.(parameter) = dat_z_ravel(size(data2.(parameter),1)+1:size(data1.(parameter),1)+size(data2.(parameter),1),:,:);
+%             
+%             fprintf('Done.\n');
+%           end
+%           
+%           for d = 1:length(dataTypes_test)
+%             datInd = testDataIndices == d;
+%             thisPairedCategory_test = pairedCategory_test(datInd,:);
+%             faceInd = thisPairedCategory_test == 1;
+%             houseInd = thisPairedCategory_test == 2;
+%             
+%             fprintf('\t\tTest data: %s\n',dataTypes_test{d});
+%             fprintf('\t\t%d trials: %d paired with faces, %d paired with houses\n',size(dat_test(datInd,:),1),sum(faceInd),sum(houseInd));
+%             fprintf('\t\tRunning classifier on testing data...');
+%             Z = facehouse.test(dat_test(datInd,:));
+%             %Z = facehouse_svm.test(dat_test(datInd,:));
+%             fprintf('Done.\n');
+%             
+%             % find which category it fit best
+%             [Y,I] = max(Z,[],2);
+%             
+%             testAcc(sub,ses,lat,d) = mean(I == pairedCategory_test(datInd,:));
+%             
+%             %[I pairedCategory_test]
+%             fprintf('\t\tAccuracy (%s): %.4f\n',dataTypes_test{d},testAcc(sub,ses,lat,d));
+%             
+%             faceCorr = thisPairedCategory_test(faceInd) == I(faceInd);
+%             faceWrong = thisPairedCategory_test(faceInd) ~= I(faceInd);
+%             houseCorr = thisPairedCategory_test(houseInd) == I(houseInd);
+%             houseWrong = thisPairedCategory_test(houseInd) ~= I(houseInd);
+%             
+%             continTab{sub,ses,lat,d} = [sum(faceCorr), sum(faceWrong); sum(houseWrong), sum(houseCorr)];
+%             
+%             % contingency table
+%             fprintf('\n');
+%             fprintf('\t\tPredicted\n');
+%             fprintf('\t\t%s\t%s\n',dataTypes_train{1},dataTypes_train{2});
+%             fprintf('True\t%s\t%d\t%d\n',dataTypes_train{1},continTab{sub,ses,lat,d}(1,1),continTab{sub,ses,lat,d}(1,2));
+%             fprintf('\t%s\t%d\t%d\n',dataTypes_train{2},continTab{sub,ses,lat,d}(2,1),continTab{sub,ses,lat,d}(2,2));
+%             fprintf('\n');
+%           end % d
+%           
+%         end
       end % lat
     else
       fprintf('bad subject!\n');
@@ -963,7 +1083,27 @@ for sub = 1:length(exper.subjects)
 end % sub
 
 %save(sprintf('fhClass_100HzLP_fhC_%s_%s_%dlat_alpha%s_2Mar2014.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.','')),'testAcc','continTab','facehouseClass','trainLambda','trainWeights','-v7.3');
-save(sprintf('fhClass_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc','continTab','trainLambda','trainWeights');
+save(sprintf('fhClass_%dfoldAcrossTrain_100HzLP_%s_%s_%dlat_alpha%s_%s.mat',nfolds,synStr,thisROI,size(latencies,1),strrep(num2str(alpha),'.',''),date),'testAcc_matrix','testAUC_matrix');
+
+figure;
+% imagesc(latencies(:,1),latencies(:,1),squeeze(mean(testAcc_matrix(:,1,:,:),1))/);
+imagesc(latencies(:,1),latencies(:,1),squeeze(mean(testAcc_matrix(:,1,:,:),1)));
+axis xy;
+axis square;
+colorbar;
+title('Accuracy');
+ylabel('Training time???');
+xlabel('Generalization time???');
+
+figure;
+% imagesc(latencies(:,1),latencies(:,1),squeeze(mean(testAUC_matrix(:,1,:,:),1))');
+imagesc(latencies(:,1),latencies(:,1),squeeze(mean(testAUC_matrix(:,1,:,:),1)));
+axis xy;
+axis square;
+colorbar;
+title('Area Under Curve');
+ylabel('Training time???');
+xlabel('Generalization time???');
 
 %% classifier face/house performance
 

@@ -1,4 +1,4 @@
-function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesStr,replaceDataroot,replaceDatatype)
+function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,sesStr,replaceDataroot,replaceDatatype,subDir)
 % MM_LOADAD Load in the analysis details by aggregating subject details.
 % All event values are loaded!
 %
@@ -32,15 +32,21 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,ses
 %                   procDir because this is where subjectDetails.mat are
 %                   stored) e.g., {'tla','pow'}
 %
+% subDir          = extra directory under ftpp
+%
 % TODO: save subjectDetails.mat in their own directory instead of in the
 %       first data type to be processed
 %
+
+if ~exist('subDir','var') || isempty(subDir)
+  subDir = '';
+end
 
 if ~exist('replaceDatatype','var') || isempty(replaceDatatype)
   replaceDatatype = {};
 end
 
-if isstr(replaceDatatype)
+if ischar(replaceDatatype)
   replaceDatatype = {replaceDatatype};
 end
 
@@ -341,6 +347,14 @@ if datatype_replace
   else
     error('incorrect setup of replaceDatatype');
   end
+end
+
+if ~isempty(subDir)
+  dirs.dataDir = strrep(dirs.dataDir,'ftpp',fullfile('ftpp',subDir));
+  dirs.saveDirStem = strrep(dirs.saveDirStem,'ftpp',fullfile('ftpp',subDir));
+  dirs.saveDirRaw = strrep(dirs.saveDirRaw,'ftpp',fullfile('ftpp',subDir));
+  dirs.saveDirProc = strrep(dirs.saveDirProc,'ftpp',fullfile('ftpp',subDir));
+  dirs.saveDirFigs = strrep(dirs.saveDirFigs,'ftpp',fullfile('ftpp',subDir));
 end
 
 % %% dynamic renaming of cfg_*

@@ -753,8 +753,8 @@ imgStr = 'Color';
 
 % % trainConds = {'TT','UU','TU','UT'};
 % % trainConds = {'TT','UU'};
-imgConds = {'g','g_hi8','g_lo8'};
-imgStr = 'SF';
+% imgConds = {'g','g_hi8','g_lo8'};
+% imgStr = 'SF';
 
 sesNames = {'pretest', 'posttest'};
 sesStr = 'Pre/Post';
@@ -774,8 +774,12 @@ measure = 'dp';
 
 anovaData = [];
 
+% fn = {};
+fn = cell(1,prod([length(sesNames) length(trainConds) length(imgConds) nDivisions]));
+
 for sub = 1:length(subjects)
-  
+  fnCount = 0;
+
   if ~exper.badSub(sub)
     
     theseData = [];
@@ -786,6 +790,9 @@ for sub = 1:length(subjects)
           for fam = 1:length(famLevel)
             
             for d = 1:nDivisions
+              fnCount = fnCount + 1;
+              fn{fnCount} = sprintf('%s_%s_%s_%s_%d',sesNames{ses},trainConds{trn},imgConds{img},famLevel{fam},d);
+              
               dp_post = results.(sesNames{ses}).(phaseName).(trainConds{trn}).(imgConds{img}).(famLevel{fam}).(measure)(sub,d);
               
               theseData = cat(2,theseData,dp_post);
@@ -801,9 +808,14 @@ end
 if nDivisions > 1
   varnames = {sesStr, 'Training', imgStr, 'Quantile'};
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds) nDivisions], varnames);
+  
+  %[efs,F,cdfs,p,eps,dfs,b,y2,sig]=repanova(anovaData,[length(sesNames) length(trainConds) length(imgConds) nDivisions],fn);
+  
 elseif nDivisions == 1
   varnames = {sesStr, 'Training', imgStr};
   O = teg_repeated_measures_ANOVA(anovaData, [length(sesNames) length(trainConds) length(imgConds)], varnames);
+  
+  %[efs,F,cdfs,p,eps,dfs,b,y2,sig]=repanova(anovaData,[length(sesNames) length(trainConds) length(imgConds)],fn);
 end
 
 %% RMANOVA: pre/post x basic/sub x image condition (color and SF) (collapse TT+UU training)
