@@ -1,6 +1,6 @@
 function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic_wlogging(subject,dirs,data,ana,elecfile,badChan_str,badEv)
 
-% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(subject,dirs,data,ana,elecfile,badChan_str,badEv)
+% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic_wlogging(subject,dirs,data,ana,elecfile,badChan_str,badEv)
 %
 % Simulate Net Station's Artifact Detection Classic
 %
