@@ -21,6 +21,27 @@ if ~isempty(ptbDir)
   end
 end
 
+%% set up MNE path
+
+mneDir = dir(fullfile(filesep,'Applications','MNE-*'));
+if ~isempty(mneDir)
+  setenv('MNE_ROOT',fullfile(filesep,'Applications',mneDir.name));
+  
+  mneDir = fullfile(filesep,'Applications',mneDir.name,'share','matlab');
+  
+  if exist(mneDir,'dir')
+    % add top folder
+    addpath(mneDir);
+  end
+end
+
+% mnehome = getenv('MNE_ROOT');
+% mnematlab = sprintf('%s/share/matlab',mnehome);
+% if exist(mnematlab,'dir')
+%   addpath(mnematlab);
+% end
+% clear mnehome mnematlab
+
 %% set up eeg_toolbox path
 
 %eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox'));
@@ -134,12 +155,20 @@ if exist(ftDir,'dir')
   %   rmpath(genpath(ftExtDir));
   % end
   
-  % remove fieldtrip's eeglab directory if it was added
+  % remove fieldtrip's external eeglab directory if it was added
   ftEeglabDir = dir(fullfile(ftDir,'external','eeglab*'));
   if ~isempty(ftEeglabDir)
     ftEeglabDir = fullfile(myMatlabDir,ftEeglabDir.name);
     %fprintf('Removing %s and its subdirectories from path.\n',ftEeglabDir);
     rmpath(genpath(ftEeglabDir));
+  end
+  
+  % remove fieldtrip's external MNE directory if it was added
+  ftMneDir = dir(fullfile(ftDir,'external','mne'));
+  if ~isempty(ftMneDir)
+    ftMneDir = fullfile(myMatlabDir,ftMneDir.name);
+    %fprintf('Removing %s and its subdirectories from path.\n',ftMneDir);
+    rmpath(genpath(ftMneDir));
   end
   
   % functions that get in the way; structure arguments as:
