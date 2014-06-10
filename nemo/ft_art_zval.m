@@ -1,6 +1,28 @@
 function [cfg, artifact] = ft_artifact_zvalue(cfg, data)
 
-% FT_ARTIFACT_ZVALUE reads the interesting segments of data from file and
+%% Preferences from ebird_ft_seg_tla.m
+% % set up for ftAuto following nsClassic
+% % % negative trlpadding: don't check that time (on both sides) for artifacts
+% % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% % of extra time around trial epochs. Otherwise set to zero.
+% % ana.artifact.trlpadding = -0.5;
+% ana.artifact.trlpadding = 0;
+% ana.artifact.artpadding = 0.1;
+% ana.artifact.fltpadding = 0;
+% 
+% ana.artifact.thresh = true;
+% ana.artifact.threshmin = -150;
+% ana.artifact.threshmax = 150;
+% ana.artifact.threshrange = 250;
+% ana.artifact.basic_art = true;
+% ana.artifact.basic_art_z = 30;
+% ana.artifact.jump_art = true;
+% ana.artifact.jump_art_z = 50;
+% % eog_art is only used with ftAuto
+% ana.artifact.eog_art = false;
+% % ana.artifact.eog_art_z = 3.5;
+
+%% FT_ARTIFACT_ZVALUE reads the interesting segments of data from file and
 % identifies artifacts by means of thresholding the z-transformed value
 % of the preprocessed raw data. Depending on the preprocessing options,
 % this method will be sensitive to EOG, muscle or jump artifacts.

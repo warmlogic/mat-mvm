@@ -266,7 +266,7 @@ ana.cfg_cont.hpfilter = 'yes';
 ana.cfg_cont.hpfreq = 0.1;
 ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
-ana.cfg_cont.bsfilter = 'no'; %originally 'yes', but no bandpass filter used in NS processing
+ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
 % artifact settings
@@ -274,16 +274,25 @@ ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes';
 
 % ana.artifact.type = {'nsClassic','ftAuto'};
-ana.artifact.type = {'nsClassic'};
+ ana.artifact.type = {'nsClassic'};
 
-% set up for nsClassic
+ % set up for nsClassic_wZtran
 ana.artifact.checkArtSec = [-Inf Inf];
-ana.artifact.blink_threshold = 70;
-ana.artifact.fast_threshold = 100;
-ana.artifact.diff_threshold = 50;
+ana.artifact.basic_art_z = 30;
+ana.artifact.jump_art_z = 50;
+ana.artifact.eog_art_z = 3.5;
 ana.artifact.rejectTrial_nBadChan = 10;
 ana.artifact.repairChan_percentBadTrials = 20;
 ana.artifact.allowBadNeighborChan = true;
+ 
+% % set up for nsClassic
+% ana.artifact.checkArtSec = [-Inf Inf];
+% ana.artifact.blink_threshold = 70;
+% ana.artifact.fast_threshold = 100;
+% ana.artifact.diff_threshold = 50;
+% ana.artifact.rejectTrial_nBadChan = 10;
+% ana.artifact.repairChan_percentBadTrials = 20;
+% ana.artifact.allowBadNeighborChan = true;
 
 % % set up for ftAuto following nsClassic
 % % % negative trlpadding: don't check that time (on both sides) for artifacts

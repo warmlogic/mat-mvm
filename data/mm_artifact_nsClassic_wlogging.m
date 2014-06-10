@@ -46,7 +46,7 @@ function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic_wlog
 % log for info
 resultsDir = fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results',subject);
 if ~exist(resultsDir, 'dir')
-  resultsDir = mkdir(fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results'),subject);
+  mkdir(fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results'),subject);
 end
 resultsFileLoc = fullfile(dirs.localDir,dirs.dataDir,'nsClassic_results',subject);
 resultsFile = fopen(fullfile(resultsFileLoc,'nsClassic_results.txt'), 'w');
