@@ -150,7 +150,7 @@ if exist(ftDir,'dir')
   
   % % remove fieldtrip's external directory
   % ftExtDir = fullfile(ftDir,'external');
-  % if ~isempty(ftExtDir)
+  % if ~isempty(ftExtDir) && ~isempty(strfind(path,ftExtDir))
   %   fprintf('Removing %s and its subdirectories from path.\n',ftExtDir);
   %   rmpath(genpath(ftExtDir));
   % end
@@ -158,15 +158,16 @@ if exist(ftDir,'dir')
   % remove fieldtrip's external eeglab directory if it was added
   ftEeglabDir = dir(fullfile(ftDir,'external','eeglab*'));
   if ~isempty(ftEeglabDir)
-    ftEeglabDir = fullfile(myMatlabDir,ftEeglabDir.name);
+    ftEeglabDir = fullfile(ftDir,'external',ftEeglabDir.name);
     %fprintf('Removing %s and its subdirectories from path.\n',ftEeglabDir);
-    rmpath(genpath(ftEeglabDir));
+    if ~isempty(strfind(path,ftEeglabDir))
+      rmpath(genpath(ftEeglabDir));
+    end
   end
   
   % remove fieldtrip's external MNE directory if it was added
-  ftMneDir = dir(fullfile(ftDir,'external','mne'));
-  if ~isempty(ftMneDir)
-    ftMneDir = fullfile(myMatlabDir,ftMneDir.name);
+  ftMneDir = fullfile(ftDir,'external','mne');
+  if exist(ftMneDir,'dir') && ~isempty(strfind(path,ftMneDir))
     %fprintf('Removing %s and its subdirectories from path.\n',ftMneDir);
     rmpath(genpath(ftMneDir));
   end
