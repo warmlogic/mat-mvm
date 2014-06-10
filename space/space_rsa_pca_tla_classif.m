@@ -192,7 +192,8 @@ classifRequireP2 = true;
 
 parameter = 'trial';
 
-accurateClassifSelect = false;
+% accurateClassifSelect = false;
+accurateClassifSelect = true;
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -235,7 +236,7 @@ cfg_sel.avgovertime = 'no';
 % eigenvalue options
 
 % % keep components with eigenvalue >= 1
-% eig_criterion = 'kaiser';
+eig_criterion = 'kaiser';
 
 % % compute the percent explained variance expected from each component if
 % % all events are uncorrelated with each other; keep it if above this level.
@@ -244,7 +245,7 @@ cfg_sel.avgovertime = 'no';
 % eig_criterion = 'analytic';
 
 % keep components that cumulatively explain at least 85% of the variance
-eig_criterion = 'CV85';
+% eig_criterion = 'CV85';
 
 similarity_all = cell(length(exper.subjects),length(exper.sesStr),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(exper.subjects),length(exper.sesStr),length(dataTypes),size(latencies,1));
@@ -398,18 +399,28 @@ for sub = 1:length(exper.subjects)
         %           end
         
         if accurateClassifSelect
+          cfg_t = [];
+          cfg_t.keeptrials = 'yes';
+          if isfield(cfg_sel,'trials')
+            cfg_sel = rmfield(cfg_sel,'trials');
+          end
+          
           % attempt to classifiy exposure trials
           probabilityClassP1 = nan(length(p1_ind),2);
           correctClassP1 = true(size(p1_ind));
           if classifRequireP1
+            % put it in non-raw format
+            dat_p1 = ft_timelockanalysis(cfg_t,data_p1);
+            dat_p1 = ft_selectdata_new(cfg_sel,dat_p1);
+            
             for p = 1:length(p1_ind)
-              cfg_sel.trials = p1_ind(p);
-              dat1 = ft_selectdata_new(cfg_sel,data_p1);
-              data_p1 = dat1.(parameter);
-              dim = size(data_p1);
-              data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
+              %cfg_sel.trials = p1_ind(p);
+              %dat1 = ft_selectdata_new(cfg_sel,dat_p1);
+              dat1 = dat_p1.(parameter)(p1_ind(p),:,:);
+              dim = size(dat1);
+              dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
               
-              Z = facehouse.test(zscore(data_p1));
+              Z = facehouse.test(zscore(dat1));
               probabilityClassP1(p,:) = Z;
               
               [Y,I] = max(Z,[],2);
@@ -421,14 +432,18 @@ for sub = 1:length(exper.subjects)
           probabilityClassP2 = nan(length(p1_ind),2);
           correctClassP2 = true(size(p2_ind));
           if classifRequireP2
+            % put it in non-raw format
+            dat_p2 = ft_timelockanalysis(cfg_t,data_p2);
+            dat_p2 = ft_selectdata_new(cfg_sel,dat_p2);
+            
             for p = 1:length(p2_ind)
-              cfg_sel.trials = p2_ind(p);
-              dat2 = ft_selectdata_new(cfg_sel,data_p2);
-              data_p2 = dat2.(parameter);
-              dim = size(data_p2);
-              data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
+              %cfg_sel.trials = p2_ind(p);
+              %dat2 = ft_selectdata_new(cfg_sel,dat_p2);
+              dat2 = dat_p2.(parameter)(p2_ind(p),:,:);
+              dim = size(dat2);
+              dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
               
-              Z = facehouse.test(zscore(data_p2));
+              Z = facehouse.test(zscore(dat2));
               probabilityClassP2(p,:) = Z;
               
               [Y,I] = max(Z,[],2);
@@ -589,7 +604,9 @@ elseif ischar(thisROI)
   roi_str = thisROI;
 end
 saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%dlat_%sAvgT_%s.mat',classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
+fprintf('Saving: %s\n',saveFile);
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+fprintf('Done.\n');
 
 %% load
 
@@ -889,7 +906,7 @@ publishfig(gcf,0,[],[],[]);
 % % 0.3-0.9
 % lat = 19;
 % % 0.4-1.0 **
-lat = 20;
+% lat = 20;
 
 % % 0-0.8
 % lat = 21;
