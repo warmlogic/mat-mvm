@@ -192,8 +192,8 @@ classifRequireP2 = true;
 
 parameter = 'trial';
 
-% accurateClassifSelect = false;
-accurateClassifSelect = true;
+accurateClassifSelect = false;
+% accurateClassifSelect = true;
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -232,6 +232,10 @@ cfg_sel = [];
 cfg_sel.avgoverchan = 'no';
 cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'yes';
+
+% sim_method = 'cosine';
+% sim_method = 'correlation';
+sim_method = 'spearman';
 
 % eigenvalue options
 
@@ -533,7 +537,7 @@ for sub = 1:length(exper.subjects)
           feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
           
           % compute the similarities between each pair of events
-          similarities = 1 - squareform(pdist(feature_vectors, 'cosine'));
+          similarities = 1 - squareform(pdist(feature_vectors, sim_method));
           
           
           %             feature_vectors = data_pcaspace(:, crit_eig);
@@ -603,9 +607,9 @@ if iscell(thisROI)
 elseif ischar(thisROI)
   roi_str = thisROI;
 end
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%dlat_%sAvgT_%s.mat',classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 fprintf('Saving: %s\n',saveFile);
-save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
+save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','latencies','similarity_all','similarity_ntrials');
 fprintf('Done.\n');
 
 %% load
