@@ -1216,17 +1216,22 @@ end
 %% cluster statistics
 
 cfg_ft = [];
-%cfg_ft.avgovertime = 'no';
-cfg_ft.avgovertime = 'yes';
-cfg_ft.avgoverchan = 'no';
+cfg_ft.avgovertime = 'no';
+% cfg_ft.avgovertime = 'yes';
+% cfg_ft.avgoverchan = 'no';
+cfg_ft.avgoverchan = 'yes';
 
 cfg_ft.parameter = 'avg';
 
 cfg_ana = [];
-cfg_ana.roi = 'all';
+% cfg_ana.roi = 'all';
+% cfg_ana.roi = {'center109'};
+cfg_ana.roi = {'LPS'};
 %cfg_ana.latencies = [0 1.0; 1.0 2.0];
 %cfg_ana.latencies = [0.2 0.6];
-cfg_ana.latencies = [0.3 0.5];
+% cfg_ana.latencies = [0.3 0.5];
+% cfg_ana.latencies = [0.5 0.8];
+cfg_ana.latencies = [0 1.0];
 
 cfg_ft.numrandomization = 500;
 % cfg_ft.clusteralpha = 0.05;
@@ -1246,8 +1251,11 @@ end
 %   {'CR2','H2'},{'CR2','HSC2'},{'CR2','HSI2'},{'HSC2','HSI2'},...
 %   {'CR6','H6'},{'CR6','HSC6'},{'CR6','HSI6'},{'HSC6','HSI6'},...
 %   {'CR2','CR6'},{'H2','H6'},{'HSC2','HSC6'},{'HSI2','HSI6'}};
-cfg_ana.conditions = {'all_within_types'};
+% cfg_ana.conditions = {'all_within_types'};
 %cfg_ana.conditions = {{'RCR','RH'},{'RCR','RHSC'},{'RCR','RHSI'},{'RHSC','RHSI'}};
+
+cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
+cfg_ana.conditions = {{'word_RgH_rc_spac_p2','word_onePres'}};
 
 for lat = 1:size(cfg_ana.latencies,1)
   cfg_ft.latency = cfg_ana.latencies(lat,:);
