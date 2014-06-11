@@ -233,9 +233,9 @@ cfg_sel.avgoverchan = 'no';
 cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'yes';
 
-% sim_method = 'cosine';
+sim_method = 'cosine';
 % sim_method = 'correlation';
-sim_method = 'spearman';
+% sim_method = 'spearman';
 
 % eigenvalue options
 
