@@ -174,10 +174,23 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 
 % first set up classifier
 
-dataTypes_train = {'Face', 'House'};
-equateTrainTrials = true;
-standardizeTrain = true;
-alpha = 0.2;
+% accurateClassifSelect = true;
+accurateClassifSelect = false;
+
+if accurateClassifSelect
+  dataTypes_train = {'Face', 'House'};
+  equateTrainTrials = true;
+  standardizeTrain = true;
+  alpha = 0.2;
+  
+  % do both P1 and P2 need to be classified correctly to use this trial?
+  classifRequireP1 = true;
+  classifRequireP2 = true;
+  
+  classif_str = 'classif';
+else
+  classif_str = 'noClassif';
+end
 
 % then set up similarity comparisons
 
@@ -186,14 +199,7 @@ alpha = 0.2;
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-% do both P1 and P2 need to be classified correctly to use this trial?
-classifRequireP1 = true;
-classifRequireP2 = true;
-
 parameter = 'trial';
-
-accurateClassifSelect = false;
-% accurateClassifSelect = true;
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -228,6 +234,13 @@ thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
+
+if iscell(thisROI)
+  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+elseif ischar(thisROI)
+  roi_str = thisROI;
+end
+
 cfg_sel = [];
 cfg_sel.avgoverchan = 'no';
 cfg_sel.avgovertime = 'no';
@@ -240,7 +253,7 @@ sim_method = 'cosine';
 % eigenvalue options
 
 % % keep components with eigenvalue >= 1
-eig_criterion = 'kaiser';
+% eig_criterion = 'kaiser';
 
 % % compute the percent explained variance expected from each component if
 % % all events are uncorrelated with each other; keep it if above this level.
@@ -249,7 +262,7 @@ eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
 % keep components that cumulatively explain at least 85% of the variance
-% eig_criterion = 'CV85';
+eig_criterion = 'CV85';
 
 similarity_all = cell(length(exper.subjects),length(exper.sesStr),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(exper.subjects),length(exper.sesStr),length(dataTypes),size(latencies,1));
@@ -539,7 +552,6 @@ for sub = 1:length(exper.subjects)
           % compute the similarities between each pair of events
           similarities = 1 - squareform(pdist(feature_vectors, sim_method));
           
-          
           %             feature_vectors = data_pcaspace(:, crit_eig);
           %
           %             %%%%%%
@@ -577,8 +589,6 @@ for sub = 1:length(exper.subjects)
           %             % compute the similarities between each pair of events
           %             similarities_zpost = 1 - squareform(pdist(feature_vectors, 'cosine'));
           
-          
-          
           % add it to the full set
           for d = 1:length(dataTypes)
             similarity_all{sub,ses,d,lat} = similarities(cat(2,dTypes_p1,dTypes_p2) == d,cat(2,dTypes_p1,dTypes_p2) == d);
@@ -596,17 +606,6 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-if accurateClassifSelect
-  classif_str = 'classif';
-else
-  classif_str = 'noClassif';
-end
-
-if iscell(thisROI)
-  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
-elseif ischar(thisROI)
-  roi_str = thisROI;
-end
 saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 fprintf('Saving: %s\n',saveFile);
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','latencies','similarity_all','similarity_ntrials');
