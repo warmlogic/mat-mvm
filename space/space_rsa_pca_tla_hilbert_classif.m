@@ -363,18 +363,27 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 
 % first set up classifier
 
-dataTypes_train = {'Face', 'House'};
-equateTrainTrials = true;
-standardizeTrain = true;
-alpha = 0.2;
+% accurateClassifSelect = true;
+accurateClassifSelect = false;
+
+if accurateClassifSelect
+  dataTypes_train = {'Face', 'House'};
+  equateTrainTrials = true;
+  standardizeTrain = true;
+  alpha = 0.2;
+  
+  % do both P1 and P2 need to be classified correctly to use this trial?
+  classifRequireP1 = true;
+  classifRequireP2 = true;
+  
+  classif_str = 'classif';
+else
+  classif_str = 'noClassif';
+end
 
 % then set up similarity comparisons
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
-
-% do both P1 and P2 need to be classified correctly to use this trial?
-classifRequireP1 = true;
-classifRequireP2 = true;
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
@@ -430,6 +439,13 @@ thisROI = {'center109'};
 % thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
+
+if iscell(thisROI)
+  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+elseif ischar(thisROI)
+  roi_str = thisROI;
+end
+
 cfg_sel = [];
 % cfg_sel.latency = [0.2 0.8];
 % cfg_sel.latency = [0 0.5];
@@ -800,11 +816,6 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-if iscell(thisROI)
-  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
-elseif ischar(thisROI)
-  roi_str = thisROI;
-end
 saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','similarity_all','similarity_ntrials');
 
