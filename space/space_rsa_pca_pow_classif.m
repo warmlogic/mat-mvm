@@ -176,6 +176,8 @@ sim_method = 'cosine';
 % keep components that cumulatively explain at least 85% of the variance
 eig_criterion = 'CV85';
 
+%% initialize to store results
+
 similarity_all = cell(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(subjects_all),length(sesNames_all),length(dataTypes),size(latencies,1));
 
@@ -200,6 +202,7 @@ for sub = 1:length(subjects_all)
     
     % pre-defined in this function
     ana = mm_ft_elecGroups(ana);
+    
     cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
     
     %% list the event values to analyze; specific to each experiment
@@ -483,21 +486,6 @@ for sub = 1:length(subjects_all)
       
       for lat = 1:size(latencies,1)
         cfg_sel.latency = latencies(lat,:);
-        
-%         % select the training data
-%         data_train = struct;
-%         
-%         % select the data
-%         for dt = 1:length(dataTypes_train)
-%           cfg_sel.trials = trlIndTrain{dt};
-%           data_train.(dataTypes_train{dt}) = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data);
-%         end
-%         
-%         % concatenate the data
-%         dat_train = data_train.(dataTypes_train{1}).(parameter);
-%         for dt = 2:length(dataTypes_train)
-%           dat_train = cat(1,dat_train,data_train.(dataTypes_train{dt}).(parameter));
-%         end
         
         if accurateClassifSelect
           % get the category number for each training image
