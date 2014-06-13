@@ -137,8 +137,8 @@ stimNumCol = 6;
 categNumCol = 7;
 % pairNumCol = 13;
 
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% thisROI = {'center109'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
