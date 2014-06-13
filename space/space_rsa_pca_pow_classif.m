@@ -84,18 +84,27 @@ replaceDatatype = {'tla','pow'};
 
 % first set up classifier
 
-dataTypes_train = {'Face', 'House'};
-equateTrainTrials = true;
-standardizeTrain = true;
-alpha = 0.2;
+% accurateClassifSelect = true;
+accurateClassifSelect = false;
+
+if accurateClassifSelect
+  dataTypes_train = {'Face', 'House'};
+  equateTrainTrials = true;
+  standardizeTrain = true;
+  alpha = 0.2;
+  
+  % do both P1 and P2 need to be classified correctly to use this trial?
+  classifRequireP1 = true;
+  classifRequireP2 = true;
+  
+  classif_str = 'classif';
+else
+  classif_str = 'noClassif';
+end
 
 % then set up similarity comparisons
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
-
-% do both P1 and P2 need to be classified correctly to use this trial?
-classifRequireP1 = true;
-classifRequireP2 = true;
 
 parameter = 'powspctrm';
 
@@ -119,7 +128,8 @@ stimNumCol = 6;
 categNumCol = 7;
 % pairNumCol = 13;
 
-thisROI = {'center109'};
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
@@ -133,6 +143,13 @@ thisROI = {'center109'};
 % thisROI = {'LPS', 'RPS', 'LPI', 'PI', 'RPI'};
 % thisROI = {'E70', 'E83'};
 % thisROI = {'E83'};
+
+if iscell(thisROI)
+  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+elseif ischar(thisROI)
+  roi_str = thisROI;
+end
+
 cfg_sel = [];
 % cfg_sel.latency = [0.2 0.8];
 % cfg_sel.latency = [0 0.5];
@@ -142,6 +159,10 @@ cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgoverchan = 'no';
 % cfg_sel.avgovertime = 'yes';
 cfg_sel.avgovertime = 'no';
+
+sim_method = 'cosine';
+% sim_method = 'correlation';
+% sim_method = 'spearman';
 
 % % keep components with eigenvalue >= 1
 % eig_criterion = 'kaiser';
@@ -179,6 +200,7 @@ for sub = 1:length(subjects_all)
     
     % pre-defined in this function
     ana = mm_ft_elecGroups(ana);
+    cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
     
     %% list the event values to analyze; specific to each experiment
     
@@ -199,65 +221,126 @@ for sub = 1:length(subjects_all)
     
     sesNum = 1;
     
-    % ana.eventValues = {{'expo_stim','multistudy_word'}};
-    ana.eventValues = {{'expo_stim','multistudy_image'}};
-    % ana.eventValues = {{'expo_stim','multistudy_word','multistudy_image'}};
-    ana.eventValuesSplit = { ...
-      {{'Face','House'} ...
-      %   { ...
-      %   'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
-      %   'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
-      %   } ...
-      { ...
-      'img_RgH_rc_spac_p1' ,'img_RgH_rc_spac_p2' ,'img_RgH_rc_mass_p1' ,'img_RgH_rc_mass_p2' ...
-      'img_RgH_fo_spac_p1' ,'img_RgH_fo_spac_p2' ,'img_RgH_fo_mass_p1' ,'img_RgH_fo_mass_p2' ...
-      } ...
-      } ...
-      };
-    if allowRecallSynonyms
-      ana.trl_expr = {...
-        {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
-        sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-        %     {...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     } ...
-        {...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        } ...
-        } ...
-        };
-    else
-      ana.trl_expr = {...
-        {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
-        sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
-        %     { ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
-        %     } ...
+    if accurateClassifSelect
+      % ana.eventValues = {{'expo_stim','multistudy_word'}};
+      ana.eventValues = {{'expo_stim','multistudy_image'}};
+      % ana.eventValues = {{'expo_stim','multistudy_word','multistudy_image'}};
+      ana.eventValuesSplit = { ...
+        {{'Face','House'} ...
+        %   { ...
+        %   'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
+        %   'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
+        %   } ...
         { ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
-        sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+        'img_RgH_rc_spac_p1' ,'img_RgH_rc_spac_p2' ,'img_RgH_rc_mass_p1' ,'img_RgH_rc_mass_p2' ...
+        'img_RgH_fo_spac_p1' ,'img_RgH_fo_spac_p2' ,'img_RgH_fo_mass_p1' ,'img_RgH_fo_mass_p2' ...
         } ...
         } ...
         };
+      if allowRecallSynonyms
+        ana.trl_expr = {...
+          {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
+          sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
+          %     {...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     } ...
+          {...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          } ...
+          } ...
+          };
+      else
+        ana.trl_expr = {...
+          {{sprintf('eventNumber == %d & i_catNum == 1 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
+          sprintf('eventNumber == %d & i_catNum == 2 & expo_response ~= 0 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))} ...
+          %     { ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     } ...
+          { ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          } ...
+          } ...
+          };
+      end
+    else
+      % ana.eventValues = {{'expo_stim','multistudy_word'}};
+      ana.eventValues = {{'multistudy_image'}};
+      % ana.eventValues = {{'expo_stim','multistudy_word','multistudy_image'}};
+      ana.eventValuesSplit = { ...
+        { ...
+        %   { ...
+        %   'word_RgH_rc_spac_p2' ,'word_RgH_rc_mass_p2' ...
+        %   'word_RgH_fo_spac_p2' ,'word_RgH_fo_mass_p2' ...
+        %   } ...
+        { ...
+        'img_RgH_rc_spac_p1' ,'img_RgH_rc_spac_p2' ,'img_RgH_rc_mass_p1' ,'img_RgH_rc_mass_p2' ...
+        'img_RgH_fo_spac_p1' ,'img_RgH_fo_spac_p2' ,'img_RgH_fo_mass_p1' ,'img_RgH_fo_mass_p2' ...
+        } ...
+        } ...
+        };
+      if allowRecallSynonyms
+        ana.trl_expr = {...
+          { ...
+          %     {...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     } ...
+          {...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr > 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 0 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          } ...
+          } ...
+          };
+      else
+        ana.trl_expr = {...
+          { ...
+          %     { ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_word'))) ...
+          %     } ...
+          { ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr == 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 1 & lag > 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 1',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          sprintf('eventNumber == %d & targ == 1 & cr_recog_acc == 1 & cr_recall_spellCorr < 1 & spaced == 0 & lag == 0 & presNum == 2',find(ismember(exper.eventValues{sesNum},'multistudy_image'))) ...
+          } ...
+          } ...
+          };
+      end
     end
     
     %% load in the subject data - new loading workflow - pow
@@ -377,34 +460,29 @@ for sub = 1:length(subjects_all)
     if ~exper.badSub(1,1)
       fprintf('\t%s %s...\n',subStr,sesStr);
       
-      % equate the training categories
-      trlIndTrain = cell(length(dataTypes_train),1);
-      if equateTrainTrials
-        nTrainTrial = nan(length(dataTypes_train),1);
-        for d = 1:length(dataTypes_train)
-          nTrainTrial(d) = size(data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
+      if accurateClassifSelect
+        % equate the training categories
+        trlIndTrain = cell(length(dataTypes_train),1);
+        if equateTrainTrials
+          nTrainTrial = nan(length(dataTypes_train),1);
+          for d = 1:length(dataTypes_train)
+            nTrainTrial(d) = size(data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data.(parameter),1);
+          end
+          fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
+          for d = 1:length(dataTypes_train)
+            trlInd = randperm(nTrainTrial(d));
+            trlIndTrain{d,1} = sort(trlInd(1:min(nTrainTrial)));
+          end
+        else
+          fprintf('\tNot equating training category trial counts.\n');
+          for d = 1:length(dataTypes_train)
+            trlIndTrain{d,1} = 'all';
+          end
         end
-        fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
-        for d = 1:length(dataTypes_train)
-          trlInd = randperm(nTrainTrial(d));
-          trlIndTrain{d,1} = sort(trlInd(1:min(nTrainTrial)));
-        end
-      else
-        fprintf('\tNot equating training category trial counts.\n');
-        for d = 1:length(dataTypes_train)
-          trlIndTrain{d,1} = 'all';
-        end
-      end
-      
-      % get the category number for each training image
-      imageCategory_train = [];
-      for dt = 1:length(dataTypes_train)
-        imageCategory_train = cat(1,imageCategory_train,data_pow.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data.trialinfo(trlIndTrain{dt},categNumCol));
       end
       
       for lat = 1:size(latencies,1)
         cfg_sel.latency = latencies(lat,:);
-        cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
         
 %         % select the training data
 %         data_train = struct;
@@ -421,378 +499,248 @@ for sub = 1:length(subjects_all)
 %           dat_train = cat(1,dat_train,data_train.(dataTypes_train{dt}).(parameter));
 %         end
         
-        dat_train = [];
-        
-        for d = 1:length(dataTypes_train)
-          cfg_sel.trials = trlIndTrain{d};
+        if accurateClassifSelect
+          % get the category number for each training image
+          imageCategory_train = [];
+          for dt = 1:length(dataTypes_train)
+            imageCategory_train = cat(1,imageCategory_train,data_pow.(exper.sesStr{ses}).(dataTypes_train{dt}).sub(sub).data.trialinfo(trlIndTrain{dt},categNumCol));
+          end
           
-          % get the first frequency
-          cfg_sel.foilim = freqs(1,:);
-          thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+          dat_train = [];
           
-          dat_train_d = thisFreq.(parameter);
-          
-          for f = 2:size(freqs,1)
-            cfg_sel.foilim = freqs(f,:);
+          for d = 1:length(dataTypes_train)
+            cfg_sel.trials = trlIndTrain{d};
             
-            % select the data
+            % get the first frequency
+            cfg_sel.foilim = freqs(1,:);
             thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
             
-            dat_train_d = cat(3,dat_train_d,thisFreq.(parameter));
+            dat_train_d = thisFreq.(parameter);
             
-            %cfg_app = [];
-            %cfg_app.parameter = parameter;
-            %allFreq = ft_appendfreq(cfg_app,allFreq,thisFreq);
+            for f = 2:size(freqs,1)
+              cfg_sel.foilim = freqs(f,:);
+              
+              % select the data
+              thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(dataTypes_train{d}).sub(sub).data);
+              
+              dat_train_d = cat(3,dat_train_d,thisFreq.(parameter));
+            end
+            
+            dat_train = cat(1,dat_train,dat_train_d);
+          end
+          clear thisFreq dat_train_d
+          
+          dim = size(dat_train);
+          dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
+          
+          if standardizeTrain
+            fprintf('\t\tStandardizing the training data...');
+            
+            m = dml.standardizer;
+            m = m.train(dat_train);
+            dat_train = m.test(dat_train);
+            fprintf('Done.\n');
           end
           
-          dat_train = cat(1,dat_train,dat_train_d);
-        end
-        %clear allFreq thisFreq
-        clear thisFreq dat_train_d
-        
-        dim = size(dat_train);
-        dat_train = reshape(dat_train, dim(1), prod(dim(2:end)));
-        
-        if standardizeTrain
-          fprintf('\t\tStandardizing the training data...');
-          
-          m = dml.standardizer;
-          m = m.train(dat_train);
-          dat_train = m.test(dat_train);
+          fprintf('\t\tTraining classifier...');
+          %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
+          facehouse = dml.enet('family','binomial','alpha',alpha);
+          facehouse = facehouse.train(dat_train,imageCategory_train);
+          %facehouse_svm = dml.svm;
+          %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
           fprintf('Done.\n');
+          clear dat_train
         end
         
-        fprintf('\t\tTraining classifier...');
-        %facehouse = {dml.standardizer dml.enet('family','binomial','alpha',alpha)};
-        facehouse = dml.enet('family','binomial','alpha',alpha);
-        facehouse = facehouse.train(dat_train,imageCategory_train);
-        %facehouse_svm = dml.svm;
-        %facehouse_svm = facehouse_svm.train(dat_train,imageCategory_train);
-        fprintf('Done.\n');
-        clear dat_train
+        data_p1_append_str = [];
+        data_p2_append_str = [];
+        dTypes_p1 = [];
+        dTypes_p2 = [];
         
-      for d = 1:length(dataTypes)
-        dataType = dataTypes{d};
+        for d = 1:length(dataTypes)
+          data_p1_append_str = cat(2,data_p1_append_str,sprintf(',data_pow.%s.%s_p1.sub(%d).data',sesStr,dataTypes{d},sub));
+          data_p2_append_str = cat(2,data_p2_append_str,sprintf(',data_pow.%s.%s_p2.sub(%d).data',sesStr,dataTypes{d},sub));
+          
+          dTypes_p1 = cat(2,dTypes_p1,d*ones(1,size(data_pow.(sesStr).(sprintf('%s_p1',dataTypes{d})).sub(sub).data.(parameter),1)));
+          dTypes_p2 = cat(2,dTypes_p2,d*ones(1,size(data_pow.(sesStr).(sprintf('%s_p2',dataTypes{d})).sub(sub).data.(parameter),1)));
+        end
         
-        fprintf('Processing %s...\n',dataType);
+        cfg_ad = [];
+        cfg_ad.parameter = parameter;
+        cfg_ad.appenddim = 'rpt';
+        data_p1 = eval(sprintf('ft_appendfreq(cfg_ad%s);',data_p1_append_str));
+        data_p2 = eval(sprintf('ft_appendfreq(cfg_ad%s);',data_p2_append_str));
+        
+        
+        % find where p1 and p2 both exist for each trial
         p1_ind = [];
         p2_ind = [];
-        imageCategory_test = []; % 1=face, 2=house
-        for p = 1:size(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.(parameter),1)
+        if accurateClassifSelect
+          imageCategory_test = []; % 1=face, 2=house
+        end
+        
+        for p = 1:length(data_p1.(parameter))
           p1_trlInd = p;
-          p1_phaseCount = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,phaseCountCol);
-          p1_stimNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,stimNumCol);
-          p1_categNum = data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.trialinfo(p1_trlInd,categNumCol);
+          p1_phaseCount = data_p1.trialinfo(p1_trlInd,phaseCountCol);
+          p1_stimNum = data_p1.trialinfo(p1_trlInd,stimNumCol);
+          p1_categNum = data_p1.trialinfo(p1_trlInd,categNumCol);
           
           p2_trlInd = find(...
-            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-            data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data.trialinfo(:,categNumCol) == p1_categNum);
+            data_p2.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
+            data_p2.trialinfo(:,stimNumCol) == p1_stimNum & ...
+            data_p2.trialinfo(:,categNumCol) == p1_categNum);
           
           if ~isempty(p2_trlInd)
-            p1_ind = cat(2,p1_ind,p1_trlInd);
-            p2_ind = cat(2,p2_ind,p2_trlInd);
-            imageCategory_test = cat(2,imageCategory_test,p1_categNum);
-          end
-        end
-        
-        % test trials for classification
-        probabilityClassP1 = nan(length(p1_ind),2);
-        correctClassP1 = true(size(p1_ind));
-        if classifRequireP1
-          for p = 1:length(p1_ind)
-            cfg_sel.trials = p1_ind(p);
-            
-            cfg_sel.foilim = freqs(1,:);
-            data_p1 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data);
-            data_p1 = data_p1.(parameter);
-            for f = 2:size(freqs,1)
-              cfg_sel.foilim = freqs(f,:);
-              
-              % select the data
-              thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p1',dataType)).sub(sub).data);
-              data_p1 = cat(3,data_p1,thisFreq.(parameter));
-              %cfg_app = [];
-              %cfg_app.parameter = parameter;
-              %data_p1 = ft_appendfreq(cfg_app,data_p1,thisFreq);
+            if length(p2_trlInd) == 1
+              p1_ind = cat(2,p1_ind,p1_trlInd);
+              p2_ind = cat(2,p2_ind,p2_trlInd);
+              if accurateClassifSelect
+                imageCategory_test = cat(2,imageCategory_test,p1_categNum);
+              end
+            else
+              warning('more than one p2 trial found');
+              keyboard
             end
-            clear thisFreq
-            %data_p1 = data_p1.(parameter);
-            dim = size(data_p1);
-            data_p1 = reshape(data_p1, dim(1), prod(dim(2:end)));
-            
-            Z = facehouse.test(zscore(data_p1));
-            probabilityClassP1(p,:) = Z;
-            
-            [Y,I] = max(Z,[],2);
-            
-            correctClassP1(p) = I == imageCategory_test(p);
           end
         end
         
-        probabilityClassP2 = nan(length(p1_ind),2);
-        correctClassP2 = true(size(p2_ind));
-        if classifRequireP2
-          for p = 1:length(p2_ind)
-            cfg_sel.trials = p2_ind(p);
-            
-            cfg_sel.foilim = freqs(1,:);
-            data_p2 = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data);
-            data_p2 = data_p2.(parameter);
-            for f = 2:size(freqs,1)
-              cfg_sel.foilim = freqs(f,:);
+        % select only the channels, freqs, and samples that we want
+        if strcmp(cfg_sel.avgovertime,'yes')
+          dat_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
+          dat_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
+        elseif strcmp(cfg_sel.avgovertime,'no')
+          tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataTypes{1})).sub(subNum).data.time,cfg_sel.latency(1));
+          tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataTypes{1})).sub(subNum).data.time,cfg_sel.latency(2));
+          dat_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+          dat_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
+        end
+        
+        for f = 1:size(freqs,1)
+          cfg_sel.foilim = freqs(f,:);
+          
+          cfg_sel.trials = p1_ind;
+          thisFreq = ft_selectdata_new(cfg_sel,data_p1);
+          dat_p1(:,:,f,:) = thisFreq.(parameter);
+          
+          cfg_sel.trials = p2_ind;
+          thisFreq = ft_selectdata_new(cfg_sel,data_p2);
+          dat_p2(:,:,f,:) = thisFreq.(parameter);
+        end
+        
+        if accurateClassifSelect
+          % attempt to classifiy study trials
+          
+          probabilityClassP1 = nan(length(p1_ind),2);
+          correctClassP1 = true(size(p1_ind));
+          if classifRequireP1
+            for p = 1:length(p1_ind)
+              dat1 = dat_p1(p1_ind(p),:,:,:);
+              dim = size(dat1);
+              dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
               
-              % select the data
-              thisFreq = ft_selectdata_new(cfg_sel,data_pow.(exper.sesStr{ses}).(sprintf('%s_p2',dataType)).sub(sub).data);
-              data_p2 = cat(3,data_p2,thisFreq.(parameter));
-              %cfg_app = [];
-              %cfg_app.parameter = parameter;
-              %data_p2 = ft_appendfreq(cfg_app,data_p2,thisFreq);
+              Z = facehouse.test(zscore(dat1));
+              probabilityClassP1(p,:) = Z;
+              
+              [Y,I] = max(Z,[],2);
+              
+              correctClassP1(p) = I == imageCategory_test(p);
             end
-            clear thisFreq
-            %data_p2 = data_p2.(parameter);
-            dim = size(data_p2);
-            data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
-            
-%             dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
-%             %data_p2(:,:,:) = dat2.(parameter);
-%             data_p2 = dat2.(parameter);
-%             dim = size(data_p2);
-%             data_p2 = reshape(data_p2, dim(1), prod(dim(2:end)));
-            
-            Z = facehouse.test(zscore(data_p2));
-            probabilityClassP2(p,:) = Z;
-            
-            [Y,I] = max(Z,[],2);
-            
-            correctClassP2(p) = I == imageCategory_test(p);
           end
-        end
-        
-        % only compare these trials
-        p1_ind = p1_ind(correctClassP1 & correctClassP2);
-        p2_ind = p2_ind(correctClassP1 & correctClassP2);
+          
+          probabilityClassP2 = nan(length(p1_ind),2);
+          correctClassP2 = true(size(p2_ind));
+          if classifRequireP2
+            for p = 1:length(p2_ind)
+              dat2 = dat_p2(p2_ind(p),:,:,:);
+              dim = size(dat2);
+              dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
+              
+              Z = facehouse.test(zscore(dat2));
+              probabilityClassP2(p,:) = Z;
+              
+              [Y,I] = max(Z,[],2);
+              
+              correctClassP2(p) = I == imageCategory_test(p);
+            end
+          end
+          
+          % only compare these trials
+          p1_ind = p1_ind(correctClassP1 & correctClassP2);
+          p2_ind = p2_ind(correctClassP1 & correctClassP2);
+        end        
         
         if ~isempty(p1_ind) && ~isempty(p2_ind)
+          dTypes_p1 = dTypes_p1(p1_ind);
+          dTypes_p2 = dTypes_p2(p2_ind);
           
+          % unroll data for each trial in the second dimension
+          dim_p1 = size(dat_p1);
+          dim_p2 = size(dat_p2);
+          dat_p1_p2 = cat(1,reshape(dat_p1, dim_p1(1), prod(dim_p1(2:end))),reshape(dat_p2, dim_p2(1), prod(dim_p2(2:end))));
+          
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          % Compute similarity
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          
+          % variables: columns = electrode x time (unrolled)
+          % observations/instances: rows = events
+          
+          % apply PCA to data
+          [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(dat_p1_p2), 'Economy', true);
+          
+          if strcmp(eig_criterion,'kaiser')
+            crit_eig = eval_p1_p2 >= 1;
+          elseif strcmp(eig_criterion,'analytic')
+            % analytic: keep PC if percent variance explained is above
+            % 100 / number of variables
             
-            if strcmp(cfg_sel.avgovertime,'yes')
-              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1));
-              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1));
-            elseif strcmp(cfg_sel.avgovertime,'no')
-              tbeg = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(1));
-              tend = nearest(data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data.time,cfg_sel.latency(2));
-              data_p1 = nan(length(p1_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
-              data_p2 = nan(length(p2_ind),length(cfg_sel.channel),size(freqs,1),length(tbeg:tend));
-            end
-
-%             cfg_sel.trials = p1_ind;
-%             dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data);
-%             %data_p1(:,:,:) = dat1.(parameter);
-%             data_p1 = dat1.(parameter);
-%             
-%             cfg_sel.trials = p2_ind;
-%             dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data);
-%             %data_p2(:,:,:) = dat2.(parameter);
-%             data_p2 = dat2.(parameter);
-%             
-%             % unroll data for each trial in the second dimension
-%             dim1 = size(data_p1);
-%             dim2 = size(data_p2);
-%             data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
+            % convert to percent variance explained
+            eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+            crit_eig = eval_PVE > (100 / size(eval_PVE,1));
+          elseif strcmp(eig_criterion,'CV85')
+            % Cumulative variance 85%: keep PCs that explain at least 85%
+            % of variance
             
-            for f = 1:size(freqs,1)
-              cfg_sel.foilim = freqs(f,:);
-              
-              cfg_sel.trials = p1_ind;
-              dat1 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p1',dataType)).sub(subNum).data);
-              data_p1(:,:,f,:) = dat1.(parameter);
-              
-              cfg_sel.trials = p2_ind;
-              dat2 = ft_selectdata_new(cfg_sel,data_pow.(sesStr).(sprintf('%s_p2',dataType)).sub(subNum).data);
-              data_p2(:,:,f,:) = dat2.(parameter);
-            end
+            % convert to percent variance explained
+            eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
+            eval_CV = cumsum(eval_PVE);
+            cutoff_eval = find(eval_CV>=85,1,'first');
             
-            % unroll electrodes and frequency data in the second dimension
-            dim1 = size(data_p1);
-            dim2 = size(data_p2);
-            data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Compute similarity
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            % variables: columns = electrode x time (unrolled)
-            % observations/instances: rows = events
-            
-            % apply PCA to data
-            [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(data_p1_p2), 'Economy', true);
-            %[evec_p1_p2, data_pcaspace, eval_p1_p2] = princomp(zscore(data_p1_p2), 'econ');
-            
-            if strcmp(eig_criterion,'kaiser')
-              crit_eig = eval_p1_p2 >= 1;
-            elseif strcmp(eig_criterion,'analytic')
-              % analytic: keep PC if percent variance explained is above
-              % 100 / number of variables
-              
-              % convert to percent variance explained
-              eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-              crit_eig = eval_PVE > (100 / size(eval_PVE,1));
-            elseif strcmp(eig_criterion,'CV85')
-              % Cumulative variance 85%: keep PCs that explain at least 85%
-              % of variance
-              
-              % convert to percent variance explained
-              eval_PVE = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-              eval_CV = cumsum(eval_PVE);
-              cutoff_eval = find(eval_CV>=85,1,'first');
-              
-              crit_eig = false(size(eval_p1_p2));
-              crit_eig(1:cutoff_eval) = true;
-            elseif strcmp(eig_criterion,'none')
-              crit_eig = true(length(eval_p1_p2),1);
-            end
-            % remove features with eigenvalues that didn't pass criterion
-            %
-            % evec_p1_p2 (coeff) lets you map from PCA space to original
-            % feature space
-            evec_p1_p2_crit = evec_p1_p2(:, crit_eig);
-            feature_vectors = data_pcaspace(:, crit_eig);
-            
-            %%%%%%
-            % more feature selection is done here (my paradigm is about
-            % comparing individual event representations, so the
-            % autocorrelation criterion is not appropriate. I'm still
-            % thinking about how to select the most important features.)
-            %%%%%%
-            
-            % dummy selection. replace with actual technique for selecting
-            % important features.
-            %
-            % important: for autocorrelation, only use study events for selection
-            select_inds = true(1, size(feature_vectors, 2));
-            
-            evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
-            feature_vectors = feature_vectors(:, select_inds);
-            
-            % normalize the vector lengths of each event
-            feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
-            
-            % compute the similarities between each pair of events
-            similarities = 1 - squareform(pdist(feature_vectors, 'cosine'));
-            
-%             %           % % Matlab covariance
-%             %           % cov_dat_p1_p2 = cov(data_p1_p2');
-%             %
-%             %           % Matlab PCA (why doesn't it return all eigenvectors?)
-%             %           % variables: columns = event
-%             %           % observations/instances: rows = electrode x freq (unrolled)
-%             %
-%             %           [evec_p1_p2, score_p1_p2, eval_p1_p2] = pca(data_p1_p2','Algorithm','eig');
-%             %           % kaiser criterion keeps eigenvalues >= 1
-%             %           pass_kaiserCrit_p1_p2 = eval_p1_p2 >= 1;
-%             %
-%             %           % percent variance explained
-%             %           eval_p1_p2 = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-%             %           % analytic: keep PC if percent variance explained is above
-%             %           % 100 / number of variables
-%             %           pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
-%             %
-%             %           pc = 2;
-%             %           a = evec_p1_p2(:,pc)' * data_p1_p2';
-%             %           b =  evec_p1_p2' * data_p1_p2;
-%             %           c =  crit_evec' * data_p1_p2;
-%             
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%             % Manually run PCA across all events at the same time
-%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%             
-%             % % variables: rows = event
-%             % % observations/instances: columns = electrode x freq (unrolled)
-%             
-%             % subtract the mean across observations from the variables
-%             data_p1_p2 = bsxfun(@minus,data_p1_p2,mean(data_p1_p2,2));
-%             % get the covariance matrix; diagonals contain the variance of
-%             % each variable (event); normalize by n-1, where n is the number
-%             % of observations (or instances)
-%             cov_dat_p1_p2 = (data_p1_p2 * data_p1_p2') ./ (size(data_p1_p2,2) - 1);
-%             
-%             % eig returns vectors and values in ascneding order
-%             [evec_p1_p2, eval_p1_p2] = eig(cov_dat_p1_p2);
-%             eval_p1_p2 = diag(eval_p1_p2);
-%             % components in increasing order, convert to descending order
-%             evec_p1_p2 = evec_p1_p2(:,end:-1:1);
-%             eval_p1_p2 = eval_p1_p2(end:-1:1);
-%             
-%             if strcmp(eig_criterion,'kaiser')
-%               % kaiser criterion keeps eigenvalues >= 1
-%               pass_kaiserCrit_p1_p2 = eval_p1_p2 >= 1;
-%               crit_evec = evec_p1_p2(:,pass_kaiserCrit_p1_p2);
-%             elseif strcmp(eig_criterion,'analytic')
-%               % percent variance explained
-%               eval_p1_p2 = (eval_p1_p2 ./ sum(eval_p1_p2)) .* 100;
-%               % analytic: keep PC if percent variance explained is above
-%               % 100 / number of variables
-%               pass_analytic_p1_p2 = eval_p1_p2 > (100 / size(eval_p1_p2,1));
-%               crit_evec = evec_p1_p2(:,pass_analytic_p1_p2);
-%             elseif strcmp(eig_criterion,'none')
-%               crit_evec = evec_p1_p2;
-%             end
-%             
-%             %%%%%%
-%             % more feature selection is done here (my paradigm is about
-%             % comparing individual event representations, so the
-%             % autocorrelation criterion is not appropriate. I'm still
-%             % thinking about how to select the most important features.)
-%             %%%%%%
-%             
-%             % project to PC space using eigenvectors that passed criterion
-%             data_p1_p2_pcspace = crit_evec' * data_p1_p2;
-%             % project to data space using eigenvectors that passed criterion
-%             data_p1_p2_dspace = crit_evec * data_p1_p2_pcspace;
-%             
-%             % % test
-%             % figure;plot(data_p1_p2(1,:),'b');hold on;plot(data_p1_p2_dspace(1,:),'r');
-%             
-%             %similarities = nan(size(data_p1,1),size(data_p2,1),size(data_p2,3));
-%             
-%             % measure similarities between all event pairs
-%             similarities = nan(size(data_p1,1)+size(data_p2,1),size(data_p1,1)+size(data_p2,1));
-%             
-% %             % compute similarities on weights/loadings using PCs that passed
-% %             % criterion
-% %             for i = 1:size(crit_evec,1)
-% %               for j = 1:size(crit_evec,1)
-% %                 similarities(i,j) = dot(crit_evec(i,:) / norm(crit_evec(i,:)), crit_evec(j,:) / norm(crit_evec(j,:)));
-% %               end
-% %             end
-% %             
-% %             % compute similarities in PC space using PCs that passed criterion
-% %             %
-% %             % But this does not have the same number of rows as events!
-% %             for i = 1:size(data_p1_p2_pcspace,1)
-% %               for j = 1:size(data_p1_p2_pcspace,1)
-% %                 similarities(i,j) = dot(data_p1_p2_pcspace(i,:) / norm(data_p1_p2_pcspace(i,:)), data_p1_p2_pcspace(j,:) / norm(data_p1_p2_pcspace(j,:)));
-% %               end
-% %             end
-%             
-%             % compute the similarities after projecting back to data space
-%             % using PCs that passed criterion
-%             for i = 1:size(data_p1_p2_dspace,1)
-%               for j = 1:size(data_p1_p2_dspace,1)
-%                 similarities(i,j) = dot(data_p1_p2_dspace(i,:) / norm(data_p1_p2_dspace(i,:)), data_p1_p2_dspace(j,:) / norm(data_p1_p2_dspace(j,:)));
-%               end
-%             end
-            
-            % add it to the full set
-            similarity_all{sub,ses,d,lat} = similarities;
-            similarity_ntrials(sub,ses,d,lat) = length(p1_ind);
-            
-          end % lat
+            crit_eig = false(size(eval_p1_p2));
+            crit_eig(1:cutoff_eval) = true;
+          elseif strcmp(eig_criterion,'none')
+            crit_eig = true(length(eval_p1_p2),1);
+          end
+          % remove features with eigenvalues that didn't pass criterion
+          %
+          % evec_p1_p2 (coeff) lets you map from PCA space to original
+          % feature space
+          evec_p1_p2_crit = evec_p1_p2(:, crit_eig);
+          feature_vectors = data_pcaspace(:, crit_eig);
+          
+          %%%%%%
+          % more feature selection done here? use dummy selection for now
+          %%%%%%
+          select_inds = true(1, size(feature_vectors, 2));
+          
+          evec_p1_p2_final = evec_p1_p2_crit(:, select_inds);
+          feature_vectors = feature_vectors(:, select_inds);
+          
+          % normalize the vector lengths of each event
+          feature_vectors = feature_vectors ./ repmat(sqrt(sum(feature_vectors.^2, 2)), 1, size(feature_vectors, 2));
+          
+          % compute the similarities between each pair of events
+          similarities = 1 - squareform(pdist(feature_vectors, sim_method));
+          
+          % add it to the full set
+          for d = 1:length(dataTypes)
+            similarity_all{sub,ses,d,lat} = similarities(cat(2,dTypes_p1,dTypes_p2) == d,cat(2,dTypes_p1,dTypes_p2) == d);
+            similarity_ntrials(sub,ses,d,lat) = sum(cat(2,dTypes_p1,dTypes_p2) == d);
+          end
           
         end % ~isempty
         
-      end % d
+      end % lat
     end % ~badSub
   end % ses
 end % sub
