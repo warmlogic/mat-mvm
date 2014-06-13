@@ -483,30 +483,23 @@ for sub = 1:length(exper.subjects)
           end
         end
         
-        %         for d = 1:length(dataTypes)
-        %           dataType = dataTypes{d};
-        %           fprintf('Processing %s...\n',dataType);
-        %
-        %           p1_ind = [];
-        %           p2_ind = [];
-        %           imageCategory_test = []; % 1=face, 2=house
-        %           for p = 1:size(data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.(parameter),1)
-        %             p1_trlInd = p;
-        %             p1_phaseCount = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,phaseCountCol);
-        %             p1_stimNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,stimNumCol);
-        %             p1_categNum = data_tla.(sesStr).(sprintf('%s_p1',dataType)).sub(sub).data.trialinfo(p1_trlInd,categNumCol);
-        %
-        %             p2_trlInd = find(...
-        %               data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,phaseCountCol) == p1_phaseCount & ...
-        %               data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,stimNumCol) == p1_stimNum & ...
-        %               data_tla.(sesStr).(sprintf('%s_p2',dataType)).sub(sub).data.trialinfo(:,categNumCol) == p1_categNum);
-        %
-        %             if ~isempty(p2_trlInd)
-        %               p1_ind = cat(2,p1_ind,p1_trlInd);
-        %               p2_ind = cat(2,p2_ind,p2_trlInd);
-        %               imageCategory_test = cat(2,imageCategory_test,p1_categNum);
-        %             end
-        %           end
+        % put it in non-raw format (ft_appenddata makes it raw)
+        cfg_t = [];
+        cfg_t.keeptrials = 'yes';
+        data_p1 = ft_timelockanalysis(cfg_t,data_p1);
+        data_p2 = ft_timelockanalysis(cfg_t,data_p2);
+        
+        % select the requested events, times, channels, etc.
+        cfg_sel.trials = p1_ind;
+        data_p1 = ft_selectdata_new(cfg_sel,data_p1);
+        cfg_sel.trials = p2_ind;
+        data_p2 = ft_selectdata_new(cfg_sel,data_p2);
+        
+        %dat_p1 = data_p1.(parameter);
+        %dat_p2 = data_p2.(parameter);
+        
+        dTypes_p1 = dTypes_p1(p1_ind);
+        dTypes_p2 = dTypes_p2(p2_ind);
         
         if accurateClassifSelect
           cfg_t = [];
@@ -515,17 +508,12 @@ for sub = 1:length(exper.subjects)
             cfg_sel = rmfield(cfg_sel,'trials');
           end
           
-          % attempt to classifiy exposure trials
+          % attempt to classifiy study trials
           probabilityClassP1 = nan(length(p1_ind),2);
           correctClassP1 = true(size(p1_ind));
           if classifRequireP1
-            % put it in non-raw format (ft_appenddata makes it raw)
-            dat_p1 = ft_timelockanalysis(cfg_t,data_p1);
-            % select the requested events, times, channels, etc.
-            dat_p1 = ft_selectdata_new(cfg_sel,dat_p1);
-            
             for p = 1:length(p1_ind)
-              dat1 = dat_p1.(parameter)(p1_ind(p),:,:);
+              dat1 = data_p1.(parameter)(p,:,:);
               dim = size(dat1);
               dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
               
@@ -541,13 +529,8 @@ for sub = 1:length(exper.subjects)
           probabilityClassP2 = nan(length(p1_ind),2);
           correctClassP2 = true(size(p2_ind));
           if classifRequireP2
-            % put it in non-raw format (ft_appenddata makes it raw)
-            dat_p2 = ft_timelockanalysis(cfg_t,data_p2);
-            % select the requested events, times, channels, etc.
-            dat_p2 = ft_selectdata_new(cfg_sel,dat_p2);
-            
             for p = 1:length(p2_ind)
-              dat2 = dat_p2.(parameter)(p2_ind(p),:,:);
+              dat2 = data_p2.(parameter)(p,:,:);
               dim = size(dat2);
               dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
               
@@ -561,33 +544,25 @@ for sub = 1:length(exper.subjects)
           end
           
           % only compare these trials
-          p1_ind = p1_ind(correctClassP1 & correctClassP2);
-          p2_ind = p2_ind(correctClassP1 & correctClassP2);
+          p1_ind = find(correctClassP1 & correctClassP2);
+          p2_ind = find(correctClassP1 & correctClassP2);
+          
+          cfg_sel.trials = p1_ind;
+          data_p1 = ft_selectdata_new(cfg_sel,data_p1);
+          cfg_sel.trials = p2_ind;
+          data_p2 = ft_selectdata_new(cfg_sel,data_p2);
+          
+          dTypes_p1 = dTypes_p1(p1_ind);
+          dTypes_p2 = dTypes_p2(p2_ind);
         end
         
         if ~isempty(p1_ind) && ~isempty(p2_ind)
-          dTypes_p1 = dTypes_p1(p1_ind);
-          dTypes_p2 = dTypes_p2(p2_ind);
-          
-          cfg_sel.trials = p1_ind;
-          dat1 = ft_selectdata_new(cfg_sel,data_p1);
-          cfg_sel.trials = p2_ind;
-          dat2 = ft_selectdata_new(cfg_sel,data_p2);
-          
-          data_p1 = nan(length(dat1.(parameter)),size(dat1.(parameter){1},1),size(dat1.(parameter){1},2));
-          data_p2 = nan(length(dat2.(parameter)),size(dat2.(parameter){1},1),size(dat2.(parameter){1},2));
-          for d = 1:size(data_p1,1)
-            data_p1(d,:,:) = dat1.(parameter){d};
-            data_p2(d,:,:) = dat2.(parameter){d};
-          end
-          
-          %data_p1 = dat1.(parameter);
-          %data_p2 = dat2.(parameter);
-          
           % unroll data for each trial in the second dimension
-          dim1 = size(data_p1);
-          dim2 = size(data_p2);
-          data_p1_p2 = cat(1,reshape(data_p1, dim1(1), prod(dim1(2:end))),reshape(data_p2, dim2(1), prod(dim2(2:end))));
+          dim1 = size(data_p1.(parameter));
+          dim2 = size(data_p2.(parameter));
+          dat_p1_p2 = cat(1,reshape(data_p1.(parameter), dim1(1), prod(dim1(2:end))),reshape(data_p2.(parameter), dim2(1), prod(dim2(2:end))));
+          
+          clear data_p1 data_p2
           
           %%%%%%%%%%%%%%%%%%%%%%%%%%%%
           % Compute similarity
@@ -597,7 +572,7 @@ for sub = 1:length(exper.subjects)
           % observations/instances: rows = events
           
           % apply PCA to data
-          [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(data_p1_p2), 'Economy', true);
+          [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(dat_p1_p2), 'Economy', true);
           
           if strcmp(eig_criterion,'kaiser')
             crit_eig = eval_p1_p2 >= 1;
@@ -689,10 +664,7 @@ for sub = 1:length(exper.subjects)
           end
           
         end % ~isempty
-        
       end % lat
-      
-      %end % d
     end % ~badSub
     
     saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_tla_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
