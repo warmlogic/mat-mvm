@@ -448,6 +448,8 @@ cfg_sel.avgoverchan = 'no';
 cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'yes';
 
+cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+
 sim_method = 'cosine';
 % sim_method = 'correlation';
 % sim_method = 'spearman';
@@ -501,7 +503,6 @@ for sub = 1:length(exper.subjects)
       % train for a given latency and set of electrodes
       for lat = 1:size(latencies,1)
         cfg_sel.latency = latencies(lat,:);
-        cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
         
         if accurateClassifSelect
           % select the training data
@@ -563,9 +564,12 @@ for sub = 1:length(exper.subjects)
         data_p1 = eval(sprintf('ft_appenddata(cfg_ad%s);',data_p1_append_str));
         data_p2 = eval(sprintf('ft_appenddata(cfg_ad%s);',data_p2_append_str));
         
+        % find where p1 and p2 both exist for each trial
         p1_ind = [];
         p2_ind = [];
-        imageCategory_test = []; % 1=face, 2=house
+        if accurateClassifSelect
+          imageCategory_test = []; % 1=face, 2=house
+        end
         
         for p = 1:length(data_p1.(parameter))
           p1_trlInd = p;
@@ -582,7 +586,9 @@ for sub = 1:length(exper.subjects)
             if length(p2_trlInd) == 1
               p1_ind = cat(2,p1_ind,p1_trlInd);
               p2_ind = cat(2,p2_ind,p2_trlInd);
-              imageCategory_test = cat(2,imageCategory_test,p1_categNum);
+              if accurateClassifSelect
+                imageCategory_test = cat(2,imageCategory_test,p1_categNum);
+              end
             else
               warning('more than one p2 trial found');
               keyboard
@@ -626,13 +632,12 @@ for sub = 1:length(exper.subjects)
           probabilityClassP1 = nan(length(p1_ind),2);
           correctClassP1 = true(size(p1_ind));
           if classifRequireP1
-            % put it in non-raw format
+            % put it in non-raw format (ft_appenddata makes it raw)
             dat_p1 = ft_timelockanalysis(cfg_t,data_p1);
+            % select the requested events, times, channels, etc.
             dat_p1 = ft_selectdata_new(cfg_sel,dat_p1);
             
             for p = 1:length(p1_ind)
-              %cfg_sel.trials = p1_ind(p);
-              %dat1 = ft_selectdata_new(cfg_sel,dat_p1);
               dat1 = dat_p1.(parameter)(p1_ind(p),:,:);
               dim = size(dat1);
               dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
@@ -649,13 +654,12 @@ for sub = 1:length(exper.subjects)
           probabilityClassP2 = nan(length(p1_ind),2);
           correctClassP2 = true(size(p2_ind));
           if classifRequireP2
-            % put it in non-raw format
+            % put it in non-raw format (ft_appenddata makes it raw)
             dat_p2 = ft_timelockanalysis(cfg_t,data_p2);
+            % select the requested events, times, channels, etc.
             dat_p2 = ft_selectdata_new(cfg_sel,dat_p2);
             
             for p = 1:length(p2_ind)
-              %cfg_sel.trials = p2_ind(p);
-              %dat2 = ft_selectdata_new(cfg_sel,dat_p2);
               dat2 = dat_p2.(parameter)(p2_ind(p),:,:);
               dim = size(dat2);
               dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
