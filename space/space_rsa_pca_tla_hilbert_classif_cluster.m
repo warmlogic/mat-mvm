@@ -4,6 +4,14 @@ function space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames)
 
 %% load the analysis details
 
+% make sure these are cell arrays
+if ~iscell(subjects)
+  subjects = {subjects};
+end
+if ~iscell(sesNames)
+  sesNames = {sesNames};
+end
+
 subDir = '';
 dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
