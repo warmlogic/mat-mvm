@@ -82,7 +82,7 @@ replaceDatatype = {'tla','pow'};
 
 %% set up similarity analysis; average power bands for P1-P2 trials
 
-% first set up classifier
+% first set up classifier, if needed
 
 % accurateClassifSelect = true;
 accurateClassifSelect = false;
@@ -571,7 +571,6 @@ for sub = 1:length(subjects_all)
         data_p1 = eval(sprintf('ft_appendfreq(cfg_ad%s);',data_p1_append_str));
         data_p2 = eval(sprintf('ft_appendfreq(cfg_ad%s);',data_p2_append_str));
         
-        
         % find where p1 and p2 both exist for each trial
         p1_ind = [];
         p2_ind = [];
@@ -627,6 +626,11 @@ for sub = 1:length(subjects_all)
           dat_p2(:,:,f,:) = thisFreq.(parameter);
         end
         
+        clear data_p1 data_p2
+        
+        dTypes_p1 = dTypes_p1(p1_ind);
+        dTypes_p2 = dTypes_p2(p2_ind);
+        
         if accurateClassifSelect
           % attempt to classifiy study trials
           
@@ -634,7 +638,7 @@ for sub = 1:length(subjects_all)
           correctClassP1 = true(size(p1_ind));
           if classifRequireP1
             for p = 1:length(p1_ind)
-              dat1 = dat_p1(p1_ind(p),:,:,:);
+              dat1 = dat_p1(p,:,:,:);
               dim = size(dat1);
               dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
               
@@ -651,7 +655,7 @@ for sub = 1:length(subjects_all)
           correctClassP2 = true(size(p2_ind));
           if classifRequireP2
             for p = 1:length(p2_ind)
-              dat2 = dat_p2(p2_ind(p),:,:,:);
+              dat2 = dat_p2(p,:,:,:);
               dim = size(dat2);
               dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
               
@@ -665,18 +669,23 @@ for sub = 1:length(subjects_all)
           end
           
           % only compare these trials
-          p1_ind = p1_ind(correctClassP1 & correctClassP2);
-          p2_ind = p2_ind(correctClassP1 & correctClassP2);
+          p1_ind = find(correctClassP1 & correctClassP2);
+          p2_ind = find(correctClassP1 & correctClassP2);
+          
+          dat_p1 = dat_p1(p1_ind,:,:,:);
+          dat_p2 = dat_p2(p2_ind,:,:,:);
+          
+          dTypes_p1 = dTypes_p1(p1_ind);
+          dTypes_p2 = dTypes_p2(p2_ind);
         end        
         
         if ~isempty(p1_ind) && ~isempty(p2_ind)
-          dTypes_p1 = dTypes_p1(p1_ind);
-          dTypes_p2 = dTypes_p2(p2_ind);
-          
           % unroll data for each trial in the second dimension
           dim_p1 = size(dat_p1);
           dim_p2 = size(dat_p2);
           dat_p1_p2 = cat(1,reshape(dat_p1, dim_p1(1), prod(dim_p1(2:end))),reshape(dat_p2, dim_p2(1), prod(dim_p2(2:end))));
+          
+          clear dat_p1 dat_p2
           
           %%%%%%%%%%%%%%%%%%%%%%%%%%%%
           % Compute similarity
@@ -745,13 +754,10 @@ for sub = 1:length(subjects_all)
   end % ses
 end % sub
 
-if iscell(thisROI)
-  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
-elseif ischar(thisROI)
-  roi_str = thisROI;
-end
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s.mat',eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
-save(saveFile,'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','freqs','latencies','similarity_all','similarity_ntrials');
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
+fprintf('Saving: %s\n',saveFile);
+save(saveFile,'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
+fprintf('Done.\n');
 
 %% load
 
