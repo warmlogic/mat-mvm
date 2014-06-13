@@ -683,7 +683,11 @@ for sub = 1:length(subjects_all)
           % observations/instances: rows = events
           
           % apply PCA to data
-          [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(dat_p1_p2), 'Economy', true);
+          if exist('pca','file')
+            [evec_p1_p2, data_pcaspace, eval_p1_p2] = pca(zscore(dat_p1_p2), 'Economy', true);
+          else
+            [evec_p1_p2, data_pcaspace, eval_p1_p2] = princomp(zscore(dat_p1_p2), 'econ');
+          end
           
           if strcmp(eig_criterion,'kaiser')
             crit_eig = eval_p1_p2 >= 1;
