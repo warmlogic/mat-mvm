@@ -113,8 +113,6 @@ end
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-parameter = 'trial';
-
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
   0 0.3; 0.3 0.6; 0.6 0.9; ...
@@ -324,8 +322,15 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 
 %% set up the hilbert transform
 
+parameter = 'powspctrm';
+parameter_orig = 'trial';
+
+% freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
+% freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
+freqs = [4 8; 8 12; 12 30; 30 50];
+
 % bandpass filter the trials at a given frequency bin
-sampleRate = ft_findcfg(data_tla.(exper.sesStr{1}).(dataTypes{1}).sub(1).data.cfg,'fsample');
+sampleRate = ft_findcfg(data_tla.(exper.sesStr{1}).(sprintf('%s_p1',dataTypes{1})).sub(1).data.cfg,'fsample');
 if isempty(sampleRate)
   sampleRate = 250;
 end
@@ -357,7 +362,7 @@ for sub = 1:length(exper.subjects)
         if equateTrainTrials
           nTrainTrial = nan(length(dataTypes_train),1);
           for dt = 1:length(dataTypes_train)
-            nTrainTrial(dt) = size(data_tla.(sesStr).(dataTypes_train{dt}).sub(sub).data.(parameter),1);
+            nTrainTrial(dt) = size(data_tla.(sesStr).(dataTypes_train{dt}).sub(sub).data.(parameter_orig),1);
           end
           fprintf('\tEquating training categories to have %d trials.\n',min(nTrainTrial));
           for dt = 1:length(dataTypes_train)
@@ -371,9 +376,6 @@ for sub = 1:length(exper.subjects)
           end
         end
       end
-      
-      % debug
-      data_tla_backup = data_tla;
       
       % convert to frequency data using hilbert transform before processing
       if accurateClassifSelect
@@ -435,9 +437,9 @@ for sub = 1:length(exper.subjects)
             %end
           end
           data_tla.(exper.sesStr{ses}).(dataType).sub(sub).data.(parameter) = allFreq;
+          clear allFreq
         end
       end
-      clear allFreq
       
       % train for a given latency and set of electrodes
       for lat = 1:size(latencies,1)
@@ -500,8 +502,9 @@ for sub = 1:length(exper.subjects)
         end
         
         cfg_ad = [];
-        data_p1 = eval(sprintf('ft_appenddata(cfg_ad%s);',data_p1_append_str));
-        data_p2 = eval(sprintf('ft_appenddata(cfg_ad%s);',data_p2_append_str));
+        cfg_ad.parameter = parameter;
+        data_p1 = eval(sprintf('ft_appendfreq(cfg_ad%s);',data_p1_append_str));
+        data_p2 = eval(sprintf('ft_appendfreq(cfg_ad%s);',data_p2_append_str));
         
         % find where p1 and p2 both exist for each trial
         p1_ind = [];
@@ -535,86 +538,119 @@ for sub = 1:length(exper.subjects)
           end
         end
         
-        % put it in non-raw format (ft_appenddata makes it raw)
-        cfg_t = [];
-        cfg_t.keeptrials = 'yes';
-        data_p1 = ft_timelockanalysis(cfg_t,data_p1);
-        data_p2 = ft_timelockanalysis(cfg_t,data_p2);
-        
         % select the requested events, times, channels, etc.
         cfg_sel.trials = p1_ind;
         data_p1 = ft_selectdata_new(cfg_sel,data_p1);
         cfg_sel.trials = p2_ind;
         data_p2 = ft_selectdata_new(cfg_sel,data_p2);
         
-        %dat_p1 = data_p1.(parameter);
-        %dat_p2 = data_p2.(parameter);
+        dat_p1 = data_p1.(parameter);
+        dat_p2 = data_p2.(parameter);
+        
+        clear data_p1 data_p2
         
         dTypes_p1 = dTypes_p1(p1_ind);
         dTypes_p2 = dTypes_p2(p2_ind);
         
         if accurateClassifSelect
-          cfg_t = [];
-          cfg_t.keeptrials = 'yes';
-          if isfield(cfg_sel,'trials')
-            cfg_sel = rmfield(cfg_sel,'trials');
-          end
+          % reshape first, test all trials at once
+          %
+          % unroll data for each trial in the second dimension
+          dim_p1 = size(dat_p1);
+          dim_p2 = size(dat_p2);
+          dat_p1_p2_z = zscore(cat(1,reshape(dat_p1, dim_p1(1), prod(dim_p1(2:end))),reshape(dat_p2, dim_p2(1), prod(dim_p2(2:end)))));
           
           % attempt to classifiy study trials
-          probabilityClassP1 = nan(length(p1_ind),2);
-          correctClassP1 = true(size(p1_ind));
+          
           if classifRequireP1
-            for p = 1:length(p1_ind)
-              dat1 = data_p1.(parameter)(p,:,:);
-              dim = size(dat1);
-              dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
-              
-              Z = facehouse.test(zscore(dat1));
-              probabilityClassP1(p,:) = Z;
-              
-              [Y,I] = max(Z,[],2);
-              
-              correctClassP1(p) = I == imageCategory_test(p);
-            end
+            Z = facehouse.test(dat_p1_p2_z(1:length(p1_ind),:));
+            probabilityClassP1 = Z;
+            
+            [Y,I] = max(Z,[],2);
+            
+            correctClassP1 = I == imageCategory_test';
+          else
+            correctClassP1 = true(size(p1_ind));
           end
           
-          probabilityClassP2 = nan(length(p1_ind),2);
-          correctClassP2 = true(size(p2_ind));
           if classifRequireP2
-            for p = 1:length(p2_ind)
-              dat2 = data_p2.(parameter)(p,:,:);
-              dim = size(dat2);
-              dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
-              
-              Z = facehouse.test(zscore(dat2));
-              probabilityClassP2(p,:) = Z;
-              
-              [Y,I] = max(Z,[],2);
-              
-              correctClassP2(p) = I == imageCategory_test(p);
-            end
+            Z = facehouse.test(dat_p1_p2_z(length(p1_ind)+1:end,:));
+            probabilityClassP2 = Z;
+            
+            [Y,I] = max(Z,[],2);
+            
+            correctClassP2 = I == imageCategory_test';
+          else
+            correctClassP2 = true(size(p2_ind));
           end
           
           % only compare these trials
           p1_ind = find(correctClassP1 & correctClassP2);
           p2_ind = find(correctClassP1 & correctClassP2);
           
-          cfg_sel.trials = p1_ind;
-          data_p1 = ft_selectdata_new(cfg_sel,data_p1);
-          cfg_sel.trials = p2_ind;
-          data_p2 = ft_selectdata_new(cfg_sel,data_p2);
+          dat_p1 = dat_p1(p1_ind,:,:,:);
+          dat_p2 = dat_p2(p2_ind,:,:,:);
           
           dTypes_p1 = dTypes_p1(p1_ind);
           dTypes_p2 = dTypes_p2(p2_ind);
         end
         
+%         if accurateClassifSelect
+%           
+%           % attempt to classifiy study trials
+%           probabilityClassP1 = nan(length(p1_ind),2);
+%           correctClassP1 = true(size(p1_ind));
+%           if classifRequireP1
+%             % TODO: reshape first, test all trials at once
+%             for p = 1:length(p1_ind)
+%               dat1 = dat_p1(p,:,:,:);
+%               dim = size(dat1);
+%               dat1 = reshape(dat1, dim(1), prod(dim(2:end)));
+%               
+%               Z = facehouse.test(zscore(dat1));
+%               probabilityClassP1(p,:) = Z;
+%               
+%               [Y,I] = max(Z,[],2);
+%               
+%               correctClassP1(p) = I == imageCategory_test(p);
+%             end
+%           end
+%           
+%           probabilityClassP2 = nan(length(p1_ind),2);
+%           correctClassP2 = true(size(p2_ind));
+%           if classifRequireP2
+%             for p = 1:length(p2_ind)
+%               dat2 = dat_p2(p,:,:,:);
+%               dim = size(dat2);
+%               dat2 = reshape(dat2, dim(1), prod(dim(2:end)));
+%               
+%               Z = facehouse.test(zscore(dat2));
+%               probabilityClassP2(p,:) = Z;
+%               
+%               [Y,I] = max(Z,[],2);
+%               
+%               correctClassP2(p) = I == imageCategory_test(p);
+%             end
+%           end
+%           
+%           % only compare these trials
+%           p1_ind = find(correctClassP1 & correctClassP2);
+%           p2_ind = find(correctClassP1 & correctClassP2);
+%           
+%           dat_p1 = dat_p1(p1_ind,:,:,:);
+%           dat_p2 = dat_p2(p2_ind,:,:,:);
+%           
+%           dTypes_p1 = dTypes_p1(p1_ind);
+%           dTypes_p2 = dTypes_p2(p2_ind);
+%         end
+        
         if ~isempty(p1_ind) && ~isempty(p2_ind)
           % unroll data for each trial in the second dimension
-          dim1 = size(data_p1.(parameter));
-          dim2 = size(data_p2.(parameter));
-          dat_p1_p2 = cat(1,reshape(data_p1.(parameter), dim1(1), prod(dim1(2:end))),reshape(data_p2.(parameter), dim2(1), prod(dim2(2:end))));
+          dim_p1 = size(dat_p1);
+          dim_p2 = size(dat_p2);
+          dat_p1_p2 = cat(1,reshape(dat_p1, dim_p1(1), prod(dim_p1(2:end))),reshape(dat_p2, dim_p2(1), prod(dim_p2(2:end))));
           
-          clear data_p1 data_p2
+          clear dat_p1 dat_p2
           
           %%%%%%%%%%%%%%%%%%%%%%%%%%%%
           % Compute similarity
@@ -691,9 +727,9 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_hilbert_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_hilbert_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,date));
 fprintf('Saving: %s\n',saveFile);
-save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','latencies','similarity_all','similarity_ntrials');
+save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
 fprintf('Done.\n');
 
 %% load
