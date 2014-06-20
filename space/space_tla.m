@@ -506,21 +506,21 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
 
-% cfg_plot.rois = {{'LAS'},{'RAS'}};
-% cfg_plot.ylims = [-4 2; -4 2];
-% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+cfg_plot.rois = {{'LAS'},{'RAS'}};
+cfg_plot.ylims = [-4 2; -4 2];
+cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 % cfg_plot.rois = {{'FC'},{'FS'}};
 % cfg_plot.ylims = [-4 2; -4 2];
 % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-1 4; -1 4];
-cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+% cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-1 4; -1 4];
+% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
-% cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
-% cfg_plot.ylims = [-3 2; -2 3; -1 4];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
+cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
+cfg_plot.ylims = [-3 2; -2 3; -1 4];
+cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
 
 cfg_plot.axisxy = false;
 
@@ -577,6 +577,36 @@ for r = 1:length(cfg_plot.rois)
   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
+
+%% find peak
+
+cfg = [];
+
+% cfg.roi = {'center109'};
+% cfg.latency = [0 1.0];
+
+cfg.roi = {'C'};
+% cfg.latency = [0.3 0.8];
+cfg.latency = [0.5 0.8];
+
+cfg.datadim = 'elec';
+% cfg.datadim = 'time';
+
+cfg.conditions = cellflat(ana.eventValues{1});
+
+cfg.is_ga = true;
+cfg.sesNum = 1;
+
+cfg.plotit = true;
+cfg.plottype = 'topo';
+
+cfg_ft = [];
+cfg_ft.zlim = [-2 2];
+
+% cfg.plottype = 'multi';
+
+mm_findPeak(cfg,ana,exper,ga_tla,cfg_ft);
+
 
 %% subplots of each subject's ERPs
 
