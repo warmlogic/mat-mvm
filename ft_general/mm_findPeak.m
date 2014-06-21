@@ -6,7 +6,7 @@ function mm_findPeak(cfg,ana,exper,data,cfg_ft)
 %
 % the only real field option for cfg_ft is cfg_ft.channel
 
-if nargin < 6
+if nargin < 5
   cfg_ft = [];
 end
 
@@ -118,14 +118,14 @@ if strcmp(cfg.datadim,'elec')
       
       cfg_ft.highlightchannel = cfg_ft.channel;
       cfg_ft.channel = 'all';
-      cfg.highlightsymbol = '*';
+      cfg_ft.highlightsymbol = '*';
       
       if ~isfield(cfg_ft,'zlim') && isfield(cfg,'zlim')
         cfg_ft.zlim = cfg.zlim;
       end
       if ~isfield(cfg_ft,'marker')
         if isfield(cfg,'marker')
-          cfg.marker = cfg_ft.marker;
+          cfg_ft.marker = cfg.marker;
         else
           cfg_ft.marker = 'on';
           %cfg_ft.marker = 'label';
