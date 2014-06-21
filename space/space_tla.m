@@ -582,12 +582,12 @@ end
 
 cfg = [];
 
-% cfg.roi = {'center109'};
+cfg.roi = {'center109'};
 % cfg.latency = [0 1.0];
 
-cfg.roi = {'C'};
-% cfg.latency = [0.3 0.8];
-cfg.latency = [0.5 0.8];
+% cfg.roi = {'LPS','RPS'};
+cfg.latency = [0.3 0.8];
+% cfg.latency = [0.5 0.8];
 
 cfg.datadim = 'elec';
 % cfg.datadim = 'time';
@@ -598,8 +598,8 @@ cfg.is_ga = true;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
-cfg.plottype = 'topo';
 
+cfg.plottype = 'topo';
 cfg_ft = [];
 cfg_ft.zlim = [-2 2];
 
