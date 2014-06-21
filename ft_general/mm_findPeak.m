@@ -52,18 +52,18 @@ if ~isfield(cfg_ft,'channel')
   cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
 end
 
-if ~isfield(cfg,'latency') || (isfield(cfg,'latency') && isempty(cfg.latency))
-  if ~strcmp(cfg.datadim,'peak2peak')
+% if ~isfield(cfg,'latency') || (isfield(cfg,'latency') && isempty(cfg.latency))
+if ~strcmp(cfg.datadim,'peak2peak')
+  if ~isfield(cfg,'latency')
     cfg.latency = 'all';
     fprintf('cfg.latency unset. defaulting to ''%s''\n',cfg.latency);
-    
-    %if ~isfield(cfg_ft,'latency')
-    cfg_ft.latency = cfg.latency;
-    %end
-  elseif strcmp(cfg.datadim,'peak2peak')
-    cfg_ft.latency = 'all';
   end
+  
+  cfg_ft.latency = cfg.latency;
+elseif strcmp(cfg.datadim,'peak2peak')
+  cfg_ft.latency = 'all';
 end
+% end
 
 cfg.data_str = 'data';
 
@@ -76,7 +76,11 @@ ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
 % cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'RPI2'})});
 % cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'RPI3'})});
 
-ga_allCond = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',ana_str));
+
+% ga_allCond = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',ana_str));
+
+allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
+ga_allCond = ft_timelockanalysis([],allCond);
 
 if ~isfield(cfg,'plotit')
   cfg.plotit = true;
@@ -89,7 +93,7 @@ end
 if strcmp(cfg.datadim,'elec')
   % do this first to find the peak electrode/ROI
   
-  ga_data = ft_selectdata_new(cfg,ga_allCond);
+  ga_data = ft_selectdata_new(cfg_ft,ga_allCond);
   
   if ~isfield(cfg,'order')
     cfg.order = 'descend';
@@ -118,7 +122,11 @@ if strcmp(cfg.datadim,'elec')
       
       cfg_ft.highlightchannel = cfg_ft.channel;
       cfg_ft.channel = 'all';
-      cfg_ft.highlightsymbol = '*';
+      cfg_ft.highlight = 'labels';
+      
+      %cfg_ft.highlight = 'on';
+      %cfg_ft.highlightsize = 10;
+      %cfg_ft.highlightsymbol = '*';
       
       if ~isfield(cfg_ft,'zlim') && isfield(cfg,'zlim')
         cfg_ft.zlim = cfg.zlim;
