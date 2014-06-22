@@ -527,6 +527,10 @@ cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
 cfg_plot.ylims = [-3 2; -2 3; -1 4];
 cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
 
+cfg_plot.rois = {{'E62'}};
+cfg_plot.ylims = [-1 4];
+cfg_plot.legendlocs = {'SouthEast'};
+
 cfg_plot.axisxy = false;
 
 % cfg_plot.rois = {{'E70'},{'E83'}};
@@ -587,27 +591,37 @@ end
 
 cfg = [];
 
-cfg.conditions = cellflat(ana.eventValues{1});
+% images
+% cfg.conditions = cellflat(ana.eventValues{1}{1});
+% words
+% cfg.conditions = cellflat(ana.eventValues{1}{2});
 
-cfg.datadim = 'elec';
-cfg.roi = {'center101'};
-% cfg.roi = {'LPS','RPS'};
-cfg.latency = [0.3 0.8];
+cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
+% cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
-% cfg.datadim = 'time';
-% cfg.roi = {'E91'};
-% cfg.latency = [0 1.0];
+% cfg.datadim = 'elec';
+% cfg.roi = {'center101'};
+% % cfg.roi = {'LPS','RPS'};
+% % cfg.roi = {'RPS2'};
+% cfg.latency = [0.4 0.8];
+
+cfg.datadim = 'time';
+cfg.roi = {'E85'}; % center of RPS2
+% cfg.roi = {'E62'}; % Pz
+cfg.latency = [0 1.0];
 
 cfg.is_ga = true;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
-cfg.voltlim = [-3 3];
-% cfg.voltlim = [-1 5];
+% cfg.voltlim = [-3 3];
+cfg.voltlim = [-1 5];
 
-% only for datadim='elec' and datadim='peak2peak'
-cfg.plottype = 'topo';
-% cfg.plottype = 'multi';
+% % only for datadim='elec' and datadim='peak2peak'
+% cfg.plottype = 'topo';
+% % cfg.plottype = 'multi';
 
 % % only for datadim='peak2peak'
 % cfg.datadim = 'peak2peak';
