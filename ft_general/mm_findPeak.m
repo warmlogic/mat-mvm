@@ -50,8 +50,14 @@ end
 if ~isfield(cfg,'plotit')
   cfg.plotit = true;
 end
-if strcmp(cfg.datadim,'elec') && cfg.plotit && ~isfield(cfg,'plottype')
-  cfg.plottype = 'topo';
+if cfg.plotit
+  if strcmp(cfg.datadim,'elec') && cfg.plotit && ~isfield(cfg,'plottype')
+    cfg.plottype = 'topo';
+  end
+  
+  if ~isfield(cfg_plot,'interactive')
+    cfg_plot.interactive = 'no';
+  end
 end
 
 % set the electrodes and times
@@ -68,8 +74,6 @@ if ~strcmp(cfg.datadim,'peak2peak')
   end
   
   cfg_ft.latency = cfg.latency;
-elseif strcmp(cfg.datadim,'peak2peak')
-  cfg_ft.latency = 'all';
 end
 
 % set up the data string
@@ -124,10 +128,6 @@ if strcmp(cfg.datadim,'elec')
       else
         cfg_plot.xlim = cfg_ft.latency;
       end
-    end
-    if ~isfield(cfg_plot,'interactive')
-      % cfg_ft.interactive = 'yes';
-      cfg_plot.interactive = 'no';
     end
     
     if strcmp(cfg.plottype,'topo')
@@ -198,11 +198,6 @@ elseif strcmp(cfg.datadim,'time')
       cfg_plot.ylim = cfg.voltlim;
     end
     
-    if ~isfield(cfg_plot,'interactive')
-      % cfg_ft.interactive = 'yes';
-      cfg_plot.interactive = 'no';
-    end
-      
     figure
     ft_singleplotER(cfg_plot,ga_allCond);
     fprintf('Done.\n');
@@ -210,13 +205,11 @@ elseif strcmp(cfg.datadim,'time')
   
 elseif strcmp(cfg.datadim,'peak2peak')
   
-  cfg_sd = [];
-  cfg_sd.latency = cfg.pospeak;
-  ga_pos = ft_selectdata_new(cfg_sd,ga_allCond);
+  cfg_ft.latency = cfg.pospeak;
+  ga_pos = ft_selectdata_new(cfg_ft,ga_allCond);
   
-  cfg_sd = [];
-  cfg_sd.latency = cfg.negpeak;
-  ga_neg = ft_selectdata_new(cfg_sd,ga_allCond);
+  cfg_ft.latency = cfg.negpeak;
+  ga_neg = ft_selectdata_new(cfg_ft,ga_allCond);
   
   pos_max = max(ga_pos.avg,[],2);
   neg_min = min(ga_neg.avg,[],2);
