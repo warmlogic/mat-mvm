@@ -596,7 +596,6 @@ cfg.latency = [0.3 0.8];
 
 % cfg.datadim = 'time';
 % cfg.roi = {'E91'};
-% cfg.roi = {'E70'};
 % cfg.latency = [0 1.0];
 
 cfg.is_ga = true;

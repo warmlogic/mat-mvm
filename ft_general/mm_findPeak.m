@@ -16,7 +16,6 @@ function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % 
 % % cfg.datadim = 'time';
 % % cfg.roi = {'E91'};
-% % cfg.roi = {'E70'};
 % % cfg.latency = [0 1.0];
 % 
 % cfg.is_ga = true;
