@@ -452,6 +452,11 @@ end
 %   end
 % end
 
+%% save to conserve memory
+
+save('~/Downloads/space_data_tla.mat','data_tla','exper','ana','dirs','files','-v7.3');
+clear data_tla
+
 %% lowpass filter and segment for ERPs
 
 data_tla_backup = data_tla;
@@ -582,31 +587,35 @@ end
 
 cfg = [];
 
-cfg.roi = {'center109'};
-% cfg.latency = [0 1.0];
-
-% cfg.roi = {'LPS','RPS'};
-cfg.latency = [0.3 0.8];
-% cfg.latency = [0.5 0.8];
+cfg.conditions = cellflat(ana.eventValues{1});
 
 cfg.datadim = 'elec';
-% cfg.datadim = 'time';
+% cfg.roi = {'center74'};
+cfg.roi = {'LPS','RPS'};
+% cfg.latency = [0.5 0.8];
+cfg.latency = [0.3 0.8];
 
-cfg.conditions = cellflat(ana.eventValues{1});
+% cfg.datadim = 'time';
+% cfg.roi = {'E91'};
+% cfg.latency = [0 1.0];
 
 cfg.is_ga = true;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
+% cfg.voltlim = [-2 2];
+cfg.voltlim = [-4 4];
+% cfg.voltlim = [-1 5];
 
+% only for datadim = 'elec'
 cfg.plottype = 'topo';
-cfg_ft = [];
-cfg_ft.zlim = [-2 2];
-
 % cfg.plottype = 'multi';
 
-mm_findPeak(cfg,ana,exper,ga_tla,cfg_ft);
+% only for datadim='peak2peak'
+% cfg.pospeak = [0.1 0.15];
+% cfg.negpeak = [0.15 0.2];
 
+mm_findPeak(cfg,ana,exper,ga_tla);
 
 %% subplots of each subject's ERPs
 
