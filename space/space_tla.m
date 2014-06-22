@@ -589,26 +589,26 @@ cfg = [];
 
 cfg.conditions = cellflat(ana.eventValues{1});
 
-cfg.datadim = 'elec';
-% cfg.roi = {'center74'};
-cfg.roi = {'LPS','RPS'};
+% cfg.datadim = 'elec';
+% cfg.roi = {'center101'};
+% % cfg.roi = {'LPS','RPS'};
 % cfg.latency = [0.5 0.8];
-cfg.latency = [0.3 0.8];
+% % cfg.latency = [0.3 0.8];
 
-% cfg.datadim = 'time';
-% cfg.roi = {'E91'};
-% cfg.latency = [0 1.0];
+cfg.datadim = 'time';
+cfg.roi = {'E91'};
+cfg.latency = [0 1.0];
 
 cfg.is_ga = true;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
 % cfg.voltlim = [-2 2];
-cfg.voltlim = [-4 4];
-% cfg.voltlim = [-1 5];
+% cfg.voltlim = [-4 4];
+cfg.voltlim = [-1 5];
 
 % only for datadim = 'elec'
-cfg.plottype = 'topo';
+% cfg.plottype = 'topo';
 % cfg.plottype = 'multi';
 
 % only for datadim='peak2peak'
