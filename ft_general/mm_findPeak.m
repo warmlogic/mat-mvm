@@ -15,7 +15,8 @@ function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % cfg.latency = [0.3 0.8];
 % 
 % % cfg.datadim = 'time';
-% % cfg.roi = {'E91'};
+% % cfg.roi = {'E62'};
+% % % cfg.roi = {'LPS'};
 % % cfg.latency = [0 1.0];
 % 
 % cfg.is_ga = true;
@@ -54,7 +55,7 @@ if strcmp(cfg.datadim,'peak2peak')
 end
 
 if ~isfield(cfg,'conditions')
-  cfg.conditions = cellflat(ana.eventValues{1});
+  cfg.conditions = cellflat(ana.eventValues);
 end
 
 if ~isfield(cfg,'is_ga')
@@ -203,6 +204,31 @@ if strcmp(cfg.datadim,'elec')
   
 elseif strcmp(cfg.datadim,'time')
   % do this once you have nailed down which is the peak electrode
+  
+  cfg_t = [];
+  cfg_t.latency = cfg.latency;
+  cfg_t.channel = cfg_ft.channel;
+  ga_data = ft_selectdata_new(cfg_t,ga_allCond);
+  % average across all channels
+  thisData = mean(ga_data.avg,1);
+  
+  if ~isfield(cfg,'order')
+    cfg.order = 'descend';
+  end
+  [y,i] = sort(thisData,2,cfg.order);
+  
+  nMS = 20;
+  if length(i) > nMS
+    i = i(1:nMS);
+    y = y(1:nMS);
+  end
+  fprintf('For channels (averaged):\n');
+  disp(cfg_ft.channel);
+  fprintf('In time range: %.3f sec to %.3f sec\n\n',cfg_t.latency(1),cfg_t.latency(2));
+  fprintf('First %d peak samples (sec) in ''%s'' order:\n',length(i),cfg.order);
+  disp(ga_data.time(i));
+  fprintf('Voltages (uV) at peak milliseconds in ''%s'' order:\n',cfg.order);
+  disp(y);
   
   if cfg.plotit
     fprintf('Plotting...');
