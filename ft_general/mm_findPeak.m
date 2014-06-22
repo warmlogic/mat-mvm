@@ -177,6 +177,9 @@ elseif strcmp(cfg.datadim,'time')
   
   if cfg.plotit
     fprintf('Plotting...');
+    
+    cfg_plot.channel = cfg_ft.channel;
+      
     if ~isfield(cfg_plot,'xlim')
       if strcmp(cfg.latency,'all')
         cfg_plot.xlim = 'maxmin';
