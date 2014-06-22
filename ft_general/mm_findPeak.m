@@ -1,10 +1,37 @@
 function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 
-% time
+% function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 %
-% electrode
+% cfg_plot is optional
 %
-% the only real field option for cfg_ft is cfg_ft.channel
+% example usage:
+%
+% cfg = [];
+% cfg.conditions = cellflat(ana.eventValues{1});
+% 
+% cfg.datadim = 'elec';
+% cfg.roi = {'center101'};
+% % cfg.roi = {'LPS','RPS'};
+% cfg.latency = [0.5 0.8];
+% 
+% % cfg.datadim = 'time';
+% % cfg.roi = {'E91'};
+% % cfg.latency = [0 1.0];
+% 
+% cfg.is_ga = true;
+% cfg.sesNum = 1;
+% 
+% cfg.plotit = true;
+% cfg.voltlim = [-3 3];
+% % cfg.voltlim = [-1 5];
+% 
+% % only for datadim = 'elec'
+% cfg.plottype = 'topo';
+% % cfg.plottype = 'multi';
+% 
+% % only for datadim='peak2peak'
+% % cfg.pospeak = [0.1 0.15];
+% % cfg.negpeak = [0.15 0.2];
 
 if nargin < 5
   cfg_plot = [];
