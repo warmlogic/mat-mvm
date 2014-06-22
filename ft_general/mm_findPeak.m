@@ -12,10 +12,11 @@ function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % cfg.datadim = 'elec';
 % cfg.roi = {'center101'};
 % % cfg.roi = {'LPS','RPS'};
-% cfg.latency = [0.5 0.8];
+% cfg.latency = [0.3 0.8];
 % 
 % % cfg.datadim = 'time';
 % % cfg.roi = {'E91'};
+% % cfg.roi = {'E70'};
 % % cfg.latency = [0 1.0];
 % 
 % cfg.is_ga = true;
@@ -25,13 +26,15 @@ function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % cfg.voltlim = [-3 3];
 % % cfg.voltlim = [-1 5];
 % 
-% % only for datadim = 'elec'
+% % only for datadim='elec' and datadim='peak2peak'
 % cfg.plottype = 'topo';
 % % cfg.plottype = 'multi';
 % 
-% % only for datadim='peak2peak'
-% % cfg.pospeak = [0.1 0.15];
-% % cfg.negpeak = [0.15 0.2];
+% % % only for datadim='peak2peak'
+% % cfg.datadim = 'peak2peak';
+% % cfg.roi = {'posterior'};
+% % cfg.pospeak = [0.08 0.14];
+% % cfg.negpeak = [0.14 0.2];
 
 if nargin < 5
   cfg_plot = [];
@@ -226,27 +229,98 @@ elseif strcmp(cfg.datadim,'time')
   
 elseif strcmp(cfg.datadim,'peak2peak')
   
-  cfg_ft.latency = cfg.pospeak;
-  ga_pos = ft_selectdata_new(cfg_ft,ga_allCond);
+  cfg_p2p = [];
+  cfg_p2p.latency = cfg.pospeak;
+  ga_pos = ft_selectdata_new(cfg_p2p,ga_allCond);
   
-  cfg_ft.latency = cfg.negpeak;
-  ga_neg = ft_selectdata_new(cfg_ft,ga_allCond);
+  cfg_p2p.latency = cfg.negpeak;
+  ga_neg = ft_selectdata_new(cfg_p2p,ga_allCond);
   
+  theseChans = ismember(ga_pos.label,cfg_ft.channel);
   pos_max = max(ga_pos.avg,[],2);
   neg_min = min(ga_neg.avg,[],2);
   
-  posnegdiff = pos_max - abs(neg_min);
+  %posnegdiff = pos_max - abs(neg_min);
+  posnegdiff = pos_max - neg_min;
   
   if ~isfield(cfg,'order')
     cfg.order = 'descend';
   end
   
-  [y,i] = sort(posnegdiff,1,cfg.order);
+  [y,i] = sort(posnegdiff(theseChans,:),1,cfg.order);
   
   fprintf('labels in ''%s'' order:\n',cfg.order);
-  disp(ga_allCond.label(i)');
+  disp(cfg_ft.channel(i));
   fprintf('voltages in ''%s'' order:\n',cfg.order);
   disp(y');
+  
+  if cfg.plotit
+    fprintf('Plotting...');
+    
+    ga_diff = ga_pos;
+    ga_diff.avg = posnegdiff;
+    ga_diff.var = zeros(size(posnegdiff));
+    ga_diff.time = 0;
+    
+    if ~isfield(cfg_plot,'layout') && isfield(ana,'elec')
+      cfg_plot.layout = ft_prepare_layout([],ana);
+    end
+    
+    if strcmp(cfg.plottype,'topo')
+      % topoplot
+      
+      cfg_plot.xlim = 'maxmin';
+      
+      cfg_plot.highlightchannel = cfg_ft.channel;
+      cfg_plot.channel = 'all';
+      cfg_plot.highlight = 'labels';
+      cfg_plot.colorbar = 'yes';
+      
+      %cfg_ft.highlight = 'on';
+      %cfg_ft.highlightsize = 10;
+      %cfg_ft.highlightsymbol = '*';
+      
+      if ~isfield(cfg_plot,'zlim')
+        cfg_plot.zlim = cfg.voltlim;
+      end
+      if ~isfield(cfg_plot,'marker')
+        if isfield(cfg,'marker')
+          cfg_plot.marker = cfg.marker;
+        else
+          cfg_plot.marker = 'on';
+          %cfg_ft.marker = 'label';
+        end
+      end
+      if ~isfield(cfg_plot,'markerfontsize')
+        cfg_plot.markerfontsize = 10;
+      end
+      
+      figure
+      ft_topoplotER(cfg_plot,ga_diff);
+      
+    elseif strcmp(cfg.plottype,'multi')
+      % multiplot
+      
+      cfg_plot.xlim = [min([cfg.pospeak cfg.negpeak]) max([cfg.pospeak cfg.negpeak])];
+      
+      if ~isfield(cfg_plot,'ylim')
+        cfg_plot.ylim = cfg.voltlim;
+      end
+      if ~isfield(cfg_plot,'showlabels')
+        cfg_plot.showlabels = 'yes';
+      end
+      if ~isfield(cfg_plot,'showoutline')
+        cfg_plot.showoutline = 'yes';
+      end
+      if ~isfield(cfg_plot,'fontsize')
+        cfg_plot.fontsize = 9;
+      end
+      
+      figure
+      ft_multiplotER(cfg_plot,ga_allCond);
+    end
+    fprintf('Done.\n');
+  end
   
 end
 
