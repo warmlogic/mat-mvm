@@ -80,15 +80,6 @@ end
 cfg.data_str = 'data';
 ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
 
-% % %cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'posterior'})});
-% % %cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'LPS', 'RPS', 'LPI', 'RPI', 'LPS2', 'RPS2', 'LPI2', 'RPI2', 'PS', 'PI'})});
-% cfg_ft.channel{end+1} = 'E81';
-
-% cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'RPI2'})});
-% cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'RPI3'})});
-
-% ga_allCond = eval(sprintf('ft_timelockgrandaverage(cfg_ft,%s);',ana_str));
-
 fprintf('Finding peak across conditions:%s\n',sprintf(repmat(' %s',1,length(cfg.conditions)),cfg.conditions{:}));
 
 fprintf('Concatenating...');
