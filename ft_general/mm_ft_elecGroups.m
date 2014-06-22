@@ -208,6 +208,20 @@ if strcmp('HCGSN129',layoutStr)
     'noEyeB',...
     'noEyeH',...
     };
+  
+  % add in individual electrode names
+  individElec = cell(1,128);
+  individElecStr = cell(1,128);
+  for i = 1:length(individElec)
+    individElec{i} = {sprintf('E%d',i)};
+    individElecStr{i} = sprintf('E%d',i);
+  end
+  individElec = cat(2,individElec,{'Cz'});
+  individElecStr = cat(2,individElecStr,'Cz');
+  individElec = cat(2,individElec,{'Cz'});
+  individElecStr = cat(2,individElecStr,'E129');
+  ana.elecGroups = cat(2,ana.elecGroups,individElec);
+  ana.elecGroupsStr = cat(2,ana.elecGroupsStr,individElecStr);
 end
 
 if ~isempty(elecGroupsExtra)
