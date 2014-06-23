@@ -116,13 +116,15 @@ cond_str = sprintf(repmat(' %s',1,length(cfg.conditions)),cfg.conditions{:});
 fprintf('Finding peak across conditions:%s\n',cond_str);
 
 if length(cfg.conditions) > 1
-  fprintf('Concatenating...');
-  allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
-  fprintf('Done.\n');
+%   fprintf('Concatenating...');
+%   allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
+%   fprintf('Done.\n');
+%   
+%   fprintf('Converting...');
+%   ga_allCond = ft_timelockanalysis([],allCond);
+%   fprintf('Done.\n');
   
-  fprintf('Converting...');
-  ga_allCond = ft_timelockanalysis([],allCond);
-  fprintf('Done.\n');
+  ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
 elseif length(cfg.conditions) == 1
   ga_allCond = eval(ana_str);
 end
