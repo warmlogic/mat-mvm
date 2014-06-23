@@ -1,6 +1,6 @@
-function mm_findPeak(cfg,ana,exper,data,cfg_plot)
+function [subjectPeaks] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 
-% function mm_findPeak(cfg,ana,exper,data,cfg_plot)
+% [subjectPeaks] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 %
 % TODO: output peak timing of subjects (if cfg.is_ga=false)
 %
@@ -37,6 +37,8 @@ function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % cfg.roi = {'posterior'};
 % % cfg.pospeak = [0.08 0.14];
 % % cfg.negpeak = [0.14 0.2];
+
+%% Set defaults
 
 if nargin < 5
   cfg_plot = [];
@@ -79,6 +81,15 @@ if ~isfield(cfg,'voltlim')
   cfg.voltlim = [-5 5];
 end
 
+if ~isfield(cfg,'order')
+  cfg.order = 'descend';
+end
+
+if ~isfield(cfg,'output')
+  cfg.output = false;
+  subjectPeaks = [];
+end
+
 if ~isfield(cfg,'plotit')
   cfg.plotit = true;
 end
@@ -92,7 +103,8 @@ if cfg.plotit
   end
 end
 
-% set the electrodes and times
+%% Set the electrodes and times
+
 cfg_ft = [];
 if ~isfield(cfg,'roi')
   cfg.roi = 'center101';
@@ -108,16 +120,14 @@ if ~strcmp(cfg.datadim,'peak2peak')
   cfg_ft.latency = cfg.latency;
 end
 
+%% Get the data to be processed
+
 % set up the data string
 cfg.data_str = 'data';
 if cfg.is_ga
   ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
 else
-  if length(cfg.conditions) > 1
-    cfg.separateSubjects = true;
-  else
-    cfg.separateSubjects = false;
-  end
+  cfg.separateSubjects = true;
   ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
 end
 
@@ -125,14 +135,6 @@ cond_str = sprintf(repmat(' %s',1,length(cfg.conditions)),cfg.conditions{:});
 fprintf('Finding peak across conditions:%s\n',cond_str);
 
 if length(cfg.conditions) > 1
-  %   fprintf('Concatenating...');
-  %   allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
-  %   fprintf('Done.\n');
-  %
-  %   fprintf('Converting...');
-  %   ga_allCond = ft_timelockanalysis([],allCond);
-  %   fprintf('Done.\n');
-  
   if cfg.is_ga
     ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
   else
@@ -151,9 +153,20 @@ elseif length(cfg.conditions) == 1
   if cfg.is_ga
     ga_allCond = eval(ana_str);
   else
-    ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str.(cfg.conditions{1})));
+    fn = fieldnames(ana_str);
+    % get each subject
+    ga_allSub = cell(1,length(fn));
+    for i = 1:length(fn)
+      ga_allSub{i} = eval(ana_str.(fn{i}));
+    end
+    % make the grand average
+    ana_str = sprintf(repmat(',ga_allSub{%d}',1,length(ga_allSub)),1:length(ga_allSub));
+    ana_str = ana_str(2:end);
+    ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
   end
 end
+
+%% Find the peaks
 
 if strcmp(cfg.datadim,'elec')
   % do this first to find the peak electrode/ROI
@@ -162,9 +175,6 @@ if strcmp(cfg.datadim,'elec')
   ga_data = ft_selectdata_new(cfg_ft,ga_allCond);
   fprintf('Done.\n');
   
-  if ~isfield(cfg,'order')
-    cfg.order = 'descend';
-  end
   [y,i] = sort(mean(ga_data.avg,2),1,cfg.order);
   
   fprintf('labels in ''%s'' order:\n',cfg.order);
@@ -247,9 +257,6 @@ elseif strcmp(cfg.datadim,'time')
   % average across all channels
   thisData = mean(ga_data.avg,1);
   
-  if ~isfield(cfg,'order')
-    cfg.order = 'descend';
-  end
   [y,i] = sort(thisData,2,cfg.order);
   
   nMS = 20;
@@ -308,10 +315,6 @@ elseif strcmp(cfg.datadim,'peak2peak')
   
   %posnegdiff = pos_max - abs(neg_min);
   posnegdiff = pos_max - neg_min;
-  
-  if ~isfield(cfg,'order')
-    cfg.order = 'descend';
-  end
   
   [y,i] = sort(posnegdiff(theseChans,:),1,cfg.order);
   
