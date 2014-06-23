@@ -2,6 +2,8 @@ function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 
 % function mm_findPeak(cfg,ana,exper,data,cfg_plot)
 %
+% TODO: output peak timing of subjects (if cfg.is_ga=false)
+%
 % cfg_plot is optional
 %
 % example usage:
@@ -110,15 +112,20 @@ end
 cfg.data_str = 'data';
 ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
 
-fprintf('Finding peak across conditions:%s\n',sprintf(repmat(' %s',1,length(cfg.conditions)),cfg.conditions{:}));
+cond_str = sprintf(repmat(' %s',1,length(cfg.conditions)),cfg.conditions{:});
+fprintf('Finding peak across conditions:%s\n',cond_str);
 
-fprintf('Concatenating...');
-allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
-fprintf('Done.\n');
-
-fprintf('Converting...');
-ga_allCond = ft_timelockanalysis([],allCond);
-fprintf('Done.\n');
+if length(cfg.conditions) > 1
+  fprintf('Concatenating...');
+  allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
+  fprintf('Done.\n');
+  
+  fprintf('Converting...');
+  ga_allCond = ft_timelockanalysis([],allCond);
+  fprintf('Done.\n');
+elseif length(cfg.conditions) == 1
+  ga_allCond = eval(ana_str);
+end
 
 if strcmp(cfg.datadim,'elec')
   % do this first to find the peak electrode/ROI
@@ -237,7 +244,8 @@ elseif strcmp(cfg.datadim,'time')
       
     if ~isfield(cfg_plot,'xlim')
       if strcmp(cfg.latency,'all')
-        cfg_plot.xlim = 'maxmin';
+        %cfg_plot.xlim = 'maxmin';
+        cfg_plot.xlim = [ga_allCond.time(1) ga_allCond.time(end)];
       else
         cfg_plot.xlim = cfg.latency;
       end
@@ -249,6 +257,11 @@ elseif strcmp(cfg.datadim,'time')
     
     figure
     ft_singleplotER(cfg_plot,ga_allCond);
+    hold on
+    plot([cfg_plot.xlim(1) cfg_plot.xlim(2)],[0 0],'k--'); % horizontal
+    plot([0 0],[cfg_plot.ylim(1) cfg_plot.ylim(2)],'k--'); % vertical
+    hold off
+
     fprintf('Done.\n');
   end
   
@@ -347,5 +360,9 @@ elseif strcmp(cfg.datadim,'peak2peak')
     fprintf('Done.\n');
   end
   
+end
+
+if cfg.plotit
+  set(gcf,'Name',cond_str);
 end
 
