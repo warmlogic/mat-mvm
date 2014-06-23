@@ -110,23 +110,49 @@ end
 
 % set up the data string
 cfg.data_str = 'data';
-ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
+if cfg.is_ga
+  ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
+else
+  if length(cfg.conditions) > 1
+    cfg.separateSubjects = true;
+  else
+    cfg.separateSubjects = false;
+  end
+  ana_str = mm_catSubStr_multiSes2(cfg,exper,cfg.sesNum);
+end
 
 cond_str = sprintf(repmat(' %s',1,length(cfg.conditions)),cfg.conditions{:});
 fprintf('Finding peak across conditions:%s\n',cond_str);
 
 if length(cfg.conditions) > 1
-%   fprintf('Concatenating...');
-%   allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
-%   fprintf('Done.\n');
-%   
-%   fprintf('Converting...');
-%   ga_allCond = ft_timelockanalysis([],allCond);
-%   fprintf('Done.\n');
+  %   fprintf('Concatenating...');
+  %   allCond = eval(sprintf('ft_appenddata([],%s);',ana_str));
+  %   fprintf('Done.\n');
+  %
+  %   fprintf('Converting...');
+  %   ga_allCond = ft_timelockanalysis([],allCond);
+  %   fprintf('Done.\n');
   
-  ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
+  if cfg.is_ga
+    ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
+  else
+    fn = fieldnames(ana_str);
+    % average each subject
+    ga_allSub = cell(1,length(fn));
+    for i = 1:length(fn)
+      ga_allSub{i} = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str.(fn{i})));
+    end
+    % make the grand average
+    ana_str = sprintf(repmat(',ga_allSub{%d}',1,length(ga_allSub)),1:length(ga_allSub));
+    ana_str = ana_str(2:end);
+    ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
+  end
 elseif length(cfg.conditions) == 1
-  ga_allCond = eval(ana_str);
+  if cfg.is_ga
+    ga_allCond = eval(ana_str);
+  else
+    ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str.(cfg.conditions{1})));
+  end
 end
 
 if strcmp(cfg.datadim,'elec')
