@@ -186,7 +186,7 @@ if strcmp(cfg.datadim,'elec')
       end
       
       figure
-      ft_topoplotER(cfg_plot,ga_data);
+      ft_topoplotER(cfg_plot,ga_allCond);
       
     elseif strcmp(cfg.plottype,'multi')
       % multiplot
