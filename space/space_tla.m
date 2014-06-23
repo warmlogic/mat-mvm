@@ -519,19 +519,27 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-4 2; -4 2];
 % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
-cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.ylims = [-1 4; -1 4];
-cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+% % cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.rois = {{'LPI3'},{'RPI3'}};
+% cfg_plot.ylims = [-1 4; -1 4];
+% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
 % cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
 % cfg_plot.ylims = [-3 2; -2 3; -1 4];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
 
-cfg_plot.rois = {{'Pz'}}; % Pz
-% cfg_plot.rois = {{'PS'}};
-% cfg_plot.rois = {{'PS2'}};
-cfg_plot.ylims = [-1 4];
-cfg_plot.legendlocs = {'SouthEast'};
+% N400
+cfg_plot.rois = {{'Cz'}};
+cfg_plot.ylims = [-2 3];
+cfg_plot.legendlocs = {'NorthEast'};
+
+% LPC
+% cfg_plot.rois = {{'Pz'}}; % Pz
+% % cfg_plot.rois = {{'E72'}}; % below Pz
+% % cfg_plot.rois = {{'PS'}};
+% % cfg_plot.rois = {{'PS2'}};
+% cfg_plot.ylims = [-1 4];
+% cfg_plot.legendlocs = {'SouthEast'};
 
 cfg_plot.axisxy = false;
 
@@ -599,41 +607,53 @@ cfg = [];
 % cfg.conditions = cellflat(ana.eventValues{1}{2});
 
 % % all together
-cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % spaced
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
-% cfg.conditions = {'word_RgH_rc_spac_p2'};
 
 % % massed
 % cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % % single presentation or first presentation
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
-% cfg.conditions = {'word_onePres'};
+cfg.conditions = {'word_onePres'};
 
 % cfg.datadim = 'elec';
 % cfg.roi = {'center101'};
-% % cfg.roi = {'LPS','RPS'};
-% cfg.latency = [0.4 0.8];
+% % cfg.roi = {'PS2'};
+% % cfg.roi = {'LPI3','RPI3'};
+% cfg.latency = [0.4 0.8]; % LPC
+% % % cfg.latency = [0.3 0.5]; % N400
+% % % cfg.latency = [0.35 0.45]; % N400
+% % cfg.latency = [0.314 0.414]; % N400
 
 cfg.datadim = 'time';
+% cfg.roi = {'Cz'};
+% cfg.roi = {'LPI3','RPI3'};
 cfg.roi = {'Pz'};
-% cfg.roi = {'PS'};
 % cfg.roi = {'PS2'};
 % cfg.roi = {'RPI3'};
 % cfg.roi = {'E84'}; % center of RPI3
 % cfg.roi = {'RPS2'};
 % cfg.roi = {'E85'}; % center of RPS2
 % cfg.roi = {'LPS2'};
-cfg.latency = [0 1.0];
+% cfg.latency = [0 1.0];
+% cfg.latency = [0.2 0.9];
+cfg.latency = [0.4 0.8]; % LPC
 
-cfg.is_ga = true;
+cfg.order = 'descend'; % descend = positive peaks first
+% cfg.order = 'ascend'; % ascend = negative peaks first
+
+cfg.is_ga = false;
+cfg.outputSubjects = true;
+% cfg.is_ga = true;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
-cfg.voltlim = [-3 3];
+cfg.voltlim = [-3 3]; % LPC
+% cfg.voltlim = [-2 2]; % N400
 % cfg.voltlim = [-1 5];
 
 % % only for datadim='elec' and datadim='peak2peak'
@@ -646,7 +666,8 @@ cfg.voltlim = [-3 3];
 % cfg.pospeak = [0.08 0.14];
 % cfg.negpeak = [0.14 0.2];
 
-mm_findPeak(cfg,ana,exper,ga_tla);
+% peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
+peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
 
 %% subplots of each subject's ERPs
 
