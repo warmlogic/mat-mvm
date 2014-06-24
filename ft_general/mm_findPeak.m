@@ -25,6 +25,9 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % lpcPeak = 0.592;
 % % % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % around GA peak +/- 50
 % % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % around GA peak +/- 100
+% % % To get the average within your specified latency, set
+% % % cfg.avgovertime=true (only for datadim='time'); otherwise voltage at
+% % % peak time sample is output
 % 
 % % % If finding negative peaks (e.g., N1, N400), use order='ascend'
 % % cfg.order = 'ascend'; % ascend = negative peaks first
@@ -57,14 +60,21 @@ if nargin < 5
   cfg_plot = [];
 end
 
+if ~isfield(cfg,'datadim') || isempty(cfg.datadim)
+  cfg.datadim = 'elec';
+  error('cfg.datadim unset (options are ''elec'', ''time'', and ''peak2peak'').');
+end
+
 if ~ismember(cfg.datadim,{'elec','time','peak2peak'})
   error('cfg.datadim was set to ''%s''. options are ''elec'' and ''time'' and ''peak2peak''');
 end
 
-if ~isfield(cfg,'datadim') || isempty(cfg.datadim)
-  cfg.datadim = 'elec';
-  fprintf('cfg.datadim unset (options are ''elec'' and ''time''). Finding peak on dimension: ''%s''\n',cfg.datadim);
+if strcmp(cfg.datadim,'time')
+  if ~isfield(cfg,'avgovertime')
+    cfg.avgovertime = false;
+  end
 end
+
 if strcmp(cfg.datadim,'peak2peak')
   if ~isfield(cfg,'pospeak') || ~isfield(cfg,'negpeak') 
     error('if doing ''%s'' need to set fields cfg.pospeak and cfg.negpeak',cfg.datadim);
@@ -303,24 +313,30 @@ elseif strcmp(cfg.datadim,'time')
   cfg_sd.latency = cfg_ft.latency;
   cfg_sd.channel = cfg_ft.channel;
   ga_data = ft_selectdata_new(cfg_sd,ga_allCond);
-  % sort voltage after averaging across all channels
+  % sort time samples by voltage after averaging across all channels
   [y,i] = sort(mean(ga_data.avg,1),2,cfg.order);
   
   peakInfo.channel = cfg_ft.channel;
   peakInfo.latency = ga_data.time(i);
   peakInfo.voltage = y;
   
+  if cfg.avgovertime
+    peakInfo.voltage = mean(peakInfo.voltage);
+  end
+  
   % just choose a subset of timepoints and voltages
   nPoints_ga = 20;
   if length(peakInfo.latency) > nPoints_ga
     peakInfo.latency = peakInfo.latency(1:nPoints_ga);
-    peakInfo.voltage = peakInfo.voltage(1:nPoints_ga);
+    if ~cfg.avgovertime
+      peakInfo.voltage = peakInfo.voltage(1:nPoints_ga);
+    end
   end
   
   fprintf('For channels (averaged):\n');
   disp(peakInfo.channel);
   fprintf('In time range: %.3f sec to %.3f sec\n\n',cfg_sd.latency(1),cfg_sd.latency(2));
-  fprintf('First %d peak samples (sec) in ''%s'' order:\n',length(i),cfg.order);
+  fprintf('First %d peak samples (sec) in ''%s'' order:\n',length(peakInfo.latency),cfg.order);
   disp(peakInfo.latency);
   fprintf('Voltages (uV) at peak milliseconds in ''%s'' order:\n',cfg.order);
   disp(peakInfo.voltage);
@@ -362,7 +378,11 @@ elseif strcmp(cfg.datadim,'time')
     end
     
     peakInfo.subjects.latency = nan(length(ga_allSub),nPoints_sub);
-    peakInfo.subjects.voltage = nan(length(ga_allSub),nPoints_sub);
+    if ~cfg.avgovertime
+      peakInfo.subjects.voltage = nan(length(ga_allSub),nPoints_sub);
+    else
+      peakInfo.subjects.voltage = nan(length(ga_allSub),1);
+    end
     
     for gs = 1:length(ga_allSub)
       sub_data = ft_selectdata_new(cfg_ft,ga_allSub{gs});
@@ -370,7 +390,11 @@ elseif strcmp(cfg.datadim,'time')
       
       sub_latency = sub_data.time(i);
       peakInfo.subjects.latency(gs,:) = sub_latency(1:nPoints_sub)';
-      peakInfo.subjects.voltage(gs,:) = y(1:nPoints_sub)';
+      if ~cfg.avgovertime
+        peakInfo.subjects.voltage(gs,:) = y(1:nPoints_sub)';
+      else
+        peakInfo.subjects.voltage(gs) = mean(y);
+      end
     end
     fprintf('Done.\n');
   end
