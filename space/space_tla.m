@@ -625,8 +625,8 @@ cfg = [];
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
 cfg.conditions = {'word_onePres'};
 
-% cfg.datadim = 'elec';
-% cfg.roi = {'center101'};
+cfg.datadim = 'elec';
+cfg.roi = {'center101'};
 % % cfg.roi = {'PS2'};
 % % cfg.roi = {'LPI3','RPI3'};
 % cfg.latency = [0.4 0.8]; % LPC
@@ -634,22 +634,9 @@ cfg.conditions = {'word_onePres'};
 % % % cfg.latency = [0.35 0.45]; % N400
 % % cfg.latency = [0.314 0.414]; % N400
 
-cfg.datadim = 'time';
-% cfg.roi = {'Cz'};
-% cfg.roi = {'LPI3','RPI3'};
-% cfg.roi = {'Pz'};
-% cfg.roi = {'PS2'};
-% cfg.roi = {'RPI3'};
-% cfg.roi = {'E84'}; % center of RPI3
-% cfg.roi = {'RPS2'};
-% cfg.roi = {'E85'}; % center of RPS2
-% cfg.roi = {'LPS2'};
-% cfg.latency = [0 1.0];
-% cfg.latency = [0.2 0.9];
-
 % LPC
 cfg.order = 'descend'; % descend = positive peaks first
-cfg.roi = {'Pz'};
+% cfg.roi = {'Pz'};
 % cfg.latency = [0.4 0.8];
 lpcPeak = 0.592;
 % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
@@ -663,6 +650,18 @@ cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/-
 % % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
 % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
 
+% cfg.datadim = 'time';
+% % cfg.roi = {'Cz'};
+% % cfg.roi = {'LPI3','RPI3'};
+% % cfg.roi = {'Pz'};
+% % cfg.roi = {'PS2'};
+% % cfg.roi = {'RPI3'};
+% % cfg.roi = {'E84'}; % center of RPI3
+% % cfg.roi = {'RPS2'};
+% % cfg.roi = {'E85'}; % center of RPS2
+% % cfg.roi = {'LPS2'};
+% % cfg.latency = [0 1.0];
+% % cfg.latency = [0.2 0.9];
 
 cfg.is_ga = false;
 cfg.outputSubjects = true;
