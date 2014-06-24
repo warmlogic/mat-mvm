@@ -837,19 +837,6 @@ end
 %   fprintf('Not standardizing data!\n');
 % end
 
-%%
-
-% a = ones(2,2,4);
-a = ones(2,4);
-for i = 1:size(a,1)
-  for j = 1:size(a,2)
-    a(i,j,:) = j * a(i,j,:);
-  end
-end
-
-dim = size(a);
-b = reshape(a, dim(1), prod(dim(2:end)));
-
 %% make some GA plots
 
 cfg_ft = [];
