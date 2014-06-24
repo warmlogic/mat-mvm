@@ -607,14 +607,19 @@ cfg = [];
 % cfg.conditions = cellflat(ana.eventValues{1}{2});
 
 % % all together
+% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % spaced
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p2'};
+% cfg.conditions = {'word_RgH_fo_spac_p2'};
 
 % % massed
 % cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_mass_p2'};
+% cfg.conditions = {'word_RgH_fo_mass_p2'};
 
 % % single presentation or first presentation
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
@@ -632,7 +637,7 @@ cfg.conditions = {'word_onePres'};
 cfg.datadim = 'time';
 % cfg.roi = {'Cz'};
 % cfg.roi = {'LPI3','RPI3'};
-cfg.roi = {'Pz'};
+% cfg.roi = {'Pz'};
 % cfg.roi = {'PS2'};
 % cfg.roi = {'RPI3'};
 % cfg.roi = {'E84'}; % center of RPI3
@@ -641,10 +646,23 @@ cfg.roi = {'Pz'};
 % cfg.roi = {'LPS2'};
 % cfg.latency = [0 1.0];
 % cfg.latency = [0.2 0.9];
-cfg.latency = [0.4 0.8]; % LPC
 
+% LPC
 cfg.order = 'descend'; % descend = positive peaks first
+cfg.roi = {'Pz'};
+cfg.latency = [0.4 0.8];
+lpcPeak = 0.592;
+% cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
+cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+
+% % N400
 % cfg.order = 'ascend'; % ascend = negative peaks first
+% cfg.roi = {'Cz'};
+% % cfg.latency = [0.2 0.6];
+% n400Peak = 0.364;
+% % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+% cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+
 
 cfg.is_ga = false;
 cfg.outputSubjects = true;
@@ -668,6 +686,51 @@ cfg.voltlim = [-3 3]; % LPC
 
 % peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
 peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
+
+%%
+
+space_peak = peakInfo.subjects.latency(:,1);
+space_volt = peakInfo.subjects.voltage(:,1);
+
+%%
+
+mass_peak = peakInfo.subjects.latency(:,1);
+mass_volt = peakInfo.subjects.voltage(:,1);
+
+%%
+
+one_peak = peakInfo.subjects.latency(:,1);
+one_volt = peakInfo.subjects.voltage(:,1);
+
+%% ttest - latency
+
+fprintf('space: %.4f sec\n',mean(space_peak));
+fprintf('mass: %.4f sec\n',mean(mass_peak));
+fprintf('one: %.4f sec\n',mean(one_peak));
+
+[h,p,ci,stats] = ttest(space_peak,mass_peak,'alpha',0.05,'tail','both');
+fprintf('Space vs mass: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(space_peak,one_peak,'alpha',0.05,'tail','both');
+fprintf('Space vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(mass_peak,one_peak,'alpha',0.05,'tail','both');
+fprintf('Mass vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+
+%% ttest - voltage
+
+fprintf('space: %.4f uV\n',mean(space_volt));
+fprintf('mass: %.4f uV\n',mean(mass_volt));
+fprintf('one: %.4f uV\n',mean(one_volt));
+
+[h,p,ci,stats] = ttest(space_volt,mass_volt,'alpha',0.05,'tail','both');
+fprintf('Space vs mass: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(space_volt,one_volt,'alpha',0.05,'tail','both');
+fprintf('Space vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+
+[h,p,ci,stats] = ttest(mass_volt,one_volt,'alpha',0.05,'tail','both');
+fprintf('Mass vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
 %% subplots of each subject's ERPs
 
