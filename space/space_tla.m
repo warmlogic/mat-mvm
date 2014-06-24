@@ -650,7 +650,7 @@ cfg.datadim = 'time';
 % LPC
 cfg.order = 'descend'; % descend = positive peaks first
 cfg.roi = {'Pz'};
-cfg.latency = [0.4 0.8];
+% cfg.latency = [0.4 0.8];
 lpcPeak = 0.592;
 % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
 cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
@@ -680,6 +680,7 @@ cfg.voltlim = [-3 3]; % LPC
 
 % % only for datadim='peak2peak'
 % cfg.datadim = 'peak2peak';
+% cfg.order = 'descend'; % descend = positive peaks first
 % cfg.roi = {'posterior'};
 % cfg.pospeak = [0.08 0.14];
 % cfg.negpeak = [0.14 0.2];

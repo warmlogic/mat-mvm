@@ -2,8 +2,6 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 
 % [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 %
-% TODO: output peak timing of subjects (if cfg.is_ga=false)
-%
 % cfg_plot is optional
 %
 % example usage:
@@ -11,17 +9,28 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % cfg = [];
 % cfg.conditions = cellflat(ana.eventValues{1});
 % 
+% % Find the peak electrode (averages across the latency window)
 % cfg.datadim = 'elec';
 % cfg.roi = {'center101'};
 % % cfg.roi = {'LPS','RPS'};
-% cfg.latency = [0.3 0.8];
+% cfg.latency = [0.4 0.8]; % LPC
 % 
+% % Once you've found the peak electrode(s), find the peak time point
+% (averages across the electrodes)
 % % cfg.datadim = 'time';
+% % cfg.order = 'descend'; % descend = positive peaks first
 % % cfg.roi = {'E62'};
 % % % cfg.roi = {'LPS'};
-% % cfg.latency = [0 1.0];
+% % lpcPeak = 0.592;
+% % % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % around GA peak +/- 50
+% % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % around GA peak +/- 100
 % 
+% % % If finding negative peaks, use order='ascend'
+% % cfg.order = 'ascend'; % ascend = negative peaks first
+%
 % cfg.is_ga = true;
+% % cfg.is_ga = false;
+% % cfg.outputSubjects = true;
 % cfg.sesNum = 1;
 % 
 % cfg.plotit = true;
@@ -29,14 +38,17 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % cfg.voltlim = [-1 5];
 % 
 % % only for datadim='elec' and datadim='peak2peak'
-% cfg.plottype = 'topo';
+% cfg.plottype = 'topo'; % (default)
 % % cfg.plottype = 'multi';
 % 
 % % % only for datadim='peak2peak'
 % % cfg.datadim = 'peak2peak';
+% % cfg.order = 'descend'; % descend = positive peaks first
 % % cfg.roi = {'posterior'};
 % % cfg.pospeak = [0.08 0.14];
 % % cfg.negpeak = [0.14 0.2];
+%
+% [peakInfo] = mm_findPeak(cfg,ana,exper,ga_tla);
 
 %% Set defaults
 
