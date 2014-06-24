@@ -28,9 +28,9 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % % If finding negative peaks, use order='ascend'
 % % cfg.order = 'ascend'; % ascend = negative peaks first
 %
-% cfg.is_ga = true;
-% % cfg.is_ga = false;
-% % cfg.outputSubjects = true;
+% % cfg.is_ga = true;
+% cfg.is_ga = false;
+% cfg.outputSubjects = true;
 % cfg.sesNum = 1;
 % 
 % cfg.plotit = true;
@@ -48,7 +48,7 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % cfg.pospeak = [0.08 0.14];
 % % cfg.negpeak = [0.14 0.2];
 %
-% [peakInfo] = mm_findPeak(cfg,ana,exper,ga_tla);
+% [peakInfo] = mm_findPeak(cfg,ana,exper,data_tla);
 
 %% Set defaults
 
