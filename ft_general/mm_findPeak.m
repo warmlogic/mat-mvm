@@ -15,8 +15,9 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % cfg.roi = {'LPS','RPS'};
 % cfg.latency = [0.4 0.8]; % LPC
 % 
-% % Once you've found the peak electrode(s), find the peak time point
-% (averages across the electrodes)
+% % % Once you've found the peak electrode(s), find the peak time point
+% % % (averages across the electrodes). After that, home in on a window for
+% % % a subsequent analysis (demonstrated here).
 % % cfg.datadim = 'time';
 % % cfg.order = 'descend'; % descend = positive peaks first
 % % cfg.roi = {'E62'};
@@ -25,7 +26,7 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % % % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % around GA peak +/- 50
 % % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % around GA peak +/- 100
 % 
-% % % If finding negative peaks, use order='ascend'
+% % % If finding negative peaks (e.g., N1, N400), use order='ascend'
 % % cfg.order = 'ascend'; % ascend = negative peaks first
 %
 % % cfg.is_ga = true;
@@ -41,9 +42,9 @@ function [peakInfo] = mm_findPeak(cfg,ana,exper,data,cfg_plot)
 % cfg.plottype = 'topo'; % (default)
 % % cfg.plottype = 'multi';
 % 
-% % % only for datadim='peak2peak'
+% % % You can also measure a peak to peak difference with pospeak/negpeak
 % % cfg.datadim = 'peak2peak';
-% % cfg.order = 'descend'; % descend = positive peaks first
+% % cfg.order = 'descend'; % descend = positive differences first
 % % cfg.roi = {'posterior'};
 % % cfg.pospeak = [0.08 0.14];
 % % cfg.negpeak = [0.14 0.2];
