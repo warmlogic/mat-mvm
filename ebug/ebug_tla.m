@@ -34,27 +34,18 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/data_art_nsClassic_ftAuto/tla');
 
 subjects = {
-%     'EBUG001';
-%     'EBUG002';
-%     'EBUG003';
-%     'EBUG004';
-%     'EBUG005';
-%     'EBUG006';
-%     'EBUG007';
-%     'EBUG008';
-%     'EBUG009';
-%     'EBUG010';
-%     'EBUG011';
+    'EBUG010';
+    'EBUG011';
 %     'EBUG012';
 %     'EBUG016';
 %     'EBUG017';
 %     'EBUG018';
 %     'EBUG019';
-    'EBUG020';
+%     'EBUG020';
 %     'EBUG022';
 %     'EBUG025';
 %     'EBUG027';
-    'EBUG029';
+%     'EBUG029';
 %     'EBUG032';
 %     'EBUG034';
 %     'EBUG043';
@@ -305,7 +296,8 @@ ana.eventValues = ana.eventValuesSplit;
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{},{},{}};
+% exper.badBehSub = {{},{},{}};
+exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert');
@@ -558,7 +550,7 @@ for r = 1:length(cfg_plot.rois)
   
   saveFigs = true;
   
-  figFileName = sprintf('ERP_%s_%s_basic_subord_pre',imgCond,stimStr);
+  figFileName = sprintf('ERP_%s_%s_basic_subord_pre',stimStr);
 %   figFileName = sprintf('ERP_%s_%s_basic_subord_prepost',imgCond,stimStr);
   
   publishfig(gcf,1,14);
