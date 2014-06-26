@@ -11,8 +11,8 @@ cfg = [];
 % oldnew = {'p2'};
 % memConds = {'all'};
 
-% I didn't test new words, so they can't be recalled/forgotten, but we can
-% use p1
+% % I didn't test new words, so they can't be recalled/forgotten, but we can
+% % use p1
 spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
 memConds = {'rc','fo'};
@@ -22,133 +22,112 @@ erpComponents = {'LPC','N400'};
 for sp = 1:length(spacings)
   
   for on = 1:length(oldnew)
-  
-  for mc = 1:length(memConds)
     
-    if strcmp(spacings{sp},'onePres')
-      % % single presentation or first presentation
-      if strcmp(memConds{mc},'all');
-        cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
-        %cfg.conditions = {'word_onePres'};
-      end
-    elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+    for mc = 1:length(memConds)
       
-      if strcmp(memConds{mc},'all');
-        cfg.conditions = {sprintf('word_RgH_rc_%s_%s',spacings{sp},oldnew{on}),sprintf('word_RgH_fo_%s_%s',spacings{sp},oldnew{on})};
-      else
-        cfg.conditions = {sprintf('word_RgH_%s_%s_%s',memConds{mc},spacings{sp},oldnew{on})};
+      cond_str = [];
+      
+      if strcmp(spacings{sp},'onePres')
+        % % single presentation or first presentation
+        if strcmp(memConds{mc},'all');
+          cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+          %cfg.conditions = {'word_onePres'};
+          
+          cond_str = sprintf('%s_%s',spacings{sp},memConds{mc});
+        end
+      elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+        
+        if strcmp(memConds{mc},'all');
+          cfg.conditions = {sprintf('word_RgH_rc_%s_%s',spacings{sp},oldnew{on}),sprintf('word_RgH_fo_%s_%s',spacings{sp},oldnew{on})};
+        else
+          cfg.conditions = {sprintf('word_RgH_%s_%s_%s',memConds{mc},spacings{sp},oldnew{on})};
+        end
+        
+        cond_str = sprintf('%s_%s_%s',spacings{sp},oldnew{on},memConds{mc});
+      end
+      
+      fprintf('================================================\n');
+      fprintf('Condition: %s\n',cond_str);
+      disp(cfg.conditions);
+      fprintf('================================================\n');
+      
+      for er = 1:length(erpComponents)
+        if strcmp(erpComponents{er},'LPC')
+          % LPC
+          cfg.order = 'descend'; % descend = positive peaks first
+          cfg.roi = {'Pz'};
+          % cfg.latency = [0.4 0.8];
+          lpcPeak = 0.592;
+          % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
+          cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+        elseif strcmp(erpComponents{er},'N400')
+          % N400
+          cfg.order = 'ascend'; % ascend = negative peaks first
+          cfg.roi = {'Cz'};
+          % cfg.latency = [0.2 0.6];
+          n400Peak = 0.364;
+          % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+          cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+        end
+        
+        % % average across time window
+        %cfg.datadim = 'elec';
+        % cfg.roi = {'center101'};
+        % % cfg.roi = {'PS2'};
+        % % cfg.roi = {'LPI3','RPI3'};
+        % cfg.latency = [0.4 0.8]; % LPC
+        % % % cfg.latency = [0.3 0.5]; % N400
+        % % % cfg.latency = [0.35 0.45]; % N400
+        % % cfg.latency = [0.314 0.414]; % N400
+        
+        % % average across electrodes
+        cfg.datadim = 'time';
+        % and time points
+        cfg.avgovertime = true;
+        
+        % % cfg.roi = {'Cz'};
+        % % cfg.roi = {'LPI3','RPI3'};
+        % % cfg.roi = {'Pz'};
+        % % cfg.roi = {'PS2'};
+        % % cfg.roi = {'RPI3'};
+        % % cfg.roi = {'E84'}; % center of RPI3
+        % % cfg.roi = {'RPS2'};
+        % % cfg.roi = {'E85'}; % center of RPS2
+        % % cfg.roi = {'LPS2'};
+        % % cfg.latency = [0 1.0];
+        % % cfg.latency = [0.2 0.9];
+        
+        cfg.is_ga = false;
+        cfg.outputSubjects = true;
+        % cfg.is_ga = true;
+        cfg.sesNum = 1;
+        
+        cfg.plotit = false;
+        cfg.voltlim = [-3 3]; % LPC
+        % cfg.voltlim = [-2 2]; % N400
+        % cfg.voltlim = [-1 5];
+        
+        % peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
+        peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
+        
+        allPeakInfo.(cond_str).(erpComponents{er}) = peakInfo;
         
       end
-      
     end
-    
-    disp(cfg.conditions);
-      
-%     if strcmp(spacings{sp},'spaced')
-%       
-%       spac_str = 'spac';
-%       
-%       % spaced
-%       if strcmp(memConds{mc},'all');
-%         cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
-%       elseif strcmp(memConds{mc},'recalled');
-%         cfg.conditions = {'word_RgH_rc_spac_p2'};
-%       elseif strcmp(memConds{mc},'forgot');
-%         cfg.conditions = {'word_RgH_fo_spac_p2'};
-%       end
-%       
-%     elseif strcmp(spacings{sp},'massed')
-%       % % massed
-%       if strcmp(memConds{mc},'all');
-%         cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-%       elseif strcmp(memConds{mc},'recalled');
-%         cfg.conditions = {'word_RgH_rc_mass_p2'};
-%       elseif strcmp(memConds{mc},'forgot');
-%         cfg.conditions = {'word_RgH_fo_mass_p2'};
-%       end
-%       
-%     elseif strcmp(spacings{sp},'once')
-%       % % single presentation or first presentation
-%       if strcmp(memConds{mc},'all');
-%         cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
-%         %cfg.conditions = {'word_onePres'};
-%       end
-%     end
-    
-    for er = 1:length(erpComponents)
-      if strcmp(erpComponents{er},'LPC')
-        % LPC
-        cfg.order = 'descend'; % descend = positive peaks first
-        cfg.roi = {'Pz'};
-        % cfg.latency = [0.4 0.8];
-        lpcPeak = 0.592;
-        % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
-        cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
-      elseif strcmp(erpComponents{er},'N400')
-        % N400
-        cfg.order = 'ascend'; % ascend = negative peaks first
-        cfg.roi = {'Cz'};
-        % cfg.latency = [0.2 0.6];
-        n400Peak = 0.364;
-        % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-        cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
-      end
-      
-      % % average across time window
-      %cfg.datadim = 'elec';
-      % cfg.roi = {'center101'};
-      % % cfg.roi = {'PS2'};
-      % % cfg.roi = {'LPI3','RPI3'};
-      % cfg.latency = [0.4 0.8]; % LPC
-      % % % cfg.latency = [0.3 0.5]; % N400
-      % % % cfg.latency = [0.35 0.45]; % N400
-      % % cfg.latency = [0.314 0.414]; % N400
-      
-      % % average across electrodes
-      cfg.datadim = 'time';
-      % and time points
-      cfg.avgovertime = true;
-      
-      % % cfg.roi = {'Cz'};
-      % % cfg.roi = {'LPI3','RPI3'};
-      % % cfg.roi = {'Pz'};
-      % % cfg.roi = {'PS2'};
-      % % cfg.roi = {'RPI3'};
-      % % cfg.roi = {'E84'}; % center of RPI3
-      % % cfg.roi = {'RPS2'};
-      % % cfg.roi = {'E85'}; % center of RPS2
-      % % cfg.roi = {'LPS2'};
-      % % cfg.latency = [0 1.0];
-      % % cfg.latency = [0.2 0.9];
-      
-      cfg.is_ga = false;
-      cfg.outputSubjects = true;
-      % cfg.is_ga = true;
-      cfg.sesNum = 1;
-      
-      cfg.plotit = false;
-      cfg.voltlim = [-3 3]; % LPC
-      % cfg.voltlim = [-2 2]; % N400
-      % cfg.voltlim = [-1 5];
-      
-      % peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
-      peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
-      
-      allPeakInfo.(sprintf('%s_%s_%s',spacings{sp},oldnew{on},memConds{mc})).(erpComponents{er}) = peakInfo;
-      
-    end
-  end
   end
 end
 
 %% ANOVA: factors: spaced/massed, recalled/forgotten, old/new???
 
-spacings = {'massed', 'spaced', 'once'};
+spacings = {'mass', 'spac', 'onePres'};
+oldnew = {'p2'};
 memConds = {'all'};
 
-% I didn't test new words, so they can't be recalled/forgotten
-% spacings = {'massed', 'spaced'};
-% memConds = {'recalled','forgot'};
+% % I didn't test new words, so they can't be recalled/forgotten, but we can
+% % use p1
+% spacings = {'mass', 'spac'};
+% oldnew = {'p1', 'p2'};
+% memConds = {'rc','fo'};
 
 measure = 'latency';
 % measure = 'voltage';
@@ -162,8 +141,21 @@ for sub = 1:sum(~exper.badSub)
   theseData = [];
   
   for sp = 1:length(spacings)
-    for mc = 1:length(memConds)
-      theseData = cat(2,theseData,allPeakInfo.(sprintf('%s_%s',spacings{sp},memConds{mc})).(erpComp).subjects.(measure)(sub,1));
+    for on = 1:length(oldnew)
+      for mc = 1:length(memConds)
+        
+        cond_str = [];
+        if strcmp(spacings{sp},'onePres')
+          % % single presentation or first presentation
+          if strcmp(memConds{mc},'all');
+            cond_str = sprintf('%s_%s',spacings{sp},memConds{mc});
+          end
+        elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+          cond_str = sprintf('%s_%s_%s',spacings{sp},oldnew{on},memConds{mc});
+        end
+        
+        theseData = cat(2,theseData,allPeakInfo.(cond_str).(erpComp).subjects.(measure)(sub,1));
+      end
     end
   end
   anovaData = cat(1,anovaData,theseData);
@@ -173,9 +165,9 @@ fprintf('================================================================\n');
 fprintf('This test: %s %s\n',erpComp,measure);
 
 if length(memConds) > 1
-  levelnames = {spacings memConds};
-  varnames = {'spacing', 'memory'};
-  O = teg_repeated_measures_ANOVA(anovaData, [length(spacings) length(memConds)], varnames,[],[],[],[],[],[],levelnames);
+  levelnames = {spacings oldnew memConds};
+  varnames = {'spacing', 'oldnew' 'memory'};
+  O = teg_repeated_measures_ANOVA(anovaData, [length(spacings) length(oldnew) length(memConds)], varnames,[],[],[],[],[],[],levelnames);
 else
   levelnames = {spacings};
   varnames = {'spacing'};
