@@ -503,7 +503,8 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-cfg_plot.is_ga = 1;
+% cfg_plot.is_ga = true;
+cfg_plot.is_ga = false;
 cfg_plot.excludeBadSub = 1;
 
 % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -528,18 +529,19 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-3 2; -2 3; -1 4];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
 
-% N400
-cfg_plot.rois = {{'Cz'}};
-cfg_plot.ylims = [-2 3];
-cfg_plot.legendlocs = {'NorthEast'};
+% % N400
+% cfg_plot.rois = {{'Cz'}};
+% cfg_plot.ylims = [-2 3];
+% cfg_plot.legendlocs = {'NorthEast'};
 
 % LPC
 % cfg_plot.rois = {{'Pz'}}; % Pz
-% % cfg_plot.rois = {{'E72'}}; % below Pz
-% % cfg_plot.rois = {{'PS'}};
-% % cfg_plot.rois = {{'PS2'}};
-% cfg_plot.ylims = [-1 4];
-% cfg_plot.legendlocs = {'SouthEast'};
+% cfg_plot.rois = {{'E72'}}; % below Pz
+% cfg_plot.rois = {{'E85'}};
+% cfg_plot.rois = {{'PS'}}; % Centered on Pz
+% cfg_plot.rois = {{'PS2'}}; % Centered on E72
+cfg_plot.ylims = [-1 4];
+cfg_plot.legendlocs = {'SouthEast'};
 
 cfg_plot.axisxy = false;
 
@@ -593,7 +595,8 @@ for r = 1:length(cfg_plot.rois)
     cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions));
   end
   
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
@@ -607,7 +610,7 @@ cfg = [];
 % cfg.conditions = cellflat(ana.eventValues{1}{2});
 
 % % all together
-% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
@@ -623,13 +626,13 @@ cfg = [];
 
 % % single presentation or first presentation
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
-cfg.conditions = {'word_onePres'};
+% cfg.conditions = {'word_onePres'};
 
-% cfg.datadim = 'elec';
-% cfg.roi = {'center101'};
+cfg.datadim = 'elec';
+cfg.roi = {'center101'};
 % % % cfg.roi = {'PS2'};
 % % % cfg.roi = {'LPI3','RPI3'};
-% % cfg.latency = [0.4 0.8]; % LPC
+cfg.latency = [0.4 0.8]; % LPC
 % % % % cfg.latency = [0.3 0.5]; % N400
 % % % % cfg.latency = [0.35 0.45]; % N400
 % % % cfg.latency = [0.314 0.414]; % N400
@@ -640,7 +643,7 @@ cfg.order = 'descend'; % descend = positive peaks first
 % cfg.latency = [0.4 0.8];
 lpcPeak = 0.592;
 % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
-cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+% cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
 
 % % N400
 % cfg.order = 'ascend'; % ascend = negative peaks first
@@ -650,22 +653,23 @@ cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/-
 % % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
 % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
 
-cfg.datadim = 'time';
-% cfg.roi = {'Cz'};
-% cfg.roi = {'LPI3','RPI3'};
-cfg.roi = {'Pz'};
-% cfg.roi = {'PS2'};
-% cfg.roi = {'RPI3'};
-% cfg.roi = {'E84'}; % center of RPI3
-% cfg.roi = {'RPS2'};
-% cfg.roi = {'E85'}; % center of RPS2
-% cfg.roi = {'LPS2'};
-% cfg.latency = [0 1.0];
-% cfg.latency = [0.2 0.9];
+% cfg.datadim = 'time';
+% % cfg.roi = {'Cz'};
+% % cfg.roi = {'LPI3','RPI3'};
+% cfg.roi = {'Pz'};
+% % cfg.roi = {'PS2'};
+% % cfg.roi = {'RPI3'};
+% % cfg.roi = {'E84'}; % center of RPI3
+% % cfg.roi = {'RPS2'};
+% % cfg.roi = {'E85'}; % center of RPS2
+% % cfg.roi = {'LPS2'};
+% % cfg.latency = [0 1.0];
+% % cfg.latency = [0.2 0.9];
 
 cfg.is_ga = false;
-cfg.outputSubjects = true;
 % cfg.is_ga = true;
+% cfg.outputSubjects = true;
+cfg.outputSubjects = false;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
