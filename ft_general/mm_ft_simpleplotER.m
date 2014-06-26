@@ -74,7 +74,18 @@ end
   cfg.data_str = 'data';
   cfg.is_ga = cfg_plot.is_ga;
   cfg.excludeBadSub = cfg_plot.excludeBadSub;
-  ana_str = mm_catSubStr_multiSes(cfg,exper,sesNum);
+  ana_str = mm_catSubStr_multiSes2(cfg,exper,sesNum);
+  
+  if ~cfg.is_ga
+    data_ga = struct;
+    fn = fieldnames(ana_str);
+    for i = 1:length(fn)
+      data_ga.(exper.sesStr{sesNum}).(fn{i}) = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str.(fn{i})));
+    end
+    cfg.data_str = 'data_ga';
+    cfg.is_ga = true;
+    ana_str = mm_catSubStr_multiSes2(cfg,exper,sesNum);
+  end
   
   figure
   eval(sprintf('ft_singleplotER(cfg_ft,%s);',ana_str));
