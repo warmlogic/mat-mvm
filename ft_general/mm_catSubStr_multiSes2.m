@@ -2,6 +2,9 @@ function [ana_str] = mm_catSubStr_multiSes2(cfg,exper,sesNum)
 %MM_CATSUBSTR_MULTISES2 Concatenate strings of subject data for input to FieldTrip
 %functions
 %
+% the difference vs mm_catSubStr_multiSes is that this function (#2) can
+% concatenate multiple sessions
+%
 % [ana_str] = mm_catSubStr_multiSes2(cfg,exper,sesNum)
 %
 % input:
