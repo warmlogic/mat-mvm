@@ -7,49 +7,76 @@ cfg = [];
 
 %% gather data
 
-spacings = {'massed', 'spaced', 'once'};
-memConds = {'all'};
+% spacings = {'mass', 'spac', 'onePres'};
+% oldnew = {'p2'};
+% memConds = {'all'};
 
-% I didn't test new words, so they can't be recalled/forgotten
-% spacings = {'massed', 'spaced'};
-% memConds = {'recalled','forgot'};
+% I didn't test new words, so they can't be recalled/forgotten, but we can
+% use p1
+spacings = {'mass', 'spac'};
+oldnew = {'p1', 'p2'};
+memConds = {'rc','fo'};
 
-erpComponents = {'lpc','n400'};
+erpComponents = {'LPC','N400'};
 
 for sp = 1:length(spacings)
   
+  for on = 1:length(oldnew)
+  
   for mc = 1:length(memConds)
     
-    if strcmp(spacings{sp},'spaced')
-      % spaced
-      if strcmp(memConds{mc},'all');
-        cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
-      elseif strcmp(memConds{mc},'recalled');
-        cfg.conditions = {'word_RgH_rc_spac_p2'};
-      elseif strcmp(memConds{mc},'forgot');
-        cfg.conditions = {'word_RgH_fo_spac_p2'};
-      end
-      
-    elseif strcmp(spacings{sp},'massed')
-      % % massed
-      if strcmp(memConds{mc},'all');
-        cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-      elseif strcmp(memConds{mc},'recalled');
-        cfg.conditions = {'word_RgH_rc_mass_p2'};
-      elseif strcmp(memConds{mc},'forgot');
-        cfg.conditions = {'word_RgH_fo_mass_p2'};
-      end
-      
-    elseif strcmp(spacings{sp},'once')
+    if strcmp(spacings{sp},'onePres')
       % % single presentation or first presentation
-      % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
       if strcmp(memConds{mc},'all');
-        cfg.conditions = {'word_onePres'};
+        cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+        %cfg.conditions = {'word_onePres'};
       end
+    elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+      
+      if strcmp(memConds{mc},'all');
+        cfg.conditions = {sprintf('word_RgH_rc_%s_%s',spacings{sp},oldnew{on}),sprintf('word_RgH_fo_%s_%s',spacings{sp},oldnew{on})};
+      else
+        cfg.conditions = {sprintf('word_RgH_%s_%s_%s',memConds{mc},spacings{sp},oldnew{on})};
+        
+      end
+      
     end
     
+    disp(cfg.conditions);
+      
+%     if strcmp(spacings{sp},'spaced')
+%       
+%       spac_str = 'spac';
+%       
+%       % spaced
+%       if strcmp(memConds{mc},'all');
+%         cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
+%       elseif strcmp(memConds{mc},'recalled');
+%         cfg.conditions = {'word_RgH_rc_spac_p2'};
+%       elseif strcmp(memConds{mc},'forgot');
+%         cfg.conditions = {'word_RgH_fo_spac_p2'};
+%       end
+%       
+%     elseif strcmp(spacings{sp},'massed')
+%       % % massed
+%       if strcmp(memConds{mc},'all');
+%         cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+%       elseif strcmp(memConds{mc},'recalled');
+%         cfg.conditions = {'word_RgH_rc_mass_p2'};
+%       elseif strcmp(memConds{mc},'forgot');
+%         cfg.conditions = {'word_RgH_fo_mass_p2'};
+%       end
+%       
+%     elseif strcmp(spacings{sp},'once')
+%       % % single presentation or first presentation
+%       if strcmp(memConds{mc},'all');
+%         cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+%         %cfg.conditions = {'word_onePres'};
+%       end
+%     end
+    
     for er = 1:length(erpComponents)
-      if strcmp(erpComponents{er},'lpc')
+      if strcmp(erpComponents{er},'LPC')
         % LPC
         cfg.order = 'descend'; % descend = positive peaks first
         cfg.roi = {'Pz'};
@@ -57,7 +84,7 @@ for sp = 1:length(spacings)
         lpcPeak = 0.592;
         % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
         cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
-      elseif strcmp(erpComponents{er},'n400')
+      elseif strcmp(erpComponents{er},'N400')
         % N400
         cfg.order = 'ascend'; % ascend = negative peaks first
         cfg.roi = {'Cz'};
@@ -107,13 +134,14 @@ for sp = 1:length(spacings)
       % peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
       peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
       
-      allPeakInfo.(sprintf('%s_%s',spacings{sp},memConds{mc})).(erpComponents{er}) = peakInfo;
+      allPeakInfo.(sprintf('%s_%s_%s',spacings{sp},oldnew{on},memConds{mc})).(erpComponents{er}) = peakInfo;
       
     end
   end
+  end
 end
 
-%% ANOVA: factors: spaced/massed, recalled/forgotten, old/new
+%% ANOVA: factors: spaced/massed, recalled/forgotten, old/new???
 
 spacings = {'massed', 'spaced', 'once'};
 memConds = {'all'};
@@ -125,12 +153,12 @@ memConds = {'all'};
 measure = 'latency';
 % measure = 'voltage';
 
-erpComp = 'lpc';
-% erpComp = 'n400';
+erpComp = 'LPC';
+% erpComp = 'N400';
 
 anovaData = [];
 
-for sub = 1:length(space_peak)
+for sub = 1:sum(~exper.badSub)
   theseData = [];
   
   for sp = 1:length(spacings)
@@ -159,8 +187,11 @@ fprintf('================================================================\n');
 
 %% gather data for pairwise t-tests
 
-erpComp = 'lpc';
-% erpComp = 'n400';
+% erpComp = 'LPC';
+% erpComp = 'N400';
+
+% erpComp = 'lpc';
+erpComp = 'n400';
 
 fprintf('%s\n',erpComp);
 
@@ -211,3 +242,52 @@ fprintf('mass - one: %.4f uV\n',mean(mass_volt - one_volt));
 
 [h,p,ci,stats] = ttest([space_volt - one_volt],[mass_volt - one_volt],'alpha',0.05,'tail','both');
 fprintf('Space/one vs mass/one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+
+
+%% correlation - loading
+
+subDir = '';
+behDir = fullfile(exper.name,'Behavioral','Sessions',subDir);
+behDir = fullfile(dirs.dataroot,behDir);
+
+collapsePhases = true;
+if collapsePhases
+  collapseStr = '_collapsed';
+else
+  collapseStr = '';
+end
+
+% split into quantile divisions?
+nDivisions = 1;
+% nDivisions = 2;
+% nDivisions = 3;
+% nDivisions = 4;
+
+if nDivisions > 1
+  quantStr = sprintf('_%dquantileDiv',nDivisions);
+else
+  quantStr = '';
+end
+
+% load the behavioral data
+%resultsFile = fullfile(dataroot,dirs.behDir,sprintf('%s_behav_results%s%s.mat',expName,quantStr,collapseStr));
+resultsFile = fullfile(behDir,sprintf('%s_behav_results%s%s.mat',exper.name,quantStr,collapseStr));
+
+fprintf('Loading %s...',resultsFile);
+load(resultsFile);
+fprintf('Done.\n');
+
+%% correlation
+
+ses = 'oneDay';
+phase = 'cued_recall';
+test = 'recall';
+measure = 'recall_nHit';
+% measure = 'recall_hr';
+
+manip = 'massed';
+data1 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
+
+[rho,p] = corr(data1,space_volt - one_volt);
+
+% [rho,p] = corr(data1,mass_volt - one_volt);
