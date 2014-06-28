@@ -371,6 +371,9 @@ for sub = 1:length(exper.subjects)
               % set up data selection
               cfg_sel = [];
               cfg_sel.trials = eval(expr);
+              if sum(cfg_sel.trials) == 0
+                error('no trials found for this setup: %s',expr);
+              end
               if isfield(cfg,'latency')
                 cfg_sel.latency = cfg.latency;
               else
