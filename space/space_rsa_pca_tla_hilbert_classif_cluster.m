@@ -523,7 +523,7 @@ for sub = 1:length(exper.subjects)
           imageCategory_test = []; % 1=face, 2=house
         end
         
-        for p = 1:size(data_p1.(parameter),1)
+        for p = 1:size(data_p1.trialinfo,1)
           p1_trlInd = p;
           p1_phaseCount = data_p1.trialinfo(p1_trlInd,phaseCountCol);
           p1_stimNum = data_p1.trialinfo(p1_trlInd,stimNumCol);
