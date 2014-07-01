@@ -258,6 +258,7 @@ fprintf('================================================================\n');
 fprintf('This ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
 
 margmean(rm,factorNames)
+% grpstats(rm,factorNames)
 
 % Perform repeated measures analysis of variance.
 if any(nVariables) > 2
@@ -274,6 +275,16 @@ end
 
 fprintf('Prev ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
 fprintf('================================================================\n');
+
+% multcompare(rm,'spacings','By','memConds')
+% multcompare(rm,'spacings','By','oldnew')
+% multcompare(rm,'memConds','By','oldnew')
+% % multcompare(rm,'spacings','By','oldnew','By','memConds')
+
+pairwiseComps = nchoosek(1:length(factorNames),2);
+for i = 1:size(pairwiseComps,1)
+  multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
+end
 
 %% TEG ANOVA
 
