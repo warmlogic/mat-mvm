@@ -2,6 +2,8 @@
 
 % also saves files using the hilbert method
 
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/
+
 expName = 'SPACE';
 saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
@@ -89,11 +91,11 @@ else
   classif_str = 'noClassif';
 end
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
-
 eig_criterion = 'CV85';
 % eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
+
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
 similarity_all = cell(length(subjects),length(sesNames),length(dataTypes),size(latencies,1));
 similarity_ntrials = nan(length(subjects),length(sesNames),length(dataTypes),size(latencies,1));
