@@ -499,6 +499,7 @@ end
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.0];
+cfg_ft.xlim = [-0.2 0.4];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
@@ -534,20 +535,23 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-2 3];
 % cfg_plot.legendlocs = {'NorthEast'};
 
-% LPC
+% % LPC
 % cfg_plot.rois = {{'Pz'}}; % Pz
-% cfg_plot.rois = {{'E72'}}; % below Pz
-% cfg_plot.rois = {{'E85'}};
-% cfg_plot.rois = {{'PS'}}; % Centered on Pz
-% cfg_plot.rois = {{'PS2'}}; % Centered on E72
-cfg_plot.ylims = [-1 4];
-cfg_plot.legendlocs = {'SouthEast'};
+% % cfg_plot.rois = {{'E72'}}; % below Pz
+% % cfg_plot.rois = {{'E85'}};
+% % cfg_plot.rois = {{'PS'}}; % Centered on Pz
+% % cfg_plot.rois = {{'PS2'}}; % Centered on E72
+% cfg_plot.ylims = [-1 4];
+% cfg_plot.legendlocs = {'SouthEast'};
 
 cfg_plot.axisxy = false;
 
+% cfg_plot.rois = {{'E70'}};
 % cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-2 3; -2 3];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% cfg_plot.rois = {{'E69'},{'E89'}};
+cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
+cfg_plot.ylims = [-3 2; -3 2];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % cfg_plot.rois = {{'Oz'},{'PI'}};
 % cfg_plot.ylims = [-2 3; -2 3];
@@ -579,8 +583,8 @@ sesNum = 1;
 % cfg_plot.condByROI = repmat({{'img_RgH_spac_p2', 'img_RgH_mass_p2', 'img_RgH_spac_p1', 'img_RgH_mass_p1', 'img_onePres'}},size(cfg_plot.rois));
 
 % VanSEtal2007
-% cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_fo_spac_p1', 'word_RgH_rc_mass_p1', 'word_RgH_fo_mass_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_fo_spac_p1', 'word_RgH_rc_mass_p1', 'word_RgH_fo_mass_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
 
 
@@ -600,8 +604,7 @@ for r = 1:length(cfg_plot.rois)
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
-%% find peak
-
+%% find peak - N400 and LPC
 cfg = [];
 
 % images
@@ -628,32 +631,32 @@ cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','wo
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
 % cfg.conditions = {'word_onePres'};
 
-cfg.datadim = 'elec';
-cfg.roi = {'center101'};
-% % % cfg.roi = {'PS2'};
-% % % cfg.roi = {'LPI3','RPI3'};
-cfg.latency = [0.4 0.8]; % LPC
-% % % % cfg.latency = [0.3 0.5]; % N400
-% % % % cfg.latency = [0.35 0.45]; % N400
-% % % cfg.latency = [0.314 0.414]; % N400
+% cfg.datadim = 'elec';
+% cfg.roi = {'center101'};
+% % % % cfg.roi = {'PS2'};
+% % % % cfg.roi = {'LPI3','RPI3'};
+% cfg.latency = [0.4 0.8]; % LPC
+% % % % % cfg.latency = [0.3 0.5]; % N400
+% % % % % cfg.latency = [0.35 0.45]; % N400
+% % % % cfg.latency = [0.314 0.414]; % N400
 
-% LPC
-cfg.order = 'descend'; % descend = positive peaks first
+% % LPC
+% cfg.order = 'descend'; % descend = positive peaks first
 % cfg.roi = {'Pz'};
-% cfg.latency = [0.4 0.8];
-lpcPeak = 0.592;
-% cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
+% % cfg.latency = [0.4 0.8];
+% lpcPeak = 0.600;
+% % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
 % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
 
 % % N400
-% cfg.order = 'ascend'; % ascend = negative peaks first
-% cfg.roi = {'Cz'};
-% % cfg.latency = [0.2 0.6];
-% n400Peak = 0.364;
+cfg.order = 'ascend'; % ascend = negative peaks first
+cfg.roi = {'Cz'};
+% cfg.latency = [0.2 0.6];
+n400Peak = 0.360;
 % % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
 % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
 
-% cfg.datadim = 'time';
+cfg.datadim = 'time';
 % % cfg.roi = {'Cz'};
 % % cfg.roi = {'LPI3','RPI3'};
 % cfg.roi = {'Pz'};
@@ -664,7 +667,81 @@ lpcPeak = 0.592;
 % % cfg.roi = {'E85'}; % center of RPS2
 % % cfg.roi = {'LPS2'};
 % % cfg.latency = [0 1.0];
-% % cfg.latency = [0.2 0.9];
+% cfg.latency = [0.2 0.9];
+
+cfg.is_ga = false;
+% cfg.is_ga = true;
+% cfg.outputSubjects = true;
+cfg.outputSubjects = false;
+cfg.sesNum = 1;
+
+cfg.plotit = true;
+cfg.voltlim = [-3 3]; % LPC
+% cfg.voltlim = [-2 2]; % N400
+% cfg.voltlim = [-1 5];
+
+% % only for datadim='elec' and datadim='peak2peak'
+% cfg.plottype = 'topo';
+% % cfg.plottype = 'multi';
+
+% % only for datadim='peak2peak'
+% cfg.datadim = 'peak2peak';
+% cfg.order = 'descend'; % descend = positive peaks first
+% cfg.roi = {'posterior'};
+% cfg.pospeak = [0.08 0.14];
+% cfg.negpeak = [0.14 0.2];
+
+% peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
+peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
+
+%% find peak - attentional components
+cfg = [];
+
+% images
+% cfg.conditions = cellflat(ana.eventValues{1}{1});
+% words
+% cfg.conditions = cellflat(ana.eventValues{1}{2});
+
+% % all together
+cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+
+% spaced
+% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p2'};
+% cfg.conditions = {'word_RgH_fo_spac_p2'};
+
+% % massed
+% cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_mass_p2'};
+% cfg.conditions = {'word_RgH_fo_mass_p2'};
+
+% % single presentation or first presentation
+% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+% cfg.conditions = {'word_onePres'};
+
+% cfg.datadim = 'elec';
+% cfg.roi = {'posterior'};
+% cfg.latency = [0.1 0.2];
+
+% % N2
+cfg.order = 'ascend'; % ascend = negative peaks first
+% cfg.roi = {'Cz'};
+% cfg.latency = [0.2 0.6];
+n2Peak = 0.172; % 'E64','E95'
+n2Peak = 0.168; % 'E70','E83' or 'E69','E89'
+n2Peak = 0.176; % 'E58','E96'
+% cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
+% % cfg.latency = [n2Peak-0.1 n2Peak+0.1]; % around GA peak (space+mass) +/- 100
+
+cfg.datadim = 'time';
+% cfg.roi = {'E70'};
+% cfg.roi = {'E70','E83'}; % O1, O2
+% cfg.roi = {'E64','E95'}; % 64 is biggest peak
+% cfg.roi = {'E69','E89'}; % both peaks are negative
+cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
+cfg.latency = [0 0.5];
 
 cfg.is_ga = false;
 % cfg.is_ga = true;
