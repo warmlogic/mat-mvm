@@ -574,112 +574,114 @@ end
 
 %% lineplot of the conditions
 
-cfg_ft = [];
-% cfg_ft.xlim = [-0.2 1.0];
-% cfg_ft.parameter = 'avg';
+% don't use this, move ahead to next two sections
 
-cfg_plot = [];
-
-cfg_ft.latency = [0.156 0.208]; % N170 (use this)
-% cfg_ft.latency = [0.234 0.334]; % N250
-
-cfg_plot.is_ga = 0;
-cfg_plot.excludeBadSub = 1;
-
-% %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
-% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
-
-% % cfg_plot.rois = {{'LAS'},{'LPS'}};
-% cfg_plot.rois = {{'posterior'}};
-% % cfg_plot.rois = {{'LPS'},{'RPS'}};
-% cfg_plot.ylims = [-8 8; -8 8];
-% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
-
-% same as Scott et al. (2008)
-cfg_plot.rois = {{'LPI2'},{'RPI2'}};
-% cfg_plot.rois = {{'LPI2','RPI2'}};
-cfg_plot.ylims = [-2 6; -2 6];
-cfg_plot.legendlocs = {'NorthEast','NorthEast'};
-
-% cfg_ft.xlim = [-0.2 1.0];
-% cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_ft = [];
+% % cfg_ft.xlim = [-0.2 1.0];
+% % cfg_ft.parameter = 'avg';
+% 
+% cfg_plot = [];
+% 
+% cfg_ft.latency = [0.156 0.208]; % N170 (use this)
+% % cfg_ft.latency = [0.234 0.334]; % N250
+% 
+% cfg_plot.is_ga = 0;
+% cfg_plot.excludeBadSub = 1;
+% 
+% % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% % cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+% % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
+% % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+% 
+% % % cfg_plot.rois = {{'LAS'},{'LPS'}};
+% % cfg_plot.rois = {{'posterior'}};
+% % % cfg_plot.rois = {{'LPS'},{'RPS'}};
+% % cfg_plot.ylims = [-8 8; -8 8];
+% % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+% 
+% % same as Scott et al. (2008)
+% cfg_plot.rois = {{'LPI2'},{'RPI2'}};
+% % cfg_plot.rois = {{'LPI2','RPI2'}};
+% cfg_plot.ylims = [-2 6; -2 6];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
-
-% outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% for each event type; each event type cell holds strings for its
-% conditions
-
-% cfg_plot.condByTypeByROI = {...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
-
-%cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
-
-% sesNum = [1 2];
-% sesNum = [1 3];
-% sesNum = [2 3];
-sesNum = [1];
-% sesNum = [2];
-% sesNum = [3];
-% cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-
-
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_basic_g' 'stim2_basic_g_hi8' 'stim2_basic_g_lo8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_subord_norm' 'stim2_subord_g' 'stim2_subord_g_hi8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-
-
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-
-% cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
-% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
-
-% cfg_ft.graphcolor = 'rmbckgrmbckg';
-cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
-cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
-
-collapseSessions = false;
-if collapseSessions
-  exper.badSub = logical(sum(exper.badSub,2));
-  exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
-end
-
-for r = 1:length(cfg_plot.rois)
-  cfg_plot.roi = cfg_plot.rois{r};
-  cfg_plot.legendloc = cfg_plot.legendlocs{r};
-  cfg_ft.ylim = cfg_plot.ylims(r,:);
-  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
-  
-
-  %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
-%   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
-  mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
-  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
-end
+% 
+% % cfg_ft.xlim = [-0.2 1.0];
+% % cfg_plot.rois = {{'E70'},{'E83'}};
+% % cfg_plot.ylims = [-10 10; -10 10];
+% % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% 
+% % outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% % for each event type; each event type cell holds strings for its
+% % conditions
+% 
+% % cfg_plot.condByTypeByROI = {...
+% %   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+% %   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+% 
+% %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
+% 
+% % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
+% 
+% % sesNum = [1 2];
+% % sesNum = [1 3];
+% % sesNum = [2 3];
+% sesNum = [1];
+% % sesNum = [2];
+% % sesNum = [3];
+% % cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+% 
+% % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+% 
+% % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% 
+% % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
+% 
+% % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% 
+% 
+% % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_basic_g' 'stim2_basic_g_hi8' 'stim2_basic_g_lo8'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim2_subord_norm' 'stim2_subord_g' 'stim2_subord_g_hi8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% 
+% 
+% % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% 
+% % cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
+% % cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
+% 
+% % cfg_ft.graphcolor = 'rmbckgrmbckg';
+% cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
+% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
+% 
+% collapseSessions = false;
+% if collapseSessions
+%   exper.badSub = logical(sum(exper.badSub,2));
+%   exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
+% end
+% 
+% for r = 1:length(cfg_plot.rois)
+%   cfg_plot.roi = cfg_plot.rois{r};
+%   cfg_plot.legendloc = cfg_plot.legendlocs{r};
+%   cfg_ft.ylim = cfg_plot.ylims(r,:);
+%   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+%   cfg_plot.conditions = cfg_plot.condByROI{r};
+%   
+% 
+%   %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+% %   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+%   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
+%   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
+% end
 
 %% LINES: break pre/post tests into different graphs - training x img cond
 
