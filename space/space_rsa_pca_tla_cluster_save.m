@@ -1,5 +1,7 @@
 % load and re-save RSA PCA tla results
 
+% also saves files using the hilbert method
+
 expName = 'SPACE';
 saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
