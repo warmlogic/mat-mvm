@@ -22,6 +22,7 @@ erpComponents = {'N2'};
 % % % make sure roi has the same length as erpComponents
 % % roi = {{{'Pz'}},{{'Cz'}},{{'E69','E89'}}}; % near O1, O2
 % roi = {{{'Pz'}},{{'Cz'}},{{'E58','E96'}}};
+% roi = {{{'E69','E89'}}};
 roi = {{{'E58','E96'}}};
 
 if length(erpComponents) ~= length(roi)
@@ -146,7 +147,7 @@ for sp = 1:length(spacings)
   end
 end
 
-%% ANOVA: factors: spaced/massed, recalled/forgotten, old/new
+%% ANOVA: factors: spaced/massed, recalled/forgotten, old/new, ROI
 
 % spacings = {'mass', 'spac', 'onePres'};
 % oldnew = {'p2'};
@@ -169,21 +170,40 @@ measure = 'voltage';
 
 erpComp = 'N2';
 % roi = {'E69','E89'}; % near O1, O2
+% roi = {'E69_E89'}; % near O1, O2
 % roi = {'E58','E96'}; % T5, T6
 roi = {'E58_E96'}; % T5, T6
 
-anovaData = [];
+factorNames = {'spacings', 'oldnew', 'memConds', 'roi'};
+nVariables = nan(size(factorNames));
+keepTheseFactors = false(size(factorNames));
+levelNames_teg = cell(size(factorNames)); % TEG
+for c = 1:length(factorNames)
+  nVariables(c) = length(eval(factorNames{c}));
+  levelNames_teg{c} = eval(factorNames{c}); % TEG
+  if length(eval(factorNames{c})) > 1
+    keepTheseFactors(c) = true;
+  end
+end
 
+variableNames = cell(1,prod(nVariables));
+levelNames = cell(prod(nVariables),length(factorNames));
+
+anovaData = nan(sum(~exper.badSub),prod(nVariables));
+
+lnDone = false;
+vnDone = false;
 for sub = 1:sum(~exper.badSub)
+  lnCount = 0;
+  vnCount = 0;
   theseData = [];
   
   for sp = 1:length(spacings)
     for on = 1:length(oldnew)
       for mc = 1:length(memConds)
-        
         cond_str = [];
         if strcmp(spacings{sp},'onePres')
-          % % single presentation or first presentation
+          % single presentation or first presentation
           if strcmp(memConds{mc},'all');
             cond_str = sprintf('%s_%s',spacings{sp},memConds{mc});
           end
@@ -193,33 +213,70 @@ for sub = 1:sum(~exper.badSub)
         
         for r = 1:length(roi)
           roi_str = sprintf('%s_%s',erpComp,roi{r});
-          theseData = cat(2,theseData,allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1));
+          
+          if ~lnDone
+            lnCount = lnCount + 1;
+            levelNames{lnCount,1} = spacings{sp};
+            levelNames{lnCount,2} = oldnew{on};
+            levelNames{lnCount,3} = memConds{mc};
+            levelNames{lnCount,4} = roi{r};
+          end
+          
+          vnCount = vnCount + 1;
+          if ~vnDone
+            variableNames{vnCount} = sprintf('Y%d',vnCount);
+          end
+          
+          anovaData(sub,vnCount) = allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1);
         end
       end
     end
   end
-  anovaData = cat(1,anovaData,theseData);
+  lnDone = true;
+  vnDone = true;
 end
 
-fprintf('================================================================\n');
-fprintf('This test: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
+factorNames = factorNames(keepTheseFactors);
+levelNames = levelNames(:,keepTheseFactors);
+nVariables = nVariables(keepTheseFactors);
+levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
 
-varnames = {'spacings', 'oldnew', 'memConds', 'roi'};
-levelnames = cell(size(varnames));
-levellengths = nan(size(varnames));
-keepThese = false(size(varnames));
-for c = 1:length(varnames)
-  if length(eval(varnames{c})) > 1
-    levelnames{c} = eval(varnames{c});
-    levellengths(c) = length(eval(varnames{c}));
-    keepThese(c) = true;
+%% Matlab ANOVA
+
+t = array2table(anovaData,'VariableNames',variableNames);
+
+within = cell2table(levelNames,'VariableNames',factorNames);
+
+rm = fitrm(t,'Y1-Y8~1','WithinDesign',within);
+
+% Perform repeated measures analysis of variance.
+[ranovatbl,A,C,D] = ranova(rm, 'WithinModel','spacings*oldnew*memConds')
+
+if any(nVariables) > 2
+  %Show epsilon values
+  %I assume that HF epsilon values > 1 (in R) are truncated to 1 by epsilon.m
+  for cn = 1:length(C)
+    tbl = epsilon(rm, C(cn))
   end
 end
-varnames = varnames(keepThese);
-levelnames = levelnames(keepThese);
-levellengths = levellengths(keepThese);
 
-O = teg_repeated_measures_ANOVA(anovaData, levellengths, varnames,[],[],[],[],[],[],levelnames);
+%% TEG ANOVA
+
+fprintf('================================================================\n');
+fprintf('This ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
+
+% levellengths = nan(size(factorNames));
+% keepTheseFactors = false(size(factorNames));
+% for c = 1:length(factorNames)
+%   if length(eval(factorNames{c})) > 1
+%     levelNames_teg{c} = eval(factorNames{c});
+%     keepTheseFactors(c) = true;
+%   end
+% end
+% factorNames = factorNames(keepTheseFactors);
+% levelNames_teg = levelNames_teg(keepTheseFactors);
+
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg);
 
 
 % if length(memConds) > 1 && length(oldnew) > 1 && length(roi) > 1
@@ -240,7 +297,7 @@ O = teg_repeated_measures_ANOVA(anovaData, levellengths, varnames,[],[],[],[],[]
 %   O = teg_repeated_measures_ANOVA(anovaData, [length(spacings)], varnames,[],[],[],[],[],[],levelnames);
 % end
 
-fprintf('Prev test: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
+fprintf('Prev ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
 fprintf('================================================================\n');
 
 %% gather data for pairwise t-tests
