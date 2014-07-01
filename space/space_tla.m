@@ -550,6 +550,8 @@ cfg_plot.axisxy = false;
 % cfg_plot.rois = {{'E70'},{'E83'}};
 % cfg_plot.rois = {{'E69'},{'E89'}};
 cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
+cfg_plot.rois = {{'LPI2'},{'RPI2'}}; % T5, T6
+cfg_plot.rois = {{'LPI2','RPI2'}}; % T5, T6
 cfg_plot.ylims = [-3 2; -3 2];
 cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
@@ -740,7 +742,8 @@ cfg.datadim = 'time';
 % cfg.roi = {'E70','E83'}; % O1, O2
 % cfg.roi = {'E64','E95'}; % 64 is biggest peak
 % cfg.roi = {'E69','E89'}; % both peaks are negative
-cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
+% cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
+cfg.roi = {'LPI2','RPI2'}; % includes T5, T6, O1, O2
 cfg.latency = [0 0.5];
 
 cfg.is_ga = false;
