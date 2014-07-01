@@ -101,9 +101,9 @@ similarity_ntrials = nan(length(subjects),length(sesNames),length(dataTypes),siz
 for sub = 1:length(subjects)
   for ses = 1:length(sesNames)
     if strcmp(origDataType,'tla')
-      savedFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+      savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
     elseif strcmp(origDataType,'hilbert')
-      savedFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,analysisDate));
+      savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,analysisDate));
     end
     if exist(savedFile,'file')
       fprintf('Loading %s...\n',savedFile);
@@ -130,9 +130,9 @@ exper.subjects = subjects;
 exper.sesNames = sesNames;
 
 if strcmp(origDataType,'tla')
-  saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%sAvgT_%s_cluster.mat',eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,analysisDate));
+  saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,analysisDate));
 elseif strcmp(origDataType,'hilbert')
-  saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_tla_classif_%s_%s_%dlat_%dfreq_%sAvgT_%s_cluster.mat',eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,analysisDate));
+  saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,analysisDate));
 end
   
 fprintf('Saving %s...\n',saveFile);
