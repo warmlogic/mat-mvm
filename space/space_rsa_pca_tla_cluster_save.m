@@ -50,7 +50,8 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
-analysisDate = '13-Jun-2014';
+% analysisDate = '13-Jun-2014';
+analysisDate = '01-Jul-2014';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
