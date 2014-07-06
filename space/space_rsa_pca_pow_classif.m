@@ -755,8 +755,8 @@ fprintf('Done.\n');
 
 analysisDate = '13-Jun-2014';
 
-% thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+thisROI = {'center109'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
@@ -879,7 +879,7 @@ fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & pass
 % latInd = [10 12];
 
 % % 0-0.5, 0.5-1
-latInd = [13 14];
+% latInd = [13 14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16 20];
@@ -937,7 +937,7 @@ fprintf('=======================================\n\n');
 %   0 0.8; 0.1 0.9; 0.2 1.0];
 
 % 0-0.5
-lat = 13;
+% lat = 13;
 % % 0.5-1.0
 % lat = 14;
 
