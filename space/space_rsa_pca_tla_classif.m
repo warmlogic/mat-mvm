@@ -656,14 +656,14 @@ fprintf('Done.\n');
 
 % analysisDate = '13-Jun-2014';
 % analysisDate = '01-Jul-2014';
-analysisDate = '06-Jul-2014';
+% analysisDate = '06-Jul-2014';
 
 % thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 
-% analysisDate = '07-Jul-2014';
-% thisROI = {'LT','RT'};
+analysisDate = '07-Jul-2014';
+thisROI = {'LT','RT'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -703,7 +703,13 @@ eig_criterion = 'kaiser';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
-load(rsaFile);
+if exist(rsaFile,'file')
+  fprintf('loading: %s...',rsaFile);
+  load(rsaFile);
+  fprintf('Done.\n');
+else
+  error('does not exist: %s',rsaFile);
+end
 
 %% stats
 
@@ -749,7 +755,7 @@ end
 
 % disp(mean_similarity);
 
-fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & passTrlThresh));
+fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noNans & passTrlThresh));
 
 %% ANOVA: factors: spaced/massed, recalled/forgotten, latency
 
@@ -762,7 +768,7 @@ fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & pass
 %   0 0.8; 0.1 0.9; 0.2 1.0];
 
 % % 0 to 1, in 200 ms chunks
-latInd = [1:5];
+% latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6:9];
@@ -771,7 +777,7 @@ latInd = [1:5];
 % latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-% latInd = [13:14];
+latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16:20];
@@ -804,10 +810,11 @@ variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
 anovaData = nan(length(exper.subjects),prod(nVariables));
-rmaov_data_teg = [];
+rmaov_data_teg = nan(length(exper.subjects)*prod(nVariables),length(factorNames) + 2);
 
 lnDone = false;
 vnDone = false;
+rmCount = 0;
 for sub = 1:length(exper.subjects)
   if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
     for ses = 1:length(exper.sesStr)
@@ -833,7 +840,8 @@ for sub = 1:length(exper.subjects)
             
             anovaData(sub,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
             
-            rmaov_data_teg = cat(1,rmaov_data_teg,[mean_similarity.(cond_str)(sub,ses,latInd(lat)) sp mc lat sub]);
+            rmCount = rmCount + 1;
+            rmaov_data_teg(rmCount,:) = [mean_similarity.(cond_str)(sub,ses,latInd(lat)) sp mc lat sub];
           end
           
         end
@@ -851,8 +859,18 @@ if any(~keepTheseFactors)
   nVariables = nVariables(keepTheseFactors);
   levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
   
-  rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]);
+  rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]); % TEG
 end
+
+%% TEG RM ANOVA
+
+fprintf('=======================================\n');
+fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
+
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
+
+fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
+fprintf('=======================================\n');
 
 %% Matlab RM ANOVA
 
@@ -894,16 +912,6 @@ fprintf('=======================================\n');
 % for i = 1:size(pairwiseComps,1)
 %   multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
 % end
-
-%% TEG RM ANOVA
-
-fprintf('=======================================\n');
-fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
-
-O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
-
-fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
-fprintf('=======================================\n');
 
 %% plot RSA spacing x subsequent memory interaction
 
