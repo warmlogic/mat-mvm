@@ -70,32 +70,7 @@ end
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-% % thisROI = {'center109'};
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% 
-% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-%   0 0.3; 0.3 0.6; 0.6 0.9; ...
-%   0 0.5; 0.5 1.0; ...
-%   0.3 0.8; ...
-%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-%   0 0.8; 0.1 0.9; 0.2 1.0;
-%   0 1.0];
-% 
-% if strcmp(origDataType,'hilbert')
-%   freqs = [4 8; 8 12; 12 30; 30 50];
-% end
-% 
-% sim_method = 'cosine';
-% % sim_method = 'correlation';
-% % sim_method = 'spearman';
-% 
-% % eig_criterion = 'CV85';
-% eig_criterion = 'kaiser';
-% % eig_criterion = 'analytic';
-
 % allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'}};
-% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'LPS','RPS'},{'center109'}};
 allROIs = {{'LT','RT'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
