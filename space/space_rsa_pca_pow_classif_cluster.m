@@ -754,7 +754,7 @@ for sub = 1:length(subjects_all)
       end % lat
     end % ~badSub
     
-    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_pow_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
+    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_pow_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
     fprintf('Saving: %s\n',saveFile);
     save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
     fprintf('Done.\n');
