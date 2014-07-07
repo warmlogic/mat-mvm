@@ -655,10 +655,12 @@ fprintf('Done.\n');
 %% load
 
 % analysisDate = '13-Jun-2014';
-analysisDate = '01-Jul-2014';
+% analysisDate = '01-Jul-2014';
+analysisDate = '06-Jul-2014';
 
 % thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+thisROI = {'LPS','RPS'};
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
@@ -696,8 +698,8 @@ else
   classif_str = 'noClassif';
 end
 
-eig_criterion = 'CV85';
-% eig_criterion = 'kaiser';
+% eig_criterion = 'CV85';
+eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
@@ -754,76 +756,6 @@ end
 
 fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & passTrlThresh));
 
-%% RMANOVA
-
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-%   0 0.3; 0.3 0.6; 0.6 0.9; ...
-%   0 0.5; 0.5 1.0; ...
-%   0.3 0.8; ...
-%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-%   0 0.8; 0.1 0.9; 0.2 1.0];
-
-% % 0 to 1, in 200 ms chunks
-latInd = [1 5];
-
-% % 0.1 to 0.9, in 200 ms chunks
-% latInd = [6 9];
-
-% % 0-0.3, 0.3-0.6, 0.6-0.9
-% latInd = [10 12];
-
-% % 0-0.5, 0.5-1 *****
-% latInd = [13 14];
-
-% % 0 to 1, in 600 ms chunks
-% latInd = [16 20];
-
-% % 0 to 1 in 800 ms chunks
-% latInd = [21 23];
-
-
-anovaData = [];
-
-for sub = 1:length(exper.subjects)
-  if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
-    for ses = 1:length(exper.sesStr)
-      theseData = [];
-      
-      for d = 1:length(dataTypes)
-        for lat = latInd(1):latInd(2)
-          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
-        end
-      end
-    end
-    anovaData = cat(1,anovaData,theseData);
-  end
-end
-
-latency = cell(1,length(latInd(1):latInd(2)));
-for i = 1:length(latency)
-  latency{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
-end
-latStr = sprintf(repmat(' %s',1,length(latency)),latency{:});
-
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
-% varnames = {'stimType','subseqMem','spacing','time'};
-% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
-
-levelnames = {{'rc', 'fo'}, {'spac','mass'}, latency};
-varnames = {'subseqMem','spacing','time'};
-
-fprintf('=======================================\n');
-fprintf('Latency:%s\n\n',latStr);
-
-O = teg_repeated_measures_ANOVA(anovaData, [2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
-
-fprintf('Latency:%s\n',latStr);
-fprintf('=======================================\n\n');
-
 %% ANOVA: factors: spaced/massed, recalled/forgotten, latency
 
 % latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
@@ -834,28 +766,27 @@ fprintf('=======================================\n\n');
 %   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
 %   0 0.8; 0.1 0.9; 0.2 1.0];
 
-
 % % 0 to 1, in 200 ms chunks
-latInd = [1 5];
+% latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
-% latInd = [6 9];
+% latInd = [6:9];
 
 % % 0-0.3, 0.3-0.6, 0.6-0.9
-% latInd = [10 12];
+% latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-% latInd = [13 14];
+latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
-% latInd = [16 20];
+% latInd = [16:20];
 
 % % 0 to 1 in 800 ms chunks
-% latInd = [21 23];
+% latInd = [21:23];
 
 spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
-latency = cell(1,length(latInd(1):latInd(2)));
+latency = cell(1,length(latInd));
 for i = 1:length(latency)
   latency{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
 end
@@ -878,12 +809,10 @@ variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
 anovaData = nan(length(exper.subjects),prod(nVariables));
+rmaov_data_teg = [];
 
 lnDone = false;
 vnDone = false;
-
-rmaov_data = [];
-
 for sub = 1:length(exper.subjects)
   if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
     for ses = 1:length(exper.sesStr)
@@ -894,7 +823,7 @@ for sub = 1:length(exper.subjects)
         for mc = 1:length(memConds)
           cond_str = sprintf('img_RgH_%s_%s',memConds{mc},spacings{sp});
           
-          for lat = latInd(1):latInd(2)
+          for lat = 1:length(latInd)
             if ~lnDone
               lnCount = lnCount + 1;
               levelNames{lnCount,1} = spacings{sp};
@@ -907,9 +836,9 @@ for sub = 1:length(exper.subjects)
               variableNames{vnCount} = sprintf('Y%d',vnCount);
             end
             
-            anovaData(sub,vnCount) = mean_similarity.(cond_str)(sub,ses,lat);
+            anovaData(sub,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
             
-            rmaov_data = cat(1,rmaov_data,[mean_similarity.(cond_str)(sub,ses,lat) sp mc lat sub]);
+            rmaov_data_teg = cat(1,rmaov_data_teg,[mean_similarity.(cond_str)(sub,ses,latInd(lat)) sp mc lat sub]);
           end
           
         end
@@ -921,15 +850,14 @@ for sub = 1:length(exper.subjects)
   end
 end
 
-factorNames = factorNames(keepTheseFactors);
-levelNames = levelNames(:,keepTheseFactors);
-nVariables = nVariables(keepTheseFactors);
-levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
-
-%% RMAOV
-
-RMAOV33_mod(rmaov_data);
-
+if any(~keepTheseFactors)
+  factorNames = factorNames(keepTheseFactors);
+  levelNames = levelNames(:,keepTheseFactors);
+  nVariables = nVariables(keepTheseFactors);
+  levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
+  
+  rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]);
+end
 
 %% Matlab RM ANOVA
 
@@ -941,7 +869,7 @@ within = cell2table(levelNames,'VariableNames',factorNames);
 rm = fitrm(t,sprintf('%s-%s~1',variableNames{1},variableNames{end}),'WithinDesign',within);
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: Latency:%s\n\n',latStr);
+fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
 
 margmean(rm,factorNames)
 % grpstats(rm,factorNames)
@@ -959,7 +887,7 @@ else
   [ranovatbl] = ranova(rm, 'WithinModel','spacings*memConds*latency')
 end
 
-fprintf('Prev ANOVA: Latency:%s\n',latStr);
+fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
 fprintf('=======================================\n');
 
 % multcompare(rm,'spacings','By','memConds')
@@ -975,11 +903,11 @@ fprintf('=======================================\n');
 %% TEG RM ANOVA
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: Latency:%s\n\n',latStr);
+fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
 
-O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data);
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
 
-fprintf('Prev ANOVA: Latency:%s\n',latStr);
+fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
 fprintf('=======================================\n');
 
 %% plot RSA spacing x subsequent memory interaction
