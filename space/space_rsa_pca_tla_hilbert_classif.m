@@ -328,6 +328,7 @@ parameter_orig = 'trial';
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 freqs = [4 8; 8 12; 12 30; 30 50];
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 % bandpass filter the trials at a given frequency bin
 sampleRate = ft_findcfg(data_tla.(exper.sesStr{1}).(sprintf('%s_p1',dataTypes{1})).sub(1).data.cfg,'fsample');
@@ -727,7 +728,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_hilbert_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_hilbert_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,date));
 fprintf('Saving: %s\n',saveFile);
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
 fprintf('Done.\n');
@@ -856,7 +857,7 @@ fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & pass
 % latInd = [10 12];
 
 % % 0-0.5, 0.5-1 *****
-latInd = [13 14];
+% latInd = [13 14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16 20];

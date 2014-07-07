@@ -111,6 +111,7 @@ parameter = 'powspctrm';
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 freqs = [4 8; 8 12; 12 30; 30 50];
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -755,8 +756,8 @@ fprintf('Done.\n');
 
 analysisDate = '13-Jun-2014';
 
-thisROI = {'center109'};
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'center109'};
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
@@ -797,7 +798,7 @@ eig_criterion = 'CV85';
 % eig_criterion = 'analytic';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,avgoverfreq,analysisDate));
+rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
 load(rsaFile);
 
 subjects_all = exper.subjects;
@@ -879,7 +880,7 @@ fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & pass
 % latInd = [10 12];
 
 % % 0-0.5, 0.5-1
-% latInd = [13 14];
+latInd = [13 14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16 20];
