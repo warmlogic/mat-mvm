@@ -754,7 +754,8 @@ fprintf('Done.\n');
 
 %% load
 
-analysisDate = '13-Jun-2014';
+% analysisDate = '13-Jun-2014';
+analysisDate = '07-Jul-2014';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -775,8 +776,12 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 
 origDataType = 'pow';
 
-% freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 freqs = [4 8; 8 12; 12 30; 30 50];
+% freqs = [4 8];
+% freqs = [8 12];
+% freqs = [12 30];
+% freqs = [30 50];
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 avgovertime = 'yes';
 avgoverfreq = 'yes';
