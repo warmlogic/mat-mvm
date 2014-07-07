@@ -51,35 +51,10 @@ sesNames = {'session_1'};
 % analysisDate = '13-Jun-2014';
 analysisDate = '06-Jul-2014';
 
-% thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-if iscell(thisROI)
-  roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
-elseif ischar(thisROI)
-  roi_str = thisROI;
-end
-
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-  0 0.3; 0.3 0.6; 0.6 0.9; ...
-  0 0.5; 0.5 1.0; ...
-  0.3 0.8; ...
-  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-  0 0.8; 0.1 0.9; 0.2 1.0;
-  0 1.0];
-
 origDataType = 'pow';
-
-% freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
-freqs = [4 8; 8 12; 12 30; 30 50];
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 avgovertime = 'yes';
 avgoverfreq = 'yes';
-
-sim_method = 'cosine';
-% sim_method = 'correlation';
-% sim_method = 'spearman';
 
 % accurateClassifSelect = true;
 accurateClassifSelect = false;
@@ -89,43 +64,135 @@ else
   classif_str = 'noClassif';
 end
 
-% eig_criterion = 'CV85';
-eig_criterion = 'kaiser';
-% eig_criterion = 'analytic';
-
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-similarity_all = cell(length(subjects),length(sesNames),length(dataTypes),size(latencies,1));
-similarity_ntrials = nan(length(subjects),length(sesNames),length(dataTypes),size(latencies,1));
+% % thisROI = {'center109'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% if iscell(thisROI)
+%   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+% elseif ischar(thisROI)
+%   roi_str = thisROI;
+% end
+% 
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
+% 
+% % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
+% freqs = [4 8; 8 12; 12 30; 30 50];
+% freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+% 
+% sim_method = 'cosine';
+% % sim_method = 'correlation';
+% % sim_method = 'spearman';
+% 
+% % eig_criterion = 'CV85';
+% eig_criterion = 'kaiser';
+% % eig_criterion = 'analytic';
 
-for sub = 1:length(subjects)
-  for ses = 1:length(sesNames)
-    savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
-    if exist(savedFile,'file')
-      fprintf('Loading %s...\n',savedFile);
-      subData = load(savedFile);
-      fprintf('Done.\n');
-    else
-      error('Does not exist: %s',savedFile);
-    end
+allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'}};
+% thisROI = {'center109'};
+
+allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+  0 0.3; 0.3 0.6; 0.6 0.9; ...
+  0 0.5; 0.5 1.0; ...
+  0.3 0.8; ...
+  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+  0 0.8; 0.1 0.9; 0.2 1.0;
+  0 1.0]};
+
+% allFreqs = {[4 8; 8 12; 12 30; 30 50]};
+allFreqs = {[4 8] [8 12] [12 30] [30 50]};
+
+allSimMethod = {'cosine'};
+% sim_method = 'cosine';
+% sim_method = 'correlation';
+% sim_method = 'spearman';
+
+allEigCrit = {'kaiser'};
+% allEigCrit = {'CV85','kaiser'};
+
+% % keep components with eigenvalue >= 1
+% eig_criterion = 'kaiser';
+
+% % compute the percent explained variance expected from each component if
+% % all events are uncorrelated with each other; keep it if above this level.
+% % So, each component would explain 100/n, where n is the number of
+% % events/components.
+% eig_criterion = 'analytic';
+
+% keep components that cumulatively explain at least 85% of the variance
+% eig_criterion = 'CV85';
+
+for r = 1:length(allROIs)
+  thisROI = allROIs{r};
+  if iscell(thisROI)
+    roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+  elseif ischar(thisROI)
+    roi_str = thisROI;
+  end
+  
+  for l = 1:length(allLats)
+    latencies = allLats{l};
     
-    exper = subData.exper;
-    cfg_sel = subData.cfg_sel;
-    
-    for d = 1:length(dataTypes)
-      for lat = 1:size(latencies,1)
-        similarity_all{sub,ses,d,lat} = subData.similarity_all{1,1,d,lat};
-        similarity_ntrials(sub,ses,d,lat) = subData.similarity_ntrials(1,1,d,lat);
+    for f = 1:length(allFreqs)
+      freqs = allFreqs{f};
+      if strcmp(origDataType,'hilbert')
+        freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+      else
+        freq_str = origDataType;
+      end
+      
+      for s = 1:length(allSimMethod)
+        sim_method = allSimMethod{s};
+        
+        for e = 1:length(allEigCrit)
+          eig_criterion = allEigCrit{e};
+          
+          % initialize
+          similarity_all = cell(length(subjects),length(sesNames),length(dataTypes),size(latencies,1));
+          similarity_ntrials = nan(length(subjects),length(sesNames),length(dataTypes),size(latencies,1));
+          
+          for sub = 1:length(subjects)
+            for ses = 1:length(sesNames)
+              savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
+              if exist(savedFile,'file')
+                fprintf('Loading %s...\n',savedFile);
+                subData = load(savedFile);
+                fprintf('Done.\n');
+              else
+                error('Does not exist: %s',savedFile);
+              end
+              
+              exper = subData.exper;
+              cfg_sel = subData.cfg_sel;
+              
+              for d = 1:length(dataTypes)
+                for lat = 1:size(latencies,1)
+                  similarity_all{sub,ses,d,lat} = subData.similarity_all{1,1,d,lat};
+                  similarity_ntrials(sub,ses,d,lat) = subData.similarity_ntrials(1,1,d,lat);
+                end
+              end
+              
+            end
+          end
+          
+          exper.subjects = subjects;
+          exper.sesNames = sesNames;
+          
+          saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,analysisDate));
+          fprintf('Saving %s...\n',saveFile);
+          save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','freqs','similarity_all','similarity_ntrials');
+          fprintf('Done.\n');
+          
+        end
       end
     end
-    
   end
 end
-
-exper.subjects = subjects;
-exper.sesNames = sesNames;
-
-saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,analysisDate));
-fprintf('Saving %s...\n',saveFile);
-save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','freqs','similarity_all','similarity_ntrials');
-fprintf('Done.\n');
