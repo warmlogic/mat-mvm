@@ -713,11 +713,12 @@ end
 
 %% stats
 
+nTrialThresh = 8;
+
 plotit = false;
 
 noNans = true(length(exper.subjects),length(exper.sesStr));
 
-nTrialThresh = 8;
 passTrlThresh = true(length(exper.subjects),length(exper.sesStr));
 
 mean_similarity = struct;
@@ -809,6 +810,12 @@ end
 variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
+fprintf('Collecting ANOVA data for:\n\t');
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{2});
+fprintf('%s (%s),',latStr,factorNames{3});
+fprintf('\n\tROI: %s...',roi_str);
+
 anovaData = nan(length(exper.subjects),prod(nVariables));
 rmaov_data_teg = nan(length(exper.subjects)*prod(nVariables),length(factorNames) + 2);
 
@@ -860,7 +867,9 @@ if any(~keepTheseFactors)
   levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
   
   rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]); % TEG
+  fprintf('\n\tOnly keeping factors:%s...',sprintf(repmat(' %s',1,length(factorNames)),factorNames{:}));
 end
+fprintf('Done.\n');
 
 %% TEG RM ANOVA
 
@@ -908,10 +917,10 @@ fprintf('=======================================\n');
 % multcompare(rm,'memConds','By','oldnew')
 % % multcompare(rm,'spacings','By','oldnew','By','memConds')
 
-% pairwiseComps = nchoosek(1:length(factorNames),2);
-% for i = 1:size(pairwiseComps,1)
-%   multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
-% end
+pairwiseComps = nchoosek(1:length(factorNames),2);
+for i = 1:size(pairwiseComps,1)
+  multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
+end
 
 %% plot RSA spacing x subsequent memory interaction
 
