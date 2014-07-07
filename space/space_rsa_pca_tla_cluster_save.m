@@ -94,8 +94,9 @@ dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo
 % eig_criterion = 'kaiser';
 % % eig_criterion = 'analytic';
 
-allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'LPS','RPS'},{'center109'}};
-% thisROI = {'center109'};
+% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'}};
+% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'LPS','RPS'},{'center109'}};
+allROIs = {{'LT','RT'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
