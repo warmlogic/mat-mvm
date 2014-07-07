@@ -661,6 +661,10 @@ analysisDate = '06-Jul-2014';
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
+
+% analysisDate = '07-Jul-2014';
+% thisROI = {'LT','RT'};
+
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
@@ -677,11 +681,6 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 1.0];
 
 origDataType = 'tla';
-% origDataType = 'hilbert';
-
-if strcmp(origDataType,'hilbert')
-  freqs = [4 8; 8 12; 12 30; 30 50];
-end
 
 % avgovertime = 'yes';
 avgovertime = 'no';
@@ -703,11 +702,7 @@ eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-if strcmp(origDataType,'tla')
-  rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
-elseif strcmp(origDataType,'hilbert')
-  rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,analysisDate));
-end
+rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
 load(rsaFile);
 
 %% stats
