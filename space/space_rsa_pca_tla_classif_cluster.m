@@ -1,4 +1,4 @@
-function space_rsa_pca_tla_classif_cluster(subjects,sesNames)
+function space_rsa_pca_tla_classif_cluster(subjects,sesNames,thisROI,latencies,sim_method,eig_criterion)
 
 % space RSA
 
@@ -126,14 +126,14 @@ dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo
 
 parameter = 'trial';
 
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-  0 0.3; 0.3 0.6; 0.6 0.9; ...
-  0 0.5; 0.5 1.0; ...
-  0.3 0.8; ...
-  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-  0 0.8; 0.1 0.9; 0.2 1.0;
-  0 1.0];
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
@@ -142,7 +142,7 @@ stimNumCol = 6;
 categNumCol = 7;
 % pairNumCol = 13;
 
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
@@ -176,7 +176,7 @@ cfg_sel.avgovertime = 'no';
 
 cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
 
-sim_method = 'cosine';
+% sim_method = 'cosine';
 % sim_method = 'correlation';
 % sim_method = 'spearman';
 
@@ -190,7 +190,7 @@ sim_method = 'cosine';
 % eig_criterion = 'analytic';
 
 % keep components that cumulatively explain at least 85% of the variance
-eig_criterion = 'CV85';
+% eig_criterion = 'CV85';
 
 %% train on expo images, test on multistudy images
 

@@ -1,4 +1,4 @@
-function space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames)
+function space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion)
 
 % space RSA
 
@@ -123,14 +123,14 @@ end
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-  0 0.3; 0.3 0.6; 0.6 0.9; ...
-  0 0.5; 0.5 1.0; ...
-  0.3 0.8; ...
-  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-  0 0.8; 0.1 0.9; 0.2 1.0;
-  0 1.0];
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
 
 % latencies = [0.0 0.5; 0.5 1.0];
 
@@ -142,7 +142,7 @@ categNumCol = 7;
 % pairNumCol = 13;
 
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-thisROI = {'center109'};
+% thisROI = {'center109'};
 % thisROI = {'all129'};
 % thisROI = {'LPI', 'PI', 'RPI'};
 % thisROI = {'LPS'};
@@ -170,7 +170,7 @@ cfg_sel.avgovertime = 'yes';
 
 cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
 
-sim_method = 'cosine';
+% sim_method = 'cosine';
 % sim_method = 'correlation';
 % sim_method = 'spearman';
 
@@ -186,7 +186,7 @@ sim_method = 'cosine';
 % eig_criterion = 'analytic';
 
 % keep components that cumulatively explain at least 85% of the variance
-eig_criterion = 'CV85';
+% eig_criterion = 'CV85';
 
 %% train on expo images, test on multistudy images
 
@@ -337,7 +337,8 @@ parameter_orig = 'trial';
 
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
-freqs = [4 8; 8 12; 12 30; 30 50];
+% freqs = [4 8; 8 12; 12 30; 30 50];
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 % bandpass filter the trials at a given frequency bin
 sampleRate = ft_findcfg(data_tla.(exper.sesStr{1}).(sprintf('%s_p1',dataTypes{1})).sub(1).data.cfg,'fsample');
@@ -735,7 +736,7 @@ for sub = 1:length(exper.subjects)
       %end % d
     end % ~badSub
     
-    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_hilbert_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,date));
+    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_hilbert_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,date));
     fprintf('Saving: %s\n',saveFile);
     save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
     fprintf('Done.\n');

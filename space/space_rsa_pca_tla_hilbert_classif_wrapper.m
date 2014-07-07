@@ -1,4 +1,4 @@
-function space_rsa_pca_tla_classif_wrapper(whichStages)
+function space_rsa_pca_tla_hilbert_classif_wrapper(whichStages)
 % space_rsa_pca_tla_classif_wrapper(whichStages)
 %
 % To run on dream, at the command line type: distmsub space_rsa_pca_tla_classif_wrapper.m
@@ -77,6 +77,44 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
+%% analysis details
+
+allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'LPS','RPS'}};
+% thisROI = {'center109'};
+
+allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+  0 0.3; 0.3 0.6; 0.6 0.9; ...
+  0 0.5; 0.5 1.0; ...
+  0.3 0.8; ...
+  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+  0 0.8; 0.1 0.9; 0.2 1.0;
+  0 1.0]};
+
+% allFreqs = {[4 8; 8 12; 12 30; 30 50]};
+allFreqs = {[4 8] [8 12] [12 30] [30 50]};
+
+allSimMethod = {'cosine'};
+
+% sim_method = 'cosine';
+% sim_method = 'correlation';
+% sim_method = 'spearman';
+
+allEigCrit = {'kaiser'};
+% allEigCrit = {'CV85','kaiser'};
+
+% % keep components with eigenvalue >= 1
+% eig_criterion = 'kaiser';
+
+% % compute the percent explained variance expected from each component if
+% % all events are uncorrelated with each other; keep it if above this level.
+% % So, each component would explain 100/n, where n is the number of
+% % events/components.
+% eig_criterion = 'analytic';
+
+% keep components that cumulatively explain at least 85% of the variance
+% eig_criterion = 'CV85';
+
 %% set up for running stages and specifics for Dream
 
 % name(s) of the functions for different stages of processing
@@ -113,7 +151,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    stageFun{i}(expName,saveDirProc,subjects,sesNames,runLocally,timeOut{i});
+    stageFun{i}(expName,saveDirProc,subjects,sesNames,allROIs,allLats,allFreqs,allSimMethod,allEigCrit,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -130,7 +168,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function stage1(expName,saveDirProc,subjects,sesNames,runLocally,timeOut)
+function stage1(expName,saveDirProc,subjects,sesNames,allROIs,allLats,allFreqs,allSimMethod,allEigCrit,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -150,15 +188,40 @@ if runLocally == 0
     thisSub = subjects{i};
     thisSes = sesNames{1};
     
-    fprintf('Processing %s %s...\n',thisSub,thisSes);
-    
-    % inArg = {ana,cfg_pp,exper,dirs,files};
-    % save the exper struct (output 1) so we can use it later
-    %createTask(job,@create_ft_struct_multiSes,1,inArg);
-    
-    inArg = {thisSub,thisSes};
-    createTask(job,@space_rsa_pca_tla_hilbert_classif_cluster,0,inArg);
-    
+    for r = 1:length(allROIs)
+      thisROI = allROIs{r};
+      if iscell(thisROI)
+        roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
+      elseif ischar(thisROI)
+        roi_str = thisROI;
+      end
+      
+      for l = 1:length(allLats)
+        latencies = allLats{l};
+        
+        for f = 1:length(allFreqs)
+          freqs = allFreqs{f};
+          freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+          
+          for s = 1:length(allSimMethod)
+            sim_method = allSimMethod{s};
+            
+            for e = 1:length(allEigCrit)
+              eig_criterion = allEigCrit{e};
+              
+              fprintf('Processing %s %s, roi: %s, %d latencies, %s, sim: %s, eig: %s...\n',thisSub,thisSes,roi_str,size(latencies,1),freq_str,sim_method,eig_criterion);
+              
+              % inArg = {ana,cfg_pp,exper,dirs,files};
+              % save the exper struct (output 1) so we can use it later
+              %createTask(job,@create_ft_struct_multiSes,1,inArg);
+              
+              inArg = {thisSub,thisSes,thisROI,latencies,freqs,sim_method,eig_criterion};
+              createTask(job,@space_rsa_pca_tla_hilbert_classif_cluster,0,inArg);
+            end
+          end
+        end
+      end
+    end
   end
   
   runJob(job,timeOut,fullfile(saveDirProc,[expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
@@ -169,6 +232,8 @@ if runLocally == 0
 else
   %% run the function locally
   
+  error('This setup does not make sense with the current data loading setup.');
+  
   % create a log of the command window output
   thisRun = [expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
   % turn the diary on
@@ -178,8 +243,23 @@ else
   %ana.usePeer = 1;
   %ana.usePeer = 0;
   
-  % Local: run all the subjects
-  space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames);
+  for r = 1:length(allROIs)
+    thisROI = allROIs{r};
+    for l = 1:length(allLats)
+      latencies = allLats{l};
+      for f = 1:length(allFreqs)
+        freqs = allFreqs{f};
+        for s = 1:length(allSimMethod)
+          sim_method = allSimMethod{s};
+          for e = 1:length(allEigCrit)
+            eig_criterion = allEigCrit{e};
+            % Local: run all the subjects
+            space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion);
+          end
+        end
+      end
+    end
+  end
   
 %   % save the analysis details; overwrite if it already exists
 %   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
