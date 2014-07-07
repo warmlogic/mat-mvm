@@ -785,7 +785,13 @@ eig_criterion = 'CV85';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,analysisDate));
-load(rsaFile);
+if exist(rsaFile,'file')
+  fprintf('loading: %s...',rsaFile);
+  load(rsaFile);
+  fprintf('Done.\n');
+else
+  error('does not exist: %s',rsaFile);
+end
 
 %% stats
 
@@ -831,7 +837,7 @@ end
 
 % disp(mean_similarity);
 
-fprintf('Threshold: %d. Including %d subjects.\n',nTrialThresh,sum(noNans & passTrlThresh));
+fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noNans & passTrlThresh));
 
 %% RMANOVA
 
