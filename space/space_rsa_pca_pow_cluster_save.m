@@ -49,7 +49,7 @@ subjects = {
 sesNames = {'session_1'};
 
 % analysisDate = '13-Jun-2014';
-analysisDate = '06-Jul-2014';
+analysisDate = '07-Jul-2014';
 
 origDataType = 'pow';
 
@@ -113,11 +113,7 @@ for r = 1:length(allROIs)
     
     for f = 1:length(allFreqs)
       freqs = allFreqs{f};
-      if strcmp(origDataType,'hilbert')
-        freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
-      else
-        freq_str = origDataType;
-      end
+      freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
       
       for s = 1:length(allSimMethod)
         sim_method = allSimMethod{s};
