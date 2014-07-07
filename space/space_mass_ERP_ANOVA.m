@@ -195,6 +195,7 @@ variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
 anovaData = nan(sum(~exper.badSub),prod(nVariables));
+rmaov_data_teg = [];
 
 lnDone = false;
 vnDone = false;
@@ -233,6 +234,8 @@ for sub = 1:sum(~exper.badSub)
           end
           
           anovaData(sub,vnCount) = allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1);
+          
+          rmaov_data_teg = cat(1,rmaov_data_teg,[allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1) sp on mc r sub]);
         end
       end
     end
@@ -241,10 +244,14 @@ for sub = 1:sum(~exper.badSub)
   vnDone = true;
 end
 
-factorNames = factorNames(keepTheseFactors);
-levelNames = levelNames(:,keepTheseFactors);
-nVariables = nVariables(keepTheseFactors);
-levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
+if any(~keepTheseFactors)
+  factorNames = factorNames(keepTheseFactors);
+  levelNames = levelNames(:,keepTheseFactors);
+  nVariables = nVariables(keepTheseFactors);
+  levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
+  
+  rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]);
+end
 
 %% Matlab ANOVA
 
@@ -292,7 +299,7 @@ end
 fprintf('================================================================\n');
 fprintf('This ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
 
-O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg);
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
 
 fprintf('Prev ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
 fprintf('================================================================\n');
