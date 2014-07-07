@@ -51,7 +51,8 @@ subjects = {
 sesNames = {'session_1'};
 
 % analysisDate = '13-Jun-2014';
-analysisDate = '01-Jul-2014';
+% analysisDate = '01-Jul-2014';
+analysisDate = '06-Jul-2014';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -75,6 +76,7 @@ origDataType = 'tla';
 
 if strcmp(origDataType,'hilbert')
   freqs = [4 8; 8 12; 12 30; 30 50];
+  freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 end
 
 % avgovertime = 'yes';
@@ -106,7 +108,7 @@ for sub = 1:length(subjects)
     if strcmp(origDataType,'tla')
       savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
     elseif strcmp(origDataType,'hilbert')
-      savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,analysisDate));
+      savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,analysisDate));
     end
     if exist(savedFile,'file')
       fprintf('Loading %s...\n',savedFile);
@@ -135,7 +137,7 @@ exper.sesNames = sesNames;
 if strcmp(origDataType,'tla')
   saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,analysisDate));
 elseif strcmp(origDataType,'hilbert')
-  saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,analysisDate));
+  saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,analysisDate));
 end
   
 fprintf('Saving %s...\n',saveFile);

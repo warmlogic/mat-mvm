@@ -48,7 +48,8 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
-analysisDate = '13-Jun-2014';
+% analysisDate = '13-Jun-2014';
+analysisDate = '06-Jul-2014';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -71,6 +72,7 @@ origDataType = 'pow';
 
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 freqs = [4 8; 8 12; 12 30; 30 50];
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 avgovertime = 'yes';
 avgoverfreq = 'yes';
@@ -98,7 +100,7 @@ similarity_ntrials = nan(length(subjects),length(sesNames),length(dataTypes),siz
 
 for sub = 1:length(subjects)
   for ses = 1:length(sesNames)
-    savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),avgovertime,avgoverfreq,analysisDate));
+    savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
     if exist(savedFile,'file')
       fprintf('Loading %s...\n',savedFile);
       subData = load(savedFile);
@@ -123,7 +125,7 @@ end
 exper.subjects = subjects;
 exper.sesNames = sesNames;
 
-saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%dfreq_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),size(freqs,1),cfg_sel.avgovertime,cfg_sel.avgoverfreq,analysisDate));
+saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,analysisDate));
 fprintf('Saving %s...\n',saveFile);
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','latencies','freqs','similarity_all','similarity_ntrials');
 fprintf('Done.\n');
