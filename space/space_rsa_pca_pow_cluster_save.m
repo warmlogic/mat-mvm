@@ -89,8 +89,8 @@ else
   classif_str = 'noClassif';
 end
 
-eig_criterion = 'CV85';
-% eig_criterion = 'kaiser';
+% eig_criterion = 'CV85';
+eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
