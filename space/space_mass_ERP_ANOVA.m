@@ -201,7 +201,7 @@ vnDone = false;
 for sub = 1:sum(~exper.badSub)
   lnCount = 0;
   vnCount = 0;
-  theseData = [];
+  %theseData = [];
   
   for sp = 1:length(spacings)
     for on = 1:length(oldnew)
@@ -252,7 +252,8 @@ t = array2table(anovaData,'VariableNames',variableNames);
 
 within = cell2table(levelNames,'VariableNames',factorNames);
 
-rm = fitrm(t,'Y1-Y8~1','WithinDesign',within);
+% rm = fitrm(t,'Y1-Y8~1','WithinDesign',within);
+rm = fitrm(t,sprintf('%s-%s~1',variableNames{1},variableNames{end}),'WithinDesign',within);
 
 fprintf('================================================================\n');
 fprintf('This ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
