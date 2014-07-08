@@ -1,7 +1,7 @@
-function [ft_raw,badChanAllSes,badEvEvVals,artfctdefEvAllSes,artfctdefSampAllSes] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals,artifacts] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv,artfctdef] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv,artifacts] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
@@ -187,6 +187,13 @@ badChanAllSes = {};
 badEvAllSes = [];
 
 %% for each session, read in the EEG file
+
+% initialize to save event numbers
+allTrialinfo = [];
+
+% event number column comes from the trialfun function when the trl gets
+% created
+trialinfo_eventNumCol = 1;
 
 for ses = 1:length(session)
   sesName = session{ses};
@@ -447,6 +454,9 @@ for ses = 1:length(session)
     data_seg = ft_redefinetrial(cfg, data);
   end
   
+  % collect the event type numbers
+  allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo(:,trialinfo_eventNumCol));
+  
   % hack: renumber samples so they don't overlap, or throw an error
   overlap = false;
   for i = 2:size(data_seg.sampleinfo,1)
@@ -606,21 +616,45 @@ for ses = 1:length(session)
   
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
-    artfctdefSampAllSes = [];
-    artfctdefEvAllSes = [];
+    artifacts = [];
   else
-    [data_seg,badChan,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
+    [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
     
-    if ~exist('artfctdefAllSes','var')
-      artfctdefSampAllSes = artfctdefSamp;
+%     if ~exist('artfctdefSampAllSes','var')
+%       artfctdefSampAllSes = artfctdefSamp;
+%     else
+%       fn = fieldnames(artfctdefSamp);
+%       for f = 1:length(fn)
+%         if isfield(artfctdefSampAllSes,fn{f})
+%           artfctdefSampAllSes.(fn{f}) = cat(1,artfctdefSampAllSes.(fn{f}),artfctdefSamp.(fn{f}));
+%         else
+%           artfctdefSampAllSes.(fn{f}) = artfctdefSamp.(fn{f});
+%         end
+%       end
+%     end
+    if ~exist('artfctdefEvAllSes','var')
       artfctdefEvAllSes = artfctdefEv;
     else
-      artfctdefSampAllSes = catstruct(artfctdefSampAllSes,artfctdefSamp);
-      artfctdefEvAllSes = catstruct(artfctdefEvAllSes,artfctdefEv);
+      fn = fieldnames(artfctdefEv);
+      for f = 1:length(fn)
+        if strcmp(fn{f},'types')
+          if isfield(artfctdefEvAllSes,(fn{f}))
+            artfctdefEvAllSes.(fn{f}) = cat(2,artfctdefEvAllSes.(fn{f}),artfctdefEv.(fn{f}));
+          else
+            artfctdefEvAllSes.(fn{f}) = artfctdefEv.(fn{f});
+          end
+        else
+          if isfield(artfctdefEvAllSes,fn{f})
+            artfctdefEvAllSes.(fn{f}) = cat(1,artfctdefEvAllSes.(fn{f}),artfctdefEv.(fn{f}));
+          else
+            artfctdefEvAllSes.(fn{f}) = artfctdefEv.(fn{f});
+          end
+        end
+      end
     end
   end
   
@@ -650,13 +684,16 @@ end
 % initialize the struct to return
 ft_raw = struct;
 
-% event number column comes from the trialfun function when the trl gets
-% created
-trialinfo_eventNumCol = 1;
-
 badEvEvVals = struct;
+artifacts = struct;
+artTypes = fieldnames(artfctdefEvAllSes);
+artTypes = artTypes(~ismember(artTypes,'types'));
+
 for evVal = 1:length(eventValue)
   badEvEvVals.(eventValue{evVal}) = [];
+  for at = 1:length(artTypes)
+    artifacts.(eventValue{evVal}).(artTypes{at}) = [];
+  end
 end
 
 % if length(eventValue) > 1
@@ -672,7 +709,15 @@ for evVal = 1:length(eventValue)
     ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data_seg);
     
     if rejArt
-      badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
+      %badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
+      %badEvEvVals.(eventValue{evVal}) = badEvAllSes(cfg_split.trials);
+      badEvEvVals.(eventValue{evVal}) = badEvAllSes(allTrialinfo == evVal);
+      
+      for at = 1:length(artTypes)
+        %artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(:,trialinfo_eventNumCol) == evVal;
+        %artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(cfg_split.trials);
+        artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(allTrialinfo == evVal);
+      end
     end
     
     if ana.useExpInfo
