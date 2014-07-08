@@ -253,7 +253,7 @@ for ses = 1:length(exper.sessions)
   for evVal = 1:length(exper.eventValues{ses})
     exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
     exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
-    exper.artifact.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+    exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
   end
   
   for sub = 1:length(exper.subjects)

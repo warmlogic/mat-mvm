@@ -1,6 +1,9 @@
 function [exper] = create_ft_struct_multiSes_cluster(ana,cfg_pp,exper,dirs,files,cfg_proc)
 %CREATE_FT_STRUCT_MULTISES_CLUSTER: Create a FieldTrip data structure from NS files
 %
+% key modification for cluster version: do the processing of raw data
+% within this script (at the very end)
+%
 % [exper] = create_ft_struct_multiSes_cluster(ana,cfg_pp,exper,dirs,files,cfg_proc)
 %
 % The default function (set in ana.segFxn) that this function calls is
@@ -253,6 +256,7 @@ for ses = 1:length(exper.sessions)
   for evVal = 1:length(exper.eventValues{ses})
     exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
     exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+    exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
   end
   
   for sub = 1:length(exper.subjects)
@@ -301,7 +305,7 @@ for ses = 1:length(exper.sessions)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan,badEv,artfctdefEv,artfctdefSamp] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
+      [ft_raw,badChan,badEv,artifacts] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -318,9 +322,6 @@ for ses = 1:length(exper.sessions)
     exper.badChan.(sesStr){sub} = badChan;
     % store the bad event information
     % exper.badEv{sub,ses} = badEv;
-    
-    exper.artfctdefEv.(sesStr)(sub) = artfctdefEv;
-    %exper.artfctdefSamp.(sesStr)(sub) = artfctdefSamp;
     
     %     % check on any empty events
     %     for evVal = 1:length(eventValuesToProcess)
@@ -351,6 +352,7 @@ for ses = 1:length(exper.sessions)
         %exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
         exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
         exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
+        exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}){sub} = artifacts.(exper.eventValues{ses}{evVal});
         
         % set outputfile so the raw data is saved; especially useful for
         % implementing analyses with the peer toolbox
