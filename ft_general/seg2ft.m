@@ -619,10 +619,8 @@ for ses = 1:length(session)
       artfctdefSampAllSes = artfctdefSamp;
       artfctdefEvAllSes = artfctdefEv;
     else
-      artfctdefSampAllSes = cat(1,artfctdefSampAllSes,artfctdefSamp);
-      
-      % TODO: need to combine struct fields here
-      artfctdefEvAllSes = cat(1,artfctdefEvAllSes,artfctdefEv);
+      artfctdefSampAllSes = catstruct(artfctdefSampAllSes,artfctdefSamp);
+      artfctdefEvAllSes = catstruct(artfctdefEvAllSes,artfctdefEv);
     end
   end
   
