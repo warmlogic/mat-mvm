@@ -1,12 +1,13 @@
-function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals,artfctdefAllSes] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv,artfctdef] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
 %   badChan = bad channel information
 %   badEv   = bad event information
+%   artfctdef= artifact information
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP:
@@ -252,7 +253,7 @@ for ses = 1:length(session)
     % combine the initial cfg and the continuous data preprocessing
     % settings from ana.cfg_cont
     if isfield(ana,'cfg_cont')
-      fprintf('%s: The field ana.cfg_cont exists. Using these pre-defined settings for preprocessing continuous data instead of defaults!\n',mfilename);
+      fprintf('%s.m: The field ana.cfg_cont exists. Using these user-defined settings for preprocessing continuous data instead of defaults.\n',mfilename);
       
       fn_cfg = fieldnames(cfg);
       if ~isempty(ana.cfg_cont)
@@ -605,12 +606,19 @@ for ses = 1:length(session)
   
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
+    artfctdefAllSes = [];
   else
-    [data_seg,badChan,badEv,artftcdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
+    [data_seg,badChan,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
+    
+    if ~exist('artfctdefAllSes','var')
+      artfctdefAllSes = artfctdef;
+    else
+      artfctdefAllSes = cat(1,artfctdefAllSes,artfctdef);
+    end
   end
   
   %% if we're combining multiple sessions, add the data to the append struct

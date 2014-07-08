@@ -301,7 +301,7 @@ for ses = 1:length(exper.sessions)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
+      [ft_raw,badChan,badEv,artfctdef] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -318,6 +318,8 @@ for ses = 1:length(exper.sessions)
     exper.badChan.(sesStr){sub} = badChan;
     % store the bad event information
     % exper.badEv{sub,ses} = badEv;
+    
+    exper.artfctdef.(sesStr)(sub) = artfctdef;
     
     %     % check on any empty events
     %     for evVal = 1:length(eventValuesToProcess)
