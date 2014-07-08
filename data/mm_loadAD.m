@@ -130,6 +130,9 @@ for ses = 1:length(sesStr)
             exper.badChan = rmfield(exper.badChan,exper.sesStr{k});
             exper.nTrials = rmfield(exper.nTrials,exper.sesStr{k});
             exper.badEv = rmfield(exper.badEv,exper.sesStr{k});
+            if isfield(exper,'artifacts')
+              exper.artifacts = rmfield(exper.artifacts,exper.sesStr{k});
+            end
           end
         end
       end
@@ -139,6 +142,9 @@ for ses = 1:length(sesStr)
 %         if ~ismember(exper.eventValues{ses}{evVal},eventValues{ses})
 %           exper.nTrials.(sesNames{ses}) = rmfield(exper.nTrials.(sesNames{ses}),exper.eventValues{ses}{evVal});
 %           exper.badEv.(sesNames{ses}) = rmfield(exper.badEv.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%           if isfield(exper,'artifacts')
+%             exper.artifacts.(sesNames{ses}) = rmfield(exper.artifacts.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%           end
 %         end
 %       end
       
@@ -159,6 +165,9 @@ for ses = 1:length(sesStr)
       for evVal = 1:length(exper.eventValues{ses})
         exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
         exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        if isfield(sd.exper,'artifacts')
+          exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        end
       end
       
     end
@@ -181,6 +190,9 @@ if length(subjects) > 1
         for evVal = 1:length(exper.eventValues{ses})
           exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
           exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          if isfield(sd.exper,'artifacts')
+            exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          end
         end
         
       else
