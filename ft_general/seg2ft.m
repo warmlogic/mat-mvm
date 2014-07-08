@@ -1,4 +1,4 @@
-function [ft_raw,badChanAllSes,badEvEvVals,artfctdefAllSes] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals,artfctdefEvAllSes,artfctdefSampAllSes] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
 % [ft_raw,badChan,badEv,artfctdef] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
@@ -606,18 +606,23 @@ for ses = 1:length(session)
   
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
-    artfctdefAllSes = [];
+    artfctdefSampAllSes = [];
+    artfctdefEvAllSes = [];
   else
-    [data_seg,badChan,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
+    [data_seg,badChan,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
     
     if ~exist('artfctdefAllSes','var')
-      artfctdefAllSes = artfctdef;
+      artfctdefSampAllSes = artfctdefSamp;
+      artfctdefEvAllSes = artfctdefEv;
     else
-      artfctdefAllSes = cat(1,artfctdefAllSes,artfctdef);
+      artfctdefSampAllSes = cat(1,artfctdefSampAllSes,artfctdefSamp);
+      
+      % TODO: need to combine struct fields here
+      artfctdefEvAllSes = cat(1,artfctdefEvAllSes,artfctdefEv);
     end
   end
   
