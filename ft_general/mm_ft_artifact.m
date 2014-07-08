@@ -1,6 +1,6 @@
-function [data,badChan_str,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
+function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
 %MM_FT_ARTIFACT reject artifacts
-% [data,badChan_str,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
+% [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -15,6 +15,13 @@ function [data,badChan_str,badEv,artfctdef] = mm_ft_artifact(dataroot,subject,se
 
 badChan = [];
 badChan_str = {};
+badEv = [];
+
+artfctdefEv = struct;
+% maintain a list of all artifact types
+artfctdefEv.types = {};
+% maintain a list of samples where artifacts occurred
+artfctdefSamp = [];
 
 %% set the artifact processing parameters
 
@@ -306,7 +313,7 @@ if rejArt_nsAuto
   
   % find the bad trials for this event
   %thisEv = find(ismember(sesSummary{1},eventValue));
-  badEv = strcmp(sesSummary{4},'bad');
+  badEv = logical(strcmp(sesSummary{4},'bad'));
   % make sure we only have data for the bad events for this event value
   badEv = badEv(ismember(sesSummary{1},eventValue));
   %goodEv = strcmp(sesSummary{4},'good');
@@ -376,7 +383,7 @@ if rejArt_zeroVar
     warning('badEv info from ''rejArt_nsAuto'' is about to get overwritten because you want to run both that artifact method and ''rejArt_zeroVar''. This seems odd, but if you want to continue you (or I) probably need to fix %s. Contact me for help.',mfilename);
     keyboard
   end
-  badEv = zeros(size(data.trial'));
+  badEv = false(size(data.trial'));
   for i = 1:size(data.trial,2)
     % variance across time on all the channels averaged together
     if var(mean(data.trial{i},1),0,2) == 0
@@ -390,21 +397,21 @@ if rejArt_zeroVar
     
     if ~exist('cfg','var')
       cfg = [];
-      cfg.artfctdef.netstation.artifact = data.sampleinfo(logical(badEv),:);
-    else
-      if rejArt_nsAuto && foundArt
-        % if running both nsAuto and zeroVar
-        if isfield(cfg,'artfctdef')
-          if isfield(cfg.artfctdef,'netstation')
-            if isfield(cfg.artfctdef.netstation,'artifact')
-              if ~isempty(cfg.artfctdef.netstation.artifact)
-                cfg.artfctdef.netstation.artifact = unique(cat(1,cfg.artfctdef.netstation.artifact,data.sampleinfo(logical(badEv),:)),'rows');
-              end
-            end
-          end
-        end
-      end
+%     else
+%       if rejArt_nsAuto && foundArt
+%         % if running both nsAuto and zeroVar
+%         if isfield(cfg,'artfctdef')
+%           if isfield(cfg.artfctdef,'netstation')
+%             if isfield(cfg.artfctdef.netstation,'artifact')
+%               if ~isempty(cfg.artfctdef.netstation.artifact)
+%                 cfg.artfctdef.netstation.artifact = unique(cat(1,cfg.artfctdef.netstation.artifact,data.sampleinfo(logical(badEv),:)),'rows');
+%               end
+%             end
+%           end
+%         end
+%       end
     end
+    cfg.artfctdef.zeroVar.artifact = data.sampleinfo(badEv,:);
   else
     fprintf('No zero variance trials found for%s.\n',sprintf(repmat(' ''%s''',1,length(eventValue)),eventValue{:}));
   end
@@ -519,14 +526,13 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   end
   
   % initialize to store whether there was an artifact for each trial
-  if ~exist('badEv','var') || isempty(badEv)
+  if isempty(badEv)
     combineArtLists = false;
     %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
-    badEv = zeros(size(data.sampleinfo,1), 1);
+    badEv = false(size(data.sampleinfo,1), 1);
   else
     combineArtLists = true;
   end
-  manualEv = zeros(size(data.sampleinfo,1), 1);
   
   % find out what kind of artifacts we're dealing with
   fn = fieldnames(cfg.artfctdef);
@@ -534,21 +540,32 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   for i = 1:length(fn)
     if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
       theseArt = cat(2,theseArt,fn{i});
+      if ~ismember(fn{i},artfctdefEv.types)
+        artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+      else
+        warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+        keyboard
+      end
+      artfctdefEv.(fn{i}) = false(size(badEv));
     end
   end
+  
+  % store artifacts for the only events we are checking
+  foundArtEv = false(size(data.sampleinfo,1),length(theseArt));
+  
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = single(zeros(max(data.sampleinfo(:)),1));
+    artSamp = false(max(data.sampleinfo(:)),length(theseArt));
     for i = 1:length(theseArt)
       for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
       end
     end
     % save a list of trials with artifact status
     for k = 1:size(data.sampleinfo,1)
-      if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
-        manualEv(k,1) = 1;
+      if any(any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1),2)
+        foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
   end
@@ -560,29 +577,35 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
       %if badEv(i,2) == 0
       if badEv(i,1) == 0
         rCount = rCount + 1;
-        %if manualEv(rCount,2) == 1
-        if manualEv(rCount) == 1
+        if any(foundArtEv(rCount,:))
           %badEv(i,2) = 1;
           badEv(i,1) = 1;
+          setTheseArt = theseArt(foundArtEv(rCount,:));
+          for a = 1:length(setTheseArt)
+            artfctdefEv.(setTheseArt{a})(i) = true;
+          end
         end
       end
     end
     if ~isempty(theseArt)
-      if ~exist('artfctdef','var')
-        artfctdef = cfg.artfctdef;
+      if isempty(artfctdefSamp)
+        artfctdefSamp = cfg.artfctdef;
       else
         for i = 1:length(theseArt)
-          if isfield(artfctdef,theseArt{i})
-            artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+          if isfield(artfctdefSamp,theseArt{i})
+            artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
           else
-            artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+            artfctdefSamp.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
           end
         end
       end
     end
   else
-    badEv = manualEv;
-    artfctdef = cfg.artfctdef;
+    badEv = logical(sum(foundArtEv,2));
+    artfctdefSamp = cfg.artfctdef;
+    for a = 1:length(theseArt)
+      artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+    end
   end
 end
 
@@ -640,11 +663,7 @@ if rejArt_nsClassic
     badChan_str = {};
   end
   
-  if ~exist('badEv','var') || isempty(badEv)
-    badEv = [];
-  end
-  
-  [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv);
+  [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp);
 end
 
 %% visual artifact inspection (manual)
@@ -1162,15 +1181,15 @@ if rejArt_ftManual
       
       cfg_manArt = [];
       if ana.artifact.basic_art
-        cfg_manArt.artfctdef.basic.artifact = artifact_basic;
+        cfg_manArt.artfctdef.basic_ftManual.artifact = artifact_basic;
       end
-      %cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
+      %cfg_manArt.artfctdef.muscle_ftManual.artifact = artifact_muscle;
       if ana.artifact.jump_art
-        cfg_manArt.artfctdef.jump.artifact = artifact_jump;
+        cfg_manArt.artfctdef.jump_ftManual.artifact = artifact_jump;
       end
       if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
         if ana.artifact.thresh
-          cfg_manArt.artfctdef.threshold.artifact = artifact_thresh;
+          cfg_manArt.artfctdef.threshold_ftManual.artifact = artifact_thresh;
         end
       end
       
@@ -1242,39 +1261,46 @@ if rejArt_ftManual
   end
   
   % initialize to store whether there was an artifact for each trial
-  if ~exist('badEv','var') || isempty(badEv)
+  if isempty(badEv)
     combineArtLists = false;
     %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
-    badEv = zeros(size(data.sampleinfo,1), 1);
+    badEv = false(size(data.sampleinfo,1), 1);
   else
     combineArtLists = true;
   end
-  manualEv = zeros(size(data.sampleinfo,1), 1);
   
   % find out what kind of artifacts we're dealing with
+  fn = fieldnames(cfg_manArt.artfctdef);
   theseArt = {};
-  if isfield(cfg_manArt,'artfctdef')
-    fn = fieldnames(cfg_manArt.artfctdef);
-    for i = 1:length(fn)
-      if isstruct(cfg_manArt.artfctdef.(fn{i})) && isfield(cfg_manArt.artfctdef.(fn{i}),'artifact') && ~isempty(cfg_manArt.artfctdef.(fn{i}).artifact)
-        theseArt = cat(2,theseArt,fn{i});
+  for i = 1:length(fn)
+    if isstruct(cfg_manArt.artfctdef.(fn{i})) && isfield(cfg_manArt.artfctdef.(fn{i}),'artifact') && ~isempty(cfg_manArt.artfctdef.(fn{i}).artifact)
+      theseArt = cat(2,theseArt,fn{i});
+      if ~ismember(fn{i},artfctdefEv.types)
+        artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+      else
+        warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+        keyboard
       end
+      artfctdefEv.(fn{i}) = false(size(badEv));
     end
   end
   
+  % store artifacts for the only events we are checking
+  foundArtEv = false(size(data.sampleinfo,1),length(theseArt));
+  
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = single(zeros(max(data.sampleinfo(:)),1));
+    artSamp = false(max(data.sampleinfo(:)),length(theseArt));
     for i = 1:length(theseArt)
       for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg_manArt.artfctdef.(theseArt{i}).artifact(j,1):cfg_manArt.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+        artSamp(cfg_manArt.artfctdef.(theseArt{i}).artifact(j,1):cfg_manArt.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
       end
     end
     % save a list of trials with artifact status
     for k = 1:size(data.sampleinfo,1)
-      if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
-        manualEv(k,1) = 1;
+      if any(any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1),2)
+        foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
   end
@@ -1286,29 +1312,35 @@ if rejArt_ftManual
       %if badEv(i,2) == 0
       if badEv(i,1) == 0
         rCount = rCount + 1;
-        %if manualEv(rCount,2) == 1
-        if manualEv(rCount) == 1
+        if any(foundArtEv(rCount,:))
           %badEv(i,2) = 1;
           badEv(i,1) = 1;
+          setTheseArt = theseArt(foundArtEv(rCount,:));
+          for a = 1:length(setTheseArt)
+            artfctdefEv.(setTheseArt{a})(i) = true;
+          end
         end
       end
     end
     if ~isempty(theseArt)
-      if ~exist('artfctdef','var')
-        artfctdef = cfg_manArt.artfctdef;
+      if isempty(artfctdefSamp)
+        artfctdefSamp = cfg_manArt.artfctdef;
       else
         for i = 1:length(theseArt)
-          if isfield(artfctdef,theseArt{i})
-            artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
+          if isfield(artfctdefSamp,theseArt{i})
+            artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
           else
-            artfctdef.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
+            artfctdefSamp.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
           end
         end
       end
     end
   else
-    badEv = manualEv;
-    artfctdef = cfg_manArt.artfctdef;
+    badEv = logical(sum(foundArtEv,2));
+    artfctdefSamp = cfg_manArt.artfctdef;
+    for a = 1:length(theseArt)
+      artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+    end
   end
   
   % reject the artifacts (complete or parial rejection)
@@ -1609,54 +1641,62 @@ if rejArt_ftAuto
   
   cfg = [];
   if ana.artifact.basic_art
-    cfg.artfctdef.basic.artifact = artifact_basic;
+    cfg.artfctdef.basic_ftAuto.artifact = artifact_basic;
   end
   if ana.artifact.jump_art
-    cfg.artfctdef.jump.artifact = artifact_jump;
+    cfg.artfctdef.jump_ftAuto.artifact = artifact_jump;
   end
   %cfg.artfctdef.muscle.artifact = artifact_muscle;
   if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
     if ana.artifact.eog_art
-      cfg.artfctdef.eog.artifact = artifact_EOG;
+      cfg.artfctdef.eog_ftAuto.artifact = artifact_EOG;
     end
     if ana.artifact.thresh
-      cfg.artfctdef.threshold.artifact = artifact_thresh;
+      cfg.artfctdef.threshold_ftAuto.artifact = artifact_thresh;
     end
   end
   
   % initialize to store whether there was an artifact for each trial
-  if ~exist('badEv','var') || isempty(badEv)
+  if isempty(badEv)
     combineArtLists = false;
     %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
-    badEv = zeros(size(data.sampleinfo,1), 1);
+    badEv = false(size(data.sampleinfo,1), 1);
   else
     combineArtLists = true;
   end
-  autoEv = zeros(size(data.sampleinfo,1), 1);
   
   % find out what kind of artifacts we're dealing with
+  fn = fieldnames(cfg.artfctdef);
   theseArt = {};
-  if isfield(cfg,'artfctdef')
-    fn = fieldnames(cfg.artfctdef);
-    for i = 1:length(fn)
-      if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
-        theseArt = cat(2,theseArt,fn{i});
+  for i = 1:length(fn)
+    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+      theseArt = cat(2,theseArt,fn{i});
+      if ~ismember(fn{i},artfctdefEv.types)
+        artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+      else
+        warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+        keyboard
       end
+      artfctdefEv.(fn{i}) = false(size(badEv));
     end
   end
+  
+  % store artifacts for the only events we are checking
+  foundArtEv = false(size(data.sampleinfo,1),length(theseArt));
+  
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = single(zeros(max(data.sampleinfo(:)),1));
+    artSamp = false(max(data.sampleinfo(:)),length(theseArt));
     for i = 1:length(theseArt)
       for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+        artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
       end
     end
     % save a list of trials with artifact status
     for k = 1:size(data.sampleinfo,1)
-      if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
-        autoEv(k,1) = 1;
+      if any(any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1),2)
+        foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
   end
@@ -1668,29 +1708,35 @@ if rejArt_ftAuto
       %if badEv(i,2) == 0
       if badEv(i,1) == 0
         rCount = rCount + 1;
-        %if autoEv(rCount,2) == 1
-        if autoEv(rCount) == 1
+        if any(foundArtEv(rCount,:))
           %badEv(i,2) = 1;
           badEv(i,1) = 1;
+          setTheseArt = theseArt(foundArtEv(rCount,:));
+          for a = 1:length(setTheseArt)
+            artfctdefEv.(setTheseArt{a})(i) = true;
+          end
         end
       end
     end
     if ~isempty(theseArt)
-      if ~exist('artfctdef','var')
-        artfctdef = cfg_manArt.artfctdef;
+      if isempty(artfctdefSamp)
+        artfctdefSamp = cfg.artfctdef;
       else
         for i = 1:length(theseArt)
-          if isfield(artfctdef,theseArt{i})
-            artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+          if isfield(artfctdefSamp,theseArt{i})
+            artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
           else
-            artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+            artfctdefSamp.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
           end
         end
       end
     end
   else
-    badEv = autoEv;
-    artfctdef = cfg.artfctdef;
+    badEv = logical(sum(foundArtEv,2));
+    artfctdefSamp = cfg.artfctdef;
+    for a = 1:length(theseArt)
+      artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+    end
   end
   
   cfg.artfctdef.reject = ana.artifact.reject;
@@ -2245,15 +2291,15 @@ if rejArt_ftICA
       
       cfg_manArt = [];
       if ana.artifact.basic_art_postICA
-        cfg_manArt.artfctdef.basic.artifact = artifact_basic;
+        cfg_manArt.artfctdef.basic_ftICA.artifact = artifact_basic;
       end
       %cfg_manArt.artfctdef.muscle.artifact = artifact_muscle;
       if ana.artifact.jump_art_postICA
-        cfg_manArt.artfctdef.jump.artifact = artifact_jump;
+        cfg_manArt.artfctdef.jump_ftICA.artifact = artifact_jump;
       end
       if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.sfp')
         if ana.artifact.thresh_postICA
-          cfg_manArt.artfctdef.threshold.artifact = artifact_thresh;
+          cfg_manArt.artfctdef.threshold_ftICA.artifact = artifact_thresh;
         end
       end
       
@@ -2307,48 +2353,46 @@ if rejArt_ftICA
   end
   
   % initialize to store whether there was an artifact for each trial
-  if ~exist('badEv','var') || isempty(badEv)
+  if isempty(badEv)
     combineArtLists = false;
     %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
-    badEv = zeros(size(data.sampleinfo,1), 1);
+    badEv = false(size(data.sampleinfo,1), 1);
   else
     combineArtLists = true;
   end
-  postIcaEv = zeros(size(data.sampleinfo,1), 1);
-  
-  %   % debug
-  %   % is size(data.sampleinfo,1) == size(postIcaEv,1)
-  %   % is size(badEv(badEv == 0),1) == size(postIcaEv,1)
-  %   % is size(badEv(badEv == 0),1) == size(data.sampleinfo,1)
-  %   %
-  %   % these should be the same size
-  %   if size(badEv(badEv == 0),1) ~= size(data.sampleinfo,1)
-  %     keyboard
-  %   end
   
   % find out what kind of artifacts we're dealing with
+  fn = fieldnames(cfg_manArt.artfctdef);
   theseArt = {};
-  if isfield(cfg_manArt,'artfctdef')
-    fn = fieldnames(cfg_manArt.artfctdef);
-    for i = 1:length(fn)
-      if isstruct(cfg_manArt.artfctdef.(fn{i})) && isfield(cfg_manArt.artfctdef.(fn{i}),'artifact') && ~isempty(cfg_manArt.artfctdef.(fn{i}).artifact)
-        theseArt = cat(2,theseArt,fn{i});
+  for i = 1:length(fn)
+    if isstruct(cfg_manArt.artfctdef.(fn{i})) && isfield(cfg_manArt.artfctdef.(fn{i}),'artifact') && ~isempty(cfg_manArt.artfctdef.(fn{i}).artifact)
+      theseArt = cat(2,theseArt,fn{i});
+      if ~ismember(fn{i},artfctdefEv.types)
+        artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+      else
+        warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+        keyboard
       end
+      artfctdefEv.(fn{i}) = false(size(badEv));
     end
   end
+  
+  % store artifacts for the only events we are checking
+  foundArtEv = false(size(data.sampleinfo,1),length(theseArt));
+  
   % find out which samples were marked as artifacts
   if ~isempty(theseArt)
-    artSamp = single(zeros(max(data.sampleinfo(:)),1));
+    artSamp = false(max(data.sampleinfo(:)),length(theseArt));
     for i = 1:length(theseArt)
       for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
         % mark that it was a particular type of artifact
-        artSamp(cfg_manArt.artfctdef.(theseArt{i}).artifact(j,1):cfg_manArt.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+        artSamp(cfg_manArt.artfctdef.(theseArt{i}).artifact(j,1):cfg_manArt.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
       end
     end
     % save a list of trials with artifact status
     for k = 1:size(data.sampleinfo,1)
-      if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
-        postIcaEv(k,1) = 1;
+      if any(any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1),2)
+        foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
   end
@@ -2360,29 +2404,35 @@ if rejArt_ftICA
       %if badEv(i,2) == 0
       if badEv(i,1) == 0
         rCount = rCount + 1;
-        %if postIcaEv(rCount,2) == 1
-        if postIcaEv(rCount) == 1
+        if any(foundArtEv(rCount,:))
           %badEv(i,2) = 1;
           badEv(i,1) = 1;
+          setTheseArt = theseArt(foundArtEv(rCount,:));
+          for a = 1:length(setTheseArt)
+            artfctdefEv.(setTheseArt{a})(i) = true;
+          end
         end
       end
     end
     if ~isempty(theseArt)
-      if ~exist('artfctdef','var')
-        artfctdef = cfg_manArt.artfctdef;
+      if isempty(artfctdefSamp)
+        artfctdefSamp = cfg_manArt.artfctdef;
       else
         for i = 1:length(theseArt)
-          if isfield(artfctdef,theseArt{i})
-            artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
+          if isfield(artfctdefSamp,theseArt{i})
+            artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
           else
-            artfctdef.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
+            artfctdefSamp.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
           end
         end
       end
     end
   else
-    badEv = postIcaEv;
-    artfctdef = cfg_manArt.artfctdef;
+    badEv = logical(sum(foundArtEv,2));
+    artfctdefSamp = cfg_manArt.artfctdef;
+    for a = 1:length(theseArt)
+      artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+    end
   end
   
   % reject the artifacts (complete or parial rejection)
@@ -2464,12 +2514,8 @@ end
 
 %% finish up
 
-if ~exist('badEv','var') || isempty(badEv)
-  badEv = zeros(size(data.sampleinfo,1), 1);
-end
-
-if ~exist('artfctdef','var')
-  artfctdef = [];
+if isempty(badEv)
+  badEv = false(size(data.sampleinfo,1), 1);
 end
 
 end

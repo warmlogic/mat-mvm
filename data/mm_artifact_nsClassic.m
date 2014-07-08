@@ -1,6 +1,6 @@
-function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+function [data,fullyRepairChan_str,badEv,artfctdefSamp,artfctdefEv] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefSamp,artfctdefEv)
 
-% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+% function [data,fullyRepairChan_str,badEv,artfctdefSamp,artfctdefEv] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefSamp,artfctdefEv)
 %
 % Simulate Net Station's Artifact Detection Classic
 %
@@ -399,14 +399,13 @@ if ~ana.artifact.allowBadNeighborChan
 end
 
 % initialize to store whether there was an artifact for each trial
-if ~exist('badEv','var') || isempty(badEv)
+if isempty(badEv)
   combineArtLists = false;
   %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
-  badEv = zeros(size(data.sampleinfo,1), 1);
+  badEv = false(size(data.sampleinfo,1), 1);
 else
   combineArtLists = true;
 end
-manualEv = zeros(size(data.sampleinfo,1), 1);
 
 % find out what kind of artifacts we're dealing with
 fn = fieldnames(cfg.artfctdef);
@@ -414,21 +413,32 @@ theseArt = {};
 for i = 1:length(fn)
   if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
     theseArt = cat(2,theseArt,fn{i});
+    if ~ismember(fn{i},artfctdefEv.types)
+      artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+    else
+      warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+      keyboard
+    end
+    artfctdefEv.(fn{i}) = false(size(badEv));
   end
 end
+
+% store artifacts for the only events we are checking
+foundArtEv = false(size(data.sampleinfo,1),length(theseArt));
+
 % find out which samples were marked as artifacts
 if ~isempty(theseArt)
-  artSamp = single(zeros(max(data.sampleinfo(:)),1));
+  artSamp = false(max(data.sampleinfo(:)),length(theseArt));
   for i = 1:length(theseArt)
     for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
       % mark that it was a particular type of artifact
-      artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+      artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
     end
   end
   % save a list of trials with artifact status
   for k = 1:size(data.sampleinfo,1)
-    if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
-      manualEv(k,1) = 1;
+    if any(any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1),2)
+      foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
     end
   end
 end
@@ -440,29 +450,35 @@ if combineArtLists
     %if badEv(i,2) == 0
     if badEv(i,1) == 0
       rCount = rCount + 1;
-      %if manualEv(rCount,2) == 1
-      if manualEv(rCount) == 1
+      if any(foundArtEv(rCount,:))
         %badEv(i,2) = 1;
         badEv(i,1) = 1;
+        setTheseArt = theseArt(foundArtEv(rCount,:));
+        for a = 1:length(setTheseArt)
+          artfctdefEv.(setTheseArt{a})(i) = true;
+        end
       end
     end
   end
   if ~isempty(theseArt)
-    if ~exist('artfctdef','var')
-      artfctdef = cfg.artfctdef;
+    if isempty(artfctdefSamp)
+      artfctdefSamp = cfg.artfctdef;
     else
       for i = 1:length(theseArt)
-        if isfield(artfctdef,theseArt{i})
-          artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+        if isfield(artfctdefSamp,theseArt{i})
+          artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
         else
-          artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+          artfctdefSamp.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
         end
       end
     end
   end
 else
-  badEv = manualEv;
-  artfctdef = cfg.artfctdef;
+  badEv = logical(sum(foundArtEv,2));
+  artfctdefSamp = cfg.artfctdef;
+  for a = 1:length(theseArt)
+    artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+  end
 end
 
 data = ft_rejectartifact(cfg, data);
