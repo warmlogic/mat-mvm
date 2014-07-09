@@ -156,11 +156,11 @@ for sub = 1:length(exper.subjects)
                     totalArtCount = [];
                     for at = 1:length(artTypes)
                       exper.artifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
-                      totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at})(cfg_allEv.trials));
+                      totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                       % % the below sum method does not take into account
                       % % that one trial can be marked for different kinds of
                       % % artifacts
-                      % exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at})(cfg_allEv.trials));
+                      % exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                     end
                     exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(sign(sum(totalArtCount,2)));
                   end
@@ -242,11 +242,11 @@ for sub = 1:length(exper.subjects)
                   totalArtCount = [];
                   for at = 1:length(artTypes)
                     exper.artifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
-                    totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at})(cfg_allEv.trials));
+                    totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                     % % the below sum method does not take into account
                     % % that one trial can be marked for different kinds of
                     % % artifacts
-                    % exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at})(cfg_allEv.trials));
+                    % exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                   end
                   exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(sign(sum(totalArtCount,2)));
                 end
