@@ -7,7 +7,9 @@ function [ft_raw,badChanAllSes,badEvEvVals,artifacts,trialinfo_allEv] = seg2ft(d
 %   ft_raw  = struct with one field for each event value
 %   badChan = bad channel information
 %   badEv   = bad event information
-%   artfctdef= artifact information
+%   artifacts = artifact information
+%   trialinfo_allEv = full set of trialinfo, includes trials rejected for
+%                     artifacts
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP:
