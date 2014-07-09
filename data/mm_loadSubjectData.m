@@ -113,6 +113,9 @@ for sub = 1:length(exper.subjects)
                   fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
                   
                   expr = ana.trl_expr{ses}{evVal}{es};
+                  if isfield(exper,'trialinfo_allEv')
+                    expr_allEv = ana.trl_expr{ses}{evVal}{es};
+                  end
                   
                   for to = 1:length(trl_order)
                     % replace the field name in the logical expression
@@ -124,18 +127,36 @@ for sub = 1:length(exper.subjects)
                     
                     % set up the string to be replaced
                     r_exp = ['\<' trl_order{to} '\>'];
+                    
                     % set up the replacement string
                     r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
-                    
                     expr = regexprep(expr,r_exp,r_str);
+                    
+                    if isfield(exper,'trialinfo_allEv')
+                      % set up the replacement string
+                      r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, eventValues{ses}{evVal}, sub, fieldNum);
+                      expr_allEv = regexprep(expr_allEv,r_exp,r_str_allEv);
+                    end
                   end
                   
                   cfg_fd = [];
                   cfg_fd.trials = eval(expr);
                   cfg_fd.keeptrials = 'no';
                   data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                  
                   % put in the trial counts
                   exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg_fd.trials);
+                  
+                  % put in the artifact counts
+                  if isfield(exper,'artifacts')
+                    cfg_allEv = [];
+                    cfg_allEv.trials = eval(expr_allEv);
+                    theseArt = exper.artifacts.(sesStr).(eventValues{ses}{evVal}){sub};
+                    artTypes = fieldnames(theseArt);
+                    for at = 1:length(artTypes)
+                      exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at})(cfg_allEv.trials));
+                    end
+                  end
                 end % es
               end
               
@@ -160,6 +181,9 @@ for sub = 1:length(exper.subjects)
                 fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
                 
                 expr = ana.trl_expr{ses}{evVal}{es};
+                if isfield(exper,'trialinfo_allEv')
+                  expr_allEv = ana.trl_expr{ses}{evVal}{es};
+                end
                 
                 for to = 1:length(trl_order)
                   % replace the field name in the logical expression
@@ -171,10 +195,16 @@ for sub = 1:length(exper.subjects)
                   
                   % set up the string to be replaced
                   r_exp = ['\<' trl_order{to} '\>'];
+                  
                   % set up the replacement string
                   r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
-                  
                   expr = regexprep(expr,r_exp,r_str);
+                  
+                  if isfield(exper,'trialinfo_allEv')
+                    % set up the replacement string
+                    r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, eventValues{ses}{evVal}, sub, fieldNum);
+                    expr_allEv = regexprep(expr_allEv,r_exp,r_str_allEv);
+                  end
                 end
                 
                 cfg = [];
@@ -195,6 +225,17 @@ for sub = 1:length(exper.subjects)
                 
                 % put in the trial counts
                 exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg.trials);
+                
+                % put in the artifact counts
+                if isfield(exper,'artifacts')
+                  cfg_allEv = [];
+                  cfg_allEv.trials = eval(expr_allEv);
+                  theseArt = exper.artifacts.(sesStr).(eventValues{ses}{evVal}){sub};
+                  artTypes = fieldnames(theseArt);
+                  for at = 1:length(artTypes)
+                    exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at})(cfg_allEv.trials));
+                  end
+                end
               end % es
               
             end % loadMethod
