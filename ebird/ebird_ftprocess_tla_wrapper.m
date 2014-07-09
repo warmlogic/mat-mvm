@@ -253,7 +253,7 @@ ana.artifact.eog_art = false;
 ana.ftFxn = 'ft_timelockanalysis';
 % ftype is a string used in naming the saved files (data_FTYPE_EVENT.mat)
 ana.ftype = 'tla';
-ana.overwrite.raw = 1;
+ana.overwrite.raw = 0;
 ana.overwrite.proc = 1;
 
 % any preprocessing? (run after processing artifacts)
