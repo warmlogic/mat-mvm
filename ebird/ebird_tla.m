@@ -2,8 +2,8 @@
 
 expName = 'EBIRD';
 
-% subDir = '';
-subDir = 'new_art';
+subDir = '';
+% subDir = 'new_art500';
 if ~isempty(subDir)
   warning('Loading data from subDir ''%s''...',subDir);
 end
@@ -41,29 +41,29 @@ subjects = {
   'EBIRD005';
   %'EBIRD006'; % DNF. Dropout. Last session: 2.
   'EBIRD007';
-  'EBIRD008';
-  'EBIRD009';
-  'EBIRD010';
-  'EBIRD011';
-  'EBIRD012';
-  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-  %'EBIRD014'; % DNF. Rejected. Last session: 1.
-  %'EBIRD015'; % DNF. Lost in HD crash.
-  %'EBIRD016'; % DNF. Lost in HD crash.
-  %'EBIRD017'; % DNF. Lost in HD crash.
-  'EBIRD018';
-  'EBIRD019';
-  'EBIRD020';
-  'EBIRD021';
-  %'EBIRD022'; % DNF. Dropout. Last session: 8.
-  %'EBIRD023'; % DNF. Dropout. Last session: 1.
-  'EBIRD024';
-  'EBIRD025';
-  'EBIRD027';
-  'EBIRD029';
-  'EBIRD032';
-  'EBIRD034';
-  'EBIRD042';
+%   'EBIRD008';
+%   'EBIRD009';
+%   'EBIRD010';
+%   'EBIRD011';
+%   'EBIRD012';
+%   %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
+%   %'EBIRD014'; % DNF. Rejected. Last session: 1.
+%   %'EBIRD015'; % DNF. Lost in HD crash.
+%   %'EBIRD016'; % DNF. Lost in HD crash.
+%   %'EBIRD017'; % DNF. Lost in HD crash.
+%   'EBIRD018';
+%   'EBIRD019';
+%   'EBIRD020';
+%   'EBIRD021';
+%   %'EBIRD022'; % DNF. Dropout. Last session: 8.
+%   %'EBIRD023'; % DNF. Dropout. Last session: 1.
+%   'EBIRD024';
+%   'EBIRD025';
+%   'EBIRD027';
+%   'EBIRD029';
+%   'EBIRD032';
+%   'EBIRD034';
+%   'EBIRD042';
   };
 
 % only one cell, with all session names
