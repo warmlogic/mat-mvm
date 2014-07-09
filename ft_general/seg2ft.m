@@ -618,7 +618,6 @@ for ses = 1:length(session)
   
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
-    artifacts = [];
   else
     [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
@@ -687,16 +686,22 @@ end
 ft_raw = struct;
 
 badEvEvVals = struct;
-artifacts = struct;
-artTypes = fieldnames(artfctdefEvAllSes);
-artTypes = artTypes(~ismember(artTypes,'types'));
-trialinfo_allEv = struct;
+artifacts = [];
+if rejArt
+  artTypes = fieldnames(artfctdefEvAllSes);
+  artTypes = artTypes(~ismember(artTypes,'types'));
+end
+trialinfo_allEv = [];
 
 for evVal = 1:length(eventValue)
   badEvEvVals.(eventValue{evVal}) = [];
-  trialinfo_allEv.(eventValue{evVal}) = [];
-  for at = 1:length(artTypes)
-    artifacts.(eventValue{evVal}).(artTypes{at}) = [];
+  if ana.useExpInfo
+    trialinfo_allEv.(eventValue{evVal}) = [];
+  end
+  if rejArt
+    for at = 1:length(artTypes)
+      artifacts.(eventValue{evVal}).(artTypes{at}) = [];
+    end
   end
 end
 
