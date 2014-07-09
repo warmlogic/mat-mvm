@@ -820,7 +820,10 @@ sesNames_all = exper.sesNames;
 
 %% stats
 
-nTrialThresh = 8;
+nTrialThresh = 8; % 31
+% nTrialThresh = 14; % 30
+% nTrialThresh = 16; % 28
+% nTrialThresh = 17; % 24
 
 plotit = false;
 
@@ -875,7 +878,8 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 0.5; 0.5 1.0; ...
 %   0.3 0.8; ...
 %   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-%   0 0.8; 0.1 0.9; 0.2 1.0];
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
 % latInd = [1:5];
@@ -894,6 +898,11 @@ latInd = [13:14];
 
 % % 0 to 1 in 800 ms chunks
 % latInd = [21:23];
+
+% % 0 to 1
+% latInd = 24;
+
+% =================================================
 
 spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
@@ -919,20 +928,24 @@ end
 variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
-fprintf('Collecting ANOVA data for:\n\t');
+ses=1;
+nSub = sum(passTrlThresh(:,ses));
+anovaData = nan(nSub,prod(nVariables));
+rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
+
+fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{2});
 fprintf('%s (%s),',latStr,factorNames{3});
-fprintf('\n\tROI: %s, Freq: %s...',roi_str,freq_str);
-
-anovaData = nan(length(exper.subjects),prod(nVariables));
-rmaov_data_teg = nan(length(exper.subjects)*prod(nVariables),length(factorNames) + 2);
+fprintf('\n\tROI: %s, Freq: %s, Eig: %s, Sim: %s...',roi_str,freq_str,eig_criterion,sim_method);
 
 lnDone = false;
 vnDone = false;
+subCount = 0;
 rmCount = 0;
 for sub = 1:length(exper.subjects)
   if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
+    subCount = subCount + 1;
     for ses = 1:length(exper.sesStr)
       lnCount = 0;
       vnCount = 0;
@@ -954,7 +967,7 @@ for sub = 1:length(exper.subjects)
               variableNames{vnCount} = sprintf('Y%d',vnCount);
             end
             
-            anovaData(sub,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
+            anovaData(subCount,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
             
             rmCount = rmCount + 1;
             rmaov_data_teg(rmCount,:) = [mean_similarity.(cond_str)(sub,ses,latInd(lat)) sp mc lat sub];

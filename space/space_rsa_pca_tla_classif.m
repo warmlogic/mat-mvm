@@ -656,15 +656,18 @@ fprintf('Done.\n');
 
 % analysisDate = '13-Jun-2014';
 
-analysisDate = '01-Jul-2014';
-thisROI = {'center109'};
+% analysisDate = '01-Jul-2014';
+% thisROI = {'center109'};
 
-% analysisDate = '06-Jul-2014';
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+analysisDate = '06-Jul-2014';
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 
 % analysisDate = '07-Jul-2014';
 % thisROI = {'LT','RT'};
+
+% analysisDate = '08-Jul-2014';
+% thisROI = {'center109'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -698,8 +701,8 @@ else
   classif_str = 'noClassif';
 end
 
-eig_criterion = 'CV85';
-% eig_criterion = 'kaiser';
+% eig_criterion = 'CV85';
+eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
@@ -714,7 +717,10 @@ end
 
 %% stats
 
-nTrialThresh = 8;
+% nTrialThresh = 8; % 31
+% nTrialThresh = 14; % 30
+% nTrialThresh = 16; % 28
+nTrialThresh = 17; % 24
 
 plotit = false;
 
@@ -767,7 +773,8 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 0.5; 0.5 1.0; ...
 %   0.3 0.8; ...
 %   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-%   0 0.8; 0.1 0.9; 0.2 1.0];
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
 % latInd = [1:5];
@@ -786,6 +793,11 @@ latInd = [13:14];
 
 % % 0 to 1 in 800 ms chunks
 % latInd = [21:23];
+
+% % 0 to 1
+% latInd = 24;
+
+% =================================================
 
 spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
@@ -811,20 +823,24 @@ end
 variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
-fprintf('Collecting ANOVA data for:\n\t');
+ses=1;
+nSub = sum(passTrlThresh(:,ses));
+anovaData = nan(nSub,prod(nVariables));
+rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
+
+fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{2});
 fprintf('%s (%s),',latStr,factorNames{3});
-fprintf('\n\tROI: %s...',roi_str);
-
-anovaData = nan(length(exper.subjects),prod(nVariables));
-rmaov_data_teg = nan(length(exper.subjects)*prod(nVariables),length(factorNames) + 2);
+fprintf('\n\tROI: %s, Eig: %s, Sim: %s...',roi_str,eig_criterion,sim_method);
 
 lnDone = false;
 vnDone = false;
+subCount = 0;
 rmCount = 0;
 for sub = 1:length(exper.subjects)
   if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
+    subCount = subCount + 1;
     for ses = 1:length(exper.sesStr)
       lnCount = 0;
       vnCount = 0;
@@ -846,7 +862,7 @@ for sub = 1:length(exper.subjects)
               variableNames{vnCount} = sprintf('Y%d',vnCount);
             end
             
-            anovaData(sub,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
+            anovaData(subCount,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
             
             rmCount = rmCount + 1;
             rmaov_data_teg(rmCount,:) = [mean_similarity.(cond_str)(sub,ses,latInd(lat)) sp mc lat sub];
@@ -1048,76 +1064,76 @@ publishfig(gcf,0,[],[],[]);
 
 % print(gcf,'-depsc2','~/Desktop/similarity_spacXtime.eps');
 
-%% RMANOVA - no time dimension
-
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-%   0 0.3; 0.3 0.6; 0.6 0.9; ...
-%   0 0.5; 0.5 1.0; ...
-%   0.3 0.8; ...
-%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-%   0 0.8; 0.1 0.9; 0.2 1.0];
-
-% 0-0.5
-% lat = 13;
-% % 0.5-1.0
-% lat = 14;
-
-% % 0.3-0.8
-% lat = 15;
-
-% % 0-0.6
-% lat = 16;
-% % 0.1-0.7 ***
-% lat = 17;
-% % 0.2-0.8 ***
-% lat = 18;
-% % 0.3-0.9
-% lat = 19;
-% % 0.4-1.0 **
-% lat = 20;
-
-% % 0-0.8
-% lat = 21;
-% % 0.1-0.9
-% lat = 22;
-% % 0.2-1.0
-% lat = 23;
-
-% % 0-1.0
-% lat = 24;
-
-fprintf('=======================================\n');
-fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
-
-anovaData = [];
-
-for sub = 1:length(exper.subjects)
-  if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
-%   if all(noNans(sub,:))
-    for ses = 1:length(exper.sesStr)
-      theseData = [];
-      
-      for d = 1:length(dataTypes)
-          theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
-      end
-    end
-    anovaData = cat(1,anovaData,theseData);
-  end
-end
-
-% no time dimension
-
-% varnames = {'stimType','subseqMem','spacing'};
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
-% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
-
-varnames = {'subseqMem','spacing'};
-levelnames = {{'rc', 'fo'}, {'spac','mass'}};
-O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
-
-fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
-fprintf('=======================================\n\n');
+% %% RMANOVA - no time dimension
+% 
+% % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+% %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% 
+% % latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+% %   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+% %   0 0.3; 0.3 0.6; 0.6 0.9; ...
+% %   0 0.5; 0.5 1.0; ...
+% %   0.3 0.8; ...
+% %   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+% %   0 0.8; 0.1 0.9; 0.2 1.0];
+% 
+% % 0-0.5
+% % lat = 13;
+% % % 0.5-1.0
+% % lat = 14;
+% 
+% % % 0.3-0.8
+% % lat = 15;
+% 
+% % % 0-0.6
+% % lat = 16;
+% % % 0.1-0.7 ***
+% % lat = 17;
+% % % 0.2-0.8 ***
+% % lat = 18;
+% % % 0.3-0.9
+% % lat = 19;
+% % % 0.4-1.0 **
+% % lat = 20;
+% 
+% % % 0-0.8
+% % lat = 21;
+% % % 0.1-0.9
+% % lat = 22;
+% % % 0.2-1.0
+% % lat = 23;
+% 
+% % % 0-1.0
+% % lat = 24;
+% 
+% fprintf('=======================================\n');
+% fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
+% 
+% anovaData = [];
+% 
+% for sub = 1:length(exper.subjects)
+%   if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
+% %   if all(noNans(sub,:))
+%     for ses = 1:length(exper.sesStr)
+%       theseData = [];
+%       
+%       for d = 1:length(dataTypes)
+%           theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
+%       end
+%     end
+%     anovaData = cat(1,anovaData,theseData);
+%   end
+% end
+% 
+% % no time dimension
+% 
+% % varnames = {'stimType','subseqMem','spacing'};
+% % levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
+% % O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
+% 
+% varnames = {'subseqMem','spacing'};
+% levelnames = {{'rc', 'fo'}, {'spac','mass'}};
+% O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
+% 
+% fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
+% fprintf('=======================================\n\n');
