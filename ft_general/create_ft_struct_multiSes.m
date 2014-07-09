@@ -404,6 +404,7 @@ for ses = 1:length(exper.sessions)
     for evVal = 1:length(sesEvValues)
       exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
       exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
+      exper.artifacts.(sesStr).(sesEvValues{evVal}) = exper.artifacts.(sesStr).(sesEvValues{evVal})(sub);
     end
     %fn = fieldnames(exper.nTrials);
     %for f = 1:length(fn)
