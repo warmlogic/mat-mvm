@@ -253,8 +253,13 @@ for ses = 1:length(exper.sessions)
   for evVal = 1:length(exper.eventValues{ses})
     exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
     exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
-    exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
-    exper.trialinfo_allEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+    if ~ismember('none',ana.artifact.type)
+      %exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+      exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}) = [];
+    end
+    if ana.useExpInfo
+      exper.trialinfo_allEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+    end
   end
   
   for sub = 1:length(exper.subjects)
@@ -347,11 +352,17 @@ for ses = 1:length(exper.sessions)
       
       if size(ft_raw.(eventVal).trial,2) > 0
         % store the number of trials for this event value
-        %exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
         exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
         exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
-        exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}){sub} = artifacts.(exper.eventValues{ses}{evVal});
-        exper.trialinfo_allEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = trialinfo_allEv.(exper.eventValues{ses}{evVal});
+        if ~isempty(artifacts)
+          artTypes = fieldnames(artifacts.(exper.eventValues{ses}{evVal}));
+          for at = 1:length(artTypes)
+            exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}).(artTypes{at}){sub} = artifacts.(exper.eventValues{ses}{evVal}).(artTypes{at});
+          end
+        end
+        if ana.useExpInfo && ~isempty(trialinfo_allEv)
+          exper.trialinfo_allEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = trialinfo_allEv.(exper.eventValues{ses}{evVal});
+        end
         
         % set outputfile so the raw data is saved; especially useful for
         % implementing analyses with the peer toolbox
@@ -402,12 +413,19 @@ for ses = 1:length(exper.sessions)
     %exper.eventValues = exper.eventValues(ses);
     %exper.prepost = exper.prepost(ses);
     %exper.sesStr = {sesStr};
-    exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
+    exper.badChan.(sesStr) = exper_orig.badChan.(sesStr)(sub);
     for evVal = 1:length(sesEvValues)
-      exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
-      exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
-      exper.artifacts.(sesStr).(sesEvValues{evVal}) = exper.artifacts.(sesStr).(sesEvValues{evVal})(sub);
-      exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal}) = exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal})(sub);
+      exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper_orig.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+      exper.badEv.(sesStr).(sesEvValues{evVal}) = exper_orig.badEv.(sesStr).(sesEvValues{evVal})(sub);
+      if ~isempty(artifacts)
+        artTypes = fieldnames(exper_orig.artifacts.(sesStr).(sesEvValues{evVal}));
+        for at = 1:length(artTypes)
+          exper.artifacts.(sesStr).(sesEvValues{evVal}).(artTypes{at}) = exper_orig.artifacts.(sesStr).(sesEvValues{evVal}).(artTypes{at})(sub);
+        end
+      end
+      if ana.useExpInfo && ~isempty(trialinfo_allEv)
+        exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal}) = exper_orig.trialinfo_allEv.(sesStr).(sesEvValues{evVal})(sub);
+      end
     end
     %fn = fieldnames(exper.nTrials);
     %for f = 1:length(fn)
