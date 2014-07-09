@@ -257,6 +257,7 @@ for ses = 1:length(exper.sessions)
     exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
     exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
     exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+    exper.trialinfo_allEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
   end
   
   for sub = 1:length(exper.subjects)
@@ -305,7 +306,7 @@ for ses = 1:length(exper.sessions)
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan,badEv,artifacts] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
+      [ft_raw,badChan,badEv,artifacts,trialinfo_allEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -353,6 +354,7 @@ for ses = 1:length(exper.sessions)
         exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
         exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
         exper.artifacts.(sesStr).(exper.eventValues{ses}{evVal}){sub} = artifacts.(exper.eventValues{ses}{evVal});
+        exper.trialinfo_allEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = trialinfo_allEv.(exper.eventValues{ses}{evVal});
         
         % set outputfile so the raw data is saved; especially useful for
         % implementing analyses with the peer toolbox
@@ -407,6 +409,8 @@ for ses = 1:length(exper.sessions)
     for evVal = 1:length(sesEvValues)
       exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
       exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
+      exper.artifacts.(sesStr).(sesEvValues{evVal}) = exper.artifacts.(sesStr).(sesEvValues{evVal})(sub);
+      exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal}) = exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal})(sub);
     end
     %fn = fieldnames(exper.nTrials);
     %for f = 1:length(fn)

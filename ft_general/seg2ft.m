@@ -1,7 +1,7 @@
-function [ft_raw,badChanAllSes,badEvEvVals,artifacts] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals,artifacts,trialinfo_allEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv,artifacts] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv,artifacts,trialinfo_allEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
@@ -188,7 +188,7 @@ badEvAllSes = [];
 
 %% for each session, read in the EEG file
 
-% initialize to save event numbers
+% initialize to save all trial metadata
 allTrialinfo = [];
 
 % event number column comes from the trialfun function when the trl gets
@@ -455,7 +455,7 @@ for ses = 1:length(session)
   end
   
   % collect the event type numbers
-  allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo(:,trialinfo_eventNumCol));
+  allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo);
   
   % hack: renumber samples so they don't overlap, or throw an error
   overlap = false;
@@ -688,9 +688,11 @@ badEvEvVals = struct;
 artifacts = struct;
 artTypes = fieldnames(artfctdefEvAllSes);
 artTypes = artTypes(~ismember(artTypes,'types'));
+trialinfo_allEv = struct;
 
 for evVal = 1:length(eventValue)
   badEvEvVals.(eventValue{evVal}) = [];
+  trialinfo_allEv.(eventValue{evVal}) = [];
   for at = 1:length(artTypes)
     artifacts.(eventValue{evVal}).(artTypes{at}) = [];
   end
@@ -711,12 +713,12 @@ for evVal = 1:length(eventValue)
     if rejArt
       %badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
       %badEvEvVals.(eventValue{evVal}) = badEvAllSes(cfg_split.trials);
-      badEvEvVals.(eventValue{evVal}) = badEvAllSes(allTrialinfo == evVal);
+      badEvEvVals.(eventValue{evVal}) = badEvAllSes(allTrialinfo(:,trialinfo_eventNumCol) == evVal);
       
       for at = 1:length(artTypes)
         %artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(:,trialinfo_eventNumCol) == evVal;
         %artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(cfg_split.trials);
-        artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(allTrialinfo == evVal);
+        artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(allTrialinfo(:,trialinfo_eventNumCol) == evVal);
       end
     end
     
@@ -724,6 +726,7 @@ for evVal = 1:length(eventValue)
       % remove the buffer trialinfo -1s; those were set because the cfg.trl
       % matrix needed to hold all eventValues
       ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
+      trialinfo_allEv.(eventValue{evVal}) = allTrialinfo(allTrialinfo(:,trialinfo_eventNumCol) == evVal,1:length(ana.trl_order.(eventValue{evVal})));
     end
     
     fprintf('Done.\n');
