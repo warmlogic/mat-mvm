@@ -329,15 +329,9 @@ for ses = 1:length(exper.sessions)
           
           badEv.(eventVal) = sd.exper.badEv.(sesStr).(eventVal){1};
           if isfield(sd.exper,'artifacts')
-            %artTypes = fieldnames(sd.exper.artifacts.(sesStr).(eventVal));
-            % temporary
-            artTypes = fieldnames(sd.exper.artifacts.(sesStr).(eventVal){1});
+            artTypes = fieldnames(sd.exper.artifacts.(sesStr).(eventVal));
             for at = 1:length(artTypes)
-              % real thing
-              %artifacts.(eventVal).(artTypes{at}) = sd.exper.artifacts.(sesStr).(eventVal).(artTypes{at}){1};
-              
-              % temporary hack - cluster
-              artifacts.(eventVal).(artTypes{at}) = sd.exper.artifacts.(sesStr).(eventVal){1}.(artTypes{at});
+              artifacts.(eventVal).(artTypes{at}) = sd.exper.artifacts.(sesStr).(eventVal).(artTypes{at}){1};
             end
           end
           if ana.useExpInfo
