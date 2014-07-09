@@ -655,15 +655,16 @@ fprintf('Done.\n');
 %% load
 
 % analysisDate = '13-Jun-2014';
-% analysisDate = '01-Jul-2014';
-% analysisDate = '06-Jul-2014';
 
-% thisROI = {'center109'};
+analysisDate = '01-Jul-2014';
+thisROI = {'center109'};
+
+% analysisDate = '06-Jul-2014';
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 
-analysisDate = '07-Jul-2014';
-thisROI = {'LT','RT'};
+% analysisDate = '07-Jul-2014';
+% thisROI = {'LT','RT'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -697,8 +698,8 @@ else
   classif_str = 'noClassif';
 end
 
-% eig_criterion = 'CV85';
-eig_criterion = 'kaiser';
+eig_criterion = 'CV85';
+% eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
 saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
