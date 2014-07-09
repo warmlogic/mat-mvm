@@ -57,8 +57,8 @@ analysisDate = '07-Jul-2014';
 % origDataType = 'tla';
 origDataType = 'hilbert';
 
-% avgovertime = 'yes';
-avgovertime = 'no';
+avgovertime = 'yes';
+% avgovertime = 'no';
 
 % accurateClassifSelect = true;
 accurateClassifSelect = false;
