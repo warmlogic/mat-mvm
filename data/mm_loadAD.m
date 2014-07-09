@@ -175,7 +175,10 @@ for ses = 1:length(sesStr)
           exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
         end
         if isfield(sd.exper,'trialinfo_allEv')
-          exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+          artTypes = fieldnames(exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          for at = 1:length(artTypes)
+            exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = sd.exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at})(sub);
+          end
         end
       end
       
@@ -200,7 +203,10 @@ if length(subjects) > 1
           exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
           exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
           if isfield(sd.exper,'artifacts')
-            exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+            artTypes = fieldnames(exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+            for at = 1:length(artTypes)
+              exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = cat(1,exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}),sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}));
+            end
           end
           if isfield(sd.exper,'trialinfo_allEv')
             exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
