@@ -538,7 +538,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
   fn = fieldnames(cfg.artfctdef);
   theseArt = {};
   for i = 1:length(fn)
-    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact')
       theseArt = cat(2,theseArt,fn{i});
       if ~ismember(fn{i},artfctdefEv.types)
         artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
@@ -1669,7 +1669,7 @@ if rejArt_ftAuto
   fn = fieldnames(cfg.artfctdef);
   theseArt = {};
   for i = 1:length(fn)
-    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+    if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact')
       theseArt = cat(2,theseArt,fn{i});
       if ~ismember(fn{i},artfctdefEv.types)
         artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
