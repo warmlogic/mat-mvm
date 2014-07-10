@@ -717,10 +717,10 @@ end
 
 %% stats
 
-% nTrialThresh = 8; % 31
+nTrialThresh = 8; % 31
 % nTrialThresh = 14; % 30
 % nTrialThresh = 16; % 28
-nTrialThresh = 17; % 24
+% nTrialThresh = 17; % 24
 
 plotit = false;
 
@@ -982,7 +982,7 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.25 0.25]);
+ylim([-0.16 0.16]);
 
 set(gca,'XTick', [1 2]);
 
@@ -1050,7 +1050,7 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.25 0.25]);
+ylim([-0.16 0.16]);
 
 set(gca,'XTick', [1 2]);
 
