@@ -739,9 +739,12 @@ fprintf('Done.\n');
 analysisDate = '07-Jul-2014';
 
 % thisROI = {'center109'};
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-thisROI = {'LPS','RPS'};
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
+
+% analysisDate = '10-Jul-2014';
+% thisROI = {'LPI2','RPI2'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -798,10 +801,10 @@ end
 
 %% stats
 
-% nTrialThresh = 8; % 31
+nTrialThresh = 8; % 31
 % nTrialThresh = 14; % 30
 % nTrialThresh = 16; % 28
-nTrialThresh = 17; % 24
+% nTrialThresh = 17; % 24
 
 plotit = false;
 

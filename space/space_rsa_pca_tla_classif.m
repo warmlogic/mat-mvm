@@ -654,10 +654,7 @@ fprintf('Done.\n');
 
 %% load
 
-% analysisDate = '13-Jun-2014';
-
-% analysisDate = '01-Jul-2014';
-% thisROI = {'center109'};
+% analysisDate = '13-Jun-2014'; % CV85
 
 analysisDate = '06-Jul-2014';
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -668,6 +665,9 @@ thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 
 % analysisDate = '08-Jul-2014';
 % thisROI = {'center109'};
+
+% analysisDate = '10-Jul-2014';
+% thisROI = {'LPI2','RPI2'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});

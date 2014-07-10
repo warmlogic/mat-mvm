@@ -91,7 +91,8 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0]};
 
-allSimMethod = {'cosine'};
+% allSimMethod = {'cosine'};
+allSimMethod = {'correlation'};
 
 % sim_method = 'cosine';
 % sim_method = 'correlation';
