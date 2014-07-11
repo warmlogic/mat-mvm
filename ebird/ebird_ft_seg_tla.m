@@ -248,12 +248,12 @@ ana.artifact.threshmin = -200;
 ana.artifact.threshmax = 200;
 ana.artifact.threshrange = 350;
 ana.artifact.basic_art = true;
-ana.artifact.basic_art_z = 60;
+ana.artifact.basic_art_z = 70;
 ana.artifact.jump_art = true;
 ana.artifact.jump_art_z = 70;
-% eog_art is only used with ftAuto
-ana.artifact.eog_art = false;
-ana.artifact.eog_art_z = 3.5;
+% % eog_art is only used with ftAuto
+% ana.artifact.eog_art = false;
+% ana.artifact.eog_art_z = 3.5;
 
 % set up for ftICA
 ana.artifact.thresh_postICA = true;
