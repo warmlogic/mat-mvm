@@ -997,17 +997,20 @@ fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
 margmean(rm,factorNames)
 % grpstats(rm,factorNames)
 
+MODELSPEC = sprintf(repmat('*%s',1,length(factorNames)),factorNames{:});
+MODELSPEC = MODELSPEC(2:end);
+
 % Perform repeated measures analysis of variance.
 if any(nVariables) > 2
-  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel','spacings*memConds*latency')
+  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel',MODELSPEC)
   %Show epsilon values
   %I assume that HF epsilon values > 1 (in R) are truncated to 1 by epsilon.m
-  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel','spacings*memConds*latency');
+  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel',MODELSPEC);
   for cn = 1:length(C)
     tbl = epsilon(rm, C(cn))
   end
 else
-  [ranovatbl] = ranova(rm, 'WithinModel','spacings*memConds*latency')
+  [ranovatbl] = ranova(rm, 'WithinModel',MODELSPEC)
 end
 
 fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);

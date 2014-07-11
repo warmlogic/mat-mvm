@@ -654,7 +654,10 @@ fprintf('Done.\n');
 
 %% load
 
-% analysisDate = '13-Jun-2014'; % CV85
+% cosine, CV85
+% analysisDate = '13-Jun-2014';
+
+% % cosine, kaiser
 
 analysisDate = '06-Jul-2014';
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -668,6 +671,11 @@ thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 
 % analysisDate = '10-Jul-2014';
 % thisROI = {'LPI2','RPI2'};
+
+% % % correlation, kaiser
+% analysisDate = '10-Jul-2014';
+% % thisROI = {'center109'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -689,8 +697,8 @@ origDataType = 'tla';
 % avgovertime = 'yes';
 avgovertime = 'no';
 
-sim_method = 'cosine';
-% sim_method = 'correlation';
+% sim_method = 'cosine';
+sim_method = 'correlation';
 % sim_method = 'spearman';
 
 % accurateClassifSelect = true;
@@ -859,7 +867,7 @@ for sub = 1:length(exper.subjects)
             
             vnCount = vnCount + 1;
             if ~vnDone
-              variableNames{vnCount} = sprintf('Y%d',vnCount);
+              variableNames{vnCount} = sprintf('y%d',vnCount);
             end
             
             anovaData(subCount,vnCount) = mean_similarity.(cond_str)(sub,ses,latInd(lat));
@@ -911,19 +919,22 @@ fprintf('=======================================\n');
 fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
 
 margmean(rm,factorNames)
-% grpstats(rm,factorNames)
+% % grpstats(rm,factorNames)
+
+MODELSPEC = sprintf(repmat('*%s',1,length(factorNames)),factorNames{:});
+MODELSPEC = MODELSPEC(2:end);
 
 % Perform repeated measures analysis of variance.
 if any(nVariables) > 2
-  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel','spacings*memConds*latency')
+  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel',MODELSPEC)
   %Show epsilon values
   %I assume that HF epsilon values > 1 (in R) are truncated to 1 by epsilon.m
-  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel','spacings*memConds*latency');
+  [ranovatbl,A,C,D] = ranova(rm, 'WithinModel',MODELSPEC);
   for cn = 1:length(C)
     tbl = epsilon(rm, C(cn))
   end
 else
-  [ranovatbl] = ranova(rm, 'WithinModel','spacings*memConds*latency')
+  [ranovatbl] = ranova(rm, 'WithinModel',MODELSPEC)
 end
 
 fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
@@ -938,6 +949,28 @@ pairwiseComps = nchoosek(1:length(factorNames),2);
 for i = 1:size(pairwiseComps,1)
   multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
 end
+
+% % these calculate the same thing
+% manova(rm)
+% manova(rm, 'WithinModel','separatemeans')
+% 
+% % set up a specific contrast
+% manova(rm, 'WithinModel',[1 -1 0 0 0 0 0 0]')
+% 
+% % this tests the 3-way interaction
+% manova(rm, 'WithinModel',[-1 1 1 -1 1 -1 -1 1]')
+% 
+% % MODELSPEC
+% % manova(rm, 'WithinModel',sprintf('%s-%s~1',variableNames{1},variableNames{end}))
+% % tests intercept
+% manova(rm, 'WithinModel','1')
+% 
+% % manova(rm,'By','memConds') % doesn't work, between only
+% 
+% 
+% % coeftest?
+% % coeftest(rm,eye(8),[1 0 0 0 0 0 0 -1]')
+% coeftest(rm,[1 1 1 1 -1 -1 -1 -1]',[1 0 0 0 0 0 0 -1]')
 
 %% plot RSA spacing x subsequent memory interaction
 
