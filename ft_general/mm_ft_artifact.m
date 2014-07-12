@@ -534,6 +534,11 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
     combineArtLists = true;
   end
   
+  % rename the visual field
+  if isfield(cfg.artfctdef,'visual')
+    cfg.artfctdef.visual_preRejManual = cfg.artfctdef.visual;
+    cfg.artfctdef = rmfield(cfg.artfctdef,'visual');
+  end
   % find out what kind of artifacts we're dealing with
   fn = fieldnames(cfg.artfctdef);
   theseArt = {};
@@ -1269,6 +1274,11 @@ if rejArt_ftManual
     combineArtLists = true;
   end
   
+  % rename the visual field
+  if isfield(cfg_manArt.artfctdef,'visual')
+    cfg_manArt.artfctdef.visual_ftManual = cfg_manArt.artfctdef.visual;
+    cfg_manArt.artfctdef = rmfield(cfg_manArt.artfctdef,'visual');
+  end
   % find out what kind of artifacts we're dealing with
   fn = fieldnames(cfg_manArt.artfctdef);
   theseArt = {};
@@ -1665,6 +1675,11 @@ if rejArt_ftAuto
     combineArtLists = true;
   end
   
+  % rename the visual field
+  if isfield(cfg.artfctdef,'visual')
+    cfg.artfctdef.visual_ftAuto = cfg.artfctdef.visual;
+    cfg.artfctdef = rmfield(cfg.artfctdef,'visual');
+  end
   % find out what kind of artifacts we're dealing with
   fn = fieldnames(cfg.artfctdef);
   theseArt = {};
@@ -2361,6 +2376,11 @@ if rejArt_ftICA
     combineArtLists = true;
   end
   
+  % rename the visual field
+  if isfield(cfg_manArt.artfctdef,'visual')
+    cfg_manArt.artfctdef.visual_ftICA = cfg_manArt.artfctdef.visual;
+    cfg_manArt.artfctdef = rmfield(cfg_manArt.artfctdef,'visual');
+  end
   % find out what kind of artifacts we're dealing with
   fn = fieldnames(cfg_manArt.artfctdef);
   theseArt = {};
