@@ -1,7 +1,7 @@
 function [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
 %MM_FT_LOADSUBJECTDATA Load subject data into a full struct
 %
-% NB: THIS FUNCTION WILL BE REPLACED WITH MM_FT_LOADDATA
+% NB: THIS FUNCTION IS OUTDATED. USE MM_LOADSUBJECTDATA INSTEAD.
 %
 % [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,loadMethod)
 %
@@ -33,7 +33,7 @@ function [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,lo
 %   exper.eventValues = sort(exper.eventValues);
 % end
 
-
+error('use mm_loadSubjectData.m instead of this function (%s).',mfilename);
 
 %warning([mfilename,':oldFxn'],'%s will soon become an old function! Use mm_ft_loadData instead.',mfilename);
 
