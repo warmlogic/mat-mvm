@@ -10,6 +10,10 @@ function [data,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked)
 %   ana         = ana struct; contains a cell of the event values to load
 %                 (ana.eventValues)
 %
+% cfg fields:
+%   cfg.rmPreviousCfg=true; will remove data.cfg.previous with the intent
+%                           to save memory
+%
 % Output:
 %   data        = the data you requested
 %   exper       = exper struct
@@ -75,6 +79,16 @@ elseif isfield(cfg,'keeptrials')
   if ~strcmp(cfg.keeptrials,'yes') && ~strcmp(cfg.keeptrials,'no')
     error('cfg.keeptrials must be set to ''yes'' or ''no''.');
   end
+end
+
+if ~isfield(cfg,'rmPreviousCfg')
+  %warning('Upon loading of data, the data.cfg.previous field will NOT be removed! This may cause increased memory usage! See ''help %s'' for more info.',mfilename);
+  %cfg.rmPreviousCfg = false;
+  warning('Upon loading of data, the data.cfg.previous field WILL be removed to save memory! See ''help %s'' for more info.',mfilename);
+  cfg.rmPreviousCfg = true;
+end
+if ~cfg.rmPreviousCfg
+  warning('The data.cfg.previous field will NOT be removed! This may cause increased memory usage! See ''help %s'' for more info.',mfilename);
 end
 
 % % equate trial counts?
@@ -328,10 +342,99 @@ for sub = 1:length(exper.subjects)
         % rename the field to 'data'
         if length(fn) == 1
           data_fn = cell2mat(fn);
+        else
+          error('More than one field in data struct! There should only be one.\n');
+        end
+        
+        % save space by removing a potentially large 'previous' field
+        if cfg.rmPreviousCfg
+          if isfield(subSesEvData.(data_fn).cfg,'previous')
+            fprintf('Removing ''previous'' field from data.cfg\n');
+            subSesEvData.(data_fn).cfg = rmfield(subSesEvData.(data_fn).cfg,'previous');
+          end
+        end
+        
+        if strcmp(cfg.loadMethod,'seg')
+          % if we're just loading the segmented files
+          eventValue = ana.eventValues{ses}{evVal};
           
-          if strcmp(cfg.loadMethod,'seg')
-            % if we're just loading the segmented files
-            eventValue = ana.eventValues{ses}{evVal};
+          if strcmp(cfg.rmevoked,'yes') && (strcmp(cfg.rmevokedfourier,'yes') || strcmp(cfg.rmevokedpow,'yes'))
+            thisData_evoked = data_evoked.(sesStr).(eventValue).sub(sub).data;
+          else
+            thisData_evoked = [];
+          end
+          
+          data.(sesStr).(eventValue).sub(sub).data = processData(subSesEvData.(data_fn),exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
+          
+        elseif strcmp(cfg.loadMethod,'trialinfo')
+          % if we're using trialinfo loading method
+          trl_order = ana.trl_order.(ana.eventValues{ses}{evVal});
+          
+          for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+            eventValue = ana.eventValuesSplit{ses}{evVal}{es};
+            
+            fprintf('\nSelecting %s trials...\n',eventValue);
+            
+            expr = ana.trl_expr{ses}{evVal}{es};
+            
+            for to = 1:length(trl_order)
+              % replace the field name in the logical expression
+              % ana.trl_expr{ses}{es} with the column number found in
+              % ana.trl_order.(ana.eventValues{ses}{evVal})
+              
+              % find the column number
+              fieldNum = find(ismember(trl_order,trl_order{to}));
+              
+              % set up the string to be replaced
+              r_exp = ['\<' trl_order{to} '\>'];
+              % set up the replacement string
+              r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
+              
+              expr = regexprep(expr,r_exp,r_str);
+            end
+            
+            % set up data selection
+            cfg_sel = [];
+            cfg_sel.trials = eval(expr);
+            if sum(cfg_sel.trials) == 0
+              error('no trials found for this setup: %s',expr);
+            end
+            if isfield(cfg,'latency')
+              cfg_sel.latency = cfg.latency;
+            else
+              cfg_sel.latency = 'all';
+            end
+            if isfield(cfg,'frequency')
+              cfg_sel.frequency = cfg.frequency;
+            else
+              cfg_sel.frequency = 'all';
+            end
+            if isfield(cfg,'foilim')
+              cfg_sel.foilim = cfg.foilim;
+            else
+              cfg_sel.foilim = 'all';
+            end
+            if isfield(cfg,'channel')
+              cfg_sel.channel = cfg.channel;
+            else
+              cfg_sel.channel = 'all';
+            end
+            
+            % select these data - use the new selection function
+            %selData = ft_selectdata_new(cfg_sel,subSesEvData.(data_fn));
+            
+            % select these data - use the old selection function
+            if strcmp(cfg.ftype,'fourier')
+              thisParam = cfg.fourierparam;
+            elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
+              thisParam = cfg.powparam;
+            end
+            selData = ft_selectdata_old(...
+              subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
+              'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
+            
+            % put in the trial counts
+            exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_sel.trials);
             
             if strcmp(cfg.rmevoked,'yes') && (strcmp(cfg.rmevokedfourier,'yes') || strcmp(cfg.rmevokedpow,'yes'))
               thisData_evoked = data_evoked.(sesStr).(eventValue).sub(sub).data;
@@ -339,89 +442,8 @@ for sub = 1:length(exper.subjects)
               thisData_evoked = [];
             end
             
-            data.(sesStr).(eventValue).sub(sub).data = processData(subSesEvData.(data_fn),exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
-            
-          elseif strcmp(cfg.loadMethod,'trialinfo')
-            % if we're using trialinfo loading method
-            trl_order = ana.trl_order.(ana.eventValues{ses}{evVal});
-            
-            for es = 1:length(ana.eventValuesSplit{ses}{evVal})
-              eventValue = ana.eventValuesSplit{ses}{evVal}{es};
-              
-              fprintf('\nSelecting %s trials...\n',eventValue);
-              
-              expr = ana.trl_expr{ses}{evVal}{es};
-              
-              for to = 1:length(trl_order)
-                % replace the field name in the logical expression
-                % ana.trl_expr{ses}{es} with the column number found in
-                % ana.trl_order.(ana.eventValues{ses}{evVal})
-                
-                % find the column number
-                fieldNum = find(ismember(trl_order,trl_order{to}));
-                
-                % set up the string to be replaced
-                r_exp = ['\<' trl_order{to} '\>'];
-                % set up the replacement string
-                r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
-                
-                expr = regexprep(expr,r_exp,r_str);
-              end
-              
-              % set up data selection
-              cfg_sel = [];
-              cfg_sel.trials = eval(expr);
-              if sum(cfg_sel.trials) == 0
-                error('no trials found for this setup: %s',expr);
-              end
-              if isfield(cfg,'latency')
-                cfg_sel.latency = cfg.latency;
-              else
-                cfg_sel.latency = 'all';
-              end
-              if isfield(cfg,'frequency')
-                cfg_sel.frequency = cfg.frequency;
-              else
-                cfg_sel.frequency = 'all';
-              end
-              if isfield(cfg,'foilim')
-                cfg_sel.foilim = cfg.foilim;
-              else
-                cfg_sel.foilim = 'all';
-              end
-              if isfield(cfg,'channel')
-                cfg_sel.channel = cfg.channel;
-              else
-                cfg_sel.channel = 'all';
-              end
-              
-              % select these data - use the new selection function
-              %selData = ft_selectdata_new(cfg_sel,subSesEvData.(data_fn));
-              
-              % select these data - use the old selection function
-              if strcmp(cfg.ftype,'fourier')
-                thisParam = cfg.fourierparam;
-              elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
-                thisParam = cfg.powparam;
-              end
-              selData = ft_selectdata_old(...
-                subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
-                'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
-              
-              % put in the trial counts
-              exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_sel.trials);
-              
-              if strcmp(cfg.rmevoked,'yes') && (strcmp(cfg.rmevokedfourier,'yes') || strcmp(cfg.rmevokedpow,'yes'))
-                thisData_evoked = data_evoked.(sesStr).(eventValue).sub(sub).data;
-              else
-                thisData_evoked = [];
-              end
-              
-              data.(sesStr).(eventValue).sub(sub).data = processData(selData,exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
-            end % es
-          end
-        else
-          error('More than one field in data struct! There should only be one.\n');
+            data.(sesStr).(eventValue).sub(sub).data = processData(selData,exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
+          end % es
         end
         
         % % old method
