@@ -280,6 +280,8 @@ cfg.keeptrials = 'no';
 % cfg.equatetrials = 'no';
 % %cfg.equatetrials = 'yes';
 
+cfg.rmPreviousCfg = true;
+
 % type of input (used in the filename to load)
 cfg.ftype = 'pow';
 % cfg.ftype = 'fourier';

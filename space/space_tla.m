@@ -282,7 +282,7 @@ end
 % keeptrials = true;
 keeptrials = false;
 % [data_tla,exper] = mm_ft_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
-[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo');
+[data_tla,exper] = mm_loadSubjectData(exper,dirs,ana,'tla',keeptrials,'trialinfo',true);
 
 % %% get rid of the bad channels
 % 

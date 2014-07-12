@@ -133,6 +133,10 @@ if cfg.plotit
   end
 end
 
+if ~isfield(cfg,'rmPreviousCfg')
+  cfg.rmPreviousCfg = true;
+end
+
 %% Set the electrodes and times
 
 cfg_ft = [];
@@ -173,6 +177,9 @@ if length(cfg.conditions) > 1
     ga_allSub = cell(1,length(fn));
     for i = 1:length(fn)
       ga_allSub{i} = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str.(fn{i})));
+      if cfg.rmPreviousCfg
+        ga_allSub{i}.cfg = rmfield(ga_allSub{i}.cfg,'previous');
+      end
     end
     % make the grand average
     ana_str = sprintf(repmat(',ga_allSub{%d}',1,length(ga_allSub)),1:length(ga_allSub));
@@ -194,6 +201,10 @@ elseif length(cfg.conditions) == 1
     ana_str = ana_str(2:end);
     ga_allCond = eval(sprintf('ft_timelockgrandaverage([],%s);',ana_str));
   end
+end
+
+if cfg.rmPreviousCfg
+  ga_allCond.cfg = rmfield(ga_allCond.cfg,'previous');
 end
 
 %% Find the peaks
