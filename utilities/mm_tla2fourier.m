@@ -1,5 +1,11 @@
 function mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_alt)
 
+% function mm_tla2fourier(exper,dirs,cfg_ana,cfg_ft,cfg_alt)
+%
+% Take timelock data and convert it into fourier data. Can also
+% subsequently turn it into power data.
+%
+
 if nargin ~= 5
   error('Not the correct number of input arguments!');
 end
@@ -52,6 +58,16 @@ if cfg_ana.splitTrials
       cfg_ana.combineSavingLimitMB = 3000;
     end
   end
+end
+
+if ~isfield(cfg_ana,'rmPreviousCfg')
+  %warning('Upon loading of data, the data.cfg.previous field will NOT be removed! This may cause increased memory usage!');
+  %cfg_ana.rmPreviousCfg = false;
+  warning('Upon loading of data, the data.cfg.previous field WILL be removed to save memory!');
+  cfg_ana.rmPreviousCfg = true;
+end
+if ~cfg_ana.rmPreviousCfg
+  warning('The data.cfg.previous field will NOT be removed! This may cause increased memory usage!');
 end
 
 for sub = 1:length(exper.subjects)
@@ -112,9 +128,23 @@ for sub = 1:length(exper.subjects)
         origType = fieldnames(orig);
         fprintf('Done.\n');
         
+        if length(origType) == 1
+          data_fn = cell2mat(origType);
+        else
+          error('More than one field in data struct! There should only be one.\n');
+        end
+        
+        % save space by removing a potentially large 'previous' field
+        if cfg_ana.rmPreviousCfg
+          if isfield(orig.(data_fn).cfg,'previous')
+            fprintf('Removing ''previous'' field from data.cfg\n');
+            orig.(data_fn).cfg = rmfield(orig.(data_fn).cfg,'previous');
+          end
+        end
+        
         if cfg_ana.splitTrials
           % split up trials if there are more than the RAM can handle
-          nTrials = size(orig.(origType{1}).(cfg_ana.orig_param),1);
+          nTrials = size(orig.(data_fn).(cfg_ana.orig_param),1);
           if nTrials > cfg_ana.splitSize
             fprintf('Splitting trials...\n');
             
@@ -164,7 +194,7 @@ for sub = 1:length(exper.subjects)
                   cfg_ft = rmfield(cfg_ft,'outputfile');
                 end
                 cfg_ft.outputfile = outputFile_full;
-                freq = ft_freqanalysis(cfg_ft,orig.(origType{1}));
+                freq = ft_freqanalysis(cfg_ft,orig.(data_fn));
                 fprintf('Done.\n');
                 
                 if sp == 1 && cfg_ana.checkSplitFileSizeForSaving
@@ -224,14 +254,14 @@ for sub = 1:length(exper.subjects)
                         %   cfg_ft = rmfield(cfg_ft,'outputfile');
                         % end
                         % cfg_ft.outputfile = outputFile_full;
-                        % freq = ft_freqanalysis(cfg_ft,orig.(origType{1}));
+                        % freq = ft_freqanalysis(cfg_ft,orig.(data_fn));
                       else
                         fprintf('\tSplit %d: Re-calculating %s for trials %d to %d...\n',sp,cfg_ana.out_param,count+1,count+splitSizes(sp));
                         if isfield(cfg_ft,'outputfile')
                           cfg_ft = rmfield(cfg_ft,'outputfile');
                         end
                         cfg_ft.outputfile = outputFile_full;
-                        freq = ft_freqanalysis(cfg_ft,orig.(origType{1}));
+                        freq = ft_freqanalysis(cfg_ft,orig.(data_fn));
                       end
                       fprintf('Done.\n');
                     end
@@ -432,7 +462,7 @@ for sub = 1:length(exper.subjects)
                 cfg_ft = rmfield(cfg_ft,'outputfile');
               end
               cfg_ft.outputfile = outputFile_full;
-              freq = ft_freqanalysis(cfg_ft,orig.(origType{1}));
+              freq = ft_freqanalysis(cfg_ft,orig.(data_fn));
               fprintf('Done.\n');
             else
               fprintf('%s file already exist, not recalculating: %s\n',cfg_ana.out_param,outputFile_full);
@@ -480,7 +510,7 @@ for sub = 1:length(exper.subjects)
               cfg_ft = rmfield(cfg_ft,'outputfile');
             end
             cfg_ft.outputfile = outputFile_full;
-            freq = ft_freqanalysis(cfg_ft,orig.(origType{1}));
+            freq = ft_freqanalysis(cfg_ft,orig.(data_fn));
             fprintf('Done.\n');
           else
             fprintf('%s file already exist, not recalculating: %s\n',cfg_ana.out_param,outputFile_full);
