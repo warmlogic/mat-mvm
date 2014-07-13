@@ -79,8 +79,7 @@ sesNames = {'session_1'};
 
 %% analysis details
 
-allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'}};
-% allROIs = {{'LPI2','RPI2'}};
+allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -91,15 +90,15 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0]};
 
-% allSimMethod = {'cosine'};
-allSimMethod = {'correlation'};
+allSimMethod = {'cosine'};
 
 % sim_method = 'cosine';
 % sim_method = 'correlation';
 % sim_method = 'spearman';
+% sim_method = 'euclidean';
 
-allEigCrit = {'kaiser'};
-% allEigCrit = {'CV85','kaiser'};
+% allEigCrit = {'kaiser'};
+allEigCrit = {'CV85','kaiser'};
 
 % % keep components with eigenvalue >= 1
 % eig_criterion = 'kaiser';
