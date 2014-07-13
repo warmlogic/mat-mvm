@@ -48,9 +48,7 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
-% analysisDate = '13-Jun-2014';
-% analysisDate = '07-Jul-2014';
-analysisDate = '10-Jul-2014';
+analysisDate = '13-Jul-2014';
 
 origDataType = 'pow';
 
@@ -67,8 +65,7 @@ end
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'}};
-allROIs = {{'LPI2','RPI2'}};
+allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -84,12 +81,14 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
 
 allSimMethod = {'cosine'};
+
 % sim_method = 'cosine';
 % sim_method = 'correlation';
 % sim_method = 'spearman';
+% sim_method = 'euclidean';
 
-allEigCrit = {'kaiser'};
-% allEigCrit = {'CV85','kaiser'};
+% allEigCrit = {'kaiser'};
+allEigCrit = {'CV85','kaiser'};
 
 % % keep components with eigenvalue >= 1
 % eig_criterion = 'kaiser';
