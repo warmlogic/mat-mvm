@@ -657,28 +657,13 @@ fprintf('Done.\n');
 
 %% load
 
-% cosine, CV85
-% analysisDate = '13-Jun-2014';
+analysisDate = '13-Jul-2014';
 
-% % cosine, kaiser
-
-analysisDate = '06-Jul-2014';
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% thisROI = {'LPS','RPS'};
-
-% analysisDate = '07-Jul-2014';
-% thisROI = {'LT','RT'};
-
-% analysisDate = '08-Jul-2014';
 % thisROI = {'center109'};
-
-% analysisDate = '10-Jul-2014';
-% thisROI = {'LPI2','RPI2'};
-
-% % % correlation, kaiser
-% analysisDate = '10-Jul-2014';
-% % thisROI = {'center109'};
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPS','RPS'};
+% thisROI = {'LT','RT'};
+thisROI = {'LPI2','RPI2'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -700,8 +685,8 @@ origDataType = 'tla';
 % avgovertime = 'yes';
 avgovertime = 'no';
 
-% sim_method = 'cosine';
-sim_method = 'correlation';
+sim_method = 'cosine';
+% sim_method = 'correlation';
 % sim_method = 'spearman';
 
 % accurateClassifSelect = true;
@@ -716,8 +701,32 @@ end
 eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
-saveDirProc = '~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-rsaFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+subDir = '';
+dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+  %runLocally = 1;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+  %runLocally = 1;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+  %runLocally = 0;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+  %runLocally = 1;
+else
+  error('Data directory not found.');
+end
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+
+rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
 if exist(rsaFile,'file')
   fprintf('loading: %s...',rsaFile);
   load(rsaFile);
