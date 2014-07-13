@@ -622,6 +622,9 @@ for sub = 1:length(exper.subjects)
           % compute the similarities between each pair of events
           similarities = 1 - squareform(pdist(feature_vectors, sim_method));
           
+          % zscore the similarity values across all trials for this subject
+          similarities = zscore(similarities);
+          
           %             feature_vectors = data_pcaspace(:, crit_eig);
           %
           %             %%%%%%

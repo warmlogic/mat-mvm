@@ -734,6 +734,9 @@ for sub = 1:length(subjects_all)
           % compute the similarities between each pair of events
           similarities = 1 - squareform(pdist(feature_vectors, sim_method));
           
+          % zscore the similarity values across all trials for this subject
+          similarities = zscore(similarities);
+          
           % add it to the full set
           for d = 1:length(dataTypes)
             similarity_all{sub,ses,d,lat} = similarities(cat(2,dTypes_p1,dTypes_p2) == d,cat(2,dTypes_p1,dTypes_p2) == d);
