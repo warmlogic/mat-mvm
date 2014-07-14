@@ -1042,7 +1042,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
 
 %% plot RSA spacing x time interaction
 
@@ -1110,7 +1110,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
 
 % %% RMANOVA - no time dimension
 % 
