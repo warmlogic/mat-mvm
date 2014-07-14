@@ -75,8 +75,8 @@ exper.prepost = {[-0.2 1.0]};
 % only subjects for ICA on first session
 exper.subjects = {
 %   'EBIRD009';
-  'EBIRD010';
-%   'EBIRD011';
+%   'EBIRD010';
+  'EBIRD011';
 %   'EBIRD024';
 %   'EBIRD034';
   };
