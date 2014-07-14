@@ -741,10 +741,11 @@ fprintf('Done.\n');
 analysisDate = '13-Jul-2014';
 
 % thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
+thisROI = {'LAS','FC','RAS'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
