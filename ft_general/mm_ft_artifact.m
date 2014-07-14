@@ -644,7 +644,8 @@ if rejArt_nsClassic
     badEv = [];
   end
   
-  [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic_wZtran(subject,dirs,data,ana,elecfile,badChan_str,badEv);
+  % [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv);
+  [data,badChan_str,badEv,artfctdef] = mm_artifact_nsClassic_wlogging(subject,dirs,data,ana,elecfile,badChan_str,badEv);
 end
 
 %% visual artifact inspection (manual)
