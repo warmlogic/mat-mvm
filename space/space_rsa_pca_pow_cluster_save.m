@@ -78,7 +78,8 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 
 % allFreqs = {[4 8; 8 12; 12 30; 30 50]};
 % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
-  allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
+% allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
+allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8]};
 
 allSimMethod = {'cosine'};
 
@@ -87,8 +88,8 @@ allSimMethod = {'cosine'};
 % sim_method = 'spearman';
 % sim_method = 'euclidean';
 
-% allEigCrit = {'kaiser'};
-allEigCrit = {'CV85','kaiser'};
+allEigCrit = {'kaiser'};
+% allEigCrit = {'CV85','kaiser'};
 
 % % keep components with eigenvalue >= 1
 % eig_criterion = 'kaiser';
