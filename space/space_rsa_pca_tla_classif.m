@@ -660,10 +660,10 @@ fprintf('Done.\n');
 analysisDate = '13-Jul-2014';
 
 % thisROI = {'center109'};
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
-thisROI = {'LPI2','RPI2'};
+% thisROI = {'LPI2','RPI2'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -1027,7 +1027,7 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.16 0.16]);
+ylim([-0.61 0.61]);
 
 set(gca,'XTick', [1 2]);
 
@@ -1095,7 +1095,7 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.16 0.16]);
+ylim([-0.65 0.65]);
 
 set(gca,'XTick', [1 2]);
 
