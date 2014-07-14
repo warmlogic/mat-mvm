@@ -111,6 +111,7 @@ parameter = 'powspctrm';
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 freqs = [4 8; 8 12; 12 30; 30 50];
+% freqs = [3 8; 9 12; 13 30; 31 50];
 freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
