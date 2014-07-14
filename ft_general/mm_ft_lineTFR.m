@@ -521,7 +521,21 @@ for typ = 1:length(cfg.conditions)
       if ~isfield(files,'figPrintRes')
         files.figPrintRes = 150;
       end
-      print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
+      
+      if cfg.nRow > 2
+        % make it taller if necessary
+        cfg.pos = get(gcf, 'Position');
+        % get the height x width ratio
+        hwRatio = cfg.pos(3) / cfg.pos(4);
+        % % square figure
+        % cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85)];
+        % maintain figure height x width ratio
+        cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
+        % resize the figure window
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), ceil(cfg.figSize(2) / cfg.nRow), cfg.figSize(1)]);
+      end
+      %print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
+      screen2file(fullfile(dirs.saveDirFigsTFR,cfg.figfilename),files);
     end
     
     if ~files.saveFigs
@@ -536,7 +550,11 @@ for typ = 1:length(cfg.conditions)
       % maintain figure height x width ratio
       cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
       % resize the figure window
-      set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), cfg.figSize(2), cfg.figSize(1)]);
+      if cfg.nRow > 2
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), ceil(cfg.figSize(2) / floor(cfg.nRow/2)), cfg.figSize(1)]);
+      else
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), cfg.figSize(2), cfg.figSize(1)]);
+      end
     else
       close all
     end
