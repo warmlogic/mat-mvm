@@ -110,8 +110,8 @@ parameter = 'powspctrm';
 
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
-freqs = [4 8; 8 12; 12 30; 30 50];
-% freqs = [3 8; 9 12; 13 30; 31 50];
+% freqs = [4 8; 8 12; 12 30; 30 50];
+freqs = [3 8; 9 12; 13 30; 31 50];
 freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
@@ -122,6 +122,8 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0];
+
+% latencies = [0.02 0.46; 0.5 0.98];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
