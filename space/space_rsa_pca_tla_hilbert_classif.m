@@ -1146,16 +1146,16 @@ plot(1.1*ones(sum(theseSub(:,ses)),1), mass_early,m_mark,'LineWidth',1);
 plot(1.9*ones(sum(theseSub(:,ses)),1), spac_late,s_mark,'LineWidth',1);
 plot(2.1*ones(sum(theseSub(:,ses)),1), mass_late,m_mark,'LineWidth',1);
 
-meanSizeR = 20;
-meanSizeF = 20;
+meanSizeE = 20;
+meanSizeL = 20;
 
 % early
-plot(1, mean(spac_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-plot(1, mean(spac_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+plot(1, mean(spac_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeE);
+plot(1, mean(mass_early),m_mark,'LineWidth',3,'MarkerSize',meanSizeE);
 
 % late
-hs = plot(2, mean(mass_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-hm = plot(2, mean(mass_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+hs = plot(2, mean(spac_late),s_mark,'LineWidth',3,'MarkerSize',meanSizeL);
+hm = plot(2, mean(mass_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeL);
 
 % horiz
 plot([-3 3], [0 0],'k--','LineWidth',2);

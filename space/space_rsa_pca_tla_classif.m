@@ -1050,13 +1050,13 @@ theseSub = noNans & passTrlThresh;
 ses=1;
 
 % rc_spaced_mean = mean([mean(D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_spac.dissim(~exper.badSub,ses,:),3)],2);
-% rc_massed_mean = mean([mean(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:),3)],2);
 % fo_spaced_mean = mean([mean(D.word_RgH_fo_spac.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_spac.dissim(~exper.badSub,ses,:),3)],2);
+% rc_massed_mean = mean([mean(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:),3)],2);
 % fo_massed_mean = mean([mean(D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:),3)],2);
 
 rc_spaced_mean = squeeze(mean_similarity.img_RgH_rc_spac(theseSub,ses,latInd));
-rc_massed_mean = squeeze(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd));
 fo_spaced_mean = squeeze(mean_similarity.img_RgH_fo_spac(theseSub,ses,latInd));
+rc_massed_mean = squeeze(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd));
 fo_massed_mean = squeeze(mean_similarity.img_RgH_fo_mass(theseSub,ses,latInd));
 
 spac_early = mean([rc_spaced_mean(:,1) fo_spaced_mean(:,1)],2);
@@ -1078,16 +1078,16 @@ plot(1.1*ones(sum(theseSub(:,ses)),1), mass_early,m_mark,'LineWidth',1);
 plot(1.9*ones(sum(theseSub(:,ses)),1), spac_late,s_mark,'LineWidth',1);
 plot(2.1*ones(sum(theseSub(:,ses)),1), mass_late,m_mark,'LineWidth',1);
 
-meanSizeR = 20;
-meanSizeF = 20;
+meanSizeE = 20;
+meanSizeL = 20;
 
 % early
-plot(1, mean(spac_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-plot(1, mean(spac_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+plot(1, mean(spac_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeE);
+plot(1, mean(mass_early),m_mark,'LineWidth',3,'MarkerSize',meanSizeE);
 
 % late
-hs = plot(2, mean(mass_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-hm = plot(2, mean(mass_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+hs = plot(2, mean(spac_late),s_mark,'LineWidth',3,'MarkerSize',meanSizeL);
+hm = plot(2, mean(mass_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeL);
 
 % horiz
 plot([-3 3], [0 0],'k--','LineWidth',2);
