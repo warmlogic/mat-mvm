@@ -532,7 +532,7 @@ for typ = 1:length(cfg.conditions)
         % maintain figure height x width ratio
         cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
         % resize the figure window
-        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), ceil(cfg.figSize(2) / cfg.nRow), cfg.figSize(1)]);
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), ceil(cfg.figSize(2) / floor(cfg.nRow/2)), cfg.figSize(1)]);
       end
       %print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
       screen2file(fullfile(dirs.saveDirFigsTFR,cfg.figfilename),files);
