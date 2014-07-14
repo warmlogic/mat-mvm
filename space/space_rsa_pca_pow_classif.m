@@ -204,7 +204,7 @@ for sub = 1:length(subjects_all)
     % pre-defined in this function
     ana = mm_ft_elecGroups(ana);
     
-    cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+    cfg_sel.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)}));
     
     %% list the event values to analyze; specific to each experiment
     

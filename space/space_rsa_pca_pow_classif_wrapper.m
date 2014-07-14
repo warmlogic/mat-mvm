@@ -28,11 +28,38 @@ end
 
 expName = 'SPACE';
 
+subDir = '';
+dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+  runLocally = 1;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+  runLocally = 1;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+  runLocally = 0;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+  runLocally = 1;
+else
+  error('Data directory not found.');
+end
+
+saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+
 % saveDirProc = getenv('HOME');
 % saveDirProc = fullfile(filesep,'data','projects','curranlab',expName);
-saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+% saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
-runLocally = 0;
+% runLocally = 0;
 
 subjects = {
   %'SPACE001'; % low trial counts
@@ -91,11 +118,9 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0]};
 
-allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8]};
-
 % allFreqs = {[3 8; 8 12; 12 30; 30 50]};
 % allFreqs = {[3 8] [8 12] [12 30] [30 50]};
-% allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
+allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
 
 % allFreqs = {[4 8; 8 12; 12 30; 30 50]};
 % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
@@ -241,7 +266,7 @@ if runLocally == 0
 else
   %% run the function locally
   
-  error('This setup does not make sense with the current data loading setup.');
+  %error('This setup does not make sense with the current data loading setup.');
   
   % create a log of the command window output
   thisRun = [expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];

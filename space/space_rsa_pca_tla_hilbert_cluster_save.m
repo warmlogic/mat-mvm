@@ -85,7 +85,7 @@ elseif strcmp(origDataType,'hilbert')
   % allFreqs = {[4 8; 8 12; 12 30; 30 50]};
   % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
   % allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
-  allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8]};
+  allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
 end
 
 allSimMethod = {'cosine'};

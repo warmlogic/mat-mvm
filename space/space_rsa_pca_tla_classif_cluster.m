@@ -174,7 +174,7 @@ cfg_sel.avgoverchan = 'no';
 cfg_sel.avgovertime = 'no';
 % cfg_sel.avgovertime = 'yes';
 
-cfg_sel.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)});
+cfg_sel.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)}));
 
 % sim_method = 'cosine';
 % sim_method = 'correlation';
