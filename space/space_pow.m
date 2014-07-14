@@ -416,7 +416,9 @@ cfg_ft = [];
 %   cfg_ft.zlim = [0 2.0];
 % end
 % cfg_ft.parameter = 'powspctrm';
-cfg_ft.ylim = [3 9];
+% cfg_ft.ylim = [3 9];
+% cfg_ft.ylim = [3 14];
+cfg_ft.ylim = [3 32];
 % cfg_ft.showlabels = 'yes';
 % cfg_ft.fontsize = 12;
 % cfg_ft.colorbar = 'yes';
@@ -449,14 +451,19 @@ cfg_ft.channel = {'E55'};
 %cfg_ft.zlim = [-150 150];
 %cfg_ft.zlim = [-300 300];
 
-cfg_ft.zlim = [-.6 .6];
+% cfg_ft.zlim = [-.6 .6];
 %cfg_ft.zlim = [-.30 .30];
 % cfg_ft.zlim = [-.15 .15];
 
 %cfg_ft.zlim = [-2 2];
-cfg_ft.zlim = [-1 1];
+% cfg_ft.zlim = [-1 1];
 cfg_ft.zlim = [-3 3];
 
+
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.fontsize = 12;
+% cfg_ft.colorbar = 'yes';
+% cfg_ft.layout = ft_prepare_layout([],ana);
 
 sub = 24;
 ses = 1;
@@ -464,7 +471,13 @@ typ = 1;
 for evVal = 1:length(ana.eventValues{ses}{typ})
   figure
   ft_singleplotTFR(cfg_ft,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+  set(gcf,'Name',sprintf('%s',strrep(ana.eventValues{ses}{typ}{evVal},'_','-')))
   title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
+  
+%   figure
+%   ft_multiplotTFR(cfg_ft,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+%   set(gcf,'Name',sprintf('%s',strrep(ana.eventValues{ses}{typ}{evVal},'_','-')))
+%   title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
 end
 
 %% baseline
@@ -628,6 +641,7 @@ for evVal = 1:length(ana.eventValues{ses}{typ})
   caxis(zlim);
   %imagesc(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.time,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.freq,squeeze(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.powspctrm(chan,:,:)),zlim);
   %axis xy;
+  set(gcf,'Name',sprintf('%s',strrep(ana.eventValues{ses}{typ}{evVal},'_','-')))
   title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
   colorbar
 end
@@ -667,7 +681,8 @@ end
 
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg_plot.rois = {{'FS'},{'PS'}};
+% cfg_plot.rois = {{'FS'},{'PS'}};
+cfg_plot.rois = {{'PS'}};
 %cfg_plot.rois = {'E124'};
 %cfg_plot.rois = {'E25'};
 %cfg_plot.rois = {'RAS'};
@@ -679,8 +694,9 @@ cfg_plot.numCols = 5;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
 % for each event type; each event type cell holds strings for its
 % conditions
-cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-%cfg_plot.condByROI = repmat({{'RCR','RH','RHSC','RHSI'}},size(cfg_plot.rois));
+ses=1;
+% cfg_plot.condByROI = repmat(ana.eventValues{ses},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}},size(cfg_plot.rois));
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
@@ -691,7 +707,7 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_freq);
+  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_pow);
 end
 
 %% make some GA plots
@@ -770,8 +786,8 @@ cfg.parameter = 'powspctrm';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
 cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
-cfg.freqs = [4 8; 8 10; 10 12];
+cfg.freqs = [3 8; 8 12; 12 28; 28 50; 50 80];
+% cfg.freqs = [3 8; 8 10; 10 12];
 
 cfg.rois = {...
   {'LAS'},{'FS'},{'RAS'},...
@@ -785,7 +801,9 @@ cfg.rois = {...
 %   {'LPI'},{'PI'},{'RPI'},...
 %   };
 
-cfg.conditions = ana.eventValues;
+% ses=1;
+% cfg.conditions = ana.eventValues{ses};
+cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
@@ -804,7 +822,7 @@ cfg.nCol = 3;
 % cfg.type = 'line_pow';
 % cfg.clusDirStr = '_zpow_-400_-200';
 % cfg.ylabel = 'Z-Trans Pow';
-mm_ft_lineTFR(cfg,ana,files,dirs,ga_pow);
+mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
 
 % mm_ft_clusterplotTFR
@@ -1480,23 +1498,36 @@ cfg_ana.conditions = {...
   {'word_onePres', 'word_RgH_rc_mass_p2'} ...
   {'word_onePres', 'word_RgH_fo_spac_p2'} ...
   {'word_onePres', 'word_RgH_fo_mass_p2'} ...
-%   {'img_onePres', 'img_RgH_rc_spac_p2'} ...
-%   {'img_onePres', 'img_RgH_rc_mass_p2'} ...
-%   {'img_onePres', 'img_RgH_fo_spac_p2'} ...
-%   {'img_onePres', 'img_RgH_fo_mass_p2'} ...
-%   {'word_RgH_rc_spac_p1', 'word_RgH_rc_mass_p1'} ...
-%   {'word_RgH_fo_spac_p1', 'word_RgH_fo_mass_p1'} ...
-%   {'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1'} ...
-%   {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1'} ...
   {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2'} ...
   {'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'} ...
   {'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2'} ...
   {'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2'} ...
-%   {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ...
-%   {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ...
-%   {'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2'} ...
-%   {'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2'} ...
   };
+
+% cfg_ana.conditions = {...
+%   {'word_onePres', 'word_RgH_rc_spac_p2'} ...
+%   {'word_onePres', 'word_RgH_rc_mass_p2'} ...
+%   {'word_onePres', 'word_RgH_fo_spac_p2'} ...
+%   {'word_onePres', 'word_RgH_fo_mass_p2'} ...
+% %   {'img_onePres', 'img_RgH_rc_spac_p2'} ...
+% %   {'img_onePres', 'img_RgH_rc_mass_p2'} ...
+% %   {'img_onePres', 'img_RgH_fo_spac_p2'} ...
+% %   {'img_onePres', 'img_RgH_fo_mass_p2'} ...
+% %   {'word_RgH_rc_spac_p1', 'word_RgH_rc_mass_p1'} ...
+% %   {'word_RgH_fo_spac_p1', 'word_RgH_fo_mass_p1'} ...
+% %   {'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1'} ...
+% %   {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1'} ...
+%   {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2'} ...
+%   {'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'} ...
+%   {'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2'} ...
+%   {'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2'} ...
+%   {'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2'} ...
+%   {'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2'} ...
+% %   {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ...
+% %   {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ...
+% %   {'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2'} ...
+% %   {'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2'} ...
+%   };
 
 cfg_ana.dirStr = '';
 
@@ -1513,10 +1544,11 @@ end
 if strcmp(cfg_ft.avgoverfreq,'no')
   cfg_ana.frequencies = [4 100];
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
-  %cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 80];
-  %cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-  cfg_ana.frequencies = [4 8; 8 10; 10 12; 12 28; 28 50; 50 80];
-  %cfg_ana.frequencies = [4 8; 8.1 10; 10.1 12; 12.1 28; 28.1 50; 50.1 80];
+  % % cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 80];
+  % % cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
+%   cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 80];
+  cfg_ana.frequencies = [8 10; 10 12];
+  % % cfg_ana.frequencies = [4 8; 8.1 10; 10.1 12; 12.1 28; 28.1 50; 50.1 80];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
 %cfg_ana.latencies = [0 0.5; 0.5 1.0; 1.0 1.615];
