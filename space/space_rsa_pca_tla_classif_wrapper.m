@@ -106,8 +106,7 @@ sesNames = {'session_1'};
 
 %% analysis details
 
-% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'}};
-allROIs = {{'LAS','FC','RAS'}};
+allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS','FC','RAS'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
