@@ -1710,6 +1710,180 @@ if emailme
   send_gmail(subject,mail_message);
 end
 
+%% ANOVA
+
+stimType = 'word_';
+memType = 'RgH_';
+
+% spacings = {'mass', 'spac', 'onePres'};
+% oldnew = {'p1'};
+% % oldnew = {'p2'};
+% memConds = {'all'};
+
+% didn't test new words, so can't assess memory, but can use p1
+spacings = {'mass', 'spac'};
+% spacings = {'spac'};
+oldnew = {'p1', 'p2'};
+% oldnew = {'p1'};
+% oldnew = {'p2'};
+memConds = {'rc','fo'};
+
+measure = 'powspctrm';
+
+% % theta
+freqs = [3 8];
+roi = {'FS2'};
+% roi = {'LAS'};
+% roi = {'PS'};
+% roi = {'RPS'};
+% latencies = [0.3 1.0];
+latencies = [0.5 1.0];
+
+% % % alpha
+% freqs = [9 10];
+% freqs = [11 12];
+% freqs = [9 12];
+% roi = {'FC'};
+% latencies = [0.4 0.6];
+
+% freqs = [3 8; 9 12; 13 30; 31 50];
+
+% latencies = [0.02 0.46; 0.5 0.98];
+% latencies = [0.02 0.46];
+
+% freqs = [13 30];
+% freqs = [31 50];
+% freqs = [50 80];
+
+latency = cell(1,size(latencies,1));
+for i = 1:length(latency)
+  latency{i} = sprintf('%dto%d',latencies(i,1)*1000,latencies(i,2)*1000);
+end
+latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
+latStr = latStr(2:end);
+
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+freqIdx = (nearest(data_pow.(exper.sesStr{1}).(ana.eventValues{1}{1}{1}).sub(1).data.freq,freqs(1,1)):nearest(data_pow.(exper.sesStr{1}).(ana.eventValues{1}{1}{1}).sub(1).data.freq,freqs(1,2)));
+
+factorNames = {'spacings', 'oldnew', 'memConds', 'roi', 'latency'};
+
+nVariables = nan(size(factorNames));
+keepTheseFactors = false(size(factorNames));
+levelNames_teg = cell(size(factorNames)); % TEG
+for c = 1:length(factorNames)
+  nVariables(c) = length(eval(factorNames{c}));
+  levelNames_teg{c} = eval(factorNames{c}); % TEG
+  if length(eval(factorNames{c})) > 1
+    keepTheseFactors(c) = true;
+  end
+end
+
+variableNames = cell(1,prod(nVariables));
+levelNames = cell(prod(nVariables),length(factorNames));
+
+ses=1;
+nSub = sum(~exper.badSub);
+anovaData = nan(nSub,prod(nVariables));
+rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
+
+fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(oldnew)),oldnew{:}),factorNames{2});
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{3});
+if iscell(roi{1})
+  fprintf('%d ROIs (%s),',length(roi),factorNames{4});
+elseif ischar(roi{1})
+  fprintf('%s (%s),',sprintf(repmat(' %s',1,length(roi)),roi{:}),factorNames{4});
+end
+fprintf('%s (%s),',latStr,factorNames{5});
+fprintf('\n\tFreq: %s...',freq_str);
+
+lnDone = false;
+vnDone = false;
+subCount = 0;
+rmCount = 0;
+for sub = 1:length(exper.subjects)
+  if ~exper.badSub(sub)
+    subCount = subCount + 1;
+  else
+    continue
+  end
+  for ses = 1:length(exper.sesStr)
+    lnCount = 0;
+    vnCount = 0;
+    
+    for sp = 1:length(spacings)
+      for on = 1:length(oldnew)
+        for mc = 1:length(memConds)
+          cond_str = [];
+          if strcmp(spacings{sp},'onePres')
+            % single presentation or first presentation
+            if strcmp(memConds{mc},'all');
+              cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
+            end
+          elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+            cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
+          end
+          
+          for r = 1:length(roi)
+            if iscell(roi{r})
+              roi_str = sprintf(repmat('%s',1,length(roi{r})),roi{r}{:});
+            elseif ischar(roi{r})
+              roi_str = roi{r};
+            end
+            chanIdx = ismember(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+            
+            for lat = 1:length(latency)
+              latIdx = (nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,1)):nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,2)));
+              if ~lnDone
+                lnCount = lnCount + 1;
+                levelNames{lnCount,1} = spacings{sp};
+                levelNames{lnCount,2} = oldnew{on};
+                levelNames{lnCount,3} = memConds{mc};
+                levelNames{lnCount,4} = roi{r};
+                levelNames{lnCount,5} = latency{lat};
+              end
+              
+              vnCount = vnCount + 1;
+              if ~vnDone
+                variableNames{vnCount} = sprintf('Y%d',vnCount);
+              end
+              
+              anovaData(subCount,vnCount) = mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1);
+              
+              rmCount = rmCount + 1;
+              rmaov_data_teg(rmCount,:) = [anovaData(subCount,vnCount) sp on mc r lat sub];
+            end
+          end
+        end
+      end
+    end
+    lnDone = true;
+    vnDone = true;
+  end
+end
+
+if any(~keepTheseFactors)
+  factorNames = factorNames(keepTheseFactors);
+  levelNames = levelNames(:,keepTheseFactors);
+  nVariables = nVariables(keepTheseFactors);
+  levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
+  
+  rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]); % TEG
+  fprintf('\n\tOnly keeping factors:%s...',sprintf(repmat(' %s',1,length(factorNames)),factorNames{:}));
+end
+fprintf('Done.\n');
+
+% TEG RM ANOVA
+
+fprintf('=======================================\n');
+fprintf('This ANOVA: Freq: %s\n\n',freq_str);
+
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
+
+fprintf('Prev ANOVA: Freq: %s\n',freq_str);
+fprintf('=======================================\n');
+
 %% correlations
 
 cfg_ana = [];
