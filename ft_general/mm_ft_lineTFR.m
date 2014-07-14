@@ -234,7 +234,7 @@ end
 
 for typ = 1:length(cfg.conditions)
   % get all the condition names together
-  if length(length(cfg.conditions{typ})) > 2
+  if length(cfg.conditions{typ}) > 2
     nCond = length(cfg.conditions{typ});
   else
     nCond = 1;
