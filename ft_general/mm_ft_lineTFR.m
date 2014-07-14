@@ -441,7 +441,7 @@ for typ = 1:length(cfg.conditions)
                   if length(cond1) < 7 && length(cond2) < 7
                     clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
                   else
-                    clus_str = sprintf('%s>%s:%s','1','2',clus_symb);
+                    clus_str = sprintf('%d>%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
                   end
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
@@ -476,7 +476,7 @@ for typ = 1:length(cfg.conditions)
                   if length(cond1) < 7 && length(cond2) < 7
                     clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
                   else
-                    clus_str = sprintf('%s<%s:%s','1','2',clus_symb);
+                    clus_str = sprintf('%d<%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
                   end
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
