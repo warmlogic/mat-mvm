@@ -914,9 +914,11 @@ spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
 latency = cell(1,length(latInd));
 for i = 1:length(latency)
-  latency{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
+  %latency{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
+  latency{i} = sprintf('%dto%d',latencies(latInd(1)+i-1,1)*1000,latencies(latInd(1)+i-1,2)*1000);
 end
-latStr = sprintf(repmat(' %s',1,length(latency)),latency{:});
+latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
+latStr = latStr(2:end);
 
 factorNames = {'spacings', 'memConds', 'latency'};
 
@@ -939,7 +941,7 @@ nSub = sum(passTrlThresh(:,ses));
 anovaData = nan(nSub,prod(nVariables));
 rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
 
-fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
+fprintf('Collecting %s ANOVA data for %d subjects:\n\t',origDataType,nSub);
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{2});
 fprintf('%s (%s),',latStr,factorNames{3});
@@ -1002,11 +1004,11 @@ fprintf('Done.\n');
 %% TEG RM ANOVA
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
+fprintf('This ANOVA: %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n\n',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
 
 O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
 
-fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
+fprintf('Prev ANOVA: %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
 fprintf('=======================================\n');
 
 %% Matlab RM ANOVA
@@ -1019,7 +1021,7 @@ within = cell2table(levelNames,'VariableNames',factorNames);
 rm = fitrm(t,sprintf('%s-%s~1',variableNames{1},variableNames{end}),'WithinDesign',within);
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: ROI: %s, Latency:%s\n\n',roi_str,latStr);
+fprintf('This ANOVA: %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n\n',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
 
 margmean(rm,factorNames)
 % grpstats(rm,factorNames)
@@ -1040,7 +1042,7 @@ else
   [ranovatbl] = ranova(rm, 'WithinModel',MODELSPEC)
 end
 
-fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
+fprintf('Prev ANOVA: %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
 fprintf('=======================================\n');
 
 % multcompare(rm,'spacings','By','memConds')
@@ -1108,7 +1110,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-% print(gcf,'-depsc2','~/Desktop/similarity_spacXsm.eps');
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXsm_%s_%s_%s_%s_%s_%s.eps',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method));
 
 %% plot RSA spacing x time interaction
 
@@ -1176,7 +1178,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 publishfig(gcf,0,[],[],[]);
 
-% print(gcf,'-depsc2','~/Desktop/similarity_spacXtime.eps');
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s.eps',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method));
 
 % %% RMANOVA
 % 
