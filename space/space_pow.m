@@ -1534,9 +1534,11 @@ cfg_ana.dirStr = '';
 if strcmp(cfg_ft.avgovertime,'no')
   %cfg_ana.latencies = [0 0.5];
   %cfg_ana.latencies = [0 1.0];
-  cfg_ana.latencies = [0 0.5; 0.5 1.0];
+  %cfg_ana.latencies = [0 0.5; 0.5 1.0];
+  cfg_ana.latencies = [0.02 0.46; 0.5 0.98];
 elseif strcmp(cfg_ft.avgovertime,'yes')
-  cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+  %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
+  cfg_ana.latencies = [-0.18:0.12:0.92; -0.1:0.12:1.0]';
   %cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]';
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
 end
@@ -1546,7 +1548,7 @@ if strcmp(cfg_ft.avgoverfreq,'no')
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
   % % cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 80];
   % % cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-%   cfg_ana.frequencies = [3 8; 8 12; 12 28; 28 50; 50 80];
+%   cfg_ana.frequencies = [3 8; 9 12; 13 28; 29 50; 51 80];
   cfg_ana.frequencies = [8 10; 10 12];
   % % cfg_ana.frequencies = [4 8; 8.1 10; 10.1 12; 12.1 28; 28.1 50; 50.1 80];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
@@ -1732,9 +1734,9 @@ measure = 'powspctrm';
 
 % % theta
 freqs = [3 8];
-roi = {'FS2'};
 % roi = {'LAS'};
 % roi = {'PS'};
+roi = {'LPS'};
 % roi = {'RPS'};
 % latencies = [0.3 1.0];
 latencies = [0.5 1.0];
