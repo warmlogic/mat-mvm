@@ -41,6 +41,11 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,ses
 if ~exist('subDir','var') || isempty(subDir)
   subDir = '';
 end
+if ischar(subDir)
+  dirs.subDir = subDir;
+else
+  error('subDir needs to be a character string');
+end
 
 if ~exist('replaceDatatype','var') || isempty(replaceDatatype)
   replaceDatatype = {};
