@@ -623,6 +623,7 @@ end
 %% save
 
 % saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
 saveDir = dirs.saveDirProc;
 % save(fullfile(saveDir,'space_word_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
 save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
@@ -631,8 +632,11 @@ save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exp
 %% load
 
 loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
 % load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
 load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
+
+[dirs] = mm_checkDirs(dirs);
 
 %% simple plot
 

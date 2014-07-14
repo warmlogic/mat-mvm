@@ -453,10 +453,21 @@ end
 %   end
 % end
 
-%% save to conserve memory
+%% save
 
-save('~/Downloads/space_data_tla.mat','data_tla','exper','ana','dirs','files','-v7.3');
-clear data_tla
+% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+saveDir = dirs.saveDirProc;
+save(fullfile(saveDir,'space_word_img_data_ga_tla.mat'),'data_tla','ga_tla','exper','ana','dirs','files','-v7.3');
+% clear data_tla
+
+%% load
+
+% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+load(fullfile(loadDir,'space_word_img_data_ga_tla.mat'));
+
+[dirs] = mm_checkDirs(dirs);
 
 %% lowpass filter and segment for ERPs
 
