@@ -1097,7 +1097,7 @@ plotSubLines = false;
 
 if plotMeanLines
   s_mark = 'ko-';
-  m_mark = 'rx:';
+  m_mark = 'rx--';
 else
   s_mark = 'ko';
   m_mark = 'rx';
@@ -1109,7 +1109,7 @@ if plotSub
   subSpacing = 0.2;
   if plotSubLines
     s_mark_sub = 'ko-';
-    m_mark_sub = 'rx:';
+    m_mark_sub = 'rx--';
   else
     s_mark_sub = 'ko';
     m_mark_sub = 'rx';
@@ -1164,7 +1164,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 labelFontSize = 20;
 publishfig(gcf,0,[],labelFontSize,[]);
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
+print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
 
 %% plot RSA spacing x memory x time interaction
 
@@ -1184,9 +1184,9 @@ plotSubLines = false;
 
 if plotMeanLines
   s_rc_mark = 'ko-';
-  s_fo_mark = 'ko:';
+  s_fo_mark = 'ko--';
   m_rc_mark = 'rx-';
-  m_fo_mark = 'rx:';
+  m_fo_mark = 'rx--';
 else
   s_rc_mark = 'ko';
   s_fo_mark = 'ro';
@@ -1201,9 +1201,9 @@ if plotSub
   subSpacing = 0.2;
   if plotSubLines
     s_rc_mark_sub = 'ko-';
-    s_fo_mark_sub = 'ko:';
+    s_fo_mark_sub = 'ko--';
     m_rc_mark_sub = 'rx-';
-    m_fo_mark_sub = 'rx:';
+    m_fo_mark_sub = 'rx--';
   else
     s_rc_mark_sub = 'ko';
     s_fo_mark_sub = 'ro';
