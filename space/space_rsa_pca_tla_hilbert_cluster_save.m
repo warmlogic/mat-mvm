@@ -50,7 +50,8 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
-analysisDate = '13-Jul-2014';
+% analysisDate = '13-Jul-2014';
+analysisDate = '14-Jul-2014';
 
 % origDataType = 'tla';
 origDataType = 'hilbert';
@@ -85,7 +86,8 @@ elseif strcmp(origDataType,'hilbert')
   % allFreqs = {[4 8; 8 12; 12 30; 30 50]};
   % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
   % allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
-  allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
+%   allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
+  allFreqs = {[3 7; 8 12; 13 20; 20 30; 31 45; 46 80]};
 end
 
 allSimMethod = {'cosine'};
