@@ -738,20 +738,42 @@ fprintf('Done.\n');
 
 %% load
 
-analysisDate = '13-Jul-2014';
+% analysisDate = '13-Jul-2014';
 
 % thisROI = {'center109'};
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
-thisROI = {'LAS','FC','RAS'};
+% thisROI = {'LAS','FC','RAS'};
+
+% freqs = [3 8; 8 12; 12 30; 30 50];
+% % freqs = [4 8; 8 12; 12 30; 30 50];
+% % freqs = [3 8];
+% % freqs = [4 8];
+% % freqs = [8 12];
+% % freqs = [12 30];
+% % freqs = [30 50];
+
+analysisDate = '14-Jul-2014';
+
+thisROI = {'center109'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPS','RPS'};
+% thisROI = {'LT','RT'};
+% thisROI = {'LPI2','RPI2'};
+% thisROI = {'LAS2','FS','RAS2'};
+% thisROI = {'LFP','FC','RFP'};
+
+freqs = [3 7; 8 12; 13 20; 20 30; 31 45; 46 80];
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
   roi_str = thisROI;
 end
+
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -763,15 +785,6 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 1.0];
 
 origDataType = 'hilbert';
-
-freqs = [3 8; 8 12; 12 30; 30 50];
-% freqs = [4 8; 8 12; 12 30; 30 50];
-% freqs = [3 8];
-% freqs = [4 8];
-% freqs = [8 12];
-% freqs = [12 30];
-% freqs = [30 50];
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 avgovertime = 'yes';
 % avgovertime = 'no';
