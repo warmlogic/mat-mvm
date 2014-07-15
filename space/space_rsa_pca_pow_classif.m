@@ -1181,7 +1181,7 @@ title('Spacing \times Subsequent Memory');
 legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 % ticFontSize = 20;
-ticFontSize = 16;
+ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
 % print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s.eps',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method));
@@ -1272,7 +1272,7 @@ title('Spacing \times Time');
 legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 % ticFontSize = 20;
-ticFontSize = 16;
+ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
 % print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s.eps',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method));
@@ -1383,7 +1383,7 @@ title('Spacing \times Memory \times Time');
 legend([hsr, hsf, hmr, hmf],{'Spaced Rc','Spaced Fo','Massed Rc','Massed Fo'},'Location','North');
 
 % ticFontSize = 20;
-ticFontSize = 16;
+ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
 % print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s.eps',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method));
