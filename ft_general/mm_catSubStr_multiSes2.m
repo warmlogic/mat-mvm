@@ -2,6 +2,9 @@ function [ana_str] = mm_catSubStr_multiSes2(cfg,exper,sesNum)
 %MM_CATSUBSTR_MULTISES2 Concatenate strings of subject data for input to FieldTrip
 %functions
 %
+% the difference vs mm_catSubStr_multiSes is that this function (#2) can
+% concatenate multiple sessions
+%
 % [ana_str] = mm_catSubStr_multiSes2(cfg,exper,sesNum)
 %
 % input:
@@ -46,44 +49,77 @@ if ~cfg.is_ga
 end
 
 if ~cfg.is_ga
-  % if we have individual subject data...
+  if ~isfield(cfg,'separateSubjects')
+    cfg.separateSubjects = false;
+  end
   
-  % initialize to see if we've added the first subject
-  firstOneDone = 0;
+  if ~cfg.separateSubjects
+    % if we have individual subject data...
+    
+    % initialize to see if we've added the first subject
+    firstOneDone = 0;
+    
+    % go through subjects, add strings for the ones we want
+    for ses = 1:length(sesNum)
+      for sub = 1:length(exper.subjects)
+        if exper.badSub(sub,ses)
+          if cfg.excludeBadSub
+            % skip this subject if they're bad
+            fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
+            continue
+          else
+            % keep them in if they're bad
+            fprintf('Including bad subject: %s\n',exper.subjects{sub});
+          end
+        else
+          if ~firstOneDone
+            % add the first subject; the string is formatetted differently
+            %for evVal = 1:length(cfg.conditions{ses})
+            %  ana_str.(cfg.conditions{ses}{evVal}){ses} = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal},sub);
+            %end
+            for evVal = 1:length(cfg.conditions)
+              ana_str.(cfg.conditions{evVal}) = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
+            end
+            firstOneDone = 1;
+          else
+            %for evVal = 1:length(cfg.conditions{ses})
+            %  ana_str.(cfg.conditions{ses}{evVal}){ses} = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{ses}{evVal}){ses},cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal},sub);
+            %end
+            for evVal = 1:length(cfg.conditions)
+              ana_str.(cfg.conditions{evVal}) = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{evVal}),cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
+            end
+          end
+        end
+      end % sub
+    end % ses
+    
+  elseif cfg.separateSubjects
+    
+    % go through subjects, add strings for the ones we want
+    for ses = 1:length(sesNum)
+      for sub = 1:length(exper.subjects)
+        if exper.badSub(sub,ses)
+          if cfg.excludeBadSub
+            % skip this subject if they're bad
+            fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
+            continue
+          else
+            % keep them in if they're bad
+            fprintf('Including bad subject: %s\n',exper.subjects{sub});
+          end
+        else
+          subSesStr = sprintf('%s_%s',exper.subjects{sub},exper.sesStr{ses});
+          evVal = 1;
+          ana_str.(subSesStr) = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
+          for evVal = 2:length(cfg.conditions)
+            ana_str.(subSesStr) = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(subSesStr),cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
+          end
+        end
+      end % sub
+    end % ses
+    
+  end
   
-  % go through subjects, add strings for the ones we want
-  for ses = 1:length(sesNum)
-    for sub = 1:length(exper.subjects)
-      if exper.badSub(sub,ses)
-        if cfg.excludeBadSub
-          % skip this subject if they're bad
-          fprintf('Skipping bad subject: %s\n',exper.subjects{sub});
-          continue
-        else
-          % keep them in if they're bad
-          fprintf('Including bad subject: %s\n',exper.subjects{sub});
-        end
-      else
-        if ~firstOneDone
-          % add the first subject; the string is formatetted differently
-          %for evVal = 1:length(cfg.conditions{ses})
-          %  ana_str.(cfg.conditions{ses}{evVal}){ses} = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal},sub);
-          %end
-          for evVal = 1:length(cfg.conditions)
-            ana_str.(cfg.conditions{evVal}) = sprintf('%s.%s.%s.sub(%d).data',cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
-          end
-          firstOneDone = 1;
-        else
-          %for evVal = 1:length(cfg.conditions{ses})
-          %  ana_str.(cfg.conditions{ses}{evVal}){ses} = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{ses}{evVal}){ses},cfg.data_str,exper.sesStr{ses},cfg.conditions{ses}{evVal},sub);
-          %end
-          for evVal = 1:length(cfg.conditions)
-            ana_str.(cfg.conditions{evVal}) = sprintf('%s,%s.%s.%s.sub(%d).data',ana_str.(cfg.conditions{evVal}),cfg.data_str,exper.sesStr{ses},cfg.conditions{evVal},sub);
-          end
-        end
-      end
-    end % sub
-  end % ses
 else
   % if we have grand average data, then we just need the event value names
   ses = sesNum(1);

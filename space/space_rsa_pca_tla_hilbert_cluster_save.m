@@ -2,7 +2,7 @@
 
 % also saves files using the hilbert method
 
-%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_hilbert*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/
 
 expName = 'SPACE';
 saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
@@ -52,11 +52,11 @@ sesNames = {'session_1'};
 
 analysisDate = '13-Jul-2014';
 
-origDataType = 'tla';
-% origDataType = 'hilbert';
+% origDataType = 'tla';
+origDataType = 'hilbert';
 
-% avgovertime = 'yes';
-avgovertime = 'no';
+avgovertime = 'yes';
+% avgovertime = 'no';
 
 % accurateClassifSelect = true;
 accurateClassifSelect = false;
@@ -84,7 +84,8 @@ if strcmp(origDataType,'tla')
 elseif strcmp(origDataType,'hilbert')
   % allFreqs = {[4 8; 8 12; 12 30; 30 50]};
   % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
-  allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
+  % allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
+  allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
 end
 
 allSimMethod = {'cosine'};

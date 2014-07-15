@@ -1,6 +1,6 @@
-function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+function [data,fullyRepairChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 
-% function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv)
+% function [data,fullyRepairChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 %
 % Simulate Net Station's Artifact Detection Classic
 %
@@ -15,7 +15,7 @@ function [data,fullyRepairChan_str,badEv,artfctdef] = mm_artifact_nsClassic(data
 % To detect bad channels:
 %
 % % repair the channel in all trials if ch is bad in >20% of segments
-% ana.artifact.repairChan_percentBadTrials = 20; 
+% ana.artifact.repairChan_percentBadTrials = 20;
 %
 % Will attempt to repair channels using spline interpolation on individual
 % trials if fewer than ana.artifact.rejectTrial_nBadChan channels are bad
@@ -69,6 +69,7 @@ end
 tbeg = nearest(data.time{1}, ana.artifact.checkArtSec(1));
 tend = nearest(data.time{1}, ana.artifact.checkArtSec(2));
 nSamp = length(tbeg:tend);
+sampNums = tbeg:tend;
 
 % reject a trial  if it has more than X bad channels
 if ~isfield(ana.artifact,'rejectTrial_nBadChan')
@@ -103,12 +104,12 @@ if strcmp(elecfile,'GSN-HydroCel-129.sfp') || strcmp(elecfile,'GSN-HydroCel-128.
     'E23', 'E18', 'E16', 'E10', 'E3', ...
     'E19', 'E11', 'E4'};
   
-%   % exclude eye channels and neighbors and all periphery channels
-%   eyeAndNeighbAndPeriphChan = {...
-%     'E1', 'E8', 'E14', 'E17', 'E21', 'E25', 'E32', 'E38', 'E43', 'E44', 'E48', 'E49', 'E56', 'E57', 'E63', 'E64', 'E68', 'E69', 'E73', 'E74', 'E81', 'E82', 'E88', 'E89', 'E94', 'E95', 'E99', 'E100', 'E107', 'E113', 'E114', 'E119', 'E120', 'E121', 'E125', 'E126', 'E127', 'E128', ...
-%     'E26', 'E22', 'E15', 'E9', 'E2', ...
-%     'E23', 'E18', 'E16', 'E10', 'E3', ...
-%     'E19', 'E11', 'E4'};
+  %   % exclude eye channels and neighbors and all periphery channels
+  %   eyeAndNeighbAndPeriphChan = {...
+  %     'E1', 'E8', 'E14', 'E17', 'E21', 'E25', 'E32', 'E38', 'E43', 'E44', 'E48', 'E49', 'E56', 'E57', 'E63', 'E64', 'E68', 'E69', 'E73', 'E74', 'E81', 'E82', 'E88', 'E89', 'E94', 'E95', 'E99', 'E100', 'E107', 'E113', 'E114', 'E119', 'E120', 'E121', 'E125', 'E126', 'E127', 'E128', ...
+  %     'E26', 'E22', 'E15', 'E9', 'E2', ...
+  %     'E23', 'E18', 'E16', 'E10', 'E3', ...
+  %     'E19', 'E11', 'E4'};
 else
   warning('Must set up eye channels for your electrode layout!');
   keyboard
@@ -161,14 +162,14 @@ for tr = 1:nTrial
   fast_start = 0;
   slow_start = mean(data.trial{tr}(:,tbeg:tbeg+10),2);
   
-  for i = tbeg:tend
+  for i = 1:nSamp
     % update the running averages
     if i > 1
-      fast(:,i) = a*fast(:,i-1) + b*(data.trial{tr}(:,i)-slow(:,i-1));
-      slow(:,i) = c*slow(:,i-1) + d*data.trial{tr}(:,i);
+      fast(:,i) = a*fast(:,i-1) + b*(data.trial{tr}(:,sampNums(i))-slow(:,i-1));
+      slow(:,i) = c*slow(:,i-1) + d*data.trial{tr}(:,sampNums(i));
     else
-      fast(:,i) = a*fast_start + b*(data.trial{tr}(:,i)-slow_start);
-      slow(:,i) = c*slow_start + d*data.trial{tr}(:,i);
+      fast(:,i) = a*fast_start + b*(data.trial{tr}(:,sampNums(i))-slow_start);
+      slow(:,i) = c*slow_start + d*data.trial{tr}(:,sampNums(i));
     end
   end
   
@@ -212,123 +213,123 @@ fullyRepairChan(sum(foundArt,1) > nTrialThresh) = true;
 
 % were any eye channels bad?
 if ~fullyRepairChan(25)
-    eog_upper_left = 25;
+  eog_upper_left = 25;
 elseif ~fullyRepairChan(21)
-    eog_upper_left = 21;
+  eog_upper_left = 21;
 elseif ~fullyRepairChan(32)
-    eog_upper_left = 32;
+  eog_upper_left = 32;
 else
-    eog_upper_left = [];
+  eog_upper_left = [];
 end
 if ~fullyRepairChan(8)
-    eog_upper_right = 8;
+  eog_upper_right = 8;
 elseif ~fullyRepairChan(14)
-    eog_upper_right = 14;
+  eog_upper_right = 14;
 elseif ~fullyRepairChan(1)
-    eog_upper_right = 1;
+  eog_upper_right = 1;
 else
-    eog_upper_right = [];
+  eog_upper_right = [];
 end
 if ~fullyRepairChan(127)
-    eog_lower_left = 127;
+  eog_lower_left = 127;
 else
-    eog_lower_left = [];
+  eog_lower_left = [];
 end
 if ~fullyRepairChan(126)
-    eog_lower_right = 126;
+  eog_lower_right = 126;
 else
-    eog_lower_right = [];
+  eog_lower_right = [];
 end
 if ~fullyRepairChan(125)
-    eog_horiz_left = 125;
+  eog_horiz_left = 125;
 else
-    eog_horiz_left = [];
+  eog_horiz_left = [];
 end
 if ~fullyRepairChan(128)
-    eog_horiz_right = 128;
+  eog_horiz_right = 128;
 else
-    eog_horiz_right = [];
+  eog_horiz_right = [];
 end
 
 for tr = 1:nTrial
-    %if any(foundArt(tr,ismember(data.label,eyeAndNeighbChan)))
-    if any(foundArt(tr,:))
-        fast = zeros(nChan,nSamp);
-        slow = zeros(nChan,nSamp);
-        
-        fast_start = 0;
-        slow_start = mean(data.trial{tr}(:,tbeg:tbeg+10),2);
-        
-        for i = tbeg:tend
-            % update the running averages
-            if i > 1
-                fast(:,i) = a*fast(:,i-1) + b*(data.trial{tr}(:,i)-slow(:,i-1));
-                slow(:,i) = c*slow(:,i-1) + d*data.trial{tr}(:,i);
-            else
-                fast(:,i) = a*fast_start + b*(data.trial{tr}(:,i)-slow_start);
-                slow(:,i) = c*slow_start + d*data.trial{tr}(:,i);
-            end
-        end
-        
-        if ~isempty(eog_lower_left) && ~isempty(eog_upper_left)
-            if any(abs(fast(eog_lower_left,:)) + abs(fast(eog_upper_left,:)) > 2*ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif ~isempty(eog_lower_right) && ~isempty(eog_upper_right)
-            if any(abs(fast(eog_lower_right,:)) + abs(fast(eog_upper_right,:)) > 2*ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif ~isempty(eog_lower_left) && isempty(eog_upper_left)
-            if any(abs(fast(eog_lower_left,:)) > ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif isempty(eog_lower_left) && ~isempty(eog_upper_left)
-            if any(abs(fast(eog_upper_left,:)) > ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif ~isempty(eog_lower_right) && isempty(eog_upper_right)
-            if any(abs(fast(eog_lower_right,:)) > ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif isempty(eog_lower_right) && ~isempty(eog_upper_right)
-            if any(abs(fast(eog_upper_right,:)) > ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
-            if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
-            if any(abs(fast(eog_horiz_left,:)) > ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
-            if any(abs(fast(eog_horiz_right,:)) > ana.artifact.blink_threshold)
-                foundBlink(tr) = true;
-            end
-        elseif isempty(eog_lower_left) && isempty(eog_upper_left) && isempty(eog_lower_right) && isempty(eog_upper_right)
-            warning('Cannot check for eyeblinks because all eye channels are bad!');
-        end
-        
-        if ~foundBlink(tr)
-            if ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
-                if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
-                    foundEyeMove(tr) = true;
-                end
-            elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
-                if any(abs(fast(eog_horiz_left,:)) > 1*ana.artifact.blink_threshold)
-                    foundEyeMove(tr) = true;
-                end
-            elseif isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
-                if any(abs(fast(eog_horiz_right,:)) > 1*ana.artifact.blink_threshold)
-                    foundEyeMove(tr) = true;
-                end
-            elseif isempty(eog_horiz_left) && isempty(eog_horiz_right)
-                warning('Cannot check for eye movements because both horizontal eye channels are bad!');
-            end
-        end
-        
+  %if any(foundArt(tr,ismember(data.label,eyeAndNeighbChan)))
+  if any(foundArt(tr,:))
+    fast = zeros(nChan,nSamp);
+    slow = zeros(nChan,nSamp);
+    
+    fast_start = 0;
+    slow_start = mean(data.trial{tr}(:,tbeg:tbeg+10),2);
+    
+    for i = 1:nSamp
+      % update the running averages
+      if i > 1
+        fast(:,i) = a*fast(:,i-1) + b*(data.trial{tr}(:,sampNums(i))-slow(:,i-1));
+        slow(:,i) = c*slow(:,i-1) + d*data.trial{tr}(:,sampNums(i));
+      else
+        fast(:,i) = a*fast_start + b*(data.trial{tr}(:,sampNums(i))-slow_start);
+        slow(:,i) = c*slow_start + d*data.trial{tr}(:,sampNums(i));
+      end
     end
+    
+    if ~isempty(eog_lower_left) && ~isempty(eog_upper_left)
+      if any(abs(fast(eog_lower_left,:)) + abs(fast(eog_upper_left,:)) > 2*ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif ~isempty(eog_lower_right) && ~isempty(eog_upper_right)
+      if any(abs(fast(eog_lower_right,:)) + abs(fast(eog_upper_right,:)) > 2*ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif ~isempty(eog_lower_left) && isempty(eog_upper_left)
+      if any(abs(fast(eog_lower_left,:)) > ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif isempty(eog_lower_left) && ~isempty(eog_upper_left)
+      if any(abs(fast(eog_upper_left,:)) > ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif ~isempty(eog_lower_right) && isempty(eog_upper_right)
+      if any(abs(fast(eog_lower_right,:)) > ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif isempty(eog_lower_right) && ~isempty(eog_upper_right)
+      if any(abs(fast(eog_upper_right,:)) > ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+      if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
+      if any(abs(fast(eog_horiz_left,:)) > ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+      if any(abs(fast(eog_horiz_right,:)) > ana.artifact.blink_threshold)
+        foundBlink(tr) = true;
+      end
+    elseif isempty(eog_lower_left) && isempty(eog_upper_left) && isempty(eog_lower_right) && isempty(eog_upper_right)
+      warning('Cannot check for eyeblinks because all eye channels are bad!');
+    end
+    
+    if ~foundBlink(tr)
+      if ~isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+        if any(abs(fast(eog_horiz_left,:)) + abs(fast(eog_horiz_right,:)) > 2*ana.artifact.blink_threshold)
+          foundEyeMove(tr) = true;
+        end
+      elseif ~isempty(eog_horiz_left) && isempty(eog_horiz_right)
+        if any(abs(fast(eog_horiz_left,:)) > 1*ana.artifact.blink_threshold)
+          foundEyeMove(tr) = true;
+        end
+      elseif isempty(eog_horiz_left) && ~isempty(eog_horiz_right)
+        if any(abs(fast(eog_horiz_right,:)) > 1*ana.artifact.blink_threshold)
+          foundEyeMove(tr) = true;
+        end
+      elseif isempty(eog_horiz_left) && isempty(eog_horiz_right)
+        warning('Cannot check for eye movements because both horizontal eye channels are bad!');
+      end
+    end
+    
+  end
 end
 
 fprintf('**********************************************************************');
@@ -399,36 +400,46 @@ if ~ana.artifact.allowBadNeighborChan
 end
 
 % initialize to store whether there was an artifact for each trial
-if ~exist('badEv','var') || isempty(badEv)
+if isempty(badEv)
   combineArtLists = false;
   %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
-  badEv = zeros(size(data.sampleinfo,1), 1);
+  badEv = false(size(data.sampleinfo,1), 1);
 else
   combineArtLists = true;
 end
-manualEv = zeros(size(data.sampleinfo,1), 1);
 
 % find out what kind of artifacts we're dealing with
 fn = fieldnames(cfg.artfctdef);
 theseArt = {};
 for i = 1:length(fn)
-  if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact') && ~isempty(cfg.artfctdef.(fn{i}).artifact)
+  if isstruct(cfg.artfctdef.(fn{i})) && isfield(cfg.artfctdef.(fn{i}),'artifact')
     theseArt = cat(2,theseArt,fn{i});
+    if ~ismember(fn{i},artfctdefEv.types)
+      artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+    else
+      warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+      keyboard
+    end
+    artfctdefEv.(fn{i}) = false(size(badEv));
   end
 end
+
+% store artifacts for the only events we are checking
+foundArtEv = false(size(data.sampleinfo,1),length(theseArt));
+
 % find out which samples were marked as artifacts
 if ~isempty(theseArt)
-  artSamp = single(zeros(max(data.sampleinfo(:)),1));
+  artSamp = false(max(data.sampleinfo(:)),length(theseArt));
   for i = 1:length(theseArt)
     for j = 1:size(cfg.artfctdef.(theseArt{i}).artifact,1)
       % mark that it was a particular type of artifact
-      artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2)) = find(ismember(theseArt,theseArt{i}));
+      artSamp(cfg.artfctdef.(theseArt{i}).artifact(j,1):cfg.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
     end
   end
   % save a list of trials with artifact status
   for k = 1:size(data.sampleinfo,1)
-    if any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2)) > 0)
-      manualEv(k,1) = 1;
+    if any(any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1),2)
+      foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
     end
   end
 end
@@ -440,33 +451,39 @@ if combineArtLists
     %if badEv(i,2) == 0
     if badEv(i,1) == 0
       rCount = rCount + 1;
-      %if manualEv(rCount,2) == 1
-      if manualEv(rCount) == 1
+      if any(foundArtEv(rCount,:))
         %badEv(i,2) = 1;
         badEv(i,1) = 1;
+        setTheseArt = theseArt(foundArtEv(rCount,:));
+        for a = 1:length(setTheseArt)
+          artfctdefEv.(setTheseArt{a})(i) = true;
+        end
       end
     end
   end
   if ~isempty(theseArt)
-    if ~exist('artfctdef','var')
-      artfctdef = cfg.artfctdef;
+    if isempty(artfctdefSamp)
+      artfctdefSamp = cfg.artfctdef;
     else
       for i = 1:length(theseArt)
-        if isfield(artfctdef,theseArt{i})
-          artfctdef.(theseArt{i}).artifact = cat(1,artfctdef.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
+        if isfield(artfctdefSamp,theseArt{i})
+          artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg.artfctdef.(theseArt{i}).artifact);
         else
-          artfctdef.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
+          artfctdefSamp.(theseArt{i}).artifact = cfg.artfctdef.(theseArt{i}).artifact;
         end
       end
     end
   end
 else
-  badEv = manualEv;
-  artfctdef = cfg.artfctdef;
+  badEv = logical(sum(foundArtEv,2));
+  artfctdefSamp = cfg.artfctdef;
+  for a = 1:length(theseArt)
+    artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+  end
 end
 
 data = ft_rejectartifact(cfg, data);
-  
+
 %% do the channel repair on all remaining trials
 
 if ~isempty(fullyRepairChan_str)

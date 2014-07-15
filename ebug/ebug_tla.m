@@ -1,9 +1,9 @@
 %% load the analysis details
 
-expName = 'EBIRD';
+expName = 'EBUG';
 
 % subDir = '';
-subDir = 'new_art500';
+subDir = 'new_art';
 if ~isempty(subDir)
   warning('Loading data from subDir ''%s''...',subDir);
 end
@@ -34,40 +34,27 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/data_art_nsClassic_ftAuto/tla');
 
 subjects = {
-  %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
-  %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
-  %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
-  %'EBIRD004'; % DNF. Dropout. Last session: 8.
-  'EBIRD005';
-  %'EBIRD006'; % DNF. Dropout. Last session: 2.
-  'EBIRD007';
-  'EBIRD008';
-  'EBIRD009';
-  'EBIRD010';
-  'EBIRD011';
-  'EBIRD012';
-  %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-  %'EBIRD014'; % DNF. Rejected. Last session: 1.
-  %'EBIRD015'; % DNF. Lost in HD crash.
-  %'EBIRD016'; % DNF. Lost in HD crash.
-  %'EBIRD017'; % DNF. Lost in HD crash.
-  'EBIRD018';
-  'EBIRD019';
-  'EBIRD020';
-  'EBIRD021';
-  %'EBIRD022'; % DNF. Dropout. Last session: 8.
-  %'EBIRD023'; % DNF. Dropout. Last session: 1.
-  'EBIRD024';
-  'EBIRD025';
-  'EBIRD027';
-  'EBIRD029';
-  'EBIRD032';
-  'EBIRD034';
-  'EBIRD042';
+    'EBUG010';
+    'EBUG011';
+%     'EBUG012';
+%     'EBUG016';
+%     'EBUG017';
+%     'EBUG018';
+%     'EBUG019';
+%     'EBUG020';
+%     'EBUG022';
+%     'EBUG025';
+%     'EBUG027';
+%     'EBUG029';
+%     'EBUG032';
+%     'EBUG034';
+%     'EBUG043';
+%     'EBUG045';
   };
 
 % only one cell, with all session names
-sesNames = {'session_1','session_8','session_9'};
+sesNames = {'session_1'};
+% sesNames = {'session_1','session_8','session_9'};
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;
@@ -112,11 +99,14 @@ ana = mm_ft_elecGroups(ana);
 
 
 ana.eventValues = repmat({{'match_stim'}},1,length(exper.sessions));
+% ana.eventValuesSplit = repmat({...
+%   {{'stim1_basic_color', 'stim1_basic_g', 'stim1_basic_g_hi8', 'stim1_basic_g_lo8', 'stim1_basic_norm', ...
+%   'stim1_subord_color', 'stim1_subord_g', 'stim1_subord_g_hi8', 'stim1_subord_g_lo8', 'stim1_subord_norm', ...
+%   'stim2_basic_color', 'stim2_basic_g', 'stim2_basic_g_hi8', 'stim2_basic_g_lo8', 'stim2_basic_norm', ...
+%   'stim2_subord_color', 'stim2_subord_g', 'stim2_subord_g_hi8', 'stim2_subord_g_lo8', 'stim2_subord_norm'} ...
+%   }},1,length(exper.sessions));
 ana.eventValuesSplit = repmat({...
-  {{'stim1_basic_color', 'stim1_basic_g', 'stim1_basic_g_hi8', 'stim1_basic_g_lo8', 'stim1_basic_norm', ...
-  'stim1_subord_color', 'stim1_subord_g', 'stim1_subord_g_hi8', 'stim1_subord_g_lo8', 'stim1_subord_norm', ...
-  'stim2_basic_color', 'stim2_basic_g', 'stim2_basic_g_hi8', 'stim2_basic_g_lo8', 'stim2_basic_norm', ...
-  'stim2_subord_color', 'stim2_subord_g', 'stim2_subord_g_hi8', 'stim2_subord_g_lo8', 'stim2_subord_norm'} ...
+  {{'stim1_basic', 'stim1_subord'} ...
   }},1,length(exper.sessions));
 % ana.eventValuesSplit = repmat({...
 %   {{'stim1_basic_color', 'stim1_basic_g', 'stim1_basic_g_hi8', 'stim1_basic_g_lo8', 'stim1_basic_norm', ...
@@ -240,97 +230,13 @@ ana.trl_expr = cell(1,length(exper.sessions));
 ses = 1;
 ana.trl_expr{ses} = {...
   {...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0  & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0  & response ~= 0 & rt < 2900 & trained == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1  & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
+  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1  & response ~= 0 & rt < 2900 & trained == 1',find(ismember(exper.eventValues{ses},'match_stim'))) ...
   }...
   };
 
-ses = 2;
-ana.trl_expr{ses} = {...
-  {...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  }...
-  };
-
-ses = 3;
-ana.trl_expr{ses} = {...
-  {...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  sprintf('eventNumber == %d & stimNum == 2 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900 & trained == 0',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-  }...
-  };
-
-% ses = 1;
-% ana.trl_expr{ses} = {...
-%   {...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 1 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 2 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 3 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 4 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 0 & imgCond == 5 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 1 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 2 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 3 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 4 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   sprintf('eventNumber == %d & stimNum == 1 & isSubord == 1 & imgCond == 5 & response ~= 0 & rt < 2900',find(ismember(exper.eventValues{ses},'match_stim'))) ...
-%   }...
-%   };
-% 
 % ses = 2;
 % ana.trl_expr{ses} = {...
 %   {...
@@ -390,10 +296,11 @@ ana.eventValues = ana.eventValuesSplit;
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{},{},{}};
+% exper.badBehSub = {{},{},{}};
+exper.badBehSub = {{}};
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,14,[],'vert');
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert');
 % [exper,ana] = mm_threshSubs(exper,ana,1);
 
 %% Test plots to make sure data look ok
@@ -570,10 +477,10 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
 
-sesNum = [1 2];
+% sesNum = [1 2];
 % sesNum = [1 3];
 % sesNum = [2 3];
-% sesNum = [1];
+sesNum = [1];
 % sesNum = [2];
 % sesNum = [3];
 % cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
@@ -588,7 +495,7 @@ sesNum = [1 2];
 % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_color' 'stim1_subord_color' 'stim1_basic_g' 'stim1_subord_g'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'stim1_basic' 'stim1_subord'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8'}},size(cfg_plot.rois));
@@ -629,20 +536,22 @@ for r = 1:length(cfg_plot.rois)
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
   
   stimStr = 'Stim1';
-  imgCond = 'Congruent';
+%   imgCond = 'Congruent';
 %   imgCond = 'Incongruent';
 %   imgCond = 'Gray-AllSF';
 %   imgCond = 'HiSF';
 %   imgCond = 'LoSF';
   
   legendLoc = 'SouthEast';
-  legend({sprintf('%s Basic Pretest %s',stimStr,imgCond) sprintf('%s Subord Pretest %s',stimStr,imgCond) sprintf('%s Basic 1-Day Posttest %s',stimStr,imgCond) sprintf('%s Subord 1-Day Posttest %s',stimStr,imgCond)},'Location',legendLoc);
+  legend({sprintf('%s Basic Pretest %s',stimStr) sprintf('%s Subord Pretest %s',stimStr)},'Location',legendLoc);
+%   legend({sprintf('%s Basic Pretest %s',stimStr,imgCond) sprintf('%s Subord Pretest %s',stimStr,imgCond) sprintf('%s Basic 1-Day Posttest %s',stimStr,imgCond) sprintf('%s Subord 1-Day Posttest %s',stimStr,imgCond)},'Location',legendLoc);
   %legend({sprintf('%s Basic %s Pretest',stimStr,imgCond) sprintf('%s Subord %s Pretest',stimStr,imgCond) sprintf('%s Basic %s 1-Day Posttest',stimStr,imgCond) sprintf('%s Subord %s 1-Day Posttest',stimStr,imgCond)},'Location',legendLoc);
   %legend off
   
   saveFigs = true;
   
-  figFileName = sprintf('ERP_%s_%s_basic_subord_prepost',imgCond,stimStr);
+  figFileName = sprintf('ERP_%s_%s_basic_subord_pre',stimStr);
+%   figFileName = sprintf('ERP_%s_%s_basic_subord_prepost',imgCond,stimStr);
   
   publishfig(gcf,1,14);
   if saveFigs
@@ -652,114 +561,112 @@ end
 
 %% lineplot of the conditions
 
-% don't use this, move ahead to next two sections
+cfg_ft = [];
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_ft.parameter = 'avg';
 
-% cfg_ft = [];
-% % cfg_ft.xlim = [-0.2 1.0];
-% % cfg_ft.parameter = 'avg';
-% 
-% cfg_plot = [];
-% 
-% cfg_ft.latency = [0.156 0.208]; % N170 (use this)
-% % cfg_ft.latency = [0.234 0.334]; % N250
-% 
-% cfg_plot.is_ga = 0;
-% cfg_plot.excludeBadSub = 1;
-% 
-% % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% % cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
-% % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
-% % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
-% 
-% % % cfg_plot.rois = {{'LAS'},{'LPS'}};
-% % cfg_plot.rois = {{'posterior'}};
-% % % cfg_plot.rois = {{'LPS'},{'RPS'}};
-% % cfg_plot.ylims = [-8 8; -8 8];
-% % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
-% 
-% % same as Scott et al. (2008)
-% cfg_plot.rois = {{'LPI2'},{'RPI2'}};
-% % cfg_plot.rois = {{'LPI2','RPI2'}};
-% cfg_plot.ylims = [-2 6; -2 6];
+cfg_plot = [];
+
+cfg_ft.latency = [0.156 0.208]; % N170 (use this)
+% cfg_ft.latency = [0.234 0.334]; % N250
+
+cfg_plot.is_ga = 0;
+cfg_plot.excludeBadSub = 1;
+
+% %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg_plot.rois = {{'LAS'},{'RAS'},{'FS'},{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','NorthWest','NorthWest'};
+
+% % cfg_plot.rois = {{'LAS'},{'LPS'}};
+% cfg_plot.rois = {{'posterior'}};
+% % cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.ylims = [-8 8; -8 8];
+% cfg_plot.legendlocs = {'SouthEast','NorthWest'};
+
+% same as Scott et al. (2008)
+cfg_plot.rois = {{'LPI2'},{'RPI2'}};
+% cfg_plot.rois = {{'LPI2','RPI2'}};
+cfg_plot.ylims = [-2 6; -2 6];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+
+% cfg_ft.xlim = [-0.2 1.0];
+% cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.ylims = [-10 10; -10 10];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
-% 
-% % cfg_ft.xlim = [-0.2 1.0];
-% % cfg_plot.rois = {{'E70'},{'E83'}};
-% % cfg_plot.ylims = [-10 10; -10 10];
-% % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
-% 
-% % outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% % for each event type; each event type cell holds strings for its
-% % conditions
-% 
-% % cfg_plot.condByTypeByROI = {...
-% %   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-% %   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
-% 
-% %cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
-% 
-% % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
-% 
-% % sesNum = [1 2];
-% % sesNum = [1 3];
-% % sesNum = [2 3];
-% sesNum = [1];
-% % sesNum = [2];
-% % sesNum = [3];
-% % cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
-% 
-% % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-% 
-% % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% 
-% % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
-% 
-% % cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% 
-% 
-% % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_basic_g' 'stim2_basic_g_hi8' 'stim2_basic_g_lo8'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim2_subord_norm' 'stim2_subord_g' 'stim2_subord_g_hi8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% 
-% 
-% % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% % cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% 
-% % cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
-% % cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
-% 
-% % cfg_ft.graphcolor = 'rmbckgrmbckg';
-% cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
-% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
-% 
-% collapseSessions = false;
-% if collapseSessions
-%   exper.badSub = logical(sum(exper.badSub,2));
-%   exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
-% end
-% 
-% for r = 1:length(cfg_plot.rois)
-%   cfg_plot.roi = cfg_plot.rois{r};
-%   cfg_plot.legendloc = cfg_plot.legendlocs{r};
-%   cfg_ft.ylim = cfg_plot.ylims(r,:);
-%   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-%   cfg_plot.conditions = cfg_plot.condByROI{r};
-%   
-% 
-%   %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
-% %   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
-%   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
-%   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
-% end
+
+% outermost cell holds one cell for each ROI; each ROI cell holds one cell
+% for each event type; each event type cell holds strings for its
+% conditions
+
+% cfg_plot.condByTypeByROI = {...
+%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
+%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+
+%cfg_plot.condByTypeByROI = repmat({{{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
+
+% sesNum = [1 2];
+% sesNum = [1 3];
+% sesNum = [2 3];
+sesNum = [1];
+% sesNum = [2];
+% sesNum = [3];
+% cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+
+
+% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_basic_g' 'stim2_basic_g_hi8' 'stim2_basic_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim2_subord_norm' 'stim2_subord_g' 'stim2_subord_g_hi8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+
+
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
+
+% cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
+% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
+
+% cfg_ft.graphcolor = 'rmbckgrmbckg';
+cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
+cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
+
+collapseSessions = false;
+if collapseSessions
+  exper.badSub = logical(sum(exper.badSub,2));
+  exper.badSub = repmat(exper.badSub,1,length(exper.sessions));
+end
+
+for r = 1:length(cfg_plot.rois)
+  cfg_plot.roi = cfg_plot.rois{r};
+  cfg_plot.legendloc = cfg_plot.legendlocs{r};
+  cfg_ft.ylim = cfg_plot.ylims(r,:);
+  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+  cfg_plot.conditions = cfg_plot.condByROI{r};
+  
+
+  %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+%   mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+  mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
+  %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
+end
 
 %% LINES: break pre/post tests into different graphs - training x img cond
 

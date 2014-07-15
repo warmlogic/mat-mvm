@@ -1,7 +1,7 @@
-function space_rsa_pca_pow_classif_wrapper(whichStages)
-% space_rsa_pca_pow_classif_wrapper(whichStages)
+function space_rsa_pca_tla_hilbert_classif_wrapper(whichStages)
+% space_rsa_pca_tla_classif_wrapper(whichStages)
 %
-% To run on dream, at the command line type: distmsub space_rsa_pca_pow_classif_wrapper.m
+% To run on dream, at the command line type: distmsub space_rsa_pca_tla_classif_wrapper.m
 %
 % To run on a local computer, type the command in MATLAB
 %
@@ -106,6 +106,7 @@ sesNames = {'session_1'};
 
 %% analysis details
 
+% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS','FC','RAS'}};
 allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
@@ -249,13 +250,12 @@ if runLocally == 0
               %createTask(job,@create_ft_struct_multiSes,1,inArg);
               
               inArg = {thisSub,thisSes,thisROI,latencies,freqs,sim_method,eig_criterion};
-              createTask(job,@space_rsa_pca_pow_classif_cluster,0,inArg);
+              createTask(job,@space_rsa_pca_tla_hilbert_classif_cluster,0,inArg);
             end
           end
         end
       end
     end
-    
   end
   
   runJob(job,timeOut,fullfile(saveDirProc,[expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS'),'.log']));
@@ -266,7 +266,7 @@ if runLocally == 0
 else
   %% run the function locally
   
-  %error('This setup does not make sense with the current data loading setup.');
+  error('This setup does not make sense with the current data loading setup.');
   
   % create a log of the command window output
   thisRun = [expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
@@ -288,7 +288,7 @@ else
           for e = 1:length(allEigCrit)
             eig_criterion = allEigCrit{e};
             % Local: run all the subjects
-            space_rsa_pca_pow_classif_cluster(subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion);
+            space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion);
           end
         end
       end

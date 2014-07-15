@@ -10,7 +10,7 @@ ana = struct;
 
 %% Experiment-specific setup
 
-exper.name = 'EBIRD';
+exper.name = 'EBUG';
 
 exper.sampleRate = 250;
 
@@ -22,8 +22,9 @@ exper.eegFileExt = 'raw';
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-exper.eventValues = {{'match_stim'}};
+% exper.eventValues = {{'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
+exper.eventValues = {{'match_stim'}, {'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}, ...
 %   {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, ...
@@ -33,52 +34,38 @@ exper.eventValues = {{'match_stim'}};
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
-exper.prepost = {[-0.2 1.0]};
+% exper.prepost = {[-0.2 1.0]};
+exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 
-% % % all subjects
-% % exper.subjects = {
-% %   %'EBIRD049'; % Pilot. (due to short ses1 match, missing ses2 name)
-% %   %'EBIRD002'; % Pilot. (due to short ses1 match, missing ses2 name)
-% %   %'EBIRD003'; % Pilot. (due to missing ses7 name) - NB: LAST PILOT TO BE REPLACED
-% %   %'EBIRD004'; % DNF. Dropout. Last session: 8.
-% %   'EBIRD005';
-% %   %'EBIRD006'; % DNF. Dropout. Last session: 2.
-% %   'EBIRD007';
-% %   'EBIRD008';
-% %   'EBIRD009';
-% %   'EBIRD010';
-% %   'EBIRD011';
-% %   'EBIRD012';
-% %   %'EBIRD013'; % DNF. Dropout. Last session: 5. Lost session 6 in HD crash.
-% %   %'EBIRD014'; % DNF. Rejected. Last session: 1.
-% %   %'EBIRD015'; % DNF. Lost in HD crash.
-% %   %'EBIRD016'; % DNF. Lost in HD crash.
-% %   %'EBIRD017'; % DNF. Lost in HD crash.
-% %   'EBIRD018';
-% %   'EBIRD019';
-% %   'EBIRD020';
-% %   'EBIRD021';
-% %   %'EBIRD022'; % DNF. Dropout. Last session: 8.
-% %   %'EBIRD023'; % DNF. Dropout. Last session: 1.
-% %   'EBIRD024';
-% %   'EBIRD025';
-% %   'EBIRD027';
-% %   'EBIRD029';
-% %   'EBIRD032';
-% %   'EBIRD034';
-% %   'EBIRD042';
-% %   };
-
-% only subjects for ICA on first session
 exper.subjects = {
-%   'EBIRD009';
-%   'EBIRD010';
-  'EBIRD011';
-%   'EBIRD024';
-%   'EBIRD034';
+%     'EBUG001';
+%     'EBUG002';
+%     'EBUG003';
+%     'EBUG004';
+%     'EBUG005';
+%     'EBUG006';
+%     'EBUG007';
+%     'EBUG008';
+%     'EBUG009';
+%     'EBUG010';
+%     'EBUG011';
+%     'EBUG012';
+%     'EBUG016';
+%     'EBUG017';
+%     'EBUG018';
+%     'EBUG019';
+    'EBUG020';
+%     'EBUG022';
+%     'EBUG025';
+%     'EBUG027';
+    'EBUG029';
+%     'EBUG032';
+%     'EBUG034';
+%     'EBUG043';
+%     'EBUG045';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -87,8 +74,9 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-exper.sessions = {{'session_1'}};
+% exper.sessions = {{'session_1'}};
 % exper.sessions = {{'session_2'}};
+exper.sessions = {{'session_8'}, {'session_9'}};
 % exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 % exper.sessions = {...
 %   {'session_1'}, ...
@@ -142,7 +130,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
-ana.trialFxn = 'ebird_trialfun';
+ana.trialFxn = 'ebug_trialfun';
 ana.allowTrialOverlap = false;
 ana.renumberSamplesContiguous = false;
 % files used when adding metadata to segmented trials
@@ -156,7 +144,8 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-  ana.sessionNames = {'pretest'};
+%   ana.sessionNames = {'pretest'};
+  ana.sessionNames = {'posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
@@ -168,16 +157,17 @@ if ana.useExpInfo
 %     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
-  ana.phaseNames = {{'match'}};
+%   ana.phaseNames = {{'match'}};
+  ana.phaseNames = {{'match'}, {'match'}};
 %   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
-  ana.trl_order.match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'imgCond', 'isSubord', 'trained', 'sameTrained', 'sameSpecies', 'response', 'rt', 'acc'};
-  ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
-  ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
+  ana.trl_order.match_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'stimNum', 'isSubord', 'trained', 'sameSpecies', 'response', 'rt', 'acc'};
+  ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'isSubord', 'response', 'rt', 'acc'};
+  ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'isSubord', 'response', 'rt', 'acc'};
 end
 
 % preprocess continuous data in these ways
@@ -190,80 +180,82 @@ ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
+% debug
+% ana.cfg_cont = [];
+
 % artifact settings
 ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes';
 
-% ana.artifact.type = {'nsClassic','ftAuto'};
-% 
-% % set up for nsClassic
-% % ana.artifact.checkArtSec = [-Inf Inf];
-% ana.artifact.checkArtSec = [-0.2 0.5];
-% ana.artifact.blink_threshold = 70;
-% ana.artifact.fast_threshold = 100;
-% ana.artifact.diff_threshold = 50;
-% ana.artifact.rejectTrial_nBadChan = 10;
-% ana.artifact.repairChan_percentBadTrials = 20;
-% ana.artifact.allowBadNeighborChan = false;
-% 
-% % set up for ftAuto following nsClassic
-% % % negative trlpadding: don't check that time (on both sides) for artifacts
-% % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
-% % of extra time around trial epochs. Otherwise set to zero.
-% % ana.artifact.trlpadding = -0.5;
-% ana.artifact.trlpadding = 0;
-% ana.artifact.artpadding = 0.1;
-% ana.artifact.fltpadding = 0;
-% 
-% ana.artifact.thresh = true;
-% ana.artifact.threshmin = -150;
-% ana.artifact.threshmax = 150;
-% ana.artifact.threshrange = 250;
-% ana.artifact.basic_art = true;
-% ana.artifact.basic_art_z = 30;
-% ana.artifact.jump_art = true;
-% ana.artifact.jump_art_z = 50;
-% % eog_art is only used with ftAuto
-% ana.artifact.eog_art = false;
-% % ana.artifact.eog_art_z = 3.5;
+ana.artifact.type = {'nsClassic','ftAuto'};
 
-ana.artifact.type = {'ftManual', 'ftICA'};
-% ana.artifact.type = {'ftAuto', 'ftICA'};
-% ana.artifact.type = {'ftAuto'};
-ana.artifact.resumeManArtFT = false;
-ana.artifact.resumeICACompFT = false;
-% negative trlpadding: don't check that time (on both sides) for artifacts.
+% set up for nsClassic
+ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.blink_threshold = 70;
+ana.artifact.fast_threshold = 100;
+ana.artifact.diff_threshold = 50;
+ana.artifact.rejectTrial_nBadChan = 10;
+ana.artifact.repairChan_percentBadTrials = 20;
+ana.artifact.allowBadNeighborChan = false;
+
+% set up for ftAuto following nsClassic
+% % negative trlpadding: don't check that time (on both sides) for artifacts
 % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
 % of extra time around trial epochs. Otherwise set to zero.
+% ana.artifact.trlpadding = -0.5;
 ana.artifact.trlpadding = 0;
 ana.artifact.artpadding = 0.1;
 ana.artifact.fltpadding = 0;
 
-% set up for ftManual/ftAuto
 ana.artifact.thresh = true;
-% ana.artifact.threshmin = -150;
-% ana.artifact.threshmax = 150;
-% ana.artifact.threshrange = 250;
-ana.artifact.threshmin = -200;
-ana.artifact.threshmax = 200;
-ana.artifact.threshrange = 350;
+ana.artifact.threshmin = -150;
+ana.artifact.threshmax = 150;
+ana.artifact.threshrange = 250;
 ana.artifact.basic_art = true;
-ana.artifact.basic_art_z = 70;
+ana.artifact.basic_art_z = 30;
 ana.artifact.jump_art = true;
-ana.artifact.jump_art_z = 70;
+ana.artifact.jump_art_z = 50;
+% eog_art is only used with ftAuto
+ana.artifact.eog_art = false;
+% ana.artifact.eog_art_z = 3.5;
+
+% ana.artifact.type = {'ftManual', 'ftICA'};
+% % ana.artifact.type = {'ftAuto', 'ftICA'};
+% % ana.artifact.type = {'ftAuto'};
+% ana.artifact.resumeManArtFT = false;
+% ana.artifact.resumeICACompFT = false;
+% % negative trlpadding: don't check that time (on both sides) for artifacts.
+% % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% % of extra time around trial epochs. Otherwise set to zero.
+% ana.artifact.trlpadding = 0;
+% ana.artifact.artpadding = 0.1;
+% ana.artifact.fltpadding = 0;
+% 
+% % set up for ftManual/ftAuto
+% ana.artifact.thresh = true;
+% % ana.artifact.threshmin = -150;
+% % ana.artifact.threshmax = 150;
+% % ana.artifact.threshrange = 250;
+% ana.artifact.threshmin = -200;
+% ana.artifact.threshmax = 200;
+% ana.artifact.threshrange = 350;
+% ana.artifact.basic_art = true;
+% ana.artifact.basic_art_z = 60;
+% ana.artifact.jump_art = true;
+% ana.artifact.jump_art_z = 70;
 % % eog_art is only used with ftAuto
 % ana.artifact.eog_art = false;
 % ana.artifact.eog_art_z = 3.5;
-
-% set up for ftICA
-ana.artifact.thresh_postICA = true;
-ana.artifact.threshmin_postICA = -100;
-ana.artifact.threshmax_postICA = 100;
-ana.artifact.threshrange_postICA = 150;
-ana.artifact.basic_art_postICA = true;
-ana.artifact.basic_art_z_postICA = 30;
-ana.artifact.jump_art_postICA = true;
-ana.artifact.jump_art_z_postICA = 50;
+% 
+% % set up for ftICA
+% ana.artifact.thresh_postICA = true;
+% ana.artifact.threshmin_postICA = -100;
+% ana.artifact.threshmax_postICA = 100;
+% ana.artifact.threshrange_postICA = 150;
+% ana.artifact.basic_art_postICA = true;
+% ana.artifact.basic_art_z_postICA = 30;
+% ana.artifact.jump_art_postICA = true;
+% ana.artifact.jump_art_z_postICA = 50;
 
 
 % process the data

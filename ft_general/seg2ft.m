@@ -1,12 +1,15 @@
-function [ft_raw,badChanAllSes,badEvEvVals] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+function [ft_raw,badChanAllSes,badEvEvVals,artifacts,trialinfo_allEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %SEG2FT: take segmented EEG data and put it in FieldTrip format
 %
-% [ft_raw,badChan,badEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
+% [ft_raw,badChan,badEv,artifacts,trialinfo_allEv] = seg2ft(dataroot,subject,session,sesNum_orig,eventValue,eventValue_orig,prepost,elecfile,ana,exper,dirs)
 %
 % Output:
 %   ft_raw  = struct with one field for each event value
 %   badChan = bad channel information
 %   badEv   = bad event information
+%   artifacts = artifact information
+%   trialinfo_allEv = full set of trialinfo, includes trials rejected for
+%                     artifacts
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SETUP:
@@ -187,6 +190,13 @@ badEvAllSes = [];
 
 %% for each session, read in the EEG file
 
+% initialize to save all trial metadata
+allTrialinfo = [];
+
+% event number column comes from the trialfun function when the trl gets
+% created
+trialinfo_eventNumCol = 1;
+
 for ses = 1:length(session)
   sesName = session{ses};
   
@@ -252,7 +262,7 @@ for ses = 1:length(session)
     % combine the initial cfg and the continuous data preprocessing
     % settings from ana.cfg_cont
     if isfield(ana,'cfg_cont')
-      fprintf('%s: The field ana.cfg_cont exists. Using these pre-defined settings for preprocessing continuous data instead of defaults!\n',mfilename);
+      fprintf('%s.m: The field ana.cfg_cont exists. Using these user-defined settings for preprocessing continuous data instead of defaults.\n',mfilename);
       
       fn_cfg = fieldnames(cfg);
       if ~isempty(ana.cfg_cont)
@@ -446,6 +456,9 @@ for ses = 1:length(session)
     data_seg = ft_redefinetrial(cfg, data);
   end
   
+  % collect the event type numbers
+  allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo);
+  
   % hack: renumber samples so they don't overlap, or throw an error
   overlap = false;
   for i = 2:size(data_seg.sampleinfo,1)
@@ -606,11 +619,44 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    [data_seg,badChan,badEv,artftcdef] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
+    [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
+    
+%     if ~exist('artfctdefSampAllSes','var')
+%       artfctdefSampAllSes = artfctdefSamp;
+%     else
+%       fn = fieldnames(artfctdefSamp);
+%       for f = 1:length(fn)
+%         if isfield(artfctdefSampAllSes,fn{f})
+%           artfctdefSampAllSes.(fn{f}) = cat(1,artfctdefSampAllSes.(fn{f}),artfctdefSamp.(fn{f}));
+%         else
+%           artfctdefSampAllSes.(fn{f}) = artfctdefSamp.(fn{f});
+%         end
+%       end
+%     end
+    if ~exist('artfctdefEvAllSes','var')
+      artfctdefEvAllSes = artfctdefEv;
+    else
+      fn = fieldnames(artfctdefEv);
+      for f = 1:length(fn)
+        if strcmp(fn{f},'types')
+          if isfield(artfctdefEvAllSes,(fn{f}))
+            artfctdefEvAllSes.(fn{f}) = cat(2,artfctdefEvAllSes.(fn{f}),artfctdefEv.(fn{f}));
+          else
+            artfctdefEvAllSes.(fn{f}) = artfctdefEv.(fn{f});
+          end
+        else
+          if isfield(artfctdefEvAllSes,fn{f})
+            artfctdefEvAllSes.(fn{f}) = cat(1,artfctdefEvAllSes.(fn{f}),artfctdefEv.(fn{f}));
+          else
+            artfctdefEvAllSes.(fn{f}) = artfctdefEv.(fn{f});
+          end
+        end
+      end
+    end
   end
   
   %% if we're combining multiple sessions, add the data to the append struct
@@ -639,13 +685,24 @@ end
 % initialize the struct to return
 ft_raw = struct;
 
-% event number column comes from the trialfun function when the trl gets
-% created
-trialinfo_eventNumCol = 1;
-
 badEvEvVals = struct;
+artifacts = [];
+if rejArt
+  artTypes = fieldnames(artfctdefEvAllSes);
+  artTypes = artTypes(~ismember(artTypes,'types'));
+end
+trialinfo_allEv = [];
+
 for evVal = 1:length(eventValue)
   badEvEvVals.(eventValue{evVal}) = [];
+  if ana.useExpInfo
+    trialinfo_allEv.(eventValue{evVal}) = [];
+  end
+  if rejArt
+    for at = 1:length(artTypes)
+      artifacts.(eventValue{evVal}).(artTypes{at}) = [];
+    end
+  end
 end
 
 % if length(eventValue) > 1
@@ -661,13 +718,22 @@ for evVal = 1:length(eventValue)
     ft_raw.(eventValue{evVal}) = ft_redefinetrial(cfg_split,data_seg);
     
     if rejArt
-      badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
+      %badEvEvVals.(eventValue{evVal}) = badEvAllSes(:,trialinfo_eventNumCol) == evVal;
+      %badEvEvVals.(eventValue{evVal}) = badEvAllSes(cfg_split.trials);
+      badEvEvVals.(eventValue{evVal}) = badEvAllSes(allTrialinfo(:,trialinfo_eventNumCol) == evVal);
+      
+      for at = 1:length(artTypes)
+        %artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(:,trialinfo_eventNumCol) == evVal;
+        %artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(cfg_split.trials);
+        artifacts.(eventValue{evVal}).(artTypes{at}) = artfctdefEvAllSes.(artTypes{at})(allTrialinfo(:,trialinfo_eventNumCol) == evVal);
+      end
     end
     
     if ana.useExpInfo
       % remove the buffer trialinfo -1s; those were set because the cfg.trl
       % matrix needed to hold all eventValues
       ft_raw.(eventValue{evVal}).trialinfo = ft_raw.(eventValue{evVal}).trialinfo(:,1:length(ana.trl_order.(eventValue{evVal})));
+      trialinfo_allEv.(eventValue{evVal}) = allTrialinfo(allTrialinfo(:,trialinfo_eventNumCol) == evVal,1:length(ana.trl_order.(eventValue{evVal})));
     end
     
     fprintf('Done.\n');

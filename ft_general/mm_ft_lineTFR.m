@@ -234,7 +234,7 @@ end
 
 for typ = 1:length(cfg.conditions)
   % get all the condition names together
-  if length(length(cfg.conditions{typ})) > 2
+  if length(cfg.conditions{typ}) > 2
     nCond = length(cfg.conditions{typ});
   else
     nCond = 1;
@@ -441,7 +441,7 @@ for typ = 1:length(cfg.conditions)
                   if length(cond1) < 7 && length(cond2) < 7
                     clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
                   else
-                    clus_str = sprintf('%s>%s:%s','1','2',clus_symb);
+                    clus_str = sprintf('%d>%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
                   end
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
@@ -476,7 +476,7 @@ for typ = 1:length(cfg.conditions)
                   if length(cond1) < 7 && length(cond2) < 7
                     clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
                   else
-                    clus_str = sprintf('%s<%s:%s','1','2',clus_symb);
+                    clus_str = sprintf('%d<%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
                   end
                   text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
@@ -521,7 +521,21 @@ for typ = 1:length(cfg.conditions)
       if ~isfield(files,'figPrintRes')
         files.figPrintRes = 150;
       end
-      print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
+      
+      if cfg.nRow > 2
+        % make it taller if necessary
+        cfg.pos = get(gcf, 'Position');
+        % get the height x width ratio
+        hwRatio = cfg.pos(3) / cfg.pos(4);
+        % % square figure
+        % cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85)];
+        % maintain figure height x width ratio
+        cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
+        % resize the figure window
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), ceil(cfg.figSize(2) / floor(cfg.nRow/2)), cfg.figSize(1)]);
+      end
+      %print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsTFR,cfg.figfilename));
+      screen2file(fullfile(dirs.saveDirFigsTFR,cfg.figfilename),files);
     end
     
     if ~files.saveFigs
@@ -536,7 +550,11 @@ for typ = 1:length(cfg.conditions)
       % maintain figure height x width ratio
       cfg.figSize = [ceil(min(cfg.screenXY) * 0.85) ceil(min(cfg.screenXY) * 0.85 * hwRatio)];
       % resize the figure window
-      set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), cfg.figSize(2), cfg.figSize(1)]);
+      if cfg.nRow > 2
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), ceil(cfg.figSize(2) / floor(cfg.nRow/2)), cfg.figSize(1)]);
+      else
+        set(gcf, 'Units', 'pixels', 'Position', [ceil(cfg.pos(1) * 0.6), cfg.pos(2), cfg.figSize(2), cfg.figSize(1)]);
+      end
     else
       close all
     end

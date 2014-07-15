@@ -109,6 +109,9 @@ end
 
 fprintf('Finding clusters...\n');
 
+% hard coded session number
+ses = 1;
+
 for cnd = 1:length(cfg_ana.conditions)
   % initialize for storing the cluster statistics
   stat_clus = [];
@@ -125,18 +128,23 @@ for cnd = 1:length(cfg_ana.conditions)
   cfg.conditions = cfg_ana.conditions{cnd};
   cfg.data_str = 'data';
   cfg.is_ga = 0;
-  ana_str = mm_ft_catSubStr(cfg,exper);
+  %ana_str = mm_ft_catSubStr(cfg,exper);
+  ana_str = mm_catSubStr_multiSes2(cfg,exper,ses);
   
   % set some info to use later
-  ses = 1;
   vs_str = sprintf('%s%s',cfg_ana.conditions{cnd}{1},sprintf(repmat('vs%s',1,cfg_ana.numConds-1),cfg_ana.conditions{cnd}{2:end}));
   
   % put in all the subjects for the first conditions
-  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){ses});
+  subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}));
   % do the subsequent conditions
   for i = 2:cfg_ana.numConds
-    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){ses}));
+    subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i})));
   end
+%   subj_str = sprintf('%s',ana_str.(cfg_ana.conditions{cnd}{1}){ses});
+%   % do the subsequent conditions
+%   for i = 2:cfg_ana.numConds
+%     subj_str = cat(2,subj_str,sprintf(',%s',ana_str.(cfg_ana.conditions{cnd}{i}){ses}));
+%   end
   
   % make the design matrix
   cfg_ft.design = zeros(2,cfg_ana.numSub*cfg_ana.numConds);

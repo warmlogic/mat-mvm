@@ -1,6 +1,9 @@
 function [exper] = create_ft_struct_multiSes_cluster(ana,cfg_pp,exper,dirs,files,cfg_proc)
 %CREATE_FT_STRUCT_MULTISES_CLUSTER: Create a FieldTrip data structure from NS files
 %
+% key modification for cluster version: do the processing of raw data
+% within this script (at the very end)
+%
 % [exper] = create_ft_struct_multiSes_cluster(ana,cfg_pp,exper,dirs,files,cfg_proc)
 %
 % The default function (set in ana.segFxn) that this function calls is
@@ -47,7 +50,8 @@ elseif isfield(ana,'overwrite') && ~isfield(ana.overwrite,'raw')
   ana.overwrite.raw = 1;
 elseif isfield(ana,'overwrite') && isfield(ana.overwrite,'raw') && ana.overwrite.raw == 0
   % TODO
-  error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
+  %error('Prevention of overwriting is not fully implemented. You must set overwrite to 1.');
+  warning('Prevention of overwriting raw files is not fully implemented. Be careful.');
 end
 
 % make sure exper.eventValues is a cell containing one cell per session
@@ -251,8 +255,18 @@ for ses = 1:length(exper.sessions)
   
   % initialize to store trial counts and bad events (if using artifacts)
   for evVal = 1:length(exper.eventValues{ses})
-    exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal}) = zeros(length(exper.subjects),1);
-    exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}) = cell(length(exper.subjects),1);
+    % get the name of this event type
+    eventVal = exper.eventValues{ses}{evVal};
+    
+    exper.nTrials.(sesStr).(eventVal) = zeros(length(exper.subjects),1);
+    exper.badEv.(sesStr).(eventVal) = cell(length(exper.subjects),1);
+    if ~ismember('none',ana.artifact.type)
+      %exper.artifacts.(sesStr).(eventVal) = cell(length(exper.subjects),1);
+      exper.artifacts.(sesStr).(eventVal) = [];
+    end
+    if ana.useExpInfo
+      exper.trialinfo_allEv.(sesStr).(eventVal) = cell(length(exper.subjects),1);
+    end
   end
   
   for sub = 1:length(exper.subjects)
@@ -264,6 +278,15 @@ for ses = 1:length(exper.sessions)
     
     % if we don't want to overwrite any files...
     if ~ana.overwrite.raw
+      subDetailFile = dir(fullfile(saveDirRawFile,'subjectDetails.mat'));
+      if ~isempty(subDetailFile)
+        if length(subDetailFile) == 1
+          sd = load(fullfile(saveDirRawFile,subDetailFile.name));
+        else
+          error('More than one subject detail file found. This should not be possible.');
+        end
+      end
+      
       % see if any raw files already exist; run only the missing ones
       rawFiles = dir(fullfile(saveDirRawFile,'data_raw_*.mat'));
       if ~isempty(rawFiles)
@@ -291,17 +314,41 @@ for ses = 1:length(exper.sessions)
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
-        if ~isempty(rawFiles)
-          for rf = 1:length(rawFiles)
+        if ~isempty(rawEvents)
+          for rf = 1:length(rawEvents)
             ft_raw.(rawEvents{rf}) = load(fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',rawEvents{rf})));
+            ft_raw.(rawEvents{rf}) = ft_raw.(rawEvents{rf}).data;
+          end
+        end
+        
+        % reconstruct other data for this single subject
+        badChan = sd.exper.badChan.(sesStr){1};
+        for evVal = 1:length(exper.eventValues{ses})
+          % get the name of this event type
+          eventVal = exper.eventValues{ses}{evVal};
+          
+          badEv.(eventVal) = sd.exper.badEv.(sesStr).(eventVal){1};
+          if isfield(sd.exper,'artifacts')
+            artTypes = fieldnames(sd.exper.artifacts.(sesStr).(eventVal));
+            for at = 1:length(artTypes)
+              artifacts.(eventVal).(artTypes{at}) = sd.exper.artifacts.(sesStr).(eventVal).(artTypes{at}){1};
+            end
+          end
+          if ana.useExpInfo
+            trialinfo_allEv.(eventVal) = sd.exper.trialinfo_allEv.(sesStr).(eventVal){1};
           end
         end
       end
+      
     else
+      if ~ana.overwrite.raw
+        error('Support not implemented for adding event values!');
+      end
+      
       fprintf('Creating FT struct of raw EEG data: %s, %s%s.\n',exper.subjects{sub},sesStr,sprintf(repmat(', ''%s''',1,length(eventValuesToProcess)),eventValuesToProcess{:}));
       
       % collect all the raw data
-      [ft_raw,badChan,badEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
+      [ft_raw,badChan,badEv,artifacts,trialinfo_allEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process
@@ -314,10 +361,7 @@ for ses = 1:length(exper.sessions)
     end % if
     
     % store the bad channel information
-    %exper.badChan{sub,ses} = badChan;
     exper.badChan.(sesStr){sub} = badChan;
-    % store the bad event information
-    % exper.badEv{sub,ses} = badEv;
     
     %     % check on any empty events
     %     for evVal = 1:length(eventValuesToProcess)
@@ -345,17 +389,30 @@ for ses = 1:length(exper.sessions)
       
       if size(ft_raw.(eventVal).trial,2) > 0
         % store the number of trials for this event value
-        %exper.nTrials.(eventVal)(sub,ses) = size(ft_raw.(eventVal).trial,2);
-        exper.nTrials.(sesStr).(exper.eventValues{ses}{evVal})(sub) = size(ft_raw.(eventVal).trial,2);
-        exper.badEv.(sesStr).(exper.eventValues{ses}{evVal}){sub} = badEv.(exper.eventValues{ses}{evVal});
+        exper.nTrials.(sesStr).(eventVal)(sub) = size(ft_raw.(eventVal).trial,2);
+        exper.badEv.(sesStr).(eventVal){sub} = badEv.(eventVal);
+        if ~isempty(artifacts)
+          artTypes = fieldnames(artifacts.(eventVal));
+          for at = 1:length(artTypes)
+            exper.artifacts.(sesStr).(eventVal).(artTypes{at}){sub} = artifacts.(eventVal).(artTypes{at});
+          end
+        end
+        if ana.useExpInfo && ~isempty(trialinfo_allEv)
+          exper.trialinfo_allEv.(sesStr).(eventVal){sub} = trialinfo_allEv.(eventVal);
+        end
         
-        % set outputfile so the raw data is saved; especially useful for
-        % implementing analyses with the peer toolbox
-        cfg_pp.outputfile = fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',eventVal));
-        
-        % do any preprocessing
-        fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},sesStr,eventVal);
-        ft_preprocessing(cfg_pp,ft_raw.(eventVal));
+        if ana.overwrite.raw
+          % set outputfile so the raw data is saved; especially useful for
+          % implementing analyses with the peer toolbox
+          cfg_pp.outputfile = fullfile(saveDirRawFile,sprintf('data_raw_%s.mat',eventVal));
+          
+          % do any preprocessing
+          fprintf('Running ft_preprocessing on %s, %s, %s...\n',exper.subjects{sub},sesStr,eventVal);
+          ft_preprocessing(cfg_pp,ft_raw.(eventVal));
+        else
+          cfg_pp = sd.cfg_pp;
+          warning('Not re-running ft_preprocessing on %s, %s, %s. Overwriting current cfg_pp with old cfg_pp.',exper.subjects{sub},sesStr,eventVal);
+        end
         fprintf('Done with %s, %s, %s.\n',exper.subjects{sub},sesStr,eventVal);
         
         % any other functions to run? (e.g., ft_resampledata)
@@ -398,10 +455,19 @@ for ses = 1:length(exper.sessions)
     %exper.eventValues = exper.eventValues(ses);
     %exper.prepost = exper.prepost(ses);
     %exper.sesStr = {sesStr};
-    exper.badChan.(sesStr) = exper.badChan.(sesStr)(sub);
+    exper.badChan.(sesStr) = exper_orig.badChan.(sesStr)(sub);
     for evVal = 1:length(sesEvValues)
-      exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
-      exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
+      exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper_orig.nTrials.(sesStr).(sesEvValues{evVal})(sub);
+      exper.badEv.(sesStr).(sesEvValues{evVal}) = exper_orig.badEv.(sesStr).(sesEvValues{evVal})(sub);
+      if ~isempty(artifacts)
+        artTypes = fieldnames(exper_orig.artifacts.(sesStr).(sesEvValues{evVal}));
+        for at = 1:length(artTypes)
+          exper.artifacts.(sesStr).(sesEvValues{evVal}).(artTypes{at}) = exper_orig.artifacts.(sesStr).(sesEvValues{evVal}).(artTypes{at})(sub);
+        end
+      end
+      if ana.useExpInfo && ~isempty(trialinfo_allEv)
+        exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal}) = exper_orig.trialinfo_allEv.(sesStr).(sesEvValues{evVal})(sub);
+      end
     end
     %fn = fieldnames(exper.nTrials);
     %for f = 1:length(fn)

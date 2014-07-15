@@ -118,6 +118,9 @@ cfg_ana.orig_param = 'trial';
 % must match with cfg_ft.output, below
 cfg_ana.out_param = 'fourierspctrm';
 
+% upon loading data, remove data.cfg.previous field to save memory
+cfg_ana.rmPreviousCfg = true;
+
 cfg_ana.output2alt = true;
 cfg_ana.alt_ftype = 'pow';
 cfg_ana.alt_param = 'powspctrm';

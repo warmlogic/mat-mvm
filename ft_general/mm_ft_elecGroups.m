@@ -102,34 +102,40 @@ if strcmp('HCGSN129',layoutStr)
   noEyeH = all129(~ismember(all129,eyes_horiz));
   
   ana.elecGroups = {...
-    {'E32','E33','E38','E39','E43','E44','E128'},... % LAI
-    {'E1','E114','E115','E120','E121','E122','E125'},... % RAI
-    {'E12','E13','E19','E20','E24','E28','E29'},... % LAS
-    {'E4','E5','E111','E112','E117','E118','E124'},... % RAS
-    {'E37','E42','E52','E53','E54','E60','E61'},... % LPS
-    {'E78','E79','E85','E86','E87','E92','E93'},... % RPS
-    {'E57','E58','E63','E64','E65','E68','E69'},... %LPI
-    {'E89','E90','E94','E95','E96','E99','E100'},... % RPI
-    {'E52','E53','E60','E61','E59','E66','E67'},... % LPS2
-    {'E77','E78','E84','E85','E86','E91','E92'},... % RPS2
-    {'E58','E59','E64','E65','E66','E69','E70'},... %LPI2 slightly more central
-    {'E83','E84','E89','E90','E91','E95','E96'},... % RPI2 slightly more central
-    {'E59','E60','E65','E66','E67','E70','E71'},... %LPI3 even more central
-    {'E76','E77','E83','E84','E85','E90','E91'},... % RPI3 even more central
-    {'E4','E10','E11','E15','E16','E18','E19'},... % Frontal Inferior
-    {'E4','E5','E6','E11','E12','E13','E19','E112'},... % Frontal Superior
-    {'E5','E6','E7','E12','E13','E106','E112'},... % Frontal Superior2
-    {'E7','E31','E55','E80','E106','E129'},... % Central (central)
-    {'E54','E61','E62','E67','E72','E77','E78','E79'},... % Posterior Superior
-    {'E70','E71','E74','E75','E76','E82','E83'},... % Posterior Inferior
-    {'E40','E41','E45','E46','E47','E50','E51'},... % Left Temporal
-    {'E97','E98','E101','E102','E103','E108','E109'},... % Right Temporal
-    {'E11'},... % Fz (frontocentral)
-    {'Cz'},... % Cz (central)
-    {'E75'},... % Oz - P1 effect (occipitocentral)
-    {'E62'},... % Pz (posteriocentral)
-    {'E64'},... % P9 - N1 effect? (left lateral)
-    {'E95'},... % P10 - N1 effect? (right lateral)
+    {'E32','E33','E38','E39','E43','E44','E128'},... % LAI (center=38)
+    {'E1','E114','E115','E120','E121','E122','E125'},... % RAI (center=121)
+    {'E12','E13','E19','E20','E24','E28','E29'},... % LAS (center=20)
+    {'E4','E5','E111','E112','E117','E118','E124'},... % RAS (center=118)
+    {'E37','E42','E52','E53','E54','E60','E61'},... % LPS (center=53)
+    {'E78','E79','E85','E86','E87','E92','E93'},... % RPS (center=86)
+    {'E57','E58','E63','E64','E65','E68','E69'},... % LPI (center=64)
+    {'E89','E90','E94','E95','E96','E99','E100'},... % RPI (center=95)
+    {'E18','E19','E22','E23','E24','E26','E27'},... % LFP: Left Frontal Pole (center=23)
+    {'E123','E124','E2','E3','E4','E9','E10'},... % RFP: Right Frontal Pole (center=3)
+    {'E13','E20','E28','E29','E30','E35','E36'},... % LAS2 (center=29)
+    {'E104','E105','E110','E111','E112','E117','E118'},... % RAS2 (center=111)
+    {'E52','E53','E59','E60','E61','E66','E67'},... % LPS2 (center=60)
+    {'E77','E78','E84','E85','E86','E91','E92'},... % RPS2 (center=85)
+    {'E58','E59','E64','E65','E66','E69','E70'},... % LPI2: slightly more central (center=65)
+    {'E83','E84','E89','E90','E91','E95','E96'},... % RPI2: slightly more central (center=90)
+    {'E59','E60','E65','E66','E67','E70','E71'},... % LPI3: even more central (center=66)
+    {'E76','E77','E83','E84','E85','E90','E91'},... % RPI3: even more central (center=84)
+    {'E4','E10','E11','E15','E16','E18','E19'},... % FI: Frontal Inferior (center=16)
+    {'E4','E5','E6','E11','E12','E13','E19','E112'},... % FS: Frontal Superior (center=5+12)
+    {'E5','E6','E7','E12','E13','E106','E112'},... % FS2: Frontal Superior2 (center=6)
+    {'E4','E5','E10','E11','E12','E16','E18','E19'},... % FC: Frontal Central (center=Fz)
+    {'E7','E31','E55','E80','E106','Cz'},... % C: Central (center=Cz)
+    {'E54','E61','E62','E67','E72','E77','E78','E79'},... % PS: Posterior Superior (center=62/Pz)
+    {'E62','E67','E71','E72','E76','E77'},... % PS2:  Superior 2 (center=72)
+    {'E70','E71','E74','E75','E76','E82','E83'},... % PI: Posterior Inferior (center=75/Oz)
+    {'E40','E41','E45','E46','E47','E50','E51'},... % LT: Left Temporal (center=46)
+    {'E97','E98','E101','E102','E103','E108','E109'},... % RT: Right Temporal (center=102)
+    {'E11'},... % Fz: (frontocentral)
+    {'Cz'},... % Cz: (central elec aka E129)
+    {'E75'},... % Oz: P1 effect (occipitocentral)
+    {'E62'},... % Pz: (posteriocentral)
+    {'E64'},... % P9: N1 effect? (left lateral)
+    {'E95'},... % P10: N1 effect? (right lateral)
     right,...
     left,...
     midline,...
@@ -164,6 +170,10 @@ if strcmp('HCGSN129',layoutStr)
     'RPS',...
     'LPI',...
     'RPI',...
+    'LFP',...
+    'RFP',...
+    'LAS2',...
+    'RAS2',...
     'LPS2',...
     'RPS2',...
     'LPI2',...
@@ -172,9 +182,11 @@ if strcmp('HCGSN129',layoutStr)
     'RPI3',...
     'FI',...
     'FS',...
+    'FS2',...
     'FC',...
     'C',...
     'PS',...
+    'PS2',...
     'PI',...
     'LT',...
     'RT',...
@@ -208,6 +220,18 @@ if strcmp('HCGSN129',layoutStr)
     'noEyeB',...
     'noEyeH',...
     };
+  
+  % add in individual electrode names
+  individElec = cell(1,128);
+  individElecStr = cell(1,128);
+  for i = 1:length(individElec)
+    individElec{i} = {sprintf('E%d',i)};
+    individElecStr{i} = sprintf('E%d',i);
+  end
+  individElec = cat(2,individElec,{'Cz'});
+  individElecStr = cat(2,individElecStr,'E129');
+  ana.elecGroups = cat(2,ana.elecGroups,individElec);
+  ana.elecGroupsStr = cat(2,ana.elecGroupsStr,individElecStr);
 end
 
 if ~isempty(elecGroupsExtra)

@@ -1,5 +1,9 @@
 % space RSA
 
+% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% use space_rsa_pca_pow_classif.m instead
+% !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 %% load the analysis details
 
 subDir = '';

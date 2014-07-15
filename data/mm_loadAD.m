@@ -41,6 +41,11 @@ function [exper,ana,dirs,files,cfg_proc,cfg_pp] = mm_loadAD(procDir,subjects,ses
 if ~exist('subDir','var') || isempty(subDir)
   subDir = '';
 end
+if ischar(subDir)
+  dirs.subDir = subDir;
+else
+  error('subDir needs to be a character string');
+end
 
 if ~exist('replaceDatatype','var') || isempty(replaceDatatype)
   replaceDatatype = {};
@@ -130,6 +135,12 @@ for ses = 1:length(sesStr)
             exper.badChan = rmfield(exper.badChan,exper.sesStr{k});
             exper.nTrials = rmfield(exper.nTrials,exper.sesStr{k});
             exper.badEv = rmfield(exper.badEv,exper.sesStr{k});
+            if isfield(exper,'artifacts')
+              exper.artifacts = rmfield(exper.artifacts,exper.sesStr{k});
+            end
+            if isfield(exper,'trialinfo_allEv')
+              exper.trialinfo_allEv = rmfield(exper.trialinfo_allEv,exper.sesStr{k});
+            end
           end
         end
       end
@@ -139,6 +150,12 @@ for ses = 1:length(sesStr)
 %         if ~ismember(exper.eventValues{ses}{evVal},eventValues{ses})
 %           exper.nTrials.(sesNames{ses}) = rmfield(exper.nTrials.(sesNames{ses}),exper.eventValues{ses}{evVal});
 %           exper.badEv.(sesNames{ses}) = rmfield(exper.badEv.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%           if isfield(exper,'artifacts')
+%             exper.artifacts.(sesNames{ses}) = rmfield(exper.artifacts.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%           end
+%           if isfield(exper,'trialinfo_allEv')
+%             exper.trialinfo_allEv.(sesNames{ses}) = rmfield(exper.trialinfo_allEv.(sesNames{ses}),exper.eventValues{ses}{evVal});
+%           end
 %         end
 %       end
       
@@ -159,6 +176,15 @@ for ses = 1:length(sesStr)
       for evVal = 1:length(exper.eventValues{ses})
         exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
         exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        if isfield(sd.exper,'artifacts')
+          artTypes = fieldnames(exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          for at = 1:length(artTypes)
+            exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at})(sub);
+          end
+        end
+        if isfield(sd.exper,'trialinfo_allEv')
+          exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        end
       end
       
     end
@@ -181,6 +207,15 @@ if length(subjects) > 1
         for evVal = 1:length(exper.eventValues{ses})
           exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
           exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          if isfield(sd.exper,'artifacts')
+            artTypes = fieldnames(exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+            for at = 1:length(artTypes)
+              exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = cat(1,exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}),sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}));
+            end
+          end
+          if isfield(sd.exper,'trialinfo_allEv')
+            exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          end
         end
         
       else
