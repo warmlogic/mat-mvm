@@ -822,9 +822,10 @@ latInd = [13:14];
 
 spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
+latencySec = cell(1,length(latInd));
 latency = cell(1,length(latInd));
 for i = 1:length(latency)
-  %latency{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
+  latencySec{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
   latency{i} = sprintf('%dto%d',latencies(latInd(1)+i-1,1)*1000,latencies(latInd(1)+i-1,2)*1000);
 end
 latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
@@ -989,40 +990,70 @@ end
 
 %% plot RSA spacing x subsequent memory interaction
 
-latInd = [13 14];
 theseSub = noNans & passTrlThresh;
 
 ses=1;
 
-rc_spaced_mean = mean(mean(mean_similarity.img_RgH_rc_spac(theseSub,ses,latInd),1));
-rc_massed_mean = mean(mean(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd),1));
-fo_spaced_mean = mean(mean(mean_similarity.img_RgH_fo_spac(theseSub,ses,latInd),1));
-fo_massed_mean = mean(mean(mean_similarity.img_RgH_fo_mass(theseSub,ses,latInd),1));
+rc_spaced_mean = squeeze(mean_similarity.img_RgH_rc_spac(theseSub,ses,latInd));
+fo_spaced_mean = squeeze(mean_similarity.img_RgH_fo_spac(theseSub,ses,latInd));
+rc_massed_mean = squeeze(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd));
+fo_massed_mean = squeeze(mean_similarity.img_RgH_fo_mass(theseSub,ses,latInd));
 
-figure
-hold on
+% mean across time
+spacSubs_rc = mean(rc_spaced_mean,2);
+spacSubs_fo = mean(fo_spaced_mean,2);
+massSubs_rc = mean(rc_massed_mean,2);
+massSubs_fo = mean(fo_massed_mean,2);
 
-s_mark = 'ko';
-m_mark = 'rx';
+plotMeanLine = false;
+plotSub = true;
 
-% recalled
-plot(1.9*ones(sum(theseSub(:,ses)),1), mean(mean_similarity.img_RgH_rc_spac(theseSub,ses,latInd),3),s_mark,'LineWidth',1);
-plot(2.1*ones(sum(theseSub(:,ses)),1), mean(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd),3),m_mark,'LineWidth',1);
+if plotMeanLine
+  s_mark = 'ko-';
+  m_mark = 'rx:';
+else
+  s_mark = 'ko';
+  m_mark = 'rx';
+end
 
-% forgotten
-plot(0.9*ones(sum(theseSub(:,ses)),1), mean(mean_similarity.img_RgH_fo_spac(theseSub,ses,latInd),3),s_mark,'LineWidth',1);
-plot(1.1*ones(sum(theseSub(:,ses)),1), mean(mean_similarity.img_RgH_fo_mass(theseSub,ses,latInd),3),m_mark,'LineWidth',1);
+if plotSub
+  subSpacing = 0.1;
+  s_mark_sub = 'ko';
+  m_mark_sub = 'rx';
+end
 
 meanSizeR = 20;
 meanSizeF = 20;
 
-% recalled
-hs = plot(2, mean(rc_spaced_mean),s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-hm = plot(2, mean(rc_massed_mean),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+figure
+hold on
 
-% forgotten
-plot(1, mean(fo_spaced_mean),s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-plot(1, mean(fo_massed_mean),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+if plotSub
+  % forgotten
+  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), spacSubs_fo,s_mark_sub,'LineWidth',1);
+  plot((1+subSpacing)*ones(sum(theseSub(:,ses)),1), massSubs_fo,m_mark_sub,'LineWidth',1);
+  
+  % recalled
+  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), spacSubs_rc,s_mark_sub,'LineWidth',1);
+  plot((2+subSpacing)*ones(sum(theseSub(:,ses)),1), massSubs_rc,m_mark_sub,'LineWidth',1);
+end
+
+if plotMeanLine
+  hs = plot([mean(spacSubs_fo,1) mean(spacSubs_rc,1)],s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  hm = plot([mean(massSubs_fo,1) mean(massSubs_rc,1)],m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  
+%   % recalled
+%   plot(2, ,s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+%   plot(2, ,m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+else
+  % forgotten
+  plot(1, mean(spacSubs_fo,1),s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(massSubs_fo,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  
+  % recalled
+  hs = plot(2, mean(spacSubs_rc,1),s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+  hm = plot(2, mean(massSubs_rc,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+end
 
 plot([-3 3], [0 0],'k--','LineWidth',2);
 
@@ -1046,71 +1077,206 @@ publishfig(gcf,0,[],[],[]);
 
 %% plot RSA spacing x time interaction
 
-latInd = [13 14];
+% latInd = [13 14];
 theseSub = noNans & passTrlThresh;
 
 ses=1;
-
-% rc_spaced_mean = mean([mean(D.word_RgH_rc_spac.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_spac.dissim(~exper.badSub,ses,:),3)],2);
-% fo_spaced_mean = mean([mean(D.word_RgH_fo_spac.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_spac.dissim(~exper.badSub,ses,:),3)],2);
-% rc_massed_mean = mean([mean(D.word_RgH_rc_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_rc_mass.dissim(~exper.badSub,ses,:),3)],2);
-% fo_massed_mean = mean([mean(D.word_RgH_fo_mass.dissim(~exper.badSub,ses,:),3) mean(D.img_RgH_fo_mass.dissim(~exper.badSub,ses,:),3)],2);
 
 rc_spaced_mean = squeeze(mean_similarity.img_RgH_rc_spac(theseSub,ses,latInd));
 fo_spaced_mean = squeeze(mean_similarity.img_RgH_fo_spac(theseSub,ses,latInd));
 rc_massed_mean = squeeze(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd));
 fo_massed_mean = squeeze(mean_similarity.img_RgH_fo_mass(theseSub,ses,latInd));
 
-spac_early = mean([rc_spaced_mean(:,1) fo_spaced_mean(:,1)],2);
-spac_late = mean([rc_spaced_mean(:,2) fo_spaced_mean(:,2)],2);
-mass_early = mean([rc_massed_mean(:,1) fo_massed_mean(:,1)],2);
-mass_late = mean([rc_massed_mean(:,2) fo_massed_mean(:,2)],2);
+% mean across rc/fo
+spacSubs = mean(cat(3,rc_spaced_mean,fo_spaced_mean),3);
+massSubs = mean(cat(3,rc_massed_mean,fo_massed_mean),3);
+
+plotMeanLines = true;
+plotSub = true;
+plotSubLines = false;
+
+if plotMeanLines
+  s_mark = 'ko-';
+  m_mark = 'rx:';
+else
+  s_mark = 'ko';
+  m_mark = 'rx';
+end
+
+meanSize = 20;
+
+if plotSub
+  subSpacing = 0.2;
+  if plotSubLines
+    s_mark_sub = 'ko-';
+    m_mark_sub = 'rx:';
+  else
+    s_mark_sub = 'ko';
+    m_mark_sub = 'rx';
+  end
+end
 
 figure
 hold on
 
-s_mark = 'ko';
-m_mark = 'rx';
-
-% early
-plot(0.9*ones(sum(theseSub(:,ses)),1), spac_early,s_mark,'LineWidth',1);
-plot(1.1*ones(sum(theseSub(:,ses)),1), mass_early,m_mark,'LineWidth',1);
-
-% late
-plot(1.9*ones(sum(theseSub(:,ses)),1), spac_late,s_mark,'LineWidth',1);
-plot(2.1*ones(sum(theseSub(:,ses)),1), mass_late,m_mark,'LineWidth',1);
-
-meanSizeE = 20;
-meanSizeL = 20;
-
-% early
-plot(1, mean(spac_early),s_mark,'LineWidth',3,'MarkerSize',meanSizeE);
-plot(1, mean(mass_early),m_mark,'LineWidth',3,'MarkerSize',meanSizeE);
-
-% late
-hs = plot(2, mean(spac_late),s_mark,'LineWidth',3,'MarkerSize',meanSizeL);
-hm = plot(2, mean(mass_late),m_mark,'LineWidth',3,'MarkerSize',meanSizeL);
+if plotSub
+  if plotSubLines
+    for s = 1:sum(theseSub)
+      plot(spacSubs(s,:),s_mark_sub,'LineWidth',1);
+      plot(massSubs(s,:),m_mark_sub,'LineWidth',1);
+    end
+  else
+    for t = 1:length(latInd)
+      if plotSub
+        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spacSubs(:,t),s_mark_sub,'LineWidth',1);
+        plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), massSubs(:,t),m_mark_sub,'LineWidth',1);
+      end
+    end
+  end
+end
+if plotMeanLines
+  hs = plot(mean(spacSubs,1),s_mark,'LineWidth',3,'MarkerSize',meanSize);
+  hm = plot(mean(massSubs,1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
+else
+  for t = 1:length(latInd)
+    hs = plot(t, mean(spacSubs(:,t),1),s_mark,'LineWidth',3,'MarkerSize',meanSize);
+    hm = plot(t, mean(massSubs(:,t),1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
+  end
+end
 
 % horiz
-plot([-3 3], [0 0],'k--','LineWidth',2);
+plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 
 hold off
 axis square
-% axis([0.75 2.25 75 110]);
-xlim([0.75 2.25]);
+xlim([0.75 length(latInd)+0.25]);
 ylim([-0.65 0.65]);
 
-set(gca,'XTick', [1 2]);
-
-set(gca,'XTickLabel',{'0-0.5 sec','0.5-1.0 sec'});
 ylabel('Neural Similarity');
+
+set(gca,'XTick', 1:length(latInd));
+set(gca,'XTickLabel',latencySec);
+xlabel('Time (Sec)');
 
 title('Spacing \times Time');
 legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
-publishfig(gcf,0,[],[],[]);
+labelFontSize = 20;
+publishfig(gcf,0,[],labelFontSize,[]);
 
 % print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
+
+%% plot RSA spacing x memory x time interaction
+
+% latInd = [13 14];
+theseSub = noNans & passTrlThresh;
+
+ses=1;
+
+rc_spaced_mean = squeeze(mean_similarity.img_RgH_rc_spac(theseSub,ses,latInd));
+fo_spaced_mean = squeeze(mean_similarity.img_RgH_fo_spac(theseSub,ses,latInd));
+rc_massed_mean = squeeze(mean_similarity.img_RgH_rc_mass(theseSub,ses,latInd));
+fo_massed_mean = squeeze(mean_similarity.img_RgH_fo_mass(theseSub,ses,latInd));
+
+plotMeanLines = true;
+plotSub = false;
+plotSubLines = false;
+
+if plotMeanLines
+  s_rc_mark = 'ko-';
+  s_fo_mark = 'ko:';
+  m_rc_mark = 'rx-';
+  m_fo_mark = 'rx:';
+else
+  s_rc_mark = 'ko';
+  s_fo_mark = 'ro';
+  m_rc_mark = 'kx';
+  m_fo_mark = 'rx';
+end
+
+meanSizeS = 20;
+meanSizeM = 20;
+
+if plotSub
+  subSpacing = 0.2;
+  if plotSubLines
+    s_rc_mark_sub = 'ko-';
+    s_fo_mark_sub = 'ko:';
+    m_rc_mark_sub = 'rx-';
+    m_fo_mark_sub = 'rx:';
+  else
+    s_rc_mark_sub = 'ko';
+    s_fo_mark_sub = 'ro';
+    m_rc_mark_sub = 'kx';
+    m_fo_mark_sub = 'rx';
+  end
+end
+
+figure
+hold on
+
+if plotSub
+  if plotSubLines
+    plotSub = false;
+    for s = 1:sum(theseSub)
+      % spaced
+      plot(rc_spaced_mean(s,:),s_rc_mark_sub,'LineWidth',1);
+      plot(fo_spaced_mean(s,:),s_fo_mark_sub,'LineWidth',1);
+      % massed
+      plot(rc_massed_mean(s,:),m_rc_mark_sub,'LineWidth',1);
+      plot(fo_massed_mean(s,:),m_fo_mark_sub,'LineWidth',1);
+    end
+  else
+    for t = 1:length(latInd)
+      % spaced
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spaced_mean(:,t),s_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spaced_mean(:,t),s_fo_mark_sub,'LineWidth',1);
+      % massed
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_massed_mean(:,t),m_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_massed_mean(:,t),m_fo_mark_sub,'LineWidth',1);
+    end
+  end
+end
+if plotMeanLines
+  % spaced
+  hsr = plot(mean(rc_spaced_mean,1),s_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf = plot(mean(fo_spaced_mean,1),s_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  % massed
+  hmr = plot(mean(rc_massed_mean,1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  hmf = plot(mean(fo_massed_mean,1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+else
+  for t = 1:length(latInd)
+    % spaced
+    hsr = plot(t,mean(rc_spaced_mean(:,t),1),s_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf = plot(t,mean(fo_spaced_mean(:,t),1),s_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    % massed
+    hmr = plot(t,mean(rc_massed_mean(:,t),1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+    hmf = plot(t,mean(fo_massed_mean(:,t),1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  end
+end
+
+% horiz
+plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
+
+hold off
+axis square
+xlim([0.75 length(latInd)+0.25]);
+ylim([-0.35 0.45]);
+
+ylabel('Neural Similarity');
+
+set(gca,'XTick', 1:length(latInd));
+set(gca,'XTickLabel',latencySec);
+xlabel('Time (Sec)');
+
+title('Spacing \times Memory \times Time');
+legend([hsr, hsf, hmr, hmf],{'Spaced Rc','Spaced Fo','Massed Rc','Massed Fo'},'Location','North');
+
+labelFontSize = 20;
+publishfig(gcf,0,[],labelFontSize,[]);
+
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
+
 
 % %% RMANOVA - no time dimension
 % 
