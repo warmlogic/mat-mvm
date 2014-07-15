@@ -822,11 +822,11 @@ latInd = [13:14];
 
 spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
-latencySec = cell(1,length(latInd));
 latency = cell(1,length(latInd));
+latencySec = cell(1,length(latInd));
 for i = 1:length(latency)
-  latencySec{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
   latency{i} = sprintf('%dto%d',latencies(latInd(1)+i-1,1)*1000,latencies(latInd(1)+i-1,2)*1000);
+  latencySec{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
 end
 latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
 latStr = latStr(2:end);
@@ -1164,7 +1164,7 @@ legend([hs, hm],{'Spaced','Massed'},'Location','North');
 labelFontSize = 20;
 publishfig(gcf,0,[],labelFontSize,[]);
 
-print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
 
 %% plot RSA spacing x memory x time interaction
 
@@ -1276,78 +1276,3 @@ labelFontSize = 20;
 publishfig(gcf,0,[],labelFontSize,[]);
 
 % print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s.eps',origDataType,roi_str,latStr,eig_criterion,sim_method));
-
-
-% %% RMANOVA - no time dimension
-% 
-% % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-% %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-% 
-% % latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-% %   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-% %   0 0.3; 0.3 0.6; 0.6 0.9; ...
-% %   0 0.5; 0.5 1.0; ...
-% %   0.3 0.8; ...
-% %   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-% %   0 0.8; 0.1 0.9; 0.2 1.0];
-% 
-% % 0-0.5
-% % lat = 13;
-% % % 0.5-1.0
-% % lat = 14;
-% 
-% % % 0.3-0.8
-% % lat = 15;
-% 
-% % % 0-0.6
-% % lat = 16;
-% % % 0.1-0.7 ***
-% % lat = 17;
-% % % 0.2-0.8 ***
-% % lat = 18;
-% % % 0.3-0.9
-% % lat = 19;
-% % % 0.4-1.0 **
-% % lat = 20;
-% 
-% % % 0-0.8
-% % lat = 21;
-% % % 0.1-0.9
-% % lat = 22;
-% % % 0.2-1.0
-% % lat = 23;
-% 
-% % % 0-1.0
-% % lat = 24;
-% 
-% fprintf('=======================================\n');
-% fprintf('Latency: %.1f-%.1f\n\n',latencies(lat,:));
-% 
-% anovaData = [];
-% 
-% for sub = 1:length(exper.subjects)
-%   if all(noNans(sub,:)) && all(passTrlThresh(sub,:))
-% %   if all(noNans(sub,:))
-%     for ses = 1:length(exper.sesStr)
-%       theseData = [];
-%       
-%       for d = 1:length(dataTypes)
-%           theseData = cat(2,theseData,mean_similarity.(dataTypes{d})(sub,ses,lat));
-%       end
-%     end
-%     anovaData = cat(1,anovaData,theseData);
-%   end
-% end
-% 
-% % no time dimension
-% 
-% % varnames = {'stimType','subseqMem','spacing'};
-% % levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}};
-% % O = teg_repeated_measures_ANOVA(anovaData, [2 2 2], varnames,[],[],[],[],[],[],levelnames);
-% 
-% varnames = {'subseqMem','spacing'};
-% levelnames = {{'rc', 'fo'}, {'spac','mass'}};
-% O = teg_repeated_measures_ANOVA(anovaData, [2 2], varnames,[],[],[],[],[],[],levelnames);
-% 
-% fprintf('Latency: %.1f-%.1f\n',latencies(lat,:));
-% fprintf('=======================================\n\n');
