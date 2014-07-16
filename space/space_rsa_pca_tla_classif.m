@@ -975,14 +975,21 @@ fprintf('Done.\n');
 
 %% load
 
-analysisDate = '13-Jul-2014';
+% analysisDate = '13-Jul-2014';
+analysisDate = '15-Jul-2014';
+
+% data_str = 'img_word';
+% data_str = 'img';
+% data_str = '';
+data_str = 'word';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
-% thisROI = {'LAS','FC','RAS'};
+% thisROI = {'LAS2','FS','RAS2'};
+% thisROI = {'LFP','FC','RFP'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
@@ -1045,7 +1052,11 @@ else
 end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
-rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+if ~isempty(data_str)
+  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+else
+  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+end
 if exist(rsaFile,'file')
   fprintf('loading: %s...',rsaFile);
   load(rsaFile);

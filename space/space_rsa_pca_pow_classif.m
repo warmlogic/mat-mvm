@@ -1094,7 +1094,13 @@ fprintf('Done.\n');
 % % freqs = [12 30];
 % % freqs = [30 50];
 
-analysisDate = '14-Jul-2014';
+% analysisDate = '14-Jul-2014';
+analysisDate = '15-Jul-2014';
+
+% data_str = 'img_word';
+% data_str = 'img';
+% data_str = '';
+data_str = 'word';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -1104,7 +1110,13 @@ thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LAS2','FS','RAS2'};
 % thisROI = {'LFP','FC','RFP'};
 
-freqs = [3 7; 8 12; 13 20; 20 30; 31 45; 46 80];
+freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
+% freqs = [3 7];
+% freqs = [8 12];
+% freqs = [13 20];
+% freqs = [21 30];
+% freqs = [31 45];
+% freqs = [46 80];
 
 freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
@@ -1126,6 +1138,7 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 origDataType = 'pow';
 
 avgovertime = 'yes';
+% avgovertime = 'no';
 avgoverfreq = 'yes';
 
 sim_method = 'cosine';
@@ -1169,7 +1182,11 @@ else
 end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
 
-rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
+if ~isempty(data_str)
+  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
+else
+  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
+end
 if exist(rsaFile,'file')
   fprintf('loading: %s...',rsaFile);
   load(rsaFile);
