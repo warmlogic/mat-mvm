@@ -51,7 +51,8 @@ subjects = {
 sesNames = {'session_1'};
 
 % analysisDate = '13-Jul-2014';
-analysisDate = '14-Jul-2014';
+% analysisDate = '14-Jul-2014';
+analysisDate = '15-Jul-2014';
 
 % origDataType = 'tla';
 origDataType = 'hilbert';
@@ -67,7 +68,20 @@ else
   classif_str = 'noClassif';
 end
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+
+dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+if all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+  data_str = 'img_word';
+elseif all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'},dataTypes))
+  data_str = 'img';
+elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+  data_str = 'word';
+end
 
 % allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS','FC','RAS'}};
 allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
@@ -88,7 +102,10 @@ elseif strcmp(origDataType,'hilbert')
   % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
   % allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
 %   allFreqs = {[3 8; 8 12; 12 30; 30 50] [3 8] [8 12] [12 30] [30 50]};
-  allFreqs = {[3 7; 8 12; 13 20; 20 30; 31 45; 46 80]};
+  
+  % allFreqs = {[3 7; 8 12; 13 20; 21 30; 31 45; 46 80]};
+  % allFreqs = {[3 7] [8 12] [13 20] [21 30] [31 45] [46 80]};
+  allFreqs = {[3 7; 8 12; 13 20; 21 30; 31 45; 46 80] [3 7] [8 12] [13 20] [21 30] [31 45] [46 80]};
 end
 
 allSimMethod = {'cosine'};
@@ -145,9 +162,9 @@ for r = 1:length(allROIs)
           for sub = 1:length(subjects)
             for ses = 1:length(sesNames)
               if strcmp(origDataType,'tla')
-                savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+                savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
               elseif strcmp(origDataType,'hilbert')
-                savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,analysisDate));
+                savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,analysisDate));
               end
               if exist(savedFile,'file')
                 fprintf('Loading %s...\n',savedFile);
@@ -174,9 +191,9 @@ for r = 1:length(allROIs)
           exper.sesNames = sesNames;
           
           if strcmp(origDataType,'tla')
-            saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,analysisDate));
+            saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,analysisDate));
           elseif strcmp(origDataType,'hilbert')
-            saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,analysisDate));
+            saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,analysisDate));
           end
           
           fprintf('Saving %s...\n',saveFile);
