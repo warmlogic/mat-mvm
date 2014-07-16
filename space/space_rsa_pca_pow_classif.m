@@ -1170,7 +1170,7 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.61 0.61]);
+ylim([-0.51 0.51]);
 
 set(gca,'XTick', [1 2]);
 set(gca,'XTickLabel',{'Forgot','Recalled'});
@@ -1260,7 +1260,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.65 0.65]);
+ylim([-0.35 0.45]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -1371,7 +1371,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.35 0.45]);
+ylim([-0.1 0.25]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);

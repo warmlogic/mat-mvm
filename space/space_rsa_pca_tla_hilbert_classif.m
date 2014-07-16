@@ -926,9 +926,10 @@ latInd = [1:5];
 spacings = {'spac','mass'};
 memConds = {'rc', 'fo'};
 latency = cell(1,length(latInd));
+latencySec = cell(1,length(latInd));
 for i = 1:length(latency)
-  %latency{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
   latency{i} = sprintf('%dto%d',latencies(latInd(1)+i-1,1)*1000,latencies(latInd(1)+i-1,2)*1000);
+  latencySec{i} = sprintf('%.1f-%.1f',latencies(latInd(1)+i-1,1),latencies(latInd(1)+i-1,2));
 end
 latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
 latStr = latStr(2:end);
@@ -1141,7 +1142,7 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.61 0.61]);
+ylim([-0.25 1.5]);
 
 set(gca,'XTick', [1 2]);
 set(gca,'XTickLabel',{'Forgot','Recalled'});
@@ -1231,7 +1232,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.65 0.65]);
+ylim([-0.1 1.5]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -1342,7 +1343,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.35 0.45]);
+ylim([0.5 1.0]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
