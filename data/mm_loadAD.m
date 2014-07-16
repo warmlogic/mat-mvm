@@ -193,6 +193,10 @@ for ses = 1:length(sesStr)
   end
 end
 
+if isfield(exper,'artifacts')
+  artTypes_all = fieldnames(exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+end
+
 if length(subjects) > 1
   for sub = 2:length(subjects)
     for ses = 1:length(sesStr)
@@ -208,9 +212,11 @@ if length(subjects) > 1
           exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
           exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = cat(1,exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
           if isfield(sd.exper,'artifacts')
-            artTypes = fieldnames(exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+            artTypes = fieldnames(sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
             for at = 1:length(artTypes)
-              exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = cat(1,exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}),sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}));
+              if ~ismember(artTypes{at},artTypes_all)
+                artTypes_all = cat(1,artTypes_all,artTypes{at});
+              end
             end
           end
           if isfield(sd.exper,'trialinfo_allEv')
@@ -220,6 +226,35 @@ if length(subjects) > 1
         
       else
         error('%s does not exist',sdFile);
+      end
+    end
+  end
+end
+
+% add all the artifact information
+if isfield(exper,'artifacts')
+  for at = 1:length(artTypes_all)
+    for ses = 1:length(sesStr)
+      for evVal = 1:length(exper.eventValues{ses})
+        exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes_all{at}) = cell(length(subjects),1);
+      end
+    end
+  end
+  for sub = 1:length(subjects)
+    for ses = 1:length(sesStr)
+      sdFile = fullfile(procDir,subjects{sub},sesStr{ses},'subjectDetails.mat');
+      if exist(sdFile,'file')
+        % load in analysisDetails.mat: exper, ana, dirs, files, cfg_proc
+        sd = load(sdFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
+        for evVal = 1:length(exper.eventValues{ses})
+          if isfield(sd.exper,'artifacts')
+            for at = 1:length(artTypes_all)
+              if isfield(sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}),artTypes_all{at})
+                exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes_all{at}){sub} = sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes_all{at}){1};
+              end
+            end
+          end
+        end
       end
     end
   end
