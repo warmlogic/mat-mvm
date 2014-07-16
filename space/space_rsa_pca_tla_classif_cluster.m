@@ -40,49 +40,6 @@ end
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
-% subjects = {
-%   %'SPACE001'; % low trial counts
-%   'SPACE002';
-% %   'SPACE003';
-% %   'SPACE004';
-% %   'SPACE005';
-% %   'SPACE006';
-% %   'SPACE007';
-% %   %'SPACE008'; % didn't perform task correctly, didn't perform well
-% %   'SPACE009';
-% %   'SPACE010';
-% %   'SPACE011';
-% %   'SPACE012';
-% %   'SPACE013';
-% %   'SPACE014';
-% %   'SPACE015';
-% %   'SPACE016';
-% %   %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-% %   'SPACE018';
-% %   %'SPACE019';
-% %   'SPACE020';
-% %   'SPACE021';
-% %   'SPACE022';
-% %   'SPACE027';
-% %   'SPACE029';
-% %   'SPACE037';
-% %   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-% %   'SPACE023';
-% %   'SPACE024';
-% %   'SPACE025';
-% %   'SPACE026';
-% %   'SPACE028';
-% %   %'SPACE030'; % low trial counts
-% %   'SPACE032';
-% %   'SPACE034';
-% %   'SPACE047';
-% %   'SPACE049';
-% %   'SPACE036';
-%   };
-
-% % only one cell, with all session names
-% sesNames = {'session_1'};
-
 allowRecallSynonyms = true;
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
@@ -119,9 +76,9 @@ end
 
 % then set up similarity comparisons
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
@@ -158,6 +115,7 @@ if accurateClassifSelect
   % classifier needs expo and multistudy; can include targ==-1 because
   % those are simply buffers for multistudy
   if all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+    data_str = 'img_word';
     ana.eventValues = {{'expo_stim','multistudy_image','multistudy_word'}};
     ana.eventValuesSplit = { ...
       {{'Face','House'} ...
@@ -256,6 +214,7 @@ if accurateClassifSelect
         };
     end
   elseif all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'},dataTypes))
+    data_str = 'img';
     ana.eventValues = {{'expo_stim','multistudy_image'}};
     ana.eventValuesSplit = { ...
       { ...
@@ -319,6 +278,7 @@ if accurateClassifSelect
         };
     end
   elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+    data_str = 'word';
     ana.eventValues = {{'expo_stim','multistudy_word'}};
     ana.eventValuesSplit = { ...
       {{'Face','House'} ...
@@ -383,6 +343,7 @@ if accurateClassifSelect
   end
 else
   if all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+    data_str = 'img_word';
     ana.eventValues = {{'multistudy_image','multistudy_word'}};
     ana.eventValuesSplit = { ...
       { ...
@@ -473,6 +434,7 @@ else
         };
     end
   elseif all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'},dataTypes))
+    data_str = 'img';
     ana.eventValues = {{'multistudy_image'}};
     ana.eventValuesSplit = { ...
       { ...
@@ -527,6 +489,7 @@ else
         };
     end
   elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+    data_str = 'word';
     ana.eventValues = {{'multistudy_word'}};
     ana.eventValuesSplit = { ...
       { ...
@@ -580,6 +543,8 @@ else
         } ...
         };
     end
+  else
+    error('Did not find correct event setup!');
   end
 end
 
@@ -940,7 +905,7 @@ for sub = 1:length(exper.subjects)
       end % lat
     end % ~badSub
     
-    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_tla_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
+    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_tla_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,date));
     fprintf('Saving: %s\n',saveFile);
     save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','latencies','similarity_all','similarity_ntrials');
     fprintf('Done.\n');

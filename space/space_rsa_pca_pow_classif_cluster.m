@@ -70,9 +70,9 @@ end
 
 % then set up similarity comparisons
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
@@ -152,6 +152,7 @@ for sub = 1:length(subjects_all)
       % classifier needs expo and multistudy; can include targ==-1 because
       % those are simply buffers for multistudy
       if all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+        data_str = 'img_word';
         ana.eventValues = {{'expo_stim','multistudy_image','multistudy_word'}};
         ana.eventValuesSplit = { ...
           {{'Face','House'} ...
@@ -250,6 +251,7 @@ for sub = 1:length(subjects_all)
             };
         end
       elseif all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'},dataTypes))
+        data_str = 'img';
         ana.eventValues = {{'expo_stim','multistudy_image'}};
         ana.eventValuesSplit = { ...
           { ...
@@ -313,6 +315,7 @@ for sub = 1:length(subjects_all)
             };
         end
       elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+        data_str = 'word';
         ana.eventValues = {{'expo_stim','multistudy_word'}};
         ana.eventValuesSplit = { ...
           {{'Face','House'} ...
@@ -377,6 +380,7 @@ for sub = 1:length(subjects_all)
       end
     else
       if all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+        data_str = 'img_word';
         ana.eventValues = {{'multistudy_image','multistudy_word'}};
         ana.eventValuesSplit = { ...
           { ...
@@ -467,6 +471,7 @@ for sub = 1:length(subjects_all)
             };
         end
       elseif all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'},dataTypes))
+        data_str = 'img';
         ana.eventValues = {{'multistudy_image'}};
         ana.eventValuesSplit = { ...
           { ...
@@ -521,6 +526,7 @@ for sub = 1:length(subjects_all)
             };
         end
       elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+        data_str = 'word';
         ana.eventValues = {{'multistudy_word'}};
         ana.eventValuesSplit = { ...
           { ...
@@ -574,6 +580,8 @@ for sub = 1:length(subjects_all)
             } ...
             };
         end
+      else
+        error('Did not find correct event setup!');
       end
     end
     
@@ -978,7 +986,7 @@ for sub = 1:length(subjects_all)
       end % lat
     end % ~badSub
     
-    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_pow_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
+    saveFile = fullfile(dirs.saveDirProc,exper.subjects{sub},exper.sesStr{ses},sprintf('RSA_PCA_pow_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
     fprintf('Saving: %s\n',saveFile);
     save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
     fprintf('Done.\n');
