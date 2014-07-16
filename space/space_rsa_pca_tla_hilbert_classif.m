@@ -638,7 +638,7 @@ parameter_orig = 'trial';
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 % freqs = [4 8; 8 12; 12 30; 30 50];
-freqs = [3 7; 8 12; 13 20; 20 30; 31 45; 46 80];
+freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
 freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 % bandpass filter the trials at a given frequency bin

@@ -603,9 +603,6 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPAC
 parameter = 'powspctrm';
 parameter_orig = 'trial';
 
-% freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
-% freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
-% freqs = [4 8; 8 12; 12 30; 30 50];
 freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
 % bandpass filter the trials at a given frequency bin
