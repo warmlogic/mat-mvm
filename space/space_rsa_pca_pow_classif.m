@@ -106,6 +106,11 @@ end
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
 parameter = 'powspctrm';
 
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 80];
@@ -156,14 +161,10 @@ elseif ischar(thisROI)
 end
 
 cfg_sel = [];
-% cfg_sel.latency = [0.2 0.8];
-% cfg_sel.latency = [0 0.5];
-% cfg_sel.latency = [0 0.8];
-% cfg_sel.latency = [0.4 0.6];
-cfg_sel.avgoverfreq = 'yes';
 cfg_sel.avgoverchan = 'no';
-% cfg_sel.avgovertime = 'yes';
-cfg_sel.avgovertime = 'no';
+cfg_sel.avgovertime = 'yes';
+% cfg_sel.avgovertime = 'no';
+cfg_sel.avgoverfreq = 'yes';
 
 sim_method = 'cosine';
 % sim_method = 'correlation';

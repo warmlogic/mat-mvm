@@ -108,10 +108,12 @@ end
 
 % then set up similarity comparisons
 
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -121,8 +123,6 @@ latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0];
-
-% latencies = [0.0 0.5; 0.5 1.0];
 
 % column numbers in trialinfo
 % trialNumCol = 5;
@@ -155,8 +155,9 @@ end
 
 cfg_sel = [];
 cfg_sel.avgoverchan = 'no';
-% cfg_sel.avgovertime = 'no';
 cfg_sel.avgovertime = 'yes';
+% cfg_sel.avgovertime = 'no';
+% % NB: hilbert will automatically avgoverfreq
 
 cfg_sel.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)}));
 

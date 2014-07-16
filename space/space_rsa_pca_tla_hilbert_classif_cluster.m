@@ -97,8 +97,8 @@ end
 
 cfg_sel = [];
 cfg_sel.avgoverchan = 'no';
-% cfg_sel.avgovertime = 'no';
 cfg_sel.avgovertime = 'yes';
+% cfg_sel.avgovertime = 'no';
 % % NB: hilbert will automatically avgoverfreq
 
 cfg_sel.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)}));
