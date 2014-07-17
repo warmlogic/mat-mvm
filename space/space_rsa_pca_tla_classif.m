@@ -975,13 +975,14 @@ fprintf('Done.\n');
 
 %% load
 
-% analysisDate = '13-Jul-2014';
-analysisDate = '15-Jul-2014';
+analysisDate = '13-Jul-2014';
+data_str = '';
+
+% analysisDate = '15-Jul-2014';
 
 % data_str = 'img_word';
 % data_str = 'img';
-% data_str = '';
-data_str = 'word';
+% data_str = 'word';
 
 % thisROI = {'center109'};
 thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
@@ -1286,13 +1287,16 @@ fprintf('Prev ANOVA: ROI: %s, Latency:%s\n',roi_str,latStr);
 fprintf('=======================================\n');
 
 % multcompare(rm,'spacings','By','memConds')
+% multcompare(rm,'memConds','By','spacings')
 % multcompare(rm,'spacings','By','oldnew')
+% multcompare(rm,'oldnew','By','spacings')
 % multcompare(rm,'memConds','By','oldnew')
-% % multcompare(rm,'spacings','By','oldnew','By','memConds')
+% multcompare(rm,'oldnew','By','memConds')
 
 pairwiseComps = nchoosek(1:length(factorNames),2);
 for i = 1:size(pairwiseComps,1)
   multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
+  multcompare(rm,factorNames{pairwiseComps(i,2)},'By',factorNames{pairwiseComps(i,1)})
 end
 
 % % these calculate the same thing
@@ -1316,6 +1320,43 @@ end
 % % coeftest?
 % % coeftest(rm,eye(8),[1 0 0 0 0 0 0 -1]')
 % coeftest(rm,[1 1 1 1 -1 -1 -1 -1]',[1 0 0 0 0 0 0 -1]')
+
+%% Suppose we want to compare latencies for each combination of levels of spacing and memory
+
+% 1. Convert factors to categorical.
+within2 = within;
+within2.latency = categorical(within2.latency);
+within2.spacings = categorical(within2.spacings);
+within2.memConds = categorical(within2.memConds);
+
+% 2. Create an interaction factor capturing each combination of levels
+% of TestCond and TMS.
+% within2.TestCond_TMS = within2.TestCond .* within2.TMS;
+within2.spacings_memConds = within2.spacings .* within2.memConds;
+within2.latency_memConds = within2.latency .* within2.memConds;
+within2.spacings_latency = within2.spacings .* within2.latency;
+% within2.spacings_memConds_latency = within2.spacings .* within2.memConds .* within2.latency;
+
+% 3. Call fitrm with the modified within design.
+rm2 = fitrm(t,'y1-y8~1','WithinDesign',within2);
+ranovatbl2 = ranova(rm2, 'WithinModel','spacings*memConds*latency')
+
+% 4. Use interaction factor TestCond_TMS as the 'By' variable in multcompare.
+multcompare(rm2,'latency','By','spacings_memConds')
+multcompare(rm2,'spacings_memConds','By','latency')
+
+
+multcompare(rm2,'memConds','By','spacings_latency')
+multcompare(rm2,'memConds','By','spacings_latency')
+multcompare(rm2,'spacings','By','latency_memConds')
+
+% not correct
+multcompare(rm2,'spacings_memConds')
+multcompare(rm2,'latency_memConds')
+multcompare(rm2,'spacings_latency')
+
+% do not correct for multiple comparisons
+multcompare(rm2,'spacings_memConds_latency','ComparisonType','lsd')
 
 %% plot RSA spacing x subsequent memory interaction
 
