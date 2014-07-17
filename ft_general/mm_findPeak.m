@@ -86,8 +86,9 @@ if ~isfield(cfg,'conditions')
 end
 
 if ~isfield(cfg,'is_ga')
-  cfg.is_ga = true;
-  %fprintf('cfg.is_ga unset. defaulting to %d\n',cfg.is_ga);
+  % cfg.is_ga = true;
+  % % fprintf('cfg.is_ga unset. defaulting to %d\n',cfg.is_ga);
+  error('cfg.is_ga unset. please specify whether you are using grand average data or not');
 end
 
 if ~isfield(cfg,'excludeBadSub')
@@ -129,7 +130,7 @@ if cfg.plotit
   end
   
   if ~isfield(cfg_plot,'interactive')
-    cfg_plot.interactive = 'no';
+    cfg_plot.interactive = 'yes';
   end
 end
 
