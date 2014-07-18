@@ -477,7 +477,7 @@ lpfilt = true;
 
 if lpfilt
   sampleRate = 250;
-  lpfreq = 40;
+  lpfreq = 30;
   lofiltord = 4;
   lpfilttype = 'but';
 end
@@ -789,12 +789,17 @@ cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'LAS'},{'LPS'}};
 cfg_plot.rois = {{'LPS'},{'RPS'}};
+cfg_plot.rois = {{'Cz'},{'Pz'}};
 % cfg_plot.rois = {{'E70'},{'E83'}};
+cfg_plot.rois = {{'E72'}};
+cfg_plot.rois = {{'LPS'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.parameter = 'avg';
+
+% 18 and 21 seem bery noisy
 
 cfg_plot.titleTrialCount = false;
 
