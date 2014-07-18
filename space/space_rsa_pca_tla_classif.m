@@ -1147,6 +1147,9 @@ latInd = [13:14];
 % % 0 to 1
 % latInd = 24;
 
+datatyp = 'word';
+% datayp = 'img';
+
 % =================================================
 
 spacings = {'spac','mass'};
@@ -1200,7 +1203,7 @@ for sub = 1:length(exper.subjects)
       
       for sp = 1:length(spacings)
         for mc = 1:length(memConds)
-          cond_str = sprintf('img_RgH_%s_%s',memConds{mc},spacings{sp});
+          cond_str = sprintf('%s_RgH_%s_%s',datatyp,memConds{mc},spacings{sp});
           
           for lat = 1:length(latInd)
             if ~lnDone
