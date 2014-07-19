@@ -333,7 +333,14 @@ for sub = 1:length(exper.subjects)
                   freq.sampleinfo = freq.sampleinfo(theseTrials,:);
                 end
                 
-                save(outputFile_full,'freq','-v7.3');
+                varinfo = whos('freq');
+                if (varinfo.bytes / (1024^2)) > 2000
+                  saveVersion = '-v7.3';
+                else
+                  saveVersion = '-v7';
+                end
+                
+                save(outputFile_full,'freq',saveVersion);
                 
                 fprintf('Done.\n');
                 
@@ -503,7 +510,14 @@ for sub = 1:length(exper.subjects)
               freq.time = freq.time(keepTime);
               freq.(cfg_ana.out_param) = tf_data;
               
-              save(outputFile_full,'freq','-v7.3');
+              varinfo = whos('freq');
+              if (varinfo.bytes / (1024^2)) > 2000
+                saveVersion = '-v7.3';
+              else
+                saveVersion = '-v7';
+              end
+              
+              save(outputFile_full,'freq',saveVersion);
 
               fprintf('Done.\n');
             else
@@ -575,7 +589,14 @@ for sub = 1:length(exper.subjects)
             freq.time = freq.time(keepTime);
             freq.(cfg_ana.out_param) = tf_data;
             
-            save(outputFile_full,'freq','-v7.3');
+            varinfo = whos('freq');
+            if (varinfo.bytes / (1024^2)) > 2000
+              saveVersion = '-v7.3';
+            else
+              saveVersion = '-v7';
+            end
+            
+            save(outputFile_full,'freq',saveVersion);
             
             fprintf('Done.\n');
           else
