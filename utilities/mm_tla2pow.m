@@ -60,11 +60,11 @@ if ~isfield(cfg_ana,'splitTrials')
 end
 if cfg_ana.splitTrials
   if ~isfield(cfg_ana,'splitSize')
-    cfg_ana.splitSize = 200;
+    cfg_ana.splitSize = 150;
   end
   % number of trials to lump in with the last trial split. Must be >= 1.
   if ~isfield(cfg_ana,'splitRemainderLump')
-    cfg_ana.splitRemainderLump = 60;
+    cfg_ana.splitRemainderLump = 50;
   end
   
   % whether to see if files are too big to combine (RAM limit issue)
