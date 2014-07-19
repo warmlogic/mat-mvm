@@ -1103,12 +1103,12 @@ analysisDate = '15-Jul-2014';
 data_str = 'word';
 
 % thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
 % thisROI = {'LAS2','FS','RAS2'};
-% thisROI = {'LFP','FC','RFP'};
+thisROI = {'LFP','FC','RFP'};
 
 freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
 % freqs = [3 7];
@@ -1282,6 +1282,9 @@ latInd = [1:5];
 % % 0 to 1
 % latInd = 24;
 
+datatyp = 'word';
+% datatyp = 'img';
+
 % =================================================
 
 spacings = {'spac','mass'};
@@ -1335,7 +1338,7 @@ for sub = 1:length(exper.subjects)
       
       for sp = 1:length(spacings)
         for mc = 1:length(memConds)
-          cond_str = sprintf('img_RgH_%s_%s',memConds{mc},spacings{sp});
+          cond_str = sprintf('%s_RgH_%s_%s',datatyp,memConds{mc},spacings{sp});
           
           for lat = 1:length(latInd)
             if ~lnDone

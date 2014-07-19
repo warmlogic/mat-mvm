@@ -84,6 +84,7 @@ end
 
 % use the first subject as the basis for analysis details variables
 sub=1;
+artTypes_all = {};
 for ses = 1:length(sesStr)
   sdFile = fullfile(procDir,subjects{sub},sesStr{ses},'subjectDetails.mat');
   if exist(sdFile,'file')
@@ -91,6 +92,8 @@ for ses = 1:length(sesStr)
     sd = load(sdFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
     
     if ~exist('exper','var')
+      % ses == 1, because we haven't set exper=sd.exper yet
+      
       % initialize using the first subject
       if isfield(sd,'exper')
         exper = sd.exper;
@@ -125,24 +128,43 @@ for ses = 1:length(sesStr)
       
       % only include the sessions and relevant info for the input sesNames
       keepSesInd = ismember(exper.sesStr,sesStr{ses});
-      if ~any(keepSesInd)
-        exper.sessions = exper.sessions(keepSesInd);
+      if any(keepSesInd)
+        % % % do not modify exper.sessions
+        % % exper.sessions = exper.sessions(keepSesInd);
         exper.prepost = exper.prepost(keepSesInd);
         exper.sesStr = exper.sesStr(keepSesInd);
+        exper.eventValues = exper.eventValues(keepSesInd);
         
-        for k = 1:length(keepSesInd)
-          if ~keepSesInd(k)
-            exper.badChan = rmfield(exper.badChan,exper.sesStr{k});
-            exper.nTrials = rmfield(exper.nTrials,exper.sesStr{k});
-            exper.badEv = rmfield(exper.badEv,exper.sesStr{k});
-            if isfield(exper,'artifacts')
-              exper.artifacts = rmfield(exper.artifacts,exper.sesStr{k});
-            end
-            if isfield(exper,'trialinfo_allEv')
-              exper.trialinfo_allEv = rmfield(exper.trialinfo_allEv,exper.sesStr{k});
+        % remove extraneous session fields
+        fieldsToCheck = {'badChan','nTrials','badEv','artifacts','trialinfo_allEv'};
+        for ftc = 1:length(fieldsToCheck)
+          if isfield(exper,fieldsToCheck{ftc})
+            fn = fieldnames(exper.(fieldsToCheck{ftc}));
+            exper.(fieldsToCheck{ftc}) = rmfield(exper.(fieldsToCheck{ftc}),fn(~keepSesInd));
+          end
+        end
+        
+        % collect all the artifact types
+        if isfield(exper,'artifacts')
+          kCount = 0;
+          for k = 1:length(keepSesInd)
+            if keepSesInd(k)
+              kCount = kCount + 1;
+              for evVal = 1:length(exper.eventValues{kCount})
+                artTypes = fieldnames(exper.artifacts.(exper.sesStr{kCount}).(exper.eventValues{kCount}{evVal}));
+                for at = 1:length(artTypes)
+                  if ~ismember(artTypes{at},artTypes_all)
+                    artTypes_all = cat(1,artTypes_all,artTypes{at});
+                  end
+                end
+              end
             end
           end
         end
+        
+      else
+        fprintf('sesStr does not contain any sessions that are in %s\n',sdFile);
+        keyboard
       end
       
 %       % only include nTrials and badEv for the input eventValues
@@ -167,23 +189,34 @@ for ses = 1:length(sesStr)
       % exper.eventValues = eventValues;
       
     else
+      % ses > 1, because we already set exper=sd.exper
       
-      % concatenate: sessions
+      % find out where in the sd struct this data is coming from
+      thisSesInd = ismember(sd.exper.sesStr,sesStr{ses});
+      
+      % concatenate: sessions (length of sd.exper.sessions should be 1)
       exper.sessions = cat(2,exper.sessions,sd.exper.sessions);
+      exper.sesStr = cat(2,exper.sesStr,sesStr{ses});
+      exper.eventValues = cat(2,exper.eventValues,sd.exper.eventValues(thisSesInd));
+      
+      exper.prepost = cat(2,exper.prepost,sd.exper.prepost{thisSesInd});
       
       % add for each subject and session: badChan, badEv, nTrials
-      exper.badChan.(exper.sesStr{ses}) = sd.exper.badChan.(exper.sesStr{ses})(sub);
+      exper.badChan.(sesStr{ses}) = sd.exper.badChan.(sesStr{ses})(sub);
       for evVal = 1:length(exper.eventValues{ses})
-        exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.nTrials.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
-        exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.badEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        exper.nTrials.(sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.nTrials.(sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+        exper.badEv.(sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.badEv.(sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
         if isfield(sd.exper,'artifacts')
-          artTypes = fieldnames(exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
+          artTypes = fieldnames(sd.exper.artifacts.(sesStr{ses}).(exper.eventValues{ses}{evVal}));
           for at = 1:length(artTypes)
-            exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = sd.exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at})(sub);
+            exper.artifacts.(sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at}) = sd.exper.artifacts.(sesStr{ses}).(exper.eventValues{ses}{evVal}).(artTypes{at})(sub);
+            if ~ismember(artTypes{at},artTypes_all)
+              artTypes_all = cat(1,artTypes_all,artTypes{at});
+            end
           end
         end
         if isfield(sd.exper,'trialinfo_allEv')
-          exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.trialinfo_allEv.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
+          exper.trialinfo_allEv.(sesStr{ses}).(exper.eventValues{ses}{evVal}) = sd.exper.trialinfo_allEv.(sesStr{ses}).(exper.eventValues{ses}{evVal})(sub);
         end
       end
       
@@ -191,10 +224,6 @@ for ses = 1:length(sesStr)
   else
     error('%s does not exist',sdFile);
   end
-end
-
-if isfield(exper,'artifacts')
-  artTypes_all = fieldnames(exper.artifacts.(exper.sesStr{ses}).(exper.eventValues{ses}{evVal}));
 end
 
 if length(subjects) > 1

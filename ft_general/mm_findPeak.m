@@ -86,8 +86,9 @@ if ~isfield(cfg,'conditions')
 end
 
 if ~isfield(cfg,'is_ga')
-  cfg.is_ga = true;
-  %fprintf('cfg.is_ga unset. defaulting to %d\n',cfg.is_ga);
+  % cfg.is_ga = true;
+  % % fprintf('cfg.is_ga unset. defaulting to %d\n',cfg.is_ga);
+  error('cfg.is_ga unset. please specify whether you are using grand average data or not');
 end
 
 if ~isfield(cfg,'excludeBadSub')
@@ -129,7 +130,7 @@ if cfg.plotit
   end
   
   if ~isfield(cfg_plot,'interactive')
-    cfg_plot.interactive = 'no';
+    cfg_plot.interactive = 'yes';
   end
 end
 
@@ -419,16 +420,19 @@ elseif strcmp(cfg.datadim,'peak2peak')
   cfg_p2p.latency = cfg.negpeak;
   ga_neg = ft_selectdata_new(cfg_p2p,ga_allCond);
   
-  theseChans = ismember(ga_pos.label,cfg_ft.channel);
+  
   pos_max = max(ga_pos.avg,[],2);
   neg_min = min(ga_neg.avg,[],2);
   
   %posnegdiff = pos_max - abs(neg_min);
   posnegdiff = pos_max - neg_min;
   
-  [y,i] = sort(posnegdiff(theseChans,:),1,cfg.order);
+  [y,i] = sort(posnegdiff,1,cfg.order);
   
-  peakInfo.channel = cfg_ft.channel(i);
+  sortedChannels = ga_pos.label(i);
+  theseChans = ismember(sortedChannels,cfg_ft.channel);
+  
+  peakInfo.channel = sortedChannels(theseChans);
   peakInfo.latency = [cfg.pospeak; cfg.negpeak];
   peakInfo.voltage = y';
   

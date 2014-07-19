@@ -145,7 +145,7 @@ for sub = 1:length(exper.subjects)
         if cfg_ana.splitTrials
           % split up trials if there are more than the RAM can handle
           nTrials = size(orig.(data_fn).(cfg_ana.orig_param),1);
-          if nTrials > cfg_ana.splitSize
+          if nTrials > (cfg_ana.splitSize + cfg_ana.splitRemainderLump)
             fprintf('Splitting trials...\n');
             
             tooBigToCombine = false;
