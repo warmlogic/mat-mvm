@@ -92,6 +92,9 @@ end
 timeCols = 3;
 trl_ini = -1 * ones(1, timeCols + maxTrlCols);
 
+% only keep the ft events with triggers
+ft_event = ft_event(ismember({ft_event.value},triggers));
+
 %% Alignment 1/3: read evt and put events with the same sample in alphabetical order
 
 % The header, as read by FieldTrip, is (usually) sorted alphabetically when
@@ -109,22 +112,36 @@ ns_evt_orig = ns_evt;
 % % wait to change the values
 % ecInd = 1:length(ns_evt{1});
 
+% high level check for whether NS and FT files follow each other perfectly;
+% tells whether it is necessary to swap non-alphabetical events
+foundNsFtDiscrepancy = false;
 for ec = 1:length(ns_evt{1})
-  if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-    this_time_ms_str = ns_evt{5}(ec);
-    this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+  if ~foundNsFtDiscrepancy && ~strcmp(ns_evt{1}(ec),ft_event(ec).value)
+    foundNsFtDiscrepancy = true;
+  end
+  
+  if foundNsFtDiscrepancy && ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+    this_time_ms = (str2double(ns_evt{5}{ec}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec}(8:9)) * 1000) + (str2double(ns_evt{5}{ec}(11:13)));
     this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-    prev_time_ms_str = ns_evt{5}(ec-1);
-    prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+    prev_time_ms = (str2double(ns_evt{5}{ec-1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec-1}(11:13)));
     prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
     
     if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
       if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
+        % if it was just that these two events are out of order are we are
+        % now fixing them, then turn off the discrepancy flag
+        if strcmp(ns_evt{1}(ec),ft_event(ec-1).value) && strcmp(ns_evt{1}(ec-1),ft_event(ec).value)
+          foundNsFtDiscrepancy = false;
+        end
+        
         % change the values on the fly
         for i = 1:length(ns_evt_orig)
           ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
           ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
         end
+        
+        % overwrite so we access the right data
+        ns_evt_orig = ns_evt;
         
         % % wait to change the values
         % prevInd = ec - 1;
@@ -164,18 +181,24 @@ for i = 1:length(ft_event)
     end
     
     if ec > 1 && strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
-      this_time_ms_str = ns_evt{5}(ec);
-      this_time_ms = (str2double(this_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(this_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(this_time_ms_str{1}(8:9)) * 1000) + (str2double(this_time_ms_str{1}(11:13)));
+      this_time_ms = (str2double(ns_evt{5}{ec}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec}(8:9)) * 1000) + (str2double(ns_evt{5}{ec}(11:13)));
       this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
-      prev_time_ms_str = ns_evt{5}(ec-1);
-      prev_time_ms = (str2double(prev_time_ms_str{1}(2:3)) * 60 * 60 * 1000) + (str2double(prev_time_ms_str{1}(5:6)) * 60 * 1000) + (str2double(prev_time_ms_str{1}(8:9)) * 1000) + (str2double(prev_time_ms_str{1}(11:13)));
+      prev_time_ms = (str2double(ns_evt{5}{ec-1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec-1}(11:13)));
       prev_time_samp = fix((prev_time_ms / 1000) * ft_hdr.Fs);
       
       if (this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs))
-        % need to check on upcoming events; can't rely on comparing current
-        % NS and FT events because they might have the same value even
-        % though they're not the same exact event
-        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
+        % need to check whether these are the same events; can't rely on
+        % comparing current NS and FT events with ~strcmp because they
+        % might have the same value even though they're not the same exact
+        % event. So, check the event value for the next NS event vs the
+        % current FT event, and make it more robust by checking the sample
+        % offset
+        next_time_ms = (str2double(ns_evt{5}{ec+1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec+1}(11:13)));
+        next_time_samp = fix((next_time_ms / 1000) * ft_hdr.Fs);
+        
+        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ...
+            abs(next_time_samp - prev_time_samp) == abs(ft_event(i).sample - ft_event(i-1).sample) && ...
+            strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
           ecInd(ec) = false;
           ec = ec + 1;
         end
@@ -185,6 +208,11 @@ for i = 1:length(ft_event)
   end
 end
 
+% only keep the ns_evt indices that align with ft_event
+for i = 1:length(ns_evt)
+  ns_evt{i} = ns_evt{i}(ecInd);
+end
+
 %% Alignment 3/3: final comparison of Net Station and FieldTrip data
 
 % make sure the Net Station evt Code column and ft_event value field are in
@@ -192,14 +220,6 @@ end
 % rearranged alphabetically), then put the Net Station events in the same
 % order as the FieldTrip events, but only if the neighboring events are
 % aligned.
-
-% only keep the ft events with triggers
-ft_event = ft_event(ismember({ft_event.value},triggers));
-
-% only keep the ns_evt indices that align with ft_event
-for i = 1:length(ns_evt)
-  ns_evt{i} = ns_evt{i}(ecInd);
-end
 
 ns_evt_backup = ns_evt;
 
@@ -555,3 +575,5 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
     end % for
     fprintf('\n');
 end % pha
+
+fprintf('\n');
