@@ -16,11 +16,22 @@ if ~isfield(cfg_ana,'orig_param')
   cfg_ana.orig_param = 'trial';
 end
 
+% probably not a good idea to use this option
 if ~isfield(cfg_ana,'resample_tla')
   cfg_ana.resample_tla = false;
 else
-  if ~isfield(cfg_ana,'resampleRate')
-    error('cfg_ana.resample_tla=true but cfg_ana.resampleRate is not set.');
+  if ~isfield(cfg_ana,'resampleRate_tla')
+    error('cfg_ana.resample_tla=true but cfg_ana.resampleRate_tla is not set.');
+  end
+end
+
+% it might be a good idea to make your resampleRate_pow a multiple of your
+% original sampleRate (e.g., resampleRate_pow = sampleRate/5)
+if ~isfield(cfg_ana,'resample_pow')
+  cfg_ana.resample_pow = false;
+else
+  if ~isfield(cfg_ana,'resampleRate_pow')
+    error('cfg_ana.resample_pow=true but cfg_ana.resampleRate_pow is not set.');
   end
 end
 
@@ -135,13 +146,13 @@ for sub = 1:length(exper.subjects)
         
         if cfg_ana.resample_tla
           cfg_rs = [];
-          cfg_rs.resamplefs = cfg_ana.resampleRate;
+          cfg_rs.resamplefs = cfg_ana.resampleRate_tla;
           % cfg_rs.time = repmat({-0.5:0.04:1.0},size(orig.(data_fn).trial,1),1);
           % cfg_rs.method = 'pchip'; % see help interp1
           cfg_rs.detrend = 'no';
           orig.(data_fn) = ft_resampledata(cfg_rs,orig.(data_fn));
           
-          sampleRate = cfg_ana.resampleRate;
+          sampleRate = cfg_ana.resampleRate_tla;
         else
           sampleRate = cfg_ana.sampleRate;
         end
@@ -174,6 +185,26 @@ for sub = 1:length(exper.subjects)
           % create wavelet and get its FFT
           wavelet = (pi*frequencies(fi)*sqrt(pi))^-.5 * exp(2*1i*pi*frequencies(fi).*time) .* exp(-time.^2./(2*( wavelet_cycles /(2*pi*frequencies(fi)))^2))/frequencies(fi);
           fft_wavelet(fi,:) = fft(wavelet,n_conv_pow2);
+        end
+        
+        % find out about resampling power
+        keepTimeInd_resample_pow = [];
+        if cfg_ana.resample_pow
+          if ~isempty(cfg_ana.keepTimeSec)
+            timeLimits = cfg_ana.keepTimeSec;
+            
+            % set this to empty so we don't use it later
+            cfg_ana.keepTimeSec = [];
+          else
+            timeLimits = [orig.(data_fn).time(1) orig.(data_fn).time(end)];
+          end
+          
+          findTheseTimes = timeLimits(1):1/cfg_ana.resampleRate_pow:timeLimits(end);
+          
+          % find the nearest samples
+          for i = 1:length(saveTimes)
+            keepTimeInd_resample_pow = cat(2,keepTimeInd_resample_pow,nearest(orig.(data_fn).time,findTheseTimes(i)));
+          end
         end
         
         if cfg_ana.splitTrials
@@ -272,7 +303,12 @@ for sub = 1:length(exper.subjects)
                 end
                 freq.dimord = 'rpt_chan_freq_time';
                 freq.freq = frequencies;
-                freq.(cfg_ana.out_param) = tf_data;
+                if ~isempty(keepTimeInd_resample_pow)
+                  freq.time = freq.time(keepTimeInd_resample_pow);
+                  freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd_resample_pow);
+                else
+                  freq.(cfg_ana.out_param) = tf_data;
+                end
                 if isfield(freq,'trialinfo')
                   freq.trialinfo = freq.trialinfo(theseTrials,:);
                 end
@@ -449,7 +485,12 @@ for sub = 1:length(exper.subjects)
               end
               freq.dimord = 'rpt_chan_freq_time';
               freq.freq = frequencies;
-              freq.(cfg_ana.out_param) = tf_data;
+              if ~isempty(keepTimeInd_resample_pow)
+                freq.time = freq.time(keepTimeInd_resample_pow);
+                freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd_resample_pow);
+              else
+                freq.(cfg_ana.out_param) = tf_data;
+              end
               
               if ~isempty(cfg_ana.keepTimeSec)
                 cfg_sel = [];
@@ -522,7 +563,12 @@ for sub = 1:length(exper.subjects)
             end
             freq.dimord = 'rpt_chan_freq_time';
             freq.freq = frequencies;
-            freq.(cfg_ana.out_param) = tf_data;
+            if ~isempty(keepTimeInd_resample_pow)
+              freq.time = freq.time(keepTimeInd_resample_pow);
+              freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd_resample_pow);
+            else
+              freq.(cfg_ana.out_param) = tf_data;
+            end
             
             if ~isempty(cfg_ana.keepTimeSec)
               cfg_sel = [];
