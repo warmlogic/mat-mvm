@@ -72,22 +72,22 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  % 'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
-  % 'SPACE019'; % low trial counts
+  'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  % 'SPACE030'; % low trial counts
+  'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
