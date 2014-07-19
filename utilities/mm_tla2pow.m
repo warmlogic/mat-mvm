@@ -16,6 +16,14 @@ if ~isfield(cfg_ana,'orig_param')
   cfg_ana.orig_param = 'trial';
 end
 
+if ~isfield(cfg_ana,'resample')
+  cfg_ana.resample = false;
+else
+  if ~isfield(cfg_ana,'resampleRate')
+    error('cfg_ana.resample=true but cfg_ana.resampleRate is not set.');
+  end
+end
+
 if ~isfield(cfg_ana,'param')
   cfg_ana.out_param = 'powspctrm';
 end
@@ -171,7 +179,7 @@ for sub = 1:length(exper.subjects)
         if cfg_ana.splitTrials
           % split up trials if there are more than the RAM can handle
           nTrials = size(orig.(data_fn).(cfg_ana.orig_param),1);
-          if nTrials > cfg_ana.splitSize
+          if nTrials > (cfg_ana.splitSize + cfg_ana.splitRemainderLump)
             fprintf('Splitting trials...\n');
             
             tooBigToCombine = false;
