@@ -57,42 +57,42 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 
 subjects = {
   'SPACE001'; % low trial counts
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  'SPACE019'; % low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   'SPACE019'; % low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   'SPACE030'; % low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -146,16 +146,26 @@ end
 cfg_ana.method = 'wavelet';
 cfg_ana.width = 5;
 
+% % spacing with powers of 2
+% cfg_ana.min_freq = 2;
+% cfg_ana.max_freq = 128;
+% cfg_ana.num_freq = 34;
+% cfg_ana.freq_spacing = 'log';
+
 cfg_ana.min_freq = 3;
 cfg_ana.max_freq = 80;
-cfg_ana.num_freq = 30;
+cfg_ana.num_freq = 38;
 cfg_ana.freq_spacing = 'log';
 % cfg_ana.freq_spacing = 'lin';
 
+% not recommended to resample before calculating power
 cfg_ana.resample_tla = false;
-cfg_ana.resampleRate = 125;
-% % cfg_ana.resampleTime = -0.5:0.04:1.0; % do not implmement yet
 
+% resample after calculating power; saves disk space
+cfg_ana.resample_pow = true;
+cfg_ana.resampleRate_pow = 250/5;
+
+% only keeps samples within this time range
 cfg_ana.keepTimeSec = [-0.5 1.0];
 
 cfg_ana.saveroot = strrep(dirs.saveDirProc,cfg_ana.orig_ftype,cfg_ana.output_ftype);
