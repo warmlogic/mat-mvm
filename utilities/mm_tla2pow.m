@@ -203,9 +203,6 @@ for sub = 1:length(exper.subjects)
           keepTimeInd = [];
           if ~isempty(cfg_ana.keepTimeSec)
             timeLimits = cfg_ana.keepTimeSec;
-            
-            % set this to empty so we don't use it later
-            cfg_ana.keepTimeSec = [];
           else
             timeLimits = [orig.(data_fn).time(1) orig.(data_fn).time(end)];
           end
