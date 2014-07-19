@@ -132,7 +132,7 @@ cfg_ana.splitTrials = true;
 if cfg_ana.splitTrials
   cfg_ana.splitSize = 200;
   % number of trials to lump in with the last trial split. Must be >= 1.
-  cfg_ana.splitRemainderLump = 50;
+  cfg_ana.splitRemainderLump = 60;
   
   % whether to see if files are too big to combine (RAM limit issue)
   cfg_ana.checkSplitFileSizeForSaving = false;
