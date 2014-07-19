@@ -16,11 +16,11 @@ if ~isfield(cfg_ana,'orig_param')
   cfg_ana.orig_param = 'trial';
 end
 
-if ~isfield(cfg_ana,'resample')
-  cfg_ana.resample = false;
+if ~isfield(cfg_ana,'resample_tla')
+  cfg_ana.resample_tla = false;
 else
   if ~isfield(cfg_ana,'resampleRate')
-    error('cfg_ana.resample=true but cfg_ana.resampleRate is not set.');
+    error('cfg_ana.resample_tla=true but cfg_ana.resampleRate is not set.');
   end
 end
 
@@ -133,7 +133,7 @@ for sub = 1:length(exper.subjects)
           end
         end
         
-        if cfg_ana.resample
+        if cfg_ana.resample_tla
           cfg_rs = [];
           cfg_rs.resamplefs = cfg_ana.resampleRate;
           % cfg_rs.time = repmat({-0.5:0.04:1.0},size(orig.(data_fn).trial,1),1);
