@@ -290,7 +290,8 @@ cfg.ftype = 'pow';
 cfg.output = 'pow';
 
 % transformation: 'log10', 'log', 'vec'
-cfg.transform = 'log10';
+cfg.transform = '';
+% cfg.transform = 'log10';
 % cfg.transform = 'vec';
 
 % normalization of single or average trials
