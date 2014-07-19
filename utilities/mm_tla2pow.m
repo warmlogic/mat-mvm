@@ -259,6 +259,9 @@ for sub = 1:length(exper.subjects)
                 if isfield(freq,'trial')
                   freq = rmfield(freq,'trial');
                 end
+                if ~isfield(freq,'fsample')
+                  freq.fsample = sampleRate;
+                end
                 freq.dimord = 'rpt_chan_freq_time';
                 freq.freq = frequencies;
                 freq.(cfg_ana.out_param) = tf_data;
@@ -433,6 +436,9 @@ for sub = 1:length(exper.subjects)
               if isfield(freq,'trial')
                 freq = rmfield(freq,'trial');
               end
+              if ~isfield(freq,'fsample')
+                freq.fsample = sampleRate;
+              end
               freq.dimord = 'rpt_chan_freq_time';
               freq.freq = frequencies;
               freq.(cfg_ana.out_param) = tf_data;
@@ -502,6 +508,9 @@ for sub = 1:length(exper.subjects)
             end
             if isfield(freq,'trial')
               freq = rmfield(freq,'trial');
+            end
+            if ~isfield(freq,'fsample')
+              freq.fsample = sampleRate;
             end
             freq.dimord = 'rpt_chan_freq_time';
             freq.freq = frequencies;
