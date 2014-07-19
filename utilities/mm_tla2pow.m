@@ -197,9 +197,10 @@ for sub = 1:length(exper.subjects)
         end
         
         % find out about resampling power
-        keepTime = false(size(orig.(data_fn).time));
-        keepTimeInd = [];
+        keepTime = true(1,n_data);
         if cfg_ana.resample_pow
+          keepTime = false(1,n_data);
+          keepTimeInd = [];
           if ~isempty(cfg_ana.keepTimeSec)
             timeLimits = cfg_ana.keepTimeSec;
             
@@ -215,6 +216,12 @@ for sub = 1:length(exper.subjects)
           for i = 1:length(findTheseTimes)
             keepTimeInd = cat(2,keepTimeInd,nearest(orig.(data_fn).time,findTheseTimes(i)));
           end
+          keepTime(keepTimeInd) = true;
+        elseif ~cfg_ana.resample_pow && ~isempty(cfg_ana.keepTimeSec)
+          keepTime = false(1,n_data);
+          tbeg = nearest(orig.(data_fn).time,cfg_ana.keepTimeSec(1));
+          tend = nearest(orig.(data_fn).time,cfg_ana.keepTimeSec(2));
+          keepTime(tbeg:tend) = true;
         end
         
         if cfg_ana.splitTrials
@@ -266,7 +273,8 @@ for sub = 1:length(exper.subjects)
                 fprintf('\tSplit %d: Calculating %s for trials %d to %d...\n',sp,cfg_ana.out_param,count+1,count+splitSizes(sp));
                 
                 % initialize output time-frequency data: trials, channels, freq, time
-                tf_data = zeros(size(thisData,1),size(orig.(data_fn).trial,2),length(frequencies),n_data);
+                %tf_data = zeros(size(thisData,1),size(orig.(data_fn).trial,2),length(frequencies),n_data);
+                tf_data = zeros(size(thisData,1),size(orig.(data_fn).trial,2),length(frequencies),sum(keepTime));
                 
                 for t = 1:size(tf_data,1)
                   fprintf('.');
@@ -285,7 +293,8 @@ for sub = 1:length(exper.subjects)
                       convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
                       
                       % put power data into time-frequency matrix
-                      tf_data(t,c,fi,:) = abs(convolution_result_fft).^2;
+                      %tf_data(t,c,fi,:) = abs(convolution_result_fft).^2;
+                      tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
                     end
                     
                   end
@@ -313,12 +322,13 @@ for sub = 1:length(exper.subjects)
                 end
                 freq.dimord = 'rpt_chan_freq_time';
                 freq.freq = frequencies;
-                if ~isempty(keepTimeInd)
-                  freq.time = freq.time(keepTimeInd);
-                  freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
-                else
-                  freq.(cfg_ana.out_param) = tf_data;
-                end
+                freq.time = freq.time(keepTime);
+%                 if ~isempty(keepTimeInd)
+%                   freq.time = freq.time(keepTimeInd);
+%                   freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
+%                 else
+%                   freq.(cfg_ana.out_param) = tf_data;
+%                 end
                 if isfield(freq,'trialinfo')
                   freq.trialinfo = freq.trialinfo(theseTrials,:);
                 end
@@ -326,11 +336,11 @@ for sub = 1:length(exper.subjects)
                   freq.sampleinfo = freq.sampleinfo(theseTrials,:);
                 end
                 
-                if ~isempty(cfg_ana.keepTimeSec)
-                  cfg_sel = [];
-                  cfg_sel.latency = cfg_ana.keepTimeSec;
-                  freq = ft_selectdata(cfg_sel,freq);
-                end
+%                 if ~isempty(cfg_ana.keepTimeSec)
+%                   cfg_sel = [];
+%                   cfg_sel.latency = cfg_ana.keepTimeSec;
+%                   freq = ft_selectdata(cfg_sel,freq);
+%                 end
                 
                 save(outputFile_full,'freq','-v7.3');
                 
@@ -448,7 +458,8 @@ for sub = 1:length(exper.subjects)
               fprintf('\tCalculating %s...\n',cfg_ana.out_param);
               
               % initialize output time-frequency data: trials, channels, freq, time
-              tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),n_data);
+              %tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),n_data);
+              tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),sum(keepTime));
               
               for t = 1:size(tf_data,1)
                 fprintf('.');
@@ -467,7 +478,8 @@ for sub = 1:length(exper.subjects)
                     convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
                     
                     % put power data into time-frequency matrix
-                    tf_data(t,c,fi,:) = abs(convolution_result_fft).^2;
+                    %tf_data(t,c,fi,:) = abs(convolution_result_fft).^2;
+                    tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
                   end
                   
                 end
@@ -495,18 +507,19 @@ for sub = 1:length(exper.subjects)
               end
               freq.dimord = 'rpt_chan_freq_time';
               freq.freq = frequencies;
-              if ~isempty(keepTimeInd)
-                freq.time = freq.time(keepTimeInd);
-                freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
-              else
-                freq.(cfg_ana.out_param) = tf_data;
-              end
+              freq.time = freq.time(keepTime);
+%                 if ~isempty(keepTimeInd)
+%                   freq.time = freq.time(keepTimeInd);
+%                   freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
+%                 else
+%                   freq.(cfg_ana.out_param) = tf_data;
+%                 end
               
-              if ~isempty(cfg_ana.keepTimeSec)
-                cfg_sel = [];
-                cfg_sel.latency = cfg_ana.keepTimeSec;
-                freq = ft_selectdata(cfg_sel,freq);
-              end
+%               if ~isempty(cfg_ana.keepTimeSec)
+%                 cfg_sel = [];
+%                 cfg_sel.latency = cfg_ana.keepTimeSec;
+%                 freq = ft_selectdata(cfg_sel,freq);
+%               end
               
               save(outputFile_full,'freq','-v7.3');
 
@@ -526,7 +539,8 @@ for sub = 1:length(exper.subjects)
             fprintf('\tCalculating %s...\n',cfg_ana.out_param);
             
             % initialize output time-frequency data: trials, channels, freq, time
-            tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),n_data);
+            %tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),n_data);
+            tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),sum(keepTime));
             
             for t = 1:size(tf_data,1)
               fprintf('.');
@@ -545,7 +559,8 @@ for sub = 1:length(exper.subjects)
                   convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
                   
                   % put power data into time-frequency matrix
-                  tf_data(t,c,fi,:) = abs(convolution_result_fft).^2;
+                  %tf_data(t,c,fi,:) = abs(convolution_result_fft).^2;
+                  tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
                 end
                 
               end
@@ -573,18 +588,19 @@ for sub = 1:length(exper.subjects)
             end
             freq.dimord = 'rpt_chan_freq_time';
             freq.freq = frequencies;
-            if ~isempty(keepTimeInd)
-              freq.time = freq.time(keepTimeInd);
-              freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
-            else
-              freq.(cfg_ana.out_param) = tf_data;
-            end
+            freq.time = freq.time(keepTime);
+%                 if ~isempty(keepTimeInd)
+%                   freq.time = freq.time(keepTimeInd);
+%                   freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
+%                 else
+%                   freq.(cfg_ana.out_param) = tf_data;
+%                 end
             
-            if ~isempty(cfg_ana.keepTimeSec)
-              cfg_sel = [];
-              cfg_sel.latency = cfg_ana.keepTimeSec;
-              freq = ft_selectdata(cfg_sel,freq);
-            end
+%             if ~isempty(cfg_ana.keepTimeSec)
+%               cfg_sel = [];
+%               cfg_sel.latency = cfg_ana.keepTimeSec;
+%               freq = ft_selectdata(cfg_sel,freq);
+%             end
             
             save(outputFile_full,'freq','-v7.3');
             
