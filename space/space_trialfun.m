@@ -152,8 +152,15 @@ ns_evt_orig = ns_evt;
 % % wait to change the values
 % ecInd = 1:length(ns_evt{1});
 
+% high level check for whether NS and FT files follow each other perfectly;
+% tells whether it is necessary to swap non-alphabetical events
+foundNsFtDiscrepancy = false;
 for ec = 1:length(ns_evt{1})
-  if ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
+  if ~foundNsFtDiscrepancy && ~strcmp(ns_evt{1}(ec),ft_event(ec).value)
+    foundNsFtDiscrepancy = true;
+  end
+  
+  if foundNsFtDiscrepancy && ec > 1 && ~strcmp(ns_evt{1}(ec),ns_evt{1}(ec-1))
     this_time_ms = (str2double(ns_evt{5}{ec}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec}(8:9)) * 1000) + (str2double(ns_evt{5}{ec}(11:13)));
     this_time_samp = fix((this_time_ms / 1000) * ft_hdr.Fs);
     prev_time_ms = (str2double(ns_evt{5}{ec-1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec-1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec-1}(11:13)));
@@ -161,11 +168,20 @@ for ec = 1:length(ns_evt{1})
     
     if this_time_samp == prev_time_samp || abs(this_time_ms - prev_time_ms) < (1000 / ft_hdr.Fs)
       if ~issorted({ns_evt{1}{ec-1},ns_evt{1}{ec}})
+        % if it was just that these two events are out of order are we are
+        % now fixing them, then turn off the discrepancy flag
+        if strcmp(ns_evt{1}(ec),ft_event(ec-1).value) && strcmp(ns_evt{1}(ec-1),ft_event(ec).value)
+          foundNsFtDiscrepancy = false;
+        end
+        
         % change the values on the fly
         for i = 1:length(ns_evt_orig)
           ns_evt{i}(ec - 1) = ns_evt_orig{i}(ec);
           ns_evt{i}(ec) = ns_evt_orig{i}(ec - 1);
         end
+        
+        % overwrite so we access the right data
+        ns_evt_orig = ns_evt;
         
         % % wait to change the values
         % prevInd = ec - 1;
@@ -220,7 +236,9 @@ for i = 1:length(ft_event)
         next_time_ms = (str2double(ns_evt{5}{ec+1}(2:3)) * 60 * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(5:6)) * 60 * 1000) + (str2double(ns_evt{5}{ec+1}(8:9)) * 1000) + (str2double(ns_evt{5}{ec+1}(11:13)));
         next_time_samp = fix((next_time_ms / 1000) * ft_hdr.Fs);
         
-        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && abs(next_time_samp - prev_time_samp) == abs(ft_event(i).sample - ft_event(i-1).sample)
+        if strcmp(ns_evt{1}(ec+1),ft_event(i).value) && ...
+            abs(next_time_samp - prev_time_samp) == abs(ft_event(i).sample - ft_event(i-1).sample) && ...
+            strcmp(ns_evt{1}(ec+2),ft_event(i+1).value)
           ecInd(ec) = false;
           ec = ec + 1;
         end
