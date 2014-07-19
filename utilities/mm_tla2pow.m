@@ -16,6 +16,10 @@ if ~isfield(cfg_ana,'orig_param')
   cfg_ana.orig_param = 'trial';
 end
 
+if ~isfield(cfg_ana,'sampleRate')
+  error('need to set cfg_ana.sampleRate for the sample rate of original data');
+end
+
 % probably not a good idea to use this option
 if ~isfield(cfg_ana,'resample_tla')
   cfg_ana.resample_tla = false;
@@ -32,6 +36,11 @@ if ~isfield(cfg_ana,'resample_pow')
 else
   if cfg_ana.resample_pow && ~isfield(cfg_ana,'resampleRate_pow')
     error('cfg_ana.resample_pow=true but cfg_ana.resampleRate_pow is not set.');
+  elseif cfg_ana.resample_pow && isfield(cfg_ana,'resampleRate_pow') && cfg_ana.resampleRate_pow == cfg_ana.sampleRate
+    warning('cfg_ana.resampleRate_pow and cfg_ana.sampleRate are the same. Not resampling.');
+    cfg_ana.resample_pow = false;
+  elseif cfg_ana.resample_pow && isfield(cfg_ana,'resampleRate_pow') && cfg_ana.resampleRate_pow > cfg_ana.sampleRate
+    error('Cannot set cfg_ana.resampleRate_pow higher than cfg_ana.sampleRate.');
   end
 end
 
@@ -60,7 +69,7 @@ if ~isfield(cfg_ana,'splitTrials')
 end
 if cfg_ana.splitTrials
   if ~isfield(cfg_ana,'splitSize')
-    cfg_ana.splitSize = 150;
+    cfg_ana.splitSize = 100;
   end
   % number of trials to lump in with the last trial split. Must be >= 1.
   if ~isfield(cfg_ana,'splitRemainderLump')
@@ -188,7 +197,8 @@ for sub = 1:length(exper.subjects)
         end
         
         % find out about resampling power
-        keepTimeInd_resample_pow = [];
+        keepTime = false(size(orig.(data_fn).time));
+        keepTimeInd = [];
         if cfg_ana.resample_pow
           if ~isempty(cfg_ana.keepTimeSec)
             timeLimits = cfg_ana.keepTimeSec;
@@ -203,7 +213,7 @@ for sub = 1:length(exper.subjects)
           
           % find the nearest samples
           for i = 1:length(findTheseTimes)
-            keepTimeInd_resample_pow = cat(2,keepTimeInd_resample_pow,nearest(orig.(data_fn).time,findTheseTimes(i)));
+            keepTimeInd = cat(2,keepTimeInd,nearest(orig.(data_fn).time,findTheseTimes(i)));
           end
         end
         
@@ -303,9 +313,9 @@ for sub = 1:length(exper.subjects)
                 end
                 freq.dimord = 'rpt_chan_freq_time';
                 freq.freq = frequencies;
-                if ~isempty(keepTimeInd_resample_pow)
-                  freq.time = freq.time(keepTimeInd_resample_pow);
-                  freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd_resample_pow);
+                if ~isempty(keepTimeInd)
+                  freq.time = freq.time(keepTimeInd);
+                  freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
                 else
                   freq.(cfg_ana.out_param) = tf_data;
                 end
@@ -485,9 +495,9 @@ for sub = 1:length(exper.subjects)
               end
               freq.dimord = 'rpt_chan_freq_time';
               freq.freq = frequencies;
-              if ~isempty(keepTimeInd_resample_pow)
-                freq.time = freq.time(keepTimeInd_resample_pow);
-                freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd_resample_pow);
+              if ~isempty(keepTimeInd)
+                freq.time = freq.time(keepTimeInd);
+                freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
               else
                 freq.(cfg_ana.out_param) = tf_data;
               end
@@ -563,9 +573,9 @@ for sub = 1:length(exper.subjects)
             end
             freq.dimord = 'rpt_chan_freq_time';
             freq.freq = frequencies;
-            if ~isempty(keepTimeInd_resample_pow)
-              freq.time = freq.time(keepTimeInd_resample_pow);
-              freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd_resample_pow);
+            if ~isempty(keepTimeInd)
+              freq.time = freq.time(keepTimeInd);
+              freq.(cfg_ana.out_param) = tf_data(:,:,:,keepTimeInd);
             else
               freq.(cfg_ana.out_param) = tf_data;
             end
