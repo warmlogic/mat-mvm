@@ -56,43 +56,43 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 subjects = {
-%   'SPACE001';
-%   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   'SPACE019';
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
-%   'SPACE037';
-%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE001'; % low trial counts
+  'SPACE002';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  % 'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  % 'SPACE019'; % low trial counts
+  'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
+  'SPACE037';
+  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   'SPACE030'; % low trial counts
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
-%   'SPACE036';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  % 'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
+  'SPACE036';
   };
 
 % only one cell, with all session names
@@ -115,6 +115,8 @@ cfg_ana = [];
 cfg_ana.orig_ftype = 'tla';
 cfg_ana.orig_param = 'trial';
 
+cfg_ana.sampleRate = 250;
+
 % must match with cfg_ft.output, below
 cfg_ana.out_param = 'powspctrm';
 cfg_ana.output_ftype = 'pow';
@@ -128,9 +130,9 @@ cfg_ana.rmPreviousCfg = true;
 cfg_ana.useLockFiles = false;
 cfg_ana.splitTrials = true;
 if cfg_ana.splitTrials
-  cfg_ana.splitSize = 100;
+  cfg_ana.splitSize = 200;
   % number of trials to lump in with the last trial split. Must be >= 1.
-  cfg_ana.splitRemainderLump = 10;
+  cfg_ana.splitRemainderLump = 50;
   
   % whether to see if files are too big to combine (RAM limit issue)
   cfg_ana.checkSplitFileSizeForSaving = false;
@@ -150,9 +152,8 @@ cfg_ana.num_freq = 30;
 cfg_ana.freq_spacing = 'log';
 % cfg_ana.freq_spacing = 'lin';
 
-cfg_ana.sampleRate = 250;
-cfg_ana.resample = true;
-cfg_ana.resampleRate = 100;
+cfg_ana.resample_tla = false;
+cfg_ana.resampleRate = 125;
 % % cfg_ana.resampleTime = -0.5:0.04:1.0; % do not implmement yet
 
 cfg_ana.keepTimeSec = [-0.5 1.0];
