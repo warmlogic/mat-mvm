@@ -20,7 +20,7 @@ end
 if ~isfield(cfg_ana,'resample_tla')
   cfg_ana.resample_tla = false;
 else
-  if ~isfield(cfg_ana,'resampleRate_tla')
+  if cfg_ana.resample_tla && ~isfield(cfg_ana,'resampleRate_tla')
     error('cfg_ana.resample_tla=true but cfg_ana.resampleRate_tla is not set.');
   end
 end
@@ -30,7 +30,7 @@ end
 if ~isfield(cfg_ana,'resample_pow')
   cfg_ana.resample_pow = false;
 else
-  if ~isfield(cfg_ana,'resampleRate_pow')
+  if cfg_ana.resample_pow && ~isfield(cfg_ana,'resampleRate_pow')
     error('cfg_ana.resample_pow=true but cfg_ana.resampleRate_pow is not set.');
   end
 end
@@ -60,11 +60,11 @@ if ~isfield(cfg_ana,'splitTrials')
 end
 if cfg_ana.splitTrials
   if ~isfield(cfg_ana,'splitSize')
-    cfg_ana.splitSize = 100;
+    cfg_ana.splitSize = 200;
   end
   % number of trials to lump in with the last trial split. Must be >= 1.
   if ~isfield(cfg_ana,'splitRemainderLump')
-    cfg_ana.splitRemainderLump = 10;
+    cfg_ana.splitRemainderLump = 60;
   end
   
   % whether to see if files are too big to combine (RAM limit issue)
@@ -202,7 +202,7 @@ for sub = 1:length(exper.subjects)
           findTheseTimes = timeLimits(1):1/cfg_ana.resampleRate_pow:timeLimits(end);
           
           % find the nearest samples
-          for i = 1:length(saveTimes)
+          for i = 1:length(findTheseTimes)
             keepTimeInd_resample_pow = cat(2,keepTimeInd_resample_pow,nearest(orig.(data_fn).time,findTheseTimes(i)));
           end
         end
@@ -211,7 +211,7 @@ for sub = 1:length(exper.subjects)
           % split up trials if there are more than the RAM can handle
           nTrials = size(orig.(data_fn).(cfg_ana.orig_param),1);
           if nTrials > (cfg_ana.splitSize + cfg_ana.splitRemainderLump)
-            fprintf('Splitting trials...\n');
+            fprintf('%d trials found. Splitting trials...\n',nTrials);
             
             tooBigToCombine = false;
             
