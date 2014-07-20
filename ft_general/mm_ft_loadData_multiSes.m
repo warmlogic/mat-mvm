@@ -376,6 +376,9 @@ for sub = 1:length(exper.subjects)
             fprintf('\nSelecting %s trials...\n',eventValue);
             
             expr = ana.trl_expr{ses}{evVal}{es};
+            if isfield(exper,'trialinfo_allEv')
+              expr_allEv = ana.trl_expr{ses}{evVal}{es};
+            end
             
             for to = 1:length(trl_order)
               % replace the field name in the logical expression
@@ -387,10 +390,16 @@ for sub = 1:length(exper.subjects)
               
               % set up the string to be replaced
               r_exp = ['\<' trl_order{to} '\>'];
+              
               % set up the replacement string
               r_str = sprintf('subSesEvData.%s.trialinfo(:,%d)',data_fn, fieldNum);
-              
               expr = regexprep(expr,r_exp,r_str);
+              
+              if isfield(exper,'trialinfo_allEv')
+                % set up the replacement string
+                r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, ana.eventValues{ses}{evVal}, sub, fieldNum);
+                expr_allEv = regexprep(expr_allEv,r_exp,r_str_allEv);
+              end
             end
             
             % set up data selection
@@ -421,20 +430,42 @@ for sub = 1:length(exper.subjects)
             end
             
             % select these data - use the new selection function
-            %selData = ft_selectdata_new(cfg_sel,subSesEvData.(data_fn));
+            selData = ft_selectdata_new(cfg_sel,subSesEvData.(data_fn));
             
-            % select these data - use the old selection function
-            if strcmp(cfg.ftype,'fourier')
-              thisParam = cfg.fourierparam;
-            elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
-              thisParam = cfg.powparam;
-            end
-            selData = ft_selectdata_old(...
-              subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
-              'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
+%             % select these data - use the old selection function
+%             if strcmp(cfg.ftype,'fourier')
+%               thisParam = cfg.fourierparam;
+%             elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
+%               thisParam = cfg.powparam;
+%             end
+%             selData = ft_selectdata_old(...
+%               subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
+%               'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
             
             % put in the trial counts
             exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_sel.trials);
+            
+            % put in the artifact counts
+            if isfield(exper,'artifacts')
+              cfg_allEv = [];
+              cfg_allEv.trials = eval(expr_allEv);
+              theseArt = exper.artifacts.(sesStr).(ana.eventValues{ses}{evVal});
+              artTypes = fieldnames(theseArt);
+              totalArtCount = [];
+              for at = 1:length(artTypes)
+                if ~isempty(theseArt.(artTypes{at}){sub})
+                  exper.artifacts.(sesStr).(eventValue).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
+                  totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
+                  % % the below sum method does not take into account
+                  % % that one trial can be marked for different kinds of
+                  % % artifacts
+                  % exper.nArtifacts.(sesStr).(eventValue).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
+                else
+                  exper.artifacts.(sesStr).(eventValue).(artTypes{at}){sub,1} = [];
+                end
+              end
+              exper.nArtifacts.(sesStr).(eventValue)(sub,1) = sum(sign(sum(totalArtCount,2)));
+            end
             
             if strcmp(cfg.rmevoked,'yes') && (strcmp(cfg.rmevokedfourier,'yes') || strcmp(cfg.rmevokedpow,'yes'))
               thisData_evoked = data_evoked.(sesStr).(eventValue).sub(sub).data;
@@ -949,6 +980,14 @@ if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData
     % trials, if desired and the data is appropriate
     subSesEvData = ft_freqdescriptives(cfg_fd,subSesEvData);
     %data.(sesStr).(eventValue).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData);
+    
+%     if strcmp(cfg_fd.keeptrials,'yes')
+%       cfg_fd.avgoverrpt = 'no';
+%     elseif strcmp(cfg_fd.keeptrials,'no')
+%       cfg_fd.avgoverrpt = 'yes';
+%     end
+%     cfg_fd = rmfield(cfg_fd,'keeptrials');
+%     subSesEvData = ft_selectdata(cfg_fd,subSesEvData);
   else %if (isvector(cfg_fd.trials) && length(unique(cfg_fd.trials)) == 1 && unique(cfg_fd.trials) == 0)
     warning([mfilename,':allTrialsRejected'],'ALL TRIALS REJECTED: %s\n',eventValue);
     fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n\n');
