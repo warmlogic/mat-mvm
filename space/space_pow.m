@@ -643,9 +643,11 @@ load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
 
 chan = 73; % 73 = Pz
 
-zlim = [-200 400];
-zlim = [0 100];
+% zlim = [-200 400];
+% zlim = [0 100];
+zlim = [-4 4];
 
+sub = 1;
 ses = 1;
 typ = 1;
 
@@ -680,7 +682,7 @@ cfg_ft = [];
 %cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
-cfg_ft.zlim = [-0.5 0.5];
+cfg_ft.zlim = [-2 2];
 %end
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -701,7 +703,8 @@ end
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'FS'},{'PS'}};
-cfg_plot.rois = {{'PS'}};
+% cfg_plot.rois = {{'PS'}};
+cfg_plot.rois = {{'RPI2'}};
 %cfg_plot.rois = {'E124'};
 %cfg_plot.rois = {'E25'};
 %cfg_plot.rois = {'RAS'};
@@ -715,21 +718,27 @@ cfg_plot.numCols = 5;
 % conditions
 ses=1;
 % cfg_plot.condByROI = repmat(ana.eventValues{ses},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{{'word_RgH_fo_spac_p2'}}}},size(cfg_plot.rois));
+
+cfg_plot.types = {''};
+
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
-%cfg_ft.zlim = [-2 2];
+cfg_ft.zlim = [-2 2];
 cfg_ft.parameter = 'powspctrm';
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_pow);
+  mm_ft_subjplotTFR(cfg_ft,cfg_plot,ana,exper,data_pow,ses);
 end
 
 %% make some GA plots
+
+files.saveFigs = false;
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
@@ -743,10 +752,10 @@ cfg_ft.xlim = [0 1.0]; % time
 % cfg_ft.ylim = [8 12]; % freq
 % cfg_ft.ylim = [8 10]; % freq
 % cfg_ft.ylim = [10 12]; % freq
-cfg_ft.ylim = [4 28]; % freq
+cfg_ft.ylim = [3 28]; % freq
 %cfg_ft.ylim = [12 28]; % freq
 %cfg_ft.ylim = [28 50]; % freq
-% cfg_ft.zlim = [0 3]; % pow
+cfg_ft.zlim = [-2 2]; % pow
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -766,7 +775,8 @@ cfg_plot.is_ga = 1;
 % cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{{'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{{'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'}}}},size(cfg_plot.rois));
 
 %%%%%%%%%%%%%%%
 % Type of plot
@@ -787,31 +797,39 @@ cfg_plot.ftFxn = 'ft_multiplotTFR';
 cfg_ft.showlabels = 'yes';
 cfg_ft.comment = '';
 
+ses = 1;
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   
-  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,ga_pow);
+  mm_ft_plotTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_pow,ses);
 end
 
 %% line plots
 
-% files.saveFigs = 1;
+files.saveFigs = true;
+files.figPrintFormat = 'png';
 
 cfg = [];
 cfg.parameter = 'powspctrm';
 
 %cfg.times = [-0.2:0.05:0.9; -0.1:0.05:1.0]';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
-cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
+% cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-cfg.freqs = [3 8; 8 12; 12 28; 28 50; 50 80];
+%cfg.times = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+cfg.times = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+
+% cfg.freqs = [3 8; 8 12; 12 28; 28 50; 50 80];
 % cfg.freqs = [3 8; 8 10; 10 12];
 
-cfg.rois = {...
-  {'LAS'},{'FS'},{'RAS'},...
-  {'LPS'},{'PS'},{'RPS'},...
-  };
+% cfg.freqs = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
+cfg.freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
+
+% cfg.rois = {...
+%   {'LAS'},{'FS'},{'RAS'},...
+%   {'LPS'},{'PS'},{'RPS'},...
+%   };
 
 % cfg.rois = {...
 %   {'LAI'},{'FI'},{'RAI'},...
@@ -819,6 +837,14 @@ cfg.rois = {...
 %   {'LPS'},{'PS'},{'RPS'},...
 %   {'LPI'},{'PI'},{'RPI'},...
 %   };
+
+cfg.rois = {...
+  {'LAS2'},{'FC'},{'RAS2'},...
+  {'LT'},{'C'},{'RT'},...
+  {'LPS'},{'PS'},{'RPS'},...
+  {'LPI2'},{'PI'},{'RPI2'},...
+  {'Oz'}
+  };
 
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
@@ -830,7 +856,9 @@ cfg.plotLegend = true;
 cfg.plotClusSig = false;
 cfg.clusAlpha = 0.1;
 %cfg.clusTimes = cfg.times;
-cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
+% cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
+%cfg.clusTimes = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+cfg.clusTimes = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 cfg.clusLimits = false;
 
 %cfg.ylim = [-0.6 0.6];
@@ -1554,12 +1582,18 @@ if strcmp(cfg_ft.avgovertime,'no')
   %cfg_ana.latencies = [0 0.5];
   %cfg_ana.latencies = [0 1.0];
   %cfg_ana.latencies = [0 0.5; 0.5 1.0];
-  cfg_ana.latencies = [0.02 0.46; 0.5 0.98];
+%   cfg_ana.latencies = [0.02 0.46; 0.5 0.98];
+  cfg_ana.latencies = [0 0.48; 0.5 1.0];
 elseif strcmp(cfg_ft.avgovertime,'yes')
   %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]'; % some overlap
   %cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]'; % some overlap
-%   cfg_ana.latencies = [-0.18:0.12:0.92; -0.1:0.12:1.0]'; % no overlap
-  cfg_ana.latencies = [-0.18:0.2:0.82; -0.02:0.2:1.0]'; % no overlap
+  
+  %cfg_ana.latencies = [-0.18:0.12:0.92; -0.1:0.12:1.0]'; % 100 no overlap
+  %cfg_ana.latencies = [-0.18:0.2:0.82; -0.02:0.2:1.0]'; % 200 no overlap
+  
+  % new analyses
+  %cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+  cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
   
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
 end
@@ -1570,7 +1604,9 @@ elseif strcmp(cfg_ft.avgoverfreq,'yes')
   % % cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 80];
   % % cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
 %   cfg_ana.frequencies = [3 8; 9 12; 9 10; 11 12; 13 28; 29 50; 51 80];
-  cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 21 30; 31 45; 46 80]; % hanslmayr
+%   cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 21 30; 31 45; 46 80]; % hanslmayr
+  
+  cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
 %   cfg_ana.frequencies = [8 10; 10 12];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
