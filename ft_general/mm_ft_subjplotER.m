@@ -38,10 +38,11 @@ end
 %   end
 % end
 % cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
-% % make sure conditions are set up for the for loop
-% if ~isfield(cfg_plot,'types')
-%   cfg_plot.types = repmat({''},size(cfg_plot.conditions));
-% end
+
+% make sure conditions are set up for the for loop
+if ~isfield(cfg_plot,'types')
+  cfg_plot.types = repmat({''},size(cfg_plot.conditions));
+end
 
 % get the label info for this data struct
 if isfield(data.(exper.sesStr{ses}).(cfg_plot.conditions{1}{1}{1}).sub(1).data,'label')

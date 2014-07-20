@@ -1,7 +1,7 @@
-function mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
+function mm_ft_plotTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,data,ses)
 %MM_FT_PLOTTFR make (and save) Time-Frequency plots
 %
-%   mm_ft_plotTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
+%   mm_ft_plotTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,data,ses)
 %
 % Inputs:
 %   cfg_ft: parameters passed into the FT plotting function
@@ -45,11 +45,11 @@ cfg_plot.screenXY = cfg_plot.screenXY(3:4);
 
 % good default z-limits
 if ~isfield(cfg_ft,'zlim')
-  if strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+  if strcmp(ft_findcfg(data.(exper.sesStr{ses}).(ana.eventValues{ses}{1}{1}).cfg,'baselinetype'),'absolute')
     cfg_ft.zlim = [-400 400];
-  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+  elseif strcmp(ft_findcfg(data.(exper.sesStr{ses}).(ana.eventValues{ses}{1}{1}).cfg,'baselinetype'),'relative')
     cfg_ft.zlim = [0 2.0];
-  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+  elseif strcmp(ft_findcfg(data.(exper.sesStr{ses}).(ana.eventValues{ses}{1}{1}).cfg,'baselinetype'),'relchange')
     cfg_ft.zlim = [-1.0 1.0];
   end
 end
@@ -91,32 +91,32 @@ elseif strcmp(cfg_plot.type,'single')
 end
 
 % make sure conditions are set correctly
-if ~isfield(cfg_plot,'condMethod')
-  if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
-    cfg_plot.condMethod = 'single';
-  elseif iscell(cfg_plot.conditions) && ~iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
-    cfg_plot.condMethod = 'single';
-  elseif iscell(cfg_plot.conditions) && iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions{1}) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
-    cfg_plot.condMethod = 'single';
-  else
-    cfg_plot.condMethod = [];
-  end
-end
+% if ~isfield(cfg_plot,'condMethod')
+%   if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
+%     cfg_plot.condMethod = 'single';
+%   elseif iscell(cfg_plot.conditions) && ~iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
+%     cfg_plot.condMethod = 'single';
+%   elseif iscell(cfg_plot.conditions) && iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions{1}) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
+%     cfg_plot.condMethod = 'single';
+%   else
+%     cfg_plot.condMethod = [];
+%   end
+% end
 
 %cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
 
-% temporary hack for plotting a single subject and 1 evVal, because the
-% data struct will have a field titled parameter and won't have the typical
-% data.evVal.sub.ses.data structure
-if ~isfield(data,cfg_ft.parameter)
-  cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
-elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
-  error('Cannot have more than one condition if data is only one evVal');
-end
+% % temporary hack for plotting a single subject and 1 evVal, because the
+% % data struct will have a field titled parameter and won't have the typical
+% % data.evVal.sub.ses.data structure
+% if ~isfield(data,cfg_ft.parameter)
+%   cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+% elseif isfield(data,cfg_ft.parameter) && length(cfg_plot.conditions{:}) > 1
+%   error('Cannot have more than one condition if data is only one evVal');
+% end
 
 % make sure conditions are set up for the for loop
 if ~isfield(cfg_plot,'types')
-  cfg_plot.types = repmat({''},size(cfg_plot.conditions));
+  cfg_plot.types = repmat({''},size(cfg_plot.conditions{ses}));
 end
 
 % set the channel information
@@ -162,10 +162,10 @@ end
 % time - get this info for the figure name
 if isfield(cfg_ft,'xlim')
   if strcmp(cfg_ft.xlim,'maxmin')
-    cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+    cfg_ft.xlim = [min(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).time) max(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).time)];
   end
 else
-  cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+  cfg_ft.xlim = [min(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).time) max(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).time)];
 end
 
 % set parameters for the subplot
@@ -212,18 +212,18 @@ end
 % freq - get this info for the figure name
 if isfield(cfg_ft,'ylim')
   if strcmp(cfg_ft.ylim,'maxmin')
-    cfg_ft.ylim = [min(data.(cfg_plot.conditions{1}{1}).freq) max(data.(cfg_plot.conditions{1}{1}).freq)];
+    cfg_ft.ylim = [min(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).freq) max(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).freq)];
   end
 else
-  cfg_ft.ylim = [min(data.(cfg_plot.conditions{1}{1}).freq) max(data.(cfg_plot.conditions{1}{1}).freq)];
+  cfg_ft.ylim = [min(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).freq) max(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).freq)];
 end
 
 % find the indices for the times and frequencies that we want
-%cfg_plot.timesel = find(data.(cfg_plot.conditions{1}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{1}{1}).time <= cfg_ft.xlim(2));
-%cfg_plot.freqsel = find(data.(cfg_plot.conditions{1}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{1}{1}).freq <= cfg_ft.ylim(2));
+%cfg_plot.timesel = find(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).time <= cfg_ft.xlim(2));
+%cfg_plot.freqsel = find(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{1}{1}).freq <= cfg_ft.ylim(2));
 
-for typ = 1:length(cfg_plot.conditions)
-  for evVal = 1:length(cfg_plot.conditions{typ})
+for typ = 1:length(cfg_plot.conditions{ses})
+  for evVal = 1:length(cfg_plot.conditions{ses}{typ})
     figure
     
     if cfg_plot.subplot
@@ -236,19 +236,19 @@ for typ = 1:length(cfg_plot.conditions)
           % won't have the typical data.evVal.sub.ses.data structure
           feval(str2func(cfg_plot.ftFxn),cfg_ft,data);
         else
-          feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(cfg_plot.conditions{typ}{evVal}));
+          feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal}));
         end
       end
       % reset the xlim
       cfg_ft.xlim = [cfg_plot.timeS(1) cfg_plot.timeS(end)];
     else
-      feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(cfg_plot.conditions{typ}{evVal}));
+      feval(str2func(cfg_plot.ftFxn),cfg_ft,data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal}));
     end
     
     if ~isempty(cfg_plot.types{typ})
-      set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+      set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     else
-      set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+      set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     end
     
     if strcmp(cfg_plot.type,'single')
@@ -273,7 +273,7 @@ for typ = 1:length(cfg_plot.conditions)
     end
     if cfg_plot.plotTitle
       %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.condNames{1},cfg_plot.condNames{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
-      title(sprintf('%s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+      title(sprintf('%s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
       cfg_plot.title_str = '_title';
     else
       cfg_plot.title_str = '';
@@ -287,9 +287,9 @@ for typ = 1:length(cfg_plot.conditions)
       
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
-        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{ses}{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
       else
-        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.conditions{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.conditions{ses}{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
       end
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg_plot.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')
