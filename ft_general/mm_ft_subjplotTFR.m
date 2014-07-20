@@ -77,11 +77,14 @@ if cfg_plot.numCols > length(exper.subjects) + 1
 end
 if cfg_plot.excludeBadSub == 1
   cfg_plot.numRows = ceil((length(exper.subjects) - sum(exper.badSub)) / cfg_plot.numCols);
+  if (cfg_plot.numCols * cfg_plot.numRows) == length(exper.subjects) - sum(exper.badSub)
+    cfg_plot.numRows = cfg_plot.numRows + 1;
+  end
 else
   cfg_plot.numRows = ceil((length(exper.subjects)) / cfg_plot.numCols);
-end
-if (cfg_plot.numCols * cfg_plot.numRows) == length(exper.subjects)
-  cfg_plot.numRows = cfg_plot.numRows + 1;
+  if (cfg_plot.numCols * cfg_plot.numRows) == length(exper.subjects)
+    cfg_plot.numRows = cfg_plot.numRows + 1;
+  end
 end
 
 % for typ = 1:length(cfg_plot.conditions)
