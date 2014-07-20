@@ -30,7 +30,7 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
-  %'SPACE001'; low trial counts
+  'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -46,22 +46,22 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  %'SPACE017'; % really noisy EEG, half of ICA components rejected
+  'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
-  %'SPACE019'; low trial counts
+  'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  %'SPACE030'; low trial counts
+  'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -420,9 +420,9 @@ load(fullfile(loadDir,'space_word_img_data_pow.mat'));
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-% exper.badBehSub = {{}};
-%exper.badBehSub = {{'SPACE001','SPACE008','SPACE011','SPACE017','SPACE019','SPACE039'}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
+exper.badBehSub = {{}};
+% exper.badBehSub = {{'SPACE001','SPACE008','SPACE011','SPACE017','SPACE019','SPACE039'}};
+% exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % SPACE001 - low trial counts
 % SPACE008 - did not do task correctly
@@ -730,10 +730,11 @@ cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'FS'},{'PS'}};
 % cfg_plot.rois = {{'PS'}};
-cfg_plot.rois = {{'RPI2'}};
+% cfg_plot.rois = {{'RPI2'}};
 %cfg_plot.rois = {'E124'};
 %cfg_plot.rois = {'E25'};
 %cfg_plot.rois = {'RAS'};
+cfg_plot.rois = {{'RAS2'}};
 %cfg_plot.rois = {'LPS','RPS'};
 %cfg_plot.rois = {'LPS'};
 cfg_plot.excludeBadSub = 1;
@@ -744,8 +745,9 @@ cfg_plot.numCols = 5;
 % conditions
 ses=1;
 % cfg_plot.condByROI = repmat(ana.eventValues{ses},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}}}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{{{'word_RgH_fo_spac_p2'}}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{{'img_RgH_rc_spac_p2'}}}},size(cfg_plot.rois));
 
 cfg_plot.types = {''};
 
