@@ -737,7 +737,7 @@ cfg_plot = [];
 cfg_plot.rois = {{'RAS2'}};
 %cfg_plot.rois = {'LPS','RPS'};
 %cfg_plot.rois = {'LPS'};
-cfg_plot.excludeBadSub = 1;
+cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
