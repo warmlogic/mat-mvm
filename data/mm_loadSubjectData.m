@@ -59,7 +59,7 @@ if ~rmPreviousCfg
   warning('The data.cfg.previous field will NOT be removed! This may cause increased memory usage! See ''help %s'' for more info.',mfilename);
 end
 
-eventValues = ana.eventValues;
+% eventValues = ana.eventValues;
 % if isstruct(ana)
 %   eventValues = ana.eventValues;
 % elseif iscell(ana)
@@ -94,11 +94,11 @@ for sub = 1:length(exper.subjects)
     else
       saveFileDir = fullfile(dirs.saveDirProc,exper.subjects{sub},sesStr);
     end
-    for evVal = 1:length(eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses})
       
-      inputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ftype,eventValues{ses}{evVal}));
+      inputfile = fullfile(saveFileDir,sprintf('data_%s_%s.mat',ftype,ana.eventValues{ses}{evVal}));
       if exist(inputfile,'file')
-        fprintf('Loading %s %s %s: %s...\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},inputfile);
+        fprintf('Loading %s %s %s: %s...\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal},inputfile);
         % load the data
         subSesEvData = load(inputfile);
         % get the name of the field
@@ -126,16 +126,20 @@ for sub = 1:length(exper.subjects)
               if strcmp(loadMethod,'seg')
                 % use ft_freqdescriptives to average over individual trials
                 % if desired and the data is appropriate
-                fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal});
+                fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal});
                 cfg_fd = [];
                 cfg_fd.keeptrials = 'no';
-                data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                %cfg_fd.avgoverrpt = 'yes';
+                %data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_selectdata(cfg_fd,subSesEvData.(data_fn));
                 
               elseif strcmp(loadMethod,'trialinfo')
-                trl_order = ana.trl_order.(eventValues{ses}{evVal});
+                trl_order = ana.trl_order.(ana.eventValues{ses}{evVal});
                 
                 for es = 1:length(ana.eventValuesSplit{ses}{evVal})
-                  fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
+                  eventValue = ana.eventValuesSplit{ses}{evVal}{es};
+                  
+                  fprintf('Selecting %s trials...\n',eventValue);
                   
                   expr = ana.trl_expr{ses}{evVal}{es};
                   if isfield(exper,'trialinfo_allEv')
@@ -145,7 +149,7 @@ for sub = 1:length(exper.subjects)
                   for to = 1:length(trl_order)
                     % replace the field name in the logical expression
                     % ana.trl_expr{ses}{es} with the column number found in
-                    % ana.trl_order.(eventValues{ses}{evVal})
+                    % ana.trl_order.(ana.eventValues{ses}{evVal})
                     
                     % find the column number
                     fieldNum = find(ismember(trl_order,trl_order{to}));
@@ -159,7 +163,7 @@ for sub = 1:length(exper.subjects)
                     
                     if isfield(exper,'trialinfo_allEv')
                       % set up the replacement string
-                      r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, eventValues{ses}{evVal}, sub, fieldNum);
+                      r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, ana.eventValues{ses}{evVal}, sub, fieldNum);
                       expr_allEv = regexprep(expr_allEv,r_exp,r_str_allEv);
                     end
                   end
@@ -167,40 +171,42 @@ for sub = 1:length(exper.subjects)
                   cfg_fd = [];
                   cfg_fd.trials = eval(expr);
                   cfg_fd.keeptrials = 'no';
-                  data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                  data.(sesStr).(eventValue).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                  %cfg_fd.avgoverrpt = 'yes';
+                  %data.(sesStr).(eventValue).sub(sub).data = ft_selectdata(cfg_fd,subSesEvData.(data_fn));
                   
                   % put in the trial counts
-                  exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg_fd.trials);
+                  exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_fd.trials);
                   
                   % put in the artifact counts
                   if isfield(exper,'artifacts')
                     cfg_allEv = [];
                     cfg_allEv.trials = eval(expr_allEv);
-                    theseArt = exper.artifacts.(sesStr).(eventValues{ses}{evVal});
+                    theseArt = exper.artifacts.(sesStr).(ana.eventValues{ses}{evVal});
                     artTypes = fieldnames(theseArt);
                     totalArtCount = [];
                     for at = 1:length(artTypes)
                       if ~isempty(theseArt.(artTypes{at}){sub})
-                        exper.artifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
+                        exper.artifacts.(sesStr).(eventValue).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
                         totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                         % % the below sum method does not take into account
                         % % that one trial can be marked for different kinds of
                         % % artifacts
-                        % exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
+                        % exper.nArtifacts.(sesStr).(eventValue).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                       else
-                        exper.artifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at}){sub,1} = [];
+                        exper.artifacts.(sesStr).(eventValue).(artTypes{at}){sub,1} = [];
                       end
                     end
-                    exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(sign(sum(totalArtCount,2)));
+                    exper.nArtifacts.(sesStr).(eventValue)(sub,1) = sum(sign(sum(totalArtCount,2)));
                   end
                 end % es
               end
               %elseif ~strcmp(ftype,'pow')
-              %  error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},ftype);
+              %  error('\n%s %s %s: Can only keep trials for ftype=''pow''. You set it to ''%s''.\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal},ftype);
             elseif ~isfield(subSesEvData.(data_fn),'powspctrm')
-              error('\n%s %s %s: Need ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal});
+              error('\n%s %s %s: Need ''powspctrm'' field. Please examine your data.\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal});
             elseif isfield(subSesEvData.(data_fn),'powspctrm') && ndims(subSesEvData.(data_fn).powspctrm) ~= 4
-              error('\n%s %s %s: Needed ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,eventValues{ses}{evVal},ndims(subSesEvData.(data_fn).powspctrm));
+              error('\n%s %s %s: Needed ndims(powspctrm)==4. This data has ndims=%d.\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal},ndims(subSesEvData.(data_fn).powspctrm));
             end
           elseif keeptrials
             error('Use mm_ft_loadData_multiSes.m instead of %s for keeping time-freq trials.',mfilename);
@@ -210,13 +216,15 @@ for sub = 1:length(exper.subjects)
             if ~keeptrials
               error('need to keep trials')
             end
-            data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data = subSesEvData.(data_fn);
+            data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = subSesEvData.(data_fn);
             
           elseif strcmp(loadMethod,'trialinfo')
-            trl_order = ana.trl_order.(eventValues{ses}{evVal});
+            trl_order = ana.trl_order.(ana.eventValues{ses}{evVal});
             
             for es = 1:length(ana.eventValuesSplit{ses}{evVal})
-              fprintf('Selecting %s trials...\n',ana.eventValuesSplit{ses}{evVal}{es});
+              eventValue = ana.eventValuesSplit{ses}{evVal}{es};
+              
+              fprintf('Selecting %s trials...\n',eventValue);
               
               expr = ana.trl_expr{ses}{evVal}{es};
               if isfield(exper,'trialinfo_allEv')
@@ -226,7 +234,7 @@ for sub = 1:length(exper.subjects)
               for to = 1:length(trl_order)
                 % replace the field name in the logical expression
                 % ana.trl_expr{ses}{es} with the column number found in
-                % ana.trl_order.(eventValues{ses}{evVal})
+                % ana.trl_order.(ana.eventValues{ses}{evVal})
                 
                 % find the column number
                 fieldNum = find(ismember(trl_order,trl_order{to}));
@@ -240,7 +248,7 @@ for sub = 1:length(exper.subjects)
                 
                 if isfield(exper,'trialinfo_allEv')
                   % set up the replacement string
-                  r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, eventValues{ses}{evVal}, sub, fieldNum);
+                  r_str_allEv = sprintf('exper.trialinfo_allEv.%s.%s{%d}(:,%d)',sesStr, ana.eventValues{ses}{evVal}, sub, fieldNum);
                   expr_allEv = regexprep(expr_allEv,r_exp,r_str_allEv);
                 end
               end
@@ -253,37 +261,37 @@ for sub = 1:length(exper.subjects)
                 cfg.keeptrials = 'no';
               end
               if any(cfg.trials == 1)
-                data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
-                %data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
+                data.(sesStr).(eventValue).sub(sub).data = ft_timelockanalysis(cfg, subSesEvData.(data_fn));
+                %data.(sesStr).(eventValue).sub(sub).data = ft_redefinetrial(cfg, subSesEvData.(data_fn));
               else
-                warning('No events found for %s %s %s',exper.subjects{sub},sesStr,ana.eventValuesSplit{ses}{evVal}{es});
+                warning('No events found for %s %s %s',exper.subjects{sub},sesStr,eventValue);
                 fprintf('\tEvaluated this expression: %s\n',expr);
-                data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data.trial = [];
+                data.(sesStr).(eventValue).sub(sub).data.trial = [];
               end
               
               % put in the trial counts
-              exper.nTrials.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(cfg.trials);
+              exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg.trials);
               
               % put in the artifact counts
               if isfield(exper,'artifacts')
                 cfg_allEv = [];
                 cfg_allEv.trials = eval(expr_allEv);
-                theseArt = exper.artifacts.(sesStr).(eventValues{ses}{evVal});
+                theseArt = exper.artifacts.(sesStr).(ana.eventValues{ses}{evVal});
                 artTypes = fieldnames(theseArt);
                 totalArtCount = [];
                 for at = 1:length(artTypes)
                   if ~isempty(theseArt.(artTypes{at}){sub})
-                    exper.artifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
+                    exper.artifacts.(sesStr).(eventValue).(artTypes{at}){sub,1} = theseArt.(artTypes{at}){sub}(cfg_allEv.trials);
                     totalArtCount = cat(2,totalArtCount,theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                     % % the below sum method does not take into account
                     % % that one trial can be marked for different kinds of
                     % % artifacts
-                    % exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
+                    % exper.nArtifacts.(sesStr).(eventValue).(artTypes{at})(sub,1) = sum(theseArt.(artTypes{at}){sub}(cfg_allEv.trials));
                   else
-                    exper.artifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).(artTypes{at}){sub,1} = [];
+                    exper.artifacts.(sesStr).(eventValue).(artTypes{at}){sub,1} = [];
                   end
                 end
-                exper.nArtifacts.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es})(sub,1) = sum(sign(sum(totalArtCount,2)));
+                exper.nArtifacts.(sesStr).(eventValue)(sub,1) = sum(sign(sum(totalArtCount,2)));
               end
             end % es
             
@@ -291,16 +299,17 @@ for sub = 1:length(exper.subjects)
         end % ftype
         
         % % old method
-        % data.(eventValues{ses}{evVal}).sub(sub).ses(ses) = load(inputfile);
+        % data.(ana.eventValues{ses}{evVal}).sub(sub).ses(ses) = load(inputfile);
         fprintf('Done.\n\n');
       else
         warning([mfilename,':noFileFound'],'NOT FOUND: %s\n',inputfile);
         fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n');
         if strcmp(loadMethod,'seg')
-          data.(sesStr).(eventValues{ses}{evVal}).sub(sub).data.cfg.trl = [];
+          data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data.cfg.trl = [];
         elseif strcmp(loadMethod,'trialinfo')
           for es = 1:length(ana.eventValuesSplit{ses}{evVal})
-            data.(sesStr).(ana.eventValuesSplit{ses}{evVal}{es}).sub(sub).data.cfg.trl = [];
+            eventValue = ana.eventValuesSplit{ses}{evVal}{es};
+            data.(sesStr).(eventValue).sub(sub).data.cfg.trl = [];
           end
         end
       end % if
