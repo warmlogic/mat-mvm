@@ -293,6 +293,24 @@ keeptrials = false;
 % overwrite ana.eventValues with the new split events
 ana.eventValues = ana.eventValuesSplit;
 
+%% save
+
+% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+saveDir = dirs.saveDirProc;
+% save(fullfile(saveDir,'space_word_img_data_ga_tla.mat'),'data_tla','ga_tla','exper','ana','dirs','files','-v7.3');
+save(fullfile(saveDir,'space_word_img_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
+% clear data_tla
+
+%% load
+
+% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% load(fullfile(loadDir,'space_word_img_data_ga_tla.mat'));
+load(fullfile(loadDir,'space_word_img_data_tla.mat'));
+
+[dirs] = mm_checkDirs(dirs);
+
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
@@ -317,7 +335,7 @@ evToCheck = { ...
   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,9,[],'vert',evToCheck);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
@@ -398,6 +416,68 @@ end
 %   end
 % end
 
+%% lowpass filter and segment for ERPs
+
+data_tla_backup = data_tla;
+
+lpfilt = true;
+
+if lpfilt
+  sampleRate = exper.sampleRate;
+  lpfreq = 40;
+  lofiltord = 3;
+  lpfilttype = 'but';
+end
+
+cfg_sel = [];
+cfg_sel.latency = [-0.2 1.0];
+
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      for sub = 1:length(exper.subjects)
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+        
+        if lpfilt
+          % process individual trials
+          if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'trial')
+            for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
+              data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
+                squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
+                sampleRate,lpfreq,lofiltord,lpfilttype);
+            end
+          end
+          
+          % process subject average
+          if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'avg')
+            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.avg = ft_preproc_lowpassfilter( ...
+              data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.avg, ...
+              sampleRate,lpfreq,lofiltord,lpfilttype);
+          end
+        end
+        
+        % select
+        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        
+      end
+      
+%       % grand average
+%       if exist('ga_tla','var')
+%         if lpfilt
+%           if isfield(ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}),'avg')
+%             ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).avg = ft_preproc_lowpassfilter( ...
+%               ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).avg, ...
+%               sampleRate,lpfreq,lofiltord,lpfilttype);
+%           end
+%         end
+%         
+%         % select
+%         ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = ft_selectdata_new(cfg_sel,ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}));
+%       end
+    end
+  end
+end
+
 %% get the grand average
 
 % might need to remove avg field from data until this bug is resolved:
@@ -453,71 +533,17 @@ end
 %   end
 % end
 
-%% save
-
-% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-saveDir = dirs.saveDirProc;
-save(fullfile(saveDir,'space_word_img_data_ga_tla.mat'),'data_tla','ga_tla','exper','ana','dirs','files','-v7.3');
-% clear data_tla
-
-%% load
-
-% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-load(fullfile(loadDir,'space_word_img_data_ga_tla.mat'));
-
-[dirs] = mm_checkDirs(dirs);
-
-%% lowpass filter and segment for ERPs
-
-data_tla_backup = data_tla;
-
-lpfilt = true;
-
-if lpfilt
-  sampleRate = 250;
-  lpfreq = 30;
-  lofiltord = 4;
-  lpfilttype = 'but';
-end
-
-cfg_sel = [];
-cfg_sel.latency = [-0.2 1.0];
-
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
-        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
-        
-        if lpfilt
-          for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
-            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
-              squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
-              sampleRate,lpfreq,lofiltord,lpfilttype);
-          end
-        end
-        
-        % select
-        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-        
-      end
-    end
-  end
-end
-
 %% plot the conditions - simple
 
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.0];
-cfg_ft.xlim = [-0.2 0.4];
+% cfg_ft.xlim = [-0.2 0.4];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-% cfg_plot.is_ga = true;
-cfg_plot.is_ga = false;
+cfg_plot.is_ga = true;
+% cfg_plot.is_ga = false;
 cfg_plot.excludeBadSub = 1;
 
 % %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
@@ -542,30 +568,31 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-3 2; -2 3; -1 4];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
 
-% % N400
-% cfg_plot.rois = {{'Cz'}};
-% cfg_plot.ylims = [-2 3];
-% cfg_plot.legendlocs = {'NorthEast'};
+% N400
+% cfg_plot.rois = {{'C'}};
+cfg_plot.rois = {{'Cz'}};
+cfg_plot.ylims = [-2 3];
+cfg_plot.legendlocs = {'NorthEast'};
 
 % % LPC
-% cfg_plot.rois = {{'Pz'}}; % Pz
+% % cfg_plot.rois = {{'Pz'}}; % Pz
 % % cfg_plot.rois = {{'E72'}}; % below Pz
 % % cfg_plot.rois = {{'E85'}};
-% % cfg_plot.rois = {{'PS'}}; % Centered on Pz
+% cfg_plot.rois = {{'PS'}}; % Centered on Pz
 % % cfg_plot.rois = {{'PS2'}}; % Centered on E72
 % cfg_plot.ylims = [-1 4];
 % cfg_plot.legendlocs = {'SouthEast'};
 
 cfg_plot.axisxy = false;
 
-% cfg_plot.rois = {{'E70'}};
-% cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.rois = {{'E69'},{'E89'}};
-cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
-cfg_plot.rois = {{'LPI2'},{'RPI2'}}; % T5, T6
-cfg_plot.rois = {{'LPI2','RPI2'}}; % T5, T6
-cfg_plot.ylims = [-3 2; -3 2];
-cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% % cfg_plot.rois = {{'E70'}};
+% % cfg_plot.rois = {{'E70'},{'E83'}};
+% % cfg_plot.rois = {{'E69'},{'E89'}};
+% % cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
+% cfg_plot.rois = {{'LPI2'},{'RPI2'}}; % T5, T6
+% % cfg_plot.rois = {{'LPI2','RPI2'}}; % T5, T6
+% cfg_plot.ylims = [-3 2; -3 2];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % cfg_plot.rois = {{'Oz'},{'PI'}};
 % cfg_plot.ylims = [-2 3; -2 3];
@@ -613,8 +640,8 @@ for r = 1:length(cfg_plot.rois)
     cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions));
   end
   
-  %mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
-  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
+  mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
+%   mm_ft_simpleplotER(cfg_ft,cfg_plot,ana,exper,sesNum,data_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
@@ -788,11 +815,11 @@ peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
 cfg_plot = [];
 %cfg_plot.rois = {{'LAS','RAS'},{'LPS','RPS'}};
 % cfg_plot.rois = {{'LAS'},{'LPS'}};
-cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'Cz'},{'Pz'}};
-% cfg_plot.rois = {{'E70'},{'E83'}};
-cfg_plot.rois = {{'E72'}};
-cfg_plot.rois = {{'LPS'}};
+% cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.rois = {{'Cz'},{'Pz'}};
+cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.rois = {{'E72'}};
+% cfg_plot.rois = {{'LPS'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
