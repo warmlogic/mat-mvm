@@ -26,7 +26,8 @@ else
 end
 
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
   %'SPACE001'; low trial counts
@@ -396,11 +397,32 @@ ana.eventValues = ana.eventValuesSplit;
 % % overwrite ana.eventValues with the new split events
 % ana.eventValues = ana.eventValuesSplit;
 
+%% save
+
+% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+saveDir = dirs.saveDirProc;
+% save(fullfile(saveDir,'space_word_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
+% save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
+save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','dirs','files','-v7.3');
+% clear data_pow
+
+%% load
+
+% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
+% load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
+load(fullfile(loadDir,'space_word_img_data_pow.mat'));
+
+[dirs] = mm_checkDirs(dirs);
+
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE011','SPACE017','SPACE019','SPACE039'}};
+%exper.badBehSub = {{'SPACE001','SPACE008','SPACE011','SPACE017','SPACE019','SPACE039'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
 
 % SPACE001 - low trial counts
 % SPACE008 - did not do task correctly
@@ -425,27 +447,7 @@ evToCheck = { ...
   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert',evToCheck);
-
-%% save
-
-% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-saveDir = dirs.saveDirProc;
-% save(fullfile(saveDir,'space_word_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
-% save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
-save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','dirs','files','-v7.3');
-% clear data_pow
-
-%% load
-
-% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
-% load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
-load(fullfile(loadDir,'space_word_img_data_pow.mat'));
-
-[dirs] = mm_checkDirs(dirs);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,8,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
@@ -706,7 +708,7 @@ cfg_ft = [];
 %cfg_ft.zlim = [-1 1];
 %cfg_ft.zlim = [-2 2];
 %elseif strcmp(cfg_ft.baselinetype,'relative')
-cfg_ft.zlim = [-2 2];
+cfg_ft.zlim = [-3 3];
 %end
 cfg_ft.showlabels = 'yes';
 cfg_ft.colorbar = 'yes';
@@ -831,7 +833,7 @@ end
 
 %% line plots
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 cfg = [];
