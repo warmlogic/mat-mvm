@@ -335,7 +335,7 @@ evToCheck = { ...
   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert',evToCheck);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
