@@ -427,6 +427,26 @@ evToCheck = { ...
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert',evToCheck);
 
+%% save
+
+% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+saveDir = dirs.saveDirProc;
+% save(fullfile(saveDir,'space_word_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
+% save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
+save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','dirs','files','-v7.3');
+% clear data_pow
+
+%% load
+
+% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
+% load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
+load(fullfile(loadDir,'space_word_img_data_pow.mat'));
+
+[dirs] = mm_checkDirs(dirs);
+
 %% Test plots to make sure data look ok
 
 cfg_ft = [];
@@ -503,65 +523,65 @@ for evVal = 1:length(ana.eventValues{ses}{typ})
 %   title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
 end
 
-%% baseline
-
-% % log power
-% data_pow_log = data_pow;
-% for sub = 1:length(exper.subjects)
-%   for cnd = 1:length(conds)
-%     data_pow_log.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm = log10(data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm);
-%   end
-% end
-
-% fieldtrip's baseline method
-cfg_bl = [];
-cfg_bl.baseline = [-0.3 -0.1];
-cfg_bl.baselinetype = 'absolute';
-for ses = 1:length(exper.sesStr)
-  for typ = 1:length(ana.eventValues{ses})
-    for evVal = 1:length(ana.eventValues{ses}{typ})
-      for sub = 1:length(exper.subjects)
-        data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_freqbaseline(cfg_bl,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
-      end
-    end
-  end
-end
-
-% % my zscore method
-% cfg = [];
-% cfg.baseline_time = [-0.3 -0.1];
-% cfg.baseline_type = 'zscore';
-% cfg.param = 'powspctrm';
+% %% baseline
+% 
+% % % log power
+% % data_pow_log = data_pow;
+% % for sub = 1:length(exper.subjects)
+% %   for cnd = 1:length(conds)
+% %     data_pow_log.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm = log10(data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm);
+% %   end
+% % end
+% 
+% % fieldtrip's baseline method
+% cfg_bl = [];
+% cfg_bl.baseline = [-0.3 -0.1];
+% cfg_bl.baselinetype = 'db';
 % for ses = 1:length(exper.sesStr)
 %   for typ = 1:length(ana.eventValues{ses})
 %     for evVal = 1:length(ana.eventValues{ses}{typ})
 %       for sub = 1:length(exper.subjects)
-%         subSesEvData = data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data;
-%         
-%         % get the baseline time indices
-%         blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
-%         % mean across baseline period
-%         blm = nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4);
-%         
-%         if strcmp(cfg.baseline_type,'zscore')
-%           fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-%           % std across time, then avg across events (lower freqs often get smaller std)
-%           blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(cfg.param)(:,:,:,blt),0,4),1);
-%           
-%           % % avg across time, then std across events (higher freqs often get smaller std)
-%           % blstd = nanstd(nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4),0,1);
-%           
-%           % % concatenate all times of all events and std (equivalent std across freqs)
-%           %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cfg.param)(:,:,:,blt),3),...
-%           %  size(subSesEvData.(cfg.param)(:,:,:,blt),1)*size(subSesEvData.(cfg.param)(:,:,:,blt),4),...
-%           %  size(subSesEvData.(cfg.param)(:,:,:,blt),2),size(subSesEvData.(cfg.param)(:,:,:,blt),3))),0,1)),-1);
-%           
-%           data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cfg.param),blm),blstd);
-%         end
+%         data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_freqbaseline(cfg_bl,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
 %       end
 %     end
 %   end
 % end
+% 
+% % % my zscore method
+% % cfg = [];
+% % cfg.baseline_time = [-0.3 -0.1];
+% % cfg.baseline_type = 'zscore';
+% % cfg.param = 'powspctrm';
+% % for ses = 1:length(exper.sesStr)
+% %   for typ = 1:length(ana.eventValues{ses})
+% %     for evVal = 1:length(ana.eventValues{ses}{typ})
+% %       for sub = 1:length(exper.subjects)
+% %         subSesEvData = data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data;
+% %         
+% %         % get the baseline time indices
+% %         blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
+% %         % mean across baseline period
+% %         blm = nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4);
+% %         
+% %         if strcmp(cfg.baseline_type,'zscore')
+% %           fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+% %           % std across time, then avg across events (lower freqs often get smaller std)
+% %           blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(cfg.param)(:,:,:,blt),0,4),1);
+% %           
+% %           % % avg across time, then std across events (higher freqs often get smaller std)
+% %           % blstd = nanstd(nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4),0,1);
+% %           
+% %           % % concatenate all times of all events and std (equivalent std across freqs)
+% %           %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cfg.param)(:,:,:,blt),3),...
+% %           %  size(subSesEvData.(cfg.param)(:,:,:,blt),1)*size(subSesEvData.(cfg.param)(:,:,:,blt),4),...
+% %           %  size(subSesEvData.(cfg.param)(:,:,:,blt),2),size(subSesEvData.(cfg.param)(:,:,:,blt),3))),0,1)),-1);
+% %           
+% %           data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cfg.param),blm),blstd);
+% %         end
+% %       end
+% %     end
+% %   end
+% % end
 
 %% get the grand average
 
@@ -642,24 +662,6 @@ end
 %     end
 %   end
 % end
-
-%% save
-
-% saveDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% saveDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-saveDir = dirs.saveDirProc;
-% save(fullfile(saveDir,'space_word_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
-save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
-% clear data_pow
-
-%% load
-
-loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
-load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
-
-[dirs] = mm_checkDirs(dirs);
 
 %% simple plot
 
