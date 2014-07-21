@@ -689,7 +689,8 @@ for sub = 1:length(subjects_all)
     cfg.output = 'pow';
     
     % transformation: 'log10', 'log', 'vec'
-    cfg.transform = 'log10';
+    cfg.transform = '';
+    % cfg.transform = 'log10';
     % cfg.transform = 'vec';
     
     % normalization of single or average trials
@@ -748,21 +749,22 @@ for sub = 1:length(subjects_all)
     end
     saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
     
-    if exist(saveFile,'file')
-      fprintf('Loading saved file: %s\n',saveFile);
-      load(saveFile);
-    else
-      fprintf('Running mm_ft_loadData_multiSes\n');
-      if exist('data_evoked','var')
-        [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
-      else
-        [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
-      end
-      if cfg.saveFile
-        fprintf('Saving %s...\n',saveFile);
-        save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
-      end
-    end
+    [data_pow,exper] = mm_ft_loadData_multiSes2(cfg,exper,dirs,ana);
+%     if exist(saveFile,'file')
+%       fprintf('Loading saved file: %s\n',saveFile);
+%       load(saveFile);
+%     else
+%       fprintf('Running mm_ft_loadData_multiSes\n');
+%       if exist('data_evoked','var')
+%         [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
+%       else
+%         [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
+%       end
+%       if cfg.saveFile
+%         fprintf('Saving %s...\n',saveFile);
+%         save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
+%       end
+%     end
     fprintf('Done.\n');
     
     % overwrite ana.eventValues with the new split events

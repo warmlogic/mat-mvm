@@ -36,7 +36,6 @@ else
   error('Data directory not found.');
 end
 
-% procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 
 allowRecallSynonyms = true;
@@ -70,9 +69,9 @@ end
 
 % then set up similarity comparisons
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
@@ -607,7 +606,8 @@ for sub = 1:length(subjects_all)
     cfg.output = 'pow';
     
     % transformation: 'log10', 'log', 'vec'
-    cfg.transform = 'log10';
+    cfg.transform = '';
+    % cfg.transform = 'log10';
     % cfg.transform = 'vec';
     
     % normalization of single or average trials
@@ -666,21 +666,22 @@ for sub = 1:length(subjects_all)
     end
     saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
     
-    if exist(saveFile,'file')
-      fprintf('Loading saved file: %s\n',saveFile);
-      load(saveFile);
-    else
-      fprintf('Running mm_ft_loadData_multiSes\n');
-      if exist('data_evoked','var')
-        [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
-      else
-        [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
-      end
-      if cfg.saveFile
-        fprintf('Saving %s...\n',saveFile);
-        save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
-      end
-    end
+    [data_pow,exper] = mm_ft_loadData_multiSes2(cfg,exper,dirs,ana);
+%     if exist(saveFile,'file')
+%       fprintf('Loading saved file: %s\n',saveFile);
+%       load(saveFile);
+%     else
+%       fprintf('Running mm_ft_loadData_multiSes\n');
+%       if exist('data_evoked','var')
+%         [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
+%       else
+%         [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
+%       end
+%       if cfg.saveFile
+%         fprintf('Saving %s...\n',saveFile);
+%         save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
+%       end
+%     end
     fprintf('Done.\n');
     
     % overwrite ana.eventValues with the new split events
@@ -690,7 +691,8 @@ for sub = 1:length(subjects_all)
     
     % Subjects with bad behavior
     % exper.badBehSub = {{}};
-    exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+    %exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+    exper.badBehSub = {{'SPACE001','SPACE008','SPACE019','SPACE030'}};
     
     % SPACE019 has particularly low distance (high similarity) values
     

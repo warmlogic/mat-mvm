@@ -54,6 +54,7 @@ else
 end
 
 saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+% saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 % saveDirProc = getenv('HOME');
 % saveDirProc = fullfile(filesep,'data','projects','curranlab',expName);
@@ -78,16 +79,16 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
-  %'SPACE019';
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
