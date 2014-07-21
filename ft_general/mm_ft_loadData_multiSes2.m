@@ -530,11 +530,11 @@ for sub = 1:length(exper.subjects)
       for es = 1:length(ana.eventValuesSplit{ses}{evVal})
         eventValue = ana.eventValuesSplit{ses}{evVal}{es};
         
-        blm = shiftdim(repmat(blm_orig,1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)),2);
+        blm = shiftdim(repmat(blm_orig,[1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)]),2);
         
         if strcmp(cfg.baseline_type,'zscore')
           fprintf('\tZ-transforming data relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-          blstd = shiftdim(repmat(blstd_orig,1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)),2);
+          blstd = shiftdim(repmat(blstd_orig,[1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)]),2);
           
           data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm),blstd);
           
