@@ -61,7 +61,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030'; % low trial counts
+  %'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -433,6 +433,7 @@ load(fullfile(loadDir,'space_word_img_data_pow.mat'));
 exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE001','SPACE008','SPACE011','SPACE017','SPACE019','SPACE039'}};
 % exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE019','SPACE030'}};
 
 % SPACE001 - low trial counts
 % SPACE008 - did not do task correctly
