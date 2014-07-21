@@ -267,6 +267,14 @@ end
 %     sprintf('eventNumber == %d & targ == 0 & recog_resp == 2 & recog_acc == 1 & recog_rt < 3000 & new_resp ~= 0 & new_acc == 1',find(ismember(exper.eventValues{sesNum},'cued_recall_stim')))}}};
 % end
 
+%% use in conjunction with post-loading baseline
+
+% keeptrials = false;
+% [data_pow_lsd,exper] = mm_loadSubjectData(exper,dirs,ana,'pow',keeptrials,'trialinfo',true);
+% 
+% % overwrite ana.eventValues with the new split events
+% ana.eventValues = ana.eventValuesSplit;
+
 %% new loading workflow - pow
 
 cfg = [];
@@ -302,10 +310,10 @@ cfg.norm_trials = 'average';
 % baseline type
 % % 'zscore', 'absolute', 'relchange', 'relative', 'db'
 cfg.baseline_type = 'zscore';
+% cfg.baseline_type = 'db';
 % cfg.baseline_type = 'absolute';
 % cfg.baseline_type = 'relchange';
 % cfg.baseline_type = 'relative';
-% cfg.baseline_type = 'db';
 
 % baseline period
 %cfg.baseline_time = [-0.2 0];
@@ -327,45 +335,47 @@ cfg.rmevokedpow = 'no';
 % cfg.rmevoked = 'yes';
 % cfg.rmevokedfourier = 'yes';
 % cfg.rmevokedpow = 'no';
-if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
-  % load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
-  
-  % local testing
-  %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
-end
+% if strcmp(cfg.rmevoked,'yes') && ~exist('data_evoked','var')
+%   % load('/Volumes/curranlab/Data/SOSI/eeg/eppp/-1000_2000/ft_data/RCR_RH_RHSC_RHSI_eq0_art_zeroVar/tla_-1000_2000_avg/data_evoked.mat');
+%   
+%   % local testing
+%   %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
+% end
 
-if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
-  eq_str = '_eq';
-else
-  eq_str = '';
-end
-if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
-  kt_str = '_trials';
-else
-  kt_str = '_avg';
-end
-if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
-  indu_str = '_induced';
-else
-  indu_str = '_whole';
-end
-saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
+% if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
+%   eq_str = '_eq';
+% else
+%   eq_str = '';
+% end
+% if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
+%   kt_str = '_trials';
+% else
+%   kt_str = '_avg';
+% end
+% if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
+%   indu_str = '_induced';
+% else
+%   indu_str = '_whole';
+% end
+% saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
 
-if exist(saveFile,'file')
-  fprintf('Loading saved file: %s\n',saveFile);
-  load(saveFile);
-else
-  fprintf('Running mm_ft_loadData_multiSes\n');
-  if exist('data_evoked','var')
-    [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
-  else
-    [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
-  end
-  if cfg.saveFile
-    fprintf('Saving %s...\n',saveFile);
-    save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
-  end
-end
+[data_pow,exper] = mm_ft_loadData_multiSes2(cfg,exper,dirs,ana);
+
+% if exist(saveFile,'file')
+%   fprintf('Loading saved file: %s\n',saveFile);
+%   load(saveFile);
+% else
+%   fprintf('Running mm_ft_loadData_multiSes\n');
+%   if exist('data_evoked','var')
+%     [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana,data_evoked);
+%   else
+%     [data_pow,exper] = mm_ft_loadData_multiSes(cfg,exper,dirs,ana);
+%   end
+%   if cfg.saveFile
+%     fprintf('Saving %s...\n',saveFile);
+%     save(saveFile,sprintf('data_%s',cfg.output),'exper','cfg');
+%   end
+% end
 fprintf('Done.\n');
 
 % overwrite ana.eventValues with the new split events
@@ -447,7 +457,7 @@ evToCheck = { ...
   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,8,[],'vert',evToCheck);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
@@ -525,16 +535,16 @@ for evVal = 1:length(ana.eventValues{ses}{typ})
 %   title(strrep(ana.eventValues{ses}{typ}{evVal},'_','-'));
 end
 
-% %% baseline
-% 
-% % % log power
-% % data_pow_log = data_pow;
-% % for sub = 1:length(exper.subjects)
-% %   for cnd = 1:length(conds)
-% %     data_pow_log.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm = log10(data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm);
-% %   end
-% % end
-% 
+%% baseline
+
+% % log power
+% data_pow_log = data_pow;
+% for sub = 1:length(exper.subjects)
+%   for cnd = 1:length(conds)
+%     data_pow_log.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm = log10(data_pow.(exper.sesStr{ses}).(conds{cnd}).sub(sub).data.powspctrm);
+%   end
+% end
+
 % % fieldtrip's baseline method
 % cfg_bl = [];
 % cfg_bl.baseline = [-0.3 -0.1];
@@ -548,42 +558,102 @@ end
 %     end
 %   end
 % end
-% 
-% % % my zscore method
-% % cfg = [];
-% % cfg.baseline_time = [-0.3 -0.1];
-% % cfg.baseline_type = 'zscore';
-% % cfg.param = 'powspctrm';
-% % for ses = 1:length(exper.sesStr)
-% %   for typ = 1:length(ana.eventValues{ses})
-% %     for evVal = 1:length(ana.eventValues{ses}{typ})
-% %       for sub = 1:length(exper.subjects)
-% %         subSesEvData = data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data;
-% %         
-% %         % get the baseline time indices
-% %         blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
-% %         % mean across baseline period
-% %         blm = nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4);
-% %         
-% %         if strcmp(cfg.baseline_type,'zscore')
-% %           fprintf('Z-transforming data relative to mean([%.2f %.2f] pre-stimulus).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-% %           % std across time, then avg across events (lower freqs often get smaller std)
-% %           blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(cfg.param)(:,:,:,blt),0,4),1);
-% %           
-% %           % % avg across time, then std across events (higher freqs often get smaller std)
-% %           % blstd = nanstd(nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4),0,1);
-% %           
-% %           % % concatenate all times of all events and std (equivalent std across freqs)
-% %           %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cfg.param)(:,:,:,blt),3),...
-% %           %  size(subSesEvData.(cfg.param)(:,:,:,blt),1)*size(subSesEvData.(cfg.param)(:,:,:,blt),4),...
-% %           %  size(subSesEvData.(cfg.param)(:,:,:,blt),2),size(subSesEvData.(cfg.param)(:,:,:,blt),3))),0,1)),-1);
-% %           
-% %           data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cfg.param),blm),blstd);
-% %         end
-% %       end
-% %     end
-% %   end
-% % end
+
+% % my zscore method - within an event value
+% cfg = [];
+% cfg.baseline_time = [-0.3 -0.1];
+% cfg.baseline_type = 'zscore';
+% cfg.param = 'powspctrm';
+% for ses = 1:length(exper.sesStr)
+%   for typ = 1:length(ana.eventValues{ses})
+%     for evVal = 1:length(ana.eventValues{ses}{typ})
+%       for sub = 1:length(exper.subjects)
+%         subSesEvData = data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data;
+%         
+%         % get the baseline time indices
+%         blt = subSesEvData.time >= cfg.baseline_time(1) & subSesEvData.time <= cfg.baseline_time(2);
+%         % mean across baseline period
+%         
+%         % individual trial
+%         %blm = nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4);
+%         % average
+%         blm = nanmean(subSesEvData.(cfg.param)(:,:,blt),3);
+%         
+%         if strcmp(cfg.baseline_type,'zscore')
+%           fprintf('Z-transforming %s relative to mean([%.2f %.2f] pre-stimulus).\n',ana.eventValues{ses}{typ}{evVal},cfg.baseline_time(1),cfg.baseline_time(2));
+%           % std across time, then avg across events (lower freqs often get smaller std)
+%           
+%           % individual trial
+%           %blstd = nanmean(nanstd(subSesEvData.(cell2mat(fn)).(cfg.param)(:,:,:,blt),0,4),1);
+%           % average
+%           blstd = nanstd(subSesEvData.(cfg.param)(:,:,blt),0,3);
+%           
+%           % % avg across time, then std across events (higher freqs often get smaller std)
+%           % blstd = nanstd(nanmean(subSesEvData.(cfg.param)(:,:,:,blt),4),0,1);
+%           
+%           % % concatenate all times of all events and std (equivalent std across freqs)
+%           %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(subSesEvData.(cfg.param)(:,:,:,blt),3),...
+%           %  size(subSesEvData.(cfg.param)(:,:,:,blt),1)*size(subSesEvData.(cfg.param)(:,:,:,blt),4),...
+%           %  size(subSesEvData.(cfg.param)(:,:,:,blt),2),size(subSesEvData.(cfg.param)(:,:,:,blt),3))),0,1)),-1);
+%           
+%           data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = bsxfun(@rdivide,bsxfun(@minus,subSesEvData.(cfg.param),blm),blstd);
+%         end
+%       end
+%     end
+%   end
+% end
+
+% my zscore method - combine all events first
+cfg = [];
+cfg.baseline_time = [-0.3 -0.1];
+cfg.baseline_type = 'zscore';
+% cfg.baseline_type = 'db';
+cfg.param = 'powspctrm';
+for sub = 1:length(exper.subjects)
+  for ses = 1:length(exper.sesStr)
+    allData = [];
+    % get the baseline time indices
+    blt = false(size(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{1}{1}).sub(sub).data.time));
+    blt_tbeg = nearest(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{1}{1}).sub(sub).data.time,cfg.baseline_time(1));
+    blt_tend = nearest(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{1}{1}).sub(sub).data.time,cfg.baseline_time(2));
+    blt(blt_tbeg:blt_tend) = true;
+    
+    for typ = 1:length(ana.eventValues{ses})
+      for evVal = 1:length(ana.eventValues{ses}{typ})
+        allData = cat(4,allData,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,blt));
+      end
+    end
+    
+    % average across time, then average all events together
+    blm = nanmean(nanmean(allData,3),4);
+    
+    if strcmp(cfg.baseline_type,'zscore')
+      % std across time, then avg across events (lower freqs often get smaller std)
+      blstd = nanmean(nanstd(allData,0,3),4);
+    end
+    
+    % % avg across time, then std across events (higher freqs often get smaller std)
+    % blstd = nanstd(nanmean(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,:,blt),4),0,1);
+    
+    % % concatenate all times of all events and std (equivalent std across freqs)
+    %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,:,blt),3),...
+    %  size(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,:,blt),1)*size(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,:,blt),4),...
+    %  size(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,:,blt),2),size(data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param)(:,:,:,blt),3))),0,1)),-1);
+    for typ = 1:length(ana.eventValues{ses})
+      for evVal = 1:length(ana.eventValues{ses}{typ})
+        if strcmp(cfg.baseline_type,'zscore')
+          fprintf('Z-transforming %s relative to mean([%.2f %.2f] pre-stimulus).\n',ana.eventValues{ses}{typ}{evVal},cfg.baseline_time(1),cfg.baseline_time(2));
+          data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = bsxfun(@rdivide,bsxfun(@minus,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param),blm),blstd);
+        elseif strcmp(cfg.baseline_type,'db')
+          fprintf('\tConverting to db relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+          % divide by baseline mean and convert to db
+          data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param) = 10*log10(bsxfun(@rdivide,data_pow.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(cfg.param),blm));
+        end
+      end
+    end
+    
+  end
+end
 
 %% get the grand average
 
