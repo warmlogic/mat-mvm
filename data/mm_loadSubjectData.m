@@ -128,10 +128,10 @@ for sub = 1:length(exper.subjects)
                 % if desired and the data is appropriate
                 fprintf('\n%s %s %s has individual trials. Using ft_freqdescriptives with keeptrials=''no'' to load only the average.\n',exper.subjects{sub},sesStr,ana.eventValues{ses}{evVal});
                 cfg_fd = [];
-                cfg_fd.keeptrials = 'no';
-                data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
-                %cfg_fd.avgoverrpt = 'yes';
-                %data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_selectdata(cfg_fd,subSesEvData.(data_fn));
+                %cfg_fd.keeptrials = 'no';
+                %data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                cfg_fd.avgoverrpt = 'yes';
+                data.(sesStr).(ana.eventValues{ses}{evVal}).sub(sub).data = ft_selectdata(cfg_fd,subSesEvData.(data_fn));
                 
               elseif strcmp(loadMethod,'trialinfo')
                 trl_order = ana.trl_order.(ana.eventValues{ses}{evVal});
@@ -170,10 +170,10 @@ for sub = 1:length(exper.subjects)
                   
                   cfg_fd = [];
                   cfg_fd.trials = eval(expr);
-                  cfg_fd.keeptrials = 'no';
-                  data.(sesStr).(eventValue).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
-                  %cfg_fd.avgoverrpt = 'yes';
-                  %data.(sesStr).(eventValue).sub(sub).data = ft_selectdata(cfg_fd,subSesEvData.(data_fn));
+                  %cfg_fd.keeptrials = 'no';
+                  %data.(sesStr).(eventValue).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData.(data_fn));
+                  cfg_fd.avgoverrpt = 'yes';
+                  data.(sesStr).(eventValue).sub(sub).data = ft_selectdata(cfg_fd,subSesEvData.(data_fn));
                   
                   % put in the trial counts
                   exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_fd.trials);

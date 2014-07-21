@@ -982,16 +982,18 @@ if (strcmp(cfg.ftype,'pow') || strcmp(cfg.output,'pow')) && isfield(subSesEvData
   if (isvector(cfg_fd.trials) && ismember(1,cfg_fd.trials)) || (ischar(cfg_fd.trials) && strcmp(cfg_fd.trials,'all'))
     % use ft_freqdescriptives to average over individual
     % trials, if desired and the data is appropriate
-    subSesEvData = ft_freqdescriptives(cfg_fd,subSesEvData);
-    %data.(sesStr).(eventValue).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData);
+    % subSesEvData = ft_freqdescriptives(cfg_fd,subSesEvData);
+    % % data.(sesStr).(eventValue).sub(sub).data = ft_freqdescriptives(cfg_fd,subSesEvData);
     
-%     if strcmp(cfg_fd.keeptrials,'yes')
-%       cfg_fd.avgoverrpt = 'no';
-%     elseif strcmp(cfg_fd.keeptrials,'no')
-%       cfg_fd.avgoverrpt = 'yes';
-%     end
-%     cfg_fd = rmfield(cfg_fd,'keeptrials');
-%     subSesEvData = ft_selectdata(cfg_fd,subSesEvData);
+    if strcmp(cfg_fd.keeptrials,'yes')
+      cfg_fd.avgoverrpt = 'no';
+    elseif strcmp(cfg_fd.keeptrials,'no')
+      cfg_fd.avgoverrpt = 'yes';
+    end
+    if isfield(cfg_fd,'keeptrials')
+      cfg_fd = rmfield(cfg_fd,'keeptrials');
+    end
+    subSesEvData = ft_selectdata(cfg_fd,subSesEvData);
   else %if (isvector(cfg_fd.trials) && length(unique(cfg_fd.trials)) == 1 && unique(cfg_fd.trials) == 0)
     warning([mfilename,':allTrialsRejected'],'ALL TRIALS REJECTED: %s\n',eventValue);
     fprintf('Setting data.cfg.trl to empty brackets [] for compatibility.\n\n');
