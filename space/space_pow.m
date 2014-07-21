@@ -30,7 +30,7 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
-  'SPACE001'; % low trial counts
+  %'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -48,7 +48,7 @@ subjects = {
   'SPACE016';
   'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
-  'SPACE019'; % low trial counts
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
