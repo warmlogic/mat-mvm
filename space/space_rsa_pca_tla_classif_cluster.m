@@ -575,7 +575,7 @@ ana.eventValues = ana.eventValuesSplit;
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE019','SPACE030'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030'}};
 
 % SPACE019 has particularly low distance (high similarity) values
 

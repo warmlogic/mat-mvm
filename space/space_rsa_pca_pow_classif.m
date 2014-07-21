@@ -47,16 +47,16 @@ subjects_all = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
-  %'SPACE019';
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
@@ -774,7 +774,8 @@ for sub = 1:length(subjects_all)
     
     % Subjects with bad behavior
     % exper.badBehSub = {{}};
-    exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+    %exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+    exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030'}};
     
     % SPACE019 has particularly low distance (high similarity) values
     

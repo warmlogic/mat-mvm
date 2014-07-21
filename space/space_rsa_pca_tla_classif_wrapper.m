@@ -79,7 +79,7 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
   %'SPACE019'; % low trial counts
   'SPACE020';
