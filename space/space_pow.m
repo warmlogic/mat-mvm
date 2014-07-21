@@ -46,7 +46,7 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
   %'SPACE019'; % low trial counts
   'SPACE020';
@@ -433,7 +433,7 @@ load(fullfile(loadDir,'space_word_img_data_pow.mat'));
 exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE001','SPACE008','SPACE011','SPACE017','SPACE019','SPACE039'}};
 % exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE039'}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE019','SPACE030'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030'}};
 
 % SPACE001 - low trial counts
 % SPACE008 - did not do task correctly
