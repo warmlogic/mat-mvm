@@ -414,15 +414,19 @@ for sub = 1:length(exper.subjects)
               cfg_sel.latency = 'all';
             end
             if isfield(cfg,'frequency')
-              cfg_sel.frequency = cfg.frequency;
+              if ischar(cfg.frequency)
+                cfg_sel.frequency = cfg.frequency;
+              elseif isnumeric(cfg.frequency) && length(cfg.frequency) == 2
+                cfg_sel.foilim = cfg.frequency;
+              end
             else
-              cfg_sel.frequency = 'all';
+             cfg_sel.frequency = 'all';
             end
-            if isfield(cfg,'foilim')
-              cfg_sel.foilim = cfg.foilim;
-            else
-              cfg_sel.foilim = 'all';
-            end
+            %if isfield(cfg,'foilim')
+            %  cfg_sel.foilim = cfg.foilim;
+            %else
+            %  cfg_sel.foilim = cfg.frequency;
+            %end
             if isfield(cfg,'channel')
               cfg_sel.channel = cfg.channel;
             else
