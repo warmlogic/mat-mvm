@@ -1,4 +1,4 @@
-function space_rsa_pca_pow_classif_cluster(subjects_all,sesNames_all,thisROI,latencies,freqs,sim_method,eig_criterion)
+function space_rsa_pca_pow_classif_cluster(procDir,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects_all,sesNames_all,thisROI,latencies,freqs,sim_method,eig_criterion)
 
 % space RSA
 
@@ -11,46 +11,8 @@ end
 if ~iscell(sesNames_all)
   sesNames_all = {sesNames_all};
 end
-subDir = '';
-dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
-% Possible locations of the data files (dataroot)
-serverDir = fullfile(filesep,'Volumes','curranlab','Data');
-serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
-dreamDir = fullfile(filesep,'data','projects','curranlab');
-localDir = fullfile(getenv('HOME'),'data');
-
-% pick the right dataroot
-if exist('serverDir','var') && exist(serverDir,'dir')
-  dataroot = serverDir;
-  %runLocally = 1;
-elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
-  dataroot = serverLocalDir;
-  %runLocally = 1;
-elseif exist('dreamDir','var') && exist(dreamDir,'dir')
-  dataroot = dreamDir;
-  %runLocally = 0;
-elseif exist('localDir','var') && exist(localDir,'dir')
-  dataroot = localDir;
-  %runLocally = 1;
-else
-  error('Data directory not found.');
-end
-
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
-
-allowRecallSynonyms = true;
-
-% replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = true;
-
-replaceDatatype = {'tla','pow'};
 
 %% set up similarity analysis; average power bands for P1-P2 trials
-
-% first set up classifier, if needed
-
-% accurateClassifSelect = true;
-accurateClassifSelect = false;
 
 if accurateClassifSelect
   dataTypes_train = {'Face', 'House'};
@@ -66,15 +28,6 @@ if accurateClassifSelect
 else
   classif_str = 'noClassif';
 end
-
-% then set up similarity comparisons
-
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
-
-% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 parameter = 'powspctrm';
 
@@ -92,12 +45,6 @@ if iscell(thisROI)
 elseif ischar(thisROI)
   roi_str = thisROI;
 end
-
-cfg_sel = [];
-cfg_sel.avgoverchan = 'no';
-cfg_sel.avgovertime = 'yes';
-% cfg_sel.avgovertime = 'no';
-cfg_sel.avgoverfreq = 'yes';
 
 %% initialize to store results
 
@@ -649,22 +596,22 @@ for sub = 1:length(subjects_all)
       %load('/Users/matt/data/SOSI/eeg/eppp/-1000_2000/ft_data/CR_SC_SI_eq0_art_zeroVar_badChanManual_badChanEP/tla_-1000_2000_avg/data_evoked.mat');
     end
     
-    if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
-      eq_str = '_eq';
-    else
-      eq_str = '';
-    end
-    if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
-      kt_str = '_trials';
-    else
-      kt_str = '_avg';
-    end
-    if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
-      indu_str = '_induced';
-    else
-      indu_str = '_whole';
-    end
-    saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
+%     if isfield(cfg,'equatetrials') && strcmp(cfg.equatetrials,'yes')
+%       eq_str = '_eq';
+%     else
+%       eq_str = '';
+%     end
+%     if isfield(cfg,'keeptrials') && strcmp(cfg.keeptrials,'yes')
+%       kt_str = '_trials';
+%     else
+%       kt_str = '_avg';
+%     end
+%     if isfield(cfg,'rmevoked') && strcmp(cfg.rmevoked,'yes')
+%       indu_str = '_induced';
+%     else
+%       indu_str = '_whole';
+%     end
+%     saveFile = fullfile(dirs.saveDirProc,sprintf('data_%s%s%s%s.mat',cfg.output,eq_str,kt_str,indu_str));
     
     [data_pow,exper] = mm_ft_loadData_multiSes2(cfg,exper,dirs,ana);
 %     if exist(saveFile,'file')

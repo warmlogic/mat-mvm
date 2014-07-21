@@ -105,7 +105,24 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
+% replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
+replaceDataroot = true;
+
+replaceDatatype = {};
+
+allowRecallSynonyms = true;
+
+% accurateClassifSelect = true;
+accurateClassifSelect = false;
+
 %% analysis details
+
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+
+% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
+%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS','FC','RAS'}};
 allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
@@ -118,6 +135,11 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
   0 0.8; 0.1 0.9; 0.2 1.0;
   0 1.0]};
+
+cfg_sel = [];
+cfg_sel.avgoverchan = 'no';
+% cfg_sel.avgovertime = 'yes';
+cfg_sel.avgovertime = 'no';
 
 allSimMethod = {'cosine'};
 
@@ -177,7 +199,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    stageFun{i}(expName,saveDirProc,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,runLocally,timeOut{i});
+    stageFun{i}(expName,saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -194,7 +216,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function stage1(expName,saveDirProc,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,runLocally,timeOut)
+function stage1(expName,saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -237,7 +259,7 @@ if runLocally == 0
             % save the exper struct (output 1) so we can use it later
             %createTask(job,@create_ft_struct_multiSes,1,inArg);
             
-            inArg = {thisSub,thisSes,thisROI,latencies,sim_method,eig_criterion};
+            inArg = {saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,thisSub,thisSes,thisROI,latencies,sim_method,eig_criterion};
             createTask(job,@space_rsa_pca_tla_classif_cluster,0,inArg);
             
           end

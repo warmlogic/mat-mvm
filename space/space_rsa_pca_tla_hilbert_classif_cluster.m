@@ -1,4 +1,4 @@
-function space_rsa_pca_tla_hilbert_classif_cluster(subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion)
+function space_rsa_pca_tla_hilbert_classif_cluster(procDir,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion)
 
 % space RSA
 
@@ -12,39 +12,7 @@ if ~iscell(sesNames)
   sesNames = {sesNames};
 end
 
-subDir = '';
-dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
-% Possible locations of the data files (dataroot)
-serverDir = fullfile(filesep,'Volumes','curranlab','Data');
-serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
-dreamDir = fullfile(filesep,'data','projects','curranlab');
-localDir = fullfile(getenv('HOME'),'data');
-
-% pick the right dataroot
-if exist('serverDir','var') && exist(serverDir,'dir')
-  dataroot = serverDir;
-  %runLocally = 1;
-elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
-  dataroot = serverLocalDir;
-  %runLocally = 1;
-elseif exist('dreamDir','var') && exist(dreamDir,'dir')
-  dataroot = dreamDir;
-  %runLocally = 0;
-elseif exist('localDir','var') && exist(localDir,'dir')
-  dataroot = localDir;
-  %runLocally = 1;
-else
-  error('Data directory not found.');
-end
-
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
-
-allowRecallSynonyms = true;
-
-% replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
-replaceDataroot = true;
-
-[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot);
+[exper,ana,dirs,files] = mm_loadAD(procDir,subjects,sesNames,replaceDataroot,replaceDatatype);
 
 %% set up channel groups
 
@@ -52,11 +20,6 @@ replaceDataroot = true;
 ana = mm_ft_elecGroups(ana);
 
 %% set up similarity analysis
-
-% first set up classifier, if needed
-
-% accurateClassifSelect = true;
-accurateClassifSelect = false;
 
 if accurateClassifSelect
   dataTypes_train = {'Face', 'House'};
@@ -73,15 +36,6 @@ else
   classif_str = 'noClassif';
 end
 
-% then set up similarity comparisons
-
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
-
-% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
-
 % column numbers in trialinfo
 % trialNumCol = 5;
 phaseCountCol = 4;
@@ -94,12 +48,6 @@ if iscell(thisROI)
 elseif ischar(thisROI)
   roi_str = thisROI;
 end
-
-cfg_sel = [];
-cfg_sel.avgoverchan = 'no';
-cfg_sel.avgovertime = 'yes';
-% cfg_sel.avgovertime = 'no';
-% % NB: hilbert will automatically avgoverfreq
 
 cfg_sel.channel = unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,thisROI)}));
 
