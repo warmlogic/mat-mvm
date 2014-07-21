@@ -53,8 +53,8 @@ else
   error('Data directory not found.');
 end
 
-saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
-% saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+% saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+saveDirProc = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 % saveDirProc = getenv('HOME');
 % saveDirProc = fullfile(filesep,'data','projects','curranlab',expName);
