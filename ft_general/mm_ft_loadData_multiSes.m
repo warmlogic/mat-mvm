@@ -450,7 +450,7 @@ for sub = 1:length(exper.subjects)
             exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_sel.trials);
             
             % put in the artifact counts
-            if isfield(exper,'artifacts')
+            if isfield(exper,'artifacts') && ~isempty(exper.artifacts.(sesStr).(ana.eventValues{ses}{evVal}))
               cfg_allEv = [];
               cfg_allEv.trials = eval(expr_allEv);
               theseArt = exper.artifacts.(sesStr).(ana.eventValues{ses}{evVal});
