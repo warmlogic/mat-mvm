@@ -151,10 +151,12 @@ for ses = 1:length(sesStr)
             if keepSesInd(k)
               kCount = kCount + 1;
               for evVal = 1:length(exper.eventValues{kCount})
-                artTypes = fieldnames(exper.artifacts.(exper.sesStr{kCount}).(exper.eventValues{kCount}{evVal}));
-                for at = 1:length(artTypes)
-                  if ~ismember(artTypes{at},artTypes_all)
-                    artTypes_all = cat(1,artTypes_all,artTypes{at});
+                if ~isempty(exper.artifacts.(exper.sesStr{kCount}).(exper.eventValues{kCount}{evVal}))
+                  artTypes = fieldnames(exper.artifacts.(exper.sesStr{kCount}).(exper.eventValues{kCount}{evVal}));
+                  for at = 1:length(artTypes)
+                    if ~ismember(artTypes{at},artTypes_all)
+                      artTypes_all = cat(1,artTypes_all,artTypes{at});
+                    end
                   end
                 end
               end
