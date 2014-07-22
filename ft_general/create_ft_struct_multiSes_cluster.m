@@ -152,10 +152,18 @@ if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
 end
 
 % need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
-if ~isfield(ana,'artifact') || (isfield(ana,'artifact') && ~isfield(ana.artifact,'type'))
+if ~isfield(ana,'artifact')
   ana.artifact.type = {'none'};
-elseif isfield(ana,'artifact') && isfield(ana.artifact,'type') && ischar(ana.artifact.type)
-  ana.artifact.type = {ana.artifact.type};
+elseif isfield(ana,'artifact')
+  if isfield(ana.artifact,'type')
+    if isempty(ana.artifact.type)
+      ana.artifact.type = {'none'};
+    elseif ~isempty(ana.artifact.type) && ischar(ana.artifact.type)
+      ana.artifact.type = {ana.artifact.type};
+    end
+  elseif ~isfield(ana.artifact,'type')
+    ana.artifact.type = {'none'};
+  end
 end
 
 % check on the other functions
