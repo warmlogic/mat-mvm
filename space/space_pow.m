@@ -419,8 +419,9 @@ save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','d
 
 %% load
 
+loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow';
 % loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
+% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
 % load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
 % load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
 load(fullfile(loadDir,'space_word_img_data_pow.mat'));
@@ -1691,8 +1692,8 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
   %cfg_ana.latencies = [-0.18:0.2:0.82; -0.02:0.2:1.0]'; % 200 no overlap
   
   % new analyses
-  %cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
-  cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+  cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+  %cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
   
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
 end
