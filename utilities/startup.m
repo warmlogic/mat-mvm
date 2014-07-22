@@ -155,6 +155,15 @@ if exist(ftDir,'dir')
   %   rmpath(genpath(ftExtDir));
   % end
   
+  % add java file for reading EGI MFF files
+  %
+  % see: http://fieldtrip.fcdonders.nl/getting_started/egi
+  egi_mff_jar = dir(fullfile(ftDir,'external','egi_mff','java','MFF-*.jar'));
+  if ~isempty(egi_mff_jar) && length(egi_mff_jar) == 1
+    javaaddpath({fullfile(ftDir,'external','egi_mff','java',egi_mff_jar(1).name)});
+    clear egi_mff_jar
+  end
+  
   % remove fieldtrip's external eeglab directory if it was added
   ftEeglabDir = dir(fullfile(ftDir,'external','eeglab*'));
   if ~isempty(ftEeglabDir)
