@@ -88,10 +88,6 @@ if cfg.eventinfo.useMetadata
     %evtToleranceMS = cfg.eventinfo.evtToleranceMS;
     %evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
   end
-  
-  if ismember('expParam', md.types)
-    error('loading experimentParams.mat is not yet supported');
-  end
 end
 
 % read the types of triggers (flags) in the Net Station evt file
