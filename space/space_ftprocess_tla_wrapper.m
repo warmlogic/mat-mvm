@@ -43,7 +43,8 @@ exper.sampleRate = 250;
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
 % exper.eegFileExt = 'egis';
-exper.eegFileExt = 'raw';
+% exper.eegFileExt = 'raw';
+exper.eegFileExt = 'mff';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
@@ -59,43 +60,43 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-1.0 2.0]};
 
 exper.subjects = {
-  'SPACE001'; % low trial counts
-  'SPACE002';
+  %'SPACE001'; % low trial counts
+%   'SPACE002'; % already processed
   'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  'SPACE019'; % low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027'; % crazy DINs while session stopped
-  'SPACE029';
-  'SPACE037';
-  'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; % low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027'; % crazy DINs while session stopped
+%   'SPACE029';
+%   'SPACE037';
+%   'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   %'SPACE030'; % low trial counts
+% %   'SPACE032'; % already processed
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -151,7 +152,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
-ana.trialFxn = 'space_trialfun';
+% ana.trialFxn = 'space_trialfun';
+ana.trialFxn = 'space_trialfun_mff';
 ana.allowTrialOverlap = true;
 ana.renumberSamplesContiguous = true;
 % files used when adding metadata to segmented trials
@@ -200,7 +202,7 @@ ana.artifact.type = {'nsClassic','ftAuto'};
 % ana.artifact.type = {'nsClassic'};
 
 % set up for nsClassic
-ana.artifact.checkArtSec = [-0.2 1.0];
+ana.artifact.checkArtSec = [0 1.0];
 ana.artifact.blink_threshold = 70;
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
