@@ -11,9 +11,17 @@ end
 % get the header and event information
 fprintf('Reading flags from EEG file using FieldTrip...');
 ft_hdr = ft_read_header(cfg.dataset);
-tic
-ft_event = ft_read_event(cfg.dataset);
-toc
+[pathstr,name] = fileparts(cfg.dataset);
+ftEventsFile = fullfile(pathstr,sprintf('%s_ftEvents.mat',name));
+if exist(ftEventsFile,'file')
+  ft_event = load(ftEventsFile);
+  ft_event = ft_event.ft_event;
+else
+  tic
+  ft_event = ft_read_event(cfg.dataset);
+  toc
+  save(ftEventsFile,'ft_event');
+end
 fprintf('Done.\n');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
