@@ -350,11 +350,7 @@ for ses = 1:length(session)
   if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis') || strcmpi(exper.eegFileExt,'mff')
     cfg.trialfun = ana.trialFxn;
     if strcmp(cfg.continuous,'no')
-      if strcmpi(exper.eegFileExt,'mff')
-        cfg.trialdef.eventtype = 'ECI_TCPIP_55513';
-      else
-        cfg.trialdef.eventtype = 'trial';
-      end
+      cfg.trialdef.eventtype = 'trial';
       
       cfg.trialdef.prestim = abs(prepost(1)); % in seconds; must be positive
       cfg.trialdef.poststim = prepost(2); % in seconds; must be positive
@@ -414,7 +410,11 @@ for ses = 1:length(session)
         end
       end
       
-      cfg.trialdef.eventtype = 'trigger';
+      if strcmpi(exper.eegFileExt,'mff')
+        cfg.trialdef.eventtype = 'ECI_TCPIP_55513';
+      else
+        cfg.trialdef.eventtype = 'trigger';
+      end
     end
   elseif strcmpi(exper.eegFileExt,'set')
     cfg.trialfun = 'trialfun_general';
