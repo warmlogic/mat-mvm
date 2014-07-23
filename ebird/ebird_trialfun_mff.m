@@ -1,4 +1,4 @@
-function trl = ebird_trialfun(cfg)
+function trl = ebird_trialfun_mff(cfg)
 
 % operates using Net Station evt files and event structs
 
