@@ -278,19 +278,32 @@ for sub = 1:length(exper.subjects)
                   for c = 1:size(tf_data,2)
                     % get each channel for each trial
                     
-                    % FFT of data (note: this doesn't change on frequency iteration)
-                    % result of squeeze needs to be a row vector
-                    fft_data = fft(squeeze(thisData(t,c,:))',n_conv_pow2);
+                    % result of squeeze(thisData(t,c,:)) needs to be a row vector
                     
-                    for fi=1:length(frequencies)
-                      % run convolution
-                      convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
-                      convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-                      convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
-                      
-                      % put power data into time-frequency matrix
-                      tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
-                    end
+                    % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
+                    % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
+                    
+                    % consolidate commands for speed
+                    convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
+                    
+                    convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+                    convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
+                    tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
+                    
+%                     % old slow for loop over frequencies
+%                     % FFT of data (note: this doesn't change on frequency iteration)
+%                     % result of squeeze(thisData(t,c,:)) needs to be a row vector
+%                     fft_data = fft(squeeze(thisData(t,c,:))',n_conv_pow2);
+%                     
+%                     for fi=1:length(frequencies)
+%                       % run convolution
+%                       convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
+%                       convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+%                       convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+%                       
+%                       % put power data into time-frequency matrix
+%                       tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
+%                     end
                     
                   end
                 end
