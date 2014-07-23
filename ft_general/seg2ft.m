@@ -543,7 +543,7 @@ for ses = 1:length(session)
   % channels defined, so we need to also check using an extra 3 chans
   % subtracted off
   if (nChan_data == nChan_elecfile - 1) || (nChan_data == nChan_elecfile - 4) || ...
-      (strcmpi(exper.eegFileExt,'mff') && nChan_data == nChan_elecfile && strcmp(data_seg.label{refChanInd},'REF') && sum(var(trialData(refChanInd,:,:),0,2) ~= 0) == 0)
+      (strcmpi(exper.eegFileExt,'mff') && nChan_data == nChan_elecfile && strcmp(data_seg.label{refChanInd},'REF') && sum(nanvar(trialData(refChanInd,:,:),0,2) ~= 0) == 0)
     % one less channel because we're checking to see if the reference
     % channel is missing; or MFF files has reference channel but it has
     % zero variance
