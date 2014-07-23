@@ -96,9 +96,6 @@ ft_event = ft_event(ismember({ft_event.value},triggers));
 
 %% things to change for MFF
 
-% ec
-% i
-
 % ns_evt{
 % ft_event(i).orig.keys(
 
@@ -107,6 +104,9 @@ ft_event = ft_event(ismember({ft_event.value},triggers));
 
 % +1}(ec)
 % ).key.data.data
+
+% ec
+% i
 
 %% go through events and add metadata to trl matrix
 
@@ -121,12 +121,7 @@ for i = 1:length(ft_event)
   fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
   
   if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
-    % found a trigger in the EEG file events; increment index if value is
-    % correct.
-    
-    if ~ismember(ft_event(i).value,triggers)
-      continue
-    end
+    % found an EEG event that we might want to process
     
     switch ft_event(i).value
       case 'STIM'
