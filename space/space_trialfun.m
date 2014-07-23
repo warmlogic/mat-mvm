@@ -419,11 +419,13 @@ for i = 1:length(ft_event)
               );
             
             if length(this_event) > 1
-              warning('More than one event found! Fix this script before continuing analysis.')
-              keyboard
+              error('More than one event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %warning('More than one event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %keyboard
             elseif isempty(this_event)
-              warning('No event found! Fix this script before continuing analysis.')
-              keyboard
+              error('No event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %warning('No event found (ec=%d)! Fix this script before continuing analysis.',ec)
+              %keyboard
             elseif length(this_event) == 1
               
               switch phaseName
@@ -566,7 +568,8 @@ for i = 1:length(ft_event)
                   if exist(trl_order{to},'var')
                     this_trl(timeCols + thisInd) = eval(trl_order{to});
                   else
-                    fprintf('variable %s does not exist!\n',trl_order{to});
+                    %error('variable %s does not exist (ec = %d)!\n',trl_order{to},ec);
+                    fprintf('variable %s does not exist (ec = %d)!\n',trl_order{to},ec);
                     keyboard
                   end
                 end
