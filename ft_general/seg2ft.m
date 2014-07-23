@@ -347,7 +347,7 @@ for ses = 1:length(session)
   cfg.trialdef.eventvalue = eventValue_orig;
   %end
   
-  if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
+  if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis') || strcmpi(exper.eegFileExt,'mff')
     cfg.trialfun = ana.trialFxn;
     if strcmp(cfg.continuous,'no')
       cfg.trialdef.eventtype = 'trial';
