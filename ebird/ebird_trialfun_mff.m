@@ -12,9 +12,7 @@ end
 fprintf('Reading flags from EEG file using FieldTrip...');
 ft_hdr = ft_read_header(cfg.dataset);
 tic
-% ft_event = ft_read_event(cfg.dataset);
-ft_event = load('~/Desktop/EBIRD010_mff_events.mat');
-ft_event = ft_event.e;
+ft_event = ft_read_event(cfg.dataset);
 toc
 fprintf('Done.\n');
 
