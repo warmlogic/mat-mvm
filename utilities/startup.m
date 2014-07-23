@@ -9,6 +9,8 @@ myMatlabDir = fullfile(getenv('HOME'),'Documents','MATLAB');
 
 %% set up Psychtoolbox path
 
+% https://psychtoolbox.org
+
 ptbDir = fullfile(filesep,'Applications','Psychtoolbox');
 if ~isempty(ptbDir)
   % add top folder and all subfolders
@@ -22,6 +24,8 @@ if ~isempty(ptbDir)
 end
 
 %% set up MNE path
+
+% http://martinos.org/mne/
 
 mneDir = dir(fullfile(filesep,'Applications','MNE-*'));
 if ~isempty(mneDir)
@@ -44,6 +48,8 @@ end
 
 %% set up eeg_toolbox path
 
+% http://memory.psych.upenn.edu/Software
+
 %eeg_toolboxDir = dir(fullfile(myMatlabDir,'eeg_toolbox'));
 %if ~isempty(eeg_toolboxDir)
 
@@ -56,6 +62,8 @@ if exist(eeg_toolboxDir,'dir')
 end
 
 %% set up eeglab path
+
+% http://sccn.ucsd.edu/eeglab/
 
 eeglabDir = dir(fullfile(myMatlabDir,'eeglab*'));
 if ~isempty(eeglabDir)
@@ -93,6 +101,8 @@ end
 
 %% set up MVPA toolbox path
 
+% https://code.google.com/p/princeton-mvpa-toolbox/
+
 mvpaDir = fullfile(myMatlabDir,'mvpa');
 if exist(mvpaDir,'dir')
   % add only the top folder
@@ -118,6 +128,8 @@ if exist(mvpaDir,'dir')
 end
 
 %% set up fieldtrip path
+
+% http://fieldtrip.fcdonders.nl
 
 % find the right FT directory
 ftDir = fullfile(myMatlabDir,'fieldtrip');
@@ -197,6 +209,8 @@ end
 
 %% setup DMLT
 
+% https://github.com/distrep/DMLT
+
 dmltDir = fullfile(myMatlabDir,'DMLT');
 if exist(dmltDir,'dir')
   % add top folder and all subfolders
@@ -218,6 +232,8 @@ end
 
 %% set up EP_Toolkit path
 
+% http://sourceforge.net/projects/erppcatoolkit/
+
 %epDir = dir(fullfile(myMatlabDir,'EP_Toolkit*'));
 %if ~isempty(epDir)
 
@@ -230,6 +246,8 @@ if exist(epDir,'dir')
 end
 
 %% set up EEG Analysis Toolbox path
+
+% https://code.google.com/p/eeg-analysis-toolbox/
 
 eatDir = dir(fullfile(myMatlabDir,'eeg_ana_*'));
 if ~isempty(eatDir)
@@ -252,13 +270,35 @@ if ~isempty(eatDir)
   end
 end
 
+%% set up Phillip Gilley's NDTools path
+
+% http://spot.colorado.edu/~gilley/ndtools.html
+
+ndDir = fullfile(myMatlabDir,'ndtools');
+if exist(ndDir,'dir')
+  % add top folder and all subfolders
+  addpath(genpath(ndDir));
+end
+
 %% add my other analysis scripts/files
 
-addpath(genpath(fullfile(myMatlabDir,'recogmodel_mvm')));
+rm_mvmDir = fullfile(myMatlabDir,'recogmodel_mvm');
+
+if exist(rm_mvmDir,'dir')
+  % add top folder and all subfolders
+  addpath(genpath(rm_mvmDir));
+end
 
 %% add my experiment, fieldtrip, and RM ANOVA scripts
 
-addpath(genpath(fullfile(myMatlabDir,'mat-mvm')));
+% https://github.com/warmlogic/mat-mvm/
+
+mat_mvmDir = fullfile(myMatlabDir,'mat-mvm');
+
+if exist(mat_mvmDir,'dir')
+  % add top folder and all subfolders
+  addpath(genpath(mat_mvmDir));
+end
 
 %% put the ~/Documents/MATLAB folder at the top of the path
 
