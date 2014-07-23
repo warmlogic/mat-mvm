@@ -158,6 +158,10 @@ if strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'sbin')
 elseif strcmpi(exper.eegFileExt,'egis')
   ftype = 'egi_egis';
   nsDir = 'ns_egis';
+elseif strcmpi(exper.eegFileExt,'mff')
+  % see MFF info here: http://fieldtrip.fcdonders.nl/getting_started/egi
+  ftype = 'egi_mff_v2';
+  nsDir = 'ns_mff';
 elseif strcmpi(exper.eegFileExt,'set')
   ftype = 'eeglab_set';
   nsDir = subject;
@@ -203,11 +207,11 @@ for ses = 1:length(session)
   % set sesStr to make sure it starts with a character, not a #, etc.
   sesStr = sprintf('ses_%s',sesName);
   
-  if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis')
+  if strcmpi(exper.eegFileExt,'sbin') || strcmpi(exper.eegFileExt,'raw') || strcmpi(exper.eegFileExt,'egis') || strcmpi(exper.eegFileExt,'mff')
     % make sure the EEG file exists
     nsfile = dir(fullfile(dataroot,sesName,nsDir,[subject,'*.',exper.eegFileExt]));
     if isempty(nsfile)
-      error('Cannot find %s*.%s file in %s',subject,exper.eegFileExt,fullfile(dataroot,sesName,nsDir));
+      error('Cannot find %s*.%s file in %s. Make sure the subject number matches!',subject,exper.eegFileExt,fullfile(dataroot,sesName,nsDir));
     elseif length(nsfile) > 1
       error('More than one %s*.%s file found in %s',subject,exper.eegFileExt,fullfile(dataroot,sesName,nsDir));
     elseif length(nsfile) == 1
