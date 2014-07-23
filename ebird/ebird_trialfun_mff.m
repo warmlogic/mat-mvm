@@ -88,11 +88,10 @@ if cfg.eventinfo.useMetadata
 %     %evtToleranceMS = cfg.eventinfo.evtToleranceMS;
 %     %evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
 %   end
-  
-  if ismember('expParam', md.types)
-    error('loading experimentParams.mat is not yet supported');
-  end
 end
+
+% TODO: check expParam for photodiode? maybe not, what if we don't want to
+% use it?
 
 % % read the types of triggers (flags) in the Net Station evt file
 % if ismember('nsEvt', md.types)
@@ -139,6 +138,8 @@ end
 %   end
 % end
 % ft_event = ft_event(ft_event_ind);
+
+% TODO: construct port number from expParam?
 
 ft_event_type = 'ECI_TCPIP_55513';
 ft_event = ft_event(ismember({ft_event.type},ft_event_type));
