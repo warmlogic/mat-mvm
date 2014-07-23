@@ -534,21 +534,24 @@ for ses = 1:length(session)
   
   %% Check on channel information
   
-  % check on whether we have the reference channel (we want to have it);
+  % grab data from all of the trials
+  trialData = cat(3,data_seg.trial{:});
+  
+  % check on whether we have the reference channel
   %
   % The channel files included with FieldTrip have 3 "extra" (fiduciary)
   % channels defined, so we need to also check using an extra 3 chans
   % subtracted off
-  if (nChan_data == nChan_elecfile - 1) || (nChan_data == nChan_elecfile - 4)
+  if (nChan_data == nChan_elecfile - 1) || (nChan_data == nChan_elecfile - 4) || ...
+      (strcmpi(exper.eegFileExt,'mff') && nChan_data == nChan_elecfile && strcmp(data_seg.label{refChanInd},'REF') && sum(var(trialData(refChanInd,:,:),0,2) ~= 0) == 0)
     % one less channel because we're checking to see if the reference
-    % channel is missing
+    % channel is missing; or MFF files has reference channel but it has
+    % zero variance
     
     %error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
     warning('This dataset is either not rereferenced or the reference channel was not exported. Let''s hope you are rereferencing in FieldTrip!');
-  elseif (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3)
+  elseif ~strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3)
     
-    % grab data from all of the trials
-    trialData = cat(3,data_seg.trial{:});
     % check the variance across time for the reference channel
     if sum(var(trialData(refChanInd,:,:),0,2) ~= 0) == 0
       % if none of trials have a non-zero variance reference channel, then
