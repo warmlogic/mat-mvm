@@ -11,7 +11,11 @@ end
 % get the header and event information
 fprintf('Reading flags from EEG file using FieldTrip...');
 ft_hdr = ft_read_header(cfg.dataset);
-ft_event = ft_read_event(cfg.dataset);
+tic
+% ft_event = ft_read_event(cfg.dataset);
+ft_event = load('~/Desktop/EBIRD010_mff_events.mat');
+ft_event = ft_event.e;
+toc
 fprintf('Done.\n');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,54 +48,7 @@ if cfg.eventinfo.useMetadata
       error('Cannot find experiment parameters file: %s\n',expParamFile)
     end
   end
-  
-%   if ismember('nsEvt', md.types)
-%     % read the file with information about all events
-%     evtDir = 'ns_evt';
-%     % find the evt file
-%     evtfile = dir(fullfile(md.dataroot,md.sesName,evtDir,[md.subject,'*.evt']));
-%     if isempty(evtfile)
-%       error('Cannot find %s*.evt file in %s',md.subject,fullfile(md.dataroot,md.sesName,evtDir));
-%     elseif length(evtfile) > 1
-%       error('More than one %s*.evt file found in %s',md.subject,fullfile(md.dataroot,md.sesName,evtDir));
-%     elseif length(evtfile) == 1
-%       evtfile = fullfile(md.dataroot,md.sesName,evtDir,evtfile.name);
-%     end
-%     fprintf('Reading evt file: %s...',evtfile);
-%     % figure out how many columns there are
-%     fid = fopen(evtfile,'r');
-%     maxNumCols = -Inf;
-%     while 1
-%       % get each line of the file
-%       tline = fgetl(fid);
-%       if ischar(tline)
-%         if strcmp(tline(end),sprintf('\t'))
-%           tline = tline(1:end-1);
-%         end
-%         % since it's tab delimited, split it and count the length
-%         numCols = length(regexp(tline,'\t','split'));
-%         % change the max number
-%         if numCols > maxNumCols
-%           maxNumCols = numCols;
-%         end
-%       else
-%         break
-%       end
-%     end
-%     fclose(fid);
-%     % read the evt file
-%     fid = fopen(evtfile,'r');
-%     ns_evt = textscan(fid,repmat('%s',1,maxNumCols),'Headerlines',3,'Delimiter','\t');
-%     fclose(fid);
-%     fprintf('Done.\n');
-%     
-%     %evtToleranceMS = cfg.eventinfo.evtToleranceMS;
-%     %evtToleranceSamp = ceil((cfg.eventinfo.evtToleranceMS / 1000) * ft_hdr.Fs);
-%   end
 end
-
-% TODO: check expParam for photodiode? maybe not, what if we don't want to
-% use it?
 
 % % read the types of triggers (flags) in the Net Station evt file
 % if ismember('nsEvt', md.types)
@@ -139,10 +96,7 @@ end
 % end
 % ft_event = ft_event(ft_event_ind);
 
-% TODO: construct port number from expParam?
-
-ft_event_type = 'ECI_TCPIP_55513';
-ft_event = ft_event(ismember({ft_event.type},ft_event_type));
+ft_event = ft_event(ismember({ft_event.type},cfg.trialdef.eventtype));
 
 % only keep the ft events with triggers
 ft_event = ft_event(ismember({ft_event.value},triggers));
@@ -183,7 +137,7 @@ for i = 1:length(ft_event)
     
     switch ft_event(i).value
       case 'STIM'
-        nKeys = length(ft_event(4).orig.keys);
+        nKeys = length(ft_event(i).orig.keys);
         
         % set column types because Net Station evt files can vary
         ns_evt_cols = {};
