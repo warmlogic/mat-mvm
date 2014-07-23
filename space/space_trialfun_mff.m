@@ -15,12 +15,20 @@ ft_hdr = ft_read_header(cfg.dataset);
 ftEventsFile = fullfile(pathstr,sprintf('%s_ftEvents.mat',name));
 if exist(ftEventsFile,'file')
   ft_event = load(ftEventsFile);
+  if isfield(ft_event,'date_string')
+    warning('Using pre-saved FT events from this date: %s!',ft_event.date_string);
+  else
+    warning('Using pre-saved FT events from an unknown date!');
+  end
   ft_event = ft_event.ft_event;
 else
   tic
   ft_event = ft_read_event(cfg.dataset);
   toc
-  save(ftEventsFile,'ft_event');
+  date_string = datestr(now);
+  fprintf('Saving FT events from MFF (current time: %s): %s...',date_string,ftEventsFile);
+  save(ftEventsFile,'ft_event','date_string');
+  fprintf('Done.\n');
 end
 fprintf('Done.\n');
 
