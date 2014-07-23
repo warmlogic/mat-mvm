@@ -50,18 +50,11 @@ if cfg.eventinfo.useMetadata
   end
 end
 
-% % read the types of triggers (flags) in the Net Station evt file
-% if ismember('nsEvt', md.types)
-%   triggers = unique(ns_evt{1});
-% else
-%   %warning('Need to set up %s to find trigger types!',mfilename);
-%   %keyboard
-  if cfg.eventinfo.usePhotodiodeDIN
-    triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', cfg.eventinfo.photodiodeDIN_str};
-  else
-    triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'};
-  end
-% end
+if cfg.eventinfo.usePhotodiodeDIN
+  triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND', cfg.eventinfo.photodiodeDIN_str};
+else
+  triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'};
+end
 
 % initialize the trl matrix
 trl = [];
