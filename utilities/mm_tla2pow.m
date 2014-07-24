@@ -37,7 +37,8 @@ if ~isfield(cfg_ana,'sampleRate')
   error('need to set cfg_ana.sampleRate for the sample rate of original data');
 end
 
-% probably not a good idea to use this option
+% not recommended to resample before calculating power because I don't know
+% how it will change the data
 if ~isfield(cfg_ana,'resample_tla')
   cfg_ana.resample_tla = false;
 else
@@ -192,9 +193,11 @@ for sub = 1:length(exper.subjects)
           error('Need to set frequency spacing (''log'' or ''lin'').');
         end
         
+        % set the number of samples
+        n_data = size(orig.(data_fn).trial,3);
+        
         if strcmp(cfg_ana.method,'wavelet_ndtools')
-          wobj = mkwobj('morl', size(orig.(data_fn).trial,3), sampleRate, 1./frequencies);
-          
+          wobj = mkwobj('morl', n_data, sampleRate, 1./frequencies);
         elseif strcmp(cfg_ana.method,'wavelet_ants')
           time = -1:1/sampleRate:1;
           half_of_wavelet_size = (length(time)-1)/2;
@@ -204,7 +207,6 @@ for sub = 1:length(exper.subjects)
           
           % FFT parameters (use next-power-of-2)
           n_wavelet     = length(time);
-          n_data        = size(orig.(data_fn).trial,3);
           n_convolution = n_wavelet+n_data-1;
           n_conv_pow2   = pow2(nextpow2(n_convolution));
           
@@ -299,7 +301,7 @@ for sub = 1:length(exper.subjects)
                   if strcmp(cfg_ana.method,'wavelet_ndtools')
                     % can process all channels inside qwave
                     q = qwave(squeeze(thisData(t,:,:)), wobj);
-                    tf_data(t,:,:,:) = abs(q.cfs(:,:,:,keepTime)).^2;
+                    tf_data(t,:,:,:) = abs(q.cfs(:,:,keepTime)).^2;
                   elseif strcmp(cfg_ana.method,'wavelet_ants')
                     for c = 1:size(tf_data,2)
                       % get each channel for each trial
@@ -505,7 +507,7 @@ for sub = 1:length(exper.subjects)
                 if strcmp(cfg_ana.method,'wavelet_ndtools')
                   % can process all channels inside qwave
                   q = qwave(squeeze(thisData(t,:,:)), wobj);
-                  tf_data(t,:,:,:) = abs(q.cfs(:,:,:,keepTime)).^2;
+                  tf_data(t,:,:,:) = abs(q.cfs(:,:,keepTime)).^2;
                 elseif strcmp(cfg_ana.method,'wavelet_ants')
                   for c = 1:size(tf_data,2)
                     % get each channel for each trial
@@ -607,7 +609,7 @@ for sub = 1:length(exper.subjects)
               if strcmp(cfg_ana.method,'wavelet_ndtools')
                 % can process all channels inside qwave
                 q = qwave(squeeze(thisData(t,:,:)), wobj);
-                tf_data(t,:,:,:) = abs(q.cfs(:,:,:,keepTime)).^2;
+                tf_data(t,:,:,:) = abs(q.cfs(:,:,keepTime)).^2;
               elseif strcmp(cfg_ana.method,'wavelet_ants')
                 for c = 1:size(tf_data,2)
                   % get each channel for each trial
