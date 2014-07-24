@@ -57,7 +57,7 @@ end
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
-  'SPACE001'; % low trial counts
+  %'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -73,9 +73,9 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
+  %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
-  'SPACE019'; % low trial counts
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
@@ -88,7 +88,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030'; % low trial counts
+  %'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -144,8 +144,12 @@ if cfg_ana.splitTrials
   end
 end
 
-cfg_ana.method = 'wavelet';
-cfg_ana.width = 5;
+% use ND tools
+cfg_ana.method = 'wavelet_ndtools';
+% % Use equations from Mike X Coehn's ANTS Chapter 18
+% cfg_ana.method = 'wavelet_ants';
+% % wavelet_cycles is only used with wavelet_ants
+% cfg_ana.wavelet_cycles = 6;
 
 % % spacing with powers of 2
 % cfg_ana.min_freq = 2;
