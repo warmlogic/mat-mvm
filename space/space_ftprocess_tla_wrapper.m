@@ -62,11 +62,11 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
 exper.subjects = {
 %   %'SPACE001'; % low trial counts
   'SPACE002';
-% %   'SPACE003';
-%   'SPACE004';
+  'SPACE003';
+  'SPACE004';
 %   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
+  'SPACE006';
+  'SPACE007';
 %   %'SPACE008'; % didn't perform task correctly, didn't perform well
 %   'SPACE009';
 %   'SPACE010';
@@ -92,7 +92,7 @@ exper.subjects = {
 %   'SPACE026';
 %   'SPACE028';
 %   %'SPACE030'; % low trial counts
-  'SPACE032';
+%   'SPACE032';
 %   'SPACE034';
 %   'SPACE047';
 %   'SPACE049';
