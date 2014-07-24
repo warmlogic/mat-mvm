@@ -163,9 +163,6 @@ cfg_ana.num_freq = 38;
 cfg_ana.freq_spacing = 'log';
 % cfg_ana.freq_spacing = 'lin';
 
-% not recommended to resample before calculating power
-cfg_ana.resample_tla = false;
-
 % resample after calculating power; saves disk space
 cfg_ana.resample_pow = true;
 cfg_ana.resampleRate_pow = 250/5;
