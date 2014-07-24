@@ -125,6 +125,15 @@ if ana.usePeer
       for evVal = 1:length(sesEvValues)
         exper.nTrials.(sesStr).(sesEvValues{evVal}) = exper.nTrials.(sesStr).(sesEvValues{evVal})(sub);
         exper.badEv.(sesStr).(sesEvValues{evVal}) = exper.badEv.(sesStr).(sesEvValues{evVal})(sub);
+        if ~isempty(artifacts)
+          artTypes = fieldnames(exper.artifacts.(sesStr).(sesEvValues{evVal}));
+          for at = 1:length(artTypes)
+            exper.artifacts.(sesStr).(sesEvValues{evVal}).(artTypes{at}) = exper.artifacts.(sesStr).(sesEvValues{evVal}).(artTypes{at})(sub);
+          end
+        end
+        if ana.useExpInfo && ~isempty(trialinfo_allEv)
+          exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal}) = exper.trialinfo_allEv.(sesStr).(sesEvValues{evVal})(sub);
+        end
       end
       %fn = fieldnames(exper.nTrials);
       %for f = 1:length(fn)
