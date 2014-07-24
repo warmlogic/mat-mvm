@@ -9,6 +9,23 @@ if nargin ~= 3
   error('Not the correct number of input arguments!');
 end
 
+if ~isfield(cfg_ana,'method') 
+  error('Must set cfg_ana.method to ''wavelet_ndtools'' or ''wavelet_ants''.');
+elseif isfield(cfg_ana,'method')
+  if isempty(cfg_ana.method)
+    error('Must set cfg_ana.method to ''wavelet_ndtools'' or ''wavelet_ants''.');
+  elseif ~ismember(cfg_ana.method,{'wavelet_ndtools','wavelet_ants'})
+    error('Must set cfg_ana.method to ''wavelet_ndtools'' or ''wavelet_ants''. You set it to: ''%s''.',cfg_ana.method);
+  elseif strcmp(cfg_ana.method,'wavelet_ants')
+    if isfield(cfg_ana,'wavelet_cycles') && ~isempty(cfg_ana.wavelet_cycles)
+      warning('cfg_ana.wavelet_cycles is only used with cfg_ana.method=''wavelet_ants''. Removing this field.');
+      cfg_ana = rmfield(cfg_ana,'wavelet_cycles');
+    end
+  elseif strcmp(cfg_ana.method,'wavelet_ndtools')
+    warning('Automatically using wavelet cycles = 6 because it is hardcoded in NDTools.');
+  end
+end
+
 if ~isfield(cfg_ana,'orig_ftype')
   cfg_ana.orig_ftype = 'tla';
 end
@@ -175,25 +192,29 @@ for sub = 1:length(exper.subjects)
           error('Need to set frequency spacing (''log'' or ''lin'').');
         end
         
-        time = -1:1/sampleRate:1;
-        half_of_wavelet_size = (length(time)-1)/2;
-        if mod(half_of_wavelet_size,1) ~= 0
-          error('half_of_wavelet_size=%.2f. Need to make it an integer. (This has to do with cfg_ana.sampleRate.)',half_of_wavelet_size);
-        end
-        
-        % FFT parameters (use next-power-of-2)
-        n_wavelet     = length(time);
-        n_data        = size(orig.(data_fn).trial,3);
-        n_convolution = n_wavelet+n_data-1;
-        n_conv_pow2   = pow2(nextpow2(n_convolution));
-        wavelet_cycles= cfg_ana.width;
-        
-        % create wavelet bank
-        fft_wavelet = zeros(length(frequencies),n_conv_pow2);
-        for fi=1:length(frequencies)
-          % create wavelet and get its FFT
-          wavelet = (pi*frequencies(fi)*sqrt(pi))^-.5 * exp(2*1i*pi*frequencies(fi).*time) .* exp(-time.^2./(2*( wavelet_cycles /(2*pi*frequencies(fi)))^2))/frequencies(fi);
-          fft_wavelet(fi,:) = fft(wavelet,n_conv_pow2);
+        if strcmp(cfg_ana.method,'wavelet_ndtools')
+          wobj = mkwobj('morl', size(orig.(data_fn).trial,3), sampleRate, 1./frequencies);
+          
+        elseif strcmp(cfg_ana.method,'wavelet_ants')
+          time = -1:1/sampleRate:1;
+          half_of_wavelet_size = (length(time)-1)/2;
+          if mod(half_of_wavelet_size,1) ~= 0
+            error('half_of_wavelet_size=%.2f. Need to make it an integer. (This has to do with cfg_ana.sampleRate.)',half_of_wavelet_size);
+          end
+          
+          % FFT parameters (use next-power-of-2)
+          n_wavelet     = length(time);
+          n_data        = size(orig.(data_fn).trial,3);
+          n_convolution = n_wavelet+n_data-1;
+          n_conv_pow2   = pow2(nextpow2(n_convolution));
+          
+          % create wavelet bank
+          fft_wavelet = zeros(length(frequencies),n_conv_pow2);
+          for fi=1:length(frequencies)
+            % create wavelet and get its FFT
+            wavelet = (pi*frequencies(fi)*sqrt(pi))^-.5 * exp(2*1i*pi*frequencies(fi).*time) .* exp(-time.^2./(2*( cfg_ana.wavelet_cycles /(2*pi*frequencies(fi)))^2))/frequencies(fi);
+            fft_wavelet(fi,:) = fft(wavelet,n_conv_pow2);
+          end
         end
         
         % find out about resampling power
@@ -275,36 +296,41 @@ for sub = 1:length(exper.subjects)
                 for t = 1:size(tf_data,1)
                   fprintf('.');
                   
-                  for c = 1:size(tf_data,2)
-                    % get each channel for each trial
-                    
-                    % result of squeeze(thisData(t,c,:)) needs to be a row vector
-                    
-                    % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
-                    % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
-                    
-                    % consolidate commands for speed
-                    convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
-                    
-                    convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-                    convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
-                    tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
-                    
-%                     % old slow for loop over frequencies
-%                     % FFT of data (note: this doesn't change on frequency iteration)
-%                     % result of squeeze(thisData(t,c,:)) needs to be a row vector
-%                     fft_data = fft(squeeze(thisData(t,c,:))',n_conv_pow2);
-%                     
-%                     for fi=1:length(frequencies)
-%                       % run convolution
-%                       convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
-%                       convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-%                       convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+                  if strcmp(cfg_ana.method,'wavelet_ndtools')
+                    % can process all channels inside qwave
+                    q = qwave(squeeze(thisData(t,:,:)), wobj);
+                    tf_data(t,:,:,:) = abs(q.cfs(:,:,:,keepTime)).^2;
+                  elseif strcmp(cfg_ana.method,'wavelet_ants')
+                    for c = 1:size(tf_data,2)
+                      % get each channel for each trial
+                      
+                      % result of squeeze(thisData(t,c,:)) needs to be a row vector
+                      
+                      % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
+                      % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
+                      
+                      % consolidate commands for speed
+                      convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
+                      
+                      convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+                      convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
+                      tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
+                      
+%                       % old slow for loop over frequencies
+%                       % FFT of data (note: this doesn't change on frequency iteration)
+%                       % result of squeeze(thisData(t,c,:)) needs to be a row vector
+%                       fft_data = fft(squeeze(thisData(t,c,:))',n_conv_pow2);
 %                       
-%                       % put power data into time-frequency matrix
-%                       tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
-%                     end
-                    
+%                       for fi=1:length(frequencies)
+%                         % run convolution
+%                         convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
+%                         convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+%                         convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+%                         
+%                         % put power data into time-frequency matrix
+%                         tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
+%                       end
+                    end
                   end
                 end
                 fprintf('\n');
@@ -333,7 +359,12 @@ for sub = 1:length(exper.subjects)
                   end
                 end
                 freq.dimord = 'rpt_chan_freq_time';
-                freq.freq = frequencies;
+                if strcmp(cfg_ana.method,'wavelet_ndtools')
+                  % store the center frequencies
+                  freq.freq = wobj.cF;
+                elseif strcmp(cfg_ana.method,'wavelet_ants')
+                  freq.freq = frequencies;
+                end
                 freq.time = freq.time(keepTime);
                 freq.(cfg_ana.out_param) = tf_data;
                 if isfield(freq,'trialinfo')
@@ -471,36 +502,41 @@ for sub = 1:length(exper.subjects)
               for t = 1:size(tf_data,1)
                 fprintf('.');
                 
-                for c = 1:size(tf_data,2)
-                  % get each channel for each trial
-                  
-                  % result of squeeze(thisData(t,c,:)) needs to be a row vector
-                  
-                  % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
-                  % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
-                  
-                  % consolidate commands for speed
-                  convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
-                  
-                  convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-                  convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
-                  tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
-                  
-%                   % old slow for loop over frequencies
-%                   % FFT of data (note: this doesn't change on frequency iteration)
-%                   % result of squeeze needs to be a row vector
-%                   fft_data = fft(squeeze(orig.(data_fn).trial(t,c,:))',n_conv_pow2);
-%                   
-%                   for fi=1:length(frequencies)
-%                     % run convolution
-%                     convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
-%                     convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-%                     convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+                if strcmp(cfg_ana.method,'wavelet_ndtools')
+                  % can process all channels inside qwave
+                  q = qwave(squeeze(thisData(t,:,:)), wobj);
+                  tf_data(t,:,:,:) = abs(q.cfs(:,:,:,keepTime)).^2;
+                elseif strcmp(cfg_ana.method,'wavelet_ants')
+                  for c = 1:size(tf_data,2)
+                    % get each channel for each trial
+                    
+                    % result of squeeze(thisData(t,c,:)) needs to be a row vector
+                    
+                    % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
+                    % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
+                    
+                    % consolidate commands for speed
+                    convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
+                    
+                    convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+                    convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
+                    tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
+                    
+%                     % old slow for loop over frequencies
+%                     % FFT of data (note: this doesn't change on frequency iteration)
+%                     % result of squeeze needs to be a row vector
+%                     fft_data = fft(squeeze(orig.(data_fn).trial(t,c,:))',n_conv_pow2);
 %                     
-%                     % put power data into time-frequency matrix
-%                     tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
-%                   end
-                  
+%                     for fi=1:length(frequencies)
+%                       % run convolution
+%                       convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
+%                       convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+%                       convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+%                       
+%                       % put power data into time-frequency matrix
+%                       tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
+%                     end
+                  end
                 end
               end
               fprintf('\n');
@@ -529,7 +565,12 @@ for sub = 1:length(exper.subjects)
                 end
               end
               freq.dimord = 'rpt_chan_freq_time';
-              freq.freq = frequencies;
+              if strcmp(cfg_ana.method,'wavelet_ndtools')
+                % store the center frequencies
+                freq.freq = wobj.cF;
+              elseif strcmp(cfg_ana.method,'wavelet_ants')
+                freq.freq = frequencies;
+              end
               freq.time = freq.time(keepTime);
               freq.(cfg_ana.out_param) = tf_data;
               
@@ -563,36 +604,41 @@ for sub = 1:length(exper.subjects)
             for t = 1:size(tf_data,1)
               fprintf('.');
               
-              for c = 1:size(tf_data,2)
-                % get each channel for each trial
-                
-                % result of squeeze(thisData(t,c,:)) needs to be a row vector
-                
-                % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
-                % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
-                
-                % consolidate commands for speed
-                convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
-                
-                convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-                convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
-                tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
-                
-%                 % old slow for loop over frequencies
-%                 % FFT of data (note: this doesn't change on frequency iteration)
-%                 % result of squeeze needs to be a row vector
-%                 fft_data = fft(squeeze(orig.(data_fn).trial(t,c,:))',n_conv_pow2);
-%                 
-%                 for fi=1:length(frequencies)
-%                   % run convolution
-%                   convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
-%                   convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
-%                   convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+              if strcmp(cfg_ana.method,'wavelet_ndtools')
+                % can process all channels inside qwave
+                q = qwave(squeeze(thisData(t,:,:)), wobj);
+                tf_data(t,:,:,:) = abs(q.cfs(:,:,:,keepTime)).^2;
+              elseif strcmp(cfg_ana.method,'wavelet_ants')
+                for c = 1:size(tf_data,2)
+                  % get each channel for each trial
+                  
+                  % result of squeeze(thisData(t,c,:)) needs to be a row vector
+                  
+                  % fft_data = repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1);
+                  % convolution_result_fft = ifft(fft_wavelet.*fft_data,n_conv_pow2,2);
+                  
+                  % consolidate commands for speed
+                  convolution_result_fft = ifft(fft_wavelet.*repmat(fft(squeeze(thisData(t,c,:))',n_conv_pow2),size(fft_wavelet,1),1),n_conv_pow2,2);
+                  
+                  convolution_result_fft = convolution_result_fft(:,1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+                  convolution_result_fft = convolution_result_fft(:,half_of_wavelet_size+1:end-half_of_wavelet_size);
+                  tf_data(t,c,:,:) = abs(convolution_result_fft(keepTime)).^2;
+                  
+%                   % old slow for loop over frequencies
+%                   % FFT of data (note: this doesn't change on frequency iteration)
+%                   % result of squeeze needs to be a row vector
+%                   fft_data = fft(squeeze(orig.(data_fn).trial(t,c,:))',n_conv_pow2);
 %                   
-%                   % put power data into time-frequency matrix
-%                   tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
-%                 end
-                
+%                   for fi=1:length(frequencies)
+%                     % run convolution
+%                     convolution_result_fft = ifft(fft_wavelet(fi,:).*fft_data,n_conv_pow2);
+%                     convolution_result_fft = convolution_result_fft(1:n_convolution); % note: here we remove the extra points from the power-of-2 FFT
+%                     convolution_result_fft = convolution_result_fft(half_of_wavelet_size+1:end-half_of_wavelet_size);
+%                     
+%                     % put power data into time-frequency matrix
+%                     tf_data(t,c,fi,:) = abs(convolution_result_fft(keepTime)).^2;
+%                   end
+                end
               end
             end
             fprintf('\n');
@@ -621,7 +667,12 @@ for sub = 1:length(exper.subjects)
               end
             end
             freq.dimord = 'rpt_chan_freq_time';
-            freq.freq = frequencies;
+            if strcmp(cfg_ana.method,'wavelet_ndtools')
+              % store the center frequencies
+              freq.freq = wobj.cF;
+            elseif strcmp(cfg_ana.method,'wavelet_ants')
+              freq.freq = frequencies;
+            end
             freq.time = freq.time(keepTime);
             freq.(cfg_ana.out_param) = tf_data;
             
