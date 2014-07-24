@@ -36,43 +36,43 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
-%   %'SPACE001'; % low trial counts
+  %'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
-%   'SPACE005';
+  'SPACE005';
   'SPACE006';
   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   %'SPACE019'; % low trial counts
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027'; % crazy DINs while session stopped
-%   'SPACE029';
-%   'SPACE037';
-%   'SPACE039'; % noisy EEG; original EEG analyses stopped here
-%   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   %'SPACE030'; % low trial counts
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
-%   'SPACE036';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  %'SPACE019'; % low trial counts
+  'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027'; % crazy DINs while session stopped
+  'SPACE029';
+  'SPACE037';
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  %'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
+  'SPACE036';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
