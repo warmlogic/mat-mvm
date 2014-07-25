@@ -601,7 +601,7 @@ if rejArt_nsClassic
     badChan_str = {};
   end
   
-  [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp);
+  [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,exper,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp);
 end
 
 %% visual artifact inspection (manual)
@@ -1634,8 +1634,8 @@ if rejArt_ftICA
     cfg_ica.method = 'runica';
     %cfg_ica.demean = 'no';
     
-    if ~isempty(ana.flatChans)
-      cfg_ica.channel = [{'all'}, ana.flatChans];
+    if ~isempty(ana.flatChan)
+      cfg_ica.channel = [{'all'}, ana.flatChan];
     else
       cfg_ica.channel = 'all';
     end
