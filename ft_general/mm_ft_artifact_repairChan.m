@@ -1,11 +1,20 @@
-function [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile)
+function [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile,contData,ylim,blocksize)
 
-vert_ylim = [-10 10];
+if nargin < 6
+  if strcmp(contData,'no')
+    blocksize = [];
+  elseif strcmp(contData,'yes')
+    blocksize = 30;
+  end
+  if nargin < 5
+    ylim = [];
+  end
+end
 
 cfgChannelRepair = [];
-cfgChannelRepair.continuous = 'no';
 cfgChannelRepair.elecfile = elecfile;
-%cfgChannelRepair.viewmode = 'butterfly';
+cfgChannelRepair.continuous = contData;
+cfgChannelRepair.blocksize = blocksize;
 
 % viewmode?
 repair_viewmode = [];
@@ -14,9 +23,18 @@ while isempty(repair_viewmode) || (repair_viewmode ~= 0 && repair_viewmode ~= 1)
 end
 if repair_viewmode
   cfgChannelRepair.viewmode = 'butterfly';
+  if ~isempty(ylim)
+    cfgChannelRepair.ylim = ylim;
+  else
+    cfgChannelRepair.ylim = [-200 200];
+  end
 else
   cfgChannelRepair.viewmode = 'vertical';
-  cfgChannelRepair.ylim = vert_ylim;
+  if ~isempty(ylim)
+    cfgChannelRepair.ylim = ylim;
+  else
+    cfgChannelRepair.ylim = [-10 10];
+  end
 end
 
 % subset?
