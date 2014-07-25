@@ -290,7 +290,8 @@ for ses = 1:length(session)
   cfg.continuous = ana.continuous;
   cfg.checksize = ana.checksize;
   
-  ana.flatChans = {};
+  ana.flatChan = {};
+  ana.flatRef = false;
   if strcmp(ana.continuous,'yes')
     % do some initial processing of raw data
     
@@ -368,14 +369,15 @@ for ses = 1:length(session)
     if any(flatChannel)
       fprintf('Done. Found %d flat channels:%s.\n.',sum(flatChannel),sprintf(repmat(' %s',1,length(data.label(flatChannel))),data.label{flatChannel}));
       flatChans = data.label(flatChannel)';
-      ana.flatChans = cell(1,sum(flatChannel));
+      ana.flatChan = cell(1,sum(flatChannel));
       for i = 1:length(flatChans)
-        ana.flatChans{i} = sprintf('-%s',flatChans{i});
+        ana.flatChan{i} = sprintf('-%s',flatChans{i});
       end
     else
       fprintf('Done. Found none.\n');
     end
     if ismember(exper.refChan,flatChans)
+      ana.flatRef = true;
       % MFF files has reference channel but it has zero variance
       warning('This dataset is not rereferenced (flat reference channel was included). Let''s hope you are rereferencing in FieldTrip!');
     end
@@ -449,8 +451,8 @@ for ses = 1:length(session)
       cfg_ica.method = 'runica';
       %cfg_ica.demean = 'no';
       
-      if ~isempty(ana.flatChans)
-        cfg_ica.channel = [{'all'}, ana.flatChans];
+      if ~isempty(ana.flatChan)
+        cfg_ica.channel = [{'all'}, ana.flatChan];
       else
         cfg_ica.channel = 'all';
       end
@@ -887,7 +889,7 @@ for ses = 1:length(session)
     
     %error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
     warning('This dataset is either not rereferenced or the reference channel was not exported. Let''s hope you are rereferencing in FieldTrip!');
-  elseif ~strcmpi(exper.eegFileExt,'mff') && strcmp(cfg.continuous,'no') && (nChan_data_seg == nChan_elecfile || nChan_data_seg == nChan_elecfile - 3)
+  elseif strcmp(cfg.continuous,'no') && ~strcmpi(exper.eegFileExt,'mff') && (nChan_data_seg == nChan_elecfile || nChan_data_seg == nChan_elecfile - 3)
     % grab data from all of the trials
     trialData = cat(3,data_seg.trial{:});
     
