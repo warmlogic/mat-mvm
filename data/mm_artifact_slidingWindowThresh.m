@@ -137,7 +137,7 @@ if ~ana.artifact.allowBadNeighborChan
   cfg_nb = [];
   % cfg_nb.method = 'triangulation';
   cfg_nb.method = 'distance';
-  cfg_nb.neighbourdist = 3;
+  cfg_nb.neighbourdist = 3.5;
   cfg_nb.elec = ana.elec;
   %if strcmp(cfg_ft.avgoverchan,'no')
   cfg_nb.neighbours = ft_prepare_neighbours(cfg_nb);
