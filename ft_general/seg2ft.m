@@ -262,6 +262,7 @@ for ses = 1:length(session)
   cfg.continuous = ana.continuous;
   cfg.checksize = ana.checksize;
   
+  ana.flatChans = {};
   if strcmp(ana.continuous,'yes')
     % do some initial processing of raw data
     
@@ -328,7 +329,133 @@ for ses = 1:length(session)
       end
     else
       fprintf('Done. Found none.\n');
-      ana.flatChans = {};
+    end
+    
+    if ana.artifact.continuousICA
+      rejArt_repair = [];
+      while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+        rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
+      end
+      if rejArt_repair
+        [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile);
+      end
+      
+      cfg_ica = [];
+      cfg_ica.method = 'runica';
+      %cfg_ica.demean = 'no';
+      
+      % grab data from all of the trials
+      %trialData = cat(3,data.trial{:});
+      
+      if ~isempty(ana.flatChans)
+        cfg_ica.channel = [{'all'}, ana.flatChans];
+      else
+        cfg_ica.channel = 'all';
+      end
+      
+      if ~isempty(badChan)
+        %       % Method 1: exclude repaired channels
+        %       %
+        %       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
+        %
+        %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+        %       ica_chanNum = 0;
+        %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+        %     else
+        %       ica_chanNum = [];
+        %       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+        %       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+        
+        % Method 2: run only on a given number of principle components
+        %
+        % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
+        %
+        % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
+        
+        fprintf('Determining rank of data...');
+        cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
+        fprintf('Done.\n');
+        
+        %fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+        %fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+        %fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+        %fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+        %fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+      end
+      
+      comp = ft_componentanalysis(cfg_ica,data);
+      
+      keepChoosingICAcomps = true;
+      while keepChoosingICAcomps
+        cfg_ica = [];
+        cfg_ica.viewmode = 'component';
+        cfg_ica.continuous = 'yes';
+        % number of seconds to display
+        cfg_ica.blocksize = 30;
+        %cfg_ica.blocksize = 10;
+        %cfg_ica.channels = 1:nComponents;
+        cfg_ica.plotlabels = 'yes';
+        cfg_ica.layout = elecfile;
+        cfg_ica.elecfile = elecfile;
+        %cfg_ica.ylim = vert_ylim;
+        ft_databrowser(cfg_ica,comp);
+        % bug when calling rejectartifact right after databrowser, pause first
+        pause(1);
+        
+        fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue_orig)),eventValue_orig{:}));
+        %fprintf('\n\nViewing the first %d components.\n',nComponents);
+        fprintf('ICA component browsing:\n');
+        fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
+        fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
+        fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
+        fprintf('\t2. Manually close the components window when finished browsing.\n');
+        
+        rej_comp = [];
+        while isempty(rej_comp) || (rej_comp ~= 0 && rej_comp ~= 1)
+          rej_comp = input('Were there components to reject? (1 or 0, then press ''return''):\n\n');
+        end
+        if rej_comp
+          % prompt the user for the component numbers to reject
+          componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'',\n\teven if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
+          
+          % reject the bad components
+          if ~isempty(componentsToReject)
+            cfg_ica = [];
+            cfg_ica.component = str2double(regexp(componentsToReject,'\d*','match')');
+            data = ft_rejectcomponent(cfg_ica, comp, data);
+          end
+        end
+        
+        cfg_browse = [];
+        
+        %cfg_browse.viewmode = 'butterfly';
+        cfg_browse.viewmode = 'vertical';
+        cfg_browse.continuous = 'no';
+        cfg_browse.elecfile = elecfile;
+        cfg_browse.plotlabels = 'some';
+        cfg_browse.ylim = [-10 10];
+        
+        fprintf('\nViewing continuous data.\n');
+        fprintf('\tUse arrows to move to next trial.\n');
+        if strcmp(cfg_browse.viewmode,'butterfly')
+          fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+        end
+        fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+        fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
+        
+        ft_databrowser(cfg_browse, data);
+        % bug when calling rejectartifact right after databrowser, pause first
+        pause(1);
+        
+        done_with_ica = [];
+        while isempty(done_with_ica) || (done_with_ica ~= 0 && done_with_ica ~= 1)
+          done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to redo ICA component rejection and rerun artifact detection. (1 or 0, then press ''return''):\n\n');
+        end
+        
+        if done_with_ica
+          keepChoosingICAcomps = false;
+        end
+      end
     end
   end
   
@@ -482,133 +609,6 @@ for ses = 1:length(session)
   if strcmp(cfg.continuous,'no')
     data_seg = ft_preprocessing(cfg);
   elseif strcmp(cfg.continuous,'yes')
-    if ana.artifact.continuousICA
-      rejArt_repair = [];
-      while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-        rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
-      end
-      if rejArt_repair
-        [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile);
-      end
-      
-      cfg_ica = [];
-      cfg_ica.method = 'runica';
-      %cfg_ica.demean = 'no';
-      
-      % grab data from all of the trials
-      %trialData = cat(3,data.trial{:});
-      
-      if ~isempty(ana.flatChans)
-        cfg_ica.channel = [{'all'}, ana.flatChans];
-      else
-        cfg_ica.channel = 'all';
-      end
-      
-      if ~isempty(badChan)
-        %       % Method 1: exclude repaired channels
-        %       %
-        %       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
-        %
-        %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-        %       ica_chanNum = 0;
-        %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-        %     else
-        %       ica_chanNum = [];
-        %       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-        %       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
-        
-        % Method 2: run only on a given number of principle components
-        %
-        % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
-        %
-        % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
-        
-        fprintf('Determining rank of data...');
-        cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
-        fprintf('Done.\n');
-        
-        %fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
-        %fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
-        %fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
-        %fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
-        %fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
-      end
-      
-      comp = ft_componentanalysis(cfg_ica,data);
-      
-      keepChoosingICAcomps = true;
-      while keepChoosingICAcomps
-        cfg_ica = [];
-        cfg_ica.viewmode = 'component';
-        cfg_ica.continuous = 'yes';
-        % number of seconds to display
-        cfg_ica.blocksize = 30;
-        %cfg_ica.blocksize = 10;
-        %cfg_ica.channels = 1:nComponents;
-        cfg_ica.plotlabels = 'yes';
-        cfg_ica.layout = elecfile;
-        cfg_ica.elecfile = elecfile;
-        %cfg_ica.ylim = vert_ylim;
-        ft_databrowser(cfg_ica,comp);
-        % bug when calling rejectartifact right after databrowser, pause first
-        pause(1);
-        
-        fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue_orig)),eventValue_orig{:}));
-        %fprintf('\n\nViewing the first %d components.\n',nComponents);
-        fprintf('ICA component browsing:\n');
-        fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
-        fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
-        fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
-        fprintf('\t2. Manually close the components window when finished browsing.\n');
-        
-        rej_comp = [];
-        while isempty(rej_comp) || (rej_comp ~= 0 && rej_comp ~= 1)
-          rej_comp = input('Were there components to reject? (1 or 0, then press ''return''):\n\n');
-        end
-        if rej_comp
-          % prompt the user for the component numbers to reject
-          componentsToReject = input(sprintf('\t3. Type component numbers to reject (on a single line) and press ''return'',\n\teven if these instructions move up due to output while browsing components (e.g., ''1, 4, 11'' without quotes):\n\n'),'s');
-          
-          % reject the bad components
-          if ~isempty(componentsToReject)
-            cfg_ica = [];
-            cfg_ica.component = str2double(regexp(componentsToReject,'\d*','match')');
-            data = ft_rejectcomponent(cfg_ica, comp, data);
-          end
-        end
-        
-        cfg_browse = [];
-        
-        %cfg_browse.viewmode = 'butterfly';
-        cfg_browse.viewmode = 'vertical';
-        cfg_browse.continuous = 'no';
-        cfg_browse.elecfile = elecfile;
-        cfg_browse.plotlabels = 'some';
-        cfg_browse.ylim = [-10 10];
-        
-        fprintf('\nViewing continuous data.\n');
-        fprintf('\tUse arrows to move to next trial.\n');
-        if strcmp(cfg_browse.viewmode,'butterfly')
-          fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
-        end
-        fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
-        fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
-        
-        ft_databrowser(cfg_browse, data);
-        % bug when calling rejectartifact right after databrowser, pause first
-        pause(1);
-        
-        done_with_ica = [];
-        while isempty(done_with_ica) || (done_with_ica ~= 0 && done_with_ica ~= 1)
-          done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to redo ICA component rejection and rerun artifact detection. (1 or 0, then press ''return''):\n\n');
-        end
-        
-        if done_with_ica
-          keepChoosingICAcomps = false;
-        end
-      end
-    end
-    
     data_seg = ft_redefinetrial(cfg, data);
   end
   
@@ -687,7 +687,8 @@ for ses = 1:length(session)
   % The channel files included with FieldTrip have 3 "extra" (fiduciary)
   % channels defined, so we need to also check using an extra 3 chans
   % subtracted off
-  if strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || (nChan_data == nChan_elecfile - 3)) && strcmp(data_seg.label{refChanInd},'REF') && ismember('REF',flatChans)
+  if strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || (nChan_data == nChan_elecfile - 3)) && ...
+      strcmp(data_seg.label{refChanInd},'REF') && ismember('REF',flatChans)
     % MFF files has reference channel but it has zero variance
     
 %     % save the current cfg
@@ -717,7 +718,7 @@ for ses = 1:length(session)
     trialData = cat(3,data_seg.trial{:});
     
     % check the variance across time for the reference channel
-    if sum(var(trialData(refChanInd,:,:),0,2) ~= 0) == 0
+    if sum(nanvar(trialData(refChanInd,:,:),0,2) ~= 0) == 0
       % if none of trials have a non-zero variance reference channel, then
       % it has not been rereferenced. Some trials may have zero variance
       % because of how bad trial rejection works in EP Toolkit (it zeros
