@@ -106,7 +106,7 @@ if ~isempty(ana.artifact.type)
   end
   if isfield(ana.artifact,'continuousICA')
     if ana.artifact.continuousICA
-      artStr = cat(2,'_continuousICA_',artStr);
+      artStr = cat(2,'continuousICA_',artStr);
     end
   end
   artStr = cat(2,'_art_',artStr);
