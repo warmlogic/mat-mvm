@@ -1,6 +1,6 @@
-function [data,fullyRepairChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
+function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 
-% function [data,fullyRepairChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
+% function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 %
 % Simulate Net Station's Artifact Detection Classic
 %
@@ -343,7 +343,11 @@ if ana.artifact.doNotRepairEyes
   fullyRepairChan(ismember(data.label,eyeChan)) = false;
 end
 % turn it into a cell array
-fullyRepairChan_str = cat(1,badChan_str,data.label(fullyRepairChan));
+fullyRepairChan_str = data.label(fullyRepairChan);
+% don't repair the reference channel
+if ismember(exper.refChan,fullyRepairChan_str)
+  fullyRepairChan_str = fullyRepairChan_str(~ismember(fullyRepairChan_str,exper.refChan));
+end
 
 % reject events with ana.artifact.rejectTrial_nBadChan or more bad channels
 if ana.artifact.rejectTrial_nBadChan > 0
@@ -495,6 +499,8 @@ if ~isempty(fullyRepairChan_str)
   fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
   data = ft_channelrepair(cfgChannelRepair, data);
   fprintf('Done.\n')
+  
+  badChan_str = cat(1,badChan_str,fullyRepairChan_str);
 end
 
 end
