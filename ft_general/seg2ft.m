@@ -197,6 +197,17 @@ end
 elec.label = ft_channelselection({'all','-Fid*'},elec.label);
 nChan_elecfile = size(elec.label,1);
 
+% find reference channel index
+if isnumeric(exper.refChan)
+  refChanInd = false(size(elec.label));
+  refChanInd(exper.refChan) = true;
+else
+  refChanInd = ismember(elec.label,exper.refChan);
+end
+if isempty(find(refChanInd,1))
+  error('Could not find reference channel.');
+end
+
 badChanAllSes = {};
 badEvAllSes = [];
 
@@ -252,7 +263,6 @@ for ses = 1:length(session)
   % hdr = ft_read_header(infile_ns,'dataformat',ftype,'headerformat',ftype);
   % data = ft_read_data(infile_ns,'dataformat',ftype,'headerformat',ftype);
   % event = ft_read_event(infile_ns,'eventformat',ftype,'dataformat',ftype,'headerformat',ftype);
-  
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Initial parameters for reading the data
@@ -319,6 +329,23 @@ for ses = 1:length(session)
     data = ft_preprocessing(cfg_cont);
     fprintf('Done.\n');
     
+    % find out how many channels are in the data
+    nChan_data = length(data.label);
+    
+    %% Check on channel information
+    
+    % check on whether we have the reference channel
+    %
+    % The channel files included with FieldTrip have 3 "extra" (fiduciary)
+    % channels defined, so we need to also check using an extra 3 chans
+    % subtracted off
+    if strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || (nChan_data == nChan_elecfile - 3)) && ...
+        strcmp(data.label{refChanInd},'REF')
+      warning('Renaming reference channel ''REF'' to ''%s'' so it matches the elecfile',exper.refChan);
+      % rename the ref channel so average reference puts data in chan Cz
+      data.label{refChanInd} = exper.refChan;
+    end
+    
     fprintf('Looking for flat channels...')
     flatChannel = false(size(data.trial{1},1),1);
     for i = 1:length(flatChannel)
@@ -336,8 +363,18 @@ for ses = 1:length(session)
     else
       fprintf('Done. Found none.\n');
     end
+    if ismember(exper.refChan,flatChans)
+      % MFF files has reference channel but it has zero variance
+      warning('This dataset is not rereferenced (flat reference channel was included). Let''s hope you are rereferencing in FieldTrip!');
+    end
+    
+    %% channel repair, data rejection, run ICA on continuous data
     
     if ana.artifact.continuousICA
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % Channel repair
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      
       rejArt_repair = [];
       while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
         rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
@@ -346,14 +383,20 @@ for ses = 1:length(session)
         [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
       end
       
-      cfg_manArt = [];
-      cfg_manArt.continuous = 'yes';
-      cfg_manArt.blocksize = 120;
-      %cfg_manArt.viewmode = 'butterfly';
-      cfg_manArt.viewmode = 'vertical';
-      cfg_manArt.elecfile = elecfile;
-      cfg_manArt.plotlabels = 'some';
-      cfg_manArt.ylim = [-100 100];
+%       % debug
+      load('~/Downloads/SPACE036/cfg_manArt.mat');
+%       cfg_manArt = [];
+%       cfg_manArt.continuous = 'yes';
+%       cfg_manArt.blocksize = 120;
+%       %cfg_manArt.viewmode = 'butterfly';
+%       cfg_manArt.viewmode = 'vertical';
+%       cfg_manArt.elecfile = elecfile;
+%       cfg_manArt.plotlabels = 'some';
+%       cfg_manArt.ylim = [-100 100];
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % Data rejection
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       % use cursor drag and click to mark artifacts;
       % use arrows to advance to next trial;
@@ -375,11 +418,16 @@ for ses = 1:length(session)
       pause(1);
       % rename the visual field
       if isfield(cfg_manArt.artfctdef,'visual')
-        cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
+%         % debug
+%         cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
         cfg_manArt.artfctdef = rmfield(cfg_manArt.artfctdef,'visual');
         cfg_manArt.artfctdef.reject = 'partial';
         data = ft_rejectartifact(cfg_manArt, data);
       end
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % ICA on continuous data
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       cfg_ica = [];
       cfg_ica.method = 'runica';
@@ -410,18 +458,21 @@ for ses = 1:length(session)
         %
         % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
         
-        fprintf('Determining rank of data...');
-        cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
-        fprintf('Done.\n');
+%         % debug
+%         fprintf('Determining rank of data...');
+%         cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
+%         fprintf('Done.\n');
         
-        %fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
-        %fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
-        %fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
-        %fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
-        %fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+        fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+        fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+        fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+        fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+        fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
       end
       
-      comp = ft_componentanalysis(cfg_ica,data);
+%       % debug
+      load('~/Downloads/SPACE036/comp.mat');
+%       comp = ft_componentanalysis(cfg_ica,data);
       
       keepChoosingICAcomps = true;
       while keepChoosingICAcomps
@@ -487,7 +538,7 @@ for ses = 1:length(session)
         
         done_with_ica = [];
         while isempty(done_with_ica) || (done_with_ica ~= 0 && done_with_ica ~= 1)
-          done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to redo ICA component rejection and rerun artifact detection. (1 or 0, then press ''return''):\n\n');
+          done_with_ica = input('\nAre you happy with your post-ICA results? 1 to move on to next step, 0 to redo ICA component rejection. (1 or 0, then press ''return''):\n\n');
         end
         
         if done_with_ica
@@ -653,7 +704,8 @@ for ses = 1:length(session)
     data_seg = ft_preprocessing(cfg);
   elseif strcmp(cfg.continuous,'yes')
     
-    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous')
+    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
+        isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
       % initialize to store whether there was an artifact for each trial
       if isempty(badEv)
         combineArtLists = false;
@@ -684,7 +736,8 @@ for ses = 1:length(session)
       
       % find out which samples were marked as artifacts
       if ~isempty(theseArt)
-        artSamp = false(max(cfg_manArt.artfctdef.(theseArt{i}).artifact(:)),length(theseArt));
+        %artSamp = false(max(cfg_manArt.artfctdef.(theseArt{i}).artifact(:)),length(theseArt));
+        artSamp = false(max(cfg_manArt.artfctdef.visual_continuous.artifact(:)),length(theseArt));
         for i = 1:length(theseArt)
           for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
             % mark that it was a particular type of artifact
@@ -740,10 +793,12 @@ for ses = 1:length(session)
       %cfg.trl = cfg.trl(~badEv,:);
     end
     
+    fprintf('Segmenting continuous data...');
     data_seg = ft_redefinetrial(cfg, data);
+    fprintf('Done.\n');
   end
   
-  % collect the event type numbers
+  % collect the event type numbers - do this with cfg  up above instead
   %allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo);
   
   % hack: renumber samples so they don't overlap, or throw an error
@@ -797,19 +852,8 @@ for ses = 1:length(session)
     fprintf('Done.\n');
   end
   
-  % find out how many channels are in the data
-  nChan_data = length(data_seg.label);
-
-  % find reference channel index
-  if isnumeric(exper.refChan)
-    refChanInd = false(size(elec.label));
-    refChanInd(exper.refChan) = true;
-  else
-    refChanInd = ismember(elec.label,exper.refChan);
-  end
-  if isempty(find(refChanInd,1))
-    error('Could not find reference channel.');
-  end
+  % find out how many channels are in the segmented data
+  nChan_data_seg = length(data_seg.label);
   
   %% Check on channel information
   
@@ -818,33 +862,13 @@ for ses = 1:length(session)
   % The channel files included with FieldTrip have 3 "extra" (fiduciary)
   % channels defined, so we need to also check using an extra 3 chans
   % subtracted off
-  if strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || (nChan_data == nChan_elecfile - 3)) && ...
-      strcmp(data_seg.label{refChanInd},'REF') && ismember('REF',flatChans)
-    % MFF files has reference channel but it has zero variance
-    
-%     % save the current cfg
-%     thisCfg = data_seg.cfg;
-%     
-%     % choose all channels except reference
-%     cfg_sel = [];
-%     cfg_sel.channel = [{'all'}, ana.flatChans];
-%     data_seg = ft_selectdata(cfg_sel,data_seg);
-%     
-%     % put cfg back
-%     data_seg.cfg = thisCfg;
-    
-    % rename the ref channel so average reference puts data in chan Cz
-    data_seg.label{refChanInd} = exper.refChan;
-    
-    %error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
-    warning('This dataset is either not rereferenced or the reference channel was not exported. Let''s hope you are rereferencing in FieldTrip!');
-  elseif (nChan_data == nChan_elecfile - 1) || (nChan_data == nChan_elecfile - 4)
+  if (nChan_data_seg == nChan_elecfile - 1) || (nChan_data_seg == nChan_elecfile - 4)
     % one less channel because we're checking to see if the reference
     % channel is missing
     
     %error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
     warning('This dataset is either not rereferenced or the reference channel was not exported. Let''s hope you are rereferencing in FieldTrip!');
-  elseif ~strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || nChan_data == nChan_elecfile - 3)
+  elseif ~strcmpi(exper.eegFileExt,'mff') && strcmp(cfg.continuous,'no') && (nChan_data_seg == nChan_elecfile || nChan_data_seg == nChan_elecfile - 3)
     % grab data from all of the trials
     trialData = cat(3,data_seg.trial{:});
     
@@ -870,9 +894,9 @@ for ses = 1:length(session)
       %
       % TODO: We now always want to use capital letters, so this should
       % probably be changed.
-      if strcmp(elec.label{ceil(nChan_data/2)}(1),'E')
+      if strcmp(elec.label{ceil(nChan_data_seg/2)}(1),'E')
         isCapital = 1;
-      elseif strcmp(elec.label{ceil(nChan_data/2)}(1),'e')
+      elseif strcmp(elec.label{ceil(nChan_data_seg/2)}(1),'e')
         isCapital = 0;
       else
         warning([mfilename,':electrodeCapitalization'],'There is no ''E'' or ''e'' at the start of the electrode number! Going with uppercase.')
@@ -881,7 +905,7 @@ for ses = 1:length(session)
       
       if isCapital
         % capitalize the E for each electrode, or add it in if it's not there
-        for c = 1:nChan_data
+        for c = 1:nChan_data_seg
           if strcmp(data_seg.label{c}(1),'e')
             data_seg.label{c} = upper(data_seg.label{c});
           elseif ~strcmp(data_seg.label{c}(1),'e') && ~strcmp(data_seg.label{c}(1),'E')
@@ -891,7 +915,7 @@ for ses = 1:length(session)
       elseif ~isCapital
         % make sure the e for each electrode is lowercase, or add it in if
         % it's not there
-        for c = 1:nChan_data
+        for c = 1:nChan_data_seg
           if strcmp(data_seg.label{c}(1),'E')
             data_seg.label{c} = lower(data_seg.label{c});
           elseif ~strcmp(data_seg.label{c}(1),'e') && ~strcmp(data_seg.label{c}(1),'E')
@@ -904,9 +928,9 @@ for ses = 1:length(session)
       % elec.label (e.g., instead of 'E129')
       if strcmp(elec.label{end},'Cz')
         if isCapital
-          lastChanStr = sprintf('E%d',nChan_data);
+          lastChanStr = sprintf('E%d',nChan_data_seg);
         elseif ~isCapital
-          lastChanStr = sprintf('e%d',nChan_data);
+          lastChanStr = sprintf('e%d',nChan_data_seg);
         end
         %lastChanStr = 'Cz';
         chanindx = find(strcmpi(data_seg.label,lastChanStr));
@@ -917,7 +941,7 @@ for ses = 1:length(session)
         end
       end
     end
-  else
+  elseif ~strcmpi(exper.eegFileExt,'mff')
     error('Not sure what to do about rereferencing!');
   end
   
@@ -931,6 +955,13 @@ for ses = 1:length(session)
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
+    
+    % make sure we get rid of those visual_continuous artifacts
+    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
+        isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
+      cfg_manArt.artfctdef.reject = 'complete';
+      data_seg = ft_rejectartifact(cfg_manArt, data_seg);
+    end
     
 %     if ~exist('artfctdefSampAllSes','var')
 %       artfctdefSampAllSes = artfctdefSamp;
