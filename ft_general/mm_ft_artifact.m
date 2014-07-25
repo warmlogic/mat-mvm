@@ -1,6 +1,6 @@
-function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs,badChan_str)
+function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 %MM_FT_ARTIFACT reject artifacts
-% [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs,badChan_str)
+% [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dataroot,subject,sesName,eventValue,ana,exper,elecfile,data,dirs,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 %
 % ana.artifact.type details are described in: SEG2FT, CREATE_FT_STRUCT
 %
@@ -15,13 +15,13 @@ function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_ft_artifact(dat
 
 badChan = [];
 % badChan_str = {};
-badEv = [];
+% badEv = [];
 
-artfctdefEv = struct;
-% maintain a list of all artifact types
-artfctdefEv.types = {};
+% artfctdefEv = struct;
+% % maintain a list of all artifact types
+% artfctdefEv.types = {};
 % maintain a list of samples where artifacts occurred
-artfctdefSamp = [];
+% artfctdefSamp = [];
 
 %% set the artifact processing parameters
 
@@ -452,7 +452,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
     end
     
     if rejArt_repair
-      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile);
+      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile,'no');
     else
       keepRepairingChannels = false;
     end
@@ -711,7 +711,7 @@ if rejArt_ftManual
     end
     
     if rejArt_repair
-      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile);
+      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile,'no');
     else
       keepRepairingChannels = false;
     end
@@ -750,7 +750,7 @@ if rejArt_ftManual
             end
             
             if rejArt_repair
-              [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile);
+              [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile,'no');
             else
               keepRepairingChannels = false;
             end
@@ -1205,7 +1205,7 @@ if rejArt_ftManual
     end
     
     if rejArt_repair
-      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile);
+      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile,'no');
     else
       keepRepairingChannels = false;
     end
@@ -1789,7 +1789,7 @@ if rejArt_ftICA
         end
         
         if rejArt_repair
-          [data_toCheckForArtifacts,badChan_str] = mm_ft_artifact_repairChan(data_toCheckForArtifacts,badChan_str,elecfile);
+          [data_toCheckForArtifacts,badChan_str] = mm_ft_artifact_repairChan(data_toCheckForArtifacts,badChan_str,elecfile,'no');
         else
           keepRepairingChannels = false;
         end
@@ -2202,7 +2202,7 @@ if rejArt_ftICA
     end
     
     if rejArt_repair
-      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile);
+      [data,badChan_str] = mm_ft_artifact_repairChan(data,badChan_str,elecfile,'no');
     else
       keepRepairingChannels = false;
     end
