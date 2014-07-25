@@ -135,7 +135,13 @@ else
   rejArt = false;
 end
 
+% initialize
 badChan = {};
+badEv = [];
+artfctdefEv = struct;
+% maintain a list of all artifact types
+artfctdefEv.types = {};
+artfctdefSamp = [];
 
 %% set up some processing parameters
 
@@ -337,15 +343,47 @@ for ses = 1:length(session)
         rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
       end
       if rejArt_repair
-        [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile);
+        [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
+      end
+      
+      cfg_manArt = [];
+      cfg_manArt.continuous = 'yes';
+      cfg_manArt.blocksize = 120;
+      %cfg_manArt.viewmode = 'butterfly';
+      cfg_manArt.viewmode = 'vertical';
+      cfg_manArt.elecfile = elecfile;
+      cfg_manArt.plotlabels = 'some';
+      cfg_manArt.ylim = [-100 100];
+      
+      % use cursor drag and click to mark artifacts;
+      % use arrows to advance to next trial;
+      % use the q key to quit the data browser
+      
+      % manual rejection
+      fprintf('Processing continuous data...\n');
+      fprintf('\n\nManual artifact rejection:\n');
+      fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
+      fprintf('\tUse arrows to move to next trial.\n');
+      if strcmp(cfg_manArt.viewmode,'butterfly')
+        fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
+      end
+      fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
+      fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
+      
+      cfg_manArt = ft_databrowser(cfg_manArt,data);
+      % bug when calling rejectartifact right after databrowser, pause first
+      pause(1);
+      % rename the visual field
+      if isfield(cfg_manArt.artfctdef,'visual')
+        cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
+        cfg_manArt.artfctdef = rmfield(cfg_manArt.artfctdef,'visual');
+        cfg_manArt.artfctdef.reject = 'partial';
+        data = ft_rejectartifact(cfg_manArt, data);
       end
       
       cfg_ica = [];
       cfg_ica.method = 'runica';
       %cfg_ica.demean = 'no';
-      
-      % grab data from all of the trials
-      %trialData = cat(3,data.trial{:});
       
       if ~isempty(ana.flatChans)
         cfg_ica.channel = [{'all'}, ana.flatChans];
@@ -397,7 +435,7 @@ for ses = 1:length(session)
         cfg_ica.plotlabels = 'yes';
         cfg_ica.layout = elecfile;
         cfg_ica.elecfile = elecfile;
-        %cfg_ica.ylim = vert_ylim;
+        cfg_ica.ylim = [-2000 2000];
         ft_databrowser(cfg_ica,comp);
         % bug when calling rejectartifact right after databrowser, pause first
         pause(1);
@@ -422,20 +460,20 @@ for ses = 1:length(session)
           if ~isempty(componentsToReject)
             cfg_ica = [];
             cfg_ica.component = str2double(regexp(componentsToReject,'\d*','match')');
-            data = ft_rejectcomponent(cfg_ica, comp, data);
+            data_ica_rej = ft_rejectcomponent(cfg_ica, comp, data);
           end
         end
         
         cfg_browse = [];
-        
         %cfg_browse.viewmode = 'butterfly';
         cfg_browse.viewmode = 'vertical';
-        cfg_browse.continuous = 'no';
+        cfg_browse.continuous = 'yes';
+        cfg_browse.blocksize = 30;
         cfg_browse.elecfile = elecfile;
         cfg_browse.plotlabels = 'some';
-        cfg_browse.ylim = [-10 10];
+        cfg_browse.ylim = [-100 100];
         
-        fprintf('\nViewing continuous data.\n');
+        fprintf('\nViewing continuous data...\n');
         fprintf('\tUse arrows to move to next trial.\n');
         if strcmp(cfg_browse.viewmode,'butterfly')
           fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
@@ -443,7 +481,7 @@ for ses = 1:length(session)
         fprintf('\tUse the ''q'' key to quit the data browser when finished.\n');
         fprintf('\tPress / (or any key besides q, t, i, h, c, v, or a number) to view the help screen.\n\n');
         
-        ft_databrowser(cfg_browse, data);
+        ft_databrowser(cfg_browse, data_ica_rej);
         % bug when calling rejectartifact right after databrowser, pause first
         pause(1);
         
@@ -454,6 +492,8 @@ for ses = 1:length(session)
         
         if done_with_ica
           keepChoosingICAcomps = false;
+          data = data_ica_rej;
+          clear data_ica_rej comp
         end
       end
     end
@@ -605,15 +645,106 @@ for ses = 1:length(session)
   
   %% Get the data and process it if necessary
   
+  % collect the event type numbers
+  allTrialinfo = cat(1,allTrialinfo,cfg.trl(4:end,:));
+  
   % get the actual data
   if strcmp(cfg.continuous,'no')
     data_seg = ft_preprocessing(cfg);
   elseif strcmp(cfg.continuous,'yes')
+    
+    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous')
+      % initialize to store whether there was an artifact for each trial
+      if isempty(badEv)
+        combineArtLists = false;
+        %badEv = [(1:size(data.sampleinfo,1))', zeros(size(data.sampleinfo,1), 1)];
+        badEv = false(size(cfg.trl,1), 1);
+      else
+        combineArtLists = true;
+      end
+      
+      % find out what kind of artifacts we're dealing with
+      fn = fieldnames(cfg_manArt.artfctdef);
+      theseArt = {};
+      for i = 1:length(fn)
+        if isstruct(cfg_manArt.artfctdef.(fn{i})) && isfield(cfg_manArt.artfctdef.(fn{i}),'artifact')
+          theseArt = cat(2,theseArt,fn{i});
+          if ~ismember(fn{i},artfctdefEv.types)
+            artfctdefEv.types = cat(2,artfctdefEv.types,fn{i});
+          else
+            warning('''%s'' is already in the artifact types, if you continue you will overwrite the previous artifact information for this type.',fn{i});
+            keyboard
+          end
+          artfctdefEv.(fn{i}) = false(size(badEv));
+        end
+      end
+      
+      % store artifacts for the only events we are checking
+      foundArtEv = false(size(cfg.trl,1),length(theseArt));
+      
+      % find out which samples were marked as artifacts
+      if ~isempty(theseArt)
+        artSamp = false(max(cfg_manArt.artfctdef.(theseArt{i}).artifact(:)),length(theseArt));
+        for i = 1:length(theseArt)
+          for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
+            % mark that it was a particular type of artifact
+            artSamp(cfg_manArt.artfctdef.(theseArt{i}).artifact(j,1):cfg_manArt.artfctdef.(theseArt{i}).artifact(j,2),ismember(theseArt,theseArt{i})) = true;
+          end
+        end
+        % save a list of trials with artifact status
+        for k = 1:size(cfg.trl,1)
+          if any(any(artSamp(cfg.trl(k,1):cfg.trl(k,2),:),1),2)
+            foundArtEv(k,any(artSamp(cfg.trl(k,1):cfg.trl(k,2),:),1)) = true;
+          end
+        end
+      end
+      
+      if combineArtLists
+        % put the new artifacts into the old list
+        rCount = 0;
+        for i = 1:size(badEv,1)
+          %if badEv(i,2) == 0
+          if badEv(i,1) == 0
+            rCount = rCount + 1;
+            if any(foundArtEv(rCount,:))
+              %badEv(i,2) = 1;
+              badEv(i,1) = 1;
+              setTheseArt = theseArt(foundArtEv(rCount,:));
+              for a = 1:length(setTheseArt)
+                artfctdefEv.(setTheseArt{a})(i) = true;
+              end
+            end
+          end
+        end
+        if ~isempty(theseArt)
+          if isempty(artfctdefSamp)
+            artfctdefSamp = cfg_manArt.artfctdef;
+          else
+            for i = 1:length(theseArt)
+              if isfield(artfctdefSamp,theseArt{i})
+                artfctdefSamp.(theseArt{i}).artifact = cat(1,artfctdefSamp.(theseArt{i}).artifact,cfg_manArt.artfctdef.(theseArt{i}).artifact);
+              else
+                artfctdefSamp.(theseArt{i}).artifact = cfg_manArt.artfctdef.(theseArt{i}).artifact;
+              end
+            end
+          end
+        end
+      else
+        badEv = logical(sum(foundArtEv,2));
+        artfctdefSamp = cfg_manArt.artfctdef;
+        for a = 1:length(theseArt)
+          artfctdefEv.(theseArt{a}) = foundArtEv(:,a);
+        end
+      end
+      
+      %cfg.trl = cfg.trl(~badEv,:);
+    end
+    
     data_seg = ft_redefinetrial(cfg, data);
   end
   
   % collect the event type numbers
-  allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo);
+  %allTrialinfo = cat(1,allTrialinfo,data_seg.trialinfo);
   
   % hack: renumber samples so they don't overlap, or throw an error
   overlap = false;
@@ -795,7 +926,7 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs,badChan);
+    [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs,badChan,badEv,artfctdefEv,artfctdefSamp);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
