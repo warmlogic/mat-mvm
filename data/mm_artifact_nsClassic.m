@@ -1,4 +1,4 @@
-function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
+function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,exper,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 
 % function [data,badChan_str,badEv,artfctdefEv,artfctdefSamp] = mm_artifact_nsClassic(data,ana,elecfile,badChan_str,badEv,artfctdefEv,artfctdefSamp)
 %
@@ -142,7 +142,7 @@ if ~ana.artifact.allowBadNeighborChan
   cfg_nb = [];
   % cfg_nb.method = 'triangulation';
   cfg_nb.method = 'distance';
-  cfg_nb.neighbourdist = 3;
+  cfg_nb.neighbourdist = 3.5;
   cfg_nb.elec = ana.elec;
   %if strcmp(cfg_ft.avgoverchan,'no')
   cfg_nb.neighbours = ft_prepare_neighbours(cfg_nb);
@@ -157,7 +157,12 @@ for tr = 1:nTrial
   slow = zeros(nChan,nSamp);
   
   % see if any channels had zero variance on this trial
-  foundDead(tr,:) = var(data.trial{tr},0,2) == 0;
+  if ana.flatRef
+    % assumes reference channel is at the end
+    foundDead(tr,:) = cat(1,var(data.trial{tr}(~ismember(data.label,exper.refChan),:),0,2) == 0,false);
+  else
+    foundDead(tr,:) = var(data.trial{tr},0,2) == 0;
+  end
   
   fast_start = 0;
   slow_start = mean(data.trial{tr}(:,tbeg:tbeg+10),2);
