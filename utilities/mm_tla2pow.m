@@ -498,6 +498,8 @@ for sub = 1:length(exper.subjects)
             if ~exist(outputFile_full,'file')
               fprintf('\tCalculating %s...\n',cfg_ana.out_param);
               
+              thisData = orig.(data_fn).trial;
+              
               % initialize output time-frequency data: trials, channels, freq, time
               tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),sum(keepTime));
               
@@ -599,6 +601,8 @@ for sub = 1:length(exper.subjects)
           % do the main output if it is not already calculated
           if ~exist(outputFile_full,'file')
             fprintf('\tCalculating %s...\n',cfg_ana.out_param);
+            
+            thisData = orig.(data_fn).trial;
             
             % initialize output time-frequency data: trials, channels, freq, time
             tf_data = zeros(size(orig.(data_fn).trial,1),size(orig.(data_fn).trial,2),length(frequencies),sum(keepTime));
