@@ -398,15 +398,15 @@ for ses = 1:length(session)
       end
       
 %       % debug
-      load('~/Downloads/SPACE036/cfg_manArt.mat');
-%       cfg_manArt = [];
-%       cfg_manArt.continuous = 'yes';
-%       cfg_manArt.blocksize = 120;
-%       %cfg_manArt.viewmode = 'butterfly';
-%       cfg_manArt.viewmode = 'vertical';
-%       cfg_manArt.elecfile = elecfile;
-%       cfg_manArt.plotlabels = 'some';
-%       cfg_manArt.ylim = [-100 100];
+%       load('~/Downloads/SPACE036/cfg_manArt.mat');
+      cfg_manArt = [];
+      cfg_manArt.continuous = 'yes';
+      cfg_manArt.blocksize = 120;
+      %cfg_manArt.viewmode = 'butterfly';
+      cfg_manArt.viewmode = 'vertical';
+      cfg_manArt.elecfile = elecfile;
+      cfg_manArt.plotlabels = 'some';
+      cfg_manArt.ylim = [-100 100];
     end
       
     if ana.artifact.continuousReject
@@ -434,8 +434,8 @@ for ses = 1:length(session)
       pause(1);
       % rename the visual field
       if isfield(cfg_manArt.artfctdef,'visual')
-%         % debug
-%         cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
+        % debug
+        cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
         cfg_manArt.artfctdef = rmfield(cfg_manArt.artfctdef,'visual');
         cfg_manArt.artfctdef.reject = 'partial';
         data = ft_rejectartifact(cfg_manArt, data);
@@ -477,20 +477,20 @@ for ses = 1:length(session)
         % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
         
 %         % debug
-%         fprintf('Determining rank of data...');
-%         cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
-%         fprintf('Done.\n');
-%         
-%         fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
-%         fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
-%         fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
-%         fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
-%         fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+        fprintf('Determining rank of data...');
+        cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
+        fprintf('Done.\n');
+        
+        fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+        fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+        fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+        fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+        fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
       end
       
 %       % debug
-      load('~/Downloads/SPACE036/comp.mat');
-%       comp = ft_componentanalysis(cfg_ica,data);
+%       load('~/Downloads/SPACE036/comp.mat');
+      comp = ft_componentanalysis(cfg_ica,data);
       
       keepChoosingICAcomps = true;
       while keepChoosingICAcomps
