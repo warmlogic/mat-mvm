@@ -542,11 +542,22 @@ for ses = 1:length(session)
   % The channel files included with FieldTrip have 3 "extra" (fiduciary)
   % channels defined, so we need to also check using an extra 3 chans
   % subtracted off
-  if (strcmpi(exper.eegFileExt,'mff') && nChan_data == nChan_elecfile && strcmp(data_seg.label{refChanInd},'REF') && sum(nanvar(trialData(refChanInd,:,:),0,2) ~= 0) == 0)
+  if (strcmpi(exper.eegFileExt,'mff') && (nChan_data == nChan_elecfile || (nChan_data == nChan_elecfile - 3)) && strcmp(data_seg.label{refChanInd},'REF') && sum(nanvar(trialData(refChanInd,:,:),0,2) ~= 0) == 0)
     % MFF files has reference channel but it has zero variance
     
-    % rename the ref channel so average reference puts data in chan 129
-    data_seg.label{refChanInd} = 'Cz';
+    % save the current cfg
+    thisCfg = data_seg.cfg;
+    
+    % choose all channels except reference
+    cfg_sel = [];
+    cfg_sel.channel = {'all','-REF'};
+    data_seg = ft_selectdata(cfg_sel,data_seg);
+    
+    % put cfg back
+    data_seg.cfg = thisCfg;
+    
+    % % rename the ref channel so average reference puts data in chan 129
+    % data_seg.label{refChanInd} = 'Cz';
     
     %error('This dataset is either not rereferenced or the reference channel was not exported. Go back and rereference or export the reference channel in Net Station before running this script!');
     warning('This dataset is either not rereferenced or the reference channel was not exported. Let''s hope you are rereferencing in FieldTrip!');
