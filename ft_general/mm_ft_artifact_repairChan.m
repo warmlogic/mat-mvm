@@ -70,7 +70,6 @@ if rejArt_repair_really
   cfgChannelRepair.channel = 'all';
   cfgChannelRepair.badchannel = badchannel;
   cfgChannelRepair.method = 'spline';
-  cfgChannelRepair.elecfile = elecfile;
   fprintf('Repairing channels%s using method=''%s''...\n',sprintf(repmat(' %s',1,length(cfgChannelRepair.badchannel)),cfgChannelRepair.badchannel{:}),cfgChannelRepair.method);
   data = ft_channelrepair(cfgChannelRepair, data);
 end
