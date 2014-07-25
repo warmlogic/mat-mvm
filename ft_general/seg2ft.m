@@ -135,6 +135,18 @@ else
   rejArt = false;
 end
 
+if strcmp(ana.continuous,'yes')
+  if ~isfield(ana.artifact,'continuousReject') || isempty(ana.artifact.continuousReject)
+    ana.artifact.continuousReject = false;
+  end
+  if ~isfield(ana.artifact,'continuousRepair') || isempty(ana.artifact.continuousRepair)
+    ana.artifact.continuousRepair = false;
+  end
+  if ~isfield(ana.artifact,'continuousICA') || isempty(ana.artifact.continuousICA)
+    ana.artifact.continuousICA = false;
+  end
+end
+
 % initialize
 badChan = {};
 badEv = [];
@@ -370,7 +382,7 @@ for ses = 1:length(session)
     
     %% channel repair, data rejection, run ICA on continuous data
     
-    if ana.artifact.continuousICA
+    if ana.artifact.continuousRepair
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % Channel repair
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -393,7 +405,9 @@ for ses = 1:length(session)
 %       cfg_manArt.elecfile = elecfile;
 %       cfg_manArt.plotlabels = 'some';
 %       cfg_manArt.ylim = [-100 100];
+    end
       
+    if ana.artifact.continuousReject
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % Data rejection
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -424,7 +438,9 @@ for ses = 1:length(session)
         cfg_manArt.artfctdef.reject = 'partial';
         data = ft_rejectartifact(cfg_manArt, data);
       end
+    end
       
+    if ana.artifact.continuousICA
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % ICA on continuous data
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,12 +478,12 @@ for ses = 1:length(session)
 %         fprintf('Determining rank of data...');
 %         cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
 %         fprintf('Done.\n');
-        
-        fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
-        fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
-        fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
-        fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
-        fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+%         
+%         fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+%         fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+%         fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+%         fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+%         fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
       end
       
 %       % debug
@@ -519,7 +535,7 @@ for ses = 1:length(session)
         %cfg_browse.viewmode = 'butterfly';
         cfg_browse.viewmode = 'vertical';
         cfg_browse.continuous = 'yes';
-        cfg_browse.blocksize = 30;
+        cfg_browse.blocksize = 120;
         cfg_browse.elecfile = elecfile;
         cfg_browse.plotlabels = 'some';
         cfg_browse.ylim = [-100 100];
@@ -796,6 +812,9 @@ for ses = 1:length(session)
     fprintf('Segmenting continuous data...');
     data_seg = ft_redefinetrial(cfg, data);
     fprintf('Done.\n');
+    
+    % save memory
+    clear data
   end
   
   % collect the event type numbers - do this with cfg  up above instead
@@ -950,15 +969,31 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
+    % save samples of visual_continuous artifacts (might have been
+    % renumbered)
+    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
+        isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
+      cfg_manArt.artfctdef.visual_continuous.artifact = data_seg.sampleinfo(badEv,:);
+    end
+    
+    % detect/reject other artifacts
     [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs,badChan,badEv,artfctdefEv,artfctdefSamp);
     badChanAllSes = unique(cat(1,badChanAllSes,badChan));
     % Concatenate sessions together if they're getting combined (appended).
     % Otherwise cat() won't make any difference.
     badEvAllSes = cat(1,badEvAllSes,badEv);
     
+%     foundArt = false(size(badEv));
+%     for i = 1:length(artfctdefEv.types)
+%       if ~strcmp(artfctdefEv.types{i},'visual_continuous')
+%         foundArt = logical(foundArt + artfctdefEv.(artfctdefEv.types{i}));
+%       end
+%     end
+    
     % make sure we get rid of those visual_continuous artifacts
     if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
         isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
+        
       cfg_manArt.artfctdef.reject = 'complete';
       data_seg = ft_rejectartifact(cfg_manArt, data_seg);
     end
