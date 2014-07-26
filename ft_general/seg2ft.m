@@ -389,13 +389,24 @@ for ses = 1:length(session)
       % Channel repair
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      rejArt_repair = [];
-      while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-        rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
+      keepRepairingChannels = true;
+      while keepRepairingChannels
+        rejArt_repair = [];
+        while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+          rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
+        end
+        if rejArt_repair
+          [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
+        else
+          keepRepairingChannels = false;
+        end
       end
-      if rejArt_repair
-        [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
-      end
+    end
+      
+    if ana.artifact.continuousReject
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % Data rejection
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       cfg_manArt = [];
       cfg_manArt.continuous = 'yes';
@@ -405,12 +416,6 @@ for ses = 1:length(session)
       cfg_manArt.elecfile = elecfile;
       cfg_manArt.plotlabels = 'some';
       cfg_manArt.ylim = [-100 100];
-    end
-      
-    if ana.artifact.continuousReject
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      % Data rejection
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       % use cursor drag and click to mark artifacts;
       % use arrows to advance to next trial;
@@ -494,7 +499,7 @@ for ses = 1:length(session)
         cfg_ica.plotlabels = 'yes';
         cfg_ica.layout = elecfile;
         cfg_ica.elecfile = elecfile;
-        cfg_ica.ylim = [-2000 2000];
+        cfg_ica.ylim = [-1500 1500];
         ft_databrowser(cfg_ica,comp);
         % bug when calling rejectartifact right after databrowser, pause first
         pause(1);
