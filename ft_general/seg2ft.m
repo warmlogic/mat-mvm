@@ -397,8 +397,6 @@ for ses = 1:length(session)
         [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
       end
       
-%       % debug
-%       load('~/Downloads/SPACE036/cfg_manArt.mat');
       cfg_manArt = [];
       cfg_manArt.continuous = 'yes';
       cfg_manArt.blocksize = 120;
@@ -434,7 +432,6 @@ for ses = 1:length(session)
       pause(1);
       % rename the visual field
       if isfield(cfg_manArt.artfctdef,'visual')
-        % debug
         cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
         cfg_manArt.artfctdef = rmfield(cfg_manArt.artfctdef,'visual');
         cfg_manArt.artfctdef.reject = 'partial';
@@ -451,11 +448,7 @@ for ses = 1:length(session)
       cfg_ica.method = 'runica';
       %cfg_ica.demean = 'no';
       
-      if ~isempty(ana.flatChan)
-        cfg_ica.channel = [{'all'}, ana.flatChan];
-      else
-        cfg_ica.channel = 'all';
-      end
+      cfg_ica.channel = [{'all'}, ana.flatChan];
       
       if ~isempty(badChan)
         %       % Method 1: exclude repaired channels
@@ -476,7 +469,6 @@ for ses = 1:length(session)
         %
         % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
         
-%         % debug
         fprintf('Determining rank of data...');
         cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
         fprintf('Done.\n');
@@ -488,8 +480,6 @@ for ses = 1:length(session)
         fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
       end
       
-%       % debug
-%       load('~/Downloads/SPACE036/comp.mat');
       comp = ft_componentanalysis(cfg_ica,data);
       
       keepChoosingICAcomps = true;
@@ -715,7 +705,7 @@ for ses = 1:length(session)
   %% Get the data and process it if necessary
   
   % collect the event type numbers
-  allTrialinfo = cat(1,allTrialinfo,cfg.trl(4:end,:));
+  allTrialinfo = cat(1,allTrialinfo,cfg.trl(:,4:end));
   
   % get the actual data
   if strcmp(cfg.continuous,'no')
@@ -808,7 +798,11 @@ for ses = 1:length(session)
         end
       end
       
-      %cfg.trl = cfg.trl(~badEv,:);
+      if any(badEv)
+        % remove trials from rejected regions
+        fprintf('Removing %d trials from rejected data regions.\n',sum(badEv));
+        cfg.trl = cfg.trl(~badEv,:);
+      end
     end
     
     fprintf('Segmenting continuous data...');
@@ -971,12 +965,12 @@ for ses = 1:length(session)
   if ~rejArt
     fprintf('Not performing any artifact rejection.\n');
   else
-    % save samples of visual_continuous artifacts (might have been
-    % renumbered)
-    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
-        isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
-      cfg_manArt.artfctdef.visual_continuous.artifact = data_seg.sampleinfo(badEv,:);
-    end
+%     % save samples of visual_continuous artifacts (might have been
+%     % renumbered)
+%     if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
+%         isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
+%       cfg_manArt.artfctdef.visual_continuous.artifact = data_seg.sampleinfo(badEv,:);
+%     end
     
     % detect/reject other artifacts
     [data_seg,badChan,badEv,artfctdefEv] = mm_ft_artifact(dataroot,subject,sesName,eventValue_orig,ana,exper,elecfile,data_seg,dirs,badChan,badEv,artfctdefEv,artfctdefSamp);
@@ -992,13 +986,13 @@ for ses = 1:length(session)
 %       end
 %     end
     
-    % make sure we get rid of those visual_continuous artifacts
-    if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
-        isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
-        
-      cfg_manArt.artfctdef.reject = 'complete';
-      data_seg = ft_rejectartifact(cfg_manArt, data_seg);
-    end
+%     % make sure we get rid of those visual_continuous artifacts
+%     if exist('cfg_manArt','var') && isfield(cfg_manArt.artfctdef,'visual_continuous') && ...
+%         isfield(cfg_manArt.artfctdef.visual_continuous,'artifact') && ~isempty(cfg_manArt.artfctdef.visual_continuous.artifact)
+%         
+%       cfg_manArt.artfctdef.reject = 'complete';
+%       data_seg = ft_rejectartifact(cfg_manArt, data_seg);
+%     end
     
 %     if ~exist('artfctdefSampAllSes','var')
 %       artfctdefSampAllSes = artfctdefSamp;
