@@ -510,6 +510,7 @@ if (rejArt_nsAuto || rejArt_zeroVar) && rejArt_preRejManual
         foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
+    clear artSamp
   end
   
   if combineArtLists
@@ -1157,6 +1158,7 @@ if rejArt_ftManual
         foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
+    clear artSamp
   end
   
   if combineArtLists
@@ -1511,6 +1513,7 @@ if rejArt_ftAuto
         foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
+    clear artSamp
   end
   
   if combineArtLists
@@ -2164,6 +2167,7 @@ if rejArt_ftICA
         foundArtEv(k,any(artSamp(data.sampleinfo(k,1):data.sampleinfo(k,2),:),1)) = true;
       end
     end
+    clear artSamp
   end
   
   if combineArtLists
