@@ -72,7 +72,7 @@ exper.subjects = {
 %   'SPACE034';
 %   'SPACE047';
 %   'SPACE049';
-  'SPACE036';
+%   'SPACE036';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -257,8 +257,8 @@ ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 
 
 % set up for ftManual/ftAuto
-ana.artifact.type = {'ftManual'};
-% ana.artifact.type = {'ftAuto'};
+% ana.artifact.type = {'ftManual'};
+ana.artifact.type = {'ftAuto'};
 ana.artifact.resumeManArtFT = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts.
 % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
