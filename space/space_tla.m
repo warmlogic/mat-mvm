@@ -11,16 +11,12 @@ localDir = fullfile(getenv('HOME'),'data');
 % pick the right dataroot
 if exist('serverDir','var') && exist(serverDir,'dir')
   dataroot = serverDir;
-  %runLocally = 1;
 elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
   dataroot = serverLocalDir;
-  %runLocally = 1;
 elseif exist('dreamDir','var') && exist(dreamDir,'dir')
   dataroot = dreamDir;
-  %runLocally = 0;
 elseif exist('localDir','var') && exist(localDir,'dir')
   dataroot = localDir;
-  %runLocally = 1;
 else
   error('Data directory not found.');
 end
@@ -32,42 +28,42 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistu
 % procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftManual/tla');
 
 subjects = {
-%   %'SPACE001'; % low trial counts
-%   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   %'SPACE019'; % low trial counts
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
-%   'SPACE037';
-%   'SPACE039'; % noisy EEG; original EEG analyses stopped here
-%   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   %'SPACE030'; % low trial counts
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
+  %'SPACE001'; % low trial counts
+  'SPACE002';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  %'SPACE019'; % low trial counts
+  'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
+  'SPACE037';
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  %'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
   'SPACE036';
   };
 
@@ -306,12 +302,42 @@ save(fullfile(saveDir,'space_word_img_data_tla.mat'),'data_tla','exper','ana','d
 
 %% load
 
+subDir = '';
+dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+else
+  error('Data directory not found.');
+end
+
+% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_nsClassic/tla');
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftManual/tla');
+
 % loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+
 % load(fullfile(loadDir,'space_word_img_data_ga_tla.mat'));
 load(fullfile(loadDir,'space_word_img_data_tla.mat'));
 
-[dirs] = mm_checkDirs(dirs);
+replaceDataType = {};
+
+[dirs] = mm_checkDirs(dirs,replaceDataType,subDir);
 
 %% decide who to kick out based on trial counts
 
