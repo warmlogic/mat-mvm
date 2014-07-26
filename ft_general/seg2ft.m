@@ -744,8 +744,7 @@ for ses = 1:length(session)
       
       % find out which samples were marked as artifacts
       if ~isempty(theseArt)
-        %artSamp = false(max(cfg_manArt.artfctdef.(theseArt{i}).artifact(:)),length(theseArt));
-        artSamp = false(max(cfg_manArt.artfctdef.visual_continuous.artifact(:)),length(theseArt));
+        artSamp = false(cfg.trl(end,2),length(theseArt));
         for i = 1:length(theseArt)
           for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
             % mark that it was a particular type of artifact
@@ -758,6 +757,7 @@ for ses = 1:length(session)
             foundArtEv(k,any(artSamp(cfg.trl(k,1):cfg.trl(k,2),:),1)) = true;
           end
         end
+        clear artSamp
       end
       
       if combineArtLists
