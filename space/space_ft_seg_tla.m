@@ -179,21 +179,22 @@ ana.artifact.continuousICA = true;
 ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 
-% ana.artifact.type = {'nsClassic','ftAuto'};
-ana.artifact.type = {'nsClassic'};
+% % ana.artifact.type = {'nsClassic','ftAuto'};
+% ana.artifact.type = {'nsClassic'};
+% 
+% % set up for nsClassic
+% ana.artifact.checkArtSec = [0 1.0];
+% % ana.artifact.blink_threshold = 70;
+% % ana.artifact.fast_threshold = 100;
+% % ana.artifact.diff_threshold = 50;
+% ana.artifact.blink_threshold = 40;
+% ana.artifact.fast_threshold = 70;
+% ana.artifact.diff_threshold = 40;
+% ana.artifact.rejectTrial_nBadChan = 10;
+% ana.artifact.repairChan_percentBadTrials = 20;
+% ana.artifact.allowBadNeighborChan = false;
 
-% set up for nsClassic
-ana.artifact.checkArtSec = [0 1.0];
-% ana.artifact.blink_threshold = 70;
-% ana.artifact.fast_threshold = 100;
-% ana.artifact.diff_threshold = 50;
-ana.artifact.blink_threshold = 40;
-ana.artifact.fast_threshold = 70;
-ana.artifact.diff_threshold = 40;
-ana.artifact.rejectTrial_nBadChan = 10;
-ana.artifact.repairChan_percentBadTrials = 20;
-ana.artifact.allowBadNeighborChan = false;
-
+% ana.artifact.type = {'ftAuto'};
 % % set up for ftAuto following nsClassic
 % % negative trlpadding: don't check that time (on both sides) for artifacts.
 % % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
@@ -204,9 +205,9 @@ ana.artifact.allowBadNeighborChan = false;
 % ana.artifact.fltpadding = 0;
 % 
 % ana.artifact.thresh = true;
-% ana.artifact.threshmin = -150;
-% ana.artifact.threshmax = 150;
-% ana.artifact.threshrange = 250;
+% ana.artifact.threshmin = -100;
+% ana.artifact.threshmax = 100;
+% ana.artifact.threshrange = 150;
 % ana.artifact.basic_art = true;
 % ana.artifact.basic_art_z = 30;
 % ana.artifact.jump_art = true;
@@ -254,30 +255,32 @@ ana.artifact.allowBadNeighborChan = false;
 % ana.artifact.jump_art_postICA = true;
 % ana.artifact.jump_art_z_postICA = 50;
 
-% % set up for ftManual/ftAuto
-% ana.artifact.type = {'ftManual'};
-% % ana.artifact.type = {'ftAuto'};
-% ana.artifact.resumeManArtFT = false;
-% % negative trlpadding: don't check that time (on both sides) for artifacts.
-% % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
-% % of extra time around trial epochs. Otherwise set to zero.
-% ana.artifact.trlpadding = -0.7;
-% % ana.artifact.trlpadding = 0;
-% ana.artifact.artpadding = 0.1;
-% ana.artifact.fltpadding = 0;
-% 
-% % set up for ftAuto after continuous ICA rejection
-% ana.artifact.thresh = true;
-% ana.artifact.threshmin = -100;
-% ana.artifact.threshmax = 100;
-% ana.artifact.threshrange = 150;
-% ana.artifact.basic_art = false;
-% ana.artifact.basic_art_z = 30;
-% ana.artifact.jump_art = false;
-% ana.artifact.jump_art_z = 50;
-% % % eog_art is only used with ftAuto
-% % ana.artifact.eog_art = false;
-% % ana.artifact.eog_art_z = 3.5;
+
+% set up for ftManual/ftAuto
+ana.artifact.type = {'ftManual'};
+% ana.artifact.type = {'ftAuto'};
+ana.artifact.resumeManArtFT = false;
+% negative trlpadding: don't check that time (on both sides) for artifacts.
+% IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
+% of extra time around trial epochs. Otherwise set to zero.
+ana.artifact.trlpadding = -1.0;
+% ana.artifact.trlpadding = 0;
+ana.artifact.artpadding = 0.1;
+ana.artifact.fltpadding = 0;
+
+% set up for ftAuto after continuous ICA rejection
+ana.artifact.checkAllChan = true;
+ana.artifact.thresh = true;
+ana.artifact.threshmin = -100;
+ana.artifact.threshmax = 100;
+ana.artifact.threshrange = 150;
+ana.artifact.basic_art = true;
+ana.artifact.basic_art_z = 40;
+ana.artifact.jump_art = true;
+ana.artifact.jump_art_z = 50;
+% % eog_art is only used with ftAuto
+% ana.artifact.eog_art = false;
+% ana.artifact.eog_art_z = 3.5;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
