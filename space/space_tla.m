@@ -27,8 +27,9 @@ end
 
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 % procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
-% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_nsClassic/tla');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_nsClassic/tla');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftManual/tla');
 
 subjects = {
 %   %'SPACE001'; % low trial counts
@@ -346,7 +347,7 @@ cfg_ft.showlabels = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.showoutline = 'yes';
 cfg_ft.fontsize = 9;
-cfg_ft.ylim = [-15 15];
+cfg_ft.ylim = [-10 10];
 cfg_ft.layout = ft_prepare_layout([],ana);
 sub = 1;
 ses = 1;
@@ -359,13 +360,19 @@ for typ = 1:length(ana.eventValues{ses})
 end
 
 % cfg_ft = [];
-% cfg_ft.channel = {'E20'};
+% % cfg_ft.channel = {'E70'};
+% cfg_ft.channel = {'E83'};
 % %cfg_ft.linewidth = 2;
 % cfg_ft.graphcolor = 'rbk';
 % %cfg_ft.linestyle = {'-','--','-.'};
 % cfg_ft.xlim = [-0.2 1.0];
+% sub = 1;
+% ses = 1;
+% typ = 1;
+% ev = 1;
+% ev2 = 2;
 % figure
-% ft_singleplotER(cfg_ft,data_tla.(ana.eventValues{1}{1}).sub(1).ses(1).data,data_tla.(ana.eventValues{1}{2}).sub(1).ses(1).data);
+% ft_singleplotER(cfg_ft,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{ev}).sub(sub).data,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{ev2}).sub(sub).data);
 
 % cfg_ft = [];
 % cfg_ft.channel = {'E20'};
