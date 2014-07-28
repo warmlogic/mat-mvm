@@ -16,14 +16,15 @@ spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
 memConds = {'rc','fo'};
 
-% erpComponents = {'LPC','N400','N2'};
-erpComponents = {'N2'};
+erpComponents = {'LPC','N400','N2'};
+% erpComponents = {'N2'};
 
 % % % make sure roi has the same length as erpComponents
 % % roi = {{{'Pz'}},{{'Cz'}},{{'E69','E89'}}}; % near O1, O2
+roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'C'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
 % roi = {{{'Pz'}},{{'Cz'}},{{'E58','E96'}}};
 % roi = {{{'E69','E89'}}};
-roi = {{{'E58','E96'}}};
+% roi = {{{'E58','E96'}}};
 
 % roi = {{{'LPI2','RPI2'}}};
 
@@ -31,14 +32,14 @@ if length(erpComponents) ~= length(roi)
   error('roi must have the same length as erpComponents');
 end
 
-lpcPeak = 0.600;
+lpcPeak = 0.588;
 n400Peak = 0.360;
+n2Peak = 0.172;
 %cfg.roi = {'E70', 'E83'}; % O1, O2
 % cfg.roi = {'E69', 'E89'}; % Near O1, O2
 % cfg.roi = {'LPI2','RPI2'}; % includes T5, T6, O1, O2
 % n2Peak = 0.168;
 %cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
-n2Peak = 0.176;
 
 for sp = 1:length(spacings)
   
@@ -81,52 +82,23 @@ for sp = 1:length(spacings)
           if strcmp(erpComponents{er},'LPC')
             % LPC
             cfg.order = 'descend'; % descend = positive peaks first
-            % cfg.latency = [0.4 0.8];
             %cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
             cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
           elseif strcmp(erpComponents{er},'N400')
             % N400
             cfg.order = 'ascend'; % ascend = negative peaks first
-            % cfg.latency = [0.2 0.6];
             %cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
             cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
           elseif strcmp(erpComponents{er},'N2')
             cfg.order = 'ascend'; % ascend = negative peaks first
-            %cfg.roi = {'E70', 'E83'}; % O1, O2
-            %cfg.roi = {'E69', 'E89'}; % Near O1, O2
-            %n2Peak = 0.168;
-            %cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
-            %n2Peak = 0.176;
             cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
             %cfg.latency = [n2Peak-0.1 n2Peak+0.1]; % around GA peak (space+mass) +/- 100
           end
-          
-          % % average across time window
-          %cfg.datadim = 'elec';
-          % cfg.roi = {'center101'};
-          % % cfg.roi = {'PS2'};
-          % % cfg.roi = {'LPI3','RPI3'};
-          % cfg.latency = [0.4 0.8]; % LPC
-          % % % cfg.latency = [0.3 0.5]; % N400
-          % % % cfg.latency = [0.35 0.45]; % N400
-          % % cfg.latency = [0.314 0.414]; % N400
           
           % % average across electrodes
           cfg.datadim = 'time';
           % and time points
           cfg.avgovertime = true;
-          
-          % % cfg.roi = {'Cz'};
-          % % cfg.roi = {'LPI3','RPI3'};
-          % % cfg.roi = {'Pz'};
-          % % cfg.roi = {'PS2'};
-          % % cfg.roi = {'RPI3'};
-          % % cfg.roi = {'E84'}; % center of RPI3
-          % % cfg.roi = {'RPS2'};
-          % % cfg.roi = {'E85'}; % center of RPS2
-          % % cfg.roi = {'LPS2'};
-          % % cfg.latency = [0 1.0];
-          % % cfg.latency = [0.2 0.9];
           
           cfg.is_ga = false;
           cfg.outputSubjects = true;
@@ -142,9 +114,7 @@ for sp = 1:length(spacings)
           peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
           
           allPeakInfo.(cond_str).(roi_str) = peakInfo;
-          
         end
-        
       end
     end
   end
