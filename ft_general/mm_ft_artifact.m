@@ -861,8 +861,12 @@ if rejArt_ftManual
           cfg.trl = ft_findcfg(data.cfg,'trl');
           
           if ana.artifact.checkAllChan
-            cfg.artfctdef.threshold.channel = [{'all'}, ana.flatChan];
-            exclStr = ' (checking all channels)';
+            % cfg.artfctdef.threshold.channel = [{'all'}, ana.flatChan];
+            % exclStr = ' (checking all channels)';
+            
+            % exclude eye channels - assumes we're using EGI's HCGSN
+            cfg.artfctdef.threshold.channel = [{'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'}, ana.flatChan];
+            exclStr = ' (excludes eye channels)';
           else
             % % exclude eye channels and neighbors - assumes we're using EGI's HCGSN
             % cfg.artfctdef.threshold.channel = [{'all', ...
@@ -1294,18 +1298,15 @@ if rejArt_ftAuto
       cfg.trl = trl;
       
       if ana.artifact.checkAllChan
-        cfg.artfctdef.threshold.channel = [{'all'}, ana.flatChan];
-        exclStr = ' (checking all channels)';
-      else
         % % don't exclude eye channels because we want to reject any blinks
         % % that ICA didn't catch
         % cfg.artfctdef.threshold.channel = [{'all'}, ana.flatChan];
-        % exclStr = '';
+        % exclStr = ' (checking all channels)';
         
-        % % exclude eye channels - assumes we're using EGI's HCGSN
-        % cfg.artfctdef.threshold.channel = [{'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'}, ana.flatChan];
-        % exclStr = ' (excludes eye channels)';
-        
+        % exclude eye channels - assumes we're using EGI's HCGSN
+        cfg.artfctdef.threshold.channel = [{'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'}, ana.flatChan];
+        exclStr = ' (excludes eye channels)';
+      else
         % % exclude eye channels and all the channels around the periphery - assumes we're using EGI's HCGSN
         % cfg.artfctdef.threshold.channel = [{'all', '-E1', '-E8', '-E14', '-E17', '-E21', '-E25', '-E32', '-E38', '-E43', '-E44', '-E48', '-E49', '-E56', '-E57', '-E63', '-E64', '-E68', '-E69', '-E73', '-E74', '-E81', '-E82', '-E88', '-E89', '-E94', '-E95', '-E99', '-E100', '-E107', '-E113', '-E114', '-E119', '-E120', '-E121', '-E125', '-E126', '-E127', '-E128'}, ana.flatChan];
         % exclStr = ' (excludes eye channels and peripheral channels)';
@@ -1909,18 +1910,15 @@ if rejArt_ftICA
           cfg.trl = ft_findcfg(data_toCheckForArtifacts.cfg,'trl');
           
           if ana.artifact.checkAllChan
-            cfg.artfctdef.threshold.channel = [{'all'}, ana.flatChan];
-            exclStr = ' (checking all channels)';
-          else
             % % don't exclude eye channels because we want to reject any blinks
             % % that ICA didn't catch
             % cfg.artfctdef.threshold.channel = [{'all'}, ana.flatChan];
-            % exclStr = '';
+            % exclStr = ' (checking all channels)';
             
-            % % exclude eye channels - assumes we're using EGI's HCGSN
-            % cfg.artfctdef.threshold.channel = [{'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'}, ana.flatChan];
-            % exclStr = ' (excludes eye channels)';
-            
+            % exclude eye channels - assumes we're using EGI's HCGSN
+            cfg.artfctdef.threshold.channel = [{'all', '-E25', '-E8', '-E127', '-E126', '-E128', '-E125'}, ana.flatChan];
+            exclStr = ' (excludes eye channels)';
+          else
             % exclude eye channels and all the channels around the periphery - assumes we're using EGI's HCGSN
             cfg.artfctdef.threshold.channel = [{'all', '-E1', '-E8', '-E14', '-E17', '-E21', '-E25', '-E32', '-E38', '-E43', '-E44', '-E48', '-E49', '-E56', '-E57', '-E63', '-E64', '-E68', '-E69', '-E73', '-E74', '-E81', '-E82', '-E88', '-E89', '-E94', '-E95', '-E99', '-E100', '-E107', '-E113', '-E114', '-E119', '-E120', '-E121', '-E125', '-E126', '-E127', '-E128'}, ana.flatChan];
             exclStr = ' (excludes eye channels and peripheral channels)';
