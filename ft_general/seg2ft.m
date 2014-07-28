@@ -397,7 +397,7 @@ for ses = 1:length(session)
           rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
         end
         if rejArt_repair
-          [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
+          [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-100 100],30);
         else
           keepRepairingChannels = false;
         end
@@ -494,7 +494,8 @@ for ses = 1:length(session)
         cfg_ica.viewmode = 'component';
         cfg_ica.continuous = 'yes';
         % number of seconds to display
-        cfg_ica.blocksize = 30;
+        cfg_ica.blocksize = 120;
+        %cfg_ica.blocksize = 30;
         %cfg_ica.blocksize = 10;
         %cfg_ica.channels = 1:nComponents;
         cfg_ica.plotlabels = 'yes';
