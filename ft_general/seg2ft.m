@@ -290,6 +290,7 @@ for ses = 1:length(session)
   cfg.continuous = ana.continuous;
   cfg.checksize = ana.checksize;
   
+  flatChans = {};
   ana.flatChan = {};
   ana.flatRef = false;
   if strcmp(ana.continuous,'yes')
@@ -376,7 +377,7 @@ for ses = 1:length(session)
     else
       fprintf('Done. Found none.\n');
     end
-    if ismember(exper.refChan,flatChans)
+    if any(flatChannel) && ismember(exper.refChan,flatChans)
       ana.flatRef = true;
       % MFF files has reference channel but it has zero variance
       warning('This dataset is not rereferenced (flat reference channel was included). Let''s hope you are rereferencing in FieldTrip!');
