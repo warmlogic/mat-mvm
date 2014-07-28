@@ -1418,7 +1418,7 @@ if rejArt_ftAuto
       % cutoff and padding
       % select a set of channels on which to run the artifact detection (e.g. can be 'MEG')
       %cfg.artfctdef.zvalue.channel = [{'all'}, ana.flatChan];
-      cfg.artfctdef.zvalue.channel = [{'E127','E126','E128','E125','E8','E25'}, ana.flatChan];
+      cfg.artfctdef.zvalue.channel = {'E127','E126','E128','E125','E8','E25'};
       cfg.artfctdef.zvalue.cutoff      = ana.artifact.eog_art_z;
       cfg.artfctdef.zvalue.trlpadding = ana.artifact.trlpadding;
       if strcmp(cfg.continuous,'yes')
