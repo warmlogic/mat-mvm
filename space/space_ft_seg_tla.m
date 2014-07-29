@@ -279,8 +279,8 @@ ana.artifact.basic_art_z = 40;
 ana.artifact.jump_art = true;
 ana.artifact.jump_art_z = 50;
 % eog_art is only used with ftAuto
-ana.artifact.eog_art = false;
-% ana.artifact.eog_art_z = 3.5;
+ana.artifact.eog_art = true;
+ana.artifact.eog_art_z = 3.5;
 
 % process the data
 ana.ftFxn = 'ft_timelockanalysis';
