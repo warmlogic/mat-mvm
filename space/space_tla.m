@@ -757,18 +757,19 @@ cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','wo
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% % cfg.roi = {'FS2'}; % Centered on E6 (360ms)
-% cfg.roi = {'C'}; % Centered on Cz (372ms)
+% cfg.roi = {'FS2'}; % Centered on E6 (360ms)
+% % cfg.roi = {'C'}; % Centered on Cz (372ms)
 % cfg.latency = [0.3 0.5]; % N400
 % cfg.order = 'ascend'; % ascend = negative peaks first
 
 % % step 3: select a window for analysis around peak
-% n400Peak = 0.360;
+% n400Peak = 0.360; % FS2
+% % n400Peak = 0.372; % C
 % cfg.datadim = 'time';
 % cfg.roi = {'FS2'}; % Centered on E6
 % % cfg.roi = {'C'}; % Centered on Cz
-% % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-% cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+% cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+% % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
 % cfg.avgovertime = false;
 % cfg.order = 'ascend'; % ascend = negative peaks first
 

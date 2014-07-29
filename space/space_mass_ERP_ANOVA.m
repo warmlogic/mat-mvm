@@ -17,29 +17,26 @@ oldnew = {'p1', 'p2'};
 memConds = {'rc','fo'};
 
 erpComponents = {'LPC','N400','N2'};
-% erpComponents = {'N2'};
+% erpComponents = {'N400'};
 
 % % % make sure roi has the same length as erpComponents
 % % roi = {{{'Pz'}},{{'Cz'}},{{'E69','E89'}}}; % near O1, O2
-roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'C'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
+roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'FS2'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
+% roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'C'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
 % roi = {{{'Pz'}},{{'Cz'}},{{'E58','E96'}}};
 % roi = {{{'E69','E89'}}};
-% roi = {{{'E58','E96'}}};
 
-% roi = {{{'LPI2','RPI2'}}};
+% roi = {{{'FS2'}}};
+% roi = {{{'C'}}};
 
 if length(erpComponents) ~= length(roi)
   error('roi must have the same length as erpComponents');
 end
 
 lpcPeak = 0.588;
-n400Peak = 0.360;
+n400Peak = 0.360; % FS2
+% n400Peak = 0.372; % C
 n2Peak = 0.172;
-%cfg.roi = {'E70', 'E83'}; % O1, O2
-% cfg.roi = {'E69', 'E89'}; % Near O1, O2
-% cfg.roi = {'LPI2','RPI2'}; % includes T5, T6, O1, O2
-% n2Peak = 0.168;
-%cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
 
 for sp = 1:length(spacings)
   
@@ -87,8 +84,8 @@ for sp = 1:length(spacings)
           elseif strcmp(erpComponents{er},'N400')
             % N400
             cfg.order = 'ascend'; % ascend = negative peaks first
-            %cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-            cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+            cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+            %cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
           elseif strcmp(erpComponents{er},'N2')
             cfg.order = 'ascend'; % ascend = negative peaks first
             cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
@@ -135,19 +132,15 @@ memConds = {'rc','fo'};
 % measure = 'latency';
 measure = 'voltage';
 
+erpComp = 'LPC';
+roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
+
 % erpComp = 'N400';
-% roi = {'Pz'};
+% % roi = {'C'}; % centered on Cz
+% roi = {'FS2'}; % centered on E6
 
-% erpComp = 'LPC';
-% roi = {'Cz'};
-
-erpComp = 'N2';
-% roi = {'E69','E89'}; % near O1, O2
-% roi = {'E69_E89'}; % near O1, O2
-% roi = {'E58','E96'}; % T5, T6
-roi = {'E58_E96'}; % T5, T6
-
-% roi = {'LPI2_RPI2'};
+% erpComp = 'N2';
+% roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
 
 factorNames = {'spacings', 'oldnew', 'memConds', 'roi'};
 nVariables = nan(size(factorNames));
@@ -166,6 +159,8 @@ levelNames = cell(prod(nVariables),length(factorNames));
 
 anovaData = nan(sum(~exper.badSub),prod(nVariables));
 rmaov_data_teg = [];
+
+fprintf('Getting data for %s%s %s ANOVA...',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
 
 lnDone = false;
 vnDone = false;
@@ -222,6 +217,8 @@ if any(~keepTheseFactors)
   
   rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]);
 end
+
+fprintf('Done.\n');
 
 %% Matlab ANOVA
 
