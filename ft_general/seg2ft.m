@@ -421,11 +421,11 @@ for ses = 1:length(session)
           fprintf('\nIMPORTANT: You must repair the same channels as last time or artifacts may be different!\n');
           load(resumeManArtContinuous_file,'cfg_manArt');
           
-          % make sure number of trials in data.cfg and cfg_manArt match
-          if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
-            warning('Resumable artifacts file does not match the number of trials in current data!\nStarting artifact checking over.');
-            ana.artifact.resumeManArtContinuous = false;
-          end
+          % % make sure number of trials in data.cfg and cfg_manArt match
+          % if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
+          %   warning('Resumable artifacts file does not match the number of trials in current data!\nStarting artifact checking over.');
+          %   ana.artifact.resumeManArtContinuous = false;
+          % end
         else
           warning('Resumable artifacts file does not exist! %s\nStarting artifact checking over.',resumeManArtContinuous_file);
           ana.artifact.resumeManArtContinuous = false;
