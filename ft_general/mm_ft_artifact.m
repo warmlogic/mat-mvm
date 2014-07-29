@@ -1249,27 +1249,6 @@ if rejArt_ftAuto
     badChan_str = {};
   end
   
-  if ~isfield(ana.artifact,'basic_art') || isempty(ana.artifact.basic_art)
-    ana.artifact.basic_art = true;
-  end
-  if ~isfield(ana.artifact,'basic_art_z')
-    ana.artifact.basic_art_z = 30;
-  end
-  
-  if ~isfield(ana.artifact,'jump_art') || isempty(ana.artifact.jump_art)
-    ana.artifact.jump_art = true;
-  end
-  if ~isfield(ana.artifact,'jump_art_z')
-    ana.artifact.jump_art_z = 50;
-  end
-  
-  if ~isfield(ana.artifact,'eog_art') || isempty(ana.artifact.eog_art)
-    ana.artifact.eog_art = true;
-  end
-  if ~isfield(ana.artifact,'eog_art_z')
-    ana.artifact.eog_art_z = 3.5;
-  end
-  
   if ~isfield(ana.artifact,'thresh') || isempty(ana.artifact.thresh)
     ana.artifact.thresh = true;
   end
@@ -1281,6 +1260,39 @@ if rejArt_ftAuto
   end
   if ~isfield(ana.artifact,'threshrange')
     ana.artifact.threshrange = 150;
+  end
+  if ana.artifact.thresh
+    warning('ARTIFACT: Will run ''thresh'' check at min/max [%.1f %.1f] and range=%.1f!',ana.artifact.threshmin,ana.artifact.threshmax,ana.artifact.threshrange);
+  end
+  
+  if ~isfield(ana.artifact,'basic_art') || isempty(ana.artifact.basic_art)
+    ana.artifact.basic_art = true;
+  end
+  if ~isfield(ana.artifact,'basic_art_z')
+    ana.artifact.basic_art_z = 30;
+  end
+  if ana.artifact.basic_art
+    warning('ARTIFACT: Will run ''basic_art'' check at z=%.1f!',ana.artifact.basic_art_z);
+  end
+  
+  if ~isfield(ana.artifact,'jump_art') || isempty(ana.artifact.jump_art)
+    ana.artifact.jump_art = true;
+  end
+  if ~isfield(ana.artifact,'jump_art_z')
+    ana.artifact.jump_art_z = 50;
+  end
+  if ana.artifact.jump_art
+    warning('ARTIFACT: Will run ''jump_art'' check at z=%.1f!',ana.artifact.jump_art_z);
+  end
+  
+  if ~isfield(ana.artifact,'eog_art') || isempty(ana.artifact.eog_art)
+    ana.artifact.eog_art = true;
+  end
+  if ~isfield(ana.artifact,'eog_art_z')
+    ana.artifact.eog_art_z = 3.5;
+  end
+  if ana.artifact.eog_art
+    warning('ARTIFACT: Will run ''eog_art'' check at z=%.1f!',ana.artifact.eog_art_z);
   end
   
   % get the trial definition for automated FT artifact rejection
