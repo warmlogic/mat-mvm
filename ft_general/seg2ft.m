@@ -408,15 +408,40 @@ for ses = 1:length(session)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % Data rejection
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % set the file to save after checking artifacts, in case MATLAB crashes
+      resumeManArtContinuous_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_manArtContinuous.mat',subject,sesName));
+      %resumeManArtContinuous_file = fullfile(dataroot,sprintf('%s_%s_manArtContinuous%s.mat',subject,sesName,sprintf(repmat('_%s',1,length(eventValue)),eventValue{:})));
+      if ~isfield(ana.artifact,'resumeManArtContinuous')
+        ana.artifact.resumeManArtContinuous = false;
+      end
+      if ana.artifact.resumeManArtContinuous
+        if exist(resumeManArtContinuous_file,'file')
+          % load the manually processed artifacts
+          fprintf('Loading resumable artifacts file: %s...\n',resumeManArtContinuous_file);
+          fprintf('\nIMPORTANT: You must repair the same channels as last time or artifacts may be different!\n');
+          load(resumeManArtContinuous_file,'cfg_manArt');
+          
+          % make sure number of trials in data.cfg and cfg_manArt match
+          if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
+            warning('Resumable artifacts file does not match the number of trials in current data!\nStarting artifact checking over.');
+            ana.artifact.resumeManArtContinuous = false;
+          end
+        else
+          warning('Resumable artifacts file does not exist! %s\nStarting artifact checking over.',resumeManArtContinuous_file);
+          ana.artifact.resumeManArtContinuous = false;
+        end
+      end
       
-      cfg_manArt = [];
-      cfg_manArt.continuous = 'yes';
-      cfg_manArt.blocksize = 120;
-      %cfg_manArt.viewmode = 'butterfly';
-      cfg_manArt.viewmode = 'vertical';
-      cfg_manArt.elecfile = elecfile;
-      cfg_manArt.plotlabels = 'some';
-      cfg_manArt.ylim = [-100 100];
+      if ~ana.artifact.resumeManArtContinuous
+        cfg_manArt = [];
+        cfg_manArt.continuous = 'yes';
+        cfg_manArt.blocksize = 120;
+        %cfg_manArt.viewmode = 'butterfly';
+        cfg_manArt.viewmode = 'vertical';
+        cfg_manArt.elecfile = elecfile;
+        cfg_manArt.plotlabels = 'some';
+        cfg_manArt.ylim = [-100 100];
+      end
       
       % use cursor drag and click to mark artifacts;
       % use arrows to advance to next trial;
@@ -424,9 +449,9 @@ for ses = 1:length(session)
       
       % manual rejection
       fprintf('Processing continuous data...\n');
-      fprintf('\n\nManual artifact rejection:\n');
+      fprintf('\n\nManual data rejection (showing %d seconds of data):\n',cfg_manArt.blocksize);
       fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
-      fprintf('\tUse arrows to move to next trial.\n');
+      fprintf('\tUse arrows to move around.\n');
       if strcmp(cfg_manArt.viewmode,'butterfly')
         fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
       end
@@ -436,6 +461,10 @@ for ses = 1:length(session)
       cfg_manArt = ft_databrowser(cfg_manArt,data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
+      fprintf('\nBacking up artifact data to %s.\n',resumeManArtContinuous_file);
+      fprintf('\tIf MATLAB crashes before finishing, you can resume without re-checking artifacts by setting ana.artifact.resumeManArtContinuous=true in your main file.\n');
+      save(resumeManArtContinuous_file,'cfg_manArt');
+      
       % rename the visual field
       if isfield(cfg_manArt.artfctdef,'visual')
         cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
@@ -508,7 +537,7 @@ for ses = 1:length(session)
         
         fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue_orig)),eventValue_orig{:}));
         %fprintf('\n\nViewing the first %d components.\n',nComponents);
-        fprintf('ICA component browsing:\n');
+        fprintf('ICA component browsing (showing %d seconds of data):\n',cfg_ica.blocksize);
         fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
         fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
         fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
@@ -539,7 +568,7 @@ for ses = 1:length(session)
         cfg_browse.plotlabels = 'some';
         cfg_browse.ylim = [-100 100];
         
-        fprintf('\nViewing continuous data...\n');
+        fprintf('\nViewing continuous data (showing %d seconds of data)...\n',cfg_browse.blocksize);
         fprintf('\tUse arrows to move to next trial.\n');
         if strcmp(cfg_browse.viewmode,'butterfly')
           fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
