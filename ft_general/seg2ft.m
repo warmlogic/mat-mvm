@@ -479,43 +479,74 @@ for ses = 1:length(session)
       % ICA on continuous data
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      cfg_ica = [];
-      cfg_ica.method = 'runica';
-      %cfg_ica.demean = 'no';
-      
-      cfg_ica.channel = [{'all'}, ana.flatChan];
-      
-      if ~isempty(badChan)
-        %       % Method 1: exclude repaired channels
-        %       %
-        %       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
-        %
-        %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-        %       ica_chanNum = 0;
-        %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-        %     else
-        %       ica_chanNum = [];
-        %       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-        %       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
-        
-        % Method 2: run only on a given number of principle components
-        %
-        % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
-        %
-        % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
-        
-        fprintf('Determining rank of data...');
-        cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
-        fprintf('Done.\n');
-        
-        fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
-        fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
-        fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
-        fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
-        fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+      % set the file to save after running ICA, in case MATLAB crashes
+      resumeICACompContinuous_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_ICACompContinuous.mat',subject,sesName));
+      if ~isfield(ana.artifact,'resumeICACompContinuous')
+        ana.artifact.resumeICACompContinuous = false;
       end
       
-      comp = ft_componentanalysis(cfg_ica,data);
+      if ana.artifact.resumeICACompContinuous
+        if exist(resumeICACompContinuous_file,'file')
+          % load the manually processed artifacts
+          fprintf('Loading resumable ICA components file: %s...\n',resumeICACompContinuous_file);
+          fprintf('\nIMPORTANT: You must have repaired the same channels and rejected the same artifacts as last time or components may be different!\n');
+          load(resumeICACompContinuous_file,'comp');
+          save_resumeICAComp = 1;
+        else
+          warning('Resumable ICA components file does not exist! %s\nStarting ICA over.',resumeICACompContinuous_file);
+          ana.artifact.resumeICACompContinuous = false;
+        end
+      end
+      
+      if ~ana.artifact.resumeICACompContinuous
+        cfg_ica = [];
+        cfg_ica.method = 'runica';
+        %cfg_ica.demean = 'no';
+        
+        cfg_ica.channel = [{'all'}, ana.flatChan];
+        
+        if ~isempty(badChan)
+          %       % Method 1: exclude repaired channels
+          %       %
+          %       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
+          %
+          %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+          %       ica_chanNum = 0;
+          %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+          %     else
+          %       ica_chanNum = [];
+          %       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+          %       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+          
+          % Method 2: run only on a given number of principle components
+          %
+          % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
+          %
+          % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
+          
+          fprintf('Determining rank of data...');
+          cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
+          fprintf('Done.\n');
+          
+          fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+          fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+          fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+          fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+          fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+        end
+        
+        comp = ft_componentanalysis(cfg_ica,data);
+        
+        save_resumeICAComp = [];
+        while isempty(save_resumeICAComp) || (save_resumeICAComp ~= 0 && save_resumeICAComp ~= 1)
+          save_resumeICAComp = input('\nDo you want to save the ICA compents resuming file? This file is quite large, but you will have the option to delete it automatically. (1=yes or 0=no, then press ''return''):\n\n');
+        end
+        if save_resumeICAComp
+          fprintf('\nBacking up ICA component data to %s.\n',resumeICACompContinuous_file);
+          fprintf('\tIf MATLAB crashes before finishing, you can resume without re-running ICA by setting ana.artifact.resumeICACompContinuous=true in your main file.\n');
+          save(resumeICACompContinuous_file,'comp');
+        end
+      end
       
       keepChoosingICAcomps = true;
       while keepChoosingICAcomps
@@ -589,6 +620,22 @@ for ses = 1:length(session)
           keepChoosingICAcomps = false;
           data = data_ica_rej;
           clear data_ica_rej comp
+          
+          if save_resumeICAComp
+            % if we saved resumeICACompContinuous_file, see if we should delete it
+            rm_resumeICAComp = [];
+            while isempty(rm_resumeICAComp) || (rm_resumeICAComp ~= 0 && rm_resumeICAComp ~= 1)
+              rm_resumeICAComp = input('\nDo you want to remove the ICA compents resuming file? This file is quite large, so this is recommended. (1=yes or 0=no, then press ''return''):\n\n');
+            end
+            if rm_resumeICAComp
+              fprintf('\nDeleting %s...',resumeICACompContinuous_file);
+              delete(resumeICACompContinuous_file);
+              fprintf('Done.\n');
+            else
+              warning('Not deleting large file: %s',resumeICACompContinuous_file);
+            end
+          end
+          
         end
       end
     end
