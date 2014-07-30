@@ -276,7 +276,7 @@ ana.artifact.threshmin = -100;
 ana.artifact.threshmax = 100;
 ana.artifact.threshrange = 150;
 ana.artifact.basic_art = true;
-ana.artifact.basic_art_z = 20;
+ana.artifact.basic_art_z = 30;
 ana.artifact.jump_art = true;
 ana.artifact.jump_art_z = 30;
 % % eog_art is only used with ftAuto
