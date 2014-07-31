@@ -1981,11 +1981,25 @@ nVariables = nan(size(factorNames));
 keepTheseFactors = false(size(factorNames));
 levelNames_teg = cell(size(factorNames)); % TEG
 for c = 1:length(factorNames)
-  nVariables(c) = length(eval(factorNames{c}));
-  levelNames_teg{c} = eval(factorNames{c}); % TEG
-  if length(eval(factorNames{c})) > 1
+  % need to have a variable set to this exact factor name
+  thisFac = eval(factorNames{c});
+  nVariables(c) = length(thisFac);
+  if nVariables(c) > 1
     keepTheseFactors(c) = true;
   end
+  
+  % go through the levels within this factor and save strings
+  thisFac_str = cell(1,nVariables(c));
+  for l = 1:length(thisFac)
+    if iscell(thisFac{l})
+      tf = thisFac{l};
+      thisFac_str{l} = sprintf(repmat('_%s',1,length(tf)),tf{:});
+      thisFac_str{l} = thisFac_str{l}(2:end);
+    elseif ischar(thisFac{l})
+      thisFac_str{l} = thisFac{l};
+    end
+  end
+  levelNames_teg{c} = thisFac_str; % TEG
 end
 
 variableNames = cell(1,prod(nVariables));
