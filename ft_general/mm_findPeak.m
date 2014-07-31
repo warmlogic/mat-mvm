@@ -333,14 +333,18 @@ elseif strcmp(cfg.datadim,'time')
   peakInfo.voltage = y;
   
   if cfg.avgovertime
+    % average over the entire latency (so reordering with sort doesn't
+    % matter)
     peakInfo.voltage = mean(peakInfo.voltage);
   end
   
   % just choose a subset of timepoints and voltages
   nPoints_ga = 20;
   if length(peakInfo.latency) > nPoints_ga
+    % give the sorted latency even though voltage may be averaged
     peakInfo.latency = peakInfo.latency(1:nPoints_ga);
     if ~cfg.avgovertime
+      % only output voltage at the top n timepoints
       peakInfo.voltage = peakInfo.voltage(1:nPoints_ga);
     end
   end
@@ -400,11 +404,15 @@ elseif strcmp(cfg.datadim,'time')
       sub_data = ft_selectdata(cfg_ft,ga_allSub{gs});
       [y,i] = sort(mean(sub_data.avg,1),2,cfg.order);
       
+      % give the sorted latency even though voltage may be averaged
       sub_latency = sub_data.time(i);
       peakInfo.subjects.latency(gs,:) = sub_latency(1:nPoints_sub)';
       if ~cfg.avgovertime
+        % only output voltage at the top n timepoints
         peakInfo.subjects.voltage(gs,:) = y(1:nPoints_sub)';
       else
+        % average over the entire latency (so reordering with sort doesn't
+        % matter)
         peakInfo.subjects.voltage(gs) = mean(y);
       end
     end
