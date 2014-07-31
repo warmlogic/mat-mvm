@@ -1,4 +1,4 @@
-function publishfig(handle,cleartitle,ticFontSize,labelFontSize,figFontName)
+function publishfig(handle,cleartitle,ticFontSize,labelFontSize,figFontName,legendFontSize)
 %PUBLISHFIG - Prepared figure for publication.
 % 
 % Prepares a figure for publication or presentation by making all
@@ -6,13 +6,14 @@ function publishfig(handle,cleartitle,ticFontSize,labelFontSize,figFontName)
 % and to clear the title away.
 %
 % FUNCTION:
-%   publishfig(handle,cleartitle,ticFontSize,labelFontSize,figFontName)
+%   publishfig(handle,cleartitle,ticFontSize,labelFontSize,figFontName,legendFontSize)
 %
 % INPUT ARGS:
 %   handle        = gcf (default) % handle to figure to modify
 %   cleartitle    = 1 (default) % whether to clear the title or not
 %   ticFontSize   = 20 (default) % size of tic mark font
 %   labelFontSize = 24 (default) % size of label font
+%   legendFontSize= 16 (default) % size of legend font
 %   figFontName   = 'Helvetica' (default) % some journals require a
 %                   specific font (e.g., 'Arial', 'Courier', 'Times',
 %                   'FixedWidth') % see LISTFONTS
@@ -33,6 +34,9 @@ if ~exist('labelFontSize','var') || isempty(labelFontSize)
 end
 if ~exist('figFontName','var') || isempty(figFontName)
   figFontName = 'Helvetica';
+end
+if ~exist('legendFontSize','var') || isempty(legendFontSize)
+  legendFontSize = 16;
 end
 
 % remove the title
@@ -101,7 +105,9 @@ end
 % end
 
 % redo the legend
-legend
+h_legend = legend;
+set(h_legend,'FontSize',legendFontSize);
+% legend
 
 return
 

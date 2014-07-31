@@ -51,6 +51,20 @@ end
 if ~isfield(cfg_plot,'plotLegend') || (strcmp(cfg_plot.type,'topo') || strcmp(cfg_plot.type,'multi'))
   cfg_plot.plotLegend = 0;
 end
+
+if ~isfield(files,'figFontName')
+  files.figFontName = 'Helvetica';
+end
+if ~isfield(cfg_plot,'ticFontSize')
+  cfg_plot.ticFontSize = [];
+end
+if ~isfield(cfg_plot,'labelFontSize')
+  cfg_plot.labelFontSize = [];
+end
+if ~isfield(cfg_plot,'legendFontSize')
+  cfg_plot.legendFontSize = [];
+end
+
 % check on the labels
 if ~isfield(cfg_plot,'xlabel')
   cfg_plot.xlabel = 'Time (s)';
@@ -85,6 +99,9 @@ if strcmp(cfg_plot.type,'single') || strcmp(cfg_plot.type,'multi')
   end
   if ~isfield(cfg_ft,'linestyle')
     cfg_ft.linestyle = {'-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.'};
+  end
+  if ~isfield(cfg_plot,'x_bound')
+    cfg_plot.x_bound = [];
   end
 end
 % not sure if this gets used
@@ -288,10 +305,7 @@ for typ = 1:length(cfg_plot.conditions)
           title(sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
         end
         
-        if ~isfield(files,'figFontName')
-          files.figFontName = 'Helvetica';
-        end
-        publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
+        publishfig(gcf,~cfg_plot.plotTitle,cfg_plot.ticFontSize,cfg_plot.labelFontSize,files.figFontName,cfg_plot.legendFontSize);
         
       end % subplot
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
@@ -375,13 +389,15 @@ for typ = 1:length(cfg_plot.conditions)
         legend(strrep(cfg_plot.rename_conditions{typ},'_','-'),'Location',cfg_plot.legendloc);
       end
       
-      % can't save EPS files with alpha so plot the bounds lines instead
-      %h = fill([cfg_plot.x_bound(1),cfg_plot.x_bound(2),cfg_plot.x_bound(2),cfg_plot.x_bound(1)],[cfg_ft.ylim(1),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.ylim(2)],cfg_plot.fillcolor);
-      %set(h,'FaceAlpha',cfg_plot.fillalpha);
-      %set(h,'EdgeColor',cfg_plot.filledge)
-      
-      plot([cfg_plot.x_bound(1) cfg_plot.x_bound(1)],[voltmin voltmax],'k'); % vertical
-      plot([cfg_plot.x_bound(2) cfg_plot.x_bound(2)],[voltmin voltmax],'k'); % vertical
+      if ~isempty(cfg_plot.x_bound)
+        % can't save EPS files with alpha so plot the bounds lines instead
+        %h = fill([cfg_plot.x_bound(1),cfg_plot.x_bound(2),cfg_plot.x_bound(2),cfg_plot.x_bound(1)],[cfg_ft.ylim(1),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.ylim(2)],cfg_plot.fillcolor);
+        %set(h,'FaceAlpha',cfg_plot.fillalpha);
+        %set(h,'EdgeColor',cfg_plot.filledge)
+        
+        plot([cfg_plot.x_bound(1) cfg_plot.x_bound(1)],[voltmin voltmax],'k'); % vertical
+        plot([cfg_plot.x_bound(2) cfg_plot.x_bound(2)],[voltmin voltmax],'k'); % vertical
+      end
       hold off
       
       xlabel(cfg_plot.xlabel);
@@ -406,10 +422,7 @@ for typ = 1:length(cfg_plot.conditions)
       %title(strrep(cfg_plot.chan_str,'_',' '));
     end
     if ~cfg_plot.subplot
-      if ~isfield(files,'figFontName')
-        files.figFontName = 'Helvetica';
-      end
-      publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
+      publishfig(gcf,~cfg_plot.plotTitle,cfg_plot.ticFontSize,cfg_plot.labelFontSize,files.figFontName,cfg_plot.legendFontSize);
     end
     
     if cfg_plot.plotLegend
