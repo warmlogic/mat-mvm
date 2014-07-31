@@ -20,8 +20,15 @@ erpComponents = {'LPC','N400','N2'};
 % erpComponents = {'N400'};
 
 % % % make sure roi has the same length as erpComponents
+
+roi = {{ ...
+  {'LPS2','RPS2'} ...
+  {'C'} ...
+  {'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'} ...
+  }};
+
 % % roi = {{{'Pz'}},{{'Cz'}},{{'E69','E89'}}}; % near O1, O2
-roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'FS2'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
+% roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'FS2'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
 % roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'C'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
 % roi = {{{'Pz'}},{{'Cz'}},{{'E58','E96'}}};
 % roi = {{{'E69','E89'}}};
@@ -33,9 +40,10 @@ if length(erpComponents) ~= length(roi)
   error('roi must have the same length as erpComponents');
 end
 
-lpcPeak = 0.588;
-n400Peak = 0.360; % FS2
-% n400Peak = 0.372; % C
+lpcPeak = 0.576; % LPS2+RPS2
+% lpcPeak = 0.588; % centered on E77
+% n400Peak = 0.360; % FS2
+n400Peak = 0.372; % C
 n2Peak = 0.172;
 
 for sp = 1:length(spacings)
@@ -84,8 +92,8 @@ for sp = 1:length(spacings)
           elseif strcmp(erpComponents{er},'N400')
             % N400
             cfg.order = 'ascend'; % ascend = negative peaks first
-            cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-            %cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+            %cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+            cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
           elseif strcmp(erpComponents{er},'N2')
             cfg.order = 'ascend'; % ascend = negative peaks first
             cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
