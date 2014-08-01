@@ -3,7 +3,8 @@
 %rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/
 
 expName = 'SPACE';
-saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
+% saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
+saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
   %'SPACE001'; % low trial counts
@@ -50,7 +51,8 @@ sesNames = {'session_1'};
 
 % analysisDate = '13-Jul-2014';
 % analysisDate = '14-Jul-2014';
-analysisDate = '15-Jul-2014';
+% analysisDate = '15-Jul-2014';
+analysisDate = '01-Aug-2014';
 
 origDataType = 'pow';
 

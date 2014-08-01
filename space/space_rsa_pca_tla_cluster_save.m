@@ -5,7 +5,8 @@
 %rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/
 
 expName = 'SPACE';
-saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+% saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
   %'SPACE001'; % low trial counts
@@ -51,7 +52,8 @@ subjects = {
 sesNames = {'session_1'};
 
 % analysisDate = '13-Jul-2014';
-analysisDate = '15-Jul-2014';
+% analysisDate = '15-Jul-2014';
+analysisDate = '01-Aug-2014';
 
 origDataType = 'tla';
 % origDataType = 'hilbert';
@@ -65,6 +67,16 @@ if accurateClassifSelect
   classif_str = 'classif';
 else
   classif_str = 'noClassif';
+end
+
+lpfilt = true;
+if lpfilt
+  lpfreq = 40;
+%   lofiltord = 3;
+%   lpfilttype = 'but';
+  lpfilt_str = sprintf('lpfilt%d',lpfreq);
+else
+  lpfilt_str = 'lpfiltNo';
 end
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
@@ -156,6 +168,7 @@ for r = 1:length(allROIs)
             for ses = 1:length(sesNames)
               if strcmp(origDataType,'tla')
                 savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+                %savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,lpfilt_str,analysisDate));
               elseif strcmp(origDataType,'hilbert')
                 savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,analysisDate));
               end
@@ -184,7 +197,7 @@ for r = 1:length(allROIs)
           exper.sesNames = sesNames;
           
           if strcmp(origDataType,'tla')
-            saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,analysisDate));
+            saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,lpfilt_str,analysisDate));
           elseif strcmp(origDataType,'hilbert')
             saveFile = fullfile(saveDirProc,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,analysisDate));
           end
