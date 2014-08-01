@@ -77,6 +77,10 @@ if ~isfield(cfg,'plotTitle')
   cfg.plotTitle = false;
 end
 
+if ~isfield(cfg,'textFontSize')
+  cfg.textFontSize = 10;
+end
+
 if ~isfield(cfg,'ticFontSize')
   cfg.ticFontSize = 20;
 end
@@ -454,8 +458,9 @@ for typ = 1:length(cfg.conditions)
                   else
                     clus_str = sprintf('%d>%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
                   end
-                  text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
+                  h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
+                  set(h_t,'FontSize',cfg.textFontSize);
                 end
               end % iPos
             end
@@ -489,8 +494,9 @@ for typ = 1:length(cfg.conditions)
                   else
                     clus_str = sprintf('%d<%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
                   end
-                  text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
+                  h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
+                  set(h_t,'FontSize',cfg.textFontSize);
                 end
               end % iNeg
             end
