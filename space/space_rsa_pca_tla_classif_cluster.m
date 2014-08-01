@@ -1,4 +1,4 @@
-function space_rsa_pca_tla_classif_cluster(procDir,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,sim_method,eig_criterion)
+function space_rsa_pca_tla_classif_cluster(procDir,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,sim_method,eig_criterion,lpfilt,subselect_eeg)
 
 % space RSA
 
@@ -530,6 +530,46 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030'}};
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
+
+%% lowpass filter and smaller segments
+
+if lpfilt
+  sampleRate = exper.sampleRate;
+  lpfreq = 40;
+  lofiltord = 3;
+  lpfilttype = 'but';
+end
+
+if subselect_eeg
+  cfg_sseeg = [];
+  cfg_sseeg.latency = [min(latencies(:)) max(latencies(:))];
+end
+
+if lpfilt || subselect_eeg
+  for ses = 1:length(exper.sesStr)
+    for typ = 1:length(ana.eventValues{ses})
+      for evVal = 1:length(ana.eventValues{ses}{typ})
+        for sub = 1:length(exper.subjects)
+          fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+          
+          if lpfilt
+            % do the lowpass filter
+            for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(parameter),1)
+              data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(parameter)(i,:,:) = ft_preproc_lowpassfilter( ...
+                squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.(parameter)(i,:,:)), ...
+                sampleRate,lpfreq,lofiltord,lpfilttype);
+            end
+          end
+          
+          if subselect_eeg
+            % select a more limited time range
+            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata(cfg_sseeg,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+          end
+        end
+      end
+    end
+  end
+end
 
 %% initialize to store results
 
