@@ -27,14 +27,14 @@ subjects = {
   'SPACE016';
   %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
-  %'SPACE019';
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
@@ -110,7 +110,8 @@ if strcmp(origDataType,'tla')
 elseif strcmp(origDataType,'hilbert')
   % allFreqs = {[4 8; 8 12; 12 30; 30 50]};
   % allFreqs = {[4 8] [8 12] [12 30] [30 50]};
-  allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
+  %allFreqs = {[4 8; 8 12; 12 30; 30 50] [4 8] [8 12] [12 30] [30 50]};
+  allFreqs = {[3 7; 8 12; 13 20; 23 30; 32 47; 51 80] [3 7] [8 12] [13 20] [23 30] [32 47] [51 80]};
 end
 
 allSimMethod = {'cosine'};
@@ -167,8 +168,8 @@ for r = 1:length(allROIs)
           for sub = 1:length(subjects)
             for ses = 1:length(sesNames)
               if strcmp(origDataType,'tla')
-                savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
-                %savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,lpfilt_str,analysisDate));
+                %savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+                savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,lpfilt_str,analysisDate));
               elseif strcmp(origDataType,'hilbert')
                 savedFile = fullfile(saveDirProc,subjects{sub},sesNames{ses},sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%s.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,analysisDate));
               end

@@ -25,14 +25,14 @@ subjects = {
   'SPACE016';
   %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
   'SPACE018';
-  %'SPACE019';
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
@@ -101,7 +101,7 @@ allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 
 % allFreqs = {[3 7; 8 12; 13 20; 21 30; 31 45; 46 80]};
 % allFreqs = {[3 7] [8 12] [13 20] [21 30] [31 45] [46 80]};
-allFreqs = {[3 7; 8 12; 13 20; 21 30; 31 45; 46 80] [3 7] [8 12] [13 20] [21 30] [31 45] [46 80]};
+allFreqs = {[3 7; 8 12; 13 20; 23 30; 32 47; 51 80] [3 7] [8 12] [13 20] [23 30] [32 47] [51 80]};
 
 allSimMethod = {'cosine'};
 
