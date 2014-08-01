@@ -1240,16 +1240,17 @@ spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
 % oldnew = {'p2'};
-memConds = {'rc','fo'};
-% memConds = {'rc'};
+% memConds = {'rc','fo'};
+memConds = {'rc'};
 
 measure = 'avg';
 
-% roi = {'LPS2'};
-roi = {{'LPS2'},{'RPS2'}};
+roi = {'LPS2'};
+% roi = {{'LPS2'},{'RPS2'}};
 % roi = {{'LPS2','RPS2'}};
 % latencies = [0.4 0.8];
 latencies = [0.4 0.6; 0.604 0.804];
+% latencies = [0.4 0.65; 0.55 0.8];
 
 latency = cell(1,size(latencies,1));
 for i = 1:length(latency)
