@@ -117,6 +117,9 @@ end
 if ~isfield(cfg,'linewidth')
   cfg.linewidth = 2;
 end
+if ~isfield(cfg,'limitlinewidth')
+  cfg.limitlinewidth = 0.5;
+end
 if ~isfield(cfg,'graphcolor')
   cfg.graphcolor = 'rbkgcmy';
 end
@@ -285,8 +288,16 @@ for typ = 1:length(cfg.conditions)
         for t = 1:nTime
           % find the indices for the chans, freqs, and times that we want
           chansel = ismember(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label,cfg.channel);
-          freqsel = data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq >= cfg.freqs(f,1) & data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq <= cfg.freqs(f,2);
-          timesel = data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time >= cfg.times(t,1) & data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time <= cfg.times(t,2);
+          
+          fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq,cfg.freqs(f,1));
+          fend = nearest(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq,cfg.freqs(f,2));
+          freqsel = false(size(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).freq));
+          freqsel(fbeg:fend) = true;
+          
+          tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time,cfg.times(t,1));
+          tend = nearest(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time,cfg.times(t,2));
+          timesel = false(size(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time));
+          timesel(tbeg:tend) = true;
           
           dataVec(evVal,r,t) = nanmean(nanmean(nanmean(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
         end % t
@@ -409,8 +420,8 @@ for typ = 1:length(cfg.conditions)
                 clusLimColorR = [0 0 0];
               end
               hold on
-              plot([cfg.clusTimes(t,1) cfg.clusTimes(t,1)],cfg.ylim,'Color',clusLimColorL); % vertical
-              plot([cfg.clusTimes(t,2) cfg.clusTimes(t,2)],cfg.ylim,'Color',clusLimColorR); % vertical
+              plot([cfg.clusTimes(t,1) cfg.clusTimes(t,1)],cfg.ylim,'Color',clusLimColorL,'LineWidth',cfg.limitlinewidth); % vertical
+              plot([cfg.clusTimes(t,2) cfg.clusTimes(t,2)],cfg.ylim,'Color',clusLimColorR,'LineWidth',cfg.limitlinewidth); % vertical
               hold off
             end
             
