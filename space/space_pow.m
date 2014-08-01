@@ -1881,6 +1881,9 @@ cfg.clusTimes = cfg.times;
 % cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.clusLimits = true;
 
+cfg.linewidth = 1;
+cfg.limitlinewidth = 0.5;
+
 %cfg.ylim = [-0.6 0.6];
 %cfg.ylim = [-0.5 0.2];
 cfg.nCol = 3;
@@ -1889,7 +1892,7 @@ cfg.nCol = 3;
 cfg.type = 'line_pow';
 % cfg.clusDirStr = '_zpow_-300_-100';
 cfg.clusDirStr = '_avgT_avgF';
-cfg.ylabel = 'Log10 Z-Trans Pow';
+cfg.ylabel = 'Z-Trans Pow';
 mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
 % % induced power
