@@ -69,7 +69,7 @@ else
   classif_str = 'noClassif';
 end
 
-lpfilt = true;
+lpfilt = false;
 if lpfilt
   lpfreq = 40;
 %   lofiltord = 3;

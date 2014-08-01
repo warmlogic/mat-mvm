@@ -111,7 +111,7 @@ accurateClassifSelect = false;
 
 %% analysis details
 
-lpfilt = true;
+lpfilt = false;
 subselect_eeg = true;
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
