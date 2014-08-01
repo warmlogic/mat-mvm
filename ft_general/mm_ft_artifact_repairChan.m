@@ -26,7 +26,7 @@ if repair_viewmode
   if ~isempty(ylim)
     cfgChannelRepair.ylim = ylim;
   else
-    cfgChannelRepair.ylim = [-200 200];
+    cfgChannelRepair.ylim = [-150 150];
   end
 else
   cfgChannelRepair.viewmode = 'vertical';

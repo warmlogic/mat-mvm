@@ -290,6 +290,7 @@ for ses = 1:length(session)
   cfg.continuous = ana.continuous;
   cfg.checksize = ana.checksize;
   
+  flatChans = {};
   ana.flatChan = {};
   ana.flatRef = false;
   if strcmp(ana.continuous,'yes')
@@ -376,7 +377,7 @@ for ses = 1:length(session)
     else
       fprintf('Done. Found none.\n');
     end
-    if ismember(exper.refChan,flatChans)
+    if any(flatChannel) && ismember(exper.refChan,flatChans)
       ana.flatRef = true;
       % MFF files has reference channel but it has zero variance
       warning('This dataset is not rereferenced (flat reference channel was included). Let''s hope you are rereferencing in FieldTrip!');
@@ -389,28 +390,58 @@ for ses = 1:length(session)
       % Channel repair
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      rejArt_repair = [];
-      while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
-        rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
+      keepRepairingChannels = true;
+      while keepRepairingChannels
+        rejArt_repair = [];
+        while isempty(rejArt_repair) || (rejArt_repair ~= 0 && rejArt_repair ~= 1)
+          rejArt_repair = input('\nDo you want to see whether there are channels to repair? (1 or 0, then press ''return''):\n\n');
+        end
+        if rejArt_repair
+          [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-100 100],30);
+        else
+          keepRepairingChannels = false;
+        end
       end
-      if rejArt_repair
-        [data,badChan] = mm_ft_artifact_repairChan(data,badChan,elecfile,'yes',[-1000 1000],30);
-      end
-      
-      cfg_manArt = [];
-      cfg_manArt.continuous = 'yes';
-      cfg_manArt.blocksize = 120;
-      %cfg_manArt.viewmode = 'butterfly';
-      cfg_manArt.viewmode = 'vertical';
-      cfg_manArt.elecfile = elecfile;
-      cfg_manArt.plotlabels = 'some';
-      cfg_manArt.ylim = [-100 100];
     end
       
     if ana.artifact.continuousReject
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % Data rejection
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % set the file to save after checking artifacts, in case MATLAB crashes
+      resumeManArtContinuous_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_manArtContinuous.mat',subject,sesName));
+      %resumeManArtContinuous_file = fullfile(dataroot,sprintf('%s_%s_manArtContinuous%s.mat',subject,sesName,sprintf(repmat('_%s',1,length(eventValue)),eventValue{:})));
+      if ~isfield(ana.artifact,'resumeManArtContinuous')
+        ana.artifact.resumeManArtContinuous = false;
+      end
+      if ana.artifact.resumeManArtContinuous
+        if exist(resumeManArtContinuous_file,'file')
+          % load the manually processed artifacts
+          fprintf('Loading resumable artifacts file: %s...\n',resumeManArtContinuous_file);
+          fprintf('\nIMPORTANT: You must repair the same channels as last time or artifacts may be different!\n');
+          load(resumeManArtContinuous_file,'cfg_manArt');
+          
+          % % make sure number of trials in data.cfg and cfg_manArt match
+          % if any(size(cfg_manArt.trl) ~= size(data.cfg.trl)) || size(cfg_manArt.trl,1) ~= length(data.trial)
+          %   warning('Resumable artifacts file does not match the number of trials in current data!\nStarting artifact checking over.');
+          %   ana.artifact.resumeManArtContinuous = false;
+          % end
+        else
+          warning('Resumable artifacts file does not exist! %s\nStarting artifact checking over.',resumeManArtContinuous_file);
+          ana.artifact.resumeManArtContinuous = false;
+        end
+      end
+      
+      if ~ana.artifact.resumeManArtContinuous
+        cfg_manArt = [];
+        cfg_manArt.continuous = 'yes';
+        cfg_manArt.blocksize = 120;
+        %cfg_manArt.viewmode = 'butterfly';
+        cfg_manArt.viewmode = 'vertical';
+        cfg_manArt.elecfile = elecfile;
+        cfg_manArt.plotlabels = 'some';
+        cfg_manArt.ylim = [-100 100];
+      end
       
       % use cursor drag and click to mark artifacts;
       % use arrows to advance to next trial;
@@ -418,9 +449,9 @@ for ses = 1:length(session)
       
       % manual rejection
       fprintf('Processing continuous data...\n');
-      fprintf('\n\nManual artifact rejection:\n');
+      fprintf('\n\nManual data rejection (showing %d seconds of data):\n',cfg_manArt.blocksize);
       fprintf('\tDrag mouse to select artifact area; click area to mark an artifact.\n');
-      fprintf('\tUse arrows to move to next trial.\n');
+      fprintf('\tUse arrows to move around.\n');
       if strcmp(cfg_manArt.viewmode,'butterfly')
         fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
       end
@@ -430,6 +461,10 @@ for ses = 1:length(session)
       cfg_manArt = ft_databrowser(cfg_manArt,data);
       % bug when calling rejectartifact right after databrowser, pause first
       pause(1);
+      fprintf('\nBacking up artifact data to %s.\n',resumeManArtContinuous_file);
+      fprintf('\tIf MATLAB crashes before finishing, you can resume without re-checking artifacts by setting ana.artifact.resumeManArtContinuous=true in your main file.\n');
+      save(resumeManArtContinuous_file,'cfg_manArt');
+      
       % rename the visual field
       if isfield(cfg_manArt.artfctdef,'visual')
         cfg_manArt.artfctdef.visual_continuous = cfg_manArt.artfctdef.visual;
@@ -444,43 +479,74 @@ for ses = 1:length(session)
       % ICA on continuous data
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
-      cfg_ica = [];
-      cfg_ica.method = 'runica';
-      %cfg_ica.demean = 'no';
-      
-      cfg_ica.channel = [{'all'}, ana.flatChan];
-      
-      if ~isempty(badChan)
-        %       % Method 1: exclude repaired channels
-        %       %
-        %       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
-        %
-        %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
-        %       ica_chanNum = 0;
-        %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
-        %     else
-        %       ica_chanNum = [];
-        %       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
-        %       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
-        
-        % Method 2: run only on a given number of principle components
-        %
-        % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
-        %
-        % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
-        
-        fprintf('Determining rank of data...');
-        cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
-        fprintf('Done.\n');
-        
-        fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
-        fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
-        fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
-        fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
-        fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+      % set the file to save after running ICA, in case MATLAB crashes
+      resumeICACompContinuous_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_ICACompContinuous.mat',subject,sesName));
+      if ~isfield(ana.artifact,'resumeICACompContinuous')
+        ana.artifact.resumeICACompContinuous = false;
       end
       
-      comp = ft_componentanalysis(cfg_ica,data);
+      if ana.artifact.resumeICACompContinuous
+        if exist(resumeICACompContinuous_file,'file')
+          % load the manually processed artifacts
+          fprintf('Loading resumable ICA components file: %s...\n',resumeICACompContinuous_file);
+          fprintf('\nIMPORTANT: You must have repaired the same channels and rejected the same artifacts as last time or components may be different!\n');
+          load(resumeICACompContinuous_file,'comp');
+          save_resumeICAComp = 1;
+        else
+          warning('Resumable ICA components file does not exist! %s\nStarting ICA over.',resumeICACompContinuous_file);
+          ana.artifact.resumeICACompContinuous = false;
+        end
+      end
+      
+      if ~ana.artifact.resumeICACompContinuous
+        cfg_ica = [];
+        cfg_ica.method = 'runica';
+        %cfg_ica.demean = 'no';
+        
+        cfg_ica.channel = [{'all'}, ana.flatChan];
+        
+        if ~isempty(badChan)
+          %       % Method 1: exclude repaired channels
+          %       %
+          %       % http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html
+          %
+          %       fprintf('\n\tIMPORTANT! You have repaired channels:%s\n\n',sprintf(repmat(' %s',1,length(badChan_str)),badChan_str{:}));
+          %       ica_chanNum = 0;
+          %       fprintf('\tTherefore, you must run ICA on a subset of channels.\n');
+          %     else
+          %       ica_chanNum = [];
+          %       fprintf('\nWe believe that you have NOT repaired any channels. Thus, you can run ICA on all channels (option ''1'').\n');
+          %       fprintf('\tBut if that somehow is not the case, you must run ICA on a subset of channels (option ''0'').\n');
+          
+          % Method 2: run only on a given number of principle components
+          %
+          % http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html
+          %
+          % but be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html
+          
+          fprintf('Determining rank of data...');
+          cfg_ica.(cfg_ica.method).pca = rank(data.trial{1});
+          fprintf('Done.\n');
+          
+          fprintf('Running ICA after doing PCA on %d components.\n',cfg_ica.(cfg_ica.method).pca);
+          fprintf('Inspired by this post: http://mailman.science.ru.nl/pipermail/fieldtrip/2013-June/006656.html\n');
+          fprintf('\tBut be careful!: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003339.html\n');
+          fprintf('The alternative is to exclude bad channels from ICA: http://sccn.ucsd.edu/pipermail/eeglablist/2010/003490.html\n');
+          fprintf('\tHowever, you are NOT doing that! You would need to uncomment some parts of %s (and comment others) to do so.\n',mfilename);
+        end
+        
+        comp = ft_componentanalysis(cfg_ica,data);
+        
+        save_resumeICAComp = [];
+        while isempty(save_resumeICAComp) || (save_resumeICAComp ~= 0 && save_resumeICAComp ~= 1)
+          save_resumeICAComp = input('\nDo you want to save the ICA compents resuming file? This file is quite large, but you will have the option to delete it automatically. (1=yes or 0=no, then press ''return''):\n\n');
+        end
+        if save_resumeICAComp
+          fprintf('\nBacking up ICA component data to %s.\n',resumeICACompContinuous_file);
+          fprintf('\tIf MATLAB crashes before finishing, you can resume without re-running ICA by setting ana.artifact.resumeICACompContinuous=true in your main file.\n');
+          save(resumeICACompContinuous_file,'comp');
+        end
+      end
       
       keepChoosingICAcomps = true;
       while keepChoosingICAcomps
@@ -488,20 +554,21 @@ for ses = 1:length(session)
         cfg_ica.viewmode = 'component';
         cfg_ica.continuous = 'yes';
         % number of seconds to display
-        cfg_ica.blocksize = 30;
+        cfg_ica.blocksize = 120;
+        %cfg_ica.blocksize = 30;
         %cfg_ica.blocksize = 10;
         %cfg_ica.channels = 1:nComponents;
         cfg_ica.plotlabels = 'yes';
         cfg_ica.layout = elecfile;
         cfg_ica.elecfile = elecfile;
-        cfg_ica.ylim = [-2000 2000];
+        cfg_ica.ylim = [-1500 1500];
         ft_databrowser(cfg_ica,comp);
         % bug when calling rejectartifact right after databrowser, pause first
         pause(1);
         
         fprintf('Processing%s...\n',sprintf(repmat(' ''%s''',1,length(eventValue_orig)),eventValue_orig{:}));
         %fprintf('\n\nViewing the first %d components.\n',nComponents);
-        fprintf('ICA component browsing:\n');
+        fprintf('ICA component browsing (showing %d seconds of data):\n',cfg_ica.blocksize);
         fprintf('\t1. Look for patterns that are indicative of artifacts.\n');
         fprintf('\t\tPress the ''channel >'' button to see the next set of components.\n');
         fprintf('\t\tComponents may not be numbered, so KEEP TRACK of where you are (top component has the lowest number). Write down component numbers for rejection.\n');
@@ -532,7 +599,7 @@ for ses = 1:length(session)
         cfg_browse.plotlabels = 'some';
         cfg_browse.ylim = [-100 100];
         
-        fprintf('\nViewing continuous data...\n');
+        fprintf('\nViewing continuous data (showing %d seconds of data)...\n',cfg_browse.blocksize);
         fprintf('\tUse arrows to move to next trial.\n');
         if strcmp(cfg_browse.viewmode,'butterfly')
           fprintf('\tUse the ''i'' key and mouse to identify channels in the data browser.\n');
@@ -553,6 +620,22 @@ for ses = 1:length(session)
           keepChoosingICAcomps = false;
           data = data_ica_rej;
           clear data_ica_rej comp
+          
+          if save_resumeICAComp
+            % if we saved resumeICACompContinuous_file, see if we should delete it
+            rm_resumeICAComp = [];
+            while isempty(rm_resumeICAComp) || (rm_resumeICAComp ~= 0 && rm_resumeICAComp ~= 1)
+              rm_resumeICAComp = input('\nDo you want to remove the ICA compents resuming file? This file is quite large, so this is recommended. (1=yes or 0=no, then press ''return''):\n\n');
+            end
+            if rm_resumeICAComp
+              fprintf('\nDeleting %s...',resumeICACompContinuous_file);
+              delete(resumeICACompContinuous_file);
+              fprintf('Done.\n');
+            else
+              warning('Not deleting large file: %s',resumeICACompContinuous_file);
+            end
+          end
+          
         end
       end
     end
@@ -744,8 +827,7 @@ for ses = 1:length(session)
       
       % find out which samples were marked as artifacts
       if ~isempty(theseArt)
-        %artSamp = false(max(cfg_manArt.artfctdef.(theseArt{i}).artifact(:)),length(theseArt));
-        artSamp = false(max(cfg_manArt.artfctdef.visual_continuous.artifact(:)),length(theseArt));
+        artSamp = false(cfg.trl(end,2),length(theseArt));
         for i = 1:length(theseArt)
           for j = 1:size(cfg_manArt.artfctdef.(theseArt{i}).artifact,1)
             % mark that it was a particular type of artifact
@@ -758,6 +840,7 @@ for ses = 1:length(session)
             foundArtEv(k,any(artSamp(cfg.trl(k,1):cfg.trl(k,2),:),1)) = true;
           end
         end
+        clear artSamp
       end
       
       if combineArtLists

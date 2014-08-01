@@ -11,16 +11,12 @@ localDir = fullfile(getenv('HOME'),'data');
 % pick the right dataroot
 if exist('serverDir','var') && exist(serverDir,'dir')
   dataroot = serverDir;
-  %runLocally = 1;
 elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
   dataroot = serverLocalDir;
-  %runLocally = 1;
 elseif exist('dreamDir','var') && exist(dreamDir,'dir')
   dataroot = dreamDir;
-  %runLocally = 0;
 elseif exist('localDir','var') && exist(localDir,'dir')
   dataroot = localDir;
-  %runLocally = 1;
 else
   error('Data directory not found.');
 end
@@ -29,45 +25,45 @@ end
 % procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
 procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 % procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_nsClassic/tla');
-% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftManual/tla');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla');
 
 subjects = {
-%   %'SPACE001'; % low trial counts
-%   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   %'SPACE008'; % didn't perform task correctly, didn't perform well
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
-%   'SPACE018';
-%   %'SPACE019'; % low trial counts
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
-%   'SPACE037';
-%   'SPACE039'; % noisy EEG; original EEG analyses stopped here
-%   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   %'SPACE030'; % low trial counts
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
+  %'SPACE001'; % low trial counts
+  'SPACE002';
+  'SPACE003';
+  'SPACE004';
+  'SPACE005';
+  'SPACE006';
+  'SPACE007';
+  %'SPACE008'; % didn't perform task correctly, didn't perform well
+  'SPACE009';
+  'SPACE010';
+  'SPACE011';
+  'SPACE012';
+  'SPACE013';
+  'SPACE014';
+  'SPACE015';
+  'SPACE016';
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
+  'SPACE018';
+  %'SPACE019'; % low trial counts
+  'SPACE020';
+  'SPACE021';
+  'SPACE022';
+  'SPACE027';
+  'SPACE029';
+  'SPACE037';
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE023';
+  'SPACE024';
+  'SPACE025';
+  'SPACE026';
+  'SPACE028';
+  %'SPACE030'; % low trial counts
+  'SPACE032';
+  'SPACE034';
+  'SPACE047';
+  'SPACE049';
   'SPACE036';
   };
 
@@ -306,12 +302,42 @@ save(fullfile(saveDir,'space_word_img_data_tla.mat'),'data_tla','exper','ana','d
 
 %% load
 
+subDir = '';
+dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+else
+  error('Data directory not found.');
+end
+
+% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_nsClassic/tla');
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftManual/tla');
+
 % loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
+
 % load(fullfile(loadDir,'space_word_img_data_ga_tla.mat'));
 load(fullfile(loadDir,'space_word_img_data_tla.mat'));
 
-[dirs] = mm_checkDirs(dirs);
+replaceDataType = {};
+
+[dirs] = mm_checkDirs(dirs,replaceDataType,subDir);
 
 %% decide who to kick out based on trial counts
 
@@ -466,7 +492,7 @@ for ses = 1:length(exper.sesStr)
         end
         
         % select
-        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata_new(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
         
       end
       
@@ -547,7 +573,10 @@ end
 cfg_ft = [];
 cfg_ft.xlim = [-0.2 1.0];
 % cfg_ft.xlim = [-0.2 0.4];
+% cfg_ft.xlim = [-1.0 2.0];
 cfg_ft.parameter = 'avg';
+
+cfg_ft.layout = ft_prepare_layout([],ana);
 
 cfg_plot = [];
 
@@ -573,33 +602,36 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-1 4; -1 4];
 % cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
-% cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'}};
-% cfg_plot.ylims = [-3 2; -2 3; -1 4];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast'};
+% cfg_plot.rois = {{'Fz'},{'Cz'},{'Pz'},{'Oz'}};
+% cfg_plot.ylims = [-3 2; -2 3; -1 4; -1 4];
+% cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast','SouthEast'};
 
-% N400
-% cfg_plot.rois = {{'C'}};
-cfg_plot.rois = {{'Cz'}};
-cfg_plot.ylims = [-2 3];
-cfg_plot.legendlocs = {'NorthEast'};
-
-% % LPC
-% % cfg_plot.rois = {{'Pz'}}; % Pz
-% % cfg_plot.rois = {{'E72'}}; % below Pz
-% % cfg_plot.rois = {{'E85'}};
+% LPC
+% cfg_plot.rois = {{'Pz'}}; % Pz
 % cfg_plot.rois = {{'PS'}}; % Centered on Pz
-% % cfg_plot.rois = {{'PS2'}}; % Centered on E72
-% cfg_plot.ylims = [-1 4];
+% cfg_plot.rois = {{'PS2'}}; % Centered on E72
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77
+% cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.rois = {{'LPS2','RPS2'}};
+cfg_plot.ylims = [-1 5; -1 5];
 % cfg_plot.legendlocs = {'SouthEast'};
+cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
-cfg_plot.axisxy = false;
+% % N400
+% % cfg_plot.rois = {{'LAS'}}; % Center=20
+% % cfg_plot.rois = {{'FS2'}}; % Center=6
+% cfg_plot.rois = {{'C'}};
+% % cfg_plot.rois = {{'Cz'}};
+% cfg_plot.ylims = [-4 2];
+% % cfg_plot.legendlocs = {'NorthEast'};
+% cfg_plot.legendlocs = {'SouthWest'};
 
-% % cfg_plot.rois = {{'E70'}};
-% % cfg_plot.rois = {{'E70'},{'E83'}};
-% % cfg_plot.rois = {{'E69'},{'E89'}};
+% % N2
 % % cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
-% cfg_plot.rois = {{'LPI2'},{'RPI2'}}; % T5, T6
-% % cfg_plot.rois = {{'LPI2','RPI2'}}; % T5, T6
+% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
+% % cfg_plot.rois = {{'E90','E91','E95','E96','E97','E100','E101'}}; % T6 (R)
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
 % cfg_plot.ylims = [-3 2; -3 2];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
@@ -637,6 +669,7 @@ cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_fo_spac_p1', 'wor
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
 
+cfg_plot.axisxy = false;
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -654,7 +687,7 @@ for r = 1:length(cfg_plot.rois)
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
 end
 
-%% find peak - N400 and LPC
+%% find peaks
 cfg = [];
 
 % images
@@ -662,148 +695,125 @@ cfg = [];
 % words
 % cfg.conditions = cellflat(ana.eventValues{1}{2});
 
-% % all together
-cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+% % words, all together
+cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+
+% P2 only
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % spaced
-% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
-% cfg.conditions = {'word_RgH_rc_spac_p2'};
-% cfg.conditions = {'word_RgH_fo_spac_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
 
 % % massed
-% cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-% cfg.conditions = {'word_RgH_rc_mass_p2'};
-% cfg.conditions = {'word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % % single presentation or first presentation
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
 % cfg.conditions = {'word_onePres'};
 
+% % NB: make sure pattern of conditions is seen at peak electrode(s)
+
+% ==================================================
+% LPC (positive late pareital component)
+% ==================================================
+
+% % step 1: find peak electrode in large area, collapsing across conditions
+% cfg.datadim = 'elec';
+% % cfg.roi = {'center101'};
+% cfg.roi = {'posterior_noPeriph'};
+% cfg.latency = [0.4 0.8]; % LPC
+% cfg.order = 'descend'; % descend = positive peaks first
+% % LPC: electrode cluster around E77 includes peak E84 E85 etc
+
+% % step 2: find peak time at peak electrode(s)
+% cfg.datadim = 'time';
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (596ms)
+% % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
+% % cfg.roi = {'RPS'}; % Centered on E86 (ms)
+% % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
+% cfg.latency = [0.4 0.8]; % LPC
+% cfg.order = 'descend'; % descend = positive peaks first
+
+% % step 3: select a window for analysis around peak; cfg.outputSubjects=true
+% % lpcPeak = 0.588;
+% lpcPeak = 0.576; % bilateral
+% cfg.datadim = 'time';
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77
+% % cfg.roi = {'RPS2'}; % Centered on E85
+% % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85
+% % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
+% % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+% cfg.latency = [lpcPeak-0.15 lpcPeak+0.15]; % LPC - around GA peak (space+mass) +/- 150
+% cfg.avgovertime = true;
+% cfg.order = 'descend'; % descend = positive peaks first
+
+% ==================================================
+% N400 (negative frontocentral component)
+% ==================================================
+
+% % step 1: find peak electrode in large area, collapsing across conditions
 % cfg.datadim = 'elec';
 % cfg.roi = {'center101'};
-% % % % cfg.roi = {'PS2'};
-% % % % cfg.roi = {'LPI3','RPI3'};
-% cfg.latency = [0.4 0.8]; % LPC
-% % % % % cfg.latency = [0.3 0.5]; % N400
-% % % % % cfg.latency = [0.35 0.45]; % N400
-% % % % cfg.latency = [0.314 0.414]; % N400
+% cfg.latency = [0.3 0.5]; % N400
+% cfg.order = 'ascend'; % ascend = negative peaks first
 
-% % LPC
-% cfg.order = 'descend'; % descend = positive peaks first
-% cfg.roi = {'Pz'};
-% % cfg.latency = [0.4 0.8];
-% lpcPeak = 0.600;
-% % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
-% cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+% % step 2: find peak time at peak electrode(s)
+% cfg.datadim = 'time';
+% % cfg.roi = {'FS2'}; % Centered on E6 (360ms)
+% cfg.roi = {'C'}; % Centered on Cz (372ms)
+% cfg.latency = [0.3 0.5]; % N400
+% cfg.order = 'ascend'; % ascend = negative peaks first
 
-% % N400
-cfg.order = 'ascend'; % ascend = negative peaks first
-cfg.roi = {'Cz'};
-% cfg.latency = [0.2 0.6];
-n400Peak = 0.360;
-% % % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-% cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+% % step 3: select a window for analysis around peak
+% n400Peak = 0.360; % FS2
+% % n400Peak = 0.372; % C
+% cfg.datadim = 'time';
+% cfg.roi = {'FS2'}; % Centered on E6
+% % cfg.roi = {'C'}; % Centered on Cz
+% cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+% % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+% cfg.avgovertime = true;
+% cfg.order = 'ascend'; % ascend = negative peaks first
 
-cfg.datadim = 'time';
-% % cfg.roi = {'Cz'};
-% % cfg.roi = {'LPI3','RPI3'};
-% cfg.roi = {'Pz'};
-% % cfg.roi = {'PS2'};
-% % cfg.roi = {'RPI3'};
-% % cfg.roi = {'E84'}; % center of RPI3
-% % cfg.roi = {'RPS2'};
-% % cfg.roi = {'E85'}; % center of RPS2
-% % cfg.roi = {'LPS2'};
-% % cfg.latency = [0 1.0];
-% cfg.latency = [0.2 0.9];
+% ==================================================
+% N2 (negative posterior attentional component)
+% ==================================================
 
-cfg.is_ga = false;
-% cfg.is_ga = true;
-% cfg.outputSubjects = true;
-cfg.outputSubjects = false;
-cfg.sesNum = 1;
-
-cfg.plotit = true;
-cfg.voltlim = [-3 3]; % LPC
-% cfg.voltlim = [-2 2]; % N400
-% cfg.voltlim = [-1 5];
-
-% % only for datadim='elec' and datadim='peak2peak'
-% cfg.plottype = 'topo';
-% % cfg.plottype = 'multi';
-
-% % only for datadim='peak2peak'
-% cfg.datadim = 'peak2peak';
-% cfg.order = 'descend'; % descend = positive peaks first
-% cfg.roi = {'posterior'};
-% cfg.pospeak = [0.08 0.14];
-% cfg.negpeak = [0.14 0.2];
-
-% peakInfo = mm_findPeak(cfg,ana,exper,ga_tla);
-peakInfo = mm_findPeak(cfg,ana,exper,data_tla);
-
-%% find peak - attentional components
-cfg = [];
-
-% images
-% cfg.conditions = cellflat(ana.eventValues{1}{1});
-% words
-% cfg.conditions = cellflat(ana.eventValues{1}{2});
-
-% % all together
-cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
-% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-
-% spaced
-% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
-% cfg.conditions = {'word_RgH_rc_spac_p2'};
-% cfg.conditions = {'word_RgH_fo_spac_p2'};
-
-% % massed
-% cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-% cfg.conditions = {'word_RgH_rc_mass_p2'};
-% cfg.conditions = {'word_RgH_fo_mass_p2'};
-
-% % single presentation or first presentation
-% cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
-% cfg.conditions = {'word_onePres'};
-
+% % step 1: find peak electrode in large area, collapsing across conditions
 % cfg.datadim = 'elec';
-% cfg.roi = {'posterior'};
-% cfg.latency = [0.1 0.2];
+% % cfg.roi = {'center101'};
+% % cfg.roi = {'posterior'};
+% cfg.roi = {'posterior_noPeriph'};
+% cfg.latency = [0.15 0.25]; % N2
+% cfg.order = 'ascend'; % ascend = negative peaks first
 
-% % N2
-cfg.order = 'ascend'; % ascend = negative peaks first
-% cfg.roi = {'Cz'};
-% cfg.latency = [0.2 0.6];
-n2Peak = 0.172; % 'E64','E95'
-n2Peak = 0.168; % 'E70','E83' or 'E69','E89'
-n2Peak = 0.176; % 'E58','E96'
+% % step 2: find peak time at peak electrode(s)
+% cfg.datadim = 'time';
+% cfg.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % Centered on E58/T5 (172ms)
+% % cfg.roi = {'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}; % Centered on T5+T6 (172ms)
+% cfg.latency = [0.1 0.3]; % N2
+% cfg.order = 'ascend'; % ascend = negative peaks first
+
+% % step 3: select a window for analysis around peak
+% n2Peak = 0.172; % 'E58'
+% cfg.datadim = 'time';
+% cfg.roi = {'E50', 'E51', 'E57', 'E58', 'E59', 'E64', 'E65'}; % Centered on 
 % cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
-% % cfg.latency = [n2Peak-0.1 n2Peak+0.1]; % around GA peak (space+mass) +/- 100
-
-cfg.datadim = 'time';
-% cfg.roi = {'E70'};
-% cfg.roi = {'E70','E83'}; % O1, O2
-% cfg.roi = {'E64','E95'}; % 64 is biggest peak
-% cfg.roi = {'E69','E89'}; % both peaks are negative
-% cfg.roi = {'E58','E96'}; % T5, T6 (T5 is close 2nd biggest peak)
-cfg.roi = {'LPI2','RPI2'}; % includes T5, T6, O1, O2
-cfg.latency = [0 0.5];
+% cfg.avgovertime = true;
+% cfg.order = 'ascend'; % ascend = negative peaks first
 
 cfg.is_ga = false;
 % cfg.is_ga = true;
-% cfg.outputSubjects = true;
 cfg.outputSubjects = false;
+% cfg.outputSubjects = false;
 cfg.sesNum = 1;
 
 cfg.plotit = true;
-cfg.voltlim = [-3 3]; % LPC
-% cfg.voltlim = [-2 2]; % N400
-% cfg.voltlim = [-1 5];
+% cfg.voltlim = [-1 5]; % LPC
+cfg.voltlim = [-5 5]; % N400
+% cfg.voltlim = [-3 3]; % N2
 
 % % only for datadim='elec' and datadim='peak2peak'
 % cfg.plottype = 'topo';
@@ -983,8 +993,8 @@ cfg_ft.showlabels = 'yes';
 %cfg_ft.xlim = 'maxmin'; % time
 %cfg_ft.ylim = 'maxmin'; % freq
 % cfg_ft.zlim = 'maxmin'; % pow
-%cfg_ft.xlim = [-0.2 1.0]; % time
-cfg_ft.xlim = [-0.2 0.5]; % time
+cfg_ft.xlim = [-0.2 1.0]; % time
+% cfg_ft.xlim = [-0.2 0.5]; % time
 %cfg_ft.xlim = [-0.2 2.0]; % time
 
 cfg_ft.parameter = 'avg';
@@ -1000,8 +1010,25 @@ cfg_plot.excludeBadSub = 1;
 %%%%%%%%%%%%%%%
 
 cfg_plot.ftFxn = 'ft_singleplotER';
-cfg_plot.rois = {{'LPS','RPS'}};
-cfg_plot.ylims = [-2 5];
+
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.ylims = [-1 6; -1 6];
+cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+
+% E77
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
+cfg_plot.ylims = [-1 6];
+cfg_plot.legendlocs = {'NorthWest'};
+
+% cfg_plot.rois = {{'C'}};
+% cfg_plot.ylims = [-3 4];
+% cfg_plot.legendlocs = {'NorthEast'};
+
+% % T5/T6
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
+% cfg_plot.ylims = [-3 4; -3 4];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+
 % cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
 % cfg_plot.rois = {{'PI'}};
@@ -1012,24 +1039,23 @@ cfg_plot.ylims = [-2 5];
 % cfg_plot.x_bounds = [0.3 0.5; 0.3 0.5; 0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8; 0.5 0.8];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast','SouthEast','SouthEast','NorthWest','NorthWest','NorthWest'};
 % cfg_plot.x_bounds = [0.13 0.19];
-cfg_plot.x_bounds = [0.14 0.2];
+% cfg_plot.x_bounds = [0.14 0.2];
 cfg_plot.plotLegend = 1;
-cfg_plot.legendlocs = {'NorthWest'};
 
 cfg_plot.xlabel = 'Time (s)';
 cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.xlabel = '';
 % cfg_plot.ylabel = '';
 
-cfg_plot.ftFxn = 'ft_topoplotER';
-% cfg_plot.ylims = [-2 2];
-% %cfg_plot.ylims = 'maxmin';
-cfg_ft.marker = 'off';
-% cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-
-% cfg_ft.xlim = [0.13 0.19];
-cfg_ft.xlim = [0:0.1:1.0];
+% cfg_plot.ftFxn = 'ft_topoplotER';
+% % cfg_plot.ylims = [-2 2];
+% % %cfg_plot.ylims = 'maxmin';
+% cfg_ft.marker = 'off';
+% % cfg_ft.marker = 'labels';
+% % cfg_ft.markerfontsize = 9;
+% 
+% % cfg_ft.xlim = [0.13 0.19];
+% cfg_ft.xlim = [0:0.1:1.0];
 
 % %cfg_ft.comment = 'no';
 % % cfg_plot.rois = {'all'};
@@ -1066,8 +1092,17 @@ cfg_ft.xlim = [0:0.1:1.0];
 % cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
 % cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
 
-cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Mass P1 Recalled','Mass P1 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Mass P1 Recalled','Mass P1 Forgot','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+
+cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 
 
 % % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -1086,6 +1121,10 @@ cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P2 Recalled','Space P2 Fo
 
 sesNum = 1;
 
+% cfg_plot.ticFontSize = 20;
+% cfg_plot.labelFontSize = 24;
+cfg_plot.legendFontSize = 16;
+
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
@@ -1095,9 +1134,17 @@ for r = 1:length(cfg_plot.rois)
   cfg_ft.ylim = cfg_plot.ylims(r,:);
   
   if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
-    cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+    if isfield(cfg_plot,'x_bounds') && ~isempty(cfg_plot.x_bounds)
+      cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+    else
+      cfg_plot.x_bound = [];
+    end
     if cfg_plot.plotLegend
       cfg_plot.legendloc = cfg_plot.legendlocs{r};
+    end
+    
+    if exist('linspecer','file')
+      cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions{1}));
     end
   end
   
@@ -1175,6 +1222,173 @@ cfg_ft.xlim = [0.13 0.19];
 
 sesNum = 1;
 mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
+
+%% RM ANOVA
+
+stimType = 'word_';
+% stimType = 'img_';
+memType = 'RgH_';
+
+% spacings = {'mass', 'spac', 'onePres'};
+% oldnew = {'p1'};
+% % oldnew = {'p2'};
+% memConds = {'all'};
+
+% didn't test new words, so can't assess memory, but can use p1
+spacings = {'mass', 'spac'};
+% spacings = {'spac'};
+oldnew = {'p1', 'p2'};
+% oldnew = {'p1'};
+% oldnew = {'p2'};
+memConds = {'rc','fo'};
+% memConds = {'rc'};
+
+measure = 'avg';
+
+% roi = {'LPS2'};
+roi = {{'LPS2'},{'RPS2'}};
+% roi = {{'LPS2','RPS2'}};
+% latencies = [0.4 0.8];
+latencies = [0.4 0.6; 0.604 0.804];
+
+latency = cell(1,size(latencies,1));
+for i = 1:length(latency)
+  latency{i} = sprintf('%dto%d',latencies(i,1)*1000,latencies(i,2)*1000);
+end
+latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
+latStr = latStr(2:end);
+
+factorNames = {'spacings', 'oldnew', 'memConds', 'roi', 'latency'};
+
+nVariables = nan(size(factorNames));
+keepTheseFactors = false(size(factorNames));
+levelNames_teg = cell(size(factorNames)); % TEG
+for c = 1:length(factorNames)
+  % need to have a variable set to this exact factor name
+  thisFac = eval(factorNames{c});
+  nVariables(c) = length(thisFac);
+  if nVariables(c) > 1
+    keepTheseFactors(c) = true;
+  end
+  
+  % go through the levels within this factor and save strings
+  thisFac_str = cell(1,nVariables(c));
+  for l = 1:length(thisFac)
+    if iscell(thisFac{l})
+      tf = thisFac{l};
+      thisFac_str{l} = sprintf(repmat('_%s',1,length(tf)),tf{:});
+      thisFac_str{l} = thisFac_str{l}(2:end);
+    elseif ischar(thisFac{l})
+      thisFac_str{l} = thisFac{l};
+    end
+  end
+  levelNames_teg{c} = thisFac_str; % TEG
+end
+
+variableNames = cell(1,prod(nVariables));
+levelNames = cell(prod(nVariables),length(factorNames));
+
+ses=1;
+nSub = sum(~exper.badSub);
+anovaData = nan(nSub,prod(nVariables));
+rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
+
+fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(oldnew)),oldnew{:}),factorNames{2});
+fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{3});
+if iscell(roi{1})
+  fprintf('%d ROIs (%s),',length(roi),factorNames{4});
+elseif ischar(roi{1})
+  fprintf('%s (%s),',sprintf(repmat(' %s',1,length(roi)),roi{:}),factorNames{4});
+end
+fprintf('%s (%s),',latStr,factorNames{5});
+
+lnDone = false;
+vnDone = false;
+subCount = 0;
+rmCount = 0;
+for sub = 1:length(exper.subjects)
+  if ~exper.badSub(sub)
+    subCount = subCount + 1;
+  else
+    continue
+  end
+  for ses = 1:length(exper.sesStr)
+    lnCount = 0;
+    vnCount = 0;
+    
+    for sp = 1:length(spacings)
+      for on = 1:length(oldnew)
+        for mc = 1:length(memConds)
+          cond_str = [];
+          if strcmp(spacings{sp},'onePres')
+            % single presentation or first presentation
+            if strcmp(memConds{mc},'all');
+              cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
+            end
+          elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+            cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
+          end
+          
+          for r = 1:length(roi)
+            if iscell(roi{r})
+              roi_str = sprintf(repmat('%s',1,length(roi{r})),roi{r}{:});
+            elseif ischar(roi{r})
+              roi_str = roi{r};
+            end
+            chanIdx = ismember(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+            
+            for lat = 1:length(latency)
+              latIdx = (nearest(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,1)):nearest(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,2)));
+              if ~lnDone
+                lnCount = lnCount + 1;
+                levelNames{lnCount,1} = spacings{sp};
+                levelNames{lnCount,2} = oldnew{on};
+                levelNames{lnCount,3} = memConds{mc};
+                levelNames{lnCount,4} = roi{r};
+                levelNames{lnCount,5} = latency{lat};
+              end
+              
+              vnCount = vnCount + 1;
+              if ~vnDone
+                variableNames{vnCount} = sprintf('Y%d',vnCount);
+              end
+              
+              anovaData(subCount,vnCount) = mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1);
+              
+              rmCount = rmCount + 1;
+              rmaov_data_teg(rmCount,:) = [anovaData(subCount,vnCount) sp on mc r lat sub];
+            end
+          end
+        end
+      end
+    end
+    lnDone = true;
+    vnDone = true;
+  end
+end
+
+if any(~keepTheseFactors)
+  factorNames = factorNames(keepTheseFactors);
+  levelNames = levelNames(:,keepTheseFactors);
+  nVariables = nVariables(keepTheseFactors);
+  levelNames_teg = levelNames_teg(keepTheseFactors); % TEG
+  
+  rmaov_data_teg = rmaov_data_teg(:,[1 (find(keepTheseFactors) + 1) size(rmaov_data_teg,2)]); % TEG
+  fprintf('\n\tOnly keeping factors:%s...',sprintf(repmat(' %s',1,length(factorNames)),factorNames{:}));
+end
+fprintf('Done.\n');
+
+% TEG RM ANOVA
+
+fprintf('=======================================\n');
+fprintf('This ANOVA: \n\n');
+
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
+
+fprintf('Prev ANOVA: \n');
+fprintf('=======================================\n');
 
 %% descriptive statistics: ttest
 

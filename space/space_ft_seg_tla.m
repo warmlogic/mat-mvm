@@ -72,7 +72,7 @@ exper.subjects = {
 %   'SPACE034';
 %   'SPACE047';
 %   'SPACE049';
-  'SPACE036';
+%   'SPACE036';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -257,9 +257,10 @@ ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 
 
 % set up for ftManual/ftAuto
-ana.artifact.type = {'ftManual'};
-% ana.artifact.type = {'ftAuto'};
-ana.artifact.resumeManArtFT = false;
+% ana.artifact.type = {'ftManual'};
+ana.artifact.type = {'ftAuto'};
+% ana.artifact.resumeManArtFT = false;
+ana.artifact.resumeManArtContinuous = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts.
 % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
 % of extra time around trial epochs. Otherwise set to zero.
@@ -275,11 +276,11 @@ ana.artifact.threshmin = -100;
 ana.artifact.threshmax = 100;
 ana.artifact.threshrange = 150;
 ana.artifact.basic_art = true;
-ana.artifact.basic_art_z = 40;
+ana.artifact.basic_art_z = 30;
 ana.artifact.jump_art = true;
-ana.artifact.jump_art_z = 50;
-% % eog_art is only used with ftAuto
-% ana.artifact.eog_art = false;
+ana.artifact.jump_art_z = 30;
+% eog_art is only used with ftAuto
+ana.artifact.eog_art = false;
 % ana.artifact.eog_art_z = 3.5;
 
 % process the data
