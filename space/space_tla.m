@@ -610,9 +610,9 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.rois = {{'Pz'}}; % Pz
 % cfg_plot.rois = {{'PS'}}; % Centered on Pz
 % cfg_plot.rois = {{'PS2'}}; % Centered on E72
-% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
 % cfg_plot.rois = {{'LPS2','RPS2'}};
 cfg_plot.ylims = [-1 5; -1 5];
 % cfg_plot.legendlocs = {'SouthEast'};
@@ -696,19 +696,18 @@ cfg = [];
 % cfg.conditions = cellflat(ana.eventValues{1}{2});
 
 % % words, all together
-cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
+cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
+
+% P2 only
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 % cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % spaced
-% cfg.conditions = {'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
-% cfg.conditions = {'word_RgH_rc_spac_p2'};
-% cfg.conditions = {'word_RgH_fo_spac_p2'};
+% cfg.conditions = {'word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
 
 % % massed
-% cfg.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
-% cfg.conditions = {'word_RgH_rc_mass_p2'};
-% cfg.conditions = {'word_RgH_fo_mass_p2'};
+% cfg.conditions = {'word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'};
 
 % % single presentation or first presentation
 % cfg.conditions = {'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1'};
@@ -720,18 +719,18 @@ cfg.conditions = {'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','wo
 % LPC (positive late pareital component)
 % ==================================================
 
-% step 1: find peak electrode in large area, collapsing across conditions
-cfg.datadim = 'elec';
-% cfg.roi = {'center101'};
-cfg.roi = {'posterior_noPeriph'};
-cfg.latency = [0.4 0.8]; % LPC
-cfg.order = 'descend'; % descend = positive peaks first
-% LPC: electrode cluster around E77 includes peak E84 E85 etc
+% % step 1: find peak electrode in large area, collapsing across conditions
+% cfg.datadim = 'elec';
+% % cfg.roi = {'center101'};
+% cfg.roi = {'posterior_noPeriph'};
+% cfg.latency = [0.4 0.8]; % LPC
+% cfg.order = 'descend'; % descend = positive peaks first
+% % LPC: electrode cluster around E77 includes peak E84 E85 etc
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% % cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (596ms)
-% cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (596ms)
+% % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
 % % cfg.roi = {'RPS'}; % Centered on E86 (ms)
 % % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
 % cfg.latency = [0.4 0.8]; % LPC
@@ -741,11 +740,12 @@ cfg.order = 'descend'; % descend = positive peaks first
 % % lpcPeak = 0.588;
 % lpcPeak = 0.576; % bilateral
 % cfg.datadim = 'time';
-% % cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77
-% cfg.roi = {'RPS2'}; % Centered on E85
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77
+% % cfg.roi = {'RPS2'}; % Centered on E85
 % % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85
 % % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
-% cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+% % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+% cfg.latency = [lpcPeak-0.15 lpcPeak+0.15]; % LPC - around GA peak (space+mass) +/- 150
 % cfg.avgovertime = true;
 % cfg.order = 'descend'; % descend = positive peaks first
 
@@ -772,8 +772,8 @@ cfg.order = 'descend'; % descend = positive peaks first
 % cfg.datadim = 'time';
 % cfg.roi = {'FS2'}; % Centered on E6
 % % cfg.roi = {'C'}; % Centered on Cz
-% % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-% cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+% cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+% % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
 % cfg.avgovertime = true;
 % cfg.order = 'ascend'; % ascend = negative peaks first
 
@@ -806,7 +806,7 @@ cfg.order = 'descend'; % descend = positive peaks first
 
 cfg.is_ga = false;
 % cfg.is_ga = true;
-cfg.outputSubjects = true;
+cfg.outputSubjects = false;
 % cfg.outputSubjects = false;
 cfg.sesNum = 1;
 
@@ -1011,14 +1011,20 @@ cfg_plot.excludeBadSub = 1;
 
 cfg_plot.ftFxn = 'ft_singleplotER';
 
-cfg_plot.rois = {{'LPS2'},{'RPS2'}};
-cfg_plot.ylims = [-1 6; -1 6];
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.ylims = [-1 6; -1 6];
 cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+
+% E77
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
+cfg_plot.ylims = [-1 6];
+cfg_plot.legendlocs = {'NorthWest'};
 
 % cfg_plot.rois = {{'C'}};
 % cfg_plot.ylims = [-3 4];
 % cfg_plot.legendlocs = {'NorthEast'};
 
+% % T5/T6
 % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
 % cfg_plot.ylims = [-3 4; -3 4];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast'};

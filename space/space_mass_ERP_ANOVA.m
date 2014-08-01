@@ -17,33 +17,41 @@ oldnew = {'p1', 'p2'};
 memConds = {'rc','fo'};
 
 erpComponents = {'LPC','N400','N2'};
-% erpComponents = {'N400'};
+% erpComponents = {'LPC'};
 
-% % % make sure roi has the same length as erpComponents
+% roi = { ...
+%   {{'LPS2','RPS2'}} ...
+%   {{'C'}} ...
+%   {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}} ...
+%   };
+% roi = { ...
+%   {{'RPS2'}} ...
+%   {{'C'}} ...
+%   {{'E50','E51','E57','E58','E59','E64','E65'}} ... % E58
+%   };
 
-roi = {{ ...
-  {'LPS2','RPS2'} ...
-  {'C'} ...
-  {'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'} ...
-  }};
+roi = { ...
+  {{'E62','E72','E76','E77','E78','E84','E85'}} ... % E77
+  {{'C'}} ...
+  {{'E50','E51','E57','E58','E59','E64','E65'}} ... % E58
+  };
+% roi = { ...
+%   {{'E62','E72','E76','E77','E78','E84','E85'}} ... % E77
+%   };
 
-% % roi = {{{'Pz'}},{{'Cz'}},{{'E69','E89'}}}; % near O1, O2
-% roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'FS2'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
-% roi = {{{'E62','E72','E76','E77','E78','E84','E85'}},{{'C'}},{{'E50','E51','E57','E58','E59','E64','E65'}}};
-% roi = {{{'Pz'}},{{'Cz'}},{{'E58','E96'}}};
-% roi = {{{'E69','E89'}}};
-
-% roi = {{{'FS2'}}};
-% roi = {{{'C'}}};
-
+% make sure roi has the same length as erpComponents
 if length(erpComponents) ~= length(roi)
   error('roi must have the same length as erpComponents');
 end
 
-lpcPeak = 0.576; % LPS2+RPS2
-% lpcPeak = 0.588; % centered on E77
+lpcPeak = 0.596; % centered on E77
+% lpcPeak = 0.576; % LPS2+RPS2
+% lpcPeak = 0.500; % RPS2
+% lpcPeak = 0.600; % general
+
 % n400Peak = 0.360; % FS2
 n400Peak = 0.372; % C
+
 n2Peak = 0.172;
 
 for sp = 1:length(spacings)
@@ -89,11 +97,12 @@ for sp = 1:length(spacings)
             cfg.order = 'descend'; % descend = positive peaks first
             %cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
             cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+            %cfg.latency = [lpcPeak-0.15 lpcPeak+0.15]; % LPC - around GA peak (space+mass) +/- 150
           elseif strcmp(erpComponents{er},'N400')
             % N400
             cfg.order = 'ascend'; % ascend = negative peaks first
-            %cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
-            cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
+            cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
+            %cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
           elseif strcmp(erpComponents{er},'N2')
             cfg.order = 'ascend'; % ascend = negative peaks first
             cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
@@ -140,15 +149,16 @@ memConds = {'rc','fo'};
 % measure = 'latency';
 measure = 'voltage';
 
-erpComp = 'LPC';
-roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
+erpComp = 'N2';
+roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
 
 % erpComp = 'N400';
-% % roi = {'C'}; % centered on Cz
-% roi = {'FS2'}; % centered on E6
+% roi = {'C'}; % centered on Cz
+% % roi = {'FS2'}; % centered on E6
 
-% erpComp = 'N2';
-% roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
+% erpComp = 'LPC';
+% % roi = {'RPS2'}; % centered on E85
+% roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
 
 factorNames = {'spacings', 'oldnew', 'memConds', 'roi'};
 nVariables = nan(size(factorNames));
@@ -228,6 +238,16 @@ end
 
 fprintf('Done.\n');
 
+% TEG ANOVA
+
+fprintf('================================================================\n');
+fprintf('This ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
+
+O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
+
+fprintf('Prev ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
+fprintf('================================================================\n');
+
 %% Matlab ANOVA
 
 t = array2table(anovaData,'VariableNames',variableNames);
@@ -268,16 +288,6 @@ pairwiseComps = nchoosek(1:length(factorNames),2);
 for i = 1:size(pairwiseComps,1)
   multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
 end
-
-%% TEG ANOVA
-
-fprintf('================================================================\n');
-fprintf('This ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
-
-O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
-
-fprintf('Prev ANOVA: %s:%s, %s\n',erpComp,sprintf(repmat(' %s',1,length(roi)),roi{:}),measure);
-fprintf('================================================================\n');
 
 %% gather data for pairwise t-tests
 
