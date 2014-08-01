@@ -419,11 +419,30 @@ save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','d
 
 %% load
 
-loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow';
-% loadDir = '/Volumes/curranlab/Data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% loadDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow';
-% load(fullfile(loadDir,'space_word_data_ga_pow.mat'));
-% load(fullfile(loadDir,'space_word_img_data_ga_pow.mat'));
+subDir = '';
+dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+else
+  error('Data directory not found.');
+end
+
+loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow');
+% loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
+
 load(fullfile(loadDir,'space_word_img_data_pow.mat'));
 
 [dirs] = mm_checkDirs(dirs);
