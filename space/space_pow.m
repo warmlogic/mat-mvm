@@ -1785,6 +1785,7 @@ end
 %% line plots
 
 files.saveFigs = 1;
+files.figPrintFormat = 'png';
 
 cfg = [];
 cfg.parameter = 'powspctrm';
@@ -1881,8 +1882,10 @@ cfg.clusTimes = cfg.times;
 % cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.clusLimits = true;
 
-cfg.linewidth = 1;
+cfg.linewidth = 2;
 cfg.limitlinewidth = 0.5;
+
+cfg.textFontSize = 10;
 
 %cfg.ylim = [-0.6 0.6];
 %cfg.ylim = [-0.5 0.2];
