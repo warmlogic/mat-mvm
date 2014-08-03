@@ -1080,46 +1080,27 @@ fprintf('Done.\n');
 
 %% load
 
-% analysisDate = '13-Jul-2014';
+analysisDate = '01-Aug-2014';
 
-% thisROI = {'center109'};
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% thisROI = {'LPS','RPS'};
-% thisROI = {'LT','RT'};
-% thisROI = {'LPI2','RPI2'};
-% thisROI = {'LAS','FC','RAS'};
-
-% freqs = [3 8; 8 12; 12 30; 30 50];
-% % freqs = [4 8; 8 12; 12 30; 30 50];
-% % freqs = [3 8];
-% % freqs = [4 8];
-% % freqs = [8 12];
-% % freqs = [12 30];
-% % freqs = [30 50];
-
-% analysisDate = '14-Jul-2014';
-analysisDate = '15-Jul-2014';
-
-% data_str = 'img_word';
-% data_str = 'img';
-% data_str = '';
 data_str = 'word';
+% data_str = 'img';
+% data_str = 'img_word';
 
 % thisROI = {'center109'};
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% thisROI = {'LPS','RPS'};
+thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
 % thisROI = {'LAS2','FS','RAS2'};
-thisROI = {'LFP','FC','RFP'};
+% thisROI = {'LFP','FC','RFP'};
 
-freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
+freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
 % freqs = [3 7];
 % freqs = [8 12];
 % freqs = [13 20];
-% freqs = [21 30];
-% freqs = [31 45];
-% freqs = [46 80];
+% freqs = [23 30];
+% freqs = [32 47];
+% freqs = [51 80];
 
 freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
 
@@ -1183,7 +1164,9 @@ elseif exist('localDir','var') && exist(localDir,'dir')
 else
   error('Data directory not found.');
 end
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
+
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow');
 
 if ~isempty(data_str)
   rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
@@ -1203,10 +1186,11 @@ sesNames_all = exper.sesNames;
 
 %% stats
 
-nTrialThresh = 8; % 31
-% nTrialThresh = 14; % 30
-% nTrialThresh = 16; % 28
-% nTrialThresh = 17; % 24
+% nTrialThresh = 10; % 30
+nTrialThresh = 12; % 27
+% nTrialThresh = 14; % 25
+% nTrialThresh = 16; % 22
+% nTrialThresh = 17; % 21
 
 plotit = false;
 
@@ -1265,7 +1249,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
-latInd = [1:5];
+% latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6:9];
@@ -1274,7 +1258,7 @@ latInd = [1:5];
 % latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-% latInd = [13:14];
+latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16:20];
@@ -1318,7 +1302,7 @@ variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
 ses=1;
-nSub = sum(passTrlThresh(:,ses));
+nSub = sum(noNans & passTrlThresh(:,ses));
 anovaData = nan(nSub,prod(nVariables));
 rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
 

@@ -1024,27 +1024,33 @@ fprintf('Done.\n');
 
 %% load
 
-analysisDate = '13-Jul-2014';
-data_str = '';
+analysisDate = '01-Aug-2014';
 
-% analysisDate = '15-Jul-2014';
-
-% data_str = 'img_word';
+data_str = 'word';
 % data_str = 'img';
-% data_str = 'word';
+% data_str = 'img_word';
 
 % thisROI = {'center109'};
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% thisROI = {'LPS','RPS'};
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
+thisROI = {'LPS','RPS'}; % *spacing, mem x latency
 % thisROI = {'LT','RT'};
-% thisROI = {'LPI2','RPI2'};
-% thisROI = {'LAS2','FS','RAS2'};
+% thisROI = {'LPI2','RPI2'}; % not interesting
+% thisROI = {'LAS2','FS','RAS2'}; % spacing x latency
 % thisROI = {'LFP','FC','RFP'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
 elseif ischar(thisROI)
   roi_str = thisROI;
+end
+
+lpfilt = true;
+if lpfilt
+  lpfreq = 40;
+  %lpfilttype = 'but';
+  lpfilt_str = sprintf('lpfilt%d',lpfreq);
+else
+  lpfilt_str = 'lpfiltNo';
 end
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
@@ -1100,12 +1106,14 @@ elseif exist('localDir','var') && exist(localDir,'dir')
 else
   error('Data directory not found.');
 end
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 if ~isempty(data_str)
-  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,lpfilt_str,analysisDate));
 else
-  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,analysisDate));
+  rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s_cluster.mat',origDataType,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),avgovertime,lpfilt_str,analysisDate));
 end
 if exist(rsaFile,'file')
   fprintf('loading: %s...',rsaFile);
@@ -1117,10 +1125,11 @@ end
 
 %% stats
 
-nTrialThresh = 8; % 31
-% nTrialThresh = 14; % 30
-% nTrialThresh = 16; % 28
-% nTrialThresh = 17; % 24
+% nTrialThresh = 10; % 30
+nTrialThresh = 12; % 27
+% nTrialThresh = 14; % 25
+% nTrialThresh = 16; % 22
+% nTrialThresh = 17; % 21
 
 plotit = false;
 
@@ -1197,7 +1206,7 @@ latInd = [13:14];
 % % 0 to 1
 % latInd = 24;
 
-datatyp = 'word';
+% datatyp = 'word';
 % datayp = 'img';
 
 % =================================================
@@ -1230,7 +1239,7 @@ variableNames = cell(1,prod(nVariables));
 levelNames = cell(prod(nVariables),length(factorNames));
 
 ses=1;
-nSub = sum(passTrlThresh(:,ses));
+nSub = sum(noNans & passTrlThresh(:,ses));
 anovaData = nan(nSub,prod(nVariables));
 rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
 
@@ -1253,7 +1262,7 @@ for sub = 1:length(exper.subjects)
       
       for sp = 1:length(spacings)
         for mc = 1:length(memConds)
-          cond_str = sprintf('%s_RgH_%s_%s',datatyp,memConds{mc},spacings{sp});
+          cond_str = sprintf('%s_RgH_%s_%s',data_str,memConds{mc},spacings{sp});
           
           for lat = 1:length(latInd)
             if ~lnDone
