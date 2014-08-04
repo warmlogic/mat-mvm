@@ -14,6 +14,7 @@ function freq = mm_freqSet(freqFxn)
 % Automatically splits alpha, beta, and gamma frequencies.
 %
 % default frequency range based on ndtools:
+% freq.fullRange = [4.1 77.4];
 % freq.theta = [4.1 7.7];
 % freq.alpha = [8.4 12];
 % freq.alpha_lower = [8.4 10.1];
@@ -26,6 +27,7 @@ function freq = mm_freqSet(freqFxn)
 % freq.gamma_upper = [49.7 77.4];
 %
 % 'ants' will group similarly using: logspace(log10(3),log10(80),30)
+% freq.fullRange = [4.2 80];
 % freq.theta = [4.2 7.4];
 % freq.alpha = [8.3 11.7];
 % freq.alpha_lower = [8.3 9.3];
@@ -44,6 +46,8 @@ end
 freq = struct;
 
 if strcmp(freqFxn,'ndtools')
+  freq.fullRange = [4.1 77.4];
+  
   freq.theta = [4.1 7.7];
   
   freq.alpha = [8.4 12];
@@ -57,7 +61,10 @@ if strcmp(freqFxn,'ndtools')
   freq.gamma = [31.9 77.4];
   freq.gamma_lower = [31.9 45.5];
   freq.gamma_upper = [49.7 77.4];
+  
 elseif strcmp(freqFxn,'ants')
+  freq.fullRange = [4.2 80];
+  
   freq.theta = [4.2 7.4];
   
   freq.alpha = [8.3 11.7];
