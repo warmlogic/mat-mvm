@@ -194,10 +194,10 @@ for sub = 1:length(exper.subjects)
         end
         
         % set the number of samples
-        n_data = size(orig.(data_fn).trial,3);
+        n_samples = size(orig.(data_fn).trial,3);
         
         if strcmp(cfg_ana.method,'wavelet_ndtools')
-          wobj = mkwobj('morl', n_data, sampleRate, 1./frequencies);
+          wobj = mkwobj('morl', n_samples, sampleRate, 1./frequencies);
         elseif strcmp(cfg_ana.method,'wavelet_ants')
           time = -1:1/sampleRate:1;
           half_of_wavelet_size = (length(time)-1)/2;
@@ -207,7 +207,7 @@ for sub = 1:length(exper.subjects)
           
           % FFT parameters (use next-power-of-2)
           n_wavelet     = length(time);
-          n_convolution = n_wavelet+n_data-1;
+          n_convolution = n_wavelet+n_samples-1;
           n_conv_pow2   = pow2(nextpow2(n_convolution));
           
           % create wavelet bank
@@ -220,9 +220,9 @@ for sub = 1:length(exper.subjects)
         end
         
         % find out about resampling power
-        keepTime = true(1,n_data);
+        keepTime = true(1,n_samples);
         if cfg_ana.resample_pow
-          keepTime = false(1,n_data);
+          keepTime = false(1,n_samples);
           keepTimeInd = [];
           if ~isempty(cfg_ana.keepTimeSec)
             timeLimits = cfg_ana.keepTimeSec;
@@ -238,7 +238,7 @@ for sub = 1:length(exper.subjects)
           end
           keepTime(keepTimeInd) = true;
         elseif ~cfg_ana.resample_pow && ~isempty(cfg_ana.keepTimeSec)
-          keepTime = false(1,n_data);
+          keepTime = false(1,n_samples);
           tbeg = nearest(orig.(data_fn).time,cfg_ana.keepTimeSec(1));
           tend = nearest(orig.(data_fn).time,cfg_ana.keepTimeSec(2));
           keepTime(tbeg:tend) = true;
