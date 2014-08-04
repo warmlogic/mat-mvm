@@ -449,6 +449,8 @@ load(fullfile(loadDir,'space_word_img_data_pow.mat'));
 
 [dirs] = mm_checkDirs(dirs);
 
+ana.freq = mm_freqSet('ndtools');
+
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
