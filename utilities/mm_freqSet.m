@@ -7,13 +7,15 @@ function ana = mm_freqSet(ana,freqFxn)
 %
 % ana:        ana struct
 %
-% freqFxn:    'ndtools' or 'ants'. Method used in mm_tla2pow.
+% freqFxn:    string: 'ndtools' or 'ants'. Method used in mm_tla2pow.
 %             default: 'ndtools' because it recalculates the actual center
-%             frequency of each wavelet.
+%             frequency of each wavelet using:
+%             wobj = mkwobj('morl', n_samples, sampleRate, 1./frequencies);
+%             NB: n_samples and sampleRate do not affect the frequencies
 %
 % Automatically splits alpha, beta, and gamma frequencies.
 %
-% default frequency range based on ndtools: wobj = mkwobj('morl', n_samples, sampleRate, 1./frequencies);
+% default frequency range based on ndtools:
 % ana.freq.theta = [4.1 7.7];
 % ana.freq.alpha = [8.4 12];
 % ana.freq.alpha_lower = [8.4 10.1];
