@@ -113,6 +113,10 @@ loadFile = 'space_word_img_data_pow.mat';
 % % accurateClassifSelect = true;
 % accurateClassifSelect = false;
 
+%% set up frequencies
+
+freq = mm_freqSet('ndtools');
+
 %% analysis details
 
 cfg_ft = [];
@@ -197,9 +201,22 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
 end
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [3 80];
+  % cfg_ana.frequencies = [3 80];
+  cfg_ana.frequencies = freq.fullRange;
+
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
-  cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
+  % cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
+  
+  cfg_ana.frequencies = [ ...
+    freq.theta; ...
+    freq.alpha; ...
+    freq.alpha_lower; ...
+    freq.alpha_upper; ...
+    freq.beta_lower; ...
+    freq.beta_upper; ...
+    freq.gamma_lower; ...
+    freq.gamma_upper];
+  
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
 
