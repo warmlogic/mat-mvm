@@ -926,7 +926,7 @@ for r = 1:length(cfg_plot.rois)
   mm_ft_plotTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_pow,ses);
 end
 
-%% line plots
+%% line plots - no cluster stats
 
 files.saveFigs = false;
 files.figPrintFormat = 'png';
@@ -938,8 +938,8 @@ cfg.parameter = 'powspctrm';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
 % cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-%cfg.times = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
-cfg.times = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+cfg.times = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+% cfg.times = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
 % cfg.freqs = [3 8; 8 12; 12 28; 28 50; 50 80];
 % cfg.freqs = [3 8; 8 10; 10 12];
