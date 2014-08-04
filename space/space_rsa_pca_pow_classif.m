@@ -117,8 +117,18 @@ parameter = 'powspctrm';
 % freqs = [2 4; 4 8; 8 12; 12 30; 30 50];
 % freqs = [4 8; 8 12; 12 30; 30 50];
 % freqs = [3 8; 9 12; 13 30; 31 50];
-freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+% freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
+
+freq = mm_freqSet('ndtools');
+freqs = [ ...
+  freq.theta; ...
+  freq.alpha; ...
+  freq.beta_lower; ...
+  freq.beta_upper; ...
+  freq.gamma_lower; ...
+  freq.gamma_upper];
+
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),round(freqs(1,1)),round(freqs(end,end)));
 
 latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -1094,7 +1104,7 @@ thisROI = {'LPS','RPS'};
 % thisROI = {'LAS2','FS','RAS2'};
 % thisROI = {'LFP','FC','RFP'};
 
-freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
+% freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
 % freqs = [3 7];
 % freqs = [8 12];
 % freqs = [13 20];
@@ -1102,7 +1112,16 @@ freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
 % freqs = [32 47];
 % freqs = [51 80];
 
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+freq = mm_freqSet('ndtools');
+freqs = [ ...
+  freq.theta; ...
+  freq.alpha; ...
+  freq.beta_lower; ...
+  freq.beta_upper; ...
+  freq.gamma_lower; ...
+  freq.gamma_upper];
+
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),round(freqs(1,1)),round(freqs(end,end)));
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});

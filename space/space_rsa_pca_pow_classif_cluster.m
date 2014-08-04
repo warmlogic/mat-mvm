@@ -31,7 +31,7 @@ end
 
 parameter = 'powspctrm';
 
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),round(freqs(1,1)),round(freqs(end,end)));
 
 % column numbers in trialinfo
 % trialNumCol = 5;

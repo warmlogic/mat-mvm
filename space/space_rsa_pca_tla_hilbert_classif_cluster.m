@@ -517,7 +517,7 @@ exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030'}};
 parameter = 'powspctrm';
 parameter_orig = 'trial';
 
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),round(freqs(1,1)),round(freqs(end,end)));
 
 % bandpass filter the trials at a given frequency bin
 sampleRate = ft_findcfg(data_tla.(exper.sesStr{1}).(sprintf('%s_p1',dataTypes{1})).sub(1).data.cfg,'fsample');
