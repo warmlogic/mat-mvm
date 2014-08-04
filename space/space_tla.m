@@ -1295,6 +1295,7 @@ anovaData = nan(nSub,prod(nVariables));
 rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
 
 fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
+fprintf('%s\n',stimType);
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(oldnew)),oldnew{:}),factorNames{2});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{3});
@@ -1407,11 +1408,11 @@ fprintf('Done.\n');
 % TEG RM ANOVA
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: \n\n');
+fprintf('This ANOVA: %s\n\n',stimType);
 
 O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
 
-fprintf('Prev ANOVA: \n');
+fprintf('Prev ANOVA: %s\n',stimType);
 fprintf('=======================================\n');
 
 %% descriptive statistics: ttest
