@@ -930,7 +930,7 @@ end
 
 %% line plots - no cluster stats
 
-files.saveFigs = false;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg = [];
@@ -981,18 +981,24 @@ cfg.rois = {...
 
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
-cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
+
+cfg.conditions = {{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'img_onePres','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
 
 cfg.plotClusSig = false;
-cfg.clusAlpha = 0.1;
-%cfg.clusTimes = cfg.times;
-% cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
-%cfg.clusTimes = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
-cfg.clusTimes = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
-cfg.clusLimits = false;
+% cfg.clusAlpha = 0.1;
+% %cfg.clusTimes = cfg.times;
+% % cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
+% %cfg.clusTimes = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+% cfg.clusTimes = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+% cfg.clusLimits = false;
+
+cfg.linewidth = 2;
+% cfg.limitlinewidth = 0.5;
+% cfg.textFontSize = 10;
 
 %cfg.ylim = [-0.6 0.6];
 %cfg.ylim = [-0.5 0.2];
@@ -1395,10 +1401,9 @@ memConds = {'rc','fo'};
 measure = 'powspctrm';
 
 % % theta
-% freqs = [3 7];
-freqs = [4 7.7];
+freqs = ana.freq.theta;
 latencies = [0.7 1.0];
-roi = {'LAI'}; % yes strongly **
+% roi = {'LAI'}; % yes strongly **
 % roi = {'LFP'}; % no
 % roi = {'FC'}; % not quite
 % roi = {'FS'}; % yes
@@ -1457,7 +1462,7 @@ end
 latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
 latStr = latStr(2:end);
 
-freq_str = sprintf('%dfreq%dto%d',size(freqs,1),freqs(1,1),freqs(end,end));
+freq_str = sprintf('%dfreq%dto%d',size(freqs,1),round(freqs(1,1)),round(freqs(end,end)));
 freqIdx = (nearest(data_pow.(exper.sesStr{1}).(ana.eventValues{1}{1}{1}).sub(1).data.freq,freqs(1,1)):nearest(data_pow.(exper.sesStr{1}).(ana.eventValues{1}{1}{1}).sub(1).data.freq,freqs(1,2)));
 
 factorNames = {'spacings', 'oldnew', 'memConds', 'roi', 'latency'};
@@ -1525,13 +1530,18 @@ for sub = 1:length(exper.subjects)
       for on = 1:length(oldnew)
         for mc = 1:length(memConds)
           cond_str = [];
+          cond_str_tmp = [];
           if strcmp(spacings{sp},'onePres')
             % single presentation or first presentation
-            if strcmp(memConds{mc},'all');
-              cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
+            if strcmp(memConds{mc},'all')
+              cond_str = sprintf('%s%s',stimType,spacings{sp});
             end
           elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
             cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
+            if strcmp(memConds{mc},'all')
+              % manually input rc and fo
+              cond_str_tmp = {sprintf('%s%s%s_%s_%s',stimType,memType,'rc',spacings{sp},oldnew{on}), sprintf('%s%s%s_%s_%s',stimType,memType,'fo',spacings{sp},oldnew{on})};
+            end
           end
           
           for r = 1:length(roi)
@@ -1540,10 +1550,22 @@ for sub = 1:length(exper.subjects)
             elseif ischar(roi{r})
               roi_str = roi{r};
             end
-            chanIdx = ismember(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+            if ~isempty(cond_str_tmp)
+              chanIdx = ismember(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+            else
+              chanIdx = ismember(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+            end
             
             for lat = 1:length(latency)
-              latIdx = (nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,1)):nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,2)));
+              if ~isempty(cond_str_tmp)
+                tbeg = nearest(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.time,latencies(lat,1));
+                tend = nearest(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.time,latencies(lat,2));
+              else
+                tbeg = nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,1));
+                tend = nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,2));
+              end
+              latIdx = tbeg:tend;
+              
               if ~lnDone
                 lnCount = lnCount + 1;
                 levelNames{lnCount,1} = spacings{sp};
@@ -1558,8 +1580,14 @@ for sub = 1:length(exper.subjects)
                 variableNames{vnCount} = sprintf('Y%d',vnCount);
               end
               
-              anovaData(subCount,vnCount) = mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1);
-              
+              if ~isempty(cond_str_tmp)
+                thisData = (mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1) + ...
+                  mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1)) / 2;
+              else
+                thisData = mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1);
+              end
+              anovaData(subCount,vnCount) = thisData;
+
               rmCount = rmCount + 1;
               rmaov_data_teg(rmCount,:) = [anovaData(subCount,vnCount) sp on mc r lat sub];
             end
