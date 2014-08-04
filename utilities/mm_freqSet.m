@@ -1,11 +1,9 @@
-function ana = mm_freqSet(ana,freqFxn)
+function freq = mm_freqSet(freqFxn)
 
-% function ana = mm_freqSet(ana,freqFxn)
+% function freq = mm_freqSet(freqFxn)
 %
 % Hard-coded frequency ranges from 3 to 80 Hz. Assumes there are 30
 % log-spaced frequencies.
-%
-% ana:        ana struct
 %
 % freqFxn:    string: 'ndtools' or 'ants'. Method used in mm_tla2pow.
 %             default: 'ndtools' because it recalculates the actual center
@@ -16,59 +14,61 @@ function ana = mm_freqSet(ana,freqFxn)
 % Automatically splits alpha, beta, and gamma frequencies.
 %
 % default frequency range based on ndtools:
-% ana.freq.theta = [4.1 7.7];
-% ana.freq.alpha = [8.4 12];
-% ana.freq.alpha_lower = [8.4 10.1];
-% ana.freq.alpha_upper = [11 12];
-% ana.freq.beta = [13.1 29.2];
-% ana.freq.beta_lower = [13.1 20.5];
-% ana.freq.beta_upper = [22.4 29.2];
-% ana.freq.gamma = [31.9 77.4];
-% ana.freq.gamma_lower = [31.9 49.7];
-% ana.freq.gamma_upper = [54.3 77.4];
+% freq.theta = [4.1 7.7];
+% freq.alpha = [8.4 12];
+% freq.alpha_lower = [8.4 10.1];
+% freq.alpha_upper = [11 12];
+% freq.beta = [13.1 29.2];
+% freq.beta_lower = [13.1 20.5];
+% freq.beta_upper = [22.4 29.2];
+% freq.gamma = [31.9 77.4];
+% freq.gamma_lower = [31.9 49.7];
+% freq.gamma_upper = [54.3 77.4];
 %
 % 'ants' will group similarly using: logspace(log10(3),log10(80),30)
-% ana.freq.theta = [4.2 7.4];
-% ana.freq.alpha = [8.3 11.7];
-% ana.freq.alpha_lower = [8.3 9.3];
-% ana.freq.alpha_upper = [10.4 11.7];
-% ana.freq.beta = [13.1 28.8];
-% ana.freq.beta_lower = [13.1 20.6];
-% ana.freq.beta_upper = [23 28.8];
-% ana.freq.gamma = [32.3 80];
-% ana.freq.gamma_lower = [32.3 50.9];
-% ana.freq.gamma_upper = [57 80];
+% freq.theta = [4.2 7.4];
+% freq.alpha = [8.3 11.7];
+% freq.alpha_lower = [8.3 9.3];
+% freq.alpha_upper = [10.4 11.7];
+% freq.beta = [13.1 28.8];
+% freq.beta_lower = [13.1 20.6];
+% freq.beta_upper = [23 28.8];
+% freq.gamma = [32.3 80];
+% freq.gamma_lower = [32.3 50.9];
+% freq.gamma_upper = [57 80];
 
-if nargin < 2
+if nargin < 1
   freqFxn = 'ndtools';
 end
 
+freq = struct;
+
 if strcmp(freqFxn,'ndtools')
-  ana.freq.theta = [4.1 7.7];
+  freq.theta = [4.1 7.7];
   
-  ana.freq.alpha = [8.4 12];
-  ana.freq.alpha_lower = [8.4 10.1];
-  ana.freq.alpha_upper = [11 12];
+  freq.alpha = [8.4 12];
+  freq.alpha_lower = [8.4 10.1];
+  freq.alpha_upper = [11 12];
   
-  ana.freq.beta = [13.1 29.2];
-  ana.freq.beta_lower = [13.1 20.5];
-  ana.freq.beta_upper = [22.4 29.2];
+  freq.beta = [13.1 29.2];
+  freq.beta_lower = [13.1 20.5];
+  freq.beta_upper = [22.4 29.2];
   
-  ana.freq.gamma = [31.9 77.4];
-  ana.freq.gamma_lower = [31.9 49.7];
-  ana.freq.gamma_upper = [54.3 77.4];
+  freq.gamma = [31.9 77.4];
+  freq.gamma_lower = [31.9 49.7];
+  freq.gamma_upper = [54.3 77.4];
 elseif strcmp(freqFxn,'ants')
-  ana.freq.theta = [4.2 7.4];
+  freq.theta = [4.2 7.4];
   
-  ana.freq.alpha = [8.3 11.7];
-  ana.freq.alpha_lower = [8.3 9.3];
-  ana.freq.alpha_upper = [10.4 11.7];
+  freq.alpha = [8.3 11.7];
+  freq.alpha_lower = [8.3 9.3];
+  freq.alpha_upper = [10.4 11.7];
   
-  ana.freq.beta = [13.1 28.8];
-  ana.freq.beta_lower = [13.1 20.6];
-  ana.freq.beta_upper = [23 28.8];
+  freq.beta = [13.1 28.8];
+  freq.beta_lower = [13.1 20.6];
+  freq.beta_upper = [23 28.8];
   
-  ana.freq.gamma = [32.3 80];
-  ana.freq.gamma_lower = [32.3 50.9];
-  ana.freq.gamma_upper = [57 80];
+  freq.gamma = [32.3 80];
+  freq.gamma_lower = [32.3 50.9];
+  freq.gamma_upper = [57 80];
 end
