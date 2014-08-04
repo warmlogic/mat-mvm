@@ -22,8 +22,8 @@ function freq = mm_freqSet(freqFxn)
 % freq.beta_lower = [13.1 20.5];
 % freq.beta_upper = [22.4 29.2];
 % freq.gamma = [31.9 77.4];
-% freq.gamma_lower = [31.9 49.7];
-% freq.gamma_upper = [54.3 77.4];
+% freq.gamma_lower = [31.9 45.5];
+% freq.gamma_upper = [49.7 77.4];
 %
 % 'ants' will group similarly using: logspace(log10(3),log10(80),30)
 % freq.theta = [4.2 7.4];
@@ -34,8 +34,8 @@ function freq = mm_freqSet(freqFxn)
 % freq.beta_lower = [13.1 20.6];
 % freq.beta_upper = [23 28.8];
 % freq.gamma = [32.3 80];
-% freq.gamma_lower = [32.3 50.9];
-% freq.gamma_upper = [57 80];
+% freq.gamma_lower = [32.3 45.4];
+% freq.gamma_upper = [50.9 80];
 
 if nargin < 1
   freqFxn = 'ndtools';
@@ -55,8 +55,8 @@ if strcmp(freqFxn,'ndtools')
   freq.beta_upper = [22.4 29.2];
   
   freq.gamma = [31.9 77.4];
-  freq.gamma_lower = [31.9 49.7];
-  freq.gamma_upper = [54.3 77.4];
+  freq.gamma_lower = [31.9 45.5];
+  freq.gamma_upper = [49.7 77.4];
 elseif strcmp(freqFxn,'ants')
   freq.theta = [4.2 7.4];
   
@@ -69,6 +69,6 @@ elseif strcmp(freqFxn,'ants')
   freq.beta_upper = [23 28.8];
   
   freq.gamma = [32.3 80];
-  freq.gamma_lower = [32.3 50.9];
-  freq.gamma_upper = [57 80];
+  freq.gamma_lower = [32.3 45.4];
+  freq.gamma_upper = [50.9 80];
 end
