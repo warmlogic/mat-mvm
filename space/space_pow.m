@@ -1400,47 +1400,64 @@ memConds = {'rc','fo'};
 
 measure = 'powspctrm';
 
-% % theta
-freqs = ana.freq.theta;
-latencies = [0.7 1.0];
-% roi = {'LAI'}; % yes strongly **
-% roi = {'LFP'}; % no
-% roi = {'FC'}; % not quite
-% roi = {'FS'}; % yes
-% roi = {'RFP'}; % no
-% roi = {'RAI'}; % yes
-
-% roi = {'LAS2'}; % yes
-% roi = {'C'}; % yes **
-% roi = {'RAS2'}; % yes
-
-% roi = {'LT'}; % yes
-% roi = {'LPS2'}; % yes
-% roi = {'LPS'}; % yes
-% roi = {'PS'}; % no
-% roi = {'RPS'}; % no
-% roi = {'RPS2'}; % no
-% roi = {'RT'}; % no strongly
-
-% roi = {'LPI2'}; % yes
-% roi = {'PI'}; % no
-% roi = {'RPI2'}; % yes
-
-
-% roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
-% roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
+% % % theta
+% freqs = ana.freq.theta;
+% latencies = [0.1 0.4]; % img
+% % latencies = [0.6 1.0]; % word
+% % roi = {'LAI'}; % yes, neg **
+% % roi = {'LFP'};
+% % roi = {'FC'};
+% % roi = {'RFP'};
+% % roi = {'RAI'};
+% 
+% roi = {'LAS2'}; % yes, pos ***
+% % roi = {'LAS'}; % yes, pos **
+% % roi = {'C'}; % yes, pos
+% % roi = {'FS'}; % yes, pos **
+% % roi = {'RAS'}; % yes, pos *
+% % roi = {'RAS2'}; % yes
+% 
+% % roi = {'LT'}; % yes
+% % roi = {'LPS2'}; % yes
+% % roi = {'LPS'}; % yes
+% % roi = {'PS'}; % no
+% % roi = {'RPS'}; % no
+% % roi = {'RPS2'}; % no
+% % roi = {'RT'}; % no strongly
+% 
+% % roi = {'LPI2'}; % yes
+% % roi = {'PI'}; % no
+% % roi = {'RPI2'}; % yes
+% 
+% % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
+% % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
 
 % latencies = [0.3 1.0];
 % latencies = [0.62 0.78];
 
-% % % alpha
-% % freqs = [8 10];
-% % freqs = [11 12];
-% freqs = [8 12];
-% % roi = {'FC'}; % no
-% % roi = {'FS'}; % maybe
-% roi = {'FS2'}; % yes
+% % alpha
+% freqs = ana.freq.alpha;
+% freqs = ana.freq.alpha_lower;
+freqs = ana.freq.alpha_upper;
+% latencies = [0.6 1.0]; % img
+% roi = {'LAS2'};
+
+% latencies = [0.3 0.7]; % word
+% latencies = [0.5 0.7]; % word
+latencies = [0.75 1.0]; % word
+% roi = {'LAS2'}; %
+roi = {'PS'}; % word **
+% roi = {'RPS'}; % word **
+% roi = {'PI'}; % word **
+
+
 % latencies = [0.4 0.6];
+% latencies = [0.4 0.7];
+% roi = {'FC'}; % no
+% roi = {'FS'}; % maybe
+% roi = {'FS2'}; % yes
+% roi = {'PS'}; %
+% roi = {'LT'}; %
 
 % freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
 
@@ -1501,6 +1518,7 @@ anovaData = nan(nSub,prod(nVariables));
 rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
 
 fprintf('Collecting ANOVA data for %d subjects:\n\t',nSub);
+fprintf('%s\n',stimType);
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(oldnew)),oldnew{:}),factorNames{2});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{3});
@@ -1614,9 +1632,9 @@ fprintf('Done.\n');
 % TEG RM ANOVA
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: Freq: %s\n\n',freq_str);
+fprintf('This ANOVA: %s, Freq: %s\n\n',stimType,freq_str);
 
 O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
 
-fprintf('Prev ANOVA: Freq: %s\n',freq_str);
+fprintf('Prev ANOVA: %s, Freq: %s\n',stimType,freq_str);
 fprintf('=======================================\n');
