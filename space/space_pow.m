@@ -103,6 +103,8 @@ replaceDatatype = {'tla','pow'};
 % pre-defined in this function
 ana = mm_ft_elecGroups(ana);
 
+ana.freq = mm_freqSet('ndtools');
+
 %% list the event values to analyze; specific to each experiment
 
 % this is useful for when there are multiple types of event values, for
@@ -941,9 +943,19 @@ cfg.times = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
 % cfg.freqs = [3 8; 8 12; 12 28; 28 50; 50 80];
 % cfg.freqs = [3 8; 8 10; 10 12];
-
 % cfg.freqs = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
-cfg.freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
+% cfg.freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
+% cfg.freqs = [4.1 7.7; 8.4 10.1; 11 12; 8.4 12; 13.1 20.5; 22.4 29.2; 31.9 49.7; 54.3 77.4];
+
+cfg.freqs = [ ...
+  ana.freq.theta; ...
+  ana.freq.alpha; ...
+  ana.freq.alpha_lower; ...
+  ana.freq.alpha_upper; ...
+  ana.freq.beta_lower; ...
+  ana.freq.beta_upper; ...
+  ana.freq.gamma_lower; ...
+  ana.freq.gamma_upper];
 
 % cfg.rois = {...
 %   {'LAS'},{'FS'},{'RAS'},...
@@ -1134,14 +1146,25 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
 end
 
 if strcmp(cfg_ft.avgoverfreq,'no')
-  cfg_ana.frequencies = [4 100];
+  % cfg_ana.frequencies = [4 100];
+  cfg_ana.frequencies = ana.freq.fullRange;
 elseif strcmp(cfg_ft.avgoverfreq,'yes')
   % % cfg_ana.frequencies = [4 8; 8.1 14; 14.1 21; 21.1 28; 28.1 42; 42.1 64; 64.1 80];
   % % cfg_ana.frequencies = [4 8; 8 12; 12 28; 28 50; 50 100];
-%   cfg_ana.frequencies = [3 8; 9 12; 9 10; 11 12; 13 28; 29 50; 51 80];
-%   cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 21 30; 31 45; 46 80]; % hanslmayr
+  %   cfg_ana.frequencies = [3 8; 9 12; 9 10; 11 12; 13 28; 29 50; 51 80];
+  %   cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 21 30; 31 45; 46 80]; % hanslmayr
+  %   cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
   
-  cfg_ana.frequencies = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
+  cfg_ana.frequencies = [ ...
+  ana.freq.theta; ...
+  ana.freq.alpha; ...
+  ana.freq.alpha_lower; ...
+  ana.freq.alpha_upper; ...
+  ana.freq.beta_lower; ...
+  ana.freq.beta_upper; ...
+  ana.freq.gamma_lower; ...
+  ana.freq.gamma_upper];
+
 %   cfg_ana.frequencies = [8 10; 10 12];
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgF'];
 end
@@ -1361,27 +1384,46 @@ memType = 'RgH_';
 % didn't test new words, so can't assess memory, but can use p1
 spacings = {'mass', 'spac'};
 % spacings = {'spac'};
-oldnew = {'p1', 'p2'};
+% oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
-% oldnew = {'p2'};
+oldnew = {'p2'};
 memConds = {'rc','fo'};
+% memConds = {'rc'};
 
 measure = 'powspctrm';
 
 % % theta
-freqs = [3 7];
-% roi = {'LAS'};
-% roi = {'PS'};
-% roi = {'FC'};
-% roi = {'FS'};
-roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
+% freqs = [3 7];
+freqs = [4 7.7];
+latencies = [0.7 1.0];
+roi = {'LAI'}; % yes strongly **
+% roi = {'LFP'}; % no
+% roi = {'FC'}; % not quite
+% roi = {'FS'}; % yes
+% roi = {'RFP'}; % no
+% roi = {'RAI'}; % yes
+
+% roi = {'LAS2'}; % yes
+% roi = {'C'}; % yes **
+% roi = {'RAS2'}; % yes
+
+% roi = {'LT'}; % yes
+% roi = {'LPS2'}; % yes
+% roi = {'LPS'}; % yes
+% roi = {'PS'}; % no
+% roi = {'RPS'}; % no
+% roi = {'RPS2'}; % no
+% roi = {'RT'}; % no strongly
+
+% roi = {'LPI2'}; % yes
+% roi = {'PI'}; % no
+% roi = {'RPI2'}; % yes
+
+
+% roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
 % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
-% roi = {'LPS'};
-% roi = {'PS'};
-% roi = {'RPS'}; % theta word P2 SME interaction 620-980
-% roi = {'RPI2'};
+
 % latencies = [0.3 1.0];
-latencies = [0.6 1.0];
 % latencies = [0.62 0.78];
 
 % % % alpha
