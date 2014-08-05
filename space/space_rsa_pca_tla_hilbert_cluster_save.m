@@ -51,11 +51,8 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1'};
 
-% analysisDate = '13-Jul-2014';
-% analysisDate = '14-Jul-2014';
-% analysisDate = '15-Jul-2014';
-% analysisDate = '01-Aug-2014';
-analysisDate = '04-Aug-2014';
+% analysisDate = '04-Aug-2014'; % word
+analysisDate = '05-Aug-2014'; % img
 
 % origDataType = 'tla';
 origDataType = 'hilbert';
@@ -71,9 +68,9 @@ else
   classif_str = 'noClassif';
 end
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
-dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
 
 % dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
 %   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
