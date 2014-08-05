@@ -236,7 +236,7 @@ nSub = sum(noNans & passTrlThresh(:,ses));
 anovaData = nan(nSub,prod(nVariables));
 rmaov_data_teg = nan(nSub*prod(nVariables),length(factorNames) + 2);
 
-fprintf('Collecting %s ANOVA data for %d subjects:\n\t',origDataType,nSub);
+fprintf('Collecting %s %s ANOVA data for %d subjects:\n\t',data_str,origDataType,nSub);
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(spacings)),spacings{:}),factorNames{1});
 fprintf('%s (%s),',sprintf(repmat(' %s',1,length(memConds)),memConds{:}),factorNames{2});
 fprintf('%s (%s),',latStr,factorNames{3});
@@ -255,7 +255,7 @@ for sub = 1:length(exper.subjects)
       
       for sp = 1:length(spacings)
         for mc = 1:length(memConds)
-          cond_str = sprintf('img_RgH_%s_%s',memConds{mc},spacings{sp});
+          cond_str = sprintf('%s_RgH_%s_%s',data_str,memConds{mc},spacings{sp});
           
           for lat = 1:length(latInd)
             if ~lnDone
@@ -299,11 +299,11 @@ fprintf('Done.\n');
 %% TEG RM ANOVA
 
 fprintf('=======================================\n');
-fprintf('This ANOVA: %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n\n',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
+fprintf('This ANOVA: %s %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n\n',data_str,origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
 
 O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[],[],levelNames_teg,rmaov_data_teg);
 
-fprintf('Prev ANOVA: %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n',origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
+fprintf('Prev ANOVA: %s %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n',data_str,origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
 fprintf('=======================================\n');
 
 %% Matlab RM ANOVA
