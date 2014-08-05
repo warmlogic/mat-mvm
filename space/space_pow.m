@@ -1400,55 +1400,56 @@ memConds = {'rc','fo'};
 
 measure = 'powspctrm';
 
-% % % theta
-% freqs = ana.freq.theta;
+% % theta
+freqs = ana.freq.theta;
+latencies = [0.6 1.0]; % word
 % latencies = [0.1 0.4]; % img
-% % latencies = [0.6 1.0]; % word
-% % roi = {'LAI'}; % yes, neg **
-% % roi = {'LFP'};
-% % roi = {'FC'};
-% % roi = {'RFP'};
-% % roi = {'RAI'};
-% 
-% roi = {'LAS2'}; % yes, pos ***
-% % roi = {'LAS'}; % yes, pos **
-% % roi = {'C'}; % yes, pos
-% % roi = {'FS'}; % yes, pos **
-% % roi = {'RAS'}; % yes, pos *
-% % roi = {'RAS2'}; % yes
-% 
-% % roi = {'LT'}; % yes
-% % roi = {'LPS2'}; % yes
-% % roi = {'LPS'}; % yes
-% % roi = {'PS'}; % no
-% % roi = {'RPS'}; % no
-% % roi = {'RPS2'}; % no
-% % roi = {'RT'}; % no strongly
-% 
-% % roi = {'LPI2'}; % yes
-% % roi = {'PI'}; % no
-% % roi = {'RPI2'}; % yes
-% 
-% % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
-% % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
+
+% roi = {'LAI'}; % yes, neg **
+% roi = {'LFP'};
+% roi = {'FC'};
+% roi = {'RFP'};
+% roi = {'RAI'};
+
+roi = {'LAS2'}; % yes, pos ***
+% roi = {'LAS'}; % yes, pos **
+% roi = {'C'}; % yes, pos
+% roi = {'FS'}; % yes, pos **
+% roi = {'RAS'}; % yes, pos *
+% roi = {'RAS2'}; % yes
+
+% roi = {'LT'}; % 
+% roi = {'LPS2'}; % 
+% roi = {'LPS'}; % 
+% roi = {'PS'}; % 
+% roi = {'RPS'}; % 
+% roi = {'RPS2'}; % 
+% roi = {'RT'}; % 
+
+% roi = {'LPI2'}; % yes
+% roi = {'PI'}; % no
+% roi = {'RPI2'}; % yes
+
+% roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
+% roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
 
 % latencies = [0.3 1.0];
 % latencies = [0.62 0.78];
 
-% % alpha
-% freqs = ana.freq.alpha;
-% freqs = ana.freq.alpha_lower;
-freqs = ana.freq.alpha_upper;
-% latencies = [0.6 1.0]; % img
-% roi = {'LAS2'};
-
-% latencies = [0.3 0.7]; % word
-% latencies = [0.5 0.7]; % word
-latencies = [0.75 1.0]; % word
-% roi = {'LAS2'}; %
-roi = {'PS'}; % word **
-% roi = {'RPS'}; % word **
-% roi = {'PI'}; % word **
+% % % alpha
+% % freqs = ana.freq.alpha;
+% % freqs = ana.freq.alpha_lower;
+% freqs = ana.freq.alpha_upper;
+% % latencies = [0.6 1.0]; % img
+% % roi = {'LAS2'};
+% 
+% % latencies = [0.3 0.7]; % word
+% % latencies = [0.5 0.7]; % word
+% latencies = [0.75 1.0]; % word
+% % roi = {'LAS2'}; %
+% roi = {'PS'}; % word **
+% % roi = {'RPS'}; % word **
+% % roi = {'PI'}; % word **
 
 
 % latencies = [0.4 0.6];
