@@ -1385,8 +1385,8 @@ stimType = 'word_';
 memType = 'RgH_';
 
 % spacings = {'mass', 'spac', 'onePres'};
-% oldnew = {'p1'};
-% % oldnew = {'p2'};
+% % oldnew = {'p1'};
+% oldnew = {'p2'};
 % memConds = {'all'};
 
 % didn't test new words, so can't assess memory, but can use p1
@@ -1400,56 +1400,58 @@ memConds = {'rc','fo'};
 
 measure = 'powspctrm';
 
-% % theta
-freqs = ana.freq.theta;
-latencies = [0.6 1.0]; % word
-% latencies = [0.1 0.4]; % img
-
-% roi = {'LAI'}; % yes, neg **
-% roi = {'LFP'};
-% roi = {'FC'};
-% roi = {'RFP'};
-% roi = {'RAI'};
-
-roi = {'LAS2'}; % yes, pos ***
-% roi = {'LAS'}; % yes, pos **
-% roi = {'C'}; % yes, pos
+% % % theta
+% freqs = ana.freq.theta;
+% latencies = [0.6 1.0]; % word
+% % latencies = [0.1 0.4]; % img
+% 
+% % roi = {'LAI'}; % yes, neg **
+% % roi = {'LFP'};
+% % roi = {'FC'};
+% % roi = {'RFP'};
+% % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
+% 
+% % roi = {'LAS2'}; % yes, pos ***
+% % roi = {'LAS'}; % yes, pos **
 % roi = {'FS'}; % yes, pos **
-% roi = {'RAS'}; % yes, pos *
-% roi = {'RAS2'}; % yes
-
-% roi = {'LT'}; % 
-% roi = {'LPS2'}; % 
-% roi = {'LPS'}; % 
-% roi = {'PS'}; % 
-% roi = {'RPS'}; % 
-% roi = {'RPS2'}; % 
-% roi = {'RT'}; % 
-
-% roi = {'LPI2'}; % yes
-% roi = {'PI'}; % no
-% roi = {'RPI2'}; % yes
-
-% roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
-% roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
+% % roi = {'C'}; % yes, pos
+% % roi = {'RAS'}; % yes, pos *
+% % roi = {'RAS2'}; % yes
+% 
+% % roi = {'LT'}; % 
+% % roi = {'LPS2'}; % 
+% % roi = {'LPS'}; % 
+% % roi = {'PS'}; % 
+% % roi = {'RPS'}; % 
+% % roi = {'RPS2'}; % 
+% % roi = {'RT'}; % 
+% 
+% % roi = {'LPI2'}; % yes
+% % roi = {'PI'}; % no
+% % roi = {'RPI2'}; % yes
+% 
+% % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
+% % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
 
 % latencies = [0.3 1.0];
 % latencies = [0.62 0.78];
 
-% % % alpha
-% % freqs = ana.freq.alpha;
-% % freqs = ana.freq.alpha_lower;
-% freqs = ana.freq.alpha_upper;
-% % latencies = [0.6 1.0]; % img
-% % roi = {'LAS2'};
-% 
-% % latencies = [0.3 0.7]; % word
-% % latencies = [0.5 0.7]; % word
-% latencies = [0.75 1.0]; % word
-% % roi = {'LAS2'}; %
+% % alpha
+% freqs = ana.freq.alpha;
+% freqs = ana.freq.alpha_lower;
+freqs = ana.freq.alpha_upper;
+% latencies = [0.6 1.0]; % img
+% roi = {'LAS2'};
+
+latencies = [0.1 0.3]; % word, LT, early alpha effect Spac x Mem
+roi = {'LT'}; % word **
+% latencies = [0.3 0.7]; % word
+% latencies = [0.5 0.7]; % word
+% latencies = [0.8 1.0]; % word
+% roi = {'LAS2'}; %
 % roi = {'PS'}; % word **
-% % roi = {'RPS'}; % word **
-% % roi = {'PI'}; % word **
+% roi = {'RPS'}; % word **
+% roi = {'PI'}; % word **
 
 
 % latencies = [0.4 0.6];
