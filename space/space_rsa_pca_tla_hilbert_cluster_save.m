@@ -54,7 +54,8 @@ sesNames = {'session_1'};
 % analysisDate = '13-Jul-2014';
 % analysisDate = '14-Jul-2014';
 % analysisDate = '15-Jul-2014';
-analysisDate = '01-Aug-2014';
+% analysisDate = '01-Aug-2014';
+analysisDate = '04-Aug-2014';
 
 % origDataType = 'tla';
 origDataType = 'hilbert';
