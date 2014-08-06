@@ -10,10 +10,10 @@ data_str = 'word';
 
 % thisROI = {'center109'};
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-thisROI = {'LPS','RPS'};
+% thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
-% thisROI = {'LAS2','FS','RAS2'};
+thisROI = {'LAS2','FS','RAS2'}; % ** mem
 % thisROI = {'LFP','FC','RFP'};
 
 freq = mm_freqSet('ndtools');
@@ -29,7 +29,7 @@ freqs = [ ...
 % freqs = freq.theta;
 % freqs = freq.alpha;
 % freqs = freq.beta_lower;
-% freqs = freq.beta_upper;
+% freqs = freq.beta_upper; % frontal mem?
 % freqs = freq.gamma_lower;
 % freqs = freq.gamma_upper;
 
@@ -303,7 +303,7 @@ if any(~keepTheseFactors)
 end
 fprintf('Done.\n');
 
-%% TEG RM ANOVA
+% TEG RM ANOVA
 
 fprintf('=======================================\n');
 fprintf('This ANOVA: %s %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n\n',data_str,origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);
