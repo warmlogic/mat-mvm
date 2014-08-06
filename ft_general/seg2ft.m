@@ -588,6 +588,8 @@ for ses = 1:length(session)
             cfg_ica.component = str2double(regexp(componentsToReject,'\d*','match')');
             data_ica_rej = ft_rejectcomponent(cfg_ica, comp, data);
           end
+        else
+          data_ica_rej = data;
         end
         
         cfg_browse = [];
