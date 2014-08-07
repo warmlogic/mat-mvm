@@ -20,7 +20,8 @@ elseif ischar(thisROI)
   roi_str = thisROI;
 end
 
-lpfilt = true;
+% lpfilt = true;
+lpfilt = false;
 if lpfilt
   lpfreq = 40;
   %lpfilttype = 'but';
@@ -182,9 +183,6 @@ latInd = [13:14];
 % % 0 to 1
 % latInd = 24;
 
-% datatyp = 'word';
-% datayp = 'img';
-
 % =================================================
 
 spacings = {'spac','mass'};
@@ -279,7 +277,7 @@ if any(~keepTheseFactors)
 end
 fprintf('Done.\n');
 
-%% TEG RM ANOVA
+% TEG RM ANOVA
 
 fprintf('=======================================\n');
 fprintf('This ANOVA: %s %s, ROI: %s, Latency:%s, %s, %s\n\n',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method);

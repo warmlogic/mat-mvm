@@ -13,8 +13,8 @@ data_str = 'word';
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
-% thisROI = {'LAS2','FS','RAS2'};
-thisROI = {'LFP','FC','RFP'};
+thisROI = {'LAS2','FS','RAS2'};
+% thisROI = {'LFP','FC','RFP'};
 
 freq = mm_freqSet('ndtools');
 
@@ -122,10 +122,11 @@ end
 
 %% stats
 
-nTrialThresh = 8; % 31
-% nTrialThresh = 14; % 30
-% nTrialThresh = 16; % 28
-% nTrialThresh = 17; % 24
+% nTrialThresh = 10; % 30
+nTrialThresh = 12; % 27
+% nTrialThresh = 14; % 25
+% nTrialThresh = 16; % 22
+% nTrialThresh = 17; % 21
 
 plotit = false;
 
@@ -148,6 +149,11 @@ for d = 1:length(dataTypes)
           end
           
           mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
+          
+          % testing pairs of non-repetitions
+          %mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},(size(similarity_all{sub,ses,d,lat},1) / 2)+1));
+          %mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},4));
+          
           %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
           
           if plotit
@@ -182,7 +188,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
-latInd = [1:5];
+% latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6:9];
@@ -191,7 +197,7 @@ latInd = [1:5];
 % latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-% latInd = [13:14];
+latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16:20];
@@ -296,7 +302,7 @@ if any(~keepTheseFactors)
 end
 fprintf('Done.\n');
 
-%% TEG RM ANOVA
+% TEG RM ANOVA
 
 fprintf('=======================================\n');
 fprintf('This ANOVA: %s %s, ROI: %s, Freq: %s, Latency:%s, %s, %s\n\n',data_str,origDataType,roi_str,freq_str,latStr,eig_criterion,sim_method);

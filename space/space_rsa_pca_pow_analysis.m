@@ -1,10 +1,10 @@
 %% load
 
-analysisDate = '04-Aug-2014';
-data_str = 'word';
+% analysisDate = '04-Aug-2014';
+% data_str = 'word';
 
-% analysisDate = '05-Aug-2014';
-% data_str = 'img';
+analysisDate = '05-Aug-2014';
+data_str = 'img';
 
 % data_str = 'img_word';
 
@@ -198,7 +198,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 % latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-latInd = [13:14];
+% latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16:20];
@@ -207,7 +207,7 @@ latInd = [13:14];
 % latInd = [21:23];
 
 % % 0 to 1
-% latInd = 24;
+latInd = 24;
 
 % =================================================
 
