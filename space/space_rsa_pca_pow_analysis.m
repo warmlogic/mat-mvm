@@ -1,20 +1,30 @@
 %% load
 
-analysisDate = '04-Aug-2014';
-data_str = 'word';
+% analysisDate = '04-Aug-2014';
+% data_str = 'word';
 
 % analysisDate = '05-Aug-2014';
 % data_str = 'img';
-% 
+
 % data_str = 'img_word';
 
-thisROI = {'center109'};
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
-% thisROI = {'LPS','RPS'};
-% thisROI = {'LT','RT'};
-% thisROI = {'LPI2','RPI2'};
-% thisROI = {'LAS2','FS','RAS2'}; % ** mem
-% thisROI = {'LFP','FC','RFP'};
+% word
+% thisROI = {'center109'}; % spac, ~spac x lat
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, lat
+% thisROI = {'LPS','RPS'}; % spac
+% thisROI = {'LT','RT'}; % spac
+% thisROI = {'LPI2','RPI2'}; % spac, ~lat
+% thisROI = {'LAS2','FS','RAS2'}; % spac, mem, ~spac x lat
+% thisROI = {'LFP','FC','RFP'}; % spac, spac x lat
+
+% img
+% thisROI = {'center109'}; % spac, mem x lat, ~3-way
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
+% thisROI = {'LPS','RPS'}; % 
+% thisROI = {'LT','RT'}; % 
+% thisROI = {'LPI2','RPI2'}; % 
+% thisROI = {'LAS2','FS','RAS2'}; % 
+% thisROI = {'LFP','FC','RFP'}; % nothing
 
 freq = mm_freqSet('ndtools');
 

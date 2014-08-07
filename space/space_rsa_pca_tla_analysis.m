@@ -113,9 +113,9 @@ end
 %% stats
 
 % nTrialThresh = 10; % 30
-% nTrialThresh = 12; % 27
+nTrialThresh = 12; % 27
 % nTrialThresh = 14; % 25
-nTrialThresh = 16; % 22
+% nTrialThresh = 16; % 22
 % nTrialThresh = 17; % 21
 
 plotit = false;
