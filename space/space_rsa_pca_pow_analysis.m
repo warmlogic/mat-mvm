@@ -20,11 +20,11 @@
 % img
 % thisROI = {'center109'}; % spac, mem x lat, ~3-way
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
-% thisROI = {'LPS','RPS'}; % 
-% thisROI = {'LT','RT'}; % 
-% thisROI = {'LPI2','RPI2'}; % 
-% thisROI = {'LAS2','FS','RAS2'}; % 
-% thisROI = {'LFP','FC','RFP'}; % nothing
+% thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
+% thisROI = {'LT','RT'}; % spac, ~mem x lat
+% thisROI = {'LPI2','RPI2'}; % spac, ~3-way
+% thisROI = {'LAS2','FS','RAS2'}; % spac
+% thisROI = {'LFP','FC','RFP'}; % spac
 
 freq = mm_freqSet('ndtools');
 
