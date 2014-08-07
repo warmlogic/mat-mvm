@@ -378,7 +378,7 @@ plotSub = true;
 
 if plotMeanLine
   s_mark = 'ko-';
-  m_mark = 'rx:';
+  m_mark = 'rx-.';
 else
   s_mark = 'ko';
   m_mark = 'rx';
@@ -423,6 +423,7 @@ else
   hm = plot(2, mean(img_RgH_rc_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 end
 
+% horiz
 plot([-3 3], [0 0],'k--','LineWidth',2);
 
 hold off
@@ -466,7 +467,7 @@ plotSubLines = false;
 
 if plotMeanLines
   s_mark = 'ko-';
-  m_mark = 'rx--';
+  m_mark = 'rx-.';
 else
   s_mark = 'ko';
   m_mark = 'rx';
@@ -478,7 +479,7 @@ if plotSub
   subSpacing = 0.1;
   if plotSubLines
     s_mark_sub = 'ko-';
-    m_mark_sub = 'rx--';
+    m_mark_sub = 'rx-.';
   else
     s_mark_sub = 'ko';
     m_mark_sub = 'rx';
@@ -553,9 +554,9 @@ plotSubLines = false;
 
 if plotMeanLines
   s_rc_mark = 'ko-';
-  s_fo_mark = 'ko--';
+  s_fo_mark = 'ko-.';
   m_rc_mark = 'rx-';
-  m_fo_mark = 'rx--';
+  m_fo_mark = 'rx-.';
 else
   s_rc_mark = 'ko';
   s_fo_mark = 'ro';
@@ -570,9 +571,9 @@ if plotSub
   subSpacing = 0.2;
   if plotSubLines
     s_rc_mark_sub = 'ko-';
-    s_fo_mark_sub = 'ko--';
+    s_fo_mark_sub = 'ko-.';
     m_rc_mark_sub = 'rx-';
-    m_fo_mark_sub = 'rx--';
+    m_fo_mark_sub = 'rx-.';
   else
     s_rc_mark_sub = 'ko';
     s_fo_mark_sub = 'ro';

@@ -1,19 +1,19 @@
 %% load
 
-% analysisDate = '04-Aug-2014';
-% data_str = 'word';
+analysisDate = '04-Aug-2014';
+data_str = 'word';
 
-analysisDate = '05-Aug-2014';
-data_str = 'img';
-
+% analysisDate = '05-Aug-2014';
+% data_str = 'img';
+% 
 % data_str = 'img_word';
 
-% thisROI = {'center109'};
+thisROI = {'center109'};
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'};
 % thisROI = {'LPS','RPS'};
 % thisROI = {'LT','RT'};
 % thisROI = {'LPI2','RPI2'};
-thisROI = {'LAS2','FS','RAS2'}; % ** mem
+% thisROI = {'LAS2','FS','RAS2'}; % ** mem
 % thisROI = {'LFP','FC','RFP'};
 
 freq = mm_freqSet('ndtools');
@@ -198,7 +198,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 % latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-% latInd = [13:14];
+latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16:20];
@@ -207,7 +207,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 % latInd = [21:23];
 
 % % 0 to 1
-latInd = 24;
+% latInd = 24;
 
 % =================================================
 
@@ -379,7 +379,7 @@ plotSub = true;
 
 if plotMeanLine
   s_mark = 'ko-';
-  m_mark = 'rx:';
+  m_mark = 'rx-.';
 else
   s_mark = 'ko';
   m_mark = 'rx';
@@ -424,6 +424,7 @@ else
   hm = plot(2, mean(img_RgH_rc_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 end
 
+% horiz
 plot([-3 3], [0 0],'k--','LineWidth',2);
 
 hold off
@@ -467,7 +468,7 @@ plotSubLines = false;
 
 if plotMeanLines
   s_mark = 'ko-';
-  m_mark = 'rx--';
+  m_mark = 'rx-.';
 else
   s_mark = 'ko';
   m_mark = 'rx';
@@ -479,7 +480,7 @@ if plotSub
   subSpacing = 0.1;
   if plotSubLines
     s_mark_sub = 'ko-';
-    m_mark_sub = 'rx--';
+    m_mark_sub = 'rx-.';
   else
     s_mark_sub = 'ko';
     m_mark_sub = 'rx';
@@ -554,9 +555,9 @@ plotSubLines = false;
 
 if plotMeanLines
   s_rc_mark = 'ko-';
-  s_fo_mark = 'ko--';
+  s_fo_mark = 'ko-.';
   m_rc_mark = 'rx-';
-  m_fo_mark = 'rx--';
+  m_fo_mark = 'rx-.';
 else
   s_rc_mark = 'ko';
   s_fo_mark = 'ro';
@@ -571,9 +572,9 @@ if plotSub
   subSpacing = 0.2;
   if plotSubLines
     s_rc_mark_sub = 'ko-';
-    s_fo_mark_sub = 'ko--';
+    s_fo_mark_sub = 'ko-.';
     m_rc_mark_sub = 'rx-';
-    m_fo_mark_sub = 'rx--';
+    m_fo_mark_sub = 'rx-.';
   else
     s_rc_mark_sub = 'ko';
     s_fo_mark_sub = 'ro';
