@@ -3,8 +3,8 @@
 % analysisDate = '04-Aug-2014';
 % data_str = 'word';
 
-% analysisDate = '05-Aug-2014';
-% data_str = 'img';
+analysisDate = '05-Aug-2014';
+data_str = 'img';
 
 % data_str = 'img_word';
 
@@ -21,7 +21,7 @@
 % thisROI = {'center109'}; % spac, mem x lat, ~3-way
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
 % thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
-% thisROI = {'LT','RT'}; % spac, ~mem x lat
+thisROI = {'LT','RT'}; % spac, ~mem x lat
 % thisROI = {'LPI2','RPI2'}; % spac, ~3-way
 % thisROI = {'LAS2','FS','RAS2'}; % spac
 % thisROI = {'LFP','FC','RFP'}; % spac
@@ -642,7 +642,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.35 0.35]);
+ylim([0.3 0.8]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);

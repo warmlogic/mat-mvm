@@ -2,8 +2,8 @@
 
 analysisDate = '01-Aug-2014';
 
-data_str = 'word';
-% data_str = 'img';
+% data_str = 'word';
+data_str = 'img';
 % data_str = 'img_word';
 
 % word
