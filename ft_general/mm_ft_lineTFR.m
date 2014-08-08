@@ -310,9 +310,6 @@ for typ = 1:length(cfg.conditions)
         end % t
         
         if cfg.plotErrorBars
-          % TODO: error bars
-          
-          %h(r,evVal) = shadedErrorBar(outdata.time,outdata.data(:,i),outdata.var(:,i),{'color',colors(i,:),'LineWidth',cfg.linewidth},cfg.transp);
           if ischar(cfg.graphcolor)
             % using matlab's single-character colors
             thisColor = cfg.graphcolor(evVal);
