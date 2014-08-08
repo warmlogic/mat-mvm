@@ -988,6 +988,9 @@ cfg.conditions = {{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','w
 cfg.plotTitle = true;
 cfg.plotLegend = true;
 
+cfg.plotErrorBars = true;
+cfg.eb_transp = true;
+
 cfg.plotClusSig = false;
 % cfg.clusAlpha = 0.1;
 % %cfg.clusTimes = cfg.times;
@@ -1073,6 +1076,7 @@ cfg_ana = [];
 cfg_ana.roi = 'all';
 %cfg_ana.roi = 'center74';
 cfg_ana.avgFrq = cfg_ft.avgoverfreq;
+cfg_ana.avgTime = cfg_ft.avgovertime;
 %cfg_ana.conditions = {'all'};
 
 % cfg_ana.conditions = {{'recall','no_recall'}};
@@ -1321,6 +1325,9 @@ cfg.conditions = {...
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
+
+cfg.plotErrorBars = true;
+cfg.eb_transp = true;
 
 cfg.plotClusSig = true;
 % cfg.clusAlpha = 0.1;

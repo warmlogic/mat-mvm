@@ -15,31 +15,6 @@ function mm_ft_lineTFR(cfg,ana,exper,files,dirs,data,sesNum)
 % See also:
 %   MM_FT_CHECKCONDITIONS
 
-% OLD
-%
-% Inputs:
-%   cfg: parameters passed into the FT plotting function
-%
-%   cfg.ftFxn      = FieldTrip plotting function to use. Supported
-%                         functions: ft_singleplotTFR, ft_topoplotTFR, and
-%                         ft_multiplotTFR
-%   cfg.conditions = Cell array containing cells of pairwise
-%                         comparisons; Can be used for comparing a subset
-%                         of events within a type.
-%                         e.g., {{'T1a','T1c'}, {'T2a','T2c'}}, or it can
-%                         be {{'all_within_types'}} or
-%                         {{'all_across_types'}} to automatically create
-%                         pairwise comparisons of event values. See
-%                         MM_FT_CHECKCONDITIONS for more details.
-%   cfg.plotTitle  = 1 or 0. Whether to plot the title.
-%   cfg.subplot    = 1 or 0. Whether to make a subplot. cfg.xlim
-%                         can be a range of time values, otherwise 50ms
-%                         steps between min and max. ft_topoplotER only.
-%   cfg.numCols    = If subplot == 1, the number of columns to plot
-%   files.saveFigs      = 1 or 0. Whether to save the figures.
-%
-%   data                = output from ft_freqgrandaverage
-
 if ~exist('sesNum','var')
   sesNum = 1;
 end
@@ -72,6 +47,19 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%% plotting setup %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%
+
+if ~isfield(cfg,'plotErrorBars')
+  % requires running ft_freqgrandaverage with cfg.keepindividual='yes'
+  cfg.plotErrorBars = false;
+end
+if cfg.plotErrorBars
+  if ~isfield(cfg,'eb_transp')
+    cfg.eb_transp = false;
+  end
+  if ndims(data.(exper.sesStr{1}).(cfg.conditions{1}{1}).(cfg.parameter)) ~= 4
+    error('To plot error bars, need to run ft_freqgrandaverage with cfg.keepindividual=''yes'' so data.%s is subj X elec X freq X time.',cfg.parameter)
+  end
+end
 
 if ~isfield(cfg,'plotTitle')
   cfg.plotTitle = false;
@@ -224,6 +212,14 @@ nROIs = length(cfg.rois);
 nFreq = size(cfg.freqs,1);
 nTime = size(cfg.times,1);
 
+if nROIs == 1
+  cfg.nCol = 1;
+  cfg.nRow = 1;
+elseif nROIs == 2
+  cfg.nCol = 1;
+  cfg.nRow = 2;
+end
+
 % subplot setup
 if ~isfield(cfg,'nCol') &&  ~isfield(cfg,'nRow')
   cfg.nCol = 3;
@@ -261,6 +257,9 @@ for typ = 1:length(cfg.conditions)
     % initialize
     h = nan(nROIs,nCond);
     dataVec = nan(nCond,nROIs,nTime);
+    if cfg.plotErrorBars
+      dataVar = nan(nCond,nROIs,nTime);
+    end
     
     for r = 1:nROIs
       cfg.roi = cfg.rois{r};
@@ -303,14 +302,46 @@ for typ = 1:length(cfg.conditions)
           timesel = false(size(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).time));
           timesel(tbeg:tend) = true;
           
-          dataVec(evVal,r,t) = nanmean(nanmean(nanmean(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
+          if ndims(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)) == 4
+            dataVec(evVal,r,t) = nanmean(nanmean(nanmean(nanmean(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)(:,chansel,freqsel,timesel),4),3),2),1);
+          else
+            dataVec(evVal,r,t) = nanmean(nanmean(nanmean(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)(chansel,freqsel,timesel),3),2),1);
+          end
+          if cfg.plotErrorBars
+            dataVar(evVal,r,t) = nanste(nanmean(nanmean(nanmean(data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).(cfg.parameter)(:,chansel,freqsel,timesel),4),3),2));
+          end
         end % t
         
-        % TODO: don't plot at the average time, plot at the first time and
-        % add on the final time point manually?
-        h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
-        
-        % TODO: error bars
+        if cfg.plotErrorBars
+          % TODO: error bars
+          
+          %h(r,evVal) = shadedErrorBar(outdata.time,outdata.data(:,i),outdata.var(:,i),{'color',colors(i,:),'LineWidth',cfg.linewidth},cfg.transp);
+          if strcmp(cfg.graphcolor(evVal),'r')
+            thisColor = 'Red';
+          elseif strcmp(cfg.graphcolor(evVal),'b')
+            thisColor = 'Blue';
+          elseif strcmp(cfg.graphcolor(evVal),'k')
+            thisColor = 'Black';
+          elseif strcmp(cfg.graphcolor(evVal),'g')
+            thisColor = 'Green';
+          elseif strcmp(cfg.graphcolor(evVal),'c')
+            thisColor = 'Cyan';
+          elseif strcmp(cfg.graphcolor(evVal),'m')
+            thisColor = 'Magenta';
+          elseif strcmp(cfg.graphcolor(evVal),'y')
+            thisColor = 'Yellow';
+          end
+          if ischar(thisColor)
+            thisColor = rgb(thisColor);
+          end
+          
+          this_h = shadedErrorBar(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),squeeze(dataVar(evVal,r,:)),{'color',thisColor,'LineWidth',cfg.linewidth},cfg.eb_transp);
+          h(r,evVal) = this_h.mainLine;
+        else
+          % TODO: don't plot at the average time, plot at the first time and
+          % add on the final time point manually?
+          h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
+        end
         
       end % evVal
       
