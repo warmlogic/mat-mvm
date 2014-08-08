@@ -484,7 +484,7 @@ set(gca,'XTickLabel',{'Forgot','Recalled'});
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \times Subsequent Memory',data_str));
+title(sprintf('Spacing \\times Subsequent Memory: %s',data_str));
 legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 % ticFontSize = 20;
@@ -575,7 +575,7 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \times Time',data_str));
+title(sprintf('Spacing \\times Time: %s',data_str));
 legend([hs, hm],{'Spaced','Massed'},'Location','North');
 
 % ticFontSize = 20;
@@ -686,7 +686,7 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \times Memory \times Time: %s',data_str));
+title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
 legend([hsr, hsf, hmr, hmf],{'Spaced Rc','Spaced Fo','Massed Rc','Massed Fo'},'Location','North');
 
 % ticFontSize = 20;
