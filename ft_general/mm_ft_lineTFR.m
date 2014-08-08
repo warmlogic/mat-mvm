@@ -313,25 +313,28 @@ for typ = 1:length(cfg.conditions)
           % TODO: error bars
           
           %h(r,evVal) = shadedErrorBar(outdata.time,outdata.data(:,i),outdata.var(:,i),{'color',colors(i,:),'LineWidth',cfg.linewidth},cfg.transp);
-          if strcmp(cfg.graphcolor(evVal),'r')
-            thisColor = 'Red';
-          elseif strcmp(cfg.graphcolor(evVal),'b')
-            thisColor = 'Blue';
-          elseif strcmp(cfg.graphcolor(evVal),'k')
-            thisColor = 'Black';
-          elseif strcmp(cfg.graphcolor(evVal),'g')
-            thisColor = 'Green';
-          elseif strcmp(cfg.graphcolor(evVal),'c')
-            thisColor = 'Cyan';
-          elseif strcmp(cfg.graphcolor(evVal),'m')
-            thisColor = 'Magenta';
-          elseif strcmp(cfg.graphcolor(evVal),'y')
-            thisColor = 'Yellow';
+          if ischar(cfg.graphcolor)
+            if strcmp(cfg.graphcolor(evVal),'r')
+              thisColor = 'Red';
+            elseif strcmp(cfg.graphcolor(evVal),'b')
+              thisColor = 'Blue';
+            elseif strcmp(cfg.graphcolor(evVal),'k')
+              thisColor = 'Black';
+            elseif strcmp(cfg.graphcolor(evVal),'g')
+              thisColor = 'Green';
+            elseif strcmp(cfg.graphcolor(evVal),'c')
+              thisColor = 'Cyan';
+            elseif strcmp(cfg.graphcolor(evVal),'m')
+              thisColor = 'Magenta';
+            elseif strcmp(cfg.graphcolor(evVal),'y')
+              thisColor = 'Yellow';
+            end
+            if ischar(thisColor)
+              thisColor = rgb(thisColor);
+            end
+          elseif ~ischar(cfg.graphcolor) && length(cfg.graphcolor(evVal,:)) == 3
+            thisColor = cfg.graphcolor(evVal,:);
           end
-          if ischar(thisColor)
-            thisColor = rgb(thisColor);
-          end
-          
           this_h = shadedErrorBar(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),squeeze(dataVar(evVal,r,:)),{'color',thisColor,'LineWidth',cfg.linewidth},cfg.eb_transp);
           h(r,evVal) = this_h.mainLine;
         else
