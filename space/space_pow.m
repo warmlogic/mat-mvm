@@ -1332,7 +1332,7 @@ cfg.eb_transp = true;
 cfg.plotClusSig = true;
 % cfg.clusAlpha = 0.1;
 cfg.clusAlpha = 0.05;
-cfg.clusTimes = cfg.times;
+cfg.clusTimes = cfg_ana.latencies;
 % cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.clusLimits = true;
 
