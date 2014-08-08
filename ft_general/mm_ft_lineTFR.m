@@ -314,25 +314,17 @@ for typ = 1:length(cfg.conditions)
           
           %h(r,evVal) = shadedErrorBar(outdata.time,outdata.data(:,i),outdata.var(:,i),{'color',colors(i,:),'LineWidth',cfg.linewidth},cfg.transp);
           if ischar(cfg.graphcolor)
-            if strcmp(cfg.graphcolor(evVal),'r')
-              thisColor = 'Red';
-            elseif strcmp(cfg.graphcolor(evVal),'b')
-              thisColor = 'Blue';
-            elseif strcmp(cfg.graphcolor(evVal),'k')
-              thisColor = 'Black';
-            elseif strcmp(cfg.graphcolor(evVal),'g')
-              thisColor = 'Green';
-            elseif strcmp(cfg.graphcolor(evVal),'c')
-              thisColor = 'Cyan';
-            elseif strcmp(cfg.graphcolor(evVal),'m')
-              thisColor = 'Magenta';
-            elseif strcmp(cfg.graphcolor(evVal),'y')
-              thisColor = 'Yellow';
+            % using matlab's single-character colors
+            thisColor = cfg.graphcolor(evVal);
+          elseif ~ischar(cfg.graphcolor) && iscell(cfg.graphcolor)
+            % defined own color strings (for rgb.m)
+            if ischar(cfg.graphcolor{evVal})
+              thisColor = rgb(cfg.graphcolor{evVal});
+            else
+              error('Do not know what to do with cfg.graphcolor settings.');
             end
-            if ischar(thisColor)
-              thisColor = rgb(thisColor);
-            end
-          elseif ~ischar(cfg.graphcolor) && length(cfg.graphcolor(evVal,:)) == 3
+          elseif ~ischar(cfg.graphcolor) && ismatrix(cfg.graphcolor) && length(cfg.graphcolor(evVal,:)) == 3
+            % defined own RGB triplets (e.g., using linspecer.m)
             thisColor = cfg.graphcolor(evVal,:);
           end
           this_h = shadedErrorBar(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),squeeze(dataVar(evVal,r,:)),{'color',thisColor,'LineWidth',cfg.linewidth},cfg.eb_transp);
