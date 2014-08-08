@@ -16,15 +16,27 @@ data_str = 'img';
 % thisROI = {'LPI2','RPI2'}; % spac, ~lat
 % thisROI = {'LAS2','FS','RAS2'}; % spac, mem, ~spac x lat
 % thisROI = {'LFP','FC','RFP'}; % spac, spac x lat
+% thisROI = {'FS'};
+% thisROI = {'C'};
+% thisROI = {'PS'};
+% thisROI = {'PI'};
+% thisROI = {'LT'};
+% thisROI = {'RT'};
 
 % img
 % thisROI = {'center109'}; % spac, mem x lat, ~3-way
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
-% thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
-thisROI = {'LT','RT'}; % spac, ~mem x lat
+thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
+% thisROI = {'LT','RT'}; % spac, ~mem x lat
 % thisROI = {'LPI2','RPI2'}; % spac, ~3-way
 % thisROI = {'LAS2','FS','RAS2'}; % spac
 % thisROI = {'LFP','FC','RFP'}; % spac
+% thisROI = {'FS'};
+% thisROI = {'C'};
+% thisROI = {'PS'};
+% thisROI = {'PI'};
+% thisROI = {'LT'};
+% thisROI = {'RT'};
 
 freq = mm_freqSet('ndtools');
 

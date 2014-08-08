@@ -16,6 +16,12 @@ data_str = 'img';
 % thisROI = {'LPI2','RPI2'}; % spac
 % thisROI = {'LAS2','FS','RAS2'}; % spac
 % thisROI = {'LFP','FC','RFP'}; % spac
+% thisROI = {'FS'};
+% thisROI = {'C'};
+% thisROI = {'PS'};
+% thisROI = {'PI'};
+% thisROI = {'LT'};
+% thisROI = {'RT'};
 
 % img
 % thisROI = {'center109'}; % spac, mem x lat, 3-way
@@ -25,6 +31,12 @@ thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way (strong)
 % thisROI = {'LPI2','RPI2'}; % spac
 % thisROI = {'LAS2','FS','RAS2'}; % spac, mem x lat
 % thisROI = {'LFP','FC','RFP'}; % spac
+% thisROI = {'FS'};
+% thisROI = {'C'};
+% thisROI = {'PS'};
+% thisROI = {'PI'};
+% thisROI = {'LT'};
+% thisROI = {'RT'};
 
 freq = mm_freqSet('ndtools');
 
@@ -642,6 +654,7 @@ hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
 ylim([0.3 0.8]);
+ylim([0.8 1.3]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);

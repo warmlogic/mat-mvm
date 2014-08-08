@@ -2,27 +2,39 @@
 
 analysisDate = '01-Aug-2014';
 
-% data_str = 'word';
-data_str = 'img';
+data_str = 'word';
+% data_str = 'img';
 % data_str = 'img_word';
 
 % word
 % thisROI = {'center109'}; % spacing, latency, spacing x latency
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spacing, latency, spacing x latency
-% thisROI = {'LPS','RPS'}; % *spacing, mem x latency
+thisROI = {'LPS','RPS'}; % *spacing, mem x latency
 % thisROI = {'LT','RT'}; % nothing
 % thisROI = {'LPI2','RPI2'}; % nothing
 % thisROI = {'LAS2','FS','RAS2'}; % spacing, latency, spacing x latency
 % thisROI = {'LFP','FC','RFP'}; % spacing, latency
+% thisROI = {'FS'};
+% thisROI = {'C'};
+% thisROI = {'PS'};
+% thisROI = {'PI'};
+% thisROI = {'LT'};
+% thisROI = {'RT'};
 
 % img
 % thisROI = {'center109'}; % spacing, latency, spacing x latency
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spacing, latency, spacing x latency
 % thisROI = {'LPS','RPS'}; % spacing, mem, latency, spac x lat
-thisROI = {'LT','RT'}; % spac, lat, spac x lat, 3-way
+% thisROI = {'LT','RT'}; % spac, lat, spac x lat, 3-way
 % thisROI = {'LPI2','RPI2'}; % lat
 % thisROI = {'LAS2','FS','RAS2'}; % spac, lat, spac x lat
 % thisROI = {'LFP','FC','RFP'}; % spac, lat, mem x lat
+% thisROI = {'FS'};
+% thisROI = {'C'};
+% thisROI = {'PS'};
+% thisROI = {'PI'};
+% thisROI = {'LT'};
+% thisROI = {'RT'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
