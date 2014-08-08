@@ -54,7 +54,8 @@ sesNames = {'session_1'};
 % analysisDate = '13-Jul-2014';
 % analysisDate = '15-Jul-2014';
 % analysisDate = '01-Aug-2014';
-analysisDate = '04-Aug-2014';
+% analysisDate = '04-Aug-2014';
+analysisDate = '08-Aug-2014';
 
 origDataType = 'tla';
 % origDataType = 'hilbert';
@@ -95,7 +96,8 @@ elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 
   data_str = 'word';
 end
 
-allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
+% allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
+allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'}};
 
 allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
