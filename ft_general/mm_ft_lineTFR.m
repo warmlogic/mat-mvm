@@ -215,9 +215,6 @@ nTime = size(cfg.times,1);
 if nROIs == 1
   cfg.nCol = 1;
   cfg.nRow = 1;
-elseif nROIs == 2
-  cfg.nCol = 1;
-  cfg.nRow = 2;
 end
 
 % subplot setup
