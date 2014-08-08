@@ -102,7 +102,10 @@ if ~iscell(lineProps)
 end
 
 
-if nargin<5 || ~isnumeric(transparent)
+% if nargin<5 || ~isnumeric(transparent)
+%     transparent=0; 
+% end
+if nargin < 5
     transparent=0; 
 end
 
