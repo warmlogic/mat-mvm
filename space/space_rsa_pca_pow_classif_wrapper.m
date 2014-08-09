@@ -294,10 +294,6 @@ if runLocally == 0
               
               fprintf('Processing %s %s, roi: %s, %d latencies, %s, sim: %s, eig: %s...\n',thisSub,thisSes,roi_str,size(latencies,1),freq_str,sim_method,eig_criterion);
               
-              % inArg = {ana,cfg_pp,exper,dirs,files};
-              % save the exper struct (output 1) so we can use it later
-              %createTask(job,@create_ft_struct_multiSes,1,inArg);
-              
               inArg = {saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,thisSub,thisSes,thisROI,latencies,freqs,sim_method,eig_criterion};
               createTask(job,@space_rsa_pca_pow_classif_cluster,0,inArg);
             end
@@ -316,7 +312,7 @@ if runLocally == 0
 else
   %% run the function locally
   
-  %error('This setup does not make sense with the current data loading setup.');
+  error('This setup does not make sense with the current data loading setup because it will try to reload the data on each iteration.');
   
   % create a log of the command window output
   thisRun = [expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
@@ -338,22 +334,12 @@ else
           for e = 1:length(allEigCrit)
             eig_criterion = allEigCrit{e};
             % Local: run all the subjects
-            space_rsa_pca_pow_classif_cluster(subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion);
+            space_rsa_pca_pow_classif_cluster(saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,freqs,sim_method,eig_criterion);
           end
         end
       end
     end
   end
-  
-%   % save the analysis details; overwrite if it already exists
-%   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
-%   %if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-%   fprintf('Done.\n');
-%   %else
-%   %  error('Not saving! %s already exists.\n',saveFile);
-%   %end
   
   % turn the diary off
   diary off

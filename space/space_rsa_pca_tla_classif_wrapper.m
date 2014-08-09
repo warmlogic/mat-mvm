@@ -263,13 +263,8 @@ if runLocally == 0
             
             fprintf('Processing %s %s, roi: %s, %d latencies, sim: %s, eig: %s...\n',thisSub,thisSes,roi_str,size(latencies,1),sim_method,eig_criterion);
             
-            % inArg = {ana,cfg_pp,exper,dirs,files};
-            % save the exper struct (output 1) so we can use it later
-            %createTask(job,@create_ft_struct_multiSes,1,inArg);
-            
             inArg = {saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,thisSub,thisSes,thisROI,latencies,sim_method,eig_criterion,lpfilt,subselect_eeg};
             createTask(job,@space_rsa_pca_tla_classif_cluster,0,inArg);
-            
           end
         end
       end
@@ -306,21 +301,11 @@ else
         sim_method = allSimMethod{s};
         for e = 1:length(allEigCrit)
           eig_criterion = allEigCrit{e};
-          space_rsa_pca_tla_classif_cluster(subjects,sesNames,thisROI,latencies,sim_method,eig_criterion);
+          space_rsa_pca_tla_classif_cluster(saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,sim_method,eig_criterion);
         end
       end
     end
   end
-  
-%   % save the analysis details; overwrite if it already exists
-%   saveFile = fullfile(dirs.saveDirProc,sprintf('analysisDetails.mat'));
-%   %if ~exist(saveFile,'file')
-%   fprintf('Saving %s...',saveFile);
-%   save(saveFile,'exper','ana','dirs','files','cfg_proc','cfg_pp');
-%   fprintf('Done.\n');
-%   %else
-%   %  error('Not saving! %s already exists.\n',saveFile);
-%   %end
   
   % turn the diary off
   diary off
