@@ -82,6 +82,8 @@ replaceDatatype = {'tla','pow'};
 
 %% set up similarity analysis; average power bands for P1-P2 trials
 
+date_string = datestr(now,1);
+
 % first set up classifier, if needed
 
 % accurateClassifSelect = true;
@@ -1100,7 +1102,7 @@ for sub = 1:length(subjects_all)
   end % ses
 end % sub
 
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_pow_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s.mat',data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,cfg_sel.avgovertime,cfg_sel.avgoverfreq,date_string));
 fprintf('Saving: %s\n',saveFile);
 save(saveFile,'subjects_all','sesNames_all','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','freqs','latencies','similarity_all','similarity_ntrials');
 fprintf('Done.\n');

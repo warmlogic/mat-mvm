@@ -111,6 +111,8 @@ accurateClassifSelect = false;
 
 %% analysis details
 
+date_string = datestr(now,1);
+
 lpfilt = false;
 subselect_eeg = true;
 
@@ -205,7 +207,7 @@ for i = STAGES
   
   % execute the processing stages
   if i == 1
-    stageFun{i}(expName,saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,lpfilt,subselect_eeg,runLocally,timeOut{i});
+    stageFun{i}(expName,saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,lpfilt,subselect_eeg,runLocally,timeOut{i});
   %elseif i == 2
   %  stageFun{i}(ana,cfg_pp,cfg_proc,exper,dirs,files,runLocally,timeOut{i});
   end
@@ -222,7 +224,7 @@ diary off
 %% FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function stage1(expName,saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,lpfilt,subselect_eeg,runLocally,timeOut)
+function stage1(expName,saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,subjects,sesNames,allROIs,allLats,allSimMethod,allEigCrit,lpfilt,subselect_eeg,runLocally,timeOut)
 % stage1: process the input files with FieldTrip based on the analysis
 % parameters
 
@@ -265,7 +267,7 @@ if runLocally == 0
             % save the exper struct (output 1) so we can use it later
             %createTask(job,@create_ft_struct_multiSes,1,inArg);
             
-            inArg = {saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,dataTypes,cfg_sel,thisSub,thisSes,thisROI,latencies,sim_method,eig_criterion,lpfilt,subselect_eeg};
+            inArg = {saveDirProc,replaceDataroot,replaceDatatype,allowRecallSynonyms,accurateClassifSelect,date_string,dataTypes,cfg_sel,thisSub,thisSes,thisROI,latencies,sim_method,eig_criterion,lpfilt,subselect_eeg};
             createTask(job,@space_rsa_pca_tla_classif_cluster,0,inArg);
             
           end

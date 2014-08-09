@@ -86,6 +86,8 @@ ana = mm_ft_elecGroups(ana);
 
 %% set up similarity analysis
 
+date_string = datestr(now,1);
+
 % do we want to lowpass filter
 lpfilt = true;
 % do we want to subselect time?
@@ -1026,7 +1028,7 @@ for sub = 1:length(exper.subjects)
   end % ses
 end % sub
 
-saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s.mat',data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,lpfilt_str,date));
+saveFile = fullfile(dirs.saveDirProc,sprintf('RSA_PCA_tla_%s_%s_%s_%s_%s_%dlat_%sAvgT_%s_%s.mat',data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),cfg_sel.avgovertime,lpfilt_str,date_string));
 fprintf('Saving: %s\n',saveFile);
 save(saveFile,'exper','dataTypes','thisROI','cfg_sel','eig_criterion','sim_method','classif_str','lpfilt','latencies','similarity_all','similarity_ntrials');
 fprintf('Done.\n');
