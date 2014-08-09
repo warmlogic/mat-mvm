@@ -111,7 +111,8 @@ accurateClassifSelect = false;
 
 %% analysis details
 
-date_string = datestr(now,1);
+% date_string = datestr(now,1);
+date_string = '08-Aug-2014';
 
 dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
 
