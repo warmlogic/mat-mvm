@@ -148,11 +148,26 @@ sesNames_all = exper.sesNames;
 
 %% stats
 
-% nTrialThresh = 10; % 30
-nTrialThresh = 12; % 27
-% nTrialThresh = 14; % 25
-% nTrialThresh = 16; % 22
-% nTrialThresh = 17; % 21
+% % % word
+% % nTrialThresh = 6; % 27
+% nTrialThresh = 7; % 25
+% % nTrialThresh = 8; % 22
+% % nTrialThresh = 9; % 21
+% % nTrialThresh = 10; % 19
+% % nTrialThresh = 12; % 18
+% % nTrialThresh = 14; % 15
+% % nTrialThresh = 15; % 13
+
+% % img
+% nTrialThresh = 6; % 28
+nTrialThresh = 7; % 26
+% nTrialThresh = 8; % 25
+% nTrialThresh = 9; % 24
+% nTrialThresh = 10; % 22
+% nTrialThresh = 11; % 21
+% nTrialThresh = 12; % 20
+% nTrialThresh = 14; % 19
+% nTrialThresh = 15; % 15
 
 plotit = false;
 
@@ -171,13 +186,13 @@ for d = 1:length(dataTypes)
         %     for ses = 1:length(exper.sessions)
         
         % Average Pres1--Pres2 similarity
-        if ~isempty(diag(similarity_all{sub,ses,d,lat}))
-          if similarity_ntrials(sub,ses,d,lat) < nTrialThresh
+        dataTypePairSimilarity = diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2);
+        if ~isempty(dataTypePairSimilarity)
+          if length(dataTypePairSimilarity) < nTrialThresh
             passTrlThresh(sub,ses) = false;
           end
           
-          mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2));
-          %mean_similarity.(dataTypes{d}) = cat(1,mean_similarity.(dataTypes{d}),mean(diag(similarity_all{sub,ses,d,lat},size(similarity_all{sub,ses,d,lat},1) / 2)));
+          mean_similarity.(dataTypes{d})(sub,ses,lat) = mean(dataTypePairSimilarity);
           
           if plotit
             figure
