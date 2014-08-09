@@ -146,8 +146,8 @@ end
 
 % % % word
 % % nTrialThresh = 6; % 27
-% nTrialThresh = 7; % 25
-% % nTrialThresh = 8; % 22
+% % nTrialThresh = 7; % 25
+% nTrialThresh = 8; % 22
 % % nTrialThresh = 9; % 21
 % % nTrialThresh = 10; % 19
 % % nTrialThresh = 12; % 18
@@ -156,8 +156,8 @@ end
 
 % % img
 % nTrialThresh = 6; % 28
-nTrialThresh = 7; % 26
-% nTrialThresh = 8; % 25
+% nTrialThresh = 7; % 26
+nTrialThresh = 8; % 25
 % nTrialThresh = 9; % 24
 % nTrialThresh = 10; % 22
 % nTrialThresh = 11; % 21
