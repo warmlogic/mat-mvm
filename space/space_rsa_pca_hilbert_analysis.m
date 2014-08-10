@@ -3,7 +3,8 @@
 % analysisDate = '04-Aug-2014';
 % data_str = 'word';
 
-analysisDate = '05-Aug-2014';
+% analysisDate = '05-Aug-2014';
+analysisDate = '08-Aug-2014';
 data_str = 'img';
 
 % data_str = 'img_word';
@@ -22,21 +23,25 @@ data_str = 'img';
 % thisROI = {'PI'};
 % thisROI = {'LT'};
 % thisROI = {'RT'};
+% thisROI = {'LPS'};
+% thisROI = {'RPS'};
 
 % img
 % thisROI = {'center109'}; % spac, mem x lat, 3-way
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
-thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way (strong)
+% thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way (strong)
 % thisROI = {'LT','RT'}; % spac, mem x lat
 % thisROI = {'LPI2','RPI2'}; % spac
 % thisROI = {'LAS2','FS','RAS2'}; % spac, mem x lat
 % thisROI = {'LFP','FC','RFP'}; % spac
 % thisROI = {'FS'};
-% thisROI = {'C'};
+thisROI = {'C'};
 % thisROI = {'PS'};
 % thisROI = {'PI'};
 % thisROI = {'LT'};
 % thisROI = {'RT'};
+% thisROI = {'LPS'};
+% thisROI = {'RPS'};
 
 freq = mm_freqSet('ndtools');
 
@@ -155,9 +160,9 @@ end
 % % nTrialThresh = 15; % 13
 
 % % img
-% nTrialThresh = 6; % 28
+nTrialThresh = 6; % 28
 % nTrialThresh = 7; % 26
-nTrialThresh = 8; % 25
+% nTrialThresh = 8; % 25
 % nTrialThresh = 9; % 24
 % nTrialThresh = 10; % 22
 % nTrialThresh = 11; % 21

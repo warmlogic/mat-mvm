@@ -3,7 +3,8 @@
 % analysisDate = '04-Aug-2014';
 % data_str = 'word';
 
-analysisDate = '05-Aug-2014';
+% analysisDate = '05-Aug-2014';
+analysisDate = '08-Aug-2014';
 data_str = 'img';
 
 % data_str = 'img_word';
@@ -22,21 +23,25 @@ data_str = 'img';
 % thisROI = {'PI'};
 % thisROI = {'LT'};
 % thisROI = {'RT'};
+% thisROI = {'LPS'};
+% thisROI = {'RPS'};
 
 % img
 % thisROI = {'center109'}; % spac, mem x lat, ~3-way
 % thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
-thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
+% thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
 % thisROI = {'LT','RT'}; % spac, ~mem x lat
 % thisROI = {'LPI2','RPI2'}; % spac, ~3-way
 % thisROI = {'LAS2','FS','RAS2'}; % spac
 % thisROI = {'LFP','FC','RFP'}; % spac
-% thisROI = {'FS'};
-% thisROI = {'C'};
-% thisROI = {'PS'};
-% thisROI = {'PI'};
-% thisROI = {'LT'};
-% thisROI = {'RT'};
+% thisROI = {'FS'}; % none
+% thisROI = {'C'}; ~spac, 3-way (PS is stronger)
+thisROI = {'PS'}; % **
+% thisROI = {'PI'}; % *
+% thisROI = {'LT'}; % none
+% thisROI = {'RT'}; % spac
+% thisROI = {'LPS'}; % lat
+% thisROI = {'RPS'}; % spac
 
 freq = mm_freqSet('ndtools');
 
@@ -159,9 +164,9 @@ sesNames_all = exper.sesNames;
 % % nTrialThresh = 15; % 13
 
 % % img
-% nTrialThresh = 6; % 28
-% nTrialThresh = 7; % 26
-nTrialThresh = 8; % 25
+nTrialThresh = 6; % 28 **
+% nTrialThresh = 7; % 26 *
+% nTrialThresh = 8; % 25
 % nTrialThresh = 9; % 24
 % nTrialThresh = 10; % 22
 % nTrialThresh = 11; % 21

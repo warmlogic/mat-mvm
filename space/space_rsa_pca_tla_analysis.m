@@ -1,6 +1,7 @@
 %% load
 
 analysisDate = '01-Aug-2014';
+% analysisDate = '08-Aug-2014';
 
 % data_str = 'word';
 data_str = 'img';
@@ -20,6 +21,8 @@ data_str = 'img';
 % thisROI = {'PI'};
 % thisROI = {'LT'};
 % thisROI = {'RT'};
+% thisROI = {'LPS'};
+% thisROI = {'RPS'};
 
 % img
 % thisROI = {'center109'}; % spacing, latency, spacing x latency
@@ -35,6 +38,8 @@ thisROI = {'LT','RT'}; % spac, lat, spac x lat, 3-way
 % thisROI = {'PI'};
 % thisROI = {'LT'};
 % thisROI = {'RT'};
+% thisROI = {'LPS'};
+% thisROI = {'RPS'};
 
 if iscell(thisROI)
   roi_str = sprintf(repmat('%s',1,length(thisROI)),thisROI{:});
