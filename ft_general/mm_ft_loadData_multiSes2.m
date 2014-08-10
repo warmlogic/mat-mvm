@@ -227,6 +227,13 @@ end
 
 if ~isfield(cfg,'baseline_type')
   cfg.baseline_type = '';
+  warning('Default: Setting cfg.baseline_type to an empty string. Not baselining data!');
+end
+
+if ~isempty(cfg.baseline_type)
+  if ~isfield(cfg,'baseline_events') || (isfield(cfg,'baseline_events') && isempty(cfg.baseline_events))
+    error('No events specified for baseline in cfg.baseline_events!');
+  end
 end
 
 % % no longer having 'db' be a reasonable transformation option
@@ -422,7 +429,7 @@ for sub = 1:length(exper.subjects)
                 cfg_sel.foilim = cfg.frequency;
               end
             else
-             cfg_sel.frequency = 'all';
+              cfg_sel.frequency = 'all';
             end
             %if isfield(cfg,'foilim')
             %  cfg_sel.foilim = cfg.foilim;
@@ -439,15 +446,15 @@ for sub = 1:length(exper.subjects)
             %selData = ft_selectdata(cfg_sel,subSesEvData.(data_fn));
             data.(sesStr).(eventValue).sub(sub).data = ft_selectdata(cfg_sel,subSesEvData.(data_fn));
             
-%             % select these data - use the old selection function
-%             if strcmp(cfg.ftype,'fourier')
-%               thisParam = cfg.fourierparam;
-%             elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
-%               thisParam = cfg.powparam;
-%             end
-%             selData = ft_selectdata_old(...
-%               subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
-%               'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
+            %             % select these data - use the old selection function
+            %             if strcmp(cfg.ftype,'fourier')
+            %               thisParam = cfg.fourierparam;
+            %             elseif strcmp(cfg.ftype,'pow') || strcmp(cfg.ftype,'powandcsd')
+            %               thisParam = cfg.powparam;
+            %             end
+            %             selData = ft_selectdata_old(...
+            %               subSesEvData.(data_fn),'param',thisParam,'foilim',cfg_sel.foilim,'toilim',cfg_sel.latency,'rpt',cfg_sel.trials,'channel',cfg_sel.channel,...
+            %               'avgoverchan','no','avgoverfreq','no','avgovertime','no','avgoverrpt','no');
             
             % put in the trial counts
             exper.nTrials.(sesStr).(eventValue)(sub,1) = sum(cfg_sel.trials);
@@ -474,13 +481,13 @@ for sub = 1:length(exper.subjects)
               exper.nArtifacts.(sesStr).(eventValue)(sub,1) = sum(sign(sum(totalArtCount,2)));
             end
             
-%             if strcmp(cfg.rmevoked,'yes') && (strcmp(cfg.rmevokedfourier,'yes') || strcmp(cfg.rmevokedpow,'yes'))
-%               thisData_evoked = data_evoked.(sesStr).(eventValue).sub(sub).data;
-%             else
-%               thisData_evoked = [];
-%             end
-%             
-%             data.(sesStr).(eventValue).sub(sub).data = processData(selData,exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
+            %             if strcmp(cfg.rmevoked,'yes') && (strcmp(cfg.rmevokedfourier,'yes') || strcmp(cfg.rmevokedpow,'yes'))
+            %               thisData_evoked = data_evoked.(sesStr).(eventValue).sub(sub).data;
+            %             else
+            %               thisData_evoked = [];
+            %             end
+            %
+            %             data.(sesStr).(eventValue).sub(sub).data = processData(selData,exper.subjects{sub},sesStr,eventValue,cfg,dirs,ana,thisData_evoked,powflg,csdflg,fftflg);
           end % es
         end
         
@@ -495,74 +502,103 @@ for sub = 1:length(exper.subjects)
     end % for evVal
     %end % for typ
     
-    % use mean and standard deviation across all events to z-transform
-    allEvBaseline = [];
-    
-    % get the baseline time indices
-    blt = false(size(data.(sesStr).(ana.eventValuesSplit{ses}{1}{1}).sub(sub).data.time));
-    blt_tbeg = nearest(data.(sesStr).(ana.eventValuesSplit{ses}{1}{1}).sub(sub).data.time,cfg.baseline_time(1));
-    blt_tend = nearest(data.(sesStr).(ana.eventValuesSplit{ses}{1}{1}).sub(sub).data.time,cfg.baseline_time(2));
-    blt(blt_tbeg:blt_tend) = true;
-    
-    for evVal = 1:length(ana.eventValuesSplit{ses})
-      for es = 1:length(ana.eventValuesSplit{ses}{evVal})
-        eventValue = ana.eventValuesSplit{ses}{evVal}{es};
-        allEvBaseline = cat(1,allEvBaseline,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam)(:,:,:,blt));
+    if ~isempty(cfg.baseline_type)
+      % use mean and standard deviation across events to z-transform
+      allEvBaseline = [];
+      
+      % get the baseline time indices
+      blt = false(size(data.(sesStr).(ana.eventValuesSplit{ses}{1}{1}).sub(sub).data.time));
+      blt_tbeg = nearest(data.(sesStr).(ana.eventValuesSplit{ses}{1}{1}).sub(sub).data.time,cfg.baseline_time(1));
+      blt_tend = nearest(data.(sesStr).(ana.eventValuesSplit{ses}{1}{1}).sub(sub).data.time,cfg.baseline_time(2));
+      blt(blt_tbeg:blt_tend) = true;
+      
+      % collect events for baseline
+      if ischar(cfg.baseline_events)
+        if strcmp(cfg.baseline_evnts,'all')
+          % use all events listed in ana.eventValuesSplit
+          for evVal = 1:length(ana.eventValuesSplit{ses})
+            for es = 1:length(ana.eventValuesSplit{ses}{evVal})
+              eventValue = ana.eventValuesSplit{ses}{evVal}{es};
+              allEvBaseline = cat(1,allEvBaseline,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam)(:,:,:,blt));
+            end
+          end
+        else
+          % only one event, listed as a string
+          eventTypes = fieldnames(data.(sesStr));
+          if ismember(cfg.baseline_events,eventTypes)
+            eventValue = cfg.baseline_events;
+            allEvBaseline = cat(1,allEvBaseline,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam)(:,:,:,blt));
+          else
+            error('%s is not an event type stored in data struct!',cfg.baseline_events);
+          end
+        end
+      elseif iscell(cfg.baseline_events)
+        % events for baseline specified as a cell array
+        for evVal = 1:length(cfg.baseline_events)
+          eventValue = cfg.baseline_events{evVal};
+          if isfield(data.(sesStr),eventValue)
+            allEvBaseline = cat(1,allEvBaseline,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam)(:,:,:,blt));
+          else
+            error('%s is not an event type stored in data struct!',eventValue);
+          end
+        end
+      end
+      
+      % mean across baseline period, then mean across events
+      blm_orig = squeeze(nanmean(nanmean(allEvBaseline,4),1));
+      
+      if strcmp(cfg.baseline_type,'zscore')
+        % std across time, then avg across events (lower freqs often get smaller std)
+        blstd_orig = squeeze(nanmean(nanstd(allEvBaseline,0,4),1));
+        % % avg across time, then std across events (higher freqs often get smaller std)
+        % blstd = nanstd(nanmean(allEvBaseline,4),0,1);
+        
+        % % concatenate all times of all events and std (equivalent std across freqs)
+        %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(allEvBaseline,3),...
+        %  size(allEvBaseline,1)*size(allEvBaseline,4),...
+        %  size(allEvBaseline,2),size(allEvBaseline,3))),0,1)),-1);
       end
     end
     
-    % mean across baseline period, then mean across events
-    blm_orig = squeeze(nanmean(nanmean(allEvBaseline,4),1));
-    
-    if strcmp(cfg.baseline_type,'zscore')
-      % std across time, then avg across events (lower freqs often get smaller std)
-      blstd_orig = squeeze(nanmean(nanstd(allEvBaseline,0,4),1));
-      % % avg across time, then std across events (higher freqs often get smaller std)
-      % blstd = nanstd(nanmean(allEvBaseline,4),0,1);
-      
-      % % concatenate all times of all events and std (equivalent std across freqs)
-      %blstd = shiftdim(squeeze(std(double(reshape(shiftdim(allEvBaseline,3),...
-      %  size(allEvBaseline,1)*size(allEvBaseline,4),...
-      %  size(allEvBaseline,2),size(allEvBaseline,3))),0,1)),-1);
-    end
-    
     for evVal = 1:length(ana.eventValuesSplit{ses})
       for es = 1:length(ana.eventValuesSplit{ses}{evVal})
         eventValue = ana.eventValuesSplit{ses}{evVal}{es};
         
-        blm = shiftdim(repmat(blm_orig,[1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)]),2);
-        
-        if strcmp(cfg.baseline_type,'zscore')
-          fprintf('\tZ-transforming data relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-          blstd = shiftdim(repmat(blstd_orig,[1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)]),2);
+        if ~isempty(cfg.baseline_type)
+          blm = shiftdim(repmat(blm_orig,[1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)]),2);
           
-          data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm),blstd);
-          
-        elseif strcmp(cfg.baseline_type,'db')
-          fprintf('\tConverting to db relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
-          % divide by baseline mean and convert to db
-          
-          %if strcmp(cfg.norm_trials,'average')
-          data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = 10*log10(bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm));
-          %elseif strcmp(cfg.norm_trials,'single')
-          %  data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
-          %end
-          
-          % TODO: mean(10*log10) is not the same as 10*log10(mean)
-          
-          %data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
-          
-        elseif strcmp(cfg.baseline_type,'absolute')
-          fprintf('\tSubtracting mean([%.2f %.2f]) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
-          data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
-          
-        elseif strcmp(cfg.baseline_type,'relative')
-          fprintf('\tDividing entire trial power by mean([%.2f %.2f]) power.\n',cfg.baseline_time(1),cfg.baseline_time(2));
-          data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
-          
-        elseif strcmp(cfg.baseline_type,'relchange')
-          fprintf('\tSubtracting mean([%.2f %.2f]) power from entire trial and dividing by that mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
-          data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm),blm);
+          if strcmp(cfg.baseline_type,'zscore')
+            fprintf('\tZ-transforming data relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+            blstd = shiftdim(repmat(blstd_orig,[1,1,size(data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),1)]),2);
+            
+            data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm),blstd);
+            
+          elseif strcmp(cfg.baseline_type,'db')
+            fprintf('\tConverting to db relative to mean([%.2f %.2f]).\n',cfg.baseline_time(1),cfg.baseline_time(2));
+            % divide by baseline mean and convert to db
+            
+            %if strcmp(cfg.norm_trials,'average')
+            data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = 10*log10(bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm));
+            %elseif strcmp(cfg.norm_trials,'single')
+            %  data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
+            %end
+            
+            % TODO: mean(10*log10) is not the same as 10*log10(mean)
+            
+            %data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
+            
+          elseif strcmp(cfg.baseline_type,'absolute')
+            fprintf('\tSubtracting mean([%.2f %.2f]) power from entire trial.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+            data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
+            
+          elseif strcmp(cfg.baseline_type,'relative')
+            fprintf('\tDividing entire trial power by mean([%.2f %.2f]) power.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+            data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm);
+            
+          elseif strcmp(cfg.baseline_type,'relchange')
+            fprintf('\tSubtracting mean([%.2f %.2f]) power from entire trial and dividing by that mean.\n',cfg.baseline_time(1),cfg.baseline_time(2));
+            data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam) = bsxfun(@rdivide,bsxfun(@minus,data.(sesStr).(eventValue).sub(sub).data.(cfg.powparam),blm),blm);
+          end
         end
         
         % average if needed
