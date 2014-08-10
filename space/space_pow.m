@@ -317,15 +317,16 @@ cfg.baseline_type = 'zscore';
 % cfg.baseline_type = 'relchange';
 % cfg.baseline_type = 'relative';
 
-% baseline using all events
-cfg.baseline_events = 'all';
-% % baseline only using word (since image immedpately follows word)
-% cfg.baseline_events = { ...
-%   'word_onePres' ...
-%   'word_RgH_rc_spac_p1','word_RgH_rc_spac_p2','word_RgH_rc_mass_p1','word_RgH_rc_mass_p2' ...
-%   'word_RgH_fo_spac_p1','word_RgH_fo_spac_p2','word_RgH_fo_mass_p1','word_RgH_fo_mass_p2' ...
-%   %'word_RgM_spac_p1','word_RgM_spac_p2','word_RgM_mass_p1','word_RgM_mass_p2' ...
-%   };
+% % baseline using all events
+% cfg.baseline_events = 'all';
+
+% baseline only using word (since image immedpately follows word)
+cfg.baseline_events = { ...
+  'word_onePres' ...
+  'word_RgH_rc_spac_p1','word_RgH_rc_spac_p2','word_RgH_rc_mass_p1','word_RgH_rc_mass_p2' ...
+  'word_RgH_fo_spac_p1','word_RgH_fo_spac_p2','word_RgH_fo_mass_p1','word_RgH_fo_mass_p2' ...
+  %'word_RgM_spac_p1','word_RgM_spac_p2','word_RgM_mass_p1','word_RgM_mass_p2' ...
+  };
 
 % baseline period
 %cfg.baseline_time = [-0.2 0];
@@ -426,7 +427,9 @@ ana.eventValues = ana.eventValuesSplit;
 saveDir = dirs.saveDirProc;
 % save(fullfile(saveDir,'space_word_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
 % save(fullfile(saveDir,'space_word_img_data_ga_pow.mat'),'data_pow','ga_pow','exper','ana','dirs','files','-v7.3');
-save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','dirs','files','-v7.3');
+
+% save(fullfile(saveDir,'space_word_img_data_pow.mat'),'data_pow','exper','ana','dirs','files','-v7.3');
+save(fullfile(saveDir,'space_word_img_data_pow_wordBL.mat'),'data_pow','exper','ana','dirs','files','-v7.3');
 % clear data_pow
 
 %% load
@@ -455,7 +458,8 @@ end
 loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow');
 % loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
 
-load(fullfile(loadDir,'space_word_img_data_pow.mat'));
+% load(fullfile(loadDir,'space_word_img_data_pow.mat'));
+load(fullfile(loadDir,'space_word_img_data_pow_wordBL.mat'));
 
 [dirs] = mm_checkDirs(dirs);
 
