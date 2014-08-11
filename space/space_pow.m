@@ -1402,8 +1402,8 @@ end
 
 %% RM ANOVA
 
-% stimType = 'word_';
-stimType = 'img_';
+stimType = 'word_';
+% stimType = 'img_';
 memType = 'RgH_';
 
 % spacings = {'mass', 'spac', 'onePres'};
@@ -1425,6 +1425,9 @@ measure = 'powspctrm';
 % latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
 % latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
+% latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
+latencies = [0.02:0.2:0.92; 0.2:0.2:1.0]'; % 200 no overlap
+
 % % % theta
 % freqs = ana.freq.theta;
 % % latencies = [0.6 1.0]; % word
@@ -1437,9 +1440,9 @@ measure = 'powspctrm';
 % % roi = {'RFP'};
 % % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
 % 
-% % roi = {'LAS2'}; % yes, pos ***
+% roi = {'LAS2'}; % yes, pos ***
 % % roi = {'LAS'}; % yes, pos **
-% roi = {'FS'}; % yes, pos **
+% % roi = {'FS'}; % yes, pos **
 % % roi = {'C'}; % yes, pos
 % % roi = {'RAS'}; % yes, pos *
 % % roi = {'RAS2'}; % yes
@@ -1458,51 +1461,35 @@ measure = 'powspctrm';
 % 
 % % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
 % % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
-% 
-% % latencies = [0.3 1.0];
-% % latencies = [0.62 0.78];
 
 % % % alpha
-% % freqs = ana.freq.alpha;
+% freqs = ana.freq.alpha;
 % % freqs = ana.freq.alpha_lower;
-% freqs = ana.freq.alpha_upper;
+% % freqs = ana.freq.alpha_upper;
 % % latencies = [0.6 1.0]; % img
 % % roi = {'LAS2'};
 % 
 % % latencies = [0.1 0.3]; % word, LT, early alpha effect Spac x Mem
 % % latencies = [0.4 0.7]; % 
 % % latencies = [0.5 0.9]; % 
-% latencies = [0.4 1.0]; % 
-% % roi = {'LT'}; % word **
+% % latencies = [0.4 1.0]; % 
+% roi = {'LT'}; % word **
+% 
 % % latencies = [0.3 0.7]; % word
 % % latencies = [0.5 0.7]; % word
 % % latencies = [0.8 1.0]; % word
 % % roi = {'LAS2'}; %
 % % roi = {'PS'}; % word **
-% % roi = {'RPS'}; % word **
-% roi = {'PI'}; % word ** 
-
-
-% latencies = [0.4 0.6];
-% latencies = [0.4 0.7];
-% roi = {'FC'}; % no
-% roi = {'FS'}; % maybe
-% roi = {'FS2'}; % yes
-% roi = {'PS'}; %
-% roi = {'LT'}; %
-
-% freqs = [3 7; 8 12; 13 20; 21 30; 31 45; 46 80];
-
-% latencies = [0.02 0.46; 0.5 0.98];
-% latencies = [0.02 0.46];
-% latencies = [0.5 0.98];
-
-% freqs = [3 7];
-% freqs = [8 12];
-% freqs = [13 20];
-% freqs = [21 30];
-% freqs = [31 45];
-% freqs = [46 80];
+% % roi = {'LPS'}; % 
+% % roi = {'PI'}; % word ** 
+% 
+% % latencies = [0.4 0.6];
+% % latencies = [0.4 0.7];
+% % roi = {'FC'}; % no
+% % roi = {'FS'}; % maybe
+% % roi = {'FS2'}; % yes
+% % roi = {'PS'}; %
+% % roi = {'LPI2'}; %
 
 latency = cell(1,size(latencies,1));
 for i = 1:length(latency)
