@@ -914,6 +914,7 @@ cfg_plot.is_ga = 1;
 % cfg_plot.condByROI = repmat({{'word_onePres', 'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{{{'word_RgH_spac_p1', 'word_RgH_mass_p1', 'word_RgH_spac_p2', 'word_RgH_mass_p2'}}}},size(cfg_plot.rois));
 cfg_plot.condByROI = repmat({{{{'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'}}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{{'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'}}}},size(cfg_plot.rois));
 
 %%%%%%%%%%%%%%%
 % Type of plot
@@ -997,12 +998,12 @@ cfg.rois = {...
 % cfg.conditions = ana.eventValues{ses};
 
 cfg.conditions = {{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
-% cfg.conditions = {{'img_onePres','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+cfg.conditions = {{'img_onePres','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
 
-cfg.plotErrorBars = true;
+cfg.plotErrorBars = false;
 cfg.eb_transp = true;
 
 cfg.plotClusSig = false;
@@ -1340,7 +1341,7 @@ cfg.conditions = {...
 cfg.plotTitle = true;
 cfg.plotLegend = true;
 
-cfg.plotErrorBars = true;
+cfg.plotErrorBars = false;
 cfg.eb_transp = true;
 
 cfg.plotClusSig = true;
@@ -1401,8 +1402,8 @@ end
 
 %% RM ANOVA
 
-stimType = 'word_';
-% stimType = 'img_';
+% stimType = 'word_';
+stimType = 'img_';
 memType = 'RgH_';
 
 % spacings = {'mass', 'spac', 'onePres'};
@@ -1421,10 +1422,14 @@ memConds = {'rc','fo'};
 
 measure = 'powspctrm';
 
+% latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+% latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+
 % % % theta
 % freqs = ana.freq.theta;
-% latencies = [0.6 1.0]; % word
+% % latencies = [0.6 1.0]; % word
 % % latencies = [0.1 0.4]; % img
+% % latencies = [0.02 0.5; 0.52 1.0];
 % 
 % % roi = {'LAI'}; % yes, neg **
 % % roi = {'LFP'};
@@ -1453,26 +1458,29 @@ measure = 'powspctrm';
 % 
 % % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
 % % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
+% 
+% % latencies = [0.3 1.0];
+% % latencies = [0.62 0.78];
 
-% latencies = [0.3 1.0];
-% latencies = [0.62 0.78];
-
-% % alpha
-% freqs = ana.freq.alpha;
-% freqs = ana.freq.alpha_lower;
-freqs = ana.freq.alpha_upper;
-% latencies = [0.6 1.0]; % img
-% roi = {'LAS2'};
-
-latencies = [0.1 0.3]; % word, LT, early alpha effect Spac x Mem
-roi = {'LT'}; % word **
-% latencies = [0.3 0.7]; % word
-% latencies = [0.5 0.7]; % word
-% latencies = [0.8 1.0]; % word
-% roi = {'LAS2'}; %
-% roi = {'PS'}; % word **
-% roi = {'RPS'}; % word **
-% roi = {'PI'}; % word **
+% % % alpha
+% % freqs = ana.freq.alpha;
+% % freqs = ana.freq.alpha_lower;
+% freqs = ana.freq.alpha_upper;
+% % latencies = [0.6 1.0]; % img
+% % roi = {'LAS2'};
+% 
+% % latencies = [0.1 0.3]; % word, LT, early alpha effect Spac x Mem
+% % latencies = [0.4 0.7]; % 
+% % latencies = [0.5 0.9]; % 
+% latencies = [0.4 1.0]; % 
+% % roi = {'LT'}; % word **
+% % latencies = [0.3 0.7]; % word
+% % latencies = [0.5 0.7]; % word
+% % latencies = [0.8 1.0]; % word
+% % roi = {'LAS2'}; %
+% % roi = {'PS'}; % word **
+% % roi = {'RPS'}; % word **
+% roi = {'PI'}; % word ** 
 
 
 % latencies = [0.4 0.6];
@@ -1498,7 +1506,7 @@ roi = {'LT'}; % word **
 
 latency = cell(1,size(latencies,1));
 for i = 1:length(latency)
-  latency{i} = sprintf('%dto%d',latencies(i,1)*1000,latencies(i,2)*1000);
+  latency{i} = sprintf('%dto%d',round(latencies(i,1)*1000),round(latencies(i,2)*1000));
 end
 latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
 latStr = latStr(2:end);
