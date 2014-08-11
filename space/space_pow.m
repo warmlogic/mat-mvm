@@ -1426,41 +1426,44 @@ measure = 'powspctrm';
 % latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
 % latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
-latencies = [0.02:0.2:0.92; 0.2:0.2:1.0]'; % 200 no overlap
+% latencies = [0.02:0.2:0.92; 0.2:0.2:1.0]'; % 200 no overlap
+% latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
+% latencies = [0.02:0.33:0.92; 0.33:0.33:1.0]'; % 330 no overlap
+latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
 
-% % % theta
-% freqs = ana.freq.theta;
-% % latencies = [0.6 1.0]; % word
-% % latencies = [0.1 0.4]; % img
-% % latencies = [0.02 0.5; 0.52 1.0];
-% 
-% % roi = {'LAI'}; % yes, neg **
-% % roi = {'LFP'};
-% % roi = {'FC'};
-% % roi = {'RFP'};
-% % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
-% 
-% roi = {'LAS2'}; % yes, pos ***
-% % roi = {'LAS'}; % yes, pos **
-% % roi = {'FS'}; % yes, pos **
-% % roi = {'C'}; % yes, pos
-% % roi = {'RAS'}; % yes, pos *
-% % roi = {'RAS2'}; % yes
-% 
-% % roi = {'LT'}; % 
-% % roi = {'LPS2'}; % 
-% % roi = {'LPS'}; % 
-% % roi = {'PS'}; % 
-% % roi = {'RPS'}; % 
-% % roi = {'RPS2'}; % 
-% % roi = {'RT'}; % 
-% 
-% % roi = {'LPI2'}; % yes
-% % roi = {'PI'}; % no
-% % roi = {'RPI2'}; % yes
-% 
-% % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
-% % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
+% % theta
+freqs = ana.freq.theta;
+% latencies = [0.6 1.0]; % word
+% latencies = [0.1 0.4]; % img
+% latencies = [0.02 0.5; 0.52 1.0];
+
+% roi = {'LAI'}; % yes, neg **
+% roi = {'LFP'};
+% roi = {'FC'};
+% roi = {'RFP'};
+% roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
+
+roi = {'LAS2'}; % yes, pos ***
+% roi = {'LAS'}; % yes, pos **
+% roi = {'FS'}; % yes, pos **
+% roi = {'C'}; % yes, pos
+% roi = {'RAS'}; % yes, pos *
+% roi = {'RAS2'}; % yes
+
+% roi = {'LT'}; % 
+% roi = {'LPS2'}; % 
+% roi = {'LPS'}; % 
+% roi = {'PS'}; % 
+% roi = {'RPS'}; % 
+% roi = {'RPS2'}; % 
+% roi = {'RT'}; % 
+
+% roi = {'LPI2'}; % yes
+% roi = {'PI'}; % no
+% roi = {'RPI2'}; % yes
+
+% roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
+% roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
 
 % % % alpha
 % freqs = ana.freq.alpha;
