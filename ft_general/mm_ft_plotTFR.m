@@ -246,9 +246,9 @@ for typ = 1:length(cfg_plot.conditions{ses})
     end
     
     if ~isempty(cfg_plot.types{typ})
-      set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+      set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{ses}{typ}{evVal},'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     else
-      set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+      set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     end
     
     if strcmp(cfg_plot.type,'single')
@@ -273,7 +273,7 @@ for typ = 1:length(cfg_plot.conditions{ses})
     end
     if cfg_plot.plotTitle
       %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.condNames{1},cfg_plot.condNames{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
-      title(sprintf('%s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+      title(sprintf('%s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_','-'),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
       cfg_plot.title_str = '_title';
     else
       cfg_plot.title_str = '';
