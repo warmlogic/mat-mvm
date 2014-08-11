@@ -1157,7 +1157,7 @@ if strcmp(cfg_ft.avgovertime,'no')
   %cfg_ana.latencies = [0 1.0];
   %cfg_ana.latencies = [0 0.5; 0.5 1.0];
 %   cfg_ana.latencies = [0.02 0.46; 0.5 0.98];
-  cfg_ana.latencies = [0 0.48; 0.5 1.0];
+  cfg_ana.latencies = [0.02 0.5; 0.52 1.0];
 elseif strcmp(cfg_ft.avgovertime,'yes')
   %cfg_ana.latencies = [-0.2:0.1:0.9; -0.1:0.1:1.0]'; % some overlap
   %cfg_ana.latencies = [-0.2:0.2:0.8; 0:0.2:1.0]'; % some overlap
@@ -1166,8 +1166,11 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
   %cfg_ana.latencies = [-0.18:0.2:0.82; -0.02:0.2:1.0]'; % 200 no overlap
   
   % new analyses
-  cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
-  %cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+  % cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+  % cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
+  % cfg_ana.latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
+  % cfg_ana.latencies = [0.02:0.33:0.92; 0.33:0.33:1.0]'; % 330 no overlap
+  cfg_ana.latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
   
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
 end
@@ -1402,8 +1405,8 @@ end
 
 %% RM ANOVA
 
-stimType = 'word_';
-% stimType = 'img_';
+% stimType = 'word_';
+stimType = 'img_';
 memType = 'RgH_';
 
 % spacings = {'mass', 'spac', 'onePres'};
@@ -1425,11 +1428,11 @@ measure = 'powspctrm';
 % latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
 % latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
-% latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
+latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
 % latencies = [0.02:0.2:0.92; 0.2:0.2:1.0]'; % 200 no overlap
 % latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
 % latencies = [0.02:0.33:0.92; 0.33:0.33:1.0]'; % 330 no overlap
-latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
+% latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
 
 % % theta
 freqs = ana.freq.theta;
@@ -1443,17 +1446,19 @@ freqs = ana.freq.theta;
 % roi = {'RFP'};
 % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
 
-roi = {'LAS2'}; % yes, pos ***
+% roi = {{'LAS2','FS'}}; % yes, pos ***
+% roi = {'LAS2'}; % yes, pos ***
 % roi = {'LAS'}; % yes, pos **
 % roi = {'FS'}; % yes, pos **
 % roi = {'C'}; % yes, pos
 % roi = {'RAS'}; % yes, pos *
 % roi = {'RAS2'}; % yes
 
+% roi = {{'LT','FS'}}; % 
 % roi = {'LT'}; % 
 % roi = {'LPS2'}; % 
 % roi = {'LPS'}; % 
-% roi = {'PS'}; % 
+roi = {'PS'}; % 
 % roi = {'RPS'}; % 
 % roi = {'RPS2'}; % 
 % roi = {'RT'}; % 
@@ -1660,3 +1665,114 @@ O = teg_repeated_measures_ANOVA(anovaData, nVariables, factorNames,[],[],[],[],[
 
 fprintf('Prev ANOVA: %s, Freq: %s\n',stimType,freq_str);
 fprintf('=======================================\n');
+
+%% plot spacing x memory x time interaction
+
+theseSub = noNans & passTrlThresh;
+
+ses=1;
+
+RgH_rc_spac = squeeze(mean_similarity.(sprintf('%s_RgH_rc_spac',data_str))(theseSub,ses,latInd));
+RgH_fo_spac = squeeze(mean_similarity.(sprintf('%s_RgH_fo_spac',data_str))(theseSub,ses,latInd));
+RgH_rc_mass = squeeze(mean_similarity.(sprintf('%s_RgH_rc_mass',data_str))(theseSub,ses,latInd));
+RgH_fo_mass = squeeze(mean_similarity.(sprintf('%s_RgH_fo_mass',data_str))(theseSub,ses,latInd));
+
+plotMeanLines = true;
+plotSub = false;
+plotSubLines = false;
+
+if plotMeanLines
+  s_rc_mark = 'ko-';
+  s_fo_mark = 'ko-.';
+  m_rc_mark = 'rx-';
+  m_fo_mark = 'rx-.';
+else
+  s_rc_mark = 'ko';
+  s_fo_mark = 'ro';
+  m_rc_mark = 'kx';
+  m_fo_mark = 'rx';
+end
+
+meanSizeS = 20;
+meanSizeM = 20;
+
+if plotSub
+  subSpacing = 0.2;
+  if plotSubLines
+    s_rc_mark_sub = 'ko-';
+    s_fo_mark_sub = 'ko-.';
+    m_rc_mark_sub = 'rx-';
+    m_fo_mark_sub = 'rx-.';
+  else
+    s_rc_mark_sub = 'ko';
+    s_fo_mark_sub = 'ro';
+    m_rc_mark_sub = 'kx';
+    m_fo_mark_sub = 'rx';
+  end
+end
+
+figure
+hold on
+
+if plotSub
+  if plotSubLines
+    plotSub = false;
+    for s = 1:sum(theseSub)
+      % spaced
+      plot(RgH_rc_spac(s,:),s_rc_mark_sub,'LineWidth',1);
+      plot(RgH_fo_spac(s,:),s_fo_mark_sub,'LineWidth',1);
+      % massed
+      plot(RgH_rc_mass(s,:),m_rc_mark_sub,'LineWidth',1);
+      plot(RgH_fo_mass(s,:),m_fo_mark_sub,'LineWidth',1);
+    end
+  else
+    for t = 1:length(latInd)
+      % spaced
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_rc_spac(:,t),s_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_fo_spac(:,t),s_fo_mark_sub,'LineWidth',1);
+      % massed
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_rc_mass(:,t),m_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_fo_mass(:,t),m_fo_mark_sub,'LineWidth',1);
+    end
+  end
+end
+if plotMeanLines
+  % spaced
+  hsr = plot(mean(RgH_rc_spac,1),s_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf = plot(mean(RgH_fo_spac,1),s_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  % massed
+  hmr = plot(mean(RgH_rc_mass,1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  hmf = plot(mean(RgH_fo_mass,1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+else
+  for t = 1:length(latInd)
+    % spaced
+    hsr = plot(t,mean(RgH_rc_spac(:,t),1),s_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf = plot(t,mean(RgH_fo_spac(:,t),1),s_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    % massed
+    hmr = plot(t,mean(RgH_rc_mass(:,t),1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+    hmf = plot(t,mean(RgH_fo_mass(:,t),1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  end
+end
+
+% horiz
+plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
+
+hold off
+axis square
+xlim([0.75 length(latInd)+0.25]);
+ylim([-0.35 0.35]);
+
+set(gca,'XTick', 1:length(latInd));
+set(gca,'XTickLabel',latencySec);
+xlabel('Time (Sec)');
+
+ylabel('Neural Similarity');
+
+title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
+legend([hsr, hsf, hmr, hmf],{'Spaced Rc','Spaced Fo','Massed Rc','Massed Fo'},'Location','North');
+
+% ticFontSize = 20;
+ticFontSize = 18;
+publishfig(gcf,0,ticFontSize,[],[]);
+
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s.eps',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
