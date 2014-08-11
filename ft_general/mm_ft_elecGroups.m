@@ -51,7 +51,7 @@ end
 if strcmp('HCGSN129',layoutStr)
   right = [1:5, 9:10, 14, 76:80, 82:124];
   left = [7, 12:13, 18:24, 26:54, 56:61, 63:71, 73:74];
-  midline = [6, 11, 15, 16, 17, 55, 62, 72, 75, 81];
+  midline = [6, 11, 15, 16, 55, 62, 72, 75, 81];
   eyes_below = [127, 126]; % left, right
   eyes_above = [25, 8]; % left, right
   eyes_horiz = [128 125]; % left, right
