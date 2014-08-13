@@ -217,7 +217,19 @@ if nROIs == 1
   cfg.nRow = 1;
 end
 
-sigElecsAcrossComparisons = cell(1,length(cfg.conditions));
+% record all of the significant electrodes common across pairwise
+% comparisons in the time ranges included in cfg.clusTimes
+if cfg.plotClusSig
+  sigElecsAcrossComparisons = cell(length(cfg.conditions),nFreq);
+  if ~isfield(cfg,'sigElecAnyTime')
+    % false produces only true values when an electrode was significantly
+    % different between comparisons at all time windows; set to true to get
+    % a true value for when any window is different
+    cfg.sigElecAnyTime = false;
+  end
+else
+  sigElecsAcrossComparisons = {};
+end
 
 % subplot setup
 if ~isfield(cfg,'nCol') &&  ~isfield(cfg,'nRow')
@@ -244,16 +256,23 @@ for typ = 1:length(cfg.conditions)
   end
   
   if cfg.plotClusSig
-    if length(cfg.conditions{typ}) > 2
+    if length(cfg.conditions{typ}) >= 2
       condCombos = nchoosek(1:length(cfg.conditions{typ}),2);
     else
       error('Need two or more conditions to compare if plotting cluster significance tests');
     end
     
-    sigElecsAcrossComparisons{typ} = false(length(data.(exper.sesStr{1}).(cfg.conditions{typ}{1}).label),size(condCombos,1));
   end
   
   for f = 1:nFreq
+    if cfg.plotClusSig
+      if cfg.sigElecAnyTime
+        sigElecsAcrossComparisons{typ,f} = false(length(data.(exper.sesStr{1}).(cfg.conditions{typ}{1}).label),size(condCombos,1));
+      else
+        sigElecsAcrossComparisons{typ,f} = true(length(data.(exper.sesStr{1}).(cfg.conditions{typ}{1}).label),size(condCombos,1));
+      end
+    end
+    
     figure
     
     % get all the ROI names together
@@ -428,7 +447,11 @@ for typ = 1:length(cfg.conditions)
             fprintf('%s:\tNo positive or negative clusters\n',vs_str);
             continue
           else
-            sigElecsAcrossComparisons{typ}(stat_clus.(vs_str).prob <= cfg.clusAlpha,evVal) = true;
+            if cfg.sigElecAnyTime
+              sigElecsAcrossComparisons{typ,f}(stat_clus.(vs_str).prob <= cfg.clusAlpha,evVal) = true;
+            else
+              sigElecsAcrossComparisons{typ,f}(stat_clus.(vs_str).prob > cfg.clusAlpha,evVal) = false;
+            end
           end
           
           for r = 1:nROIs
@@ -481,7 +504,7 @@ for typ = 1:length(cfg.conditions)
                     foundpos(r,t) = foundpos(r,t) + 1;
                     
                     % debug
-                    fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
+                    fprintf('%.1fto%.1fHz: %.2fto%.2f sec, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
                       cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,sigpos(iPos),...
                       sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,1)}).label(sigposCLM(:,iPos) > 0))),...
                       stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
@@ -519,7 +542,7 @@ for typ = 1:length(cfg.conditions)
                     foundneg(r,t) = foundneg(r,t) + 1;
                     
                     % debug
-                    fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
+                    fprintf('%.1fto%.1fHz: %.2fto%.2f sec, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
                       cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,signeg(iNeg),...
                       sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,2)}).label(signegCLM(:,iNeg) > 0))),...
                       stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
