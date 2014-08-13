@@ -198,7 +198,7 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
   % cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
   % cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
   % cfg_ana.latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
-  % cfg_ana.latencies = [0.02:0.33:0.92; 0.33:0.33:1.0]'; % 330 no overlap
+  % cfg_ana.latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
   cfg_ana.latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
   
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
