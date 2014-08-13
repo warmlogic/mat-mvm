@@ -1,4 +1,4 @@
-function mm_ft_lineTFR(cfg,ana,exper,files,dirs,data,sesNum)
+function sigElecsAcrossComparisons = mm_ft_lineTFR(cfg,ana,exper,files,dirs,data,sesNum)
 %MM_FT_LINETFR make (and save) Time-Frequency plots
 %
 %   mm_ft_lineTFR(cfg,ana,exper,files,dirs,data)
@@ -217,6 +217,8 @@ if nROIs == 1
   cfg.nRow = 1;
 end
 
+sigElecsAcrossComparisons = cell(1,length(cfg.conditions));
+
 % subplot setup
 if ~isfield(cfg,'nCol') &&  ~isfield(cfg,'nRow')
   cfg.nCol = 3;
@@ -234,14 +236,21 @@ end
 
 for typ = 1:length(cfg.conditions)
   % get all the condition names together
+  cond_str = sprintf(repmat('%s_',1,length(cfg.conditions{typ})),cfg.conditions{typ}{:});
   if length(cfg.conditions{typ}) > 2
     nCond = length(cfg.conditions{typ});
   else
     nCond = 1;
   end
-  cond_str = sprintf(repmat('%s_',1,length(cfg.conditions{typ})),cfg.conditions{typ}{:});
+  
   if cfg.plotClusSig
-    condCombos = nchoosek(1:length(cfg.conditions{typ}),2);
+    if length(cfg.conditions{typ}) > 2
+      condCombos = nchoosek(1:length(cfg.conditions{typ}),2);
+    else
+      error('Need two or more conditions to compare if plotting cluster significance tests');
+    end
+    
+    sigElecsAcrossComparisons{typ} = false(length(data.(exper.sesStr{1}).(cfg.conditions{typ}{1}).label),size(condCombos,1));
   end
   
   for f = 1:nFreq
@@ -389,7 +398,9 @@ for typ = 1:length(cfg.conditions)
         if ~exist(dirs.saveDirClusStat,'dir')
           error('%s not found!\nMake sure this directory is accessible for loading cluster permutation test results.',dirs.saveDirClusStat);
         end
-        for evVal = 1:nCond
+        
+        %for evVal = 1:nCond
+        for evVal = 1:size(condCombos,1)
           vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,1)},cfg.conditions{typ}{condCombos(evVal,2)});
           savedFile = fullfile(dirs.saveDirClusStat,sprintf('tfr_stat_clus_%s_%.1f_%.1f_%d_%d.mat',vs_str,cfg.freqs(f,1),cfg.freqs(f,2),round(cfg.clusTimes(t,1)*1000),round(cfg.clusTimes(t,2)*1000)));
           if exist(savedFile,'file')
@@ -416,6 +427,8 @@ for typ = 1:length(cfg.conditions)
           if ~isfield(stat_clus.(vs_str),'posclusters') && ~isfield(stat_clus.(vs_str),'negclusters')
             fprintf('%s:\tNo positive or negative clusters\n',vs_str);
             continue
+          else
+            sigElecsAcrossComparisons{typ}(stat_clus.(vs_str).prob <= cfg.clusAlpha,evVal) = true;
           end
           
           for r = 1:nROIs
@@ -450,75 +463,79 @@ for typ = 1:length(cfg.conditions)
             end
             
             % find the positive clusters
-            sigpos = [];
             if ~isempty(stat_clus.(vs_str).posclusters)
+              sigpos = zeros(1,length(stat_clus.(vs_str).posclusters));
               for iPos = 1:length(stat_clus.(vs_str).posclusters)
-                sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusAlpha;
+                sigpos(iPos) = stat_clus.(vs_str).posclusters(iPos).prob <= cfg.clusAlpha;
               end
               sigpos = find(sigpos == 1);
               
-              posCLM = squeeze(stat_clus.(vs_str).posclusterslabelmat);
-              sigposCLM = zeros(size(posCLM,1),size(sigpos,2));
-              for iPos = 1:length(sigpos)
-                sigposCLM(:,iPos) = (posCLM == sigpos(iPos));
-                
-                if sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))) > 0
-                  %fprintf('%s:\t***Found positive clusters***\n',vs_str);
-                  foundpos(r,t) = foundpos(r,t) + 1;
+              if ~isempty(sigpos)
+                posCLM = squeeze(stat_clus.(vs_str).posclusterslabelmat);
+                sigposCLM = zeros(size(posCLM,1),size(sigpos,2));
+                for iPos = 1:length(sigpos)
+                  sigposCLM(:,iPos) = (posCLM == sigpos(iPos));
                   
-                  % debug
-                  fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
-                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,sigpos(iPos),...
-                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(sigposCLM(:,iPos) > 0))),...
-                    stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
-                  
-                  clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
-                  if length(cond1) < 7 && length(cond2) < 7
-                    clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
-                  else
-                    clus_str = sprintf('%d>%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
+                  if sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cond1).label(sigposCLM(:,iPos) > 0))) > 0
+                    %fprintf('%s:\t***Found positive clusters***\n',vs_str);
+                    foundpos(r,t) = foundpos(r,t) + 1;
+                    
+                    % debug
+                    fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
+                      cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,sigpos(iPos),...
+                      sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,1)}).label(sigposCLM(:,iPos) > 0))),...
+                      stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
+                    
+                    clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
+                    if length(cond1) < 7 && length(cond2) < 7
+                      clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
+                    else
+                      clus_str = sprintf('%d>%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
+                    end
+                    h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
+                      clus_str);
+                    set(h_t,'FontSize',cfg.textFontSize);
                   end
-                  h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
-                    clus_str);
-                  set(h_t,'FontSize',cfg.textFontSize);
-                end
-              end % iPos
+                end % iPos
+              end
             end
             
             % find the negative clusters
-            signeg = [];
             if ~isempty(stat_clus.(vs_str).negclusters)
+              signeg = zeros(1,length(stat_clus.(vs_str).negclusters));
               for iNeg = 1:length(stat_clus.(vs_str).negclusters)
-                signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusAlpha;
+                signeg(iNeg) = stat_clus.(vs_str).negclusters(iNeg).prob <= cfg.clusAlpha;
               end
               signeg = find(signeg == 1);
               
-              negCLM = squeeze(stat_clus.(vs_str).negclusterslabelmat);
-              signegCLM = zeros(size(negCLM,1),size(signeg,2));
-              for iNeg = 1:length(signeg)
-                signegCLM(:,iNeg) = (negCLM == signeg(iNeg));
-                
-                if sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))) > 0
-                  %fprintf('%s:\t***Found negative clusters***\n',vs_str);
-                  foundneg(r,t) = foundneg(r,t) + 1;
+              if ~isempty(signeg)
+                negCLM = squeeze(stat_clus.(vs_str).negclusterslabelmat);
+                signegCLM = zeros(size(negCLM,1),size(signeg,2));
+                for iNeg = 1:length(signeg)
+                  signegCLM(:,iNeg) = (negCLM == signeg(iNeg));
                   
-                  % debug
-                  fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
-                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,signeg(iNeg),...
-                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{evVal}).label(signegCLM(:,iNeg) > 0))),...
-                    stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
-                  
-                  clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
-                  if length(cond1) < 7 && length(cond2) < 7
-                    clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
-                  else
-                    clus_str = sprintf('%d<%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
+                  if sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cond2).label(signegCLM(:,iNeg) > 0))) > 0
+                    %fprintf('%s:\t***Found negative clusters***\n',vs_str);
+                    foundneg(r,t) = foundneg(r,t) + 1;
+                    
+                    % debug
+                    fprintf('%.1fto%.1fHz: %.2fto%.2fms, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
+                      cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,signeg(iNeg),...
+                      sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,2)}).label(signegCLM(:,iNeg) > 0))),...
+                      stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
+                    
+                    clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
+                    if length(cond1) < 7 && length(cond2) < 7
+                      clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
+                    else
+                      clus_str = sprintf('%d<%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
+                    end
+                    h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
+                      clus_str);
+                    set(h_t,'FontSize',cfg.textFontSize);
                   end
-                  h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
-                    clus_str);
-                  set(h_t,'FontSize',cfg.textFontSize);
-                end
-              end % iNeg
+                end % iNeg
+              end
             end
             %hold off
           end % r
