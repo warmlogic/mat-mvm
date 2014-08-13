@@ -951,54 +951,62 @@ files.figPrintFormat = 'png';
 cfg = [];
 cfg.parameter = 'powspctrm';
 
+cfg.times = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
+
 %cfg.times = [-0.2:0.05:0.9; -0.1:0.05:1.0]';
 %cfg.times = [-0.2:0.1:0.9; -0.1:0.1:1.0]';
 % cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-cfg.times = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+% cfg.times = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
 % cfg.times = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
-% cfg.freqs = [3 8; 8 12; 12 28; 28 50; 50 80];
-% cfg.freqs = [3 8; 8 10; 10 12];
-% cfg.freqs = [3 7; 8 12; 8 10; 11 12; 13 20; 23 30; 32 47; 51 80];
-% cfg.freqs = [3 7; 8 12; 13 20; 23 30; 32 47; 51 80];
-% cfg.freqs = [4.1 7.7; 8.4 10.1; 11 12; 8.4 12; 13.1 20.5; 22.4 29.2; 31.9 49.7; 54.3 77.4];
-
-cfg.freqs = [ ...
-  ana.freq.theta; ...
-  ana.freq.alpha; ...
-  ana.freq.alpha_lower; ...
-  ana.freq.alpha_upper; ...
-  ana.freq.beta_lower; ...
-  ana.freq.beta_upper; ...
-  ana.freq.gamma_lower; ...
-  ana.freq.gamma_upper];
-
+% cfg.freqs = [ ...
+%   ana.freq.theta; ...
+%   ana.freq.alpha; ...
+%   ana.freq.alpha_lower; ...
+%   ana.freq.alpha_upper; ...
+%   ana.freq.beta_lower; ...
+%   ana.freq.beta_upper; ...
+%   ana.freq.gamma_lower; ...
+%   ana.freq.gamma_upper];
+% 
+% % cfg.rois = {...
+% %   {'LAS'},{'FS'},{'RAS'},...
+% %   {'LPS'},{'PS'},{'RPS'},...
+% %   };
+% 
+% % cfg.rois = {...
+% %   {'LAI'},{'FI'},{'RAI'},...
+% %   {'LAS'},{'FS'},{'RAS'},...
+% %   {'LPS'},{'PS'},{'RPS'},...
+% %   {'LPI'},{'PI'},{'RPI'},...
+% %   };
+% 
 % cfg.rois = {...
-%   {'LAS'},{'FS'},{'RAS'},...
+%   {'LAS2'},{'FC'},{'RAS2'},...
+%   {'LT'},{'C'},{'RT'},...
 %   {'LPS'},{'PS'},{'RPS'},...
+%   {'LPI2'},{'PI'},{'RPI2'},...
+%   {'Oz'}
 %   };
 
-% cfg.rois = {...
-%   {'LAI'},{'FI'},{'RAI'},...
-%   {'LAS'},{'FS'},{'RAS'},...
-%   {'LPS'},{'PS'},{'RPS'},...
-%   {'LPI'},{'PI'},{'RPI'},...
-%   };
-
-cfg.rois = {...
-  {'LAS2'},{'FC'},{'RAS2'},...
-  {'LT'},{'C'},{'RT'},...
-  {'LPS'},{'PS'},{'RPS'},...
-  {'LPI2'},{'PI'},{'RPI2'},...
-  {'Oz'}
-  };
+cfg.freqs = ana.freq.theta;
+cfg.rois = {{'LAS2','C','FS','LPS'}};
+% 
+% cfg.freqs = ana.freq.alpha_lower;
+% cfg.rois = {{'C'}};
+% 
+% cfg.freqs = ana.freq.alpha_upper;
+% cfg.rois = {{}};
 
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
 
 cfg.conditions = {{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
 cfg.conditions = {{'img_onePres','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+
+cfg.graphcolor = 'krmbc';
+cfg.linestyle = {'-','-','--','-','--'};
 
 cfg.plotTitle = true;
 cfg.plotLegend = true;
@@ -1169,7 +1177,7 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
   % cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
   % cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
   % cfg_ana.latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
-  % cfg_ana.latencies = [0.02:0.33:0.92; 0.33:0.33:1.0]'; % 330 no overlap
+  % cfg_ana.latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 30 no overlap
   cfg_ana.latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
   
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
@@ -1428,11 +1436,11 @@ measure = 'powspctrm';
 % latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
 % latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
 
-latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
+% latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
 % latencies = [0.02:0.2:0.92; 0.2:0.2:1.0]'; % 200 no overlap
 % latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
-% latencies = [0.02:0.33:0.92; 0.33:0.33:1.0]'; % 330 no overlap
-% latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
+% latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
+latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
 
 % % theta
 freqs = ana.freq.theta;
@@ -1440,13 +1448,17 @@ freqs = ana.freq.theta;
 % latencies = [0.1 0.4]; % img
 % latencies = [0.02 0.5; 0.52 1.0];
 
+% img
 % roi = {'LAI'}; % yes, neg **
 % roi = {'LFP'};
-% roi = {'FC'};
+% roi = {'FC'}; % pos
 % roi = {'RFP'};
 % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
 
-% roi = {{'LAS2','FS'}}; % yes, pos ***
+roi = {{'C','FS'}}; % 
+% roi = {{'LAS2','C','FS','LPS'}}; % 
+% roi = {'anterior_noPeriph'};
+% roi = {{'LAS2','FS'}}; % 
 % roi = {'LAS2'}; % yes, pos ***
 % roi = {'LAS'}; % yes, pos **
 % roi = {'FS'}; % yes, pos **
@@ -1458,7 +1470,35 @@ freqs = ana.freq.theta;
 % roi = {'LT'}; % 
 % roi = {'LPS2'}; % 
 % roi = {'LPS'}; % 
-roi = {'PS'}; % 
+% roi = {'PS'}; % 
+% roi = {'RPS'}; % 
+% roi = {'RPS2'}; % 
+% roi = {'RT'}; % 
+
+% roi = {'LPI2'}; % yes
+% roi = {'PI'}; % no
+% roi = {'RPI2'}; % yes
+
+% % word
+% roi = {'LAI'}; % yes, neg **
+% roi = {'LFP'};
+% roi = {'FC'};
+% roi = {'RFP'};
+% roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
+
+% roi = {{'LAS2','FS'}}; % 
+% roi = {'LAS2'}; % yes, pos ***
+% roi = {'LAS'}; % yes, pos **
+% roi = {'FS'}; % yes, pos **
+% roi = {'C'}; % yes, pos
+% roi = {'RAS'}; % yes, pos *
+% roi = {'RAS2'}; % yes
+
+% roi = {{'LT','FS'}}; % 
+% roi = {'LT'}; % 
+% roi = {'LPS2'}; % 
+% roi = {'LPS'}; % 
+% roi = {'PS'}; % 
 % roi = {'RPS'}; % 
 % roi = {'RPS2'}; % 
 % roi = {'RT'}; % 
@@ -1468,28 +1508,38 @@ roi = {'PS'}; %
 % roi = {'RPI2'}; % yes
 
 % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
-% roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
+
 
 % % % alpha
-% freqs = ana.freq.alpha;
-% % freqs = ana.freq.alpha_lower;
+% % freqs = ana.freq.alpha;
+% freqs = ana.freq.alpha_lower;
 % % freqs = ana.freq.alpha_upper;
+% % freqs = ana.freq.beta_lower;
+% % freqs = [11 20.5];
 % % latencies = [0.6 1.0]; % img
 % % roi = {'LAS2'};
+% 
+% % roi = {{'E67','Pz','E77'}}; % PO3 Pz P04
 % 
 % % latencies = [0.1 0.3]; % word, LT, early alpha effect Spac x Mem
 % % latencies = [0.4 0.7]; % 
 % % latencies = [0.5 0.9]; % 
 % % latencies = [0.4 1.0]; % 
-% roi = {'LT'}; % word **
+% % roi = {'LT'}; % word **
 % 
 % % latencies = [0.3 0.7]; % word
 % % latencies = [0.5 0.7]; % word
 % % latencies = [0.8 1.0]; % word
 % % roi = {'LAS2'}; %
+% % roi = {{'LAS2','LT','LPS','C','PS','RPS','RT','RAS2'}}; % 
+% % roi = {{'LT','LPS2','PS','PI','RPS2','RT'}}; % 
+% % roi = {{'LT','PS','RT'}}; % 
+% % roi = {{'LPI2','PI','RPI2'}}; % 
+% % roi = {{'LPS','C','PS','RPS'}}; % 
 % % roi = {'PS'}; % word **
 % % roi = {'LPS'}; % 
 % % roi = {'PI'}; % word ** 
+% % roi = {'posterior_noPeriph'};
 % 
 % % latencies = [0.4 0.6];
 % % latencies = [0.4 0.7];
