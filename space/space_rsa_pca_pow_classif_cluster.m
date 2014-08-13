@@ -569,6 +569,16 @@ for sub = 1:length(subjects_all)
     % cfg.baseline_type = 'relative';
     % cfg.baseline_type = 'db';
     
+    % baseline using all events
+    cfg.baseline_events = 'all';
+    % % baseline only using word (since image immedpately follows word)
+    % cfg.baseline_events = { ...
+    %   'word_onePres' ...
+    %   'word_RgH_rc_spac_p1','word_RgH_rc_spac_p2','word_RgH_rc_mass_p1','word_RgH_rc_mass_p2' ...
+    %   'word_RgH_fo_spac_p1','word_RgH_fo_spac_p2','word_RgH_fo_mass_p1','word_RgH_fo_mass_p2' ...
+    %   %'word_RgM_spac_p1','word_RgM_spac_p2','word_RgM_mass_p1','word_RgM_mass_p2' ...
+    %   };
+    
     % baseline period
     %cfg.baseline_time = [-0.2 0];
     % cfg.baseline_time = [-0.3 0];
