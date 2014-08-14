@@ -231,6 +231,7 @@ if cfg.plotClusSig
     % a true value for when any window is different
     cfg.sigElecAnyTime = false;
   end
+  validComparisons = cell(1,length(cfg.conditions));
 else
   sigElecsAcrossComparisons.pos = [];
   sigElecsAcrossComparisons.neg = [];
@@ -271,6 +272,7 @@ for typ = 1:length(cfg.conditions)
   
   for f = 1:nFreq
     if cfg.plotClusSig
+      validComparisons{typ} = true(1,size(condCombos,1));
       if cfg.sigElecAnyTime
         sigElecsAcrossComparisons.pos{typ,f} = false(length(data.(exper.sesStr{1}).(cfg.conditions{typ}{1}).label),size(condCombos,1));
         sigElecsAcrossComparisons.neg{typ,f} = false(length(data.(exper.sesStr{1}).(cfg.conditions{typ}{1}).label),size(condCombos,1));
@@ -453,6 +455,7 @@ for typ = 1:length(cfg.conditions)
               cond1 = cfg.conditions{typ}{condCombos(evVal,2)};
               cond2 = cfg.conditions{typ}{condCombos(evVal,1)};
             else
+              validComparisons{typ}(evVal) = false;
               warning([mfilename,':FileNotFound'],'No stat_clus file found for %s (or reverse order): %s. Going to next comparison.\n',vs_str,savedFile);
               continue
             end
@@ -608,6 +611,9 @@ for typ = 1:length(cfg.conditions)
           end % r
         end % evVal
       end % t
+      
+      sigElecsAcrossComparisons.pos{typ,f} = sigElecsAcrossComparisons.pos{typ,f}(:,validComparisons{typ});
+      sigElecsAcrossComparisons.neg{typ,f} = sigElecsAcrossComparisons.neg{typ,f}(:,validComparisons{typ});
     end % if plotClusSig
     
     if ~isfield(files,'figFontName')
