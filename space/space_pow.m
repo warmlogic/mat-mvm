@@ -878,6 +878,7 @@ end
 %% make some GA plots
 
 files.saveFigs = false;
+files.figPrintFormat = 'png';
 
 cfg_ft = [];
 cfg_ft.colorbar = 'yes';
@@ -1004,17 +1005,20 @@ cfg.times = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
 %   {'Oz'}
 %   };
 
-cfg.freqs = ana.freq.theta;
+% cfg.freqs = ana.freq.theta;
 % cfg.rois = {{'LAS2','C','FS','LPS'}};
 
-cfg.rois = {sigElecs};
-
-% 
 % cfg.freqs = ana.freq.alpha_lower;
 % cfg.rois = {{'C'}};
 % 
 % cfg.freqs = ana.freq.alpha_upper;
 % cfg.rois = {{}};
+
+% cfg.freqs = ana.freq.theta;
+% cfg.freqs = ana.freq.alpha_lower;
+% cfg.freqs = ana.freq.alpha_upper;
+% cfg.freqs = ana.freq.beta_lower;
+cfg.rois = {sigElecs};
 
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
@@ -1244,7 +1248,7 @@ end
 
 %% plot the cluster statistics
 
-files.saveFigs = 1;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
@@ -1261,7 +1265,7 @@ cfg_plot.dirStr = cfg_ana.dirStr;
 
 if strcmp(cfg_ft.avgoverfreq,'no')
   % not averaging over frequencies - only works with ft_multiplotTFR
-  files.saveFigs = 0;
+  files.saveFigs = false;
   cfg_ft.interactive = 'yes';
   cfg_plot.mask = 'yes';
   %cfg_ft.maskstyle = 'saturation';
@@ -1385,22 +1389,6 @@ cfg.clusAlpha = 0.05;
 cfg.clusTimes = cfg_ana.latencies; % actual stats
 % cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
 
-% finding significantly different electrodes
-files.saveFigs = false;
-cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
-% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
-% cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}};
-% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_rc_mass_p2'}};
-% cfg.clusTimes = cfg_ana.latencies; % actual stats
-cfg.clusTimes = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % both halves
-% cfg.clusTimes = [0.02:0.1:0.42; 0.1:0.1:0.5]'; % first half
-% cfg.clusTimes = [0.52:0.1:0.92; 0.6:0.1:1.0]'; % second half
-cfg.freqs = ana.freq.theta;
-% cfg.freqs = ana.freq.alpha_lower;
-% cfg.freqs = ana.freq.alpha_upper;
-% cfg.freqs = ana.freq.beta_lower;
-cfg.sigElecAnyTime = true;
-
 cfg.clusLimits = true;
 
 cfg.linewidth = 2;
@@ -1412,6 +1400,26 @@ cfg.textFontSize = 10;
 %cfg.ylim = [-0.5 0.2];
 cfg.nCol = 3;
 
+% =====================================================================
+% finding significantly different electrodes across the entire scalp
+files.saveFigs = false;
+cfg.rois = {{'C'}};
+cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}};
+% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_rc_mass_p2'}};
+% cfg.clusTimes = cfg_ana.latencies; % actual stats
+cfg.clusTimes = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % both halves
+% cfg.clusTimes = [0.02:0.1:0.42; 0.1:0.1:0.5]'; % first half
+% cfg.clusTimes = [0.52:0.1:0.92; 0.6:0.1:1.0]'; % second half
+
+% cfg.freqs = ana.freq.theta;
+% cfg.freqs = ana.freq.alpha_lower;
+% cfg.freqs = ana.freq.alpha_upper;
+% cfg.freqs = ana.freq.beta_lower;
+cfg.sigElecAnyTime = true;
+% =====================================================================
+
 % whole power
 cfg.type = 'line_pow';
 % cfg.clusDirStr = '_zpow_-300_-100';
@@ -1419,14 +1427,20 @@ cfg.clusDirStr = '_avgT_avgF';
 cfg.ylabel = 'Z-Trans Pow';
 sigElecsAcrossComparisons = mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
+% =====================================================================
 if size(sigElecsAcrossComparisons.pos{1},2) > 1
   nSigComparisons = 2;
+  
+  % % significantly different in half of comparisons
+  % nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 2);
 else
   nSigComparisons = 1;
 end
 sigElecs = ga_pow.session_1.(ana.eventValues{1}{1}{1}).label(sum(sigElecsAcrossComparisons.pos{1} + sigElecsAcrossComparisons.neg{1},2) >= nSigComparisons);
 % sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','periph20'})}))));
 sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','E49','E48','E43','E38','E32','E21','E17','E14','E1','E121','E120','E119','E113'})}))));
+close all
+% =====================================================================
 
 % % induced power
 % cfg.type = 'line_pow_induced';
@@ -1463,22 +1477,23 @@ end
 
 %% plot the contrasts
 
-files.saveFigs = false;
+files.saveFigs = true;
+files.figPrintFormat = 'png';
 
 cfg_plot = [];
-cfg_plot.plotTitle = 1;
+cfg_plot.plotTitle = false;
 
 % comparisons to make
 % cfg_plot.conditions = {'all'};
 
-% cfg_plot.conditions = {...
-%   {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ... % P2 Rc Spacing
-%   {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ... % P2 Fo Spacing
-% };
 cfg_plot.conditions = {...
   {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2'} ... % P2 Rc Spacing
   {'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'} ... % P2 Fo Spacing
 };
+% cfg_plot.conditions = {...
+%   {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ... % P2 Rc Spacing
+%   {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ... % P2 Fo Spacing
+% };
 
 % cfg_plot.conditions = {...
 %   {'img_RgH_rc_spac_p1', 'img_RgH_fo_spac_p1'} ... % Spac P1 SME
@@ -1533,7 +1548,7 @@ cfg_plot.conditions = {...
 
 cfg_ft = [];
 
-cfg_ft.ylim = ana.freq.theta;
+% cfg_ft.ylim = ana.freq.theta;
 % cfg_ft.ylim = ana.freq.alpha_lower;
 % cfg_ft.ylim = ana.freq.alpha_upper;
 % cfg_ft.ylim = ana.freq.beta_lower;
@@ -1545,7 +1560,9 @@ cfg_ft.parameter = 'powspctrm';
 cfg_ft.maskparameter = 'datamask';
 cfg_plot.maskvalue = 0;
 
-cfg_ft.interactive = 'yes';
+cfg_ft.interactive = 'no';
+% cfg_ft.interactive = 'yes';
+
 %cfg_ft.colormap = hot(64);
 cfg_ft.colormap = jet(64);
 cfg_ft.colorbar = 'yes';
@@ -1617,10 +1634,18 @@ measure = 'powspctrm';
 % latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
 latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
 
-% % theta
-freqs = ana.freq.theta;
 roi = {sigElecs};
+% freqs = ana.freq.theta;
+% % freqs = ana.freq.alpha;
+% freqs = ana.freq.alpha_lower;
+% freqs = ana.freq.alpha_upper;
+% freqs = ana.freq.beta_lower;
 
+
+% % % theta
+% freqs = ana.freq.theta;
+% roi = {sigElecs};
+% 
 % % latencies = [0.6 1.0]; % word
 % % latencies = [0.1 0.4]; % img
 % % latencies = [0.02 0.5; 0.52 1.0];
