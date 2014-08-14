@@ -718,11 +718,12 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
-legend([hsr, hsf, hmr, hmf],{'Spaced Rc','Spaced Fo','Massed Rc','Massed Fo'},'Location','North');
+title(sprintf('Spacing \\times  Memory \\times  Time: %s',data_str));
+legend([hsr, hsf, hmr, hmf],{'Space Recalled','Space Forgot','Mass Recalled','Mass Forgot'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
 % print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s.eps',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s.png',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));

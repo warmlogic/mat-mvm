@@ -1415,7 +1415,7 @@ cfg.clusTimes = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % both halves
 
 % cfg.freqs = ana.freq.theta;
 % cfg.freqs = ana.freq.alpha_lower;
-% cfg.freqs = ana.freq.alpha_upper;
+cfg.freqs = ana.freq.alpha_upper;
 % cfg.freqs = ana.freq.beta_lower;
 cfg.sigElecAnyTime = true;
 % =====================================================================
@@ -1631,14 +1631,14 @@ measure = 'powspctrm';
 % latencies = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % 100 no overlap
 % latencies = [0.02:0.2:0.92; 0.2:0.2:1.0]'; % 200 no overlap
 % latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
-% latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
-latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
+latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
+% latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
 
 roi = {sigElecs};
 % freqs = ana.freq.theta;
 % % freqs = ana.freq.alpha;
 % freqs = ana.freq.alpha_lower;
-% freqs = ana.freq.alpha_upper;
+freqs = ana.freq.alpha_upper;
 % freqs = ana.freq.beta_lower;
 
 
