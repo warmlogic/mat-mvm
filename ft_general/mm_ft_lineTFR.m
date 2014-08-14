@@ -37,7 +37,7 @@ end
 if ~isfield(cfg,'rois')
   error('Must set cfg.rois');
   % % use all channels in a topo or multi plot
-  % cfg.roi = {{'all'}};
+  % cfg.rois = {{'all'}};
 end
 
 if ~iscell(cfg.rois)
@@ -302,7 +302,10 @@ for typ = 1:length(cfg.conditions)
     end
     
     for r = 1:nROIs
-      cfg.roi = cfg.rois{r};
+      cfg.this_roi = cfg.rois{r};
+      if ~iscell(cfg.this_roi)
+        cfg.this_roi = {cfg.this_roi};
+      end
       
       subplot(cfg.nRow,cfg.nCol,r);
       
@@ -310,20 +313,20 @@ for typ = 1:length(cfg.conditions)
       hold on
       
       % set the channel information
-      if ismember(cfg.roi,ana.elecGroupsStr)
+      if ismember(cfg.this_roi,ana.elecGroupsStr)
         % if it's in the predefined ROIs, get the channel numbers
-        cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
+        cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.this_roi)});
         % set the string for the filename
-        chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+        chan_str = sprintf(repmat('%s_',1,length(cfg.this_roi)),cfg.this_roi{:});
       else
         % otherwise it should be the channel number(s) or 'all'
-        cfg.channel = cfg.roi;
+        cfg.channel = cfg.this_roi;
         
         % set the string for the filename
         if isfield(cfg,'cohrefchannel')
-          chan_str = [cfg.cohrefchannel,'-',sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:})];
+          chan_str = [cfg.cohrefchannel,'-',sprintf(repmat('%s_',1,length(cfg.this_roi)),cfg.this_roi{:})];
         else
-          chan_str = sprintf(repmat('%s_',1,length(cfg.roi)),cfg.roi{:});
+          chan_str = sprintf(repmat('%s_',1,length(cfg.this_roi)),cfg.this_roi{:});
         end
       end
       
@@ -524,16 +527,20 @@ for typ = 1:length(cfg.conditions)
           
           for r = 1:nROIs
             % choose the right roi/subplot
-            cfg.roi = cfg.rois{r};
+            cfg.this_roi = cfg.rois{r};
             subplot(cfg.nRow,cfg.nCol,r);
             
+            if ~iscell(cfg.this_roi)
+              cfg.this_roi = {cfg.this_roi};
+            end
+            
             % set the channel information
-            if ismember(cfg.roi,ana.elecGroupsStr)
+            if ismember(cfg.this_roi,ana.elecGroupsStr)
               % if it's in the predefined ROIs, get the channel numbers
-              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.roi)});
+              cfg.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg.this_roi)});
             else
               % otherwise it should be the channel number(s)
-              cfg.channel = cfg.roi;
+              cfg.channel = cfg.this_roi;
             end
             
             if cfg.clusLimits
@@ -563,7 +570,7 @@ for typ = 1:length(cfg.conditions)
                   
                   % debug
                   fprintf('%.1fto%.1fHz: %.2fto%.2f sec, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
-                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,sigpos(iPos),...
+                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.this_roi),vs_str,sigpos(iPos),...
                     sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,1)}).label(sigposCLM(:,iPos) > 0))),...
                     stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
                   
@@ -590,7 +597,7 @@ for typ = 1:length(cfg.conditions)
                   
                   % debug
                   fprintf('%.1fto%.1fHz: %.2fto%.2f sec, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
-                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.roi),vs_str,signeg(iNeg),...
+                    cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.this_roi),vs_str,signeg(iNeg),...
                     sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,2)}).label(signegCLM(:,iNeg) > 0))),...
                     stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
                   
