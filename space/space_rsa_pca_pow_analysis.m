@@ -3,8 +3,8 @@
 % analysisDate = '04-Aug-2014';
 % data_str = 'word';
 
-% analysisDate = '05-Aug-2014';
-analysisDate = '08-Aug-2014';
+analysisDate = '05-Aug-2014';
+% analysisDate = '08-Aug-2014';
 data_str = 'img';
 
 % data_str = 'img_word';
@@ -28,7 +28,7 @@ data_str = 'img';
 
 % img
 % thisROI = {'center109'}; % spac, mem x lat, ~3-way
-% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
+thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
 % thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
 % thisROI = {'LT','RT'}; % spac, ~mem x lat
 % thisROI = {'LPI2','RPI2'}; % spac, ~3-way
@@ -36,7 +36,7 @@ data_str = 'img';
 % thisROI = {'LFP','FC','RFP'}; % spac
 % thisROI = {'FS'}; % none
 % thisROI = {'C'}; ~spac, 3-way (PS is stronger)
-thisROI = {'PS'}; % **
+% thisROI = {'PS'}; % **
 % thisROI = {'PI'}; % *
 % thisROI = {'LT'}; % none
 % thisROI = {'RT'}; % spac

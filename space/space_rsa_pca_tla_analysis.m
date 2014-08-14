@@ -205,10 +205,10 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
-latInd = [1:5];
+% latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
-% latInd = [6:9];
+latInd = [6:9];
 
 % % 0-0.3, 0.3-0.6, 0.6-0.9
 % latInd = [10:12];
