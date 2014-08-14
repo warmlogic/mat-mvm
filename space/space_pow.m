@@ -703,6 +703,7 @@ cfg_ana.data_str = 'data_pow';
 
 cfg_ft = [];
 cfg_ft.keepindividual = 'no';
+% cfg_ft.keepindividual = 'yes';
 
 if strcmp(cfg_ana.data_str,'data_pow')
   ga_pow = struct;
@@ -865,6 +866,7 @@ cfg_ft = [];
 cfg_ft.colorbar = 'yes';
 cfg_ft.zlim = [-2 2];
 cfg_ft.parameter = 'powspctrm';
+cfg_ft.layout = ft_prepare_layout([],ana);
 
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
@@ -1003,7 +1005,10 @@ cfg.times = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
 %   };
 
 cfg.freqs = ana.freq.theta;
-cfg.rois = {{'LAS2','C','FS','LPS'}};
+% cfg.rois = {{'LAS2','C','FS','LPS'}};
+
+cfg.rois = {sigElecs};
+
 % 
 % cfg.freqs = ana.freq.alpha_lower;
 % cfg.rois = {{'C'}};
@@ -1014,14 +1019,17 @@ cfg.rois = {{'LAS2','C','FS','LPS'}};
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
 
-cfg.conditions = {{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
-cfg.conditions = {{'img_onePres','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+cfg.conditions = {{'word_onePres','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}};
+% cfg.conditions = {{'img_onePres','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}};
 
-cfg.graphcolor = 'krmbc';
+cfg.rename_conditions = {{'OnePres','Mass P2 Recall','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'}};
+
+cfg.graphcolor = 'kbcrm';
 cfg.linestyle = {'-','-','--','-','--'};
 
-cfg.plotTitle = true;
+cfg.plotTitle = false;
 cfg.plotLegend = true;
+cfg.legendloc = 'NorthEast';
 
 cfg.plotErrorBars = false;
 cfg.eb_transp = true;
@@ -1038,8 +1046,9 @@ cfg.linewidth = 2;
 % cfg.limitlinewidth = 0.5;
 % cfg.textFontSize = 10;
 
-%cfg.ylim = [-0.6 0.6];
-%cfg.ylim = [-0.5 0.2];
+cfg.yminmax = [-1 1];
+%cfg.yminmax = [-0.6 0.6];
+%cfg.yminmax = [-0.5 0.2];
 cfg.nCol = 3;
 
 % % whole power
@@ -1547,7 +1556,7 @@ cfg_ft.colorbar = 'yes';
 
 %cfg_plot.ftFxn = 'ft_singleplotTFR';
 cfg_plot.ftFxn = 'ft_topoplotTFR';
-cfg_plot.zlabel = 'Z-transformed Power';
+cfg_plot.zlabel = 'Z-Transformed Power';
 %cfg_ft.marker = 'on';
 cfg_ft.marker = 'off';
 % cfg_ft.marker = 'labels';
