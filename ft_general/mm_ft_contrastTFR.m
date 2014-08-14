@@ -125,6 +125,11 @@ if (strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo'))
     if ~isfield(cfg_ft,'colormap')
       cfg_ft.colormap = hot(64);
     end
+    
+    % colorbar label
+    if ~isfield(cfg_plot,'zlabel')
+      cfg_plot.zlabel = 'Power';
+    end
   end
 end
 
@@ -327,7 +332,7 @@ for typ = 1:length(cfg_plot.conditions)
   if strcmp(cfg_ft.colorbar,'yes')
     cfg_plot.colorbar_str = '_cb';
     h = colorbar;
-    set(get(h,'YLabel'),'string',cfg_ft.parameter);
+    set(get(h,'YLabel'),'string',cfg_plot.zlabel);
   else
     cfg_plot.colorbar_str = '';
   end
