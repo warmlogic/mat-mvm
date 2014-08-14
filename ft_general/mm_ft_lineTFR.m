@@ -289,7 +289,7 @@ for typ = 1:length(cfg.conditions)
       chan_str_all = cellflat(cfg.rois);
       chan_str_all = sprintf(repmat('%s_',1,length(chan_str_all)),chan_str_all{:});
     elseif iscell(cfg.rois) && length(cellflat(cfg.rois)) > 10
-      chan_str_all = sprintf('%dROIs',length(cellflat(cfg.rois)));
+      chan_str_all = sprintf('%dROIs_',length(cellflat(cfg.rois)));
     else
       keyboard
     end

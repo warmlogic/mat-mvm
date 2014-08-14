@@ -172,7 +172,7 @@ elseif isfield(cfg_plot,'roi')
       chan_str = cellflat(cfg_plot.roi);
       chan_str = sprintf(repmat('%s_',1,length(chan_str)),chan_str{:});
     elseif iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) > 10
-      chan_str = sprintf('%dROIs',length(cellflat(cfg_plot.roi)));
+      chan_str = sprintf('%dROIs_',length(cellflat(cfg_plot.roi)));
     else
       keyboard
     end
