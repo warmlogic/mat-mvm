@@ -3,7 +3,7 @@
 % analysisDate = '04-Aug-2014';
 % data_str = 'word';
 
-analysisDate = '05-Aug-2014';
+% analysisDate = '05-Aug-2014';
 % analysisDate = '08-Aug-2014';
 data_str = 'img';
 
@@ -28,7 +28,7 @@ data_str = 'img';
 
 % img
 % thisROI = {'center109'}; % spac, mem x lat, ~3-way
-thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
 % thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
 % thisROI = {'LT','RT'}; % spac, ~mem x lat
 % thisROI = {'LPI2','RPI2'}; % spac, ~3-way
@@ -42,6 +42,12 @@ thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
 % thisROI = {'RT'}; % spac
 % thisROI = {'LPS'}; % lat
 % thisROI = {'RPS'}; % spac
+
+analysisDate = '14-Aug-2014';
+% thisROI = {'LPI2','LPS','LT','RPI2','RPS','RT'}; % spac, mem x lat, 3-way
+thisROI = {'LPS','RPS'}; % spac, mem x lat, 3-way
+% thisROI = {'LT','RT'}; % spac, ~mem x lat
+% thisROI = {'PS'}; % **
 
 freq = mm_freqSet('ndtools');
 
@@ -88,8 +94,8 @@ latencies = [0.0 0.2; 0.22 0.4; 0.42 0.6; 0.62 0.8; 0.82 1.0; ...
 
 origDataType = 'pow';
 
-avgovertime = 'yes';
-% avgovertime = 'no';
+% avgovertime = 'yes';
+avgovertime = 'no';
 avgoverfreq = 'yes';
 
 sim_method = 'cosine';
@@ -231,10 +237,10 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
-% latInd = [1:5];
+latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
-latInd = [6:9];
+% latInd = [6:9];
 
 % % 0-0.3, 0.3-0.6, 0.6-0.9
 % latInd = [10:12];
@@ -676,7 +682,8 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([0.3 0.8]);
+% ylim([0.3 0.8]);
+ylim([0.05 0.65]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
