@@ -881,18 +881,18 @@ cfg_ft = [];
 cfg_ft.colorbar = 'yes';
 cfg_ft.interactive = 'yes';
 cfg_ft.showlabels = 'yes';
-%cfg_ft.xlim = 'maxmin'; % time
-%cfg_ft.ylim = 'maxmin'; % freq
-% cfg_ft.zlim = 'maxmin'; % pow
-cfg_ft.xlim = [0 1.0]; % time
-% cfg_ft.ylim = [3 8]; % freq
-% cfg_ft.ylim = [8 12]; % freq
-% cfg_ft.ylim = [8 10]; % freq
-% cfg_ft.ylim = [10 12]; % freq
-cfg_ft.ylim = [3 28]; % freq
-%cfg_ft.ylim = [12 28]; % freq
-%cfg_ft.ylim = [28 50]; % freq
-cfg_ft.zlim = [-2 2]; % pow
+% %cfg_ft.xlim = 'maxmin'; % time
+% %cfg_ft.ylim = 'maxmin'; % freq
+% % cfg_ft.zlim = 'maxmin'; % pow
+% cfg_ft.xlim = [0 1.0]; % time
+% % cfg_ft.ylim = [3 8]; % freq
+% % cfg_ft.ylim = [8 12]; % freq
+% % cfg_ft.ylim = [8 10]; % freq
+% % cfg_ft.ylim = [10 12]; % freq
+% cfg_ft.ylim = [3 28]; % freq
+% %cfg_ft.ylim = [12 28]; % freq
+% %cfg_ft.ylim = [28 50]; % freq
+% cfg_ft.zlim = [-2 2]; % pow
 
 cfg_ft.parameter = 'powspctrm';
 
@@ -903,6 +903,7 @@ cfg_plot.plotTitle = 1;
 %cfg_plot.rois = {{'FS'},{'PS'}};
 %cfg_plot.rois = {'E71'};
 cfg_plot.rois = {'all'};
+% cfg_plot.rois = {sigElecs};
 
 cfg_plot.is_ga = 1;
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -922,18 +923,29 @@ cfg_plot.condByROI = repmat({{{{'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2', 'img
 
 %cfg_plot.ftFxn = 'ft_singleplotTFR';
 
-% cfg_plot.ftFxn = 'ft_topoplotTFR';
-% %cfg_ft.marker = 'on';
+cfg_plot.ftFxn = 'ft_topoplotTFR';
+%cfg_ft.marker = 'on';
 % cfg_ft.marker = 'labels';
-% cfg_ft.markerfontsize = 9;
-% cfg_ft.comment = 'no';
-% %cfg_ft.xlim = [0.5 0.8]; % time
+cfg_ft.marker = 'off';
+cfg_ft.markerfontsize = 9;
+cfg_ft.comment = 'no';
+cfg_ft.xlim = [0.5 0.8]; % time
+% cfg_ft.xlim = [0 0.52]; % time
+% cfg_ft.xlim = [0.52 1.0]; % time
+cfg_plot.subplot = 0;
 % cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
+cfg_ft.ylim = ana.freq.theta;
+cfg_ft.zlim = [-2 2]; % pow
 
-cfg_plot.ftFxn = 'ft_multiplotTFR';
-cfg_ft.showlabels = 'yes';
-cfg_ft.comment = '';
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.comment = '';
+
+% % will mask electrodes not in cfg_plot.roi
+% % cfg_ft.maskparameter = '';
+% cfg_ft.maskparameter = 'datamask';
+% cfg_plot.maskvalue = 0;
 
 ses = 1;
 for r = 1:length(cfg_plot.rois)
@@ -1174,11 +1186,11 @@ elseif strcmp(cfg_ft.avgovertime,'yes')
   %cfg_ana.latencies = [-0.18:0.2:0.82; -0.02:0.2:1.0]'; % 200 no overlap
   
   % new analyses
-  % cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
+  cfg_ana.latencies = [-0.18:0.1:0.92; -0.1:0.1:1.0]'; % 100 no overlap
   % cfg_ana.latencies = [-0.18:0.2:0.92; 0:0.2:1.0]'; % 200 no overlap
   % cfg_ana.latencies = [0.02:0.25:0.92; 0.25:0.25:1.0]'; % 250 no overlap
   % cfg_ana.latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 30 no overlap
-  cfg_ana.latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
+  % cfg_ana.latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
   
   cfg_ana.dirStr = [cfg_ana.dirStr,'_avgT'];
 end
@@ -1261,7 +1273,7 @@ end
 
 %% line plots
 
-files.saveFigs = 1;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg = [];
@@ -1336,6 +1348,9 @@ cfg.conditions = {...
   {'word_onePres', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2'} ...
   };
 
+% cfg.conditions = {{'word_onePres','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'img_onePres','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+
 %   {'img_onePres', 'img_RgH_rc_spac_p2'} ...
 %   {'img_onePres', 'img_RgH_rc_mass_p2'} ...
 %   {'img_onePres', 'img_RgH_fo_spac_p2'} ...
@@ -1358,8 +1373,25 @@ cfg.eb_transp = true;
 cfg.plotClusSig = true;
 % cfg.clusAlpha = 0.1;
 cfg.clusAlpha = 0.05;
-cfg.clusTimes = cfg_ana.latencies;
+cfg.clusTimes = cfg_ana.latencies; % actual stats
 % cfg.clusTimes = [-0.2:0.2:0.8; 0:0.2:1.0]';
+
+% finding significantly different electrodes
+files.saveFigs = false;
+cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}};
+% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_rc_mass_p2'}};
+% cfg.clusTimes = cfg_ana.latencies; % actual stats
+cfg.clusTimes = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % both halves
+% cfg.clusTimes = [0.02:0.1:0.42; 0.1:0.1:0.5]'; % first half
+% cfg.clusTimes = [0.52:0.1:0.92; 0.6:0.1:1.0]'; % second half
+cfg.freqs = ana.freq.theta;
+% cfg.freqs = ana.freq.alpha_lower;
+% cfg.freqs = ana.freq.alpha_upper;
+% cfg.freqs = ana.freq.beta_lower;
+cfg.sigElecAnyTime = true;
+
 cfg.clusLimits = true;
 
 cfg.linewidth = 2;
@@ -1376,7 +1408,16 @@ cfg.type = 'line_pow';
 % cfg.clusDirStr = '_zpow_-300_-100';
 cfg.clusDirStr = '_avgT_avgF';
 cfg.ylabel = 'Z-Trans Pow';
-mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
+sigElecsAcrossComparisons = mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
+
+if size(sigElecsAcrossComparisons.pos{1},2) > 1
+  nSigComparisons = 2;
+else
+  nSigComparisons = 1;
+end
+sigElecs = ga_pow.session_1.(ana.eventValues{1}{1}{1}).label(sum(sigElecsAcrossComparisons.pos{1} + sigElecsAcrossComparisons.neg{1},2) >= nSigComparisons);
+% sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','periph20'})}))));
+sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','E49','E48','E43','E38','E32','E21','E17','E14','E1','E121','E120','E119','E113'})}))));
 
 % % induced power
 % cfg.type = 'line_pow_induced';
@@ -1411,10 +1452,135 @@ if emailme
   send_gmail(subject,mail_message);
 end
 
+%% plot the contrasts
+
+files.saveFigs = false;
+
+cfg_plot = [];
+cfg_plot.plotTitle = 1;
+
+% comparisons to make
+% cfg_plot.conditions = {'all'};
+
+% cfg_plot.conditions = {...
+%   {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ... % P2 Rc Spacing
+%   {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ... % P2 Fo Spacing
+% };
+cfg_plot.conditions = {...
+  {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2'} ... % P2 Rc Spacing
+  {'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'} ... % P2 Fo Spacing
+};
+
+% cfg_plot.conditions = {...
+%   {'img_RgH_rc_spac_p1', 'img_RgH_fo_spac_p1'} ... % Spac P1 SME
+%   {'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2'} ... % Spac P2 SME
+%   {'img_RgH_rc_mass_p1', 'img_RgH_fo_mass_p1'} ... % Mass P1 SME
+%   {'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2'} ... % Mass P2 SME
+%   {'img_RgH_rc_spac_p1', 'img_RgH_rc_spac_p2'} ... % Spac Rc Repetition
+%   {'img_RgH_fo_spac_p1', 'img_RgH_fo_spac_p2'} ... % Spac Fo Repetition
+%   {'img_RgH_rc_mass_p1', 'img_RgH_rc_mass_p2'} ... % Mass Rc Repetition
+%   {'img_RgH_fo_mass_p1', 'img_RgH_fo_mass_p2'} ... % Mass Fo Repetition
+%   {'img_RgH_rc_spac_p1', 'img_RgH_rc_mass_p1'} ... % P1 Rc Spacing
+%   {'img_RgH_rc_spac_p2', 'img_RgH_rc_mass_p2'} ... % P2 Rc Spacing
+%   {'img_RgH_fo_spac_p1', 'img_RgH_fo_mass_p1'} ... % P1 Fo Spacing
+%   {'img_RgH_fo_spac_p2', 'img_RgH_fo_mass_p2'} ... % P2 Fo Spacing
+%   {'img_RgH_rc_spac_p1', 'img_RgH_fo_mass_p1'} ... % P1 spac x mem
+%   {'img_RgH_rc_mass_p1', 'img_RgH_fo_spac_p1'} ... % P1 spac x mem
+%   {'img_RgH_rc_spac_p2', 'img_RgH_fo_mass_p2'} ... % P2 spac x mem
+%   {'img_RgH_rc_mass_p2', 'img_RgH_fo_spac_p2'} ... % P2 spac x mem
+%   {'img_onePres', 'img_RgH_rc_spac_p1'} ...
+%   {'img_onePres', 'img_RgH_rc_mass_p1'} ...
+%   {'img_onePres', 'img_RgH_fo_spac_p1'} ...
+%   {'img_onePres', 'img_RgH_fo_mass_p1'} ...
+%   {'img_onePres', 'img_RgH_rc_spac_p2'} ...
+%   {'img_onePres', 'img_RgH_rc_mass_p2'} ...
+%   {'img_onePres', 'img_RgH_fo_spac_p2'} ...
+%   {'img_onePres', 'img_RgH_fo_mass_p2'} ...
+%   {'word_RgH_rc_spac_p1', 'word_RgH_fo_spac_p1'} ... % Spac P1 SME
+%   {'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2'} ... % Spac P2 SME
+%   {'word_RgH_rc_mass_p1', 'word_RgH_fo_mass_p1'} ... % Mass P1 SME
+%   {'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2'} ... % Mass P2 SME
+%   {'word_RgH_rc_spac_p1', 'word_RgH_rc_spac_p2'} ... % Spac Rc Repetition
+%   {'word_RgH_fo_spac_p1', 'word_RgH_fo_spac_p2'} ... % Spac Fo Repetition
+%   {'word_RgH_rc_mass_p1', 'word_RgH_rc_mass_p2'} ... % Mass Rc Repetition
+%   {'word_RgH_fo_mass_p1', 'word_RgH_fo_mass_p2'} ... % Mass Fo Repetition
+%   {'word_RgH_rc_spac_p1', 'word_RgH_rc_mass_p1'} ... % P1 Rc Spacing
+%   {'word_RgH_rc_spac_p2', 'word_RgH_rc_mass_p2'} ... % P2 Rc Spacing
+%   {'word_RgH_fo_spac_p1', 'word_RgH_fo_mass_p1'} ... % P1 Fo Spacing
+%   {'word_RgH_fo_spac_p2', 'word_RgH_fo_mass_p2'} ... % P2 Fo Spacing
+%   {'word_RgH_rc_spac_p1', 'word_RgH_fo_mass_p1'} ... % P1 spac x mem
+%   {'word_RgH_rc_mass_p1', 'word_RgH_fo_spac_p1'} ... % P1 spac x mem
+%   {'word_RgH_rc_spac_p2', 'word_RgH_fo_mass_p2'} ... % P2 spac x mem
+%   {'word_RgH_rc_mass_p2', 'word_RgH_fo_spac_p2'} ... % P2 spac x mem
+%   {'word_onePres', 'word_RgH_rc_spac_p1'} ...
+%   {'word_onePres', 'word_RgH_rc_mass_p1'} ...
+%   {'word_onePres', 'word_RgH_fo_spac_p1'} ...
+%   {'word_onePres', 'word_RgH_fo_mass_p1'} ...
+%   {'word_onePres', 'word_RgH_rc_spac_p2'} ...
+%   {'word_onePres', 'word_RgH_rc_mass_p2'} ...
+%   {'word_onePres', 'word_RgH_fo_spac_p2'} ...
+%   {'word_onePres', 'word_RgH_fo_mass_p2'} ...
+% };
+
+cfg_ft = [];
+
+cfg_ft.ylim = ana.freq.theta;
+% cfg_ft.ylim = ana.freq.alpha_lower;
+% cfg_ft.ylim = ana.freq.alpha_upper;
+% cfg_ft.ylim = ana.freq.beta_lower;
+
+cfg_ft.parameter = 'powspctrm';
+
+% will mask electrodes not in cfg_plot.roi
+% cfg_ft.maskparameter = '';
+cfg_ft.maskparameter = 'datamask';
+cfg_plot.maskvalue = 0;
+
+cfg_ft.interactive = 'yes';
+%cfg_ft.colormap = hot(64);
+cfg_ft.colormap = jet(64);
+cfg_ft.colorbar = 'yes';
+
+%%%%%%%%%%%%%%%
+% Type of plot
+%%%%%%%%%%%%%%%
+
+%cfg_plot.ftFxn = 'ft_singleplotTFR';
+cfg_plot.ftFxn = 'ft_topoplotTFR';
+cfg_plot.zlabel = 'Z-transformed Power';
+%cfg_ft.marker = 'on';
+cfg_ft.marker = 'off';
+% cfg_ft.marker = 'labels';
+cfg_ft.markerfontsize = 9;
+cfg_ft.comment = 'no';
+%cfg_ft.xlim = [0.5 0.8]; % time
+cfg_plot.subplot = 0;
+% cfg_ft.xlim = [0 0.5]; % time
+cfg_ft.xlim = [0.52 1.0]; % time
+% cfg_plot.subplot = 1;
+% cfg_ft.xlim = [0 1.0]; % time
+%cfg_ft.xlim = (0:0.05:1.0); % time
+%cfg_plot.roi = {'PS'};
+
+cfg_ft.shading = 'interp';
+% cfg_ft.style = 'fill';
+
+cfg_plot.roi = sigElecs;
+
+% cfg_ft.zlim = [-0.5 0.5]; % color
+cfg_ft.zlim = [-1.0 1.0]; % color
+
+% cfg_plot.ftFxn = 'ft_multiplotTFR';
+% cfg_ft.showlabels = 'yes';
+% cfg_ft.comment = '';
+
+ses = 1;
+mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_pow,ses);
+
 %% RM ANOVA
 
-% stimType = 'word_';
-stimType = 'img_';
+stimType = 'word_';
+% stimType = 'img_';
 memType = 'RgH_';
 
 % spacings = {'mass', 'spac', 'onePres'};
@@ -1444,70 +1610,74 @@ latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
 
 % % theta
 freqs = ana.freq.theta;
-% latencies = [0.6 1.0]; % word
-% latencies = [0.1 0.4]; % img
-% latencies = [0.02 0.5; 0.52 1.0];
+roi = {sigElecs};
 
-% img
-% roi = {'LAI'}; % yes, neg **
-% roi = {'LFP'};
-% roi = {'FC'}; % pos
-% roi = {'RFP'};
-% roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
-
-roi = {{'C','FS'}}; % 
-% roi = {{'LAS2','C','FS','LPS'}}; % 
-% roi = {'anterior_noPeriph'};
-% roi = {{'LAS2','FS'}}; % 
-% roi = {'LAS2'}; % yes, pos ***
-% roi = {'LAS'}; % yes, pos **
-% roi = {'FS'}; % yes, pos **
-% roi = {'C'}; % yes, pos
-% roi = {'RAS'}; % yes, pos *
-% roi = {'RAS2'}; % yes
-
-% roi = {{'LT','FS'}}; % 
-% roi = {'LT'}; % 
-% roi = {'LPS2'}; % 
-% roi = {'LPS'}; % 
-% roi = {'PS'}; % 
-% roi = {'RPS'}; % 
-% roi = {'RPS2'}; % 
-% roi = {'RT'}; % 
-
-% roi = {'LPI2'}; % yes
-% roi = {'PI'}; % no
-% roi = {'RPI2'}; % yes
-
-% % word
-% roi = {'LAI'}; % yes, neg **
-% roi = {'LFP'};
-% roi = {'FC'};
-% roi = {'RFP'};
-% roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
-
-% roi = {{'LAS2','FS'}}; % 
-% roi = {'LAS2'}; % yes, pos ***
-% roi = {'LAS'}; % yes, pos **
-% roi = {'FS'}; % yes, pos **
-% roi = {'C'}; % yes, pos
-% roi = {'RAS'}; % yes, pos *
-% roi = {'RAS2'}; % yes
-
-% roi = {{'LT','FS'}}; % 
-% roi = {'LT'}; % 
-% roi = {'LPS2'}; % 
-% roi = {'LPS'}; % 
-% roi = {'PS'}; % 
-% roi = {'RPS'}; % 
-% roi = {'RPS2'}; % 
-% roi = {'RT'}; % 
-
-% roi = {'LPI2'}; % yes
-% roi = {'PI'}; % no
-% roi = {'RPI2'}; % yes
-
-% roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
+% % latencies = [0.6 1.0]; % word
+% % latencies = [0.1 0.4]; % img
+% % latencies = [0.02 0.5; 0.52 1.0];
+% 
+% % img
+% % roi = {'LAI'}; % yes, neg **
+% % roi = {'LFP'};
+% % roi = {'FC'}; % pos
+% % roi = {'RFP'};
+% % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
+% 
+% % roi = {{'C','FS'}}; % 
+% % roi = {{'LAS2','C','FS','LPS'}}; % 
+% % roi = {'anterior_noPeriph'};
+% % roi = {{'LAS2','FS'}}; % 
+% % roi = {'LAS2'}; % yes, pos ***
+% % roi = {'LAS'}; % yes, pos **
+% % roi = {'FS'}; % yes, pos **
+% % roi = {{'FS','LAS2'},{'LPS','PS'}}; % yes, pos **
+% % roi = {{'FC','LFP'},{'LPS','PS'}}; % yes, pos **
+% % roi = {'C'}; % yes, pos
+% % roi = {'RAS'}; % yes, pos *
+% % roi = {'RAS2'}; % yes
+% 
+% % roi = {{'LT','FS'}}; % 
+% % roi = {'LT'}; % 
+% % roi = {'LPS2'}; % 
+% % roi = {'LPS'}; % 
+% % roi = {'PS'}; % 
+% % roi = {'RPS'}; % 
+% % roi = {'RPS2'}; % 
+% % roi = {'RT'}; % 
+% 
+% % roi = {'LPI2'}; % yes
+% % roi = {'PI'}; % no
+% % roi = {'RPI2'}; % yes
+% 
+% % % word
+% % roi = {'LAI'}; % yes, neg **
+% % roi = {'LFP'};
+% % roi = {'FC'};
+% % roi = {'RFP'};
+% % roi = {'RAI'}; % something awry word mass p1 forgot, values are too high
+% 
+% % roi = {{'LAS2','FS'}}; % 
+% % roi = {'LAS2'}; % yes, pos ***
+% % roi = {'LAS'}; % yes, pos **
+% % roi = {'FS'}; % yes, pos **
+% % roi = {'C'}; % yes, pos
+% % roi = {'RAS'}; % yes, pos *
+% % roi = {'RAS2'}; % yes
+% 
+% % roi = {{'LT','FS'}}; % 
+% % roi = {'LT'}; % 
+% % roi = {'LPS2'}; % 
+% % roi = {'LPS'}; % 
+% % roi = {'PS'}; % 
+% % roi = {'RPS'}; % 
+% % roi = {'RPS2'}; % 
+% % roi = {'RT'}; % 
+% 
+% % roi = {'LPI2'}; % yes
+% % roi = {'PI'}; % no
+% % roi = {'RPI2'}; % yes
+% 
+% % roi = {{'E23','Fz','E3'}}; % AF3 Fz AF4
 
 
 % % % alpha
@@ -1515,6 +1685,8 @@ roi = {{'C','FS'}}; %
 % freqs = ana.freq.alpha_lower;
 % % freqs = ana.freq.alpha_upper;
 % % freqs = ana.freq.beta_lower;
+% roi = {sigElecs};
+
 % % freqs = [11 20.5];
 % % latencies = [0.6 1.0]; % img
 % % roi = {'LAS2'};
