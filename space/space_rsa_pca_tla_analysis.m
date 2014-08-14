@@ -140,9 +140,9 @@ end
 % % nTrialThresh = 15; % 13
 
 % % img
-% nTrialThresh = 6; % 28
+nTrialThresh = 6; % 28
 % nTrialThresh = 7; % 26
-nTrialThresh = 8; % 25
+% nTrialThresh = 8; % 25
 % nTrialThresh = 9; % 24
 % nTrialThresh = 10; % 22
 % nTrialThresh = 11; % 21
@@ -205,7 +205,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 %   0 1.0];
 
 % % 0 to 1, in 200 ms chunks
-% latInd = [1:5];
+latInd = [1:5];
 
 % % 0.1 to 0.9, in 200 ms chunks
 % latInd = [6:9];
@@ -214,7 +214,7 @@ fprintf('Threshold: >= %d trials. Including %d subjects.\n',nTrialThresh,sum(noN
 % latInd = [10:12];
 
 % % 0-0.5, 0.5-1 *****
-latInd = [13:14];
+% latInd = [13:14];
 
 % % 0 to 1, in 600 ms chunks
 % latInd = [16:20];
@@ -456,17 +456,17 @@ plotMeanLine = false;
 plotSub = true;
 
 if plotMeanLine
-  s_mark = 'ko-';
-  m_mark = 'rx-.';
+  s_mark = 'ro-';
+  m_mark = 'bx--';
 else
-  s_mark = 'ko';
-  m_mark = 'rx';
+  s_mark = 'ro';
+  m_mark = 'bx';
 end
 
 if plotSub
   subSpacing = 0.1;
-  s_mark_sub = 'ko';
-  m_mark_sub = 'rx';
+  s_mark_sub = 'ro';
+  m_mark_sub = 'bx';
 end
 
 meanSizeR = 20;
@@ -517,13 +517,14 @@ set(gca,'XTickLabel',{'Forgot','Recalled'});
 ylabel('Neural Similarity');
 
 title(sprintf('Spacing \\times Subsequent Memory: %s',data_str));
-legend([hs, hm],{'Spaced','Massed'},'Location','North');
+legend([hm, hs],{'Massed','Spaced'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s.eps',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
 
 %% plot RSA spacing x time interaction
 
@@ -545,11 +546,11 @@ plotSub = true;
 plotSubLines = false;
 
 if plotMeanLines
-  s_mark = 'ko-';
-  m_mark = 'rx-.';
+  s_mark = 'ro-';
+  m_mark = 'bx--';
 else
-  s_mark = 'ko';
-  m_mark = 'rx';
+  s_mark = 'ro';
+  m_mark = 'bx';
 end
 
 meanSize = 20;
@@ -557,11 +558,11 @@ meanSize = 20;
 if plotSub
   subSpacing = 0.1;
   if plotSubLines
-    s_mark_sub = 'ko-';
-    m_mark_sub = 'rx-.';
+    s_mark_sub = 'ro-';
+    m_mark_sub = 'bx--';
   else
-    s_mark_sub = 'ko';
-    m_mark_sub = 'rx';
+    s_mark_sub = 'ro';
+    m_mark_sub = 'bx';
   end
 end
 
@@ -608,13 +609,14 @@ xlabel('Time (Sec)');
 ylabel('Neural Similarity');
 
 title(sprintf('Spacing \\times Time: %s',data_str));
-legend([hs, hm],{'Spaced','Massed'},'Location','North');
+legend([hm, hs],{'Massed','Spaced'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s.eps',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
 
 %% plot RSA spacing x memory x time interaction
 
@@ -632,15 +634,15 @@ plotSub = false;
 plotSubLines = false;
 
 if plotMeanLines
-  s_rc_mark = 'ko-';
-  s_fo_mark = 'ko-.';
-  m_rc_mark = 'rx-';
-  m_fo_mark = 'rx-.';
+  s_rc_mark = 'ro-';
+  s_fo_mark = 'mo--';
+  m_rc_mark = 'bx-';
+  m_fo_mark = 'cx--';
 else
-  s_rc_mark = 'ko';
-  s_fo_mark = 'ro';
-  m_rc_mark = 'kx';
-  m_fo_mark = 'rx';
+  s_rc_mark = 'ro';
+  s_fo_mark = 'mo';
+  m_rc_mark = 'bx';
+  m_fo_mark = 'cx';
 end
 
 meanSizeS = 20;
@@ -649,15 +651,15 @@ meanSizeM = 20;
 if plotSub
   subSpacing = 0.2;
   if plotSubLines
-    s_rc_mark_sub = 'ko-';
-    s_fo_mark_sub = 'ko-.';
-    m_rc_mark_sub = 'rx-';
-    m_fo_mark_sub = 'rx-.';
+    s_rc_mark_sub = 'ro-';
+    s_fo_mark_sub = 'mo--';
+    m_rc_mark_sub = 'bx-';
+    m_fo_mark_sub = 'cx--';
   else
-    s_rc_mark_sub = 'ko';
-    s_fo_mark_sub = 'ro';
-    m_rc_mark_sub = 'kx';
-    m_fo_mark_sub = 'rx';
+    s_rc_mark_sub = 'ro';
+    s_fo_mark_sub = 'mo';
+    m_rc_mark_sub = 'bx';
+    m_fo_mark_sub = 'cx';
   end
 end
 
@@ -719,11 +721,11 @@ xlabel('Time (Sec)');
 ylabel('Neural Similarity');
 
 title(sprintf('Spacing \\times  Memory \\times  Time: %s',data_str));
-legend([hsr, hsf, hmr, hmf],{'Space Recalled','Space Forgot','Mass Recalled','Mass Forgot'},'Location','North');
+legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s.eps',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
-% print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s.png',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
