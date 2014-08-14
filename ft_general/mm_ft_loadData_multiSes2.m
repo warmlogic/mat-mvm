@@ -514,7 +514,7 @@ for sub = 1:length(exper.subjects)
       
       % collect events for baseline
       if ischar(cfg.baseline_events)
-        if strcmp(cfg.baseline_evnts,'all')
+        if strcmp(cfg.baseline_events,'all')
           % use all events listed in ana.eventValuesSplit
           for evVal = 1:length(ana.eventValuesSplit{ses})
             for es = 1:length(ana.eventValuesSplit{ses}{evVal})
