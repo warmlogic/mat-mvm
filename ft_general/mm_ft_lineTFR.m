@@ -54,11 +54,14 @@ if ~isfield(cfg,'plotErrorBars')
 end
 if cfg.plotErrorBars
   if ~isfield(cfg,'eb_transp')
-    cfg.eb_transp = false;
+    cfg.eb_transp = true;
   end
   if ndims(data.(exper.sesStr{1}).(cfg.conditions{1}{1}).(cfg.parameter)) ~= 4
     error('To plot error bars, need to run ft_freqgrandaverage with cfg.keepindividual=''yes'' so data.%s is subj X elec X freq X time.',cfg.parameter)
   end
+  cfg.eb_str = '_eb';
+else
+  cfg.eb_str = '';
 end
 
 if ~isfield(cfg,'plotTitle')
@@ -280,8 +283,14 @@ for typ = 1:length(cfg.conditions)
     figure
     
     % get all the ROI names together
-    chan_str_all = cellflat(cfg.rois);
-    chan_str_all = sprintf(repmat('%s_',1,length(chan_str_all)),chan_str_all{:});
+    if ischar(cfg.rois) || (iscell(cfg.rois) && length(cellflat(cfg.rois)) <= 10)
+      chan_str_all = cellflat(cfg.rois);
+      chan_str_all = sprintf(repmat('%s_',1,length(chan_str_all)),chan_str_all{:});
+    elseif iscell(cfg.rois) && length(cellflat(cfg.rois)) > 10
+      chan_str_all = sprintf('%dROIs',length(cellflat(cfg.rois)));
+    else
+      keyboard
+    end
     
     % initialize
     h = nan(nROIs,nCond);
@@ -341,27 +350,29 @@ for typ = 1:length(cfg.conditions)
           end
         end % t
         
-        if cfg.plotErrorBars
-          if ischar(cfg.graphcolor)
-            % using matlab's single-character colors
-            thisColor = cfg.graphcolor(evVal);
-          elseif ~ischar(cfg.graphcolor) && iscell(cfg.graphcolor)
-            % defined own color strings (for rgb.m)
-            if ischar(cfg.graphcolor{evVal})
-              thisColor = rgb(cfg.graphcolor{evVal});
-            else
-              error('Do not know what to do with cfg.graphcolor settings.');
-            end
-          elseif ~ischar(cfg.graphcolor) && ismatrix(cfg.graphcolor) && length(cfg.graphcolor(evVal,:)) == 3
-            % defined own RGB triplets (e.g., using linspecer.m)
-            thisColor = cfg.graphcolor(evVal,:);
+        % set up the line color
+        if ischar(cfg.graphcolor)
+          % using matlab's single-character colors
+          thisColor = cfg.graphcolor(evVal);
+        elseif ~ischar(cfg.graphcolor) && iscell(cfg.graphcolor)
+          % defined own color strings (for rgb.m)
+          if ischar(cfg.graphcolor{evVal})
+            thisColor = rgb(cfg.graphcolor{evVal});
+          else
+            error('Do not know what to do with cfg.graphcolor settings.');
           end
-          this_h = shadedErrorBar(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),squeeze(dataVar(evVal,r,:)),{'color',thisColor,'LineWidth',cfg.linewidth},cfg.eb_transp);
+        elseif ~ischar(cfg.graphcolor) && ismatrix(cfg.graphcolor) && length(cfg.graphcolor(evVal,:)) == 3
+          % defined own RGB triplets (e.g., using linspecer.m)
+          thisColor = cfg.graphcolor(evVal,:);
+        end
+        % plot it
+        if cfg.plotErrorBars
+          this_h = shadedErrorBar(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),squeeze(dataVar(evVal,r,:)),{cfg.linestyle{evVal},'Color',thisColor,'LineWidth',cfg.linewidth},cfg.eb_transp);
           h(r,evVal) = this_h.mainLine;
         else
           % TODO: don't plot at the average time, plot at the first time and
           % add on the final time point manually?
-          h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),[cfg.graphcolor(evVal),cfg.linestyle{evVal}],'LineWidth',cfg.linewidth);
+          h(r,evVal) = plot(mean(cfg.times,2),squeeze(dataVec(evVal,r,:)),cfg.linestyle{evVal},'Color',thisColor,'LineWidth',cfg.linewidth);
         end
         
       end % evVal
@@ -618,7 +629,7 @@ for typ = 1:length(cfg.conditions)
         alpha_str = '';
       end
       
-      cfg.figfilename = sprintf('tfr_%s_ga_%s%s%s%d_%d_%d_%d%s%s%s',cfg.type,type_str,cond_str,chan_str_all,round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),alpha_str,cfg.legend_str,cfg.title_str);
+      cfg.figfilename = sprintf('tfr_%s_ga_%s%s%s%d_%d_%d_%d%s%s%s%s',cfg.type,type_str,cond_str,chan_str_all,round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),alpha_str,cfg.legend_str,cfg.title_str,cfg.eb_str);
       
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')
