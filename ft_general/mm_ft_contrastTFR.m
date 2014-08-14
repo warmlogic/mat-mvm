@@ -165,8 +165,17 @@ elseif isfield(cfg_plot,'roi')
     else
       cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_plot.roi)});
     end
+    
     % set the string for the filename
-    cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+    %chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+    if iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) <= 10
+      chan_str = cellflat(cfg_plot.roi);
+      chan_str = sprintf(repmat('%s_',1,length(chan_str)),chan_str{:});
+    elseif iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) > 10
+      chan_str = sprintf('%dROIs',length(cellflat(cfg_plot.roi)));
+    else
+      keyboard
+    end
   else
     % otherwise it should be the channel number(s) or 'all'
     if ~iscell(cfg_plot.roi)
@@ -184,7 +193,15 @@ elseif isfield(cfg_plot,'roi')
     end
     
     % set the string for the filename
-    cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+    %chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+    if iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) <= 10
+      chan_str = cellflat(cfg_plot.roi);
+      chan_str = sprintf(repmat('%s_',1,length(chan_str)),chan_str{:});
+    elseif iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) > 10
+      chan_str = sprintf('%dROIs',length(cellflat(cfg_plot.roi)));
+    else
+      keyboard
+    end
   end
 end
 
@@ -363,9 +380,9 @@ for typ = 1:length(cfg_plot.conditions)
     cfg_plot.zlim_str{1} = strrep(sprintf('%.1f',cfg_ft.zlim(1)),'.','p');
     cfg_plot.zlim_str{2} = strrep(sprintf('%.1f',cfg_ft.zlim(2)),'.','p');
     if ~isempty(cfg_plot.types{typ})
-      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s_%s%d_%d_%d_%d_%s_%s%s%s%s',cfg_plot.type,cfg_plot.types{typ},vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s_%s%d_%d_%d_%d_%s_%s%s%s%s',cfg_plot.type,cfg_plot.types{typ},vs_str,chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
     else
-      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s%d_%d_%d_%d_%s_%s%s%s%s',cfg_plot.type,vs_str,cfg_plot.chan_str,cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+      cfg_plot.figfilename = sprintf('tfr_%scont_ga_%s_%s%d_%d_%d_%d_%s_%s%s%s%s',cfg_plot.type,vs_str,chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.zlim_str{1},cfg_plot.zlim_str{2},cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
     end
     
     dirs.saveDirFigsTopo = fullfile(dirs.saveDirFigs,['tfr_',cfg_plot.type,'cont']);

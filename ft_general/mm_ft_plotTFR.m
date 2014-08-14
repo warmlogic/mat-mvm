@@ -142,7 +142,15 @@ elseif isfield(cfg_plot,'roi')
       cfg_ft.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_plot.roi)});
     end
     % set the string for the filename
-    cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+    %chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+    if iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) <= 10
+      chan_str = cellflat(cfg_plot.roi);
+      chan_str = sprintf(repmat('%s_',1,length(chan_str)),chan_str{:});
+    elseif iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) > 10
+      chan_str = sprintf('%dROIs',length(cellflat(cfg_plot.roi)));
+    else
+      keyboard
+    end
   else
     % otherwise it should be the channel number(s) or 'all'
     if ~iscell(cfg_plot.roi)
@@ -161,9 +169,17 @@ elseif isfield(cfg_plot,'roi')
     
     % set the string for the filename
     if isfield(cfg_ft,'cohrefchannel')
-      cfg_plot.chan_str = [cfg_ft.cohrefchannel,'-',sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:})];
+      chan_str = [cfg_ft.cohrefchannel,'-',sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:})];
     else
-      cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+      %chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+      if iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) <= 10
+        chan_str = cellflat(cfg_plot.roi);
+        chan_str = sprintf(repmat('%s_',1,length(chan_str)),chan_str{:});
+      elseif iscell(cfg_plot.roi) && length(cellflat(cfg_plot.roi)) > 10
+        chan_str = sprintf('%dROIs',length(cellflat(cfg_plot.roi)));
+      else
+        keyboard
+      end
     end
   end
 end
@@ -260,9 +276,9 @@ for typ = 1:length(cfg_plot.conditions{sesNum})
     end
     
     if ~isempty(cfg_plot.types{typ})
-      set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{sesNum}{typ}{evVal},'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+      set(gcf,'Name',sprintf('%s, %s, %s, %.1f--%.1f Hz, %d--%d ms',cfg_plot.types{typ},strrep(cfg_plot.conditions{sesNum}{typ}{evVal},'_','-'),strrep(chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     else
-      set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{sesNum}{typ}{evVal},'_','-'),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
+      set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f Hz, %d--%d ms',strrep(cfg_plot.conditions{sesNum}{typ}{evVal},'_','-'),strrep(chan_str,'_',' '),cfg_ft.ylim(1),cfg_ft.ylim(2),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000)))
     end
     
     if strcmp(cfg_plot.type,'single')
@@ -301,9 +317,9 @@ for typ = 1:length(cfg_plot.conditions{sesNum})
       
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
-        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{sesNum}{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{sesNum}{typ}{evVal},chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
       else
-        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.conditions{sesNum}{typ}{evVal},cfg_plot.chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
+        cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.conditions{sesNum}{typ}{evVal},chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
       end
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg_plot.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')
