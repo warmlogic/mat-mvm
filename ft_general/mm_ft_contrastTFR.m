@@ -1,7 +1,7 @@
-function mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
+function mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,data,sesNum)
 %MM_FT_CONTRASTTFR plot (and save) contast topoplots of time-freq data
 %
-%   mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,files,dirs,data)
+%   mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,data,sesNum)
 %
 % Inputs:
 %   cfg_ft: parameters passed into the FT plotting function
@@ -33,6 +33,15 @@ if ~isfield(cfg_ft,'parameter')
   error('Must specify cfg_ft.parameter, denoting the data to plot (e.g., ''avg'' or ''individual'')');
 end
 
+if ~isfield(cfg_ft,'maskparameter')
+  cfg_ft.maskparameter = [];
+end
+if ~isempty(cfg_ft.maskparameter)
+  if ~isfield(cfg_plot,'maskvalue')
+    cfg_plot.maskvalue = 0;
+  end
+end
+
 if ~isfield(cfg_plot,'plotTitle')
   cfg_ft.plotTitle = 0;
 end
@@ -41,11 +50,11 @@ cfg_plot.type = strrep(strrep(cfg_plot.ftFxn,'ft_',''),'plotTFR','');
 
 % good default z-limits
 if ~isfield(cfg_ft,'zlim')
-  if strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'absolute')
+  if strcmp(ft_findcfg(data.(exper.sesStr{sesNum}).(ana.eventValues{sesNum}{1}{1}).cfg,'baselinetype'),'absolute')
     cfg_ft.zlim = [-400 400];
-  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relative')
+  elseif strcmp(ft_findcfg(data.(exper.sesStr{sesNum}).(ana.eventValues{sesNum}{1}{1}).cfg,'baselinetype'),'relative')
     cfg_ft.zlim = [0 2.0];
-  elseif strcmp(ft_findcfg(data.(ana.eventValues{1}{1}).cfg,'baselinetype'),'relchange')
+  elseif strcmp(ft_findcfg(data.(exper.sesStr{sesNum}).(ana.eventValues{sesNum}{1}{1}).cfg,'baselinetype'),'relchange')
     cfg_ft.zlim = [-1.0 1.0];
   end
 end
@@ -119,19 +128,20 @@ if (strcmp(cfg_plot.type,'multi') || strcmp(cfg_plot.type,'topo'))
   end
 end
 
-% make sure conditions are set correctly
-if ~isfield(cfg_plot,'condMethod')
-  if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
-    cfg_plot.condMethod = 'pairwise';
-  elseif iscell(cfg_plot.conditions) && ~iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
-    cfg_plot.condMethod = 'pairwise';
-  elseif iscell(cfg_plot.conditions) && iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions{1}) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
-    cfg_plot.condMethod = 'pairwise';
-  else
-    cfg_plot.condMethod = [];
-  end
-end
-cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+% % make sure conditions are set correctly
+% if ~isfield(cfg_plot,'condMethod')
+%   if ~iscell(cfg_plot.conditions) && (strcmp(cfg_plot.conditions,'all') || strcmp(cfg_plot.conditions,'all_across_types') || strcmp(cfg_plot.conditions,'all_within_types'))
+%     cfg_plot.condMethod = 'pairwise';
+%   elseif iscell(cfg_plot.conditions) && ~iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
+%     cfg_plot.condMethod = 'pairwise';
+%   elseif iscell(cfg_plot.conditions) && iscell(cfg_plot.conditions{1}) && length(cfg_plot.conditions{1}) == 1 && (strcmp(cfg_plot.conditions{1},'all') || strcmp(cfg_plot.conditions{1},'all_across_types') || strcmp(cfg_plot.conditions{1},'all_within_types'))
+%     cfg_plot.condMethod = 'pairwise';
+%   else
+%     cfg_plot.condMethod = [];
+%   end
+% end
+% cfg_plot.conditions = mm_ft_checkConditions(cfg_plot.conditions,ana,cfg_plot.condMethod);
+
 % make sure conditions are set up for the for loop
 if ~isfield(cfg_plot,'types')
   cfg_plot.types = repmat({''},size(cfg_plot.conditions));
@@ -176,10 +186,10 @@ end
 % time - get this info for the figure name
 if isfield(cfg_ft,'xlim')
   if strcmp(cfg_ft.xlim,'maxmin')
-    cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+    cfg_ft.xlim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time)];
   end
 else
-  cfg_ft.xlim = [min(data.(cfg_plot.conditions{1}{1}).time) max(data.(cfg_plot.conditions{1}{1}).time)];
+  cfg_ft.xlim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).time)];
 end
 
 % set parameters for the subplot
@@ -228,10 +238,10 @@ end
 % freq
 if isfield(cfg_ft,'ylim')
   if strcmp(cfg_ft.ylim,'maxmin')
-    cfg_ft.ylim = [min(data.(cfg_plot.conditions{1}{1}).freq) max(data.(cfg_plot.conditions{1}{1}).freq)];
+    cfg_ft.ylim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).freq) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).freq)];
   end
 else
-  cfg_ft.ylim = [min(data.(cfg_plot.conditions{1}{1}).freq) max(data.(cfg_plot.conditions{1}{1}).freq)];
+  cfg_ft.ylim = [min(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).freq) max(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{1}{1}).freq)];
 end
 
 % initialize for storing the contrast topoplots
@@ -248,28 +258,54 @@ for typ = 1:length(cfg_plot.conditions)
   end
   
   % create contrast
-  cont_plot.(vs_str) = data.(cfg_plot.conditions{typ}{1});
-  cont_plot.(vs_str).(cfg_ft.parameter) = data.(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter) - data.(cfg_plot.conditions{typ}{2}).(cfg_ft.parameter);
+  cont_plot.(vs_str) = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1});
+  cont_plot.(vs_str).(cfg_ft.parameter) = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter) - data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{2}).(cfg_ft.parameter);
   
   % parameter
   if isfield(cfg_ft,'zlim')
     if strcmp(cfg_ft.zlim,'maxmin')
       usedMaxmin = 1;
-      timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
-      freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+      %timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+      timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+      tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
+      tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
+      timesel(tbeg:tend) = true;
+      
+      %freqsel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+      freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+      fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
+      fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
+      freqsel(fbeg:fend) = true;
+      
       cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
     else
       usedMaxmin = 0;
     end
   else
-    timesel = data.(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
-    freqsel = data.(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+    %timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+    timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+    tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
+    tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
+    timesel(tbeg:tend) = true;
+    
+    %freqsel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+    freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+    fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
+    fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
+    freqsel(fbeg:fend) = true;
+    
     cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
     usedMaxmin = 1;
   end
   
   % make a plot
   figure
+  
+  if strcmp(cfg_plot.type,'topo') && ~isempty(cfg_ft.maskparameter)
+    cont_plot.(vs_str).(cfg_ft.maskparameter) = ones(size(cont_plot.(vs_str).label,1),1);
+    cont_plot.(vs_str).(cfg_ft.maskparameter)(~ismember(cont_plot.(vs_str).label,cfg_ft.highlightchannel)) = cfg_plot.maskvalue;
+  end
+  
   if cfg_plot.subplot
     for k = 1:length(cfg_plot.timeS)-1
       subplot(cfg_plot.numRows,cfg_plot.numCols,k);
@@ -283,9 +319,9 @@ for typ = 1:length(cfg_plot.conditions)
   end
   
   if ~isempty(cfg_plot.types{typ})
-    set(gcf,'Name',sprintf('%s, %s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.types{typ},cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)))
+    set(gcf,'Name',sprintf('%s, %s vs. %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.types{typ},strrep(cfg_plot.conditions{typ}{1},'_','-'),strrep(cfg_plot.conditions{typ}{2},'_','-'),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)))
   else
-    set(gcf,'Name',sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)))
+    set(gcf,'Name',sprintf('%s vs. %s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{1},'_','-'),strrep(cfg_plot.conditions{typ}{2},'_','-'),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)))
   end
   
   if strcmp(cfg_ft.colorbar,'yes')
@@ -302,7 +338,7 @@ for typ = 1:length(cfg_plot.conditions)
   end
   if cfg_plot.plotTitle
     %title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditionNames{c,1},cfg_plot.conditionNames{c,2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
-    title(sprintf('%s - %s, %.1f--%.1f Hz, %.1f--%.1f s',cfg_plot.conditions{typ}{1},cfg_plot.conditions{typ}{2},cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
+    title(sprintf('%s vs. %s, %.1f--%.1f Hz, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{1},'_','-'),strrep(cfg_plot.conditions{typ}{2},'_','-'),cfg_ft.ylim(1),cfg_ft.ylim(2),cfg_ft.xlim(1),cfg_ft.xlim(2)));
     cfg_plot.title_str = '_title';
   else
     cfg_plot.title_str = '';
