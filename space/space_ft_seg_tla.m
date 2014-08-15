@@ -261,6 +261,7 @@ ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 ana.artifact.type = {'ftAuto'};
 % ana.artifact.resumeManArtFT = false;
 ana.artifact.resumeManArtContinuous = false;
+ana.artifact.resumeICACompContinuous = false;
 % negative trlpadding: don't check that time (on both sides) for artifacts.
 % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
 % of extra time around trial epochs. Otherwise set to zero.
