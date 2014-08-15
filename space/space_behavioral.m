@@ -33,10 +33,11 @@ end
 behDir = fullfile(dataroot,behDir);
 
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-procDir = fullfile(dataroot,eegDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+% procDir = fullfile(dataroot,eegDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+procDir = fullfile(dataroot,eegDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
-  'SPACE001'; % low trial counts
+  %'SPACE001'; % low trial counts
   'SPACE002';
   'SPACE003';
   'SPACE004';
@@ -52,9 +53,9 @@ subjects = {
   'SPACE014';
   'SPACE015';
   'SPACE016';
-  'SPACE017'; % really noisy EEG, half of ICA components rejected
+  %'SPACE017'; % really noisy EEG, half of ICA components rejected
   'SPACE018';
-  'SPACE019'; % low trial counts
+  %'SPACE019'; % low trial counts
   'SPACE020';
   'SPACE021';
   'SPACE022';
@@ -67,7 +68,7 @@ subjects = {
   'SPACE025';
   'SPACE026';
   'SPACE028';
-  'SPACE030'; % low trial counts
+  %'SPACE030'; % low trial counts
   'SPACE032';
   'SPACE034';
   'SPACE047';
@@ -218,7 +219,7 @@ phase = 'cued_recall';
 test = 'recog';
 % measure = 'recog_hr';
 measure = 'recog_dp';
-measure = 'recog_rt';
+% measure = 'recog_rt';
 % measure = 'recog_rt_hit';
 % measure = 'recog_rt_miss';
 
