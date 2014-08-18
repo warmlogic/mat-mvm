@@ -16,7 +16,7 @@ spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
 memConds = {'rc','fo'};
 
-erpComponents = {'LPC','N400','N2'};
+erpComponents = {'LPC','N400','N1'};
 % erpComponents = {'LPC'};
 
 % roi = { ...
@@ -52,7 +52,7 @@ lpcPeak = 0.596; % centered on E77
 % n400Peak = 0.360; % FS2
 n400Peak = 0.372; % C
 
-n2Peak = 0.172;
+n1Peak = 0.172;
 
 for sp = 1:length(spacings)
   
@@ -103,10 +103,10 @@ for sp = 1:length(spacings)
             cfg.order = 'ascend'; % ascend = negative peaks first
             cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
             %cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
-          elseif strcmp(erpComponents{er},'N2')
+          elseif strcmp(erpComponents{er},'N1')
             cfg.order = 'ascend'; % ascend = negative peaks first
-            cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
-            %cfg.latency = [n2Peak-0.1 n2Peak+0.1]; % around GA peak (space+mass) +/- 100
+            cfg.latency = [n1Peak-0.05 n1Peak+0.05]; % around GA peak (space+mass) +/- 50
+            %cfg.latency = [n1Peak-0.1 n1Peak+0.1]; % around GA peak (space+mass) +/- 100
           end
           
           % % average across electrodes
@@ -149,7 +149,7 @@ memConds = {'rc','fo'};
 % measure = 'latency';
 measure = 'voltage';
 
-erpComp = 'N2';
+erpComp = 'N1';
 roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
 
 % erpComp = 'N400';
