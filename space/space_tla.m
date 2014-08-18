@@ -1011,16 +1011,18 @@ cfg_plot.excludeBadSub = 1;
 
 cfg_plot.ftFxn = 'ft_singleplotER';
 
-% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
-% cfg_plot.ylims = [-1 6; -1 6];
+cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+cfg_plot.ylims = [-1 6; -1 6];
 cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
-% E77
-cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
-cfg_plot.ylims = [-1 6];
-cfg_plot.legendlocs = {'NorthWest'};
+% % E77
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
+% cfg_plot.ylims = [-1 6];
+% cfg_plot.legendlocs = {'NorthWest'};
 
-% cfg_plot.rois = {{'C'}};
+% cfg_plot.rois = {{'FS'}};
+% % cfg_plot.rois = {{'LAS'}};
+% % cfg_plot.rois = {{'C'}};
 % cfg_plot.ylims = [-3 4];
 % cfg_plot.legendlocs = {'NorthEast'};
 
@@ -1099,9 +1101,14 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Mass P1 Recalled','Mass P1 Forgot','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'OnePres','Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+
+% cfg_plot.condByROI = repmat({{{'img_onePres','img_RgH_rc_spac_p1','img_RgH_fo_spac_p1','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'img_onePres','img_RgH_rc_mass_p1','img_RgH_fo_mass_p1','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 
 
@@ -1240,16 +1247,17 @@ spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
 % oldnew = {'p2'};
-% memConds = {'rc','fo'};
-memConds = {'rc'};
+memConds = {'rc','fo'};
+% memConds = {'rc'};
 
 measure = 'avg';
 
 roi = {'LPS2'};
 % roi = {{'LPS2'},{'RPS2'}};
 % roi = {{'LPS2','RPS2'}};
-% latencies = [0.4 0.8];
+% latencies = [0.5 0.8];
 latencies = [0.4 0.6; 0.604 0.804];
+latencies = [0.604 0.804];
 % latencies = [0.4 0.65; 0.55 0.8];
 
 latency = cell(1,size(latencies,1));
@@ -1345,18 +1353,18 @@ for sub = 1:length(exper.subjects)
               roi_str = roi{r};
             end
             if ~isempty(cond_str_tmp)
-              chanIdx = ismember(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+              chanIdx = ismember(data_tla.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
             else
-              chanIdx = ismember(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
+              chanIdx = ismember(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.label,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,roi{r})})));
             end
             
             for lat = 1:length(latency)
               if ~isempty(cond_str_tmp)
-                tbeg = nearest(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.time,latencies(lat,1));
-                tend = nearest(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.time,latencies(lat,2));
+                tbeg = nearest(data_tla.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.time,latencies(lat,1));
+                tend = nearest(data_tla.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.time,latencies(lat,2));
               else
-                tbeg = nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,1));
-                tend = nearest(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,2));
+                tbeg = nearest(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,1));
+                tend = nearest(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.time,latencies(lat,2));
               end
               latIdx = tbeg:tend;
               
@@ -1375,10 +1383,10 @@ for sub = 1:length(exper.subjects)
               end
               
               if ~isempty(cond_str_tmp)
-                thisData = (mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1) + ...
-                  mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1)) / 2;
+                thisData = (mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1) + ...
+                  mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1)) / 2;
               else
-                thisData = mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1);
+                thisData = mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1);
               end
               anovaData(subCount,vnCount) = thisData;
               
