@@ -17,7 +17,7 @@ oldnew = {'p1', 'p2'};
 memConds = {'rc','fo'};
 
 erpComponents = {'LPC','N400','N1'};
-% erpComponents = {'LPC'};
+% erpComponents = {'N1'};
 
 % roi = { ...
 %   {{'LPS2','RPS2'}} ...
@@ -152,13 +152,13 @@ measure = 'voltage';
 % erpComp = 'N1';
 % roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
 
-% erpComp = 'N400';
-% roi = {'C'}; % centered on Cz
-% % roi = {'FS2'}; % centered on E6
+erpComp = 'N400';
+roi = {'C'}; % centered on Cz
+% roi = {'FS2'}; % centered on E6
 
-erpComp = 'LPC';
-% roi = {'RPS2'}; % centered on E85
-roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
+% erpComp = 'LPC';
+% % roi = {'RPS2'}; % centered on E85
+% roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
 
 factorNames = {'spacings', 'oldnew', 'memConds', 'roi'};
 nVariables = nan(size(factorNames));
