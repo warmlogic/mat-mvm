@@ -1273,15 +1273,72 @@ cfg_ft.xlim = (0:0.05:1.0); % time
 sesNum = 1;
 mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 
+%% line plots
+
+files.saveFigs = true;
+files.figPrintFormat = 'png';
+
+cfg_ft = [];
+cfg_ft.parameter = 'avg';
+
+cfg_plot = [];
+
+cfg_plot.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
+cfg_plot.plot_order = cfg_plot.conditions;
+cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'};
+
+
+cfg_plot.linespec = {'bx','cx','ro','mo'};
+% cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
+cfg_plot.markcolor = {'none','none','none','none'};
+cfg_plot.marksize = 20;
+
+% cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
+% lpcPeak = 0.596; % centered on E77
+% cfg_plot.latency = [lpcPeak-0.1 lpcPeak+0.1]; % time
+% cfg_plot.ylim = [1.5 5.5];
+% cfg_plot.legendloc = 'SouthWest';
+
+% cfg_plot.roi = {'C'};
+% n400Peak = 0.372; % C
+% cfg_plot.latency = [n400Peak-0.05 n400Peak+0.05]; % time
+% cfg_plot.ylim = [-2 2];
+% cfg_plot.legendloc = 'SouthWest';
+
+cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
+n1Peak = 0.172; % E58
+cfg_plot.latency = [n1Peak-0.05 n1Peak+0.05]; % time
+cfg_plot.ylim = [-2 2];
+cfg_plot.legendloc = 'NorthEast';
+
+% cfg_plot.roi = {'LPS2'};
+% 
+% % cfg_plot.latency = [0.4 0.8];
+% cfg_plot.latency = [0.5 0.8];
+% % cfg_plot.latency = [0.4 0.6];
+% % cfg_plot.latency = [0.6 0.8];
+% 
+% cfg_plot.ylim = [-1 4];
+
+cfg_plot.plotLegend = true;
+% cfg_plot.legendloc = 'SouthEast';
+cfg_plot.xlabel = '';
+
+sesNum = 1;
+mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
+
+
 %% RM ANOVA
 
 stimType = 'word_';
 % stimType = 'img_';
 memType = 'RgH_';
 
-% spacings = {'mass', 'spac', 'onePres'};
-% oldnew = {'p1'};
+% % spacings = {'mass', 'spac', 'onePres'};
+% spacings = {'mass', 'spac'};
+% % oldnew = {'p1'};
 % % oldnew = {'p2'};
+% oldnew = {'p1', 'p2'};
 % memConds = {'all'};
 
 % didn't test new words, so can't assess memory, but can use p1
@@ -1297,14 +1354,26 @@ measure = 'avg';
 
 % roi = {'LPS'};
 roi = {'LPS2'};
+latencies = [0.4 0.6; 0.604 0.804];
 % roi = {'PS'};
 % roi = {{'LPS2'},{'RPS2'}};
 % roi = {{'LPS2','RPS2'}};
 % latencies = [0.5 0.8];
 % latencies = [0.5 0.648; 0.652 0.8];
-latencies = [0.4 0.6; 0.604 0.804];
 % latencies = [0.604 0.804];
 % latencies = [0.4 0.65; 0.55 0.8];
+
+% roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
+% lpcPeak = 0.596; % centered on E77
+% latencies = [lpcPeak-0.1 lpcPeak+0.1]; % time
+
+% roi = {{'C'}};
+% n400Peak = 0.372; % C
+% latencies = [n400Peak-0.05 n400Peak+0.05]; % time
+
+% roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
+% n1Peak = 0.172; % E58
+% latencies = [n1Peak-0.05 n1Peak+0.05]; % time
 
 latency = cell(1,size(latencies,1));
 for i = 1:length(latency)
@@ -1382,7 +1451,8 @@ for sub = 1:length(exper.subjects)
           if strcmp(spacings{sp},'onePres')
             % single presentation or first presentation
             if strcmp(memConds{mc},'all')
-              cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
+              %cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
+              cond_str = sprintf('%s%s',stimType,spacings{sp});
             end
           elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
             cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
@@ -1430,7 +1500,7 @@ for sub = 1:length(exper.subjects)
               
               if ~isempty(cond_str_tmp)
                 thisData = (mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1) + ...
-                  mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1)) / 2;
+                  mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1)) ./ 2;
               else
                 thisData = mean(mean(mean(data_tla.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,latIdx),3),2),1);
               end
