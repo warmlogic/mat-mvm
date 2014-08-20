@@ -8,13 +8,18 @@ cfg = [];
 %% gather data
 
 % spacings = {'mass', 'spac', 'onePres'};
+% % oldnew = {'p1'};
 % oldnew = {'p2'};
 % memConds = {'all'};
 
-% didn't test new words, so can't assess memory, but can use p1
 spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
-memConds = {'rc','fo'};
+memConds = {'all'};
+
+% % didn't test new words, so can't assess memory, but can use p1
+% spacings = {'mass', 'spac'};
+% oldnew = {'p1', 'p2'};
+% memConds = {'rc','fo'};
 
 erpComponents = {'LPC','N400','N1'};
 % erpComponents = {'N1'};
@@ -140,6 +145,10 @@ end
 % oldnew = {'p2'};
 % memConds = {'all'};
 
+% spacings = {'mass', 'spac'};
+% oldnew = {'p1', 'p2'};
+% memConds = {'all'};
+
 % didn't test new words, so can't assess memory, but can use p1
 spacings = {'mass', 'spac'};
 oldnew = {'p1', 'p2'};
@@ -152,13 +161,13 @@ measure = 'voltage';
 % erpComp = 'N1';
 % roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
 
-erpComp = 'N400';
-roi = {'C'}; % centered on Cz
-% roi = {'FS2'}; % centered on E6
+% erpComp = 'N400';
+% roi = {'C'}; % centered on Cz
+% % roi = {'FS2'}; % centered on E6
 
-% erpComp = 'LPC';
-% % roi = {'RPS2'}; % centered on E85
-% roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
+erpComp = 'LPC';
+% roi = {'RPS2'}; % centered on E85
+roi = {'E62_E72_E76_E77_E78_E84_E85'}; % centered on E77
 
 factorNames = {'spacings', 'oldnew', 'memConds', 'roi'};
 nVariables = nan(size(factorNames));
@@ -291,49 +300,62 @@ end
 
 %% gather data for pairwise t-tests
 
-% erpComp = 'LPC';
-erpComp = 'N400';
+erpComp = 'LPC_E62_E72_E76_E77_E78_E84_E85';
+% erpComp = 'N400_C';
+% erpComp = 'N1_E50_E51_E57_E58_E59_E64_E65';
+
+spac_str = 'spac_p2_rc';
+mass_str = 'mass_p2_rc';
 
 fprintf('%s\n',erpComp);
 
-space_peak = allPeakInfo.spaced_all.(erpComp).subjects.latency(:,1);
-space_volt = allPeakInfo.spaced_all.(erpComp).subjects.voltage(:,1);
+space_peak = allPeakInfo.(spac_str).(erpComp).subjects.latency(:,1);
+space_volt = allPeakInfo.(spac_str).(erpComp).subjects.voltage(:,1);
 
-mass_peak = allPeakInfo.massed_all.(erpComp).subjects.latency(:,1);
-mass_volt = allPeakInfo.massed_all.(erpComp).subjects.voltage(:,1);
+space_mem_volt = allPeakInfo.spac_p2_rc.(erpComp).subjects.voltage(:,1) - allPeakInfo.spac_p2_fo.(erpComp).subjects.voltage(:,1);
 
-one_peak = allPeakInfo.once_all.(erpComp).subjects.latency(:,1);
-one_volt = allPeakInfo.once_all.(erpComp).subjects.voltage(:,1);
+mass_peak = allPeakInfo.(mass_str).(erpComp).subjects.latency(:,1);
+mass_volt = allPeakInfo.(mass_str).(erpComp).subjects.voltage(:,1);
+
+mass_mem_volt = allPeakInfo.mass_p2_rc.(erpComp).subjects.voltage(:,1) - allPeakInfo.mass_p2_fo.(erpComp).subjects.voltage(:,1);
+
+spacEff_rc_volt = allPeakInfo.spac_p2_rc.(erpComp).subjects.voltage(:,1) - allPeakInfo.mass_p2_rc.(erpComp).subjects.voltage(:,1);
+
+spac_repEff_rc_volt = allPeakInfo.spac_p2_all.(erpComp).subjects.voltage(:,1) - allPeakInfo.onePres_all.(erpComp).subjects.voltage(:,1);
+mass_repEff_rc_volt = allPeakInfo.mass_p2_all.(erpComp).subjects.voltage(:,1) - allPeakInfo.onePres_all.(erpComp).subjects.voltage(:,1);
+
+% one_peak = allPeakInfo.once_all.(erpComp).subjects.latency(:,1);
+% one_volt = allPeakInfo.once_all.(erpComp).subjects.voltage(:,1);
 
 %% ttest - latency
 
 fprintf('space: %.4f sec\n',mean(space_peak));
 fprintf('mass: %.4f sec\n',mean(mass_peak));
-fprintf('one: %.4f sec\n',mean(one_peak));
+% fprintf('one: %.4f sec\n',mean(one_peak));
 
 [h,p,ci,stats] = ttest(space_peak,mass_peak,'alpha',0.05,'tail','both');
 fprintf('Space vs mass: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
-[h,p,ci,stats] = ttest(space_peak,one_peak,'alpha',0.05,'tail','both');
-fprintf('Space vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+% [h,p,ci,stats] = ttest(space_peak,one_peak,'alpha',0.05,'tail','both');
+% fprintf('Space vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
-[h,p,ci,stats] = ttest(mass_peak,one_peak,'alpha',0.05,'tail','both');
-fprintf('Mass vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+% [h,p,ci,stats] = ttest(mass_peak,one_peak,'alpha',0.05,'tail','both');
+% fprintf('Mass vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
 %% ttest - voltage
 
 fprintf('space: %.4f uV\n',mean(space_volt));
 fprintf('mass: %.4f uV\n',mean(mass_volt));
-fprintf('one: %.4f uV\n',mean(one_volt));
+% fprintf('one: %.4f uV\n',mean(one_volt));
 
 [h,p,ci,stats] = ttest(space_volt,mass_volt,'alpha',0.05,'tail','both');
 fprintf('Space vs mass: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
-[h,p,ci,stats] = ttest(space_volt,one_volt,'alpha',0.05,'tail','both');
-fprintf('Space vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+% [h,p,ci,stats] = ttest(space_volt,one_volt,'alpha',0.05,'tail','both');
+% fprintf('Space vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
-[h,p,ci,stats] = ttest(mass_volt,one_volt,'alpha',0.05,'tail','both');
-fprintf('Mass vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
+% [h,p,ci,stats] = ttest(mass_volt,one_volt,'alpha',0.05,'tail','both');
+% fprintf('Mass vs one: t(%d)=%.4f, p=%.8f\n',stats.df,stats.tstat,p);
 
 
 %% voltage interaction
@@ -382,13 +404,41 @@ fprintf('Done.\n');
 
 ses = 'oneDay';
 phase = 'cued_recall';
+
 test = 'recall';
-measure = 'recall_nHit';
-% measure = 'recall_hr';
+% measure = 'recall_nHit';
+measure = 'recall_hr';
 
+% test = 'recog';
+% % measure = 'recall_nHit';
+% measure = 'recog_dp';
+
+manip = 'spaced';
+space_measure = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
 manip = 'massed';
-data1 = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
+mass_measure = results.(ses).(phase).(manip).(test).(measure)(~exper.badSub);
 
-[rho,p] = corr(data1,space_volt - one_volt);
+% [rho,p] = corr(data1,space_volt);
+% fprintf('rho=%.4f, p=%.5f\n',rho,p);
+
+[rho,p] = corr(space_measure,space_mem_volt);
+fprintf('space mem: rho=%.4f, p=%.5f\n',rho,p);
+
+[rho,p] = corr(mass_measure,mass_mem_volt);
+fprintf('mass mem: rho=%.4f, p=%.5f\n',rho,p);
+
+% [rho,p] = corr(data1,space_volt - one_volt);
 
 % [rho,p] = corr(data1,mass_volt - one_volt);
+
+spacEff_rc_measure = results.(ses).(phase).spaced.(test).(measure)(~exper.badSub) - results.(ses).(phase).massed.(test).(measure)(~exper.badSub);
+[rho,p] = corr(spacEff_rc_measure,spacEff_rc_volt);
+fprintf('spacing effect rc: rho=%.4f, p=%.5f\n',rho,p);
+
+spacEff_rc_measure = results.(ses).(phase).spaced.(test).(measure)(~exper.badSub) - ((results.(ses).(phase).spaced.(test).(measure)(~exper.badSub) + results.(ses).(phase).massed.(test).(measure)(~exper.badSub)) ./ 2);
+[rho,p] = corr(spacEff_rc_measure,spac_repEff_rc_volt);
+fprintf('spac: rep effect corr w spac minus avg recall: rho=%.4f, p=%.5f\n',rho,p);
+
+massEff_rc_measure = results.(ses).(phase).massed.(test).(measure)(~exper.badSub) - ((results.(ses).(phase).spaced.(test).(measure)(~exper.badSub) + results.(ses).(phase).massed.(test).(measure)(~exper.badSub)) ./ 2);
+[rho,p] = corr(massEff_rc_measure,mass_repEff_rc_volt);
+fprintf('mass: rep effect corr w mass minus avg recall: rho=%.4f, p=%.5f\n',rho,p);
