@@ -1288,16 +1288,16 @@ cfg_plot.plot_order = cfg_plot.conditions;
 cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'};
 
 
-cfg_plot.linespec = {'bx','cx','ro','mo'};
+cfg_plot.linespec = {'bo','cx','ro','mx'};
 % cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
 cfg_plot.markcolor = {'none','none','none','none'};
 cfg_plot.marksize = 20;
 
-% cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
-% lpcPeak = 0.596; % centered on E77
-% cfg_plot.latency = [lpcPeak-0.1 lpcPeak+0.1]; % time
-% cfg_plot.ylim = [1.5 5.5];
-% cfg_plot.legendloc = 'SouthWest';
+% cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
+% n1Peak = 0.172; % E58
+% cfg_plot.latency = [n1Peak-0.05 n1Peak+0.05]; % time
+% cfg_plot.ylim = [-2 2];
+% cfg_plot.legendloc = 'NorthEast';
 
 % cfg_plot.roi = {'C'};
 % n400Peak = 0.372; % C
@@ -1305,11 +1305,11 @@ cfg_plot.marksize = 20;
 % cfg_plot.ylim = [-2 2];
 % cfg_plot.legendloc = 'SouthWest';
 
-cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
-n1Peak = 0.172; % E58
-cfg_plot.latency = [n1Peak-0.05 n1Peak+0.05]; % time
-cfg_plot.ylim = [-2 2];
-cfg_plot.legendloc = 'NorthEast';
+cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
+lpcPeak = 0.596; % centered on E77
+cfg_plot.latency = [lpcPeak-0.1 lpcPeak+0.1]; % time
+cfg_plot.ylim = [1.5 5.5];
+cfg_plot.legendloc = 'SouthWest';
 
 % cfg_plot.roi = {'LPS2'};
 % 
@@ -1344,17 +1344,18 @@ memType = 'RgH_';
 % didn't test new words, so can't assess memory, but can use p1
 spacings = {'mass', 'spac'};
 % spacings = {'spac'};
-% oldnew = {'p1', 'p2'};
+oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
-oldnew = {'p2'};
+% oldnew = {'p2'};
 memConds = {'rc','fo'};
 % memConds = {'rc'};
 
 measure = 'avg';
 
-% roi = {'LPS'};
-roi = {'LPS2'};
-latencies = [0.4 0.6; 0.604 0.804];
+% % roi = {'LPS'};
+% roi = {'LPS2'};
+% latencies = [0.4 0.6; 0.604 0.804];
+
 % roi = {'PS'};
 % roi = {{'LPS2'},{'RPS2'}};
 % roi = {{'LPS2','RPS2'}};
@@ -1367,9 +1368,9 @@ latencies = [0.4 0.6; 0.604 0.804];
 % lpcPeak = 0.596; % centered on E77
 % latencies = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
-% roi = {{'C'}};
-% n400Peak = 0.372; % C
-% latencies = [n400Peak-0.05 n400Peak+0.05]; % time
+roi = {{'C'}};
+n400Peak = 0.372; % C
+latencies = [n400Peak-0.05 n400Peak+0.05]; % time
 
 % roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
 % n1Peak = 0.172; % E58

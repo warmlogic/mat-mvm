@@ -47,7 +47,7 @@ end
 
 if ~isfield(cfg_plot,'linespec')
   % cfg_plot.linespec = 'k--o';
-  cfg_plot.linespec = {'bx','cx','ro','mo'};
+  cfg_plot.linespec = {'bo','cx','ro','mx'};
 end
 if ~isfield(cfg_plot,'markcolor')
   %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
