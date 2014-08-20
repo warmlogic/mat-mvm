@@ -1885,7 +1885,7 @@ for sub = 1:length(exper.subjects)
               
               if ~isempty(cond_str_tmp)
                 thisData = (mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{1}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1) + ...
-                  mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1)) / 2;
+                  mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str_tmp{2}).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1)) ./ 2;
               else
                 thisData = mean(mean(mean(data_pow.(exper.sesStr{ses}).(cond_str).sub(sub).data.(measure)(chanIdx,freqIdx,latIdx),3),2),1);
               end
