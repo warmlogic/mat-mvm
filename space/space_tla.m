@@ -23,10 +23,49 @@ end
 
 % procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
 % procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 % procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_nsClassic/tla');
-% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla');
 
+% subjects = {
+%   %'SPACE001'; % low trial counts
+%   'SPACE002';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; % low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   %'SPACE030'; % low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
+%   };
 subjects = {
   %'SPACE001'; % low trial counts
   'SPACE002';
@@ -35,36 +74,36 @@ subjects = {
   'SPACE005';
   'SPACE006';
   'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
   'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019'; % low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; % low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
   'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  %'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   %'SPACE030'; % low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
   'SPACE049';
-  'SPACE036';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -607,12 +646,13 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast','SouthEast'};
 
 % LPC
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
+% cfg_plot.rois = {{'C'}};
 % cfg_plot.rois = {{'Pz'}}; % Pz
 % cfg_plot.rois = {{'PS'}}; % Centered on Pz
 % cfg_plot.rois = {{'PS2'}}; % Centered on E72
-cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
-% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+cfg_plot.rois = {{'LPS2'},{'RPS2'}};
 % cfg_plot.rois = {{'LPS2','RPS2'}};
 cfg_plot.ylims = [-1 5; -1 5];
 % cfg_plot.legendlocs = {'SouthEast'};
@@ -667,6 +707,7 @@ sesNum = 1;
 % VanSEtal2007
 cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p1', 'word_RgH_fo_spac_p1', 'word_RgH_rc_mass_p1', 'word_RgH_fo_mass_p1', 'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_RgH_rc_spac_p2', 'word_RgH_fo_spac_p2', 'word_RgH_rc_mass_p2', 'word_RgH_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p1', 'img_RgH_fo_spac_p1', 'img_RgH_rc_mass_p1', 'img_RgH_fo_mass_p1', 'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_RgH_rc_spac_p2', 'img_RgH_fo_spac_p2', 'img_RgH_rc_mass_p2', 'img_RgH_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
 
 cfg_plot.axisxy = false;
@@ -836,9 +877,10 @@ cfg_plot = [];
 % cfg_plot.rois = {{'LAS'},{'LPS'}};
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
 % cfg_plot.rois = {{'Cz'},{'Pz'}};
-cfg_plot.rois = {{'E70'},{'E83'}};
+% cfg_plot.rois = {{'E70'},{'E83'}};
 % cfg_plot.rois = {{'E72'}};
 % cfg_plot.rois = {{'LPS'}};
+cfg_plot.rois = {{'LPS2'}};
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
@@ -1015,6 +1057,11 @@ cfg_plot.rois = {{'LPS2'},{'RPS2'}};
 cfg_plot.ylims = [-1 6; -1 6];
 cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
+% % P4/E92
+% cfg_plot.rois = {{'E85','E85','E91','E92','E93','E97','E98'}};
+% cfg_plot.ylims = [-1 6];
+% cfg_plot.legendlocs = {'NorthWest'};
+
 % % E77
 % cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
 % cfg_plot.ylims = [-1 6];
@@ -1101,10 +1148,10 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Mass P1 Recalled','Mass P1 Forgot','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 
-% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
-% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'OnePres','Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 
 % cfg_plot.condByROI = repmat({{{'img_onePres','img_RgH_rc_spac_p1','img_RgH_fo_spac_p1','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
@@ -1160,15 +1207,19 @@ end
 
 %% plot the contrasts
 
+files.saveFigs = false;
+files.figPrintFormat = 'png';
+
 cfg_plot = [];
-cfg_plot.plotTitle = 1;
+cfg_plot.plotTitle = 0;
 
 cfg_ft = [];
 cfg_ft.parameter = 'avg';
 cfg_ft.interactive = 'no';
 cfg_ft.colormap = 'jet';
 %cfg_ft.colormap = 'hot';
-cfg_ft.colorbar = 'no';
+cfg_ft.colorbar = 'yes';
+% cfg_ft.colorbar = 'no';
 
 %cfg_plot.conditions = {{'all_within_types'}};
 %cfg_plot.conditions = {{'all_across_types'}};
@@ -1180,9 +1231,17 @@ cfg_ft.colorbar = 'no';
 %cfg_plot.conditions = {{'FSC','RSSI'}};
 % cfg_plot.conditions = {{'Face','House'}};
 
-% cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
-cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'},{'word_RgH_fo_spac_p2','word_RgH_fo_mass_p2'}};
-cfg_plot.cond_rename = {{'Space P2 Recalled','Mass P2 Recalled'},{'Space P2 Forgot','Mass P2 Forgot'}};
+% % cfg_plot.conditions = {{'word_RgH_rc_spac_p2','word_onePres'},{'word_RgH_rc_mass_p2','word_onePres'},{'word_RgH_fo_spac_p2','word_onePres'},{'word_RgH_fo_mass_p2','word_onePres'}};
+% cfg_plot.conditions = {{'word_RgH_rc_mass_p2','word_RgH_rc_spac_p2'},{'word_RgH_fo_mass_p2','word_RgH_fo_spac_p2'}};
+% cfg_plot.cond_rename = {{'Mass P2 Recalled','Space P2 Recalled'},{'Mass P2 Forgot','Space P2 Forgot'}};
+
+% SME - word
+cfg_plot.conditions = {{'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'},{'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}};
+cfg_plot.cond_rename = {{'Mass P2 Recalled','Mass P2 Forgot'},{'Space P2 Recalled','Space P2 Forgot'}};
+
+% SME - img
+cfg_plot.conditions = {{'img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'},{'img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}};
+cfg_plot.cond_rename = {{'Mass P2 Recalled','Mass P2 Forgot'},{'Space P2 Recalled','Space P2 Forgot'}};
 
 
 cfg_plot.ftFxn = 'ft_topoplotER';
@@ -1194,13 +1253,30 @@ cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'xlim';
 cfg_ft.commentpos = 'middletop';
 
-cfg_plot.roi = {'PI'};
+cfg_ft.shading = 'interp';
+
+% cfg_plot.roi = {'PI'};
 % cfg_plot.roi = {'E73'};
 % cfg_plot.roi = {'E70','E71','E66','E83','E76','E84'};
 % cfg_plot.roi = {'E70','E71','E66','E75','E83','E76','E84'};
 % cfg_ft.xlim = [0.01 0.8]; % time
 
+
+% cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77, LPC
+% lpcPeak = 0.596; % centered on E77
+% cfg_ft.xlim = [lpcPeak-0.1 lpcPeak+0.1]; % time
+
+% cfg_plot.roi = {'C'}; % N400
+% n400Peak = 0.372; % C
+% cfg_ft.xlim = [n400Peak-0.05 n400Peak+0.05]; % time
+
+% cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58, N1
+% n1Peak = 0.172; % E58
+% cfg_ft.xlim = [n1Peak-0.05 n1Peak+0.05]; % time
+
+
 % cfg_plot.roi = {'LPS','RPS'};
+cfg_plot.roi = {'LPS2','RPS2'};
 % cfg_ft.xlim = [0.5 0.8]; % time
 
 %cfg_plot.roi = {'RAS'};
@@ -1208,11 +1284,11 @@ cfg_plot.roi = {'PI'};
 % cfg_ft.xlim = [0 1.5]; % time
 % cfg_plot.roi = {'all'};
 
-% cfg_plot.subplot = 1;
+cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
-% cfg_ft.xlim = (0:0.05:1.0); % time
+cfg_ft.xlim = (0:0.05:1.0); % time
 
-cfg_ft.xlim = [0.13 0.19];
+% cfg_ft.xlim = [0.13 0.19];
 % cfg_ft.xlim = [0.14 0.19];
 
 % cfg_plot.ftFxn = 'ft_multiplotER';
@@ -1252,12 +1328,15 @@ memConds = {'rc','fo'};
 
 measure = 'avg';
 
+% roi = {'LPS'};
 roi = {'LPS2'};
+% roi = {'PS'};
 % roi = {{'LPS2'},{'RPS2'}};
 % roi = {{'LPS2','RPS2'}};
 % latencies = [0.5 0.8];
+% latencies = [0.5 0.648; 0.652 0.8];
 latencies = [0.4 0.6; 0.604 0.804];
-latencies = [0.604 0.804];
+% latencies = [0.604 0.804];
 % latencies = [0.4 0.65; 0.55 0.8];
 
 latency = cell(1,size(latencies,1));
