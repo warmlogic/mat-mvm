@@ -1404,8 +1404,9 @@ cfg.nCol = 3;
 % finding significantly different electrodes across the entire scalp
 files.saveFigs = false;
 cfg.rois = {{'C'}};
-cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
-% cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+% cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}};
+cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_fo_spac_p2','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2'}};
+
 % cfg.conditions = {{'word_RgH_rc_spac_p2','word_RgH_rc_mass_p2'}};
 % cfg.conditions = {{'img_RgH_rc_spac_p2','img_RgH_rc_mass_p2'}};
 % cfg.clusTimes = cfg_ana.latencies; % actual stats
@@ -1415,8 +1416,8 @@ cfg.clusTimes = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % both halves
 
 % cfg.freqs = ana.freq.theta;
 % cfg.freqs = ana.freq.alpha_lower;
-cfg.freqs = ana.freq.alpha_upper;
-% cfg.freqs = ana.freq.beta_lower;
+% cfg.freqs = ana.freq.alpha_upper;
+cfg.freqs = ana.freq.beta_lower;
 cfg.sigElecAnyTime = true;
 % =====================================================================
 
@@ -1548,7 +1549,7 @@ cfg_plot.conditions = {...
 
 cfg_ft = [];
 
-% cfg_ft.ylim = ana.freq.theta;
+cfg_ft.ylim = ana.freq.theta;
 % cfg_ft.ylim = ana.freq.alpha_lower;
 % cfg_ft.ylim = ana.freq.alpha_upper;
 % cfg_ft.ylim = ana.freq.beta_lower;
@@ -1581,8 +1582,9 @@ cfg_ft.markerfontsize = 9;
 cfg_ft.comment = 'no';
 %cfg_ft.xlim = [0.5 0.8]; % time
 cfg_plot.subplot = 0;
-% cfg_ft.xlim = [0 0.5]; % time
-cfg_ft.xlim = [0.52 1.0]; % time
+cfg_ft.xlim = [0 0.5]; % time
+% cfg_ft.xlim = [0.52 1.0]; % time
+
 % cfg_plot.subplot = 1;
 % cfg_ft.xlim = [0 1.0]; % time
 %cfg_ft.xlim = (0:0.05:1.0); % time
@@ -1605,8 +1607,8 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_pow,ses);
 
 %% RM ANOVA
 
-stimType = 'word_';
-% stimType = 'img_';
+% stimType = 'word_';
+stimType = 'img_';
 memType = 'RgH_';
 
 % spacings = {'mass', 'spac', 'onePres'};
@@ -1638,8 +1640,8 @@ roi = {sigElecs};
 % freqs = ana.freq.theta;
 % % freqs = ana.freq.alpha;
 % freqs = ana.freq.alpha_lower;
-freqs = ana.freq.alpha_upper;
-% freqs = ana.freq.beta_lower;
+% freqs = ana.freq.alpha_upper;
+freqs = ana.freq.beta_lower;
 
 
 % % % theta
