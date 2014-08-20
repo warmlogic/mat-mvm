@@ -47,11 +47,12 @@ end
 
 if ~isfield(cfg_plot,'linespec')
   % cfg_plot.linespec = 'k--o';
-  cfg_plot.linespec = {'ro','mo','bx','cx'};
+  cfg_plot.linespec = {'bx','cx','ro','mo'};
 end
 if ~isfield(cfg_plot,'markcolor')
   %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
-  cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
+  %cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
+  cfg_plot.markcolor = {'none','none','none','none','none','none','none','none','none'};
 end
 
 if ~isfield(cfg_plot,'plotLegend')
@@ -73,13 +74,13 @@ end
 
 % set up how the lines will look
 if ~isfield(cfg_plot,'linewidth')
-  cfg_plot.linewidth = 2;
+  cfg_plot.linewidth = 3;
 end
 if ~isfield(cfg_plot,'marksize')
   cfg_plot.marksize = 10;
 end
 if ~isfield(cfg_plot,'errwidth')
-  cfg_plot.errwidth = 1;
+  cfg_plot.errwidth = 2;
 end
 cfg_plot.errBarEndMarkerInd = [4 5 7 8];
 if ~isfield(cfg_plot,'removeErrBarEnds')
@@ -274,7 +275,7 @@ if ~isfield(files,'figFontName')
 end
 publishfig(gcf,0,[],[],files.figFontName);
 if files.saveFigs
-  cfg_plot.figfilename = sprintf('tla_line_ga_%s%s%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,cfg_plot.latency(1)*1000,cfg_plot.latency(2)*1000,cfg_plot.label_str);
+  cfg_plot.figfilename = sprintf('tla_line_ga_%s%s%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),cfg_plot.label_str);
   dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tla_line');
   if ~exist(dirs.saveDirFigsLine,'dir')
     mkdir(dirs.saveDirFigsLine)
