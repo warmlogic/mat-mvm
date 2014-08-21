@@ -1073,7 +1073,7 @@ mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
 %% line plots
 
-files.saveFigs = false;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
@@ -1102,8 +1102,10 @@ cfg_plot.legendloc = 'SouthEast';
 
 cfg_plot.ylim = [-1 1];
 
-cfg_plot.latency = [0 0.5];
-cfg_plot.latency = [0.5 1.0];
+cfg_plot.latency = [0 0.5; 0.5 1.0];
+% cfg_plot.latency = [0 0.333; 0.333 0.666; 0.666 1.0];
+% cfg_plot.latency = [0 0.5];
+% cfg_plot.latency = [0.5 1.0];
 
 cfg_plot.plotLegend = true;
 cfg_plot.xlabel = '';
