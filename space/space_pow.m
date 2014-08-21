@@ -1014,7 +1014,7 @@ cfg.times = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
 % cfg.freqs = ana.freq.alpha_upper;
 % cfg.rois = {{}};
 
-% cfg.freqs = ana.freq.theta;
+cfg.freqs = ana.freq.theta;
 % cfg.freqs = ana.freq.alpha_lower;
 % cfg.freqs = ana.freq.alpha_upper;
 % cfg.freqs = ana.freq.beta_lower;
@@ -1023,13 +1023,18 @@ cfg.rois = {sigElecs};
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
 
-cfg.conditions = {{'word_onePres','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}};
+% cfg.conditions = {{'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}};
 % cfg.conditions = {{'img_onePres','img_RgH_rc_mass_p2','img_RgH_fo_mass_p2','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}};
+% cfg.rename_conditions = {{'OnePres','Mass P2 Recall','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'}};
+% cfg.graphcolor = 'kbcrm';
+% cfg.linestyle = {'-','-','--','-','--'};
 
-cfg.rename_conditions = {{'OnePres','Mass P2 Recall','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'}};
+% cfg.conditions = {{'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}};
+cfg.conditions = {{'img_RgH_rc_mass_p2','img_RgH_fo_mass_p2','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}};
+cfg.rename_conditions = {{'Mass P2 Recall','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'}};
+cfg.graphcolor = 'bcrm';
+cfg.linestyle = {'-','--','-','--'};
 
-cfg.graphcolor = 'kbcrm';
-cfg.linestyle = {'-','-','--','-','--'};
 
 cfg.plotTitle = false;
 cfg.plotLegend = true;
@@ -1065,6 +1070,46 @@ mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 % mm_ft_clusterplotTFR
 
 % nk_ft_avgpowerbytime - see cosi2_ft_seg_pow line 1158
+
+%% line plots
+
+files.saveFigs = false;
+files.figPrintFormat = 'png';
+
+cfg_ft = [];
+cfg_ft.parameter = 'powspctrm';
+
+cfg_plot = [];
+
+cfg_plot.conditions = {'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'};
+cfg_plot.plot_order = cfg_plot.conditions;
+cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'};
+
+cfg_plot.ylabel = 'Z-Transformed Power';
+
+cfg_plot.linespec = {'bo','cx','ro','mx'};
+% cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
+cfg_plot.markcolor = {'none','none','none','none'};
+cfg_plot.marksize = 20;
+
+cfg_plot.freqs = ana.freq.theta;
+% cfg_plot.freqs = ana.freq.alpha_lower;
+% cfg_plot.freqs = ana.freq.alpha_upper;
+% cfg_plot.freqs = ana.freq.beta_lower;
+cfg_plot.roi = sigElecs;
+
+cfg_plot.legendloc = 'SouthEast';
+
+cfg_plot.ylim = [-1 1];
+
+cfg_plot.latency = [0 0.5];
+cfg_plot.latency = [0.5 1.0];
+
+cfg_plot.plotLegend = true;
+cfg_plot.xlabel = '';
+
+sesNum = 1;
+mm_ft_lineplotTFR_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_pow);
 
 %% descriptive statistics: ttest
 
@@ -1414,10 +1459,10 @@ cfg.clusTimes = [0.02:0.1:0.92; 0.1:0.1:1.0]'; % both halves
 % cfg.clusTimes = [0.02:0.1:0.42; 0.1:0.1:0.5]'; % first half
 % cfg.clusTimes = [0.52:0.1:0.92; 0.6:0.1:1.0]'; % second half
 
-% cfg.freqs = ana.freq.theta;
+cfg.freqs = ana.freq.theta;
 % cfg.freqs = ana.freq.alpha_lower;
 % cfg.freqs = ana.freq.alpha_upper;
-cfg.freqs = ana.freq.beta_lower;
+% cfg.freqs = ana.freq.beta_lower;
 cfg.sigElecAnyTime = true;
 % =====================================================================
 
