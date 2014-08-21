@@ -14,7 +14,7 @@ if ~isfield(cfg_plot,'xlabel')
   cfg_plot.xlabel = 'Conditions';
 end
 if ~isfield(cfg_plot,'ylabel')
-  cfg_plot.ylabel = 'Voltage (\muV)';
+  cfg_plot.ylabel = 'Power';
 end
 cfg_plot.label_str = '';
 if isfield(cfg_plot,'xlabel') && ~isempty(cfg_plot.xlabel)
@@ -84,24 +84,6 @@ if ~isfield(cfg_plot,'removeErrBarEnds')
   cfg_plot.removeErrBarEnds = true;
 end
 
-
-% if ~isfield(cfg_ft,'fontsize')
-%   cfg_ft.fontsize = 9;
-% end
-% if ~isfield(cfg_ft,'graphcolor')
-%   cfg_ft.graphcolor = 'rbkgcmyrbkgcmyrbkgcmy';
-% end
-% if ~isfield(cfg_ft,'linestyle')
-%   cfg_ft.linestyle = {'-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.','-','--','-.'};
-% end
-% if ~isfield(cfg_ft,'markerstyle')
-%   cfg_ft.markerstyle = {'o','o','o','o','o','o','o','s','s','s','s','s','s','s'};
-% end
-% if ~isfield(cfg_plot,'excludeBadSub')
-%   cfg_plot.excludeBadSub = 1;
-% end
-
-
 if ~isfield(cfg_plot,'roi')
   error('Must specify either ROI names or channel names in cfg_plot.roi');
 elseif isfield(cfg_plot,'roi')
@@ -113,49 +95,6 @@ elseif isfield(cfg_plot,'roi')
     cfg_ft.channel = cfg_plot.roi;
   end
 end
-
-% cfg_ga = [];
-% cfg_ga.parameter = 'avg';
-% cfg_ga.latency = cfg_ft.latency;
-% cfg_ga.keepindividual = 'no';
-% cfg_ga.channel = cfg_ft.channel;
-% 
-% for ev = 1:length(cfg_plot.conditions)
-%   cfg = [];
-%   cfg.conditions = cfg_plot.conditions{ev};
-%   cfg.data_str = 'data';
-%   cfg.is_ga = cfg_plot.is_ga;
-%   cfg.excludeBadSub = cfg_plot.excludeBadSub;
-%   ana_str = mm_catSubStr_multiSes2(cfg,exper,sesNum);
-%   
-%   ga = eval(sprintf('ft_timelockgrandaverage(cfg_ga,%s);',ana_str.(cfg_plot.conditions{ev})));
-%   
-%   %[data_sel1,data_sel2] = eval(sprintf('ft_selectdata_new(cfg_ft,%s);',ana_str.(cfg_plot.conditions{ev})));
-%   
-%   figure
-%   eval(sprintf('ft_singleplotER(cfg_ft,%s);',ana_str));
-%   legend_conds = repmat(cfg_plot.conditions,1,length(sesNum));
-%   if length(sesNum) > 1
-%     condInd = 0;
-%     for ses = 1:length(sesNum)
-%       %legend(strrep(cfg_plot.conditions,'_','-'),'Location',cfg_plot.legendloc);
-%       for c = 1:length(cfg_plot.conditions)
-%         condInd = condInd + 1;
-%         legend_conds{condInd} = sprintf('%s-%s',legend_conds{condInd},exper.sesStr{sesNum(ses)});
-%       end
-%     end
-%   end
-%   legend(strrep(legend_conds,'_','-'),'Location',cfg_plot.legendloc);
-%   set(gcf,'Name',sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}));
-%   
-%   plot([cfg_ft.xlim(1) cfg_ft.xlim(2)],[0 0],'k--'); % horizontal
-%   plot([0 0],[cfg_ft.ylim(1) cfg_ft.ylim(2)],'k--'); % vertical
-%   
-%   if cfg_plot.axisxy
-%     %axis xy;
-%     set(gca,'YDir','reverse');
-%   end
-% end
 
 numSub = length(exper.subjects) - sum(exper.badSub(:,sesNum));
 cfg_ana = struct;
@@ -190,16 +129,17 @@ for evVal = 1:length(cfg_plot.conditions)
       tend = nearest(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time,cfg_plot.latency(2));
       cfg_ana.timesel.(ev)(tbeg:tend) = true;
       
+      cfg_ana.freqsel.(ev) = false(size(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.freq));
+      fbeg = nearest(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.freq,cfg_plot.freqs(1));
+      fend = nearest(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.freq,cfg_plot.freqs(2));
+      cfg_ana.freqsel.(ev)(fbeg:fend) = true;
       
-      %cfg_ana.timesel.(ev) = find(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time >= cfg_plot.latency(1) & data.(exper.sesStr{sesNum}).(ev).sub(sub).data.time <= cfg_plot.latency(2));
-      %cfg_ana.values.(ev)(goodSubInd,sesNum) = mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
-      cfg_ana.values.(ev)(goodSubInd) = mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.timesel.(ev)),1),2);
+      cfg_ana.values.(ev)(goodSubInd) = mean(mean(mean(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.(cfg_ft.parameter)(cfg_ana.chansel,cfg_ana.freqsel.(ev),cfg_ana.timesel.(ev)),3),2),1);
     end
     %end % ses
   end % sub
   cfg_ana.sem.(ev) = std(cfg_ana.values.(ev))/sqrt(length(cfg_ana.values.(ev)));
 end % evVal
-
 
 
 % do the mean amplitude line plots
@@ -212,7 +152,6 @@ end
 if ~isfield(cfg_plot,'xlim')
   cfg_plot.xlim = [0 length(cfg_plot.conditions)+0.5];
 end
-
 
 
 figure
@@ -272,8 +211,8 @@ if ~isfield(files,'figFontName')
 end
 publishfig(gcf,0,[],[],files.figFontName);
 if files.saveFigs
-  cfg_plot.figfilename = sprintf('tla_line_ga_%s%s%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),cfg_plot.label_str);
-  dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tla_line');
+  cfg_plot.figfilename = sprintf('tfr_line_ga_%s%s%d_%d_%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,round(cfg_plot.latency(1)*1000),round(cfg_plot.latency(2)*1000),round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),cfg_plot.label_str);
+  dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_line');
   if ~exist(dirs.saveDirFigsLine,'dir')
     mkdir(dirs.saveDirFigsLine)
   end
