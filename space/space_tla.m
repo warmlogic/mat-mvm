@@ -1014,30 +1014,48 @@ cfg_plot.excludeBadSub = 1;
 
 cfg_plot.ftFxn = 'ft_singleplotER';
 
-cfg_plot.rois = {{'LPS2'},{'RPS2'}};
-cfg_plot.ylims = [-1 6; -1 6];
-cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+% % N1 @ T5/T6
+% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}};
+% cfg_plot.ylims = [-3 4; -3 4];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+% n1Peak = 0.172; % E58
+% cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
+
+% % N400 @ C
+% % cfg_plot.rois = {{'FS'}};
+% % cfg_plot.rois = {{'LAS'}};
+% cfg_plot.rois = {{'C'}};
+% cfg_plot.ylims = [-3 4];
+% cfg_plot.legendlocs = {'NorthEast'};
+% n400Peak = 0.372; % C
+% cfg_plot.x_bounds = [n400Peak-0.05 n400Peak+0.05]; % time
+
+% % LPC @ E77
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
+cfg_plot.ylims = [-1 6];
+cfg_plot.legendlocs = {'NorthWest'};
+lpcPeak = 0.596; % centered on E77
+cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
+
+cfg_plot.condByROI = repmat({{{'word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+cfg_ft.graphcolor = 'kgrm';
+cfg_ft.linestyle = {'-','--','-','--'};
+% cfg_plot.condByROI = repmat({{{'word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_ft.graphcolor = 'kgbc';
+% cfg_ft.linestyle = {'-','--','-','--'};
+
+
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.ylims = [-1 6; -1 6];
+% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
 % % P4/E92
 % cfg_plot.rois = {{'E85','E85','E91','E92','E93','E97','E98'}};
 % cfg_plot.ylims = [-1 6];
 % cfg_plot.legendlocs = {'NorthWest'};
-
-% % E77
-% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
-% cfg_plot.ylims = [-1 6];
-% cfg_plot.legendlocs = {'NorthWest'};
-
-% cfg_plot.rois = {{'FS'}};
-% % cfg_plot.rois = {{'LAS'}};
-% % cfg_plot.rois = {{'C'}};
-% cfg_plot.ylims = [-3 4];
-% cfg_plot.legendlocs = {'NorthEast'};
-
-% % T5/T6
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
-% cfg_plot.ylims = [-3 4; -3 4];
-% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_plot.rois = {{'FS'},{'LAS'},{'RAS'},{'LAS','RAS'},{'LPS'},{'RPS'},{'LPS','RPS'}};
 % cfg_plot.ylims = [-4.5 2.5; -4.5 2.5; -4.5 2.5; -4.5 2.5; -2 5; -2 5; -2 5];
@@ -1109,10 +1127,11 @@ cfg_plot.ylabel = 'Voltage (\muV)';
 % cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Mass P1 Recalled','Mass P1 Forgot','Space P2 Recalled','Space P2 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_spac_p1','word_RgH_fo_spac_p1','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{{'word_onePres','word_RgH_rc_mass_p1','word_RgH_fo_mass_p1','word_RgH_rc_mass_p2','word_RgH_fo_mass_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+
 
 % cfg_plot.condByROI = repmat({{{'img_onePres','img_RgH_rc_spac_p1','img_RgH_fo_spac_p1','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'OnePres','Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
@@ -1140,6 +1159,9 @@ sesNum = 1;
 % cfg_plot.labelFontSize = 24;
 cfg_plot.legendFontSize = 16;
 
+files.saveFigs = true;
+files.figPrintFormat = 'png';
+
 for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
@@ -1158,9 +1180,9 @@ for r = 1:length(cfg_plot.rois)
       cfg_plot.legendloc = cfg_plot.legendlocs{r};
     end
     
-    if exist('linspecer','file')
-      cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions{1}));
-    end
+%     if exist('linspecer','file')
+%       cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions{1}));
+%     end
   end
   
   mm_ft_plotER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);

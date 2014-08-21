@@ -676,7 +676,8 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.35 0.35]);
+ylim([0.3 0.8]);
+ylim([0.8 1.3]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -684,7 +685,7 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \\times  Memory \\times  Time: %s',data_str));
+title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
 legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
 
 % ticFontSize = 20;

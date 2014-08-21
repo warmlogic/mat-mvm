@@ -720,7 +720,7 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \\times  Memory \\times  Time: %s',data_str));
+title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
 legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
 
 % ticFontSize = 20;
