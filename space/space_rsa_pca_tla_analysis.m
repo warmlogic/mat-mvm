@@ -457,16 +457,16 @@ plotSub = true;
 
 if plotMeanLine
   s_mark = 'ro-';
-  m_mark = 'bx--';
+  m_mark = 'bs--';
 else
   s_mark = 'ro';
-  m_mark = 'bx';
+  m_mark = 'bs';
 end
 
 if plotSub
   subSpacing = 0.1;
   s_mark_sub = 'ro';
-  m_mark_sub = 'bx';
+  m_mark_sub = 'bs';
 end
 
 meanSizeR = 20;
@@ -547,10 +547,10 @@ plotSubLines = false;
 
 if plotMeanLines
   s_mark = 'ro-';
-  m_mark = 'bx--';
+  m_mark = 'bs--';
 else
   s_mark = 'ro';
-  m_mark = 'bx';
+  m_mark = 'bs';
 end
 
 meanSize = 20;
@@ -559,10 +559,10 @@ if plotSub
   subSpacing = 0.1;
   if plotSubLines
     s_mark_sub = 'ro-';
-    m_mark_sub = 'bx--';
+    m_mark_sub = 'bs--';
   else
     s_mark_sub = 'ro';
-    m_mark_sub = 'bx';
+    m_mark_sub = 'bs';
   end
 end
 
@@ -635,13 +635,13 @@ plotSubLines = false;
 
 if plotMeanLines
   s_rc_mark = 'ro-';
-  s_fo_mark = 'mo--';
-  m_rc_mark = 'bx-';
+  s_fo_mark = 'mx--';
+  m_rc_mark = 'bo-';
   m_fo_mark = 'cx--';
 else
   s_rc_mark = 'ro';
-  s_fo_mark = 'mo';
-  m_rc_mark = 'bx';
+  s_fo_mark = 'mx';
+  m_rc_mark = 'bo';
   m_fo_mark = 'cx';
 end
 
@@ -652,13 +652,13 @@ if plotSub
   subSpacing = 0.2;
   if plotSubLines
     s_rc_mark_sub = 'ro-';
-    s_fo_mark_sub = 'mo--';
-    m_rc_mark_sub = 'bx-';
+    s_fo_mark_sub = 'mx--';
+    m_rc_mark_sub = 'bo-';
     m_fo_mark_sub = 'cx--';
   else
     s_rc_mark_sub = 'ro';
-    s_fo_mark_sub = 'mo';
-    m_rc_mark_sub = 'bx';
+    s_fo_mark_sub = 'mx';
+    m_rc_mark_sub = 'bo';
     m_fo_mark_sub = 'cx';
   end
 end
@@ -727,5 +727,5 @@ legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Spa
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
 
-print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
 % % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));

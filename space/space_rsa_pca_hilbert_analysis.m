@@ -421,16 +421,16 @@ plotSub = true;
 
 if plotMeanLine
   s_mark = 'ro-';
-  m_mark = 'bx--';
+  m_mark = 'bs--';
 else
   s_mark = 'ro';
-  m_mark = 'bx';
+  m_mark = 'bs';
 end
 
 if plotSub
   subSpacing = 0.1;
   s_mark_sub = 'ro';
-  m_mark_sub = 'bx';
+  m_mark_sub = 'bs';
 end
 
 meanSizeR = 20;
@@ -511,10 +511,10 @@ plotSubLines = false;
 
 if plotMeanLines
   s_mark = 'ro-';
-  m_mark = 'bx--';
+  m_mark = 'bs--';
 else
   s_mark = 'ro';
-  m_mark = 'bx';
+  m_mark = 'bs';
 end
 
 meanSize = 20;
@@ -523,10 +523,10 @@ if plotSub
   subSpacing = 0.1;
   if plotSubLines
     s_mark_sub = 'ro-';
-    m_mark_sub = 'bx--';
+    m_mark_sub = 'bs--';
   else
     s_mark_sub = 'ro';
-    m_mark_sub = 'bx';
+    m_mark_sub = 'bs';
   end
 end
 
@@ -599,13 +599,13 @@ plotSubLines = false;
 
 if plotMeanLines
   s_rc_mark = 'ro-';
-  s_fo_mark = 'mo--';
-  m_rc_mark = 'bx-';
+  s_fo_mark = 'mx--';
+  m_rc_mark = 'bo-';
   m_fo_mark = 'cx--';
 else
   s_rc_mark = 'ro';
-  s_fo_mark = 'mo';
-  m_rc_mark = 'bx';
+  s_fo_mark = 'mx';
+  m_rc_mark = 'bo';
   m_fo_mark = 'cx';
 end
 
@@ -616,13 +616,13 @@ if plotSub
   subSpacing = 0.2;
   if plotSubLines
     s_rc_mark_sub = 'ro-';
-    s_fo_mark_sub = 'mo--';
-    m_rc_mark_sub = 'bx-';
+    s_fo_mark_sub = 'mx--';
+    m_rc_mark_sub = 'bo-';
     m_fo_mark_sub = 'cx--';
   else
     s_rc_mark_sub = 'ro';
-    s_fo_mark_sub = 'mo';
-    m_rc_mark_sub = 'bx';
+    s_fo_mark_sub = 'mx';
+    m_rc_mark_sub = 'bo';
     m_fo_mark_sub = 'cx';
   end
 end
@@ -676,8 +676,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([0.3 0.8]);
-ylim([0.8 1.3]);
+ylim([-0.35 0.35]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -685,7 +684,7 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
-title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
+title(sprintf('Spacing \\times  Memory \\times  Time: %s',data_str));
 legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
 
 % ticFontSize = 20;
