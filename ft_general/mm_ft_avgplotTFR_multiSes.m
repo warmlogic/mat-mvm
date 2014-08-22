@@ -1,5 +1,5 @@
-function mm_ft_lineplotTFR_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data)
-%MM_FT_LINEPLOTTFR_MULTISES Line plot of Time-Freq data
+function mm_ft_avgplotTFR_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data)
+%MM_FT_AVGPLOTTFR_MULTISES - Plots of average Time-Frequency data, support for multiple time windows
 %
 
 if ~isfield(cfg_ft,'parameter')
