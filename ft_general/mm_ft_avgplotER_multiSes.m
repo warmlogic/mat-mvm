@@ -1,5 +1,5 @@
-function mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data)
-%MM_FT_LINEPLOTER_MULTISES Line plot of ERP data
+function mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data)
+%MM_FT_AVGPLOTER_MULTISES - Plots of average ERP data, support for multiple time windows
 %   
 
 if ~isfield(cfg_ft,'parameter')
