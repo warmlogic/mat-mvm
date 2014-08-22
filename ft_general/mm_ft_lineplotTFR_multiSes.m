@@ -144,7 +144,7 @@ for lat = 1:size(cfg_plot.latency,1)
           % find the channel indices for averaging
           cfg_ana.chansel = ismember(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.label,cfg_plot.roi);
           if length(cfg_plot.roi) <= 10
-          cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_ft.channel)),cfg_ft.channel{:});
+            cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_ft.channel)),cfg_ft.channel{:});
           else
             cfg_plot.chan_str = sprintf('%dROI',length(cfg_plot.roi));
           end
@@ -164,7 +164,7 @@ for lat = 1:size(cfg_plot.latency,1)
       end
       %end % ses
     end % sub
-    cfg_ana.sem.(ev) = std(cfg_ana.values.(ev))/sqrt(length(cfg_ana.values.(ev)));
+    cfg_ana.sem.(ev) = std(cfg_ana.values.(ev)) ./ sqrt(length(cfg_ana.values.(ev)));
   end % evVal
   
   % do the mean amplitude line plots
@@ -202,7 +202,7 @@ end
 
 hold off
 
-set(gcf,'Name',sprintf('%s, %s s',strrep(cfg_plot.chan_str,'_',' '),lat_str(2:end)))
+set(gcf,'Name',sprintf('%s, %s ms',strrep(cfg_plot.chan_str,'_',' '),lat_str(2:end)))
 
 % make it look good
 axis([.5 (xIndCounter + .5) cfg_plot.ylim(1) cfg_plot.ylim(2)])
@@ -242,6 +242,4 @@ if files.saveFigs
   print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename));
 end
 
-
 end
-
