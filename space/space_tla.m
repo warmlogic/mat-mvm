@@ -298,6 +298,7 @@ ana.eventValues = ana.eventValuesSplit;
 saveDir = dirs.saveDirProc;
 % save(fullfile(saveDir,'space_word_img_data_ga_tla.mat'),'data_tla','ga_tla','exper','ana','dirs','files','-v7.3');
 save(fullfile(saveDir,'space_word_img_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
+% save(fullfile(saveDir,'space_word_img_hit_miss_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
 % clear data_tla
 
 %% load
