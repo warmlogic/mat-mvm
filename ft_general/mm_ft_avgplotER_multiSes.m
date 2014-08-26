@@ -35,12 +35,19 @@ end
 
 if ~isfield(cfg_plot,'linespec')
   % cfg_plot.linespec = 'k--o';
-  cfg_plot.linespec = {'bo','cx','ro','mx'};
+  cfg_plot.linespec = {'bo','cx','ro','mx','bs','c^','rs','m^'};
 end
 if ~isfield(cfg_plot,'markcolor')
   %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
   %cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
   cfg_plot.markcolor = {'none','none','none','none','none','none','none','none','none'};
+end
+
+if length(cfg_plot.linespec) < length(cfg_plot.conditions)
+  error('Not enough cfg_plot.linespec (%d) specified for the number of conditions (%d)',length(cfg_plot.linespec),length(cfg_plot.conditions));
+end
+if length(cfg_plot.markcolor) < length(cfg_plot.conditions)
+  error('Not enough cfg_plot.markcolor (%d) specified for the number of conditions (%d)',length(cfg_plot.markcolor),length(cfg_plot.conditions));
 end
 
 if ~isfield(cfg_plot,'condNamesAtBottom')
