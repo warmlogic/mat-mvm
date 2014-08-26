@@ -1112,7 +1112,7 @@ cfg_plot.plotLegend = true;
 cfg_plot.xlabel = '';
 
 sesNum = 1;
-mm_ft_lineplotTFR_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_pow);
+mm_ft_avgplotTFR_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_pow);
 
 %% descriptive statistics: ttest
 

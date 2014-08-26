@@ -1445,7 +1445,7 @@ cfg_plot.plotLegend = true;
 cfg_plot.xlabel = '';
 
 sesNum = 1;
-mm_ft_lineplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
+mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
 
 
 %% RM ANOVA
