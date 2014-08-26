@@ -43,8 +43,12 @@ if ~isfield(cfg_plot,'markcolor')
   cfg_plot.markcolor = {'none','none','none','none','none','none','none','none','none'};
 end
 
+if ~isfield(cfg_plot,'condNamesAtBottom')
+  cfg_plot.condNamesAtBottom = true;
+end
+
 if ~isfield(cfg_plot,'plotLegend')
-  cfg_plot.plotLegend = 0;
+  cfg_plot.plotLegend = false;
 elseif isfield(cfg_plot,'plotLegend') && cfg_plot.plotLegend
   if ~isfield(cfg_plot,'legendtext')
     %cfg_plot.legendtext = {'Data'};
@@ -187,7 +191,11 @@ for lat = 1:size(cfg_plot.latency,1)
       set(h,'Children',chil);
     end
     % plot the markers
-    h_d(c) = plot(c,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_plot.linespec{c},'LineWidth',cfg_plot.linewidth,'MarkerSize',cfg_plot.marksize,'MarkerFaceColor',cfg_plot.markcolor{c});
+    h_d(c) = plot(xIndCounter,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_plot.linespec{c},'LineWidth',cfg_plot.linewidth,'MarkerSize',cfg_plot.marksize,'MarkerFaceColor',cfg_plot.markcolor{c});
+    
+    if cfg_plot.condNamesAtBottom
+      text(xIndCounter,cfg_plot.ylim(1)-.2, cfg_plot.rename_conditions{c}, 'Rotation', 15, 'FontSize', 18, 'HorizontalAlignment', 'center');
+    end
   end
 end
 

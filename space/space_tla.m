@@ -1440,7 +1440,8 @@ cfg_plot.legendloc = 'SouthWest';
 % 
 % cfg_plot.ylim = [-1 4];
 
-cfg_plot.plotLegend = true;
+cfg_plot.condNamesAtBottom = true;
+cfg_plot.plotLegend = false;
 % cfg_plot.legendloc = 'SouthEast';
 cfg_plot.xlabel = '';
 
