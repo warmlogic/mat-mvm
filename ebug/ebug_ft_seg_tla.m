@@ -17,14 +17,15 @@ exper.sampleRate = 250;
 % type of NS file for FieldTrip to read; raw or sbin must be put in
 % dirs.dataroot/ns_raw; egis must be put in dirs.dataroot/ns_egis
 % exper.eegFileExt = 'egis';
-exper.eegFileExt = 'raw';
+% exper.eegFileExt = 'raw';
+exper.eegFileExt = 'mff';
 
 % types of events to find in the NS file; these must be the same as the
 % events in the NS files; or space_trialfun.m must be set up to find the
 % corrct events
-% exper.eventValues = {{'match_stim'}};
+exper.eventValues = {{'match_stim'}};
+% exper.eventValues = {{'match_stim'}, {'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'match_stim'}, {'match_stim'}};
-exper.eventValues = {{'match_stim'}, {'match_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}};
 % exper.eventValues = {{'match_stim'}, {'nametrain_stim', 'name_stim'}, ...
 %   {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, {'name_stim'}, ...
@@ -34,8 +35,8 @@ exper.eventValues = {{'match_stim'}, {'match_stim'}};
 % Construct as a cell with one Nx2 matrix per session where N is
 % length(exper.eventValues{ses}) Order must correspond to the event order
 % in exper.eventValues.
-% exper.prepost = {[-0.2 1.0]};
-exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
+exper.prepost = {[-0.2 1.0]};
+% exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0; -0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
@@ -61,7 +62,7 @@ exper.subjects = {
 %     'EBUG022';
 %     'EBUG025';
 %     'EBUG027';
-    'EBUG029';
+%     'EBUG029';
 %     'EBUG032';
 %     'EBUG034';
 %     'EBUG043';
@@ -74,9 +75,9 @@ exper.subjects = {
 % necessarily the session directory names where the FieldTrip data is saved
 % for each subject because of the option to combine sessions. See 'help
 % create_ft_struct' for more information.
-% exper.sessions = {{'session_1'}};
+exper.sessions = {{'session_1'}};
 % exper.sessions = {{'session_2'}};
-exper.sessions = {{'session_8'}, {'session_9'}};
+% exper.sessions = {{'session_8'}, {'session_9'}};
 % exper.sessions = {{'session_1'}, {'session_8'}, {'session_9'}};
 % exper.sessions = {...
 %   {'session_1'}, ...
@@ -130,6 +131,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
+% ana.trialFxn = 'ebug_trialfun';
 ana.trialFxn = 'ebug_trialfun_mff';
 ana.allowTrialOverlap = false;
 ana.renumberSamplesContiguous = false;
@@ -144,8 +146,8 @@ ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
   %ana.sessionNames = {'pretest','train1','train2','train3','train4','train5','train6','posttest','posttest_delay'};
-%   ana.sessionNames = {'pretest'};
-  ana.sessionNames = {'posttest','posttest_delay'};
+  ana.sessionNames = {'pretest'};
+%   ana.sessionNames = {'posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest','posttest','posttest_delay'};
 %   ana.sessionNames = {'pretest', 'train1'};
 %   ana.sessionNames = {'train1'};
@@ -157,8 +159,8 @@ if ana.useExpInfo
 %     {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, {'name', 'name', 'name', 'name'}, ...
 %     {'name', 'name', 'name', 'name'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'match'},{'nametrain', 'name', 'name'}};
-%   ana.phaseNames = {{'match'}};
-  ana.phaseNames = {{'match'}, {'match'}};
+  ana.phaseNames = {{'match'}};
+%   ana.phaseNames = {{'match'}, {'match'}};
 %   ana.phaseNames = {{'match'}, {'match'}, {'match'}};
 %   ana.phaseNames = {{'nametrain', 'name', 'name'}};
   %ana.phaseNames = {{'name', 'name', 'name', 'name'}};
