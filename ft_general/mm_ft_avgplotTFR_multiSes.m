@@ -6,6 +6,10 @@ if ~isfield(cfg_ft,'parameter')
   cfg_ft.parameter = 'powspctrm';
 end
 
+if ~isfield(cfg_plot,'title')
+  cfg_plot.title = '';
+end
+
 % check on the labels
 if ~isfield(cfg_plot,'xlabel')
   cfg_plot.xlabel = 'Conditions';
@@ -209,6 +213,10 @@ for lat = 1:size(cfg_plot.latency,1)
       text(xIndCounter,cfg_plot.ylim(1)-.2, cfg_plot.rename_conditions{c}, 'Rotation', 15, 'FontSize', 18, 'HorizontalAlignment', 'center');
     end
   end
+end
+
+if ~isempty(cfg_plot.title)
+  title(cfg_plot.title);
 end
 
 if cfg_plot.plotLegend
