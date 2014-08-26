@@ -130,7 +130,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 ana.segFxn = 'seg2ft';
 
 ana.continuous = 'yes';
-ana.trialFxn = 'ebug_trialfun';
+ana.trialFxn = 'ebug_trialfun_mff';
 ana.allowTrialOverlap = false;
 ana.renumberSamplesContiguous = false;
 % files used when adding metadata to segmented trials
@@ -190,7 +190,8 @@ ana.artifact.preArtBaseline = 'yes';
 ana.artifact.type = {'nsClassic','ftAuto'};
 
 % set up for nsClassic
-ana.artifact.checkArtSec = [-Inf Inf];
+% ana.artifact.checkArtSec = [-Inf Inf];
+ana.artifact.checkArtSec = [0 1.0];
 ana.artifact.blink_threshold = 70;
 ana.artifact.fast_threshold = 100;
 ana.artifact.diff_threshold = 50;
