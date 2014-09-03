@@ -139,6 +139,7 @@ ana.useExpInfo = true;
 ana.usePhotodiodeDIN = true;
 ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
+ana.offsetMS = 0;
 if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'oneDay'};
