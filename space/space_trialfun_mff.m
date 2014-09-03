@@ -95,6 +95,8 @@ if cfg.eventinfo.usePhotodiodeDIN
   photodiodeDIN_toleranceSamp = ceil((photodiodeDIN_toleranceMS / 1000) * ft_hdr.Fs);
 end
 
+offsetSamp = ceil((cfg.eventinfo.offsetMS / 1000) * ft_hdr.Fs);
+
 % ft_event_ind = true(1,length(ft_event));
 % for i = 1:length(ft_event)
 %   if isempty(ft_event(i).value)
@@ -382,11 +384,11 @@ for i = 1:length(ft_event)
               end
               
               % prestimulus sample
-              this_trl(1) = this_sample + prestimSamp;
+              this_trl(1) = this_sample + prestimSamp + offsetSamp;
               % poststimulus sample
-              this_trl(2) = this_sample + poststimSamp;
+              this_trl(2) = this_sample + poststimSamp + offsetSamp;
               % offset in samples
-              this_trl(3) = prestimSamp;
+              this_trl(3) = prestimSamp + offsetSamp;
               
               for to = 1:length(trl_order)
                 thisInd = find(ismember(trl_order,trl_order{to}));
