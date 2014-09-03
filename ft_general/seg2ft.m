@@ -730,17 +730,19 @@ for ses = 1:length(session)
         cfg.eventinfo.phaseNames = ana.phaseNames;
         cfg.eventinfo.eventValues = eventValue_orig;
         cfg.eventinfo.prepost = prepost;
-        
-        if isfield(ana,'evtToleranceMS')
-          cfg.eventinfo.evtToleranceMS = ana.evtToleranceMS;
-        end
-        
-        cfg.eventinfo.usePhotodiodeDIN = ana.usePhotodiodeDIN;
-        if ana.usePhotodiodeDIN
-          cfg.eventinfo.photodiodeDIN_toleranceMS = ana.photodiodeDIN_toleranceMS;
-          cfg.eventinfo.photodiodeDIN_str = ana.photodiodeDIN_str;
-        end
       end
+      
+      if isfield(ana,'evtToleranceMS')
+        cfg.eventinfo.evtToleranceMS = ana.evtToleranceMS;
+      end
+      
+      cfg.eventinfo.usePhotodiodeDIN = ana.usePhotodiodeDIN;
+      if ana.usePhotodiodeDIN
+        cfg.eventinfo.photodiodeDIN_toleranceMS = ana.photodiodeDIN_toleranceMS;
+        cfg.eventinfo.photodiodeDIN_str = ana.photodiodeDIN_str;
+      end
+      
+      cfg.eventinfo.offsetMS = ana.offsetMS;
       
       if strcmpi(exper.eegFileExt,'mff')
         cfg.trialdef.eventtype = 'ECI_TCPIP_55513';

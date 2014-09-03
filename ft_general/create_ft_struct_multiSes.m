@@ -148,6 +148,10 @@ if ana.usePhotodiodeDIN && ~isfield(ana,'photodiodeDIN_str')
   ana.photodiodeDIN_str = 'DIN ';
 end
 
+if ~isfield(ana,'offsetMS')
+  ana.offsetMS = 0;
+end
+
 % need an artifact detection type ('none', or: 'nsAuto', 'preRejManual', 'ftManual', 'ftICA')
 if ~isfield(ana,'artifact')
   ana.artifact.type = {'none'};
