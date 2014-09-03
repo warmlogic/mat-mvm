@@ -548,7 +548,7 @@ for pha = 1:length(cfg.eventinfo.phaseNames{sesType})
                             % poststimulus sample
                             this_trl(2) = this_sample + poststimSamp + offsetSamp;
                             % offset in samples
-                            this_trl(3) = prestimSamp + offsetSamp;
+                            this_trl(3) = prestimSamp;
                             
                             for to = 1:length(trl_order)
                                 thisInd = find(ismember(trl_order,trl_order{to}));
