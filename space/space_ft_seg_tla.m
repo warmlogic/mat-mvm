@@ -126,6 +126,8 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 % raw data
 ana.segFxn = 'seg2ft';
 
+ana.offsetMS = 36;
+
 ana.continuous = 'yes';
 % ana.trialFxn = 'space_trialfun';
 ana.trialFxn = 'space_trialfun_mff';
@@ -139,7 +141,6 @@ ana.useExpInfo = true;
 ana.usePhotodiodeDIN = true;
 ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
-ana.offsetMS = 0;
 if ana.useExpInfo
   % possible sessions and phases
   ana.sessionNames = {'oneDay'};
@@ -171,10 +172,11 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
+ana.cfg_cont = [];
 
-ana.artifact.continuousRepair = true;
-ana.artifact.continuousReject = true;
-ana.artifact.continuousICA = true;
+% ana.artifact.continuousRepair = true;
+% ana.artifact.continuousReject = true;
+% ana.artifact.continuousICA = true;
 
 % artifact settings
 ana.artifact.reject = 'complete';
