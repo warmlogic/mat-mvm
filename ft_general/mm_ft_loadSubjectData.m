@@ -33,7 +33,7 @@ function [data,exper] = mm_ft_loadSubjectData(exper,dirs,ana,ftype,keeptrials,lo
 %   exper.eventValues = sort(exper.eventValues);
 % end
 
-error('use mm_loadSubjectData.m instead of this function (%s).',mfilename);
+% error('use mm_loadSubjectData.m instead of this function (%s).',mfilename);
 
 %warning([mfilename,':oldFxn'],'%s will soon become an old function! Use mm_ft_loadData instead.',mfilename);
 
@@ -42,9 +42,9 @@ if ~exist('keeptrials','var') || isempty(keeptrials)
   keeptrials = 1;
 end
 
+  loadMethod = 'seg';
 if ~exist('loadMethod','var') || isempty(loadMethod)
   error('Need to provide variable ''loadMethod''. See ''help %s'' for details.',mfilename);
-  %loadMethod = 'seg';
 end
 
 if isstruct(ana)
