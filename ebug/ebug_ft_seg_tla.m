@@ -124,6 +124,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 
 % raw data
 ana.segFxn = 'seg2ft';
+ana.offsetMS = 36;
 
 ana.continuous = 'yes';
 % ana.trialFxn = 'ebug_trialfun';
