@@ -44,11 +44,11 @@ exper.prepost = {[-0.2 1.0], [-0.2 1.0], [-0.2 1.0]};
 exper.subjects = {
     'EBUG010';
     'EBUG012';
-%     'EBUG016';
+    'EBUG016';
 %     'EBUG017';
 %     'EBUG018';
 %     'EBUG019';
-    'EBUG020';
+%     'EBUG020';
 %     'EBUG022';
 %     'EBUG025';
 %     'EBUG027';
