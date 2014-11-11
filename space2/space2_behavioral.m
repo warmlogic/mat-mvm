@@ -4,7 +4,8 @@
 
 expName = 'SPACE2';
 
-beh_dir = 'behavioral_pilot';
+% beh_dir = 'behavioral_pilot';
+beh_dir = 'Behavioral';
 
 subDir = '';
 behDir = fullfile(expName,beh_dir,'Sessions',subDir);
@@ -39,18 +40,57 @@ behDir = fullfile(dataroot,behDir);
 % procDir = fullfile(dataroot,eegDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
-    'SPACE2001';
-    'SPACE2002';
-    'SPACE2003';
-    'SPACE2004';
-    'SPACE2005';
-    'SPACE2006';
-    'SPACE2007';
-    'SPACE2008';
-    'SPACE2009';
-    'SPACE2010';
-
+  'SPACE2001'
+  'SPACE2002'
+  'SPACE2003'
+  'SPACE2004'
+  'SPACE2005'
+  'SPACE2006'
+  'SPACE2007'
+  'SPACE2008'
+  'SPACE2009'
+  'SPACE2010'
   };
+
+% subjects = {
+%   'SPACE2001'
+%   'SPACE2002'
+%   'SPACE2003'
+%   'SPACE2004'
+%   'SPACE2005'
+%   'SPACE2006'
+%   'SPACE2007'
+%   'SPACE2008'
+%   'SPACE2009'
+%   'SPACE2010'
+%   'SPACE2011'
+%   'SPACE2012'
+%   'SPACE2013'
+%   'SPACE2014'
+%   'SPACE2015' % really poor performance
+%   'SPACE2016'
+%   'SPACE2017' % really poor performance
+%   'SPACE2018'
+%   'SPACE2019'
+%   'SPACE2020'
+%   'SPACE2021';
+%   'SPACE2022';
+%   'SPACE2023';
+%   'SPACE2024';
+%     'SPACE2025';
+%     'SPACE2026';
+%     'SPACE2027';
+%     'SPACE2028';
+%     'SPACE2029';
+%     'SPACE2029-2';
+%     'SPACE2030';
+%     'SPACE2031';
+%     'SPACE2032';
+%     'SPACE2033';
+%     'SPACE2034';
+%     'SPACE2035';
+%     'SPACE2036';
+%   };
 
 % only one cell, with all session names
 % sesNames = {'session_1'};
@@ -116,11 +156,51 @@ exper.subjects = subjects;
 % Subjects with bad behavior
 exper.badBehSub = {{}};
 
+% exper.badBehSub = {{
+%   'SPACE2001' % 5??? blocks
+%   'SPACE2002'
+%   'SPACE2003'
+%   'SPACE2004'
+%   'SPACE2005'
+%   'SPACE2006'
+%   'SPACE2007'
+%   'SPACE2008'
+%   'SPACE2009'
+%   'SPACE2010'
+%   'SPACE2011' % 7??? blocks
+%   'SPACE2012'
+%   'SPACE2013'
+%   'SPACE2014'
+%   'SPACE2015' % really poor performance
+%   'SPACE2016'
+%   'SPACE2017' % really poor performance
+%   'SPACE2018'
+%   'SPACE2019'
+%   'SPACE2020'
+%   'SPACE2021';
+%   'SPACE2022';
+%   'SPACE2023';
+%   'SPACE2024';
+%     'SPACE2025';
+%     'SPACE2026';
+% %     'SPACE2027'; % started with 9 blocks here
+% %     'SPACE2028';
+% %     'SPACE2029';
+% %     'SPACE2029-2';
+% %     'SPACE2030';
+% %     'SPACE2031';
+% %     'SPACE2032';
+% %     'SPACE2033';
+% %     'SPACE2034';
+% %     'SPACE2035';
+% %     'SPACE2036';
+% }};
+
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
 
-exper.badSub = zeros(size(subjects));
-% exper.badSub = ismember(subjects,exper.badBehSub{1});
+% exper.badSub = zeros(size(subjects));
+exper.badSub = ismember(subjects,exper.badBehSub{1});
 
 %% ttest stuff
 
@@ -158,45 +238,6 @@ tails = 'both';
 %   std(data1 - data2) / sqrt(length(data1)),...
 %   p);
 
-%% ANOVA - test - recognition - spacing (spaced/massed) X category (Faces/HouseInside)
-
-ses = 'day1';
-phase = 'cued_recall';
-test = 'recog';
-% measure = 'recog_hr';
-measure = 'recog_dp';
-% measure = 'recog_rt';
-% measure = 'recog_rt_hit';
-% measure = 'recog_rt_miss';
-
-spacings = {'massed','spaced'};
-stimCats = {'Faces', 'HouseInside'};
-
-anovaData = [];
-
-for sub = 1:length(exper.subjects)
-  if ~exper.badSub(sub,:)
-    %for ses = 1:length(exper.sesStr)
-    theseData = [];
-    
-    for sp = 1:length(spacings)
-      for st = 1:length(stimCats)
-        theseData = cat(2,theseData,results.(ses).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
-      end
-    end
-    %end
-    anovaData = cat(1,anovaData,theseData);
-  end
-end
-
-% levelnames = {{'img','word'}, {'rc', 'fo'}, {'spac','mass'}, latStr};
-% varnames = {'stimType','subseqMem','spacing','time'};
-% O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
-
-levelnames = {spacings, stimCats};
-varnames = {'spacing','img_cat'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
-
 %% ANOVA - test - recall - spacing (spaced/massed) X category (Faces/HouseInside)
 
 ses = 'day1';
@@ -206,6 +247,7 @@ measure = 'recall_hr';
 % measure = 'recall_rt';
 % measure = 'recall_rt_hit';
 % measure = 'recall_rt_miss';
+% measure = 'recall_nHit';
 
 spacings = {'once','massed','lag2','lag12','lag32'};
 stimCats = {'Faces', 'HouseInside'};
