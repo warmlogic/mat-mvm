@@ -36,43 +36,26 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
-  'SPACE001';
-%   'SPACE002';
-%   'SPACE003';
-%   'SPACE004';
-%   'SPACE005';
-%   'SPACE006';
-%   'SPACE007';
-%   'SPACE008';
-%   'SPACE009';
-%   'SPACE010';
-%   'SPACE011';
-%   'SPACE012';
-%   'SPACE013';
-%   'SPACE014';
-%   'SPACE015';
-%   'SPACE016';
-%   'SPACE017';
-%   'SPACE018';
-%   'SPACE019';
-%   'SPACE020';
-%   'SPACE021';
-%   'SPACE022';
-%   'SPACE027';
-%   'SPACE029';
-%   'SPACE037';
-%   'SPACE039';
-%   'SPACE023';
-%   'SPACE024';
-%   'SPACE025';
-%   'SPACE026';
-%   'SPACE028';
-%   'SPACE030';
-%   'SPACE032';
-%   'SPACE034';
-%   'SPACE047';
-%   'SPACE049';
-%   'SPACE036';
+  'SPACE2001';
+%   'SPACE2002';
+%   'SPACE2003';
+%   'SPACE2004';
+%   'SPACE2005';
+%   'SPACE2006';
+%   'SPACE2007';
+%   'SPACE2008';
+%   'SPACE2009';
+%   'SPACE2010';
+%   'SPACE2011';
+%   'SPACE2012';
+%   'SPACE2013';
+%   'SPACE2014';
+%   'SPACE2015';
+%   'SPACE2016';
+%   'SPACE2017';
+%   'SPACE2018';
+%   'SPACE2019';
+%   'SPACE2020';
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -81,8 +64,8 @@ exper.subjects = {
 % They are not necessarily the session directory names where the FieldTrip
 % data is saved for each subject because of the option to combine sessions.
 % See 'help create_ft_struct' for more information.
-% exper.sessions = {{'session_1'}};
-exper.sessions = {{'session_1'},{'session_2'}};
+exper.sessions = {{'session_1'}};
+% exper.sessions = {{'session_1'},{'session_2'}};
 
 %% set up file and directory handling parameters
 
@@ -147,7 +130,7 @@ if ana.useExpInfo
   ana.sessionNames = {'day1','day2'};
   
   % phases occur within a session; for dealing with events.mat
-  ana.phaseNames = {{'multistudy', 'cued_recall'}};
+  ana.phaseNames = {{'multistudy', 'cued_recall_only'}};
   %ana.phaseNames = {{'expo'}};
   %ana.phaseNames = {{'expo'},{'expo'}};
   %ana.phaseNames = {{'multistudy'}};
@@ -156,11 +139,12 @@ if ana.useExpInfo
   
   % types of event info to store in trialinfo field; must correspond to
   % values listed in exper.eventValues
-  ana.trl_order.expo_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
-  ana.trl_order.multistudy_image = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
+  % ana.trl_order.expo_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'expo_response', 'rt', 'cr_recog_acc', 'cr_recall_resp', 'cr_recall_spellCorr'};
+  ana.trl_order.multistudy_image = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'catNum', 'targ', 'spaced', 'lag', 'presNum', 'pairOrd', 'pairNum', 'cr_recall_resp', 'cr_recall_spellCorr'};
   ana.trl_order.multistudy_word = ana.trl_order.multistudy_image;
   %ana.trl_order.distract_math_stim = {'eventNumber', 'sesType', 'phaseType', 'response', 'acc', 'rt'};
-  ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
+  %ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recog_resp', 'recog_acc', 'recog_rt', 'new_resp', 'new_acc', 'new_rt', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
+  ana.trl_order.cued_recall_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'stimNum', 'i_catNum', 'targ', 'spaced', 'lag', 'pairNum', 'recall_resp', 'recall_spellCorr', 'recall_rt'};
 end
 
 % preprocess continuous data in these ways
@@ -172,6 +156,9 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
+
+% debug
+ana.cfg_cont = [];
 
 ana.artifact.continuousRepair = true;
 ana.artifact.continuousReject = true;
