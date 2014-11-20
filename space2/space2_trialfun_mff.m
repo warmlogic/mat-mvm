@@ -8,6 +8,9 @@ if ischar(cfg.trialdef.eventvalue)
   cfg.trialdef.eventvalue = {cfg.trialdef.eventvalue};
 end
 
+% initialize the trl matrix
+trl = [];
+
 % get the header and event information
 fprintf('Reading flags from EEG file using FieldTrip...');
 ft_hdr = ft_read_header(cfg.dataset);
@@ -31,6 +34,11 @@ else
   fprintf('Done.\n');
 end
 fprintf('Done.\n');
+
+if cfg.eventinfo.returnAfterSavingFtEvents
+  warning('Returning after having saved FieldTrip events. Not running %s to completion!',mfilename);
+  return
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Read in external data, if wanted
@@ -69,9 +77,6 @@ if cfg.eventinfo.usePhotodiodeDIN
 else
   triggers = {'STIM', 'RESP', 'FIXT', 'PROM', 'REST', 'REND'};
 end
-
-% initialize the trl matrix
-trl = [];
 
 % all trls need to have the same length
 maxTrlCols = -Inf;
@@ -170,7 +175,7 @@ for i = 1:length(ft_event)
           end
           
           switch phaseName
-            case {'multistudy', 'prac_multistudy', 'cued_recall', 'prac_cued_recall'}
+            case {'multistudy', 'prac_multistudy', 'cued_recall_only', 'prac_cued_recall_only'}
               cols.type = find(strcmp(ns_evt_cols,'type'));
               if isempty(cols.phaseCount) || isempty(cols.trial) || isempty(cols.type)
                 keyboard
