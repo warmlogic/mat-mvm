@@ -50,6 +50,18 @@ subjects = {
   'SPACE2008'
   'SPACE2009'
   'SPACE2010'
+  'SPACE2011';
+  'SPACE2012';
+  'SPACE2013';
+  'SPACE2014';
+  'SPACE2015';
+  'SPACE2016';
+  'SPACE2017';
+  'SPACE2018';
+  'SPACE2019';
+  'SPACE2020';
+  'SPACE2021';
+  'SPACE2022';
   };
 
 % subjects = {
