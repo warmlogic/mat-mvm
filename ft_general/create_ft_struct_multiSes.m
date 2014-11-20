@@ -119,6 +119,24 @@ elseif isfield(ana,'useMetadata') && ~ana.useMetadata
   ana.metadata.types = {};
 end
 
+% saving FT events for a MFF file can take a long time, so this is a way to
+% have a multi-node cluster exit early if you want other EEG processing.
+if strcmpi(exper.eegFileExt,'mff')
+  if ~isfield(ana,'returnAfterSavingFtEvents')
+    ana.returnAfterSavingFtEvents = false;
+  end
+  if ana.returnAfterSavingFtEvents
+    warning('ana.returnAfterSavingFtEvents=true; Changing settings so EEG is not processed!');
+    % set these so we don't do any unnecessary processing
+    ana.cfg_cont = [];
+    ana.artifact.continuousRepair = false;
+    ana.artifact.continuousReject = false;
+    ana.artifact.continuousICA = false;
+  end
+else
+  ana.returnAfterSavingFtEvents = false;
+end
+
 % use info like ana.trl_order, ana.trl_order, ana.sessionNames,
 % ana.phaseNames, exper.eventValues, and exper.prepost (usually when
 % segmenting continuous data)
@@ -358,6 +376,10 @@ for ses = 1:length(exper.sessions)
       
       % collect all the raw data
       [ft_raw,badChan,badEv,artifacts,trialinfo_allEv] = feval(str2func(ana.segFxn),fullfile(dirs.dataroot,dirs.dataDir),exper.subjects{sub},exper.sessions{ses},ses,eventValuesToProcess,eventValuesToProcess_orig,exper.prepost{ses},files.elecfile,ana,exper,dirs);
+      if ana.returnAfterSavingFtEvents
+        warning('Returning after having saved FieldTrip events. Not running %s to completion!',mfilename);
+        continue
+      end
       
       if ~ana.overwrite.raw
         % load in the ones we didn't process

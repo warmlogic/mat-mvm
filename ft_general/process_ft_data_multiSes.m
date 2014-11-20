@@ -36,6 +36,11 @@ function process_ft_data_multiSes(ana,cfg_proc,exper,dirs,files,cfg_pp)
 
 %% make sure some required fields are set
 
+if isfield(ana,'returnAfterSavingFtEvents') && ana.returnAfterSavingFtEvents
+  warning('Returning after having saved FieldTrip events. Not running %s at all!',mfilename);
+  return
+end
+
 % overwrite by default
 if ~isfield(ana,'overwrite')
   ana.overwrite.proc = 1;

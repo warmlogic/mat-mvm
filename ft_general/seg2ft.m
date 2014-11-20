@@ -147,13 +147,21 @@ if strcmp(ana.continuous,'yes')
   end
 end
 
-% initialize
+% initialize the variables for storing some intermediate data
 badChan = {};
 badEv = [];
+badEvAllSes = [];
 artfctdefEv = struct;
 % maintain a list of all artifact types
 artfctdefEv.types = {};
 artfctdefSamp = [];
+
+% initialize the variables to ultimately return
+ft_raw = struct;
+badEvEvVals = struct;
+artifacts = [];
+trialinfo_allEv = [];
+badChanAllSes = {};
 
 %% set up some processing parameters
 
@@ -219,9 +227,6 @@ end
 if isempty(find(refChanInd,1))
   error('Could not find reference channel.');
 end
-
-badChanAllSes = {};
-badEvAllSes = [];
 
 %% for each session, read in the EEG file
 
@@ -746,6 +751,8 @@ for ses = 1:length(session)
       
       if strcmpi(exper.eegFileExt,'mff')
         cfg.trialdef.eventtype = 'ECI_TCPIP_55513';
+        
+        cfg.eventinfo.returnAfterSavingFtEvents = ana.returnAfterSavingFtEvents;
       else
         cfg.trialdef.eventtype = 'trigger';
       end
@@ -778,6 +785,11 @@ for ses = 1:length(session)
     
     % set an empty cell and return to the calling function
     ft_raw.data.trial = {};
+    return
+  end
+  
+  if isfield(ana,'returnAfterSavingFtEvents') && ana.returnAfterSavingFtEvents
+    warning('Returning after having saved FieldTrip events. Not running %s to completion!',mfilename);
     return
   end
   
@@ -1138,16 +1150,10 @@ end
 
 %% Separate the event values
 
-% initialize the struct to return
-ft_raw = struct;
-
-badEvEvVals = struct;
-artifacts = [];
 if rejArt
   artTypes = fieldnames(artfctdefEvAllSes);
   artTypes = artTypes(~ismember(artTypes,'types'));
 end
-trialinfo_allEv = [];
 
 for evVal = 1:length(eventValue)
   badEvEvVals.(eventValue{evVal}) = [];
