@@ -147,6 +147,12 @@ if strcmp(ana.continuous,'yes')
   end
 end
 
+if strcmpi(exper.eegFileExt,'mff')
+  if ~isfield(ana,'returnAfterSavingFtEvents')
+    ana.returnAfterSavingFtEvents = false;
+  end
+end
+
 % initialize the variables to ultimately return
 ft_raw = struct;
 badEvEvVals = struct;
@@ -788,7 +794,7 @@ for ses = 1:length(session)
     return
   end
   
-  if isfield(ana,'returnAfterSavingFtEvents') && ana.returnAfterSavingFtEvents
+  if strcmpi(exper.eegFileExt,'mff') && isfield(ana,'returnAfterSavingFtEvents') && ana.returnAfterSavingFtEvents
     warning('Returning after having saved FieldTrip events. Not running %s to completion!',mfilename);
     return
   end

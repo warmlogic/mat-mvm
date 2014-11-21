@@ -179,6 +179,10 @@ ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59 61];
 
+% this will turn off ana.cfg_cont and ana.artifact.continuousXXX so no
+% processing is done; will only save FieldTrip events
+ana.returnAfterSavingFtEvents = false;
+
 % artifact settings
 ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes';
