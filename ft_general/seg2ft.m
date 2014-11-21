@@ -147,21 +147,13 @@ if strcmp(ana.continuous,'yes')
   end
 end
 
-% initialize the variables for storing some intermediate data
-badChan = {};
-badEv = [];
-badEvAllSes = [];
-artfctdefEv = struct;
-% maintain a list of all artifact types
-artfctdefEv.types = {};
-artfctdefSamp = [];
-
 % initialize the variables to ultimately return
 ft_raw = struct;
 badEvEvVals = struct;
 artifacts = [];
 trialinfo_allEv = [];
 badChanAllSes = {};
+badEvAllSes = []; % doesn't get returned but gets used for badEvEvVals
 
 %% set up some processing parameters
 
@@ -238,6 +230,14 @@ allTrialinfo = [];
 trialinfo_eventNumCol = 1;
 
 for ses = 1:length(session)
+  % initialize variables for storing intermediate data for each session
+  badChan = {};
+  badEv = [];
+  % maintain a list of all artifact types
+  artfctdefEv = struct;
+  artfctdefEv.types = {};
+  artfctdefSamp = []; % not actually using (yet)
+  
   sesName = session{ses};
   
   % set sesStr to make sure it starts with a character, not a #, etc.
@@ -1111,12 +1111,14 @@ for ses = 1:length(session)
       fn = fieldnames(artfctdefEv);
       for f = 1:length(fn)
         if strcmp(fn{f},'types')
+          % concatenate the artifact type strings
           if isfield(artfctdefEvAllSes,(fn{f}))
             artfctdefEvAllSes.(fn{f}) = cat(2,artfctdefEvAllSes.(fn{f}),artfctdefEv.(fn{f}));
           else
             artfctdefEvAllSes.(fn{f}) = artfctdefEv.(fn{f});
           end
         else
+          % concatenate the actual artifact markers
           if isfield(artfctdefEvAllSes,fn{f})
             artfctdefEvAllSes.(fn{f}) = cat(1,artfctdefEvAllSes.(fn{f}),artfctdefEv.(fn{f}));
           else
