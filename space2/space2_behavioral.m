@@ -42,17 +42,17 @@ behDir = fullfile(dataroot,behDir);
 subjects = {
   'SPACE2001'
   'SPACE2002'
-  'SPACE2003'
+  'SPACE2003' % DNF session 2
   'SPACE2004'
   'SPACE2005'
   'SPACE2006'
   'SPACE2007'
   'SPACE2008'
-  'SPACE2009'
+  'SPACE2009' % DNF session 2
   'SPACE2010'
   'SPACE2011';
   'SPACE2012';
-  'SPACE2013';
+  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
   'SPACE2014';
   'SPACE2015';
   'SPACE2016';
