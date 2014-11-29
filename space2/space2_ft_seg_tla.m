@@ -55,11 +55,12 @@ exper.subjects = {
 %   'SPACE2015';
 %   'SPACE2016';
 %   'SPACE2017'; % terrible performance
-%   'SPACE2018'; % no ses2
+%   'SPACE2018';
 %   'SPACE2019';
-%   'SPACE2020'; % no ses2
-%   'SPACE2021'; % no ses2
+%   'SPACE2020';
+%   'SPACE2021';
 %   'SPACE2022';
+%   'SPACE2023'; % no ses2
   };
 
 % The sessions that each subject ran; the strings in this cell are the
