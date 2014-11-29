@@ -140,7 +140,7 @@ ana.trl_expr = {...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 3 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim'))), ...
 %   sprintf('eventNumber == %d & i_catNum == 2 & expo_response == 4 & rt < 3000',find(ismember(exper.eventValues{sesNum},'expo_stim')))}}};
 
-%% multistudy events - fogotten and misses together
+%% multistudy events - forgotten and misses together
 
 sesNum = 1;
 
