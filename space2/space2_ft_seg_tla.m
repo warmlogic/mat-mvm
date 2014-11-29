@@ -57,7 +57,7 @@ exper.subjects = {
 %   'SPACE2017'; % terrible performance
 %   'SPACE2018';
 %   'SPACE2019';
-%   'SPACE2020';
+%   'SPACE2020'; % DNF session 2
 %   'SPACE2021';
 %   'SPACE2022';
 %   'SPACE2023'; % no ses2
