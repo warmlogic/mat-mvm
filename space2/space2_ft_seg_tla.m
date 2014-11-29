@@ -114,7 +114,7 @@ ana.elec = ft_read_sens(files.elecfile,'fileformat',files.locsFormat);
 % raw data
 ana.segFxn = 'seg2ft';
 
-% 17ms avg from photocell test, + 8ms from EGI's A/D correction
+% 17ms avg from photocell test, + 8ms from EGI's A/D correction (NS 4.4)
 ana.offsetMS = 25;
 
 ana.continuous = 'yes';
