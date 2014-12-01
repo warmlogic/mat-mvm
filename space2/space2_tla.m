@@ -621,15 +621,15 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast','SouthEast'};
 
 % LPC
-% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
 % cfg_plot.rois = {{'C'}};
 % cfg_plot.rois = {{'Pz'}}; % Pz
 % cfg_plot.rois = {{'PS'}}; % Centered on Pz
 % cfg_plot.rois = {{'PS2'}}; % Centered on E72
 % cfg_plot.rois = {{'LPS'},{'RPS'}};
-cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
 % cfg_plot.rois = {{'LPS2','RPS2'}};
-cfg_plot.ylims = [-1 5; -1 5];
+cfg_plot.ylims = [-1 6; -1 6];
 % cfg_plot.legendlocs = {'SouthEast'};
 cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
@@ -638,17 +638,17 @@ cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 % % cfg_plot.rois = {{'FS2'}}; % Center=6
 % cfg_plot.rois = {{'C'}};
 % % cfg_plot.rois = {{'Cz'}};
-% cfg_plot.ylims = [-4 2];
-% % cfg_plot.legendlocs = {'NorthEast'};
-% cfg_plot.legendlocs = {'SouthWest'};
+% cfg_plot.ylims = [-3 4];
+% cfg_plot.legendlocs = {'NorthEast'};
+% % cfg_plot.legendlocs = {'SouthWest'};
 
 % % N2
 % % cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
-% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
 % % cfg_plot.rois = {{'E90','E91','E95','E96','E97','E100','E101'}}; % T6 (R)
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
-% cfg_plot.ylims = [-3 2; -3 2];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
+% cfg_plot.ylims = [-3 4; -3 4];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_plot.rois = {{'Oz'},{'PI'}};
 % cfg_plot.ylims = [-2 3; -2 3];
