@@ -38,8 +38,8 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-0.2 1.0], [-0.2 1.0]};
 
 exper.subjects = {
-  'SPACE2001';
-%   'SPACE2002';
+%   'SPACE2001';
+  'SPACE2002'; % noisy EEG
 %   %'SPACE2003'; % DNF session 2
 %   'SPACE2004';
 %   'SPACE2005';
@@ -173,18 +173,18 @@ ana.returnAfterSavingFtEvents = false;
 ana.artifact.reject = 'complete';
 ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 
-% % ana.artifact.type = {'nsClassic','ftAuto'};
-% ana.artifact.type = {'nsClassic'};
+% %%%%%
+% % START OF NSCLASSIC+FTAUTO ARTIFACT CHECKING
+% %%%%%
+
+% ana.artifact.type = {'nsClassic','ftAuto'};
+% % ana.artifact.type = {'nsClassic'};
 % 
 % % set up for nsClassic
 % ana.artifact.checkArtSec = [0 1.0];
-% % ana.artifact.blink_threshold = 70;
-% % ana.artifact.fast_threshold = 100;
-% % ana.artifact.diff_threshold = 50;
-% ana.artifact.blink_threshold = 40;
-% ana.artifact.fast_threshold = 70;
-% ana.artifact.diff_threshold = 40;
-% ana.artifact.rejectTrial_nBadChan = 10;
+% ana.artifact.blink_threshold = 70;
+% ana.artifact.fast_threshold = 100;
+% ana.artifact.diff_threshold = 50;
 % ana.artifact.repairChan_percentBadTrials = 20;
 % ana.artifact.allowBadNeighborChan = false;
 
@@ -209,6 +209,10 @@ ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 % % eog_art is only used with ftAuto
 % ana.artifact.eog_art = false;
 % % ana.artifact.eog_art_z = 3.5;
+
+% %%%%%
+% % END OF NSCLASSIC+FTAUTO ARTIFACT CHECKING
+% %%%%%
 
 % %%%%%
 % % START OF FTMANUAL+FTICA ARTIFACT CHECKING
@@ -257,9 +261,8 @@ ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 % % END OF FTMANUAL+FTICA ARTIFACT CHECKING
 % %%%%%
 
-
 %%%%%
-% USE THIS: START OF POST-CONTINUOUS ARTIFACT CHECKING
+% START OF FTAUTO ARTIFACT CHECKING AFTER CONTINUOUS REPAIR/REJECT/ICA
 %%%%%
 
 % set up for ftManual/ftAuto
@@ -291,7 +294,7 @@ ana.artifact.eog_art = false;
 % ana.artifact.eog_art_z = 3.5;
 
 %%%%%
-% END OF POST-CONTINUOUS ARTIFACT CHECKING
+% END OF FTAUTO ARTIFACT CHECKING AFTER CONTINUOUS REPAIR/REJECT/ICA
 %%%%%
 
 % process the data
