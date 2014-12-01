@@ -298,7 +298,7 @@ save(fullfile(saveDir,'space_word_img_rc_fo_data_tla.mat'),'data_tla','exper','a
 %% load
 
 subDir = '';
-dataDir = fullfile('SPACE','EEG','Sessions','ftpp',subDir);
+dataDir = fullfile('SPACE2','EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
 serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
