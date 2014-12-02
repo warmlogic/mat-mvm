@@ -420,7 +420,7 @@ for ses = 1:length(session)
       % Data rejection
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       % set the file to save after checking artifacts, in case MATLAB crashes
-      resumeManArtContinuous_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_manArtContinuous.mat',subject,sesName));
+      resumeManArtContinuous_file = fullfile(dirs.saveDirRaw,sprintf('%s_%s_manArtContinuous.mat',subject,sesName));
       %resumeManArtContinuous_file = fullfile(dataroot,sprintf('%s_%s_manArtContinuous%s.mat',subject,sesName,sprintf(repmat('_%s',1,length(eventValue)),eventValue{:})));
       if ~isfield(ana.artifact,'resumeManArtContinuous')
         ana.artifact.resumeManArtContinuous = false;
@@ -491,7 +491,7 @@ for ses = 1:length(session)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       % set the file to save after running ICA, in case MATLAB crashes
-      resumeICACompContinuous_file = fullfile(dirs.saveDirRaw,subject,sesName,sprintf('%s_%s_ICACompContinuous.mat',subject,sesName));
+      resumeICACompContinuous_file = fullfile(dirs.saveDirRaw,sprintf('%s_%s_ICACompContinuous.mat',subject,sesName));
       if ~isfield(ana.artifact,'resumeICACompContinuous')
         ana.artifact.resumeICACompContinuous = false;
       end
