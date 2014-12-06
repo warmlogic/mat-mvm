@@ -182,7 +182,6 @@ ana.artifact.preArtBaseline = 'yes'; % yes=entire trial
 % %%%%%
 
 ana.artifact.type = {'nsClassic','ftAuto'};
-% ana.artifact.type = {'nsClassic'};
 
 % set up for nsClassic
 ana.artifact.checkArtSec = [0 1.0];
@@ -192,7 +191,6 @@ ana.artifact.diff_threshold = 50;
 ana.artifact.repairChan_percentBadTrials = 20;
 ana.artifact.allowBadNeighborChan = false;
 
-ana.artifact.type = {'ftAuto'};
 % set up for ftAuto following nsClassic
 % negative trlpadding: don't check that time (on both sides) for artifacts.
 % IMPORTANT: Not used for threshold artifacts. only use if segmenting a lot
