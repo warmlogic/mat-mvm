@@ -47,6 +47,10 @@ subjects = {
   'SPACE2021';
   'SPACE2022';
   %'SPACE2023'; % no ses2
+  %'SPACE2024'; % no ses2
+  'SPACE2025';
+  'SPACE2026';
+  %'SPACE2027'; % no ses2
   };
 
 % only one cell, with all session names
@@ -378,7 +382,7 @@ evToCheck = { ...
   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,8,[],'vert',evToCheck);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
@@ -864,7 +868,11 @@ cfg_plot = [];
 % cfg_plot.rois = {{'E70'},{'E83'}};
 % cfg_plot.rois = {{'E72'}};
 % cfg_plot.rois = {{'LPS'}};
-cfg_plot.rois = {{'LPS2'}};
+% cfg_plot.rois = {{'LPS2'}};
+
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
+cfg_plot.rois = {{'C'}};
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];

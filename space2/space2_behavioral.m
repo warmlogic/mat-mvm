@@ -62,6 +62,11 @@ subjects = {
   'SPACE2020'; % DNF session 2
   'SPACE2021';
   'SPACE2022';
+  'SPACE2023'; % no ses2
+  'SPACE2024'; % no ses2
+  'SPACE2025';
+  'SPACE2026';
+  'SPACE2027'; % no ses2
   };
 
 % subjects = {

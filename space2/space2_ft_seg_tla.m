@@ -39,7 +39,7 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0]};
 
 exper.subjects = {
 %   'SPACE2001';
-  'SPACE2002'; % noisy EEG
+%   'SPACE2002'; % noisy EEG
 %   %'SPACE2003'; % DNF session 2
 %   'SPACE2004';
 %   'SPACE2005';
@@ -60,7 +60,11 @@ exper.subjects = {
 %   'SPACE2020'; % DNF session 2
 %   'SPACE2021';
 %   'SPACE2022';
-%   'SPACE2023'; % no ses2
+%   %'SPACE2023'; % no ses2
+%   %'SPACE2024'; % no ses2
+%   'SPACE2025';
+%   'SPACE2026';
+  'SPACE2027'; % no ses2
   };
 
 % The sessions that each subject ran; the strings in this cell are the
@@ -69,8 +73,8 @@ exper.subjects = {
 % They are not necessarily the session directory names where the FieldTrip
 % data is saved for each subject because of the option to combine sessions.
 % See 'help create_ft_struct' for more information.
-% exper.sessions = {{'session_1'}};
-exper.sessions = {{'session_1', 'session_2'}};
+exper.sessions = {{'session_1'}};
+% exper.sessions = {{'session_1', 'session_2'}};
 
 %% set up file and directory handling parameters
 
