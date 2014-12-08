@@ -73,8 +73,8 @@ exper.subjects = {
 % They are not necessarily the session directory names where the FieldTrip
 % data is saved for each subject because of the option to combine sessions.
 % See 'help create_ft_struct' for more information.
-exper.sessions = {{'session_1'}};
-% exper.sessions = {{'session_1', 'session_2'}};
+% exper.sessions = {{'session_1'}};
+exper.sessions = {{'session_1', 'session_2'}};
 
 %% set up file and directory handling parameters
 
