@@ -54,6 +54,7 @@ subjects = {
   };
 
 % only one cell, with all session names
+% sesNames = {'session_1'};
 sesNames = {'session_1_session_2'};
 
 allowRecallSynonyms = true;
@@ -335,6 +336,36 @@ replaceDataType = {};
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
 exper.badBehSub = {{'SPACE2002'}};
+
+exper.badBehSub = {{
+  'SPACE2001';
+  'SPACE2002';
+  %'SPACE2003'; % DNF session 2
+  'SPACE2004';
+%   'SPACE2005';
+  'SPACE2006';
+  'SPACE2007'; % terrible performance
+  'SPACE2008';
+  %'SPACE2009'; % DNF session 2
+  'SPACE2010';
+  'SPACE2011';
+  'SPACE2012';
+  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
+  'SPACE2014';
+  'SPACE2015';
+  'SPACE2016';
+  'SPACE2017'; % terrible performance
+  'SPACE2018';
+  'SPACE2019';
+  %'SPACE2020'; % DNF session 2
+  'SPACE2021';
+  'SPACE2022';
+  %'SPACE2023'; % no ses2
+  %'SPACE2024'; % no ses2
+  'SPACE2025';
+  'SPACE2026';
+  'SPACE2027'; % no ses2
+  }};
 
 % SPACE2002 has really noisy EEG
 
@@ -653,6 +684,8 @@ cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 % % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
 % cfg_plot.ylims = [-3 4; -3 4];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+
+cfg_plot.ylims = [-10 10];
 
 % cfg_plot.rois = {{'Oz'},{'PI'}};
 % cfg_plot.ylims = [-2 3; -2 3];
