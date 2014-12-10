@@ -26,7 +26,7 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_m
 
 subjects = {
   'SPACE2001';
-  'SPACE2002';
+  %'SPACE2002'; % really noisy EEG, finished both sessions
   %'SPACE2003'; % DNF session 2
   'SPACE2004';
   'SPACE2005';
@@ -51,7 +51,12 @@ subjects = {
   %'SPACE2024'; % no ses2
   'SPACE2025';
   'SPACE2026';
-  %'SPACE2027'; % no ses2
+  %'SPACE2027'; % really noisy EEG, DNF session 2
+  %'SPACE2028'; % no ses2
+  'SPACE2029';
+  %'SPACE2030'; % no ses2
+  %'SPACE2031'; % no ses2
+  %'SPACE2032'; % no ses2
   };
 
 % only one cell, with all session names
