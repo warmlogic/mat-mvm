@@ -88,3 +88,18 @@ files.saveFigs = true;
 
 % pre-defined in this function
 ana = mm_ft_elecGroups(ana);
+
+%% list the event values to analyze
+
+% classifier asks: can we predict accurate comparison (discrimation
+% between) posttest match trial stimuli? This would use data during and
+% after stim2, which is when they would make the comparison.
+
+% the classifier is trained on correctly and incorrectly named stimuli
+% during training sessions. What about the fact that naming accuracy
+% essentially reaches ceiling by the last training day?
+
+
+% or we could ask: when during training do they start to show expert-like
+% activity. This would be trained on in/accurate posttest trials and tested
+% on training naming trials.
