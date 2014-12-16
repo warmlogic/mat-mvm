@@ -60,33 +60,39 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-1.0 2.0]};
 
 exper.subjects = {
-%   'SPACE2001';
-%   'SPACE2002';
-%   %'SPACE2003'; % DNF session 2
-%   'SPACE2004';
-%   'SPACE2005';
-%   'SPACE2006';
-%   'SPACE2007'; % terrible performance
-%   'SPACE2008';
-%   %'SPACE2009'; % DNF session 2
-%   'SPACE2010';
-%   'SPACE2011';
-%   'SPACE2012';
-%   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
-%   'SPACE2014';
-%   'SPACE2015';
-%   'SPACE2016';
-%   'SPACE2017'; % terrible performance
-%   'SPACE2018';
-%   'SPACE2019';
-%   'SPACE2020';
-%   'SPACE2021';
-%   'SPACE2022';
-  %'SPACE2023'; % no ses2
-  %'SPACE2024'; % no ses2
+  'SPACE2001';
+  'SPACE2002';
+  %'SPACE2003'; % DNF session 2
+  'SPACE2004';
+  'SPACE2005';
+  'SPACE2006';
+  'SPACE2007'; % terrible performance
+  'SPACE2008';
+  %'SPACE2009'; % DNF session 2
+  'SPACE2010';
+  'SPACE2011';
+  'SPACE2012';
+  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
+  'SPACE2014';
+  'SPACE2015';
+  'SPACE2016';
+  'SPACE2017'; % terrible performance
+  'SPACE2018';
+  'SPACE2019';
+  % 'SPACE2020'; % DNF session 2
+  'SPACE2021';
+  'SPACE2022';
+  %'SPACE2023'; % DNF session 2
+  %'SPACE2024'; % DNF session 2
   'SPACE2025';
   'SPACE2026';
-  %'SPACE2027'; % no ses2
+  %'SPACE2027'; % DNF session 2
+  'SPACE2028';
+  'SPACE2029';
+  'SPACE2030';
+  'SPACE2031';
+  'SPACE2032';
+  'SPACE2033';
   };
 
 

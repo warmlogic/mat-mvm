@@ -67,11 +67,12 @@ subjects = {
   'SPACE2025'; % terrible performance
   'SPACE2026';
   'SPACE2027'; % really noisy EEG, DNF session 2
-  'SPACE2028'; % no ses2
+  'SPACE2028';
   'SPACE2029';
-  'SPACE2030'; % no ses2
-  'SPACE2031'; % no ses2
-  'SPACE2032'; % no ses2
+  'SPACE2030';
+  'SPACE2031';
+  'SPACE2032';
+  'SPACE2033';
   };
 
 % subjects = {

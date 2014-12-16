@@ -47,16 +47,17 @@ subjects = {
   %'SPACE2020'; % DNF session 2
   'SPACE2021';
   'SPACE2022';
-  %'SPACE2023'; % no ses2
-  %'SPACE2024'; % no ses2
+  %'SPACE2023'; % DNF session 2
+  %'SPACE2024'; % DNF session 2
   'SPACE2025';
   'SPACE2026';
   %'SPACE2027'; % really noisy EEG, DNF session 2
-  %'SPACE2028'; % no ses2
+  'SPACE2028';
   'SPACE2029';
-  %'SPACE2030'; % no ses2
-  %'SPACE2031'; % no ses2
-  %'SPACE2032'; % no ses2
+  'SPACE2030';
+  'SPACE2031';
+  'SPACE2032';
+  'SPACE2033';
   };
 
 % only one cell, with all session names
@@ -110,6 +111,20 @@ ana = mm_ft_elecGroups(ana);
 % analysis functions
 
 %% multistudy events
+
+error('Need to change allowRecallSynonyms so it allows other credit options.');
+% Correct (1) and incorrect (0) are for typos and total
+% intrusions, respectively. Coupled (2) means
+% intrinsically linked words and must have the same word
+% stem (staple/stapler, bank/banker, dance/dancer,
+% serve/server)  Synonym (3) means wordsthat strictly
+% have the same meaning and can have the same word stem
+% (sofa/couch, doctor/physician, home/house,
+% pasta/noodle, woman/lady, cash/money). Homonym (4)
+% means words that sound exactly the same (board/bored,
+% brake/break). Related (5) means closely associated
+% words but cannot have the same word stem (whiskey/rum,
+% map/compass, sailor/boat, broccoli/carrot).
 
 sesNum = 1;
 
