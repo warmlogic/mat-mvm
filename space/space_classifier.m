@@ -27,47 +27,47 @@ else
   error('Data directory not found.');
 end
 
-% procDir = '/Users/matt/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla';
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
 subjects = {
   %'SPACE001'; low trial counts
   'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019'; low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  %'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+%   'SPACE003';
+%   'SPACE004';
+%   'SPACE005';
+%   'SPACE006';
+%   'SPACE007';
+%   %'SPACE008'; % didn't perform task correctly, didn't perform well
+%   'SPACE009';
+%   'SPACE010';
+%   'SPACE011';
+%   'SPACE012';
+%   'SPACE013';
+%   'SPACE014';
+%   'SPACE015';
+%   'SPACE016';
+%   %'SPACE017'; % previous assessment: really noisy EEG, half of ICA components rejected
+%   'SPACE018';
+%   %'SPACE019'; low trial counts
+%   'SPACE020';
+%   'SPACE021';
+%   'SPACE022';
+%   'SPACE027';
+%   'SPACE029';
+%   'SPACE037';
+%   %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+%   'SPACE023';
+%   'SPACE024';
+%   'SPACE025';
+%   'SPACE026';
+%   'SPACE028';
+%   %'SPACE030'; % low trial counts
+%   'SPACE032';
+%   'SPACE034';
+%   'SPACE047';
+%   'SPACE049';
+%   'SPACE036';
   };
 
 % only one cell, with all session names
@@ -441,7 +441,7 @@ thisROI = 'center109';
 % latencies = [0.0 0.2; 0.1 0.3; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0];
 % latencies = [0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9];
 % latencies = [0.0 0.5; 0.5 1.0];
-% latencies = [0.2 0.8];
+latencies = [0.2 0.8];
 
 % classif_start = 0;
 % classif_end = 1.0;
@@ -449,14 +449,14 @@ thisROI = 'center109';
 % window_spacing = 0.2;
 % latencies = [classif_start:window_spacing:(classif_end - classif_width); (classif_start+classif_width):window_spacing:classif_end]';
 
-latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
-  0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
-  0 0.3; 0.3 0.6; 0.6 0.9; ...
-  0 0.5; 0.5 1.0; ...
-  0.3 0.8; ...
-  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-  0 0.8; 0.1 0.9; 0.2 1.0;
-  0 1.0];
+% latencies = [0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
+%   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
+%   0 0.3; 0.3 0.6; 0.6 0.9; ...
+%   0 0.5; 0.5 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0];
 
 parameter = 'trial';
 
