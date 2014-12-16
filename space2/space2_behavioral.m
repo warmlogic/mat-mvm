@@ -42,13 +42,13 @@ behDir = fullfile(dataroot,behDir);
 subjects = {
   'SPACE2001'
   'SPACE2002' % really noisy EEG, finished both sessions
-  'SPACE2003' % DNF session 2
+  %'SPACE2003' % DNF session 2
   'SPACE2004'
   'SPACE2005'
   'SPACE2006'
-  'SPACE2007' % terrible performance
+  'SPACE2007' % bad performance
   'SPACE2008'
-  'SPACE2009' % DNF session 2
+  %'SPACE2009' % DNF session 2
   'SPACE2010'
   'SPACE2011';
   'SPACE2012';
@@ -56,17 +56,17 @@ subjects = {
   'SPACE2014';
   'SPACE2015';
   'SPACE2016';
-  'SPACE2017'; % terrible performance
+  'SPACE2017'; % bad performance
   'SPACE2018';
   'SPACE2019';
-  'SPACE2020'; % DNF session 2
+  %'SPACE2020'; % DNF session 2
   'SPACE2021';
   'SPACE2022';
-  'SPACE2023'; % no ses2
-  'SPACE2024'; % no ses2
-  'SPACE2025'; % terrible performance
+  %'SPACE2023'; % DNF session 2
+  %'SPACE2024'; % DNF session 2
+  'SPACE2025'; % bad performance
   'SPACE2026';
-  'SPACE2027'; % really noisy EEG, DNF session 2
+  %'SPACE2027'; % really noisy EEG, DNF session 2
   'SPACE2028';
   'SPACE2029';
   'SPACE2030';
@@ -263,7 +263,7 @@ tails = 'both';
 
 %% ANOVA - test - recall - spacing (spaced/massed) X category (Faces/HouseInside)
 
-ses = 'day1';
+% ses = 'day1';
 % ses = 'day2';
 phase = 'cued_recall_only';
 test = 'recall';
@@ -273,6 +273,7 @@ measure = 'recall_hr';
 % measure = 'recall_rt_miss';
 % measure = 'recall_nHit';
 
+sessions = {'day1','day2'};
 spacings = {'once','massed','lag2','lag12','lag32'};
 stimCats = {'Faces', 'HouseInside'};
 
@@ -283,9 +284,12 @@ for sub = 1:length(exper.subjects)
     %for ses = 1:length(exper.sesStr)
     theseData = [];
     
-    for sp = 1:length(spacings)
-      for st = 1:length(stimCats)
-        theseData = cat(2,theseData,results.(ses).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
+    for ses = 1:length(sessions)
+      for sp = 1:length(spacings)
+        for st = 1:length(stimCats)
+          %theseData = cat(2,theseData,results.(ses).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
+          theseData = cat(2,theseData,results.(sessions{ses}).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
+        end
       end
     end
     %end
@@ -297,11 +301,13 @@ end
 % varnames = {'stimType','subseqMem','spacing','time'};
 % O = teg_repeated_measures_ANOVA(anovaData, [2 2 2 length(latInd(1):latInd(2))], varnames,[],[],[],[],[],[],levelnames);
 
-levelnames = {spacings, stimCats};
-varnames = {'spacing','img_cat'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
+% levelnames = {spacings, stimCats};
+% varnames = {'spacing','img_cat'};
+% O = teg_repeated_measures_ANOVA(anovaData, [length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
 
-
+levelnames = {sessions, spacings, stimCats};
+varnames = {'session', 'spacing','img_cat'};
+O = teg_repeated_measures_ANOVA(anovaData, [length(sessions),length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
 
 %% recall
 
