@@ -107,19 +107,13 @@ ana = mm_ft_elecGroups(ana);
 
 %% list the event values to analyze; specific to each experiment
 
-% ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
-
 % ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
 
 ana.eventValues = repmat({{'name_stim'}},1,length(exper.sessions));
 
-% ana.eventValues{1} = cat(2,'nametrain_stim',ana.eventValues{1});
-
 ana.eventValuesSplit = repmat({...
   {{'basic', 'subord'} ...
   }},1,length(exper.sessions));
-
-% ana.eventValuesSplit{1} = cat(2,{{'basic', 'subord'}},ana.eventValuesSplit{1});
 
 for ses = 1:length(exper.sessions)
   ana.trl_expr{ses} = {...
@@ -130,12 +124,22 @@ for ses = 1:length(exper.sessions)
     };
 end
 
-% ana.trl_expr{1} = cat(2,...
-%   {{...
-%   sprintf('eventNumber == %d & isSubord == 0 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
-%   sprintf('eventNumber == %d & isSubord == 1 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
-%   }},...
-%   ana.trl_expr{1});
+% ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
+
+% can only add nametrain stimuli if they were processed in initial script
+addNametrain = false;
+if addNametrain
+  ana.eventValues{1} = cat(2,'nametrain_stim',ana.eventValues{1});
+  
+  ana.eventValuesSplit{1} = cat(2,{{'basic', 'subord'}},ana.eventValuesSplit{1});
+  
+  ana.trl_expr{1} = cat(2,...
+    {{...
+    sprintf('eventNumber == %d & isSubord == 0 ',find(ismember(exper.eventValues{1},'nametrain_stim'))) ...
+    sprintf('eventNumber == %d & isSubord == 1 ',find(ismember(exper.eventValues{1},'nametrain_stim'))) ...
+    }},...
+    ana.trl_expr{1});
+end
 
 %% split by correct/incorrect
 
@@ -143,17 +147,21 @@ end
 
 ana.eventValues = repmat({{'name_stim'}},1,length(exper.sessions));
 
+% ana.eventValuesSplit = repmat({...
+%   {{'basic_cor', 'basic_inc', 'subord_cor', 'subord_inc'} ...
+%   }},1,length(exper.sessions));
+
 ana.eventValuesSplit = repmat({...
-  {{'basic_cor', 'basic_inc', 'subord_cor', 'subord_inc'} ...
+  {{'basic_cor', 'subord_cor'} ...
   }},1,length(exper.sessions));
 
 for ses = 1:length(exper.sessions)
   ana.trl_expr{ses} = {...
     {...
     sprintf('eventNumber == %d & isSubord == 0 & acc == 1',find(ismember(exper.eventValues{ses},'name_stim'))) ...
-    sprintf('eventNumber == %d & isSubord == 0 & acc == 0',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    %sprintf('eventNumber == %d & isSubord == 0 & acc == 0',find(ismember(exper.eventValues{ses},'name_stim'))) ...
     sprintf('eventNumber == %d & isSubord == 1 & acc == 1',find(ismember(exper.eventValues{ses},'name_stim'))) ...
-    sprintf('eventNumber == %d & isSubord == 1 & acc == 0',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    %sprintf('eventNumber == %d & isSubord == 1 & acc == 0',find(ismember(exper.eventValues{ses},'name_stim'))) ...
     }...
     };
 end
@@ -214,9 +222,13 @@ replaceDataType = {};
 % exper.badBehSub = {repmat({'EBIRD021'},1,length(sesNames))};
 exper.badBehSub = repmat({{}},1,length(sesNames));
 
+evToCheck = ana.eventValues;
+% evToCheck = repmat({...
+%   {{'basic_cor', 'subord_cor'} ...
+%   }},1,length(exper.sessions));
+
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert');
-% [exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert', exper.eventValues);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert', evToCheck);
 
 %% let me know that it's done
 emailme = 1;
@@ -572,6 +584,7 @@ sesNum = [1, 2, 3, 4, 5, 6];
 % cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
 
 cfg_plot.condByROI = repmat({{'basic', 'subord'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'basic_cor', 'subord_cor'}},size(cfg_plot.rois));
 
 cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
 cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
