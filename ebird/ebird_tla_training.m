@@ -107,21 +107,55 @@ ana = mm_ft_elecGroups(ana);
 
 %% list the event values to analyze; specific to each experiment
 
+% ana.trl_order.nametrain_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'block', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
+
+% ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
+
 ana.eventValues = repmat({{'name_stim'}},1,length(exper.sessions));
+
+% ana.eventValues{1} = cat(2,'nametrain_stim',ana.eventValues{1});
 
 ana.eventValuesSplit = repmat({...
   {{'basic', 'subord'} ...
   }},1,length(exper.sessions));
 
-% split by correct/incorrect?
+% ana.eventValuesSplit{1} = cat(2,{{'basic', 'subord'}},ana.eventValuesSplit{1});
 
 for ses = 1:length(exper.sessions)
-ana.trl_expr{ses} = {...
-  {...
-      sprintf('eventNumber == %d & isSubord == 0 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
-      sprintf('eventNumber == %d & isSubord == 1 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
-  }...
-  };
+  ana.trl_expr{ses} = {...
+    {...
+    sprintf('eventNumber == %d & isSubord == 0 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    sprintf('eventNumber == %d & isSubord == 1 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    }...
+    };
+end
+
+% ana.trl_expr{1} = cat(2,...
+%   {{...
+%   sprintf('eventNumber == %d & isSubord == 0 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+%   sprintf('eventNumber == %d & isSubord == 1 ',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+%   }},...
+%   ana.trl_expr{1});
+
+%% split by correct/incorrect
+
+% ana.trl_order.name_stim = {'eventNumber', 'sesType', 'phaseType', 'phaseCount', 'trial', 'familyNum', 'speciesNum', 'exemplarNum', 'imgCond', 'isSubord', 'response', 'rt', 'acc'};
+
+ana.eventValues = repmat({{'name_stim'}},1,length(exper.sessions));
+
+ana.eventValuesSplit = repmat({...
+  {{'basic_cor', 'basic_inc', 'subord_cor', 'subord_inc'} ...
+  }},1,length(exper.sessions));
+
+for ses = 1:length(exper.sessions)
+  ana.trl_expr{ses} = {...
+    {...
+    sprintf('eventNumber == %d & isSubord == 0 & acc == 1',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    sprintf('eventNumber == %d & isSubord == 0 & acc == 0',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    sprintf('eventNumber == %d & isSubord == 1 & acc == 1',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    sprintf('eventNumber == %d & isSubord == 1 & acc == 0',find(ismember(exper.eventValues{ses},'name_stim'))) ...
+    }...
+    };
 end
 
 %% load in the subject data
@@ -178,7 +212,7 @@ replaceDataType = {};
 % exper.badBehSub = {{'EBIRD021'},{'EBIRD021'},{'EBIRD021'}};
 
 % exper.badBehSub = {repmat({'EBIRD021'},1,length(sesNames))};
-exper.badBehSub = {repmat({{}},1,length(sesNames))};
+exper.badBehSub = repmat({{}},1,length(sesNames));
 
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert');
@@ -510,15 +544,15 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.legendlocs = {'SouthEast','NorthWest'};
 
 % same as Scott et al. (2008)
-% cfg_plot.rois = {{'LPI2'},{'RPI2'}};
-cfg_plot.rois = {{'LPI2','RPI2'}};
-cfg_plot.ylims = [-0.5 6; -0.5 6];
-% cfg_plot.legendlocs = {'NorthEast','NorthEast'};
-cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+cfg_plot.rois = {{'LPI2'},{'RPI2'}};
+% cfg_plot.rois = {{'LPI2','RPI2'}};
+cfg_plot.ylims = [-2 6.5; -2 6.5];
+cfg_plot.legendlocs = {'NorthEast','NorthEast'};
+% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_ft.xlim = [-0.2 1.0];
 % cfg_plot.rois = {{'E70'},{'E83'}};
-% cfg_plot.ylims = [-10 10; -10 10];
+% cfg_plot.ylims = [-2 8; -2 8];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast'};
 
 % outermost cell holds one cell for each ROI; each ROI cell holds one cell
@@ -539,39 +573,6 @@ sesNum = [1, 2, 3, 4, 5, 6];
 
 cfg_plot.condByROI = repmat({{'basic', 'subord'}},size(cfg_plot.rois));
 
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_color' 'stim2_subord_color' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_color' 'stim1_subord_color' 'stim1_basic_g' 'stim1_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm_un' 'stim1_subord_norm_un'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_basic_g' 'stim2_basic_g_hi8' 'stim2_basic_g_lo8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim2_subord_norm' 'stim2_subord_g' 'stim2_subord_g_hi8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-
-% cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_g_lo8' 'stim1_subord_g_lo8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
-
-% cfg_ft.graphcolor = 'rmbckgrykbrmbckgrykb';
-% cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--', '-.','-.','-.','-.','-.','-.','-.','-.','-.','-.'};
-
-% cfg_ft.graphcolor = 'rmbckgrmbckg';
 cfg_ft.graphcolor = 'mrcbgkmrcbgkmrcbgk';
 cfg_ft.linestyle = {'-','-','-','-','-','-','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.'};
 
@@ -595,18 +596,16 @@ for r = 1:length(cfg_plot.rois)
 %   imgCond = 'HiSF';
 %   imgCond = 'LoSF';
   
-  legendLoc = 'NorthOutside';
-  legend({'T1 basic', 'T1 subord', 'T2 basic', 'T2 subord', 'T3 basic', 'T3 subord', 'T4 basic', 'T4 subord', 'T5 basic', 'T5 subord', 'T6 basic', 'T6 subord'},'Location',legendLoc);
-%   legend({sprintf('%s Basic Pretest %s',stimStr,imgCond) sprintf('%s Subord Pretest %s',stimStr,imgCond) sprintf('%s Basic 1-Day Posttest %s',stimStr,imgCond) sprintf('%s Subord 1-Day Posttest %s',stimStr,imgCond)},'Location',legendLoc);
-  %legend({sprintf('%s Basic %s Pretest',stimStr,imgCond) sprintf('%s Subord %s Pretest',stimStr,imgCond) sprintf('%s Basic %s 1-Day Posttest',stimStr,imgCond) sprintf('%s Subord %s 1-Day Posttest',stimStr,imgCond)},'Location',legendLoc);
+  %legendLoc = 'NorthOutside';
+  %legendLoc = 'NorthEast';
+  legend({'T1 basic', 'T1 subord', 'T2 basic', 'T2 subord', 'T3 basic', 'T3 subord', 'T4 basic', 'T4 subord', 'T5 basic', 'T5 subord', 'T6 basic', 'T6 subord'},'Location',cfg_plot.legendlocs{r});
   %legend off
   
   saveFigs = false;
   
-  figFileName = sprintf('ERP_%s_%s_basic_subord_prepost',imgCond,stimStr);
-  
   publishfig(gcf,1,14);
   if saveFigs
+    figFileName = sprintf('ERP_basic_subord_train');
     print(gcf,'-dpng',fullfile(dirs.saveDirFigs,figFileName));
   end
 end
