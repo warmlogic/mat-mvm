@@ -113,7 +113,7 @@ ana.eventValuesSplit = repmat({...
   {{'basic', 'subord'} ...
   }},1,length(exper.sessions));
 
-% correct/incorrect?
+% split by correct/incorrect?
 
 for ses = 1:length(exper.sessions)
 ana.trl_expr{ses} = {...
@@ -140,6 +140,37 @@ saveDir = dirs.saveDirProc;
 % save('/data/projects/curranlab/EBIRD/EEG/Sessions/ftpp/ft_data/data_art_nsClassic/erp/ebird_data_tla_train.mat','data_tla','exper','ana','dirs','files','subjects','-v7.3');
 save(fullfile(saveDir,'ebird_data_tla_train.mat'),'data_tla','exper','ana','dirs','files','subjects','-v7.3');
 
+%% load
+
+subDir = '';
+dataDir = fullfile('EBIRD','EEG','Sessions','ftpp',subDir);
+% Possible locations of the data files (dataroot)
+serverDir = fullfile(filesep,'Volumes','curranlab','Data');
+serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
+dreamDir = fullfile(filesep,'data','projects','curranlab');
+localDir = fullfile(getenv('HOME'),'data');
+
+% pick the right dataroot
+if exist('serverDir','var') && exist(serverDir,'dir')
+  dataroot = serverDir;
+elseif exist('serverLocalDir','var') && exist(serverLocalDir,'dir')
+  dataroot = serverLocalDir;
+elseif exist('dreamDir','var') && exist(dreamDir,'dir')
+  dataroot = dreamDir;
+elseif exist('localDir','var') && exist(localDir,'dir')
+  dataroot = localDir;
+else
+  error('Data directory not found.');
+end
+
+loadDir = fullfile(dataroot,dataDir,'ft_data/data_art_nsClassic/tla');
+
+load(fullfile(loadDir,'ebird_data_tla_train.mat'));
+
+replaceDataType = {};
+
+[dirs] = mm_checkDirs(dirs,replaceDataType,subDir);
+
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
@@ -152,8 +183,6 @@ exper.badBehSub = {repmat({{}},1,length(sesNames))};
 % exclude subjects with low event counts
 [exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert');
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert', exper.eventValues);
-
-% [exper,ana] = mm_threshSubs(exper,ana,1);
 
 %% let me know that it's done
 emailme = 1;
@@ -326,18 +355,67 @@ end
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% lowpass filter and segment for ERPs
 
-% %% Remove the dof field. I'm not sure what degrees of freedom refers to, but the tutorial says to.
-% for evVal = 1:length(exper.eventValues)
-%   for sub = 1:length(exper.subjects)
-%     for ses = 1:length(exper.sesStr)
-%       if isfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof')
-%         data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data = rmfield(data_tla.(exper.eventValues{evVal}).sub(sub).ses(ses).data,'dof');
+% data_tla_backup = data_tla;
+
+lpfilt = true;
+
+if lpfilt
+  sampleRate = exper.sampleRate;
+  lpfreq = 40;
+  lofiltord = 3;
+  lpfilttype = 'but';
+end
+
+% cfg_sel = [];
+% cfg_sel.latency = [-0.2 1.0];
+
+for ses = 1:length(exper.sesStr)
+  for typ = 1:length(ana.eventValues{ses})
+    for evVal = 1:length(ana.eventValues{ses}{typ})
+      for sub = 1:length(exper.subjects)
+        fprintf('%s, %s, %s\n',exper.subjects{sub},exper.sesStr{ses},ana.eventValues{ses}{typ}{evVal});
+        
+        if lpfilt
+          % process individual trials
+          if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'trial')
+            for i = 1:size(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial,1)
+              data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:) = ft_preproc_lowpassfilter( ...
+                squeeze(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.trial(i,:,:)), ...
+                sampleRate,lpfreq,lofiltord,lpfilttype);
+            end
+          end
+          
+          % process subject average
+          if isfield(data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data,'avg')
+            data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.avg = ft_preproc_lowpassfilter( ...
+              data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data.avg, ...
+              sampleRate,lpfreq,lofiltord,lpfilttype);
+          end
+        end
+        
+        % % select
+        % data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data = ft_selectdata(cfg_sel,data_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).sub(sub).data);
+        
+      end
+      
+%       % grand average
+%       if exist('ga_tla','var')
+%         if lpfilt
+%           if isfield(ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}),'avg')
+%             ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).avg = ft_preproc_lowpassfilter( ...
+%               ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}).avg, ...
+%               sampleRate,lpfreq,lofiltord,lpfilttype);
+%           end
+%         end
+%         
+%         % select
+%         ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}) = ft_selectdata_new(cfg_sel,ga_tla.(exper.sesStr{ses}).(ana.eventValues{ses}{typ}{evVal}));
 %       end
-%     end
-%   end
-% end
+    end
+  end
+end
 
 %% get the grand average
 
@@ -455,15 +533,11 @@ cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_plot.condByROI = repmat({{'cond1' 'cond2'}},size(cfg_plot.rois));
 
-sesNum = [1 2];
-% sesNum = [1 3];
-% sesNum = [2 3];
-% sesNum = [1];
-% sesNum = [2];
-% sesNum = [3];
+sesNum = [1, 2, 3, 4, 5, 6];
+
 % cfg_plot.condByROI = repmat(ana.eventValues{sesNum},size(cfg_plot.rois));
 
-% cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm'}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{'basic', 'subord'}},size(cfg_plot.rois));
 
 % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_g' 'stim2_subord_g' 'stim2_basic_g_hi8' 'stim2_subord_g_hi8' 'stim2_basic_g_lo8' 'stim2_subord_g_lo8' 'stim2_basic_color' 'stim2_subord_color'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim2_basic_norm' 'stim2_subord_norm' 'stim2_basic_color' 'stim2_subord_color' 'stim2_basic_g' 'stim2_subord_g'}},size(cfg_plot.rois));
@@ -473,7 +547,7 @@ sesNum = [1 2];
 % cfg_plot.condByROI = repmat({{'stim1_basic_norm' 'stim1_subord_norm' 'stim1_basic_color' 'stim1_subord_color' 'stim1_basic_g' 'stim1_subord_g'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g' 'stim1_basic_g_hi8' 'stim1_subord_g_hi8' 'stim1_basic_g_lo8' 'stim1_subord_g_lo8'}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{'stim1_basic_norm_un' 'stim1_subord_norm_un'}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{'stim1_basic_norm_un' 'stim1_subord_norm_un'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_color' 'stim1_subord_color'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g' 'stim1_subord_g'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'stim1_basic_g_hi8' 'stim1_subord_g_hi8'}},size(cfg_plot.rois));
@@ -513,21 +587,21 @@ for r = 1:length(cfg_plot.rois)
   mm_ft_simpleplotER_multiSes(cfg_ft,cfg_plot,ana,exper,sesNum,ga_tla);
   %print(gcf,'-dpng',sprintf('~/Desktop/%s_good_%d',exper.name,length(exper.subjects) - length(exper.badBehSub)));
   
-  stimStr = 'Stim1';
-  imgCond = 'Congruent';
-  trainCond = 'Un';
+%   stimStr = '';
+%   imgCond = '';
+%   trainCond = '';
 %   imgCond = 'Incongruent';
 %   imgCond = 'Gray-AllSF';
 %   imgCond = 'HiSF';
 %   imgCond = 'LoSF';
   
   legendLoc = 'NorthOutside';
-  legend({sprintf('%s Basic Pretest %s %s',stimStr,imgCond, trainCond) sprintf('%s Subord Pretest %s %s',stimStr,imgCond, trainCond) sprintf('%s Basic 1-Day Posttest %s %s',stimStr,imgCond, trainCond) sprintf('%s Subord 1-Day Posttest %s  %s',stimStr,imgCond, trainCond)},'Location',legendLoc);
+  legend({'T1 basic', 'T1 subord', 'T2 basic', 'T2 subord', 'T3 basic', 'T3 subord', 'T4 basic', 'T4 subord', 'T5 basic', 'T5 subord', 'T6 basic', 'T6 subord'},'Location',legendLoc);
 %   legend({sprintf('%s Basic Pretest %s',stimStr,imgCond) sprintf('%s Subord Pretest %s',stimStr,imgCond) sprintf('%s Basic 1-Day Posttest %s',stimStr,imgCond) sprintf('%s Subord 1-Day Posttest %s',stimStr,imgCond)},'Location',legendLoc);
   %legend({sprintf('%s Basic %s Pretest',stimStr,imgCond) sprintf('%s Subord %s Pretest',stimStr,imgCond) sprintf('%s Basic %s 1-Day Posttest',stimStr,imgCond) sprintf('%s Subord %s 1-Day Posttest',stimStr,imgCond)},'Location',legendLoc);
   %legend off
   
-  saveFigs = true;
+  saveFigs = false;
   
   figFileName = sprintf('ERP_%s_%s_basic_subord_prepost',imgCond,stimStr);
   
