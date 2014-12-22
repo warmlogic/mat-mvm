@@ -355,42 +355,44 @@ replaceDataType = {};
 % exper.badBehSub = {{}};
 exper.badBehSub = {{'SPACE2002'}};
 
-exper.badBehSub = {{
-  'SPACE2001';
-  'SPACE2002';
-  %'SPACE2003'; % DNF session 2
-  'SPACE2004';
-%   'SPACE2005';
-  'SPACE2006';
-  'SPACE2007'; % terrible performance
-  'SPACE2008';
-  %'SPACE2009'; % DNF session 2
-  'SPACE2010';
-  'SPACE2011';
-  'SPACE2012';
-  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
-  'SPACE2014';
-  'SPACE2015';
-  'SPACE2016';
-  'SPACE2017'; % terrible performance
-  'SPACE2018';
-  'SPACE2019';
-  %'SPACE2020'; % DNF session 2
-  'SPACE2021';
-  'SPACE2022';
-  %'SPACE2023'; % no ses2
-  %'SPACE2024'; % no ses2
-  'SPACE2025';
-  'SPACE2026';
-  'SPACE2027'; % no ses2
-  }};
+% exper.badBehSub = {{
+%   'SPACE2001';
+%   'SPACE2002';
+%   %'SPACE2003'; % DNF session 2
+%   'SPACE2004';
+% %   'SPACE2005';
+%   'SPACE2006';
+%   'SPACE2007'; % terrible performance
+%   'SPACE2008';
+%   %'SPACE2009'; % DNF session 2
+%   'SPACE2010';
+%   'SPACE2011';
+%   'SPACE2012';
+%   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
+%   'SPACE2014';
+%   'SPACE2015';
+%   'SPACE2016';
+%   'SPACE2017'; % terrible performance
+%   'SPACE2018';
+%   'SPACE2019';
+%   %'SPACE2020'; % DNF session 2
+%   'SPACE2021';
+%   'SPACE2022';
+%   %'SPACE2023'; % no ses2
+%   %'SPACE2024'; % no ses2
+%   'SPACE2025';
+%   'SPACE2026';
+%   'SPACE2027'; % no ses2
+%   }};
 
 % SPACE2002 has really noisy EEG
 
 evToCheck = { ...
   { ...
   { ...
-  'img_onePres' ...
+  'img_rc_onePres' ...
+  %
+  'img_fo_onePres' ...
   %'img_rc_mass_p1' ...
   'img_rc_mass_p2' ...
   %'img_fo_mass_p1' ...
@@ -409,7 +411,9 @@ evToCheck = { ...
   'img_fo_spac32_p2' ...
   } ...
   { ...
-  'word_onePres' ...
+  'word_rc_onePres', ...
+  %
+  'word_fo_onePres' ...
   %'word_rc_mass_p1' ...
   'word_rc_mass_p2' ...
   %'word_fo_mass_p1' ...
