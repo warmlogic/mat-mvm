@@ -54,7 +54,7 @@ subjects = {
   'EBIRD018';
   'EBIRD019';
   'EBIRD020';
-  'EBIRD021';
+  %'EBIRD021'; % Bad behavior
   %'EBIRD022'; % DNF. Dropout. Last session: 8.
   %'EBIRD023'; % DNF. Dropout. Last session: 1.
   'EBIRD024';
