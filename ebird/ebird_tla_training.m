@@ -219,8 +219,8 @@ replaceDataType = {};
 % exper.badBehSub = {{},{},{}};
 % exper.badBehSub = {{'EBIRD021'},{'EBIRD021'},{'EBIRD021'}};
 
-% exper.badBehSub = {repmat({'EBIRD021'},1,length(sesNames))};
-exper.badBehSub = repmat({{}},1,length(sesNames));
+% exper.badBehSub = {repmat({'EBIRD021'},1,length(exper.sessions))};
+exper.badBehSub = repmat({{}},1,length(exper.sessions));
 
 evToCheck = ana.eventValues;
 % evToCheck = repmat({...
