@@ -95,11 +95,11 @@ exper.subjects = {
 %   'SPACE2033';
 %   'SPACE2034';
 %   'SPACE2035';
-  'SPACE2036';
-  'SPACE2037';
+%   'SPACE2036';
+%   'SPACE2037';
   'SPACE2038';
   %'SPACE2039'; % no ses2
-  'SPACE2040';
+%   'SPACE2040';
   };
 
 
