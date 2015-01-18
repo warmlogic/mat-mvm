@@ -63,7 +63,7 @@ subjects = {
   'SPACE2036';
   'SPACE2037';
   'SPACE2038';
-  %'SPACE2039'; % no ses2
+  %'SPACE2039'; % DNF session 2
   'SPACE2040';
   };
 
