@@ -80,7 +80,9 @@ sesNames = {'session_1_session_2'};
 % words that sound exactly the same (board/bored, brake/break). Related (5)
 % means closely associated words but cannot have the same word stem
 % (whiskey/rum, map/compass, sailor/boat, broccoli/carrot).
-gradeCorrect = '[1, 2, 3, 4]';
+
+% gradeCorrect = '[1, 2, 3, 4]';
+gradeCorrect = '[1, 2, 4]';
 
 % replaceDataroot = {'/Users/matt/data','/Volumes/curranlab/Data'};
 replaceDataroot = true;
@@ -322,7 +324,7 @@ ana.eventValues = ana.eventValuesSplit;
 saveDir = dirs.saveDirProc;
 % save(fullfile(saveDir,'space_word_img_data_ga_tla.mat'),'data_tla','ga_tla','exper','ana','dirs','files','-v7.3');
 % save(fullfile(saveDir,'space_word_img_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
-save(fullfile(saveDir,'space_word_img_rc_fo_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
+save(fullfile(saveDir,'space_word_img_rc_fo_data_tla_noSyn.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
 % clear data_tla
 
 %% load
@@ -350,7 +352,8 @@ end
 
 loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
 
-load(fullfile(loadDir,'space_word_img_rc_fo_data_tla.mat'));
+% load(fullfile(loadDir,'space_word_img_rc_fo_data_tla.mat'));
+load(fullfile(loadDir,'space_word_img_rc_fo_data_tla_noSyn.mat'));
 
 replaceDataType = {};
 
@@ -359,8 +362,8 @@ replaceDataType = {};
 %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-% exper.badBehSub = {{}};
-exper.badBehSub = {{'SPACE2002'}};
+exper.badBehSub = {{}};
+% exper.badBehSub = {{'SPACE2002'}};
 
 % exper.badBehSub = {{
 %   'SPACE2001';
@@ -397,9 +400,9 @@ exper.badBehSub = {{'SPACE2002'}};
 evToCheck = { ...
   { ...
   { ...
-  'img_rc_onePres' ...
+  %'img_rc_onePres' ...
   %
-  'img_fo_onePres' ...
+  %'img_fo_onePres' ...
   %'img_rc_mass_p1' ...
   'img_rc_mass_p2' ...
   %'img_fo_mass_p1' ...
@@ -418,9 +421,10 @@ evToCheck = { ...
   'img_fo_spac32_p2' ...
   } ...
   { ...
-  'word_rc_onePres', ...
+  
+  %'word_rc_onePres', ...
   %
-  'word_fo_onePres' ...
+  %'word_fo_onePres' ...
   %'word_rc_mass_p1' ...
   'word_rc_mass_p2' ...
   %'word_fo_mass_p1' ...
@@ -442,7 +446,7 @@ evToCheck = { ...
   };
 
 % exclude subjects with low event counts
-[exper,ana] = mm_threshSubs_multiSes(exper,ana,15,[],'vert',evToCheck);
+[exper,ana] = mm_threshSubs_multiSes(exper,ana,10,[],'vert',evToCheck);
 
 %% Test plots to make sure data look ok
 
@@ -684,27 +688,27 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-3 2; -2 3; -1 4; -1 4];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast','SouthEast'};
 
-% LPC
-cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
-% cfg_plot.rois = {{'C'}};
-% cfg_plot.rois = {{'Pz'}}; % Pz
-% cfg_plot.rois = {{'PS'}}; % Centered on Pz
-% cfg_plot.rois = {{'PS2'}}; % Centered on E72
-% cfg_plot.rois = {{'LPS'},{'RPS'}};
-% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
-% cfg_plot.rois = {{'LPS2','RPS2'}};
-cfg_plot.ylims = [-1 6; -1 6];
-% cfg_plot.legendlocs = {'SouthEast'};
-cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+% % LPC
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
+% % cfg_plot.rois = {{'C'}};
+% % cfg_plot.rois = {{'Pz'}}; % Pz
+% % cfg_plot.rois = {{'PS'}}; % Centered on Pz
+% % cfg_plot.rois = {{'PS2'}}; % Centered on E72
+% % cfg_plot.rois = {{'LPS'},{'RPS'}};
+% % cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% % cfg_plot.rois = {{'LPS2','RPS2'}};
+% cfg_plot.ylims = [-1 6; -1 6];
+% % cfg_plot.legendlocs = {'SouthEast'};
+% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
-% % N400
-% % cfg_plot.rois = {{'LAS'}}; % Center=20
-% % cfg_plot.rois = {{'FS2'}}; % Center=6
-% cfg_plot.rois = {{'C'}};
-% % cfg_plot.rois = {{'Cz'}};
-% cfg_plot.ylims = [-3 4];
-% cfg_plot.legendlocs = {'NorthEast'};
-% % cfg_plot.legendlocs = {'SouthWest'};
+% N400
+% cfg_plot.rois = {{'LAS'}}; % Center=20
+% cfg_plot.rois = {{'FS2'}}; % Center=6
+cfg_plot.rois = {{'C'}};
+% cfg_plot.rois = {{'Cz'}};
+cfg_plot.ylims = [-3 4];
+cfg_plot.legendlocs = {'NorthEast'};
+% cfg_plot.legendlocs = {'SouthWest'};
 
 % % N2
 % % cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
@@ -714,7 +718,7 @@ cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 % cfg_plot.ylims = [-3 4; -3 4];
 % cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
-cfg_plot.ylims = [-10 10];
+% cfg_plot.ylims = [-10 10];
 
 % cfg_plot.rois = {{'Oz'},{'PI'}};
 % cfg_plot.ylims = [-2 3; -2 3];
@@ -933,8 +937,8 @@ cfg_plot = [];
 % cfg_plot.rois = {{'LPS2'}};
 
 % cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
-cfg_plot.rois = {{'C'}};
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
+% cfg_plot.rois = {{'C'}};
+cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
