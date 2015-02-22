@@ -946,7 +946,7 @@ cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.parameter = 'avg';
 
-% 18 and 21 seem bery noisy
+% 18 and 21 seem very noisy
 
 cfg_plot.titleTrialCount = false;
 
