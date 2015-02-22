@@ -917,6 +917,9 @@ cfg_plot.marksize = 15;
 cfg_plot.errwidth = 1;
 cfg_plot.errBarEndMarkerInd = [4 5 7 8];
 cfg_plot.removeErrBarEnds = 1;
+if ~verLessThan('matlab', '8.4')
+  cfg_plot.removeErrBarEnds = false;
+end
 
 cfg_plot.xlabel = 'Conditions';
 cfg_plot.xlabel = '';
@@ -1042,6 +1045,9 @@ cfg_plot.marksize = 15;
 cfg_plot.errwidth = 1;
 cfg_plot.errBarEndMarkerInd = [4 5 7 8];
 cfg_plot.removeErrBarEnds = 1;
+if ~verLessThan('matlab', '8.4')
+  cfg_plot.removeErrBarEnds = false;
+end
 
 cfg_plot.xlabel = 'Conditions';
 cfg_plot.xlabel = '';
@@ -1175,6 +1181,9 @@ cfg_plot.marksize = 15;
 cfg_plot.errwidth = 1;
 cfg_plot.errBarEndMarkerInd = [4 5 7 8];
 cfg_plot.removeErrBarEnds = 1;
+if ~verLessThan('matlab', '8.4')
+  cfg_plot.removeErrBarEnds = false;
+end
 
 cfg_plot.xlabel = 'Conditions';
 cfg_plot.xlabel = '';
@@ -1309,6 +1318,9 @@ cfg_plot.marksize = 15;
 cfg_plot.errwidth = 1;
 cfg_plot.errBarEndMarkerInd = [4 5 7 8];
 cfg_plot.removeErrBarEnds = 1;
+if ~verLessThan('matlab', '8.4')
+  cfg_plot.removeErrBarEnds = false;
+end
 
 cfg_plot.xlabel = 'Conditions';
 cfg_plot.xlabel = '';

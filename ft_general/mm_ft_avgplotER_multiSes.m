@@ -88,6 +88,9 @@ cfg_plot.errBarEndMarkerInd = [4 5 7 8];
 if ~isfield(cfg_plot,'removeErrBarEnds')
   cfg_plot.removeErrBarEnds = true;
 end
+if ~verLessThan('matlab', '8.4')
+  cfg_plot.removeErrBarEnds = false;
+end
 
 if ~isfield(cfg_plot,'roi')
   error('Must specify either ROI names or channel names in cfg_plot.roi');
