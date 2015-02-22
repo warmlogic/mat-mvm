@@ -653,7 +653,8 @@ end
 %% plot the conditions - simple
 
 cfg_ft = [];
-cfg_ft.xlim = [-0.2 1.0];
+cfg_ft.xlim = [0 1.0];
+% cfg_ft.xlim = [-0.2 1.0];
 % cfg_ft.xlim = [-0.2 0.4];
 % cfg_ft.xlim = [-1.0 2.0];
 cfg_ft.parameter = 'avg';
@@ -701,22 +702,23 @@ cfg_plot.excludeBadSub = 1;
 % % cfg_plot.legendlocs = {'SouthEast'};
 % cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
-% N400
-% cfg_plot.rois = {{'LAS'}}; % Center=20
-% cfg_plot.rois = {{'FS2'}}; % Center=6
-cfg_plot.rois = {{'C'}};
-% cfg_plot.rois = {{'Cz'}};
-cfg_plot.ylims = [-3 4];
-cfg_plot.legendlocs = {'NorthEast'};
-% cfg_plot.legendlocs = {'SouthWest'};
+% % N400
+% % cfg_plot.rois = {{'LAS'}}; % Center=20
+% % cfg_plot.rois = {{'FS2'}}; % Center=6
+% cfg_plot.rois = {{'C'}};
+% % cfg_plot.rois = {{'Cz'}};
+% cfg_plot.ylims = [-3 4];
+% cfg_plot.legendlocs = {'NorthEast'};
+% % cfg_plot.legendlocs = {'SouthWest'};
 
-% % N2
-% % cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
-% % cfg_plot.rois = {{'E90','E91','E95','E96','E97','E100','E101'}}; % T6 (R)
-% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
+% N2
+% cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
+cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
+% cfg_plot.rois = {{'E90','E91','E95','E96','E97','E100','E101'}}; % T6 (R)
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
 % cfg_plot.ylims = [-3 4; -3 4];
-% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+cfg_plot.ylims = [-2 2.5; -2 2.5];
+cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_plot.ylims = [-10 10];
 
@@ -749,20 +751,53 @@ sesNum = 1;
 % cfg_plot.condByROI = repmat({{'word_spac_p2', 'word_mass_p2', 'word_spac_p1', 'word_mass_p1', 'word_onePres'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'img_spac_p2', 'img_mass_p2', 'img_spac_p1', 'img_mass_p1', 'img_onePres'}},size(cfg_plot.rois));
 
-% VanSEtal2007
-cfg_plot.condByROI = repmat({{'word_rc_spac2_p1', 'word_fo_spac2_p1', 'word_rc_mass_p1', 'word_fo_mass_p1', 'word_rc_spac2_p2', 'word_fo_spac2_p2', 'word_rc_mass_p2', 'word_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'word_rc_spac_p2', 'word_fo_spac_p2', 'word_rc_mass_p2', 'word_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'img_rc_spac_p1', 'img_fo_spac_p1', 'img_rc_mass_p1', 'img_fo_mass_p1', 'img_rc_spac_p2', 'img_fo_spac_p2', 'img_rc_mass_p2', 'img_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{'img_rc_spac_p2', 'img_fo_spac_p2', 'img_rc_mass_p2', 'img_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
+% % VanSEtal2007
+% cfg_plot.condByROI = repmat({{'word_rc_spac2_p1', 'word_fo_spac2_p1', 'word_rc_mass_p1', 'word_fo_mass_p1', 'word_rc_spac2_p2', 'word_fo_spac2_p2', 'word_rc_mass_p2', 'word_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'word_rc_spac_p2', 'word_fo_spac_p2', 'word_rc_mass_p2', 'word_fo_mass_p2' ,'word_onePres'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'img_rc_spac_p1', 'img_fo_spac_p1', 'img_rc_mass_p1', 'img_fo_mass_p1', 'img_rc_spac_p2', 'img_fo_spac_p2', 'img_rc_mass_p2', 'img_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
+% % cfg_plot.condByROI = repmat({{'img_rc_spac_p2', 'img_fo_spac_p2', 'img_rc_mass_p2', 'img_fo_mass_p2' ,'img_onePres'}},size(cfg_plot.rois));
 
-cfg_plot.condByROI = repmat({{ ...
+% % Pres-1 (P1)
+% cfg_plot.condByROI = repmat({{ ...
 %   'word_rc_mass_p1', 'word_rc_spac2_p1', 'word_rc_spac12_p1', 'word_rc_spac32_p1', ...
 %   'word_fo_mass_p1', 'word_fo_spac2_p1', 'word_fo_spac12_p1', 'word_fo_spac32_p1', ...
-  'word_rc_mass_p2', 'word_rc_spac2_p2', 'word_rc_spac12_p2', 'word_rc_spac32_p2', ...
-  'word_fo_mass_p2', 'word_fo_spac2_p2', 'word_fo_spac12_p2', 'word_fo_spac32_p2', ...
-  %'word_onePres' ...
+% %   'word_rc_mass_p2', 'word_rc_spac2_p2', 'word_rc_spac12_p2', 'word_rc_spac32_p2', ...
+% %   'word_fo_mass_p2', 'word_fo_spac2_p2', 'word_fo_spac12_p2', 'word_fo_spac32_p2', ...
+%   %'word_onePres' ...
+%   }},size(cfg_plot.rois));
+
+% % Pres-2 (P2)
+% cfg_plot.condByROI = repmat({{ ...
+% %   'word_rc_mass_p1', 'word_rc_spac2_p1', 'word_rc_spac12_p1', 'word_rc_spac32_p1', ...
+% %   'word_fo_mass_p1', 'word_fo_spac2_p1', 'word_fo_spac12_p1', 'word_fo_spac32_p1', ...
+%   'word_rc_mass_p2', 'word_rc_spac2_p2', 'word_rc_spac12_p2', 'word_rc_spac32_p2', ...
+%   'word_fo_mass_p2', 'word_fo_spac2_p2', 'word_fo_spac12_p2', 'word_fo_spac32_p2', ...
+%   %'word_onePres' ...
+%   }},size(cfg_plot.rois));
+
+% Mass
+cfg_plot.condByROI = repmat({{ ...
+  'word_rc_mass_p1', 'word_fo_mass_p1', 'word_rc_mass_p2', 'word_fo_mass_p2', ...
+  'word_rc_onePres', 'word_fo_onePres' ...
   }},size(cfg_plot.rois));
 
+% Space-2
+cfg_plot.condByROI = repmat({{ ...
+  'word_rc_spac2_p1', 'word_fo_spac2_p1', 'word_rc_spac2_p2', 'word_fo_spac2_p2', ...
+  'word_rc_onePres', 'word_fo_onePres' ...
+  }},size(cfg_plot.rois));
+
+% Space-12
+cfg_plot.condByROI = repmat({{ ...
+  'word_rc_spac12_p1', 'word_fo_spac12_p1', 'word_rc_spac12_p2', 'word_fo_spac12_p2', ...
+  'word_rc_onePres', 'word_fo_onePres' ...
+  }},size(cfg_plot.rois));
+
+% Space-32
+cfg_plot.condByROI = repmat({{ ...
+  'word_rc_spac32_p1', 'word_fo_spac32_p1', 'word_rc_spac32_p2', 'word_fo_spac32_p2', ...
+  'word_rc_onePres', 'word_fo_onePres' ...
+  }},size(cfg_plot.rois));
 
 cfg_plot.axisxy = false;
 
@@ -791,7 +826,12 @@ cfg = [];
 % cfg.conditions = cellflat(ana.eventValues{1}{2});
 
 % % words, all together
-cfg.conditions = {'word_onePres','word_rc_spac_p1','word_fo_spac_p1','word_rc_spac_p2','word_fo_spac_p2','word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'};
+cfg.conditions = {...
+  'word_rc_onePres','word_fo_onePres', ...
+  'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2', ...
+  'word_rc_spac12_p1','word_fo_spac12_p1','word_rc_spac12_p2','word_fo_spac12_p2', ...
+  'word_rc_spac32_p1','word_fo_spac32_p1','word_rc_spac32_p2','word_fo_spac32_p2', ...
+  'word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'};
 % cfg.conditions = {'word_rc_spac_p1','word_fo_spac_p1','word_rc_spac_p2','word_fo_spac_p2','word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'};
 
 % P2 only
@@ -819,12 +859,15 @@ cfg.conditions = {'word_onePres','word_rc_spac_p1','word_fo_spac_p1','word_rc_sp
 % % cfg.roi = {'center101'};
 % cfg.roi = {'posterior_noPeriph'};
 % cfg.latency = [0.4 0.8]; % LPC
+% % cfg.latency = [0.5 0.8]; % LPC
 % cfg.order = 'descend'; % descend = positive peaks first
 % % LPC: electrode cluster around E77 includes peak E84 E85 etc
+% % or use E84?
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (596ms)
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (532ms old:596ms)
+% % cfg.roi = {'E76','E77','E83','E84','E85','E90','E91'}; % Centered on E84 (ms)
 % % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
 % % cfg.roi = {'RPS'}; % Centered on E86 (ms)
 % % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
@@ -832,8 +875,8 @@ cfg.conditions = {'word_onePres','word_rc_spac_p1','word_fo_spac_p1','word_rc_sp
 % cfg.order = 'descend'; % descend = positive peaks first
 
 % % step 3: select a window for analysis around peak; cfg.outputSubjects=true
-% % lpcPeak = 0.588;
-% lpcPeak = 0.576; % bilateral
+% lpcPeak = 0.532;
+% % lpcPeak = 0.576; % bilateral
 % cfg.datadim = 'time';
 % cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77
 % % cfg.roi = {'RPS2'}; % Centered on E85
@@ -862,11 +905,11 @@ cfg.conditions = {'word_onePres','word_rc_spac_p1','word_fo_spac_p1','word_rc_sp
 % cfg.order = 'ascend'; % ascend = negative peaks first
 
 % % step 3: select a window for analysis around peak
-% n400Peak = 0.360; % FS2
-% % n400Peak = 0.372; % C
+% % n400Peak = 0.360; % FS2
+% n400Peak = 0.372; % C
 % cfg.datadim = 'time';
-% cfg.roi = {'FS2'}; % Centered on E6
-% % cfg.roi = {'C'}; % Centered on Cz
+% % cfg.roi = {'FS2'}; % Centered on E6
+% cfg.roi = {'C'}; % Centered on Cz
 % cfg.latency = [n400Peak-0.05 n400Peak+0.05]; % N400 - around GA peak (space+mass) +/- 50
 % % cfg.latency = [n400Peak-0.1 n400Peak+0.1]; % N400 - around GA peak (space+mass) +/- 100
 % cfg.avgovertime = true;
@@ -886,13 +929,13 @@ cfg.conditions = {'word_onePres','word_rc_spac_p1','word_fo_spac_p1','word_rc_sp
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% cfg.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % Centered on E58/T5 (172ms)
+% cfg.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % Centered on E58/T5 (144ms)
 % % cfg.roi = {'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}; % Centered on T5+T6 (172ms)
 % cfg.latency = [0.1 0.3]; % N2
 % cfg.order = 'ascend'; % ascend = negative peaks first
 
 % % step 3: select a window for analysis around peak
-% n2Peak = 0.172; % 'E58'
+% n2Peak = 0.144; % 'E58'
 % cfg.datadim = 'time';
 % cfg.roi = {'E50', 'E51', 'E57', 'E58', 'E59', 'E64', 'E65'}; % Centered on 
 % cfg.latency = [n2Peak-0.05 n2Peak+0.05]; % around GA peak (space+mass) +/- 50
@@ -936,16 +979,14 @@ cfg_plot = [];
 % cfg_plot.rois = {{'LPS'}};
 % cfg_plot.rois = {{'LPS2'}};
 
-% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
-% cfg_plot.rois = {{'C'}};
-cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for LPC analysis
+cfg_plot.rois = {{'C'}}; % C for N400 analysis
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5/E58 (L) % for N2 analysis
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];
 cfg_plot.ylim = [-10 10];
 cfg_plot.parameter = 'avg';
-
-% 18 and 21 seem bery noisy
 
 cfg_plot.titleTrialCount = false;
 
@@ -968,7 +1009,10 @@ cfg_plot.titleTrialCount = false;
 %   {'C2','C6'},...
 %   {'C2','C6'}};
 
-cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cond = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
+
+cfg_plot.condByROI = repmat({{{cond}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
 
 ses = 1;
 
@@ -977,6 +1021,7 @@ for r = 1:length(cfg_plot.rois)
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
   cfg_plot.types = {'image','word'};
+  cfg_plot.types = {'word'};
   
   mm_ft_subjplotER(cfg_plot,ana,exper,data_tla,ses);
 end
@@ -1111,13 +1156,13 @@ cfg_plot.excludeBadSub = 1;
 
 cfg_plot.ftFxn = 'ft_singleplotER';
 
-% % N1 @ T5/T6
-% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}};
-% cfg_plot.ylims = [-3 4; -3 4];
-% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
-% n1Peak = 0.172; % E58
-% cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
+% N1 @ T5/T6
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
+cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}};
+cfg_plot.ylims = [-3 4; -3 4];
+cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+n1Peak = 0.144; % E58
+cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
 
 % % N400 @ C
 % % cfg_plot.rois = {{'FS'}};
@@ -1128,15 +1173,19 @@ cfg_plot.ftFxn = 'ft_singleplotER';
 % n400Peak = 0.372; % C
 % cfg_plot.x_bounds = [n400Peak-0.05 n400Peak+0.05]; % time
 
-% % LPC @ E77
-cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
-cfg_plot.ylims = [-1 6];
-cfg_plot.legendlocs = {'NorthWest'};
-lpcPeak = 0.596; % centered on E77
-cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
+% % % LPC @ E77
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
+% cfg_plot.ylims = [-1 6];
+% cfg_plot.legendlocs = {'NorthWest'};
+% lpcPeak = 0.532; % centered on E77
+% cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
-cfg_plot.condByROI = repmat({{{'word_rc_spac_p1','word_fo_spac_p1','word_rc_spac_p2','word_fo_spac_p2'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'Space P1 Recalled','Space P1 Forgot','Space P2 Recalled','Space P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'Space2 P1 Recalled','Space2 P1 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_rc_spac12_p1','word_fo_spac12_p1','word_rc_spac12_p2','word_fo_spac12_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'Space12 P1 Recalled','Space12 P1 Forgot','Space12 P2 Recalled','Space12 P2 Forgot'}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{'word_rc_spac32_p1','word_fo_spac32_p1','word_rc_spac32_p2','word_fo_spac32_p2'}}},size(cfg_plot.rois));
+% cfg_plot.rename_condByROI = repmat({{{'Space32 P1 Recalled','Space32 P1 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}},size(cfg_plot.rois));
 cfg_ft.graphcolor = 'kgrm';
 cfg_ft.linestyle = {'-','--','-','--'};
 % cfg_plot.condByROI = repmat({{{'word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'}}},size(cfg_plot.rois));
@@ -1256,7 +1305,7 @@ sesNum = 1;
 % cfg_plot.labelFontSize = 24;
 cfg_plot.legendFontSize = 16;
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 for r = 1:length(cfg_plot.rois)
@@ -1394,7 +1443,7 @@ mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 
 %% line plots
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
@@ -1402,14 +1451,14 @@ cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
 
-cfg_plot.conditions = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac_p2','word_fo_spac_p2'};
+cfg_plot.conditions = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
 cfg_plot.plot_order = cfg_plot.conditions;
-cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'};
+cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot','Space2 P12 Recalled','Space2 P12 Forgot','Space2 P32 Recalled','Space32 P2 Forgot'};
 
 
-cfg_plot.linespec = {'bo','cx','ro','mx'};
+cfg_plot.linespec = {'bo','cx','ro','mx','ro','mx','ro','mx'};
 % cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
-cfg_plot.markcolor = {'none','none','none','none'};
+cfg_plot.markcolor = {'none','none','none','none','none','none','none','none'};
 cfg_plot.marksize = 20;
 
 % cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
@@ -1447,12 +1496,12 @@ cfg_plot.xlabel = '';
 sesNum = 1;
 mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
 
-
 %% RM ANOVA
 
 stimType = 'word_';
 % stimType = 'img_';
-memType = 'RgH_';
+% memType = 'RgH_';
+memType = '';
 
 % % spacings = {'mass', 'spac', 'onePres'};
 % spacings = {'mass', 'spac'};
@@ -1462,7 +1511,7 @@ memType = 'RgH_';
 % memConds = {'all'};
 
 % didn't test new words, so can't assess memory, but can use p1
-spacings = {'mass', 'spac'};
+spacings = {'mass', 'spac2', 'spac12', 'spac32'};
 % spacings = {'spac'};
 oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
@@ -1575,7 +1624,7 @@ for sub = 1:length(exper.subjects)
               %cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
               cond_str = sprintf('%s%s',stimType,spacings{sp});
             end
-          elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+          elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp}(1:4),'spac')
             cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
             if strcmp(memConds{mc},'all')
               % manually input rc and fo
@@ -1745,190 +1794,28 @@ for r = 1:length(cfg_ana.rois)
 %   mm_ft_ttestER(cfg_ft,cfg_ana,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 end
 
-%% output some values
-
-cfg = [];
-
-cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-cfg.latencies = [0.3 0.5; 0.5 0.8];
-% cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
-% cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
-cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
-
-% cfg.rois = {{'FC'}};
-% cfg.latencies = [0.3 0.5];
-% cfg.condByROI = repmat({{'FSC','FSI','N'}},size(cfg.rois));
-
-cfg.parameter = 'avg';
-
-cfg.excludeBadSub = false;
-
-%cfg.direction = 'columns';
-cfg.direction = 'rows';
-
-mm_printDataToText(cfg,exper,ana,dirs,data_tla);
-
-%% 3-way ANOVA: Hemisphere x Block Type x Condition
-
-cfg_ana = [];
-cfg_ana.alpha = 0.05;
-cfg_ana.showtable = 1;
-cfg_ana.printTable_tex = 1;
-
-% IV1: define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-
-% IV2: abbreviations for the condition types
-cfg_ana.typesByROI = {...
-  {'C2','C6'},...
-  {'C2','C6'}};
-
-% IV3: outermost cell holds one cell for each ROI; each ROI cell holds one
-% cell for each event type; each event type cell holds strings for its
-% conditions
-cfg_ana.condByTypeByROI = {...
-  %{{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-  {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}},...
-  {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
-
-% For each ROI, what's common among the conditions in each type
-cfg_ana.condCommonByROI = {...
-  %{'CR','H','HSC','HSI'},...
-  {'CR','HSC','HSI'},...
-  {'CR','HSC','HSI'}};
-
-cfg_ana.IV_names = {'ROI','Block Type','Condition'};
-
-cfg_ana.parameter = 'avg';
-
-for r = 1:length(cfg_ana.rois)
-  cfg_ana.roi = cfg_ana.rois{r};
-  cfg_ana.latency = cfg_ana.latencies(r,:);
-  cfg_ana.conditions = cfg_ana.condByTypeByROI{r};
-  cfg_ana.condCommon = cfg_ana.condCommonByROI{r};
-  cfg_ana.types = cfg_ana.typesByROI{r};
-  
-  mm_ft_rmaov33ER(cfg_ana,exper,ana,data_tla);
-end
-
-%% 2-way ANOVA: Hemisphere x Condition - separate colors
-
-cfg_ana = [];
-cfg_ana.alpha = 0.05;
-cfg_ana.showtable = 1;
-cfg_ana.printTable_tex = 1;
-
-% IV1: define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-
-% define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-
-% % IV2: define the conditions tested for each set of ROIs
-% cfg_ana.condByROI = {...
-%   {{'CR2','H2','HSC2','HSI2'},{'CR6','H6','HSC6','HSI6'}},...
-%   {{'CR2','HSC2','HSI2'},{'CR6','HSC6','HSI6'}}};
+% %% output some values
 % 
-% % For each ROI, what's common among the conditions in each type
-% cfg_ana.condCommonByROI = {...
-%   {'CR','H','HSC','HSI'},...
-%   {'CR','HSC','HSI'}};
+% cfg = [];
 % 
-% % abbreviations for the condition types
-% cfg_ana.typesByROI = {...
-%   {'C2','C6'},...
-%   {'C2','C6'}};
-
-% IV2: define the conditions tested for each set of ROIs
-%cfg_ana.condByROI = {{'RCR','RH'},{'RCR','RHSC','RHSI'}};
-cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
-% for the one-way ANOVAs
-cfg_ana.condCommonByROI = {...
-  %{'CR','H'},...
-  {'CR','HSC','HSI'},...
-  {'CR','HSC','HSI'}};
-
-cfg_ana.IV_names = {'ROI','Condition'};
-
-cfg_ana.parameter = 'avg';
-
-for r = 1:length(cfg_ana.rois)
-  cfg_ana.roi = cfg_ana.rois{r};
-  cfg_ana.latency = cfg_ana.latencies(r,:);
-  cfg_ana.conditions = cfg_ana.condByROI{r};
-  cfg_ana.condCommon = cfg_ana.condCommonByROI{r};
-  %cfg_ana.types = cfg_ana.typesByROI{r};
-  
-  mm_ft_rmaov2ER(cfg_ana,exper,ana,data_tla);
-end
-
-%% 2-way ANOVA: Hemisphere x Condition
-
-cfg_ana = [];
-cfg_ana.alpha = 0.05;
-cfg_ana.showtable = 1;
-cfg_ana.printTable_tex = 1;
-
-% IV1: define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% IV2: define the conditions tested for each set of ROIs
-%cfg_ana.condByROI = {{'RH','RCR'},{'RCR','RHSC','RHSI'}};
-%cfg_ana.condByROI = {{'RCR','RHSC','RHSI'},{'RCR','RHSC','RHSI'}};
-cfg_ana.condByROI = {exper.eventValues,exper.eventValues};
-
-% define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-
-% cfg_ana.condCommonByROI = {...
-%   {'CR','HSC','HSI'},...
-%   {'CR','HSC','HSI'}};
-cfg_ana.condCommonByROI = {...
-  exper.eventValues,...
-  exper.eventValues};
-
-cfg_ana.IV_names = {'ROI','Condition'};
-
-cfg_ana.parameter = 'avg';
-
-for r = 1:length(cfg_ana.rois)
-  cfg_ana.roi = cfg_ana.rois{r};
-  cfg_ana.conditions = cfg_ana.condByROI{r};
-  cfg_ana.latency = cfg_ana.latencies(r,:);
-  cfg_ana.condCommon = cfg_ana.condCommonByROI{r};
-  
-  mm_ft_rmaov2ER(cfg_ana,exper,ana,data_tla);
-end
-
-%% 1-way ANOVA: Condition
-
-cfg_ana = [];
-cfg_ana.alpha = 0.05;
-cfg_ana.showtable = 1;
-cfg_ana.printTable_tex = 0;
-
-% define which regions to average across for the test
-cfg_ana.rois = {{'FC'}};
-
-% define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5];
-
-cfg_ana.condByROI = repmat({{'FSC', 'FSI', 'N'}},size(cfg_ana.rois));
-% Define the IVs (type: event, roi, latency)
-cfg_ana.IV1.name = 'FSC/FSI/CR';
-cfg_ana.IV1.cond = {'FSC', 'FSI', 'N'};
-cfg_ana.IV1.type = 'event';
-
-cfg_ana.parameter = 'avg';
-
-for r = 1:length(cfg_ana.rois)
-  cfg_ana.roi = cfg_ana.rois{r};
-  cfg_ana.conditions = cfg_ana.condByROI{r};
-  cfg_ana.latency = cfg_ana.latencies(r,:);
-  
-  mm_ft_rmaov1ER_spec(cfg_ana,exper,ana,data_tla);
-end
+% cfg.rois = {{'LAS','RAS'},{'LPS','RPS'}};
+% cfg.latencies = [0.3 0.5; 0.5 0.8];
+% % cfg.rois = {{'LAS'},{'RAS'},{'LPS'},{'RPS'}};
+% % cfg.latencies = [0.3 0.5; 0.3 0.5; 0.5 0.8; 0.5 0.8];
+% cfg.condByROI = repmat({{'SC','SI','CR'}},size(cfg.rois));
+% 
+% % cfg.rois = {{'FC'}};
+% % cfg.latencies = [0.3 0.5];
+% % cfg.condByROI = repmat({{'FSC','FSI','N'}},size(cfg.rois));
+% 
+% cfg.parameter = 'avg';
+% 
+% cfg.excludeBadSub = false;
+% 
+% %cfg.direction = 'columns';
+% cfg.direction = 'rows';
+% 
+% mm_printDataToText(cfg,exper,ana,dirs,data_tla);
 
 %% cluster statistics
 
@@ -2006,48 +1893,4 @@ if emailme
     sprintf('Done with %s tla:%s',exper.name,sprintf(repmat(' %s',1,length(exper.eventValues)),exper.eventValues{:})),...
     };
   send_gmail(subject,mail_message);
-end
-
-%% correlations
-
-cfg_ana = [];
-
-% define which regions to average across for the test
-cfg_ana.rois = {{'LAS','RAS'},{'LPS','RPS'}};
-% define the times that correspond to each set of ROIs
-cfg_ana.latencies = [0.3 0.5; 0.5 0.8];
-
-cfg_ana.dpTypesByROI = {...
-  {'Item','Source'},...
-  {'Item','Source'}};
-
-% outermost cell holds one cell for each ROI; each ROI cell holds one cell
-% for each event type; each event type cell holds two cells, one for each
-% d' type; each d' cell contains strings for its conditions
-cfg_ana.condByROI = {...
-  {{{'CR2','H2'},{'HSC2','HSI2'}}, {{'CR6','H6'},{'HSC6','HSI6'}}}...
-  {{{'CR2','H2'},{'HSC2','HSI2'}}, {{'CR6','H6'},{'HSC6','HSI6'}}}};
-
-% abbreviations for the condition types
-cfg_ana.typesByROI = {...
-  {'C2','C6'},...
-  {'C2','C6'}};
-
-% C2 d' values
-cfg_ana.(cfg_ana.typesByROI{1}{1}).d_item =  abs([]);
-cfg_ana.(cfg_ana.typesByROI{1}{1}).d_source =  abs([]);
-% C6 d' values
-cfg_ana.(cfg_ana.typesByROI{1}{2}).d_item =  abs([]);
-cfg_ana.(cfg_ana.typesByROI{1}{2}).d_source =  abs([]);
-
-cfg_ana.parameter = 'avg';
-
-for r = 1:length(cfg_ana.rois)
-  cfg_ana.roi = cfg_ana.rois{r};
-  cfg_ana.latency = cfg_ana.latencies(r,:);
-  cfg_ana.conditions = cfg_ana.condByROI{r};
-  cfg_ana.types = cfg_ana.typesByROI{r};
-  cfg_ana.dpTypes = cfg_ana.dpTypesByROI{r};
-  
-  mm_ft_corr_dprimeER(cfg_ana,ana,exper,files,dirs,data_tla);
 end
