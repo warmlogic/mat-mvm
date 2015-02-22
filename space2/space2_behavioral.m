@@ -56,7 +56,7 @@ subjects = {
   'SPACE2014';
   'SPACE2015';
   'SPACE2016';
-  'SPACE2017'; % bad performance
+  'SPACE2017'; % not great performance
   'SPACE2018';
   'SPACE2019';
   %'SPACE2020'; % DNF session 2
@@ -74,7 +74,7 @@ subjects = {
   'SPACE2032';
   'SPACE2033';
   'SPACE2034';
-  'SPACE2035';
+  'SPACE2035'; % not great performance
   'SPACE2036';
   'SPACE2037';
   'SPACE2038';
@@ -179,52 +179,63 @@ fprintf('Loading %s...',resultsFile);
 load(resultsFile);
 fprintf('Done.\n');
 
+%% find bad subjects
+
+phase = 'cued_recall_only';
+test = 'recall';
+measure = 'recall_hr';
+
+% nT = 'recall_nTrial';
+nT = 'recall_nHit';
+% % nT = 'recall_nMiss';
+nTThresh = 3;
+
+std_weight = 1.75;
+
+sessions = {'day1','day2'};
+spacings = {'once','massed','lag2','lag12','lag32'};
+% stimCats = {'Faces', 'HouseInside'};
+
+for ses = 1:length(sessions)
+  for sp = 1:length(spacings)
+    m = mean(results.(sessions{ses}).(phase).(spacings{sp}).(test).(measure));
+    s = std(results.(sessions{ses}).(phase).(spacings{sp}).(test).(measure),0);
+    thresh = m - (std_weight*s);
+    pastThresh = results.(sessions{ses}).(phase).(spacings{sp}).(test).(measure) < thresh;
+    nTr = results.(sessions{ses}).(phase).(spacings{sp}).(test).(nT);
+    if any(pastThresh) || any(nTr < nTThresh)
+      fprintf('%s %s, %s: mean=%.4f, std=%.4f, thresh=%.4f\n',sessions{ses},spacings{sp},measure,m,s,thresh);
+      for i = 1:length(pastThresh)
+        
+        if pastThresh(i) || nTr(i) < nTThresh
+          fprintf('%s\t%s: %.4f\t%s:%d\n',subjects{i},measure,results.(sessions{ses}).(phase).(spacings{sp}).(test).(measure)(i),nT,nTr(i));
+        end
+      end
+      fprintf('\n');
+    end
+  end
+end
+
 %% decide who to kick out based on trial counts
 
-exper.subjects = subjects;
+% exper.subjects = subjects;
 
 % Subjects with bad behavior
-exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE2007', 'SPACE2025'}}; % excluded for behavioral reasons
+% exper.badBehSub = {{'SPACE2007', 'SPACE2025', 'SPACE2004', 'SPACE2016', 'SPACE2029', 'SPACE2032', 'SPACE2034'}}; % EEG subjects
 
-% exper.badBehSub = {{
-%   'SPACE2001' % 5??? blocks
-%   'SPACE2002'
-%   'SPACE2003'
-%   'SPACE2004'
-%   'SPACE2005'
-%   'SPACE2006'
-%   'SPACE2007'
-%   'SPACE2008'
-%   'SPACE2009'
-%   'SPACE2010'
-%   'SPACE2011' % 7??? blocks
-%   'SPACE2012'
-%   'SPACE2013'
-%   'SPACE2014'
-%   'SPACE2015' % really poor performance
-%   'SPACE2016'
-%   'SPACE2017' % really poor performance
-%   'SPACE2018'
-%   'SPACE2019'
-%   'SPACE2020'
-%   'SPACE2021';
-%   'SPACE2022';
-%   'SPACE2023';
-%   'SPACE2024';
-%     'SPACE2025';
-%     'SPACE2026';
-% %     'SPACE2027'; % started with 9 blocks here
-% %     'SPACE2028';
-% %     'SPACE2029';
-% %     'SPACE2029-2';
-% %     'SPACE2030';
-% %     'SPACE2031';
-% %     'SPACE2032';
-% %     'SPACE2033';
-% %     'SPACE2034';
-% %     'SPACE2035';
-% %     'SPACE2036';
-% }};
+% performance more than 2 STD below mean in some cases (e.g., lag 32):
+% SPACE2007 (also rejected below)
+% SPACE2025 (also rejected below)
+
+% low trials:
+% SPACE2004
+% SPACE2007 (also rejected above)
+% SPACE2016
+% SPACE2025 (also rejected above)
+% SPACE2029
+% SPACE2032
+% SPACE2034
 
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
@@ -286,7 +297,7 @@ stimCats = {'Faces', 'HouseInside'};
 
 anovaData = [];
 
-for sub = 1:length(exper.subjects)
+for sub = 1:length(subjects)
   if ~exper.badSub(sub,:)
     %for ses = 1:length(exper.sesStr)
     theseData = [];

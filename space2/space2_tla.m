@@ -41,7 +41,7 @@ subjects = {
   'SPACE2014';
   'SPACE2015';
   'SPACE2016';
-  'SPACE2017'; % bad performance
+  'SPACE2017'; % not great performance, not excluding
   'SPACE2018';
   'SPACE2019';
   %'SPACE2020'; % DNF session 2
@@ -59,7 +59,7 @@ subjects = {
   'SPACE2032';
   'SPACE2033';
   'SPACE2034';
-  'SPACE2035';
+  'SPACE2035'; % not great performance, not excluding
   'SPACE2036';
   'SPACE2037';
   'SPACE2038';
@@ -359,11 +359,26 @@ replaceDataType = {};
 
 [dirs] = mm_checkDirs(dirs,replaceDataType,subDir);
 
-%% decide who to kick out based on trial counts
+ %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
 exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE2002'}};
+% exper.badBehSub = {{'SPACE2002', 'SPACE2007', 'SPACE2017', 'SPACE2025', 'SPACE2035'}};
+exper.badBehSub = {{'SPACE2007', 'SPACE2025'}};
+
+% performance more than 2 STD below mean in some cases (e.g., lag 32):
+% SPACE2007 (also rejected below)
+% SPACE2025 (also rejected below)
+
+% low trials:
+% SPACE2004
+% SPACE2007 (also rejected above)
+% SPACE2016
+% SPACE2025 (also rejected above)
+% SPACE2029
+% SPACE2032
+% SPACE2034
 
 % exper.badBehSub = {{
 %   'SPACE2001';
@@ -858,8 +873,8 @@ cfg.conditions = {...
 % cfg.datadim = 'elec';
 % % cfg.roi = {'center101'};
 % cfg.roi = {'posterior_noPeriph'};
-% cfg.latency = [0.4 0.8]; % LPC
-% % cfg.latency = [0.5 0.8]; % LPC
+% % cfg.latency = [0.4 0.8]; % LPC
+% cfg.latency = [0.475 0.8]; % LPC
 % cfg.order = 'descend'; % descend = positive peaks first
 % % LPC: electrode cluster around E77 includes peak E84 E85 etc
 % % or use E84?
@@ -871,7 +886,7 @@ cfg.conditions = {...
 % % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
 % % cfg.roi = {'RPS'}; % Centered on E86 (ms)
 % % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
-% cfg.latency = [0.4 0.8]; % LPC
+% cfg.latency = [0.475 0.8]; % LPC
 % cfg.order = 'descend'; % descend = positive peaks first
 
 % % step 3: select a window for analysis around peak; cfg.outputSubjects=true
@@ -1010,9 +1025,11 @@ cfg_plot.titleTrialCount = false;
 %   {'C2','C6'}};
 
 cond = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
-
 cfg_plot.condByROI = repmat({{{cond}}},size(cfg_plot.rois));
+cfg_plot.types = {'word'};
+
 % cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+% cfg_plot.types = {'image','word'};
 
 ses = 1;
 
@@ -1020,8 +1037,6 @@ for r = 1:length(cfg_plot.rois)
   cfg_plot.roi = cfg_plot.rois{r};
   %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
   cfg_plot.conditions = cfg_plot.condByROI{r};
-  cfg_plot.types = {'image','word'};
-  cfg_plot.types = {'word'};
   
   mm_ft_subjplotER(cfg_plot,ana,exper,data_tla,ses);
 end
@@ -1180,14 +1195,15 @@ cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
 % lpcPeak = 0.532; % centered on E77
 % cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
-% cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
-% cfg_plot.rename_condByROI = repmat({{{'Space2 P1 Recalled','Space2 P1 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}}},size(cfg_plot.rois));
+cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
+cfg_plot.rename_condByROI = repmat({{{'Space2 P1 Recalled','Space2 P1 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{{'word_rc_spac12_p1','word_fo_spac12_p1','word_rc_spac12_p2','word_fo_spac12_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'Space12 P1 Recalled','Space12 P1 Forgot','Space12 P2 Recalled','Space12 P2 Forgot'}}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{{'word_rc_spac32_p1','word_fo_spac32_p1','word_rc_spac32_p2','word_fo_spac32_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'Space32 P1 Recalled','Space32 P1 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}},size(cfg_plot.rois));
 cfg_ft.graphcolor = 'kgrm';
 cfg_ft.linestyle = {'-','--','-','--'};
+
 % cfg_plot.condByROI = repmat({{{'word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'}}},size(cfg_plot.rois));
 % cfg_plot.rename_condByROI = repmat({{{'Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
 % cfg_ft.graphcolor = 'kgbc';
@@ -1461,23 +1477,26 @@ cfg_plot.linespec = {'bo','cx','ro','mx','ro','mx','ro','mx'};
 cfg_plot.markcolor = {'none','none','none','none','none','none','none','none'};
 cfg_plot.marksize = 20;
 
-% cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
-% n1Peak = 0.172; % E58
-% cfg_plot.latency = [n1Peak-0.05 n1Peak+0.05]; % time
-% cfg_plot.ylim = [-2 2];
-% cfg_plot.legendloc = 'NorthEast';
+cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
+n1Peak = 0.144; % E58
+windowWidth = 0.1;
+cfg_plot.latency = [n1Peak-(windowWidth/2), n1Peak+(windowWidth/2)]; % time
+cfg_plot.ylim = [-2 2];
+cfg_plot.legendloc = 'NorthEast';
 
 % cfg_plot.roi = {'C'};
 % n400Peak = 0.372; % C
-% cfg_plot.latency = [n400Peak-0.05 n400Peak+0.05]; % time
+% windowWidth = 0.1;
+% cfg_plot.latency = [n400Peak-(windowWidth/2), n400Peak+(windowWidth/2)]; % time
 % cfg_plot.ylim = [-2 2];
 % cfg_plot.legendloc = 'SouthWest';
 
-cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
-lpcPeak = 0.596; % centered on E77
-cfg_plot.latency = [lpcPeak-0.1 lpcPeak+0.1]; % time
-cfg_plot.ylim = [1.5 5.5];
-cfg_plot.legendloc = 'SouthWest';
+% cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
+% lpcPeak = 0.532; % centered on E77
+% windowWidth = 0.2;
+% cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
+% cfg_plot.ylim = [1.5 5.5];
+% cfg_plot.legendloc = 'SouthWest';
 
 % cfg_plot.roi = {'LPS2'};
 % 
