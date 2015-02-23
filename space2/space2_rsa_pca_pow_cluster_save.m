@@ -1,58 +1,68 @@
-% load and re-save RSA PCA pow results
+% load and re-save RSA PCA tla results.
 
-%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/
+% these results would be saved on dream using
+% space2_rsa_pca_pow_classif_wrapper.m (which runs
+% space2_rsa_pca_pow_classif_cluster.m).
 
-expName = 'SPACE';
-% saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow');
-saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow');
+% follow up by running space2_rsa_pca_pow_analysis.m
+
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/
+
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/
+
+expName = 'SPACE2';
+
+saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+% saveDirProc = fullfile(filesep,'data','projects','curranlab',expName,'EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla');
 
 subjects = {
-  %'SPACE001'; % low trial counts
-  'SPACE002';
-  'SPACE003';
-  'SPACE004';
-  'SPACE005';
-  'SPACE006';
-  'SPACE007';
-  %'SPACE008'; % didn't perform task correctly, didn't perform well
-  'SPACE009';
-  'SPACE010';
-  'SPACE011';
-  'SPACE012';
-  'SPACE013';
-  'SPACE014';
-  'SPACE015';
-  'SPACE016';
-  %'SPACE017'; % old assessment: really noisy EEG, half of ICA components rejected
-  'SPACE018';
-  %'SPACE019'; % low trial counts
-  'SPACE020';
-  'SPACE021';
-  'SPACE022';
-  'SPACE027';
-  'SPACE029';
-  'SPACE037';
-  'SPACE039'; % noisy EEG; original EEG analyses stopped here
-  'SPACE023';
-  'SPACE024';
-  'SPACE025';
-  'SPACE026';
-  'SPACE028';
-  %'SPACE030'; % low trial counts
-  'SPACE032';
-  'SPACE034';
-  'SPACE047';
-  'SPACE049';
-  'SPACE036';
+  'SPACE2001';
+  %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
+  %'SPACE2003'; % DNF session 2, exclude
+  'SPACE2004'; % low trial counts, exclude via threshold
+  'SPACE2005';
+  'SPACE2006';
+  %'SPACE2007'; % bad performance, low trial counts, exclude
+  'SPACE2008';
+  %'SPACE2009'; % DNF session 2, exclude
+  'SPACE2010';
+  'SPACE2011';
+  'SPACE2012';
+  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
+  'SPACE2014';
+  'SPACE2015';
+  'SPACE2016'; % low trial counts, exclude via threshold
+  'SPACE2017'; % not great performance, still including
+  'SPACE2018';
+  'SPACE2019';
+  %'SPACE2020'; % DNF session 2, exclude
+  'SPACE2021';
+  'SPACE2022';
+  %'SPACE2023'; % DNF session 2, exclude
+  %'SPACE2024'; % DNF session 2, exclude
+  %'SPACE2025'; % bad performance, low trial counts, exclude
+  'SPACE2026';
+  %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
+  'SPACE2028';
+  'SPACE2029'; % low trial counts, exclude via threshold
+  'SPACE2030';
+  'SPACE2031';
+  'SPACE2032'; % low trial counts, exclude via threshold
+  'SPACE2033';
+  'SPACE2034'; % low trial counts, exclude via threshold
+  'SPACE2035'; % not great performance, still including
+  'SPACE2036';
+  'SPACE2037';
+  'SPACE2038';
+  %'SPACE2039'; % DNF session 2, exclude
+  'SPACE2040';
   };
 
 % only one cell, with all session names
-sesNames = {'session_1'};
+sesNames = {'session_1_session_2'};
 
-% analysisDate = '04-Aug-2014'; % word
-% analysisDate = '05-Aug-2014'; % img
-% analysisDate = '08-Aug-2014';
-analysisDate = '14-Aug-2014';
+analysisDate = '23-Feb-2015';
 
 origDataType = 'pow';
 
@@ -68,18 +78,17 @@ else
   classif_str = 'noClassif';
 end
 
-dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'};
+dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc_spac12','img_fo_spac12', 'img_rc_spac32','img_fo_spac32'};
 
-% dataTypes = {'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'word_rc_mass','word_fo_mass', 'word_rc_spac2','word_fo_spac2', 'word_rc_spac12','word_fo_spac12', 'word_rc_spac32','word_fo_spac32'};
 
-% dataTypes = {'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass', ...
-%   'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'};
+% dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc_spac12','img_fo_spac12', 'img_rc_spac32','img_fo_spac32', 'word_rc_mass','word_fo_mass', 'word_rc_spac2','word_fo_spac2', 'word_rc_spac12','word_fo_spac12', 'word_rc_spac32','word_fo_spac32'};
 
-if all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass', 'img_RgH_fo_spac', 'img_RgH_fo_mass', 'word_RgH_rc_spac', 'word_RgH_rc_mass', 'word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+if all(ismember({'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc_spac12','img_fo_spac12', 'img_rc_spac32','img_fo_spac32', 'word_rc_mass','word_fo_mass', 'word_rc_spac2','word_fo_spac2', 'word_rc_spac12','word_fo_spac12', 'word_rc_spac32','word_fo_spac32'},dataTypes))
   data_str = 'img_word';
-elseif all(ismember({'img_RgH_rc_spac', 'img_RgH_rc_mass','img_RgH_fo_spac', 'img_RgH_fo_mass'},dataTypes))
+elseif all(ismember({'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc_spac12','img_fo_spac12', 'img_rc_spac32','img_fo_spac32'},dataTypes))
   data_str = 'img';
-elseif all(ismember({'word_RgH_rc_spac', 'word_RgH_rc_mass','word_RgH_fo_spac', 'word_RgH_fo_mass'},dataTypes))
+elseif all(ismember({'word_rc_mass','word_fo_mass', 'word_rc_spac2','word_fo_spac2', 'word_rc_spac12','word_fo_spac12', 'word_rc_spac32','word_fo_spac32'},dataTypes))
   data_str = 'word';
 end
 
