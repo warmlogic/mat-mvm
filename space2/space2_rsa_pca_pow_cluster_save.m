@@ -1,4 +1,4 @@
-% load and re-save RSA PCA tla results.
+% load and re-save RSA PCA pow results.
 
 % these results would be saved on dream using
 % space2_rsa_pca_pow_classif_wrapper.m (which runs
@@ -6,10 +6,8 @@
 
 % follow up by running space2_rsa_pca_pow_analysis.m
 
-%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/pow/
-
-%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/
-%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/
+%#rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/pow/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/pow/
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow/RSA_PCA*cluster.mat ~/data/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow/
 
 expName = 'SPACE2';
 
