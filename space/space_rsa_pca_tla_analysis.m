@@ -1,3 +1,5 @@
+% analysis of files saved using space_rsa_pca_tla_cluster_save.m
+
 %% load
 
 analysisDate = '01-Aug-2014';

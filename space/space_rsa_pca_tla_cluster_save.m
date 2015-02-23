@@ -1,6 +1,15 @@
-% load and re-save RSA PCA tla results
+% load and re-save RSA PCA tla results.
 
-% also saves files using the hilbert method
+% these results would be saved on dream using
+% space_rsa_pca_tla_classif_wrapper.m (which runs
+% space_rsa_pca_tla_classif_cluster.m).
+
+% follow up by running space_rsa_pca_tla_analysis.m
+
+% can also save files processed using the hilbert method. I think the
+% difference is that this tla script would not average over time, whereas
+% hilbert (processed using space_rsa_pca_tla_hilbert_classif_wrapper.m)
+% would average over time.
 
 %rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_expo_stim_multistudy_image_multistudy_word_art_ftManual_ftICA/tla/
 

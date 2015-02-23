@@ -1,12 +1,14 @@
 function space_rsa_pca_tla_classif_wrapper(whichStages)
 % space_rsa_pca_tla_classif_wrapper(whichStages)
 %
+% This is the first file to run for doing PCA-based RSA on dream.
+%
 % To run on dream, at the command line type: distmsub space_rsa_pca_tla_classif_wrapper.m
 %
 % To run on a local computer, type the command in MATLAB
 %
 % There is one stage:
-%  stage1 =
+%  stage1 = run space_rsa_pca_tla_classif_cluster.m
 %
 % Input:
 %  whichStages: the stage number(s) to run (default = 1:2)

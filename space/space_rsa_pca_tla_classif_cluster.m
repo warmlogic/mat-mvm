@@ -2,6 +2,8 @@ function space_rsa_pca_tla_classif_cluster(procDir,replaceDataroot,replaceDataty
 
 % space RSA
 
+% this file gets run by space_rsa_pca_tla_classif_wrapper.m
+
 %% load the analysis details
 
 % make sure these are cell arrays
