@@ -89,8 +89,10 @@ end
 eig_criterion = 'kaiser';
 % eig_criterion = 'analytic';
 
+expName = 'SPACE2';
+
 subDir = '';
-dataDir = fullfile('SPACE2','EEG','Sessions','ftpp',subDir);
+dataDir = fullfile(expName,'EEG','Sessions','ftpp',subDir);
 % Possible locations of the data files (dataroot)
 serverDir = fullfile(filesep,'Volumes','curranlab','Data');
 serverLocalDir = fullfile(filesep,'Volumes','RAID','curranlab','Data');
