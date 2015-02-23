@@ -26,44 +26,44 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_m
 
 subjects = {
   'SPACE2001';
-  %'SPACE2002'; % really noisy EEG, finished both sessions
-  %'SPACE2003'; % DNF session 2
-  'SPACE2004';
+  %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
+  %'SPACE2003'; % DNF session 2, exclude
+  'SPACE2004'; % low trial counts, exclude via threshold
   'SPACE2005';
   'SPACE2006';
-  'SPACE2007'; % bad performance
+  %'SPACE2007'; % bad performance, low trial counts, exclude
   'SPACE2008';
-  %'SPACE2009'; % DNF session 2
+  %'SPACE2009'; % DNF session 2, exclude
   'SPACE2010';
   'SPACE2011';
   'SPACE2012';
-  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
+  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
   'SPACE2014';
   'SPACE2015';
-  'SPACE2016';
-  'SPACE2017'; % not great performance, not excluding
+  'SPACE2016'; % low trial counts, exclude via threshold
+  'SPACE2017'; % not great performance, still including
   'SPACE2018';
   'SPACE2019';
-  %'SPACE2020'; % DNF session 2
+  %'SPACE2020'; % DNF session 2, exclude
   'SPACE2021';
   'SPACE2022';
-  %'SPACE2023'; % DNF session 2
-  %'SPACE2024'; % DNF session 2
-  'SPACE2025'; % bad performance
+  %'SPACE2023'; % DNF session 2, exclude
+  %'SPACE2024'; % DNF session 2, exclude
+  %'SPACE2025'; % bad performance, low trial counts, exclude
   'SPACE2026';
-  %'SPACE2027'; % really noisy EEG, DNF session 2
+  %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
   'SPACE2028';
-  'SPACE2029';
+  'SPACE2029'; % low trial counts, exclude via threshold
   'SPACE2030';
   'SPACE2031';
-  'SPACE2032';
+  'SPACE2032'; % low trial counts, exclude via threshold
   'SPACE2033';
-  'SPACE2034';
-  'SPACE2035'; % not great performance, not excluding
+  'SPACE2034'; % low trial counts, exclude via threshold
+  'SPACE2035'; % not great performance, still including
   'SPACE2036';
   'SPACE2037';
   'SPACE2038';
-  %'SPACE2039'; % DNF session 2
+  %'SPACE2039'; % DNF session 2, exclude
   'SPACE2040';
   };
 
