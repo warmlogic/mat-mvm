@@ -1,7 +1,7 @@
 function space2_ft_tla2pow_wrapper(whichStages)
 % space2_ft_tla2pow_wrapper(whichStages)
 %
-% To run on dream, at the command line type: distmsub space2_ft_tla2pow_wrapper.m
+% To run on dream, at the command line type: distmsub2011 space2_ft_tla2pow_wrapper.m
 %
 % To run on a local computer, type the command in MATLAB
 %
