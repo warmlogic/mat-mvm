@@ -62,7 +62,7 @@ subjects = {
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
