@@ -136,10 +136,10 @@ sesName = cfg.eventinfo.sessionNames{ses};
 sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
 % sesType = ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses});
 
-fprintf('FT event count of NS flags (out of %d): %s',length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
+%fprintf('FT event count of NS flags (out of %d): %s',length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
 
 for i = 1:length(ft_event)
-  fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+  %fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
   
   if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
     % found an EEG event that we might want to process
@@ -167,6 +167,9 @@ for i = 1:length(ft_event)
           % set column types because Net Station evt files can vary
           cols.phaseCount = find(strcmp(ns_evt_cols,'pcou'));
           cols.trial = find(strcmp(ns_evt_cols,'trln'));
+          
+          % debug
+          %cols.stimNum = find(strcmp(ns_evt_cols,'snum'));
           
           if length(phaseType) > 1
             % choose the phase that corresponds to this count, not that it
@@ -241,6 +244,12 @@ for i = 1:length(ft_event)
               fprintf('event number not found for %s!\n',evVal);
               keyboard
             end
+            
+            % debug
+            %fprintf('%d\t%s\n',i,ft_event(i).orig.keys(cols.stimNum).key.data.data);
+            %if strcmp(ft_event(i).orig.keys(cols.stimNum).key.data.data,'285')
+            %  keyboard
+            %end
             
             % find the entry in the event struct
             this_event = events_all.(sesName).(phaseName).data(...
