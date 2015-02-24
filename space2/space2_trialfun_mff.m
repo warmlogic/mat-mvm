@@ -169,9 +169,6 @@ for i = 1:length(ft_event)
           cols.phaseCount = find(strcmp(ns_evt_cols,'pcou'));
           cols.trial = find(strcmp(ns_evt_cols,'trln'));
           
-          % debug
-          %cols.stimNum = find(strcmp(ns_evt_cols,'snum'));
-          
           if length(phaseType) > 1
             % choose the phase that corresponds to this count, not that it
             % really matters because they all have the same name...
@@ -245,12 +242,6 @@ for i = 1:length(ft_event)
               fprintf('event number not found for %s!\n',evVal);
               keyboard
             end
-            
-            % debug
-            %fprintf('%d\t%s\n',i,ft_event(i).orig.keys(cols.stimNum).key.data.data);
-            %if strcmp(ft_event(i).orig.keys(cols.stimNum).key.data.data,'285')
-            %  keyboard
-            %end
             
             % find the entry in the event struct
             this_event = events_all.(sesName).(phaseName).data(...
