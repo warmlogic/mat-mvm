@@ -17,11 +17,12 @@ ft_hdr = ft_read_header(cfg.dataset);
 [pathstr,name] = fileparts(cfg.dataset);
 ftEventsFile = fullfile(pathstr,sprintf('%s_ftEvents.mat',name));
 if exist(ftEventsFile,'file')
+  fprintf('Using pre-saved FT events: %s\n',ftEventsFile);
   ft_event = load(ftEventsFile);
   if isfield(ft_event,'date_string')
-    warning('Using pre-saved FT events from this date: %s!',ft_event.date_string);
+    warning('\tfrom this date: %s!',ft_event.date_string);
   else
-    warning('Using pre-saved FT events from an unknown date!');
+    warning('\tfrom an unknown date!');
   end
   ft_event = ft_event.ft_event;
 else
@@ -133,13 +134,13 @@ ft_event = ft_event(ismember({ft_event.value},triggers));
 
 ses = cfg.eventinfo.sessionNum;
 sesName = cfg.eventinfo.sessionNames{ses};
-sesType = find(ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses}));
+sesType = find(ismember(cfg.eventinfo.sessionNames,sesName));
 % sesType = ismember(cfg.eventinfo.sessionNames,cfg.eventinfo.sessionNames{ses});
 
-%fprintf('FT event count of NS flags (out of %d): %s',length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
+fprintf('FT event count of NS flags (out of %d): %s',length(ft_event),repmat(' ',1,length(num2str(length(ft_event)))));
 
 for i = 1:length(ft_event)
-  %fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
+  fprintf(1,[repmat('\b',1,length(num2str(i))),'%d'],i);
   
   if strcmp(ft_event(i).type,cfg.trialdef.eventtype)
     % found an EEG event that we might want to process
