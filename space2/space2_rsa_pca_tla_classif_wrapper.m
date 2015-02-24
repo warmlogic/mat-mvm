@@ -62,43 +62,43 @@ subjects = {
   'SPACE2001';
   %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
   %'SPACE2003'; % DNF session 2, exclude
-  'SPACE2004'; % low trial counts, exclude via threshold
-  'SPACE2005';
-  'SPACE2006';
-  %'SPACE2007'; % bad performance, low trial counts, exclude
-  'SPACE2008';
-  %'SPACE2009'; % DNF session 2, exclude
-  'SPACE2010';
-  'SPACE2011';
-  'SPACE2012';
-  %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
-  'SPACE2014';
-  'SPACE2015';
-  'SPACE2016'; % low trial counts, exclude via threshold
-  'SPACE2017'; % not great performance, still including
-  'SPACE2018';
-  'SPACE2019';
-  %'SPACE2020'; % DNF session 2, exclude
-  'SPACE2021';
-  'SPACE2022';
-  %'SPACE2023'; % DNF session 2, exclude
-  %'SPACE2024'; % DNF session 2, exclude
-  %'SPACE2025'; % bad performance, low trial counts, exclude
-  'SPACE2026';
-  %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
-  'SPACE2028';
-  'SPACE2029'; % low trial counts, exclude via threshold
-  'SPACE2030';
-  'SPACE2031';
-  'SPACE2032'; % low trial counts, exclude via threshold
-  'SPACE2033';
-  'SPACE2034'; % low trial counts, exclude via threshold
-  'SPACE2035'; % not great performance, still including
-  'SPACE2036';
-  'SPACE2037';
-  'SPACE2038';
-  %'SPACE2039'; % DNF session 2, exclude
-  'SPACE2040';
+%   'SPACE2004'; % low trial counts, exclude via threshold
+%   'SPACE2005';
+%   'SPACE2006';
+%   %'SPACE2007'; % bad performance, low trial counts, exclude
+%   'SPACE2008';
+%   %'SPACE2009'; % DNF session 2, exclude
+%   'SPACE2010';
+%   'SPACE2011';
+%   'SPACE2012';
+%   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
+%   'SPACE2014';
+%   'SPACE2015';
+%   'SPACE2016'; % low trial counts, exclude via threshold
+%   'SPACE2017'; % not great performance, still including
+%   'SPACE2018';
+%   'SPACE2019';
+%   %'SPACE2020'; % DNF session 2, exclude
+%   'SPACE2021';
+%   'SPACE2022';
+%   %'SPACE2023'; % DNF session 2, exclude
+%   %'SPACE2024'; % DNF session 2, exclude
+%   %'SPACE2025'; % bad performance, low trial counts, exclude
+%   'SPACE2026';
+%   %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
+%   'SPACE2028';
+%   'SPACE2029'; % low trial counts, exclude via threshold
+%   'SPACE2030';
+%   'SPACE2031';
+%   'SPACE2032'; % low trial counts, exclude via threshold
+%   'SPACE2033';
+%   'SPACE2034'; % low trial counts, exclude via threshold
+%   'SPACE2035'; % not great performance, still including
+%   'SPACE2036';
+%   'SPACE2037';
+%   'SPACE2038';
+%   %'SPACE2039'; % DNF session 2, exclude
+%   'SPACE2040';
   };
 
 % only one cell, with all session names
@@ -139,7 +139,8 @@ dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc
 % dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc_spac12','img_fo_spac12', 'img_rc_spac32','img_fo_spac32', 'word_rc_mass','word_fo_mass', 'word_rc_spac2','word_fo_spac2', 'word_rc_spac12','word_fo_spac12', 'word_rc_spac32','word_fo_spac32'};
 
 % allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
-allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'},{'LPS'},{'RPS'}};
+% allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'},{'LPS'},{'RPS'}};
+allROIs = {{'LT'},{'RT'}};
 
 % allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 %   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
@@ -150,14 +151,15 @@ allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'},{'LPS'},{'RPS'}};
 %   0 0.8; 0.1 0.9; 0.2 1.0;
 %   0 1.0]};
 
-allLats = {[0.0 0.2; 0.22 0.4; 0.42 0.6; 0.62 0.8; 0.82 1.0; ...
-  0.1 0.3; 0.32 0.5; 0.52 0.7; 0.72 0.9; ...
-  0 0.3; 0.32 0.6; 0.62 0.9; ...
-  0 0.5; 0.52 1.0; ...
-  0.3 0.8; ...
-  0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
-  0 0.8; 0.1 0.9; 0.2 1.0;
-  0 1.0]};
+allLats = {[0.0 0.2; 0.22 0.4; 0.42 0.6; 0.62 0.8; 0.82 1.0]};
+% allLats = {[0.0 0.2; 0.22 0.4; 0.42 0.6; 0.62 0.8; 0.82 1.0; ...
+%   0.1 0.3; 0.32 0.5; 0.52 0.7; 0.72 0.9; ...
+%   0 0.3; 0.32 0.6; 0.62 0.9; ...
+%   0 0.5; 0.52 1.0; ...
+%   0.3 0.8; ...
+%   0 0.6; 0.1 0.7; 0.2 0.8; 0.3 0.9; 0.4 1.0; ...
+%   0 0.8; 0.1 0.9; 0.2 1.0;
+%   0 1.0]};
 
 cfg_sel = [];
 cfg_sel.avgoverchan = 'no';
@@ -295,7 +297,7 @@ if runLocally == 0
 else
   %% run the function locally
   
-  error('This setup does not make sense with the current data loading setup because it will try to reload the data on each iteration.');
+  %error('This setup does not make sense with the current data loading setup because it will try to reload the data on each iteration.');
   
   % create a log of the command window output
   thisRun = [expName,'_stage1_',datestr(now,'ddmmmyyyy-HHMMSS')];
@@ -316,7 +318,7 @@ else
         sim_method = allSimMethod{s};
         for e = 1:length(allEigCrit)
           eig_criterion = allEigCrit{e};
-          space2_rsa_pca_tla_classif_cluster(saveDirProc,replaceDataroot,replaceDatatype,gradeCorrect,accurateClassifSelect,date_string,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,sim_method,eig_criterion);
+          space2_rsa_pca_tla_classif_cluster(saveDirProc,replaceDataroot,replaceDatatype,gradeCorrect,accurateClassifSelect,date_string,dataTypes,cfg_sel,subjects,sesNames,thisROI,latencies,sim_method,eig_criterion,lpfilt,subselect_eeg);
         end
       end
     end
