@@ -28,12 +28,12 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_m
 
 subjects = {
   'SPACE2001';
-  %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
+  'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
   %'SPACE2003'; % DNF session 2, exclude
   'SPACE2004'; % low trial counts, exclude via threshold
   'SPACE2005';
   'SPACE2006';
-  %'SPACE2007'; % bad performance, low trial counts, exclude
+  'SPACE2007'; % bad performance, low trial counts, exclude
   'SPACE2008';
   %'SPACE2009'; % DNF session 2, exclude
   'SPACE2010';
@@ -51,7 +51,7 @@ subjects = {
   'SPACE2022';
   %'SPACE2023'; % DNF session 2, exclude
   %'SPACE2024'; % DNF session 2, exclude
-  %'SPACE2025'; % bad performance, low trial counts, exclude
+  'SPACE2025'; % bad performance, low trial counts, exclude
   'SPACE2026';
   %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
   'SPACE2028';
@@ -369,7 +369,7 @@ replaceDataType = {};
 exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE2002'}};
 % exper.badBehSub = {{'SPACE2002', 'SPACE2007', 'SPACE2017', 'SPACE2025', 'SPACE2035'}};
-exper.badBehSub = {{'SPACE2007', 'SPACE2025'}};
+% exper.badBehSub = {{'SPACE2007', 'SPACE2025'}};
 
 % performance more than 2 STD below mean in some cases (e.g., lag 32):
 % SPACE2007 (also rejected below)
