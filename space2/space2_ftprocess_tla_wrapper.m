@@ -60,7 +60,7 @@ exper.prepost = {[-1.0 2.0; -1.0 2.0; -1.0 2.0]};
 % exper.prepost = {[-1.0 2.0]};
 
 exper.subjects = {
-%   'SPACE2001';
+  'SPACE2001';
 %   'SPACE2002';
 %   %'SPACE2003'; % DNF session 2
 %   'SPACE2004';
@@ -97,8 +97,8 @@ exper.subjects = {
 %   'SPACE2035';
 %   'SPACE2036';
 %   'SPACE2037';
-  'SPACE2038';
-  %'SPACE2039'; % DNF session 2
+%   'SPACE2038';
+%   %'SPACE2039'; % DNF session 2
 %   'SPACE2040';
   };
 
@@ -195,7 +195,7 @@ ana.cfg_cont.hpfreq = 0.1;
 ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
-ana.cfg_cont.bsfreq = [59 61];
+ana.cfg_cont.bsfreq = [59, 61];
 
 % this will turn off ana.cfg_cont and ana.artifact.continuousXXX so no
 % processing is done; will only save FieldTrip events
