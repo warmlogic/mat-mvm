@@ -736,12 +736,12 @@ for ses = 1:length(session)
       
       if ana.useExpInfo
         cfg.eventinfo.trl_order = ana.trl_order;
-        cfg.eventinfo.sessionNames = ana.sessionNamesCombo{sesNum_orig};
+        cfg.eventinfo.sessionNames = ana.sessionNames{sesNum_orig};
         if ~iscell(cfg.eventinfo.sessionNames)
           cfg.eventinfo.sessionNames = {cfg.eventinfo.sessionNames};
         end
         cfg.eventinfo.sessionNum = ses;
-        cfg.eventinfo.phaseNames = ana.phaseNames;
+        cfg.eventinfo.phaseNames = ana.phaseNames{sesNum_orig};
         cfg.eventinfo.eventValues = eventValue_orig;
         cfg.eventinfo.prepost = prepost;
       end

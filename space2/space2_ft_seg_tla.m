@@ -135,12 +135,15 @@ ana.photodiodeDIN_toleranceMS = 20;
 ana.photodiodeDIN_str = 'DIN ';
 if ana.useExpInfo
   % possible sessions and phases
-%   ana.sessionNames = {'day1'};
-  ana.sessionNames = {'day1','day2'};
+  % this corresponds to exper.sessions using for the session names used in
+  % the events file; it is particularly important in case of combining sessions
+  ana.sessionNames = {{'day1','day2'}};
   
-  % phases occur within a session; for dealing with events.mat
-  ana.phaseNames = {{'multistudy', 'cued_recall_only'}};
-  %ana.phaseNames = {{'multistudy', 'cued_recall_only'}, {'multistudy', 'cued_recall_only'}};
+  % phases occur within a session; for dealing with events.mat; should also
+  % mimic exper.sessions, a cell that contains phases of each session,
+  % paying attention to combining sessions
+  %ana.phaseNames = {{'multistudy', 'cued_recall_only'}};
+  ana.phaseNames = {{{'multistudy', 'cued_recall_only'}, {'multistudy', 'cued_recall_only'}}};
   %ana.phaseNames = {{'multistudy'}};
   %ana.phaseNames = {{'distract_math'}};
   %ana.phaseNames = {{'cued_recall'}};
@@ -164,9 +167,6 @@ ana.cfg_cont.hpfilttype = 'but';
 ana.cfg_cont.hpfiltord = 4;
 ana.cfg_cont.bsfilter = 'yes';
 ana.cfg_cont.bsfreq = [59, 61];
-
-% % debug
-% ana.cfg_cont = [];
 
 % ana.artifact.continuousRepair = true;
 % ana.artifact.continuousReject = true;
