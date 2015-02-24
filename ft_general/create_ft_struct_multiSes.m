@@ -152,6 +152,9 @@ if ana.useExpInfo
   if ~isfield(ana,'evtToleranceMS')
     ana.evtToleranceMS = ceil((2 * 1000) / exper.sampleRate);
   end
+  if ~isfield(ana,'sessionNamesCombo')
+    ana.sessionNamesCombo = ana.sessionNames;
+  end
 end
 
 if ~isfield(ana,'usePhotodiodeDIN')
