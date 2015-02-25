@@ -326,7 +326,9 @@ ana.eventValues = ana.eventValuesSplit;
 saveDir = dirs.saveDirProc;
 % save(fullfile(saveDir,'space_word_img_data_ga_tla.mat'),'data_tla','ga_tla','exper','ana','dirs','files','-v7.3');
 % save(fullfile(saveDir,'space_word_img_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
+
 save(fullfile(saveDir,'space_word_img_rc_fo_data_tla_noSyn.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
+% save(fullfile(saveDir,'space_word_img_rc_fo_data_tla.mat'),'data_tla','exper','ana','dirs','files','-v7.3');
 % clear data_tla
 
 %% load
@@ -368,8 +370,16 @@ replaceDataType = {};
 % Subjects with bad behavior
 exper.badBehSub = {{}};
 % exper.badBehSub = {{'SPACE2002'}};
-% exper.badBehSub = {{'SPACE2002', 'SPACE2007', 'SPACE2017', 'SPACE2025', 'SPACE2035'}};
+exper.badBehSub = {{'SPACE2002', 'SPACE2007', 'SPACE2025', 'SPACE2016', 'SPACE2022', 'SPACE2040'}};
 % exper.badBehSub = {{'SPACE2007', 'SPACE2025'}};
+
+% good assessment:
+
+% rejected:  (in addition to 2, 7, 25, 34)
+
+% also noisy, noisiest first: 16, 22, 40, 26, 36, 10, 17
+
+% old assessment
 
 % performance more than 2 STD below mean in some cases (e.g., lag 32):
 % SPACE2007 (also rejected below)
@@ -420,7 +430,6 @@ evToCheck = { ...
   { ...
   { ...
   %'img_rc_onePres' ...
-  %
   %'img_fo_onePres' ...
   %'img_rc_mass_p1' ...
   'img_rc_mass_p2' ...
@@ -441,8 +450,7 @@ evToCheck = { ...
   } ...
   { ...
   
-  %'word_rc_onePres', ...
-  %
+  %'word_rc_onePres' ...
   %'word_fo_onePres' ...
   %'word_rc_mass_p1' ...
   'word_rc_mass_p2' ...
@@ -708,18 +716,19 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.ylims = [-3 2; -2 3; -1 4; -1 4];
 % cfg_plot.legendlocs = {'NorthEast','NorthEast','SouthEast','SouthEast'};
 
-% % LPC
-% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
-% % cfg_plot.rois = {{'C'}};
-% % cfg_plot.rois = {{'Pz'}}; % Pz
-% % cfg_plot.rois = {{'PS'}}; % Centered on Pz
-% % cfg_plot.rois = {{'PS2'}}; % Centered on E72
-% % cfg_plot.rois = {{'LPS'},{'RPS'}};
-% % cfg_plot.rois = {{'LPS2'},{'RPS2'}};
-% % cfg_plot.rois = {{'LPS2','RPS2'}};
-% cfg_plot.ylims = [-1 6; -1 6];
-% % cfg_plot.legendlocs = {'SouthEast'};
-% cfg_plot.legendlocs = {'NorthWest','NorthWest'};
+% LPC
+% cfg_plot.rois = {{'E76','E77','E83','E84','E85','E90','E91'}}; % Centered on E84
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for spacing analysis
+% cfg_plot.rois = {{'C'}};
+% cfg_plot.rois = {{'Pz'}}; % Pz
+% cfg_plot.rois = {{'PS'}}; % Centered on Pz
+% cfg_plot.rois = {{'PS2'}}; % Centered on E72
+% cfg_plot.rois = {{'LPS'},{'RPS'}};
+% cfg_plot.rois = {{'LPS2'},{'RPS2'}};
+% cfg_plot.rois = {{'LPS2','RPS2'}};
+cfg_plot.ylims = [-1 6; -1 6];
+% cfg_plot.legendlocs = {'SouthEast'};
+cfg_plot.legendlocs = {'NorthWest','NorthWest'};
 
 % % N400
 % % cfg_plot.rois = {{'LAS'}}; % Center=20
@@ -730,14 +739,14 @@ cfg_plot.excludeBadSub = 1;
 % cfg_plot.legendlocs = {'NorthEast'};
 % % cfg_plot.legendlocs = {'SouthWest'};
 
-% N2
-% cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
-cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
-% cfg_plot.rois = {{'E90','E91','E95','E96','E97','E100','E101'}}; % T6 (R)
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
-% cfg_plot.ylims = [-3 4; -3 4];
-cfg_plot.ylims = [-2 2.5; -2 2.5];
-cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+% % N2
+% % cfg_plot.rois = {{'E58'},{'E96'}}; % T5, T6
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5 (L)
+% % cfg_plot.rois = {{'E90','E91','E95','E96','E97','E100','E101'}}; % T6 (R)
+% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}}; % T5+T6
+% % cfg_plot.ylims = [-3 4; -3 4];
+% cfg_plot.ylims = [-2 2.5; -2 2.5];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 
 % cfg_plot.ylims = [-10 10];
 
@@ -800,23 +809,23 @@ cfg_plot.condByROI = repmat({{ ...
   'word_rc_onePres', 'word_fo_onePres' ...
   }},size(cfg_plot.rois));
 
-% Space-2
-cfg_plot.condByROI = repmat({{ ...
-  'word_rc_spac2_p1', 'word_fo_spac2_p1', 'word_rc_spac2_p2', 'word_fo_spac2_p2', ...
-  'word_rc_onePres', 'word_fo_onePres' ...
-  }},size(cfg_plot.rois));
+% % Space-2
+% cfg_plot.condByROI = repmat({{ ...
+%   'word_rc_spac2_p1', 'word_fo_spac2_p1', 'word_rc_spac2_p2', 'word_fo_spac2_p2', ...
+%   'word_rc_onePres', 'word_fo_onePres' ...
+%   }},size(cfg_plot.rois));
 
-% Space-12
-cfg_plot.condByROI = repmat({{ ...
-  'word_rc_spac12_p1', 'word_fo_spac12_p1', 'word_rc_spac12_p2', 'word_fo_spac12_p2', ...
-  'word_rc_onePres', 'word_fo_onePres' ...
-  }},size(cfg_plot.rois));
+% % Space-12
+% cfg_plot.condByROI = repmat({{ ...
+%   'word_rc_spac12_p1', 'word_fo_spac12_p1', 'word_rc_spac12_p2', 'word_fo_spac12_p2', ...
+%   'word_rc_onePres', 'word_fo_onePres' ...
+%   }},size(cfg_plot.rois));
 
-% Space-32
-cfg_plot.condByROI = repmat({{ ...
-  'word_rc_spac32_p1', 'word_fo_spac32_p1', 'word_rc_spac32_p2', 'word_fo_spac32_p2', ...
-  'word_rc_onePres', 'word_fo_onePres' ...
-  }},size(cfg_plot.rois));
+% % Space-32
+% cfg_plot.condByROI = repmat({{ ...
+%   'word_rc_spac32_p1', 'word_fo_spac32_p1', 'word_rc_spac32_p2', 'word_fo_spac32_p2', ...
+%   'word_rc_onePres', 'word_fo_onePres' ...
+%   }},size(cfg_plot.rois));
 
 cfg_plot.axisxy = false;
 
@@ -880,13 +889,12 @@ cfg.conditions = {...
 % % cfg.latency = [0.4 0.8]; % LPC
 % cfg.latency = [0.475 0.8]; % LPC
 % cfg.order = 'descend'; % descend = positive peaks first
-% % LPC: electrode cluster around E77 includes peak E84 E85 etc
-% % or use E84?
+% % LPC: electrode cluster around E84
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (532ms old:596ms)
-% % cfg.roi = {'E76','E77','E83','E84','E85','E90','E91'}; % Centered on E84 (ms)
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (580ms)
+% % cfg.roi = {'E76','E77','E83','E84','E85','E90','E91'}; % Centered on E84 (516ms)
 % % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
 % % cfg.roi = {'RPS'}; % Centered on E86 (ms)
 % % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
@@ -894,7 +902,7 @@ cfg.conditions = {...
 % cfg.order = 'descend'; % descend = positive peaks first
 
 % % step 3: select a window for analysis around peak; cfg.outputSubjects=true
-% lpcPeak = 0.532;
+% lpcPeak = 0.580;
 % % lpcPeak = 0.576; % bilateral
 % cfg.datadim = 'time';
 % cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77
@@ -918,8 +926,8 @@ cfg.conditions = {...
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% % cfg.roi = {'FS2'}; % Centered on E6 (360ms)
-% cfg.roi = {'C'}; % Centered on Cz (372ms)
+% % cfg.roi = {'FS2'}; % Centered on E6 (328ms)
+% cfg.roi = {'C'}; % Centered on Cz (352ms)
 % cfg.latency = [0.3 0.5]; % N400
 % cfg.order = 'ascend'; % ascend = negative peaks first
 
@@ -949,7 +957,7 @@ cfg.conditions = {...
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
 % cfg.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % Centered on E58/T5 (144ms)
-% % cfg.roi = {'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}; % Centered on T5+T6 (172ms)
+% % cfg.roi = {'E50','E51','E57','E58','E59','E64','E65','E90','E91','E95','E96','E97','E100','E101'}; % Centered on T5+T6 (ms)
 % cfg.latency = [0.1 0.3]; % N2
 % cfg.order = 'ascend'; % ascend = negative peaks first
 
@@ -998,8 +1006,8 @@ cfg_plot = [];
 % cfg_plot.rois = {{'LPS'}};
 % cfg_plot.rois = {{'LPS2'}};
 
-% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for LPC analysis
-cfg_plot.rois = {{'C'}}; % C for N400 analysis
+cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for LPC analysis
+% cfg_plot.rois = {{'C'}}; % C for N400 analysis
 % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5/E58 (L) % for N2 analysis
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
@@ -1028,12 +1036,12 @@ cfg_plot.titleTrialCount = false;
 %   {'C2','C6'},...
 %   {'C2','C6'}};
 
-cond = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
-cfg_plot.condByROI = repmat({{{cond}}},size(cfg_plot.rois));
-cfg_plot.types = {'word'};
+% cond = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
+% cfg_plot.condByROI = repmat({{{cond}}},size(cfg_plot.rois));
+% cfg_plot.types = {'word'};
 
-% cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
-% cfg_plot.types = {'image','word'};
+cfg_plot.condByROI = repmat({ana.eventValues},size(cfg_plot.rois));
+cfg_plot.types = {'image','word'};
 
 ses = 1;
 
