@@ -60,7 +60,7 @@ subjects = {
 % only one cell, with all session names
 sesNames = {'session_1_session_2'};
 
-analysisDate = '23-Feb-2015';
+analysisDate = '28-Feb-2015';
 
 origDataType = 'pow';
 
