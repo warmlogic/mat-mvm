@@ -28,12 +28,12 @@ procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_m
 
 subjects = {
   'SPACE2001';
-  'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
+  %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
   %'SPACE2003'; % DNF session 2, exclude
-  'SPACE2004'; % low trial counts, exclude via threshold
+  'SPACE2004';
   'SPACE2005';
   'SPACE2006';
-  'SPACE2007'; % bad performance, low trial counts, exclude
+  %'SPACE2007'; % bad performance, low trial counts, EXCLUDE
   'SPACE2008';
   %'SPACE2009'; % DNF session 2, exclude
   'SPACE2010';
@@ -42,7 +42,7 @@ subjects = {
   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
   'SPACE2014';
   'SPACE2015';
-  'SPACE2016'; % low trial counts, exclude via threshold
+  %'SPACE2016'; % really noisy EEG, EXCLUDE
   'SPACE2017'; % not great performance, still including
   'SPACE2018';
   'SPACE2019';
@@ -51,16 +51,16 @@ subjects = {
   'SPACE2022';
   %'SPACE2023'; % DNF session 2, exclude
   %'SPACE2024'; % DNF session 2, exclude
-  'SPACE2025'; % bad performance, low trial counts, exclude
+  %'SPACE2025'; % bad performance, low trial counts, EXCLUDE
   'SPACE2026';
   %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
   'SPACE2028';
-  'SPACE2029'; % low trial counts, exclude via threshold
+  'SPACE2029';
   'SPACE2030';
   'SPACE2031';
-  'SPACE2032'; % low trial counts, exclude via threshold
+  'SPACE2032';
   'SPACE2033';
-  'SPACE2034'; % low trial counts, exclude via threshold
+  'SPACE2034'; % low trial counts, EXCLUDE via threshold
   'SPACE2035'; % not great performance, still including
   'SPACE2036';
   'SPACE2037';
@@ -368,63 +368,24 @@ replaceDataType = {};
  %% decide who to kick out based on trial counts
 
 % Subjects with bad behavior
-exper.badBehSub = {{}};
-% exper.badBehSub = {{'SPACE2002'}};
-exper.badBehSub = {{'SPACE2002', 'SPACE2007', 'SPACE2025', 'SPACE2016', 'SPACE2022', 'SPACE2040'}};
-% exper.badBehSub = {{'SPACE2007', 'SPACE2025'}};
-
-% good assessment:
-
-% rejected:  (in addition to 2, 7, 25, 34)
-
-% also noisy, noisiest first: 16, 22, 40, 26, 36, 10, 17
-
-% old assessment
+% exper.badBehSub = {{}};
+exper.badBehSub = {{'SPACE2002', 'SPACE2007', 'SPACE2025', 'SPACE2016'}};
+% SPACE2034 will be excluded with threshold
 
 % performance more than 2 STD below mean in some cases (e.g., lag 32):
 % SPACE2007 (also rejected below)
 % SPACE2025 (also rejected below)
 
 % low trials:
-% SPACE2004
+% SPACE2002 (also rejected below)
 % SPACE2007 (also rejected above)
-% SPACE2016
 % SPACE2025 (also rejected above)
-% SPACE2029
-% SPACE2032
 % SPACE2034
 
-% exper.badBehSub = {{
-%   'SPACE2001';
-%   'SPACE2002';
-%   %'SPACE2003'; % DNF session 2
-%   'SPACE2004';
-% %   'SPACE2005';
-%   'SPACE2006';
-%   'SPACE2007'; % terrible performance
-%   'SPACE2008';
-%   %'SPACE2009'; % DNF session 2
-%   'SPACE2010';
-%   'SPACE2011';
-%   'SPACE2012';
-%   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle
-%   'SPACE2014';
-%   'SPACE2015';
-%   'SPACE2016';
-%   'SPACE2017'; % terrible performance
-%   'SPACE2018';
-%   'SPACE2019';
-%   %'SPACE2020'; % DNF session 2
-%   'SPACE2021';
-%   'SPACE2022';
-%   %'SPACE2023'; % no ses2
-%   %'SPACE2024'; % no ses2
-%   'SPACE2025';
-%   'SPACE2026';
-%   'SPACE2027'; % no ses2
-%   }};
-
-% SPACE2002 has really noisy EEG
+% noisy EEG:
+% noisiest first: 2, 16, 22, 40, 26, 36, 10, 17; only rejecting 2 and 16
+% SPACE2002 (also rejected above)
+% SPACE2016
 
 evToCheck = { ...
   { ...
@@ -1006,9 +967,9 @@ cfg_plot = [];
 % cfg_plot.rois = {{'LPS'}};
 % cfg_plot.rois = {{'LPS2'}};
 
-cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for LPC analysis
+% cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}}; % Centered on E77 *** using this for LPC analysis
 % cfg_plot.rois = {{'C'}}; % C for N400 analysis
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5/E58 (L) % for N2 analysis
+cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % T5/E58 (L) % for N2 analysis
 cfg_plot.excludeBadSub = 0;
 cfg_plot.numCols = 5;
 cfg_plot.xlim = [-0.2 1.0];

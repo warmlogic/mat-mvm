@@ -23,10 +23,10 @@ subjects = {
   'SPACE2001';
   %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
   %'SPACE2003'; % DNF session 2, exclude
-  'SPACE2004'; % low trial counts, exclude via threshold
+  'SPACE2004';
   'SPACE2005';
   'SPACE2006';
-  %'SPACE2007'; % bad performance, low trial counts, exclude
+  %'SPACE2007'; % bad performance, low trial counts, EXCLUDE
   'SPACE2008';
   %'SPACE2009'; % DNF session 2, exclude
   'SPACE2010';
@@ -35,7 +35,7 @@ subjects = {
   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
   'SPACE2014';
   'SPACE2015';
-  'SPACE2016'; % low trial counts, exclude via threshold
+  %'SPACE2016'; % really noisy EEG, EXCLUDE
   'SPACE2017'; % not great performance, still including
   'SPACE2018';
   'SPACE2019';
@@ -44,16 +44,16 @@ subjects = {
   'SPACE2022';
   %'SPACE2023'; % DNF session 2, exclude
   %'SPACE2024'; % DNF session 2, exclude
-  %'SPACE2025'; % bad performance, low trial counts, exclude
+  %'SPACE2025'; % bad performance, low trial counts, EXCLUDE
   'SPACE2026';
   %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
   'SPACE2028';
-  'SPACE2029'; % low trial counts, exclude via threshold
+  'SPACE2029';
   'SPACE2030';
   'SPACE2031';
-  'SPACE2032'; % low trial counts, exclude via threshold
+  'SPACE2032';
   'SPACE2033';
-  'SPACE2034'; % low trial counts, exclude via threshold
+  'SPACE2034'; % low trial counts, EXCLUDE via threshold
   'SPACE2035'; % not great performance, still including
   'SPACE2036';
   'SPACE2037';
