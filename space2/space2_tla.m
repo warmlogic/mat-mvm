@@ -1197,14 +1197,14 @@ cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
 % cfg_plot.rois = {{'C'}};
 % cfg_plot.ylims = [-3 4];
 % cfg_plot.legendlocs = {'NorthEast'};
-% n400Peak = 0.372; % C
+% n400Peak = 0.352; % C
 % cfg_plot.x_bounds = [n400Peak-0.05 n400Peak+0.05]; % time
 
 % % % LPC @ E77
 % cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
 % cfg_plot.ylims = [-1 6];
 % cfg_plot.legendlocs = {'NorthWest'};
-% lpcPeak = 0.532; % centered on E77
+% lpcPeak = 0.580; % centered on E77
 % cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
 cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
@@ -1496,19 +1496,19 @@ cfg_plot.latency = [n1Peak-(windowWidth/2), n1Peak+(windowWidth/2)]; % time
 cfg_plot.ylim = [-2 2];
 cfg_plot.legendloc = 'NorthEast';
 
-% cfg_plot.roi = {'C'};
-% n400Peak = 0.372; % C
-% windowWidth = 0.1;
-% cfg_plot.latency = [n400Peak-(windowWidth/2), n400Peak+(windowWidth/2)]; % time
-% cfg_plot.ylim = [-2 2];
-% cfg_plot.legendloc = 'SouthWest';
+cfg_plot.roi = {'C'};
+n400Peak = 0.352; % C
+windowWidth = 0.1;
+cfg_plot.latency = [n400Peak-(windowWidth/2), n400Peak+(windowWidth/2)]; % time
+cfg_plot.ylim = [-2 2];
+cfg_plot.legendloc = 'SouthWest';
 
-% cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
-% lpcPeak = 0.532; % centered on E77
-% windowWidth = 0.2;
-% cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
-% cfg_plot.ylim = [1.5 5.5];
-% cfg_plot.legendloc = 'SouthWest';
+cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
+lpcPeak = 0.580; % centered on E77
+windowWidth = 0.2;
+cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
+cfg_plot.ylim = [1.5 5.5];
+cfg_plot.legendloc = 'SouthWest';
 
 % cfg_plot.roi = {'LPS2'};
 % 
