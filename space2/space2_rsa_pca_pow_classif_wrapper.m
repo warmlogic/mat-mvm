@@ -137,8 +137,11 @@ dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc
 % dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc_spac12','img_fo_spac12', 'img_rc_spac32','img_fo_spac32', 'word_rc_mass','word_fo_mass', 'word_rc_spac2','word_fo_spac2', 'word_rc_spac12','word_fo_spac12', 'word_rc_spac32','word_fo_spac32'};
 
 % allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'},{'center109'},{'LPS','RPS'},{'LT','RT'},{'LPI2','RPI2'},{'LAS2','FS','RAS2'},{'LFP','FC','RFP'}};
-allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'},{'LPS'},{'RPS'}};
+% allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'},{'LPS'},{'RPS'}};
+
+% ran these:
 % allROIs = {{'LPI2','LPS','LT','RPI2','RPS','RT'}};
+allROIs = {{'LPS','RPS'},{'LT','RT'},{'PS'}};
 
 % allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 %   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
