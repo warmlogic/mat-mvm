@@ -854,7 +854,7 @@ cfg.conditions = {...
 
 % % step 2: find peak time at peak electrode(s)
 % cfg.datadim = 'time';
-% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (580ms)
+% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (536ms)
 % % cfg.roi = {'E76','E77','E83','E84','E85','E90','E91'}; % Centered on E84 (516ms)
 % % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
 % % cfg.roi = {'RPS'}; % Centered on E86 (ms)
@@ -863,15 +863,16 @@ cfg.conditions = {...
 % cfg.order = 'descend'; % descend = positive peaks first
 
 % % step 3: select a window for analysis around peak; cfg.outputSubjects=true
-% lpcPeak = 0.580;
+% lpcPeak = 0.536;
+% % lpcPeak = 0.580;
 % % lpcPeak = 0.576; % bilateral
 % cfg.datadim = 'time';
 % cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77
 % % cfg.roi = {'RPS2'}; % Centered on E85
 % % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85
 % % cfg.latency = [lpcPeak-0.05 lpcPeak+0.05]; % LPC - around GA peak (space+mass) +/- 50
-% % cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
-% cfg.latency = [lpcPeak-0.15 lpcPeak+0.15]; % LPC - around GA peak (space+mass) +/- 150
+% cfg.latency = [lpcPeak-0.1 lpcPeak+0.1]; % LPC - around GA peak (space+mass) +/- 100
+% % cfg.latency = [lpcPeak-0.15 lpcPeak+0.15]; % LPC - around GA peak (space+mass) +/- 150
 % cfg.avgovertime = true;
 % cfg.order = 'descend'; % descend = positive peaks first
 
@@ -1165,7 +1166,7 @@ cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
 % cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
 % cfg_plot.ylims = [-1 6];
 % cfg_plot.legendlocs = {'NorthWest'};
-% lpcPeak = 0.580; % centered on E77
+% lpcPeak = 0.536; % centered on E77
 % cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
 cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
@@ -1465,7 +1466,7 @@ cfg_plot.ylim = [-2 2];
 cfg_plot.legendloc = 'SouthWest';
 
 cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
-lpcPeak = 0.580; % centered on E77
+lpcPeak = 0.536; % centered on E77
 windowWidth = 0.2;
 cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
 cfg_plot.ylim = [1.5 5.5];
