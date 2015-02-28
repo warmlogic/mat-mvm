@@ -140,7 +140,8 @@ dataTypes = {'img_rc_mass','img_fo_mass', 'img_rc_spac2','img_fo_spac2', 'img_rc
 % allROIs = {{'FS'},{'C'},{'PS'},{'PI'},{'LT'},{'RT'},{'LPS'},{'RPS'}};
 
 % ran these:
-allROIs = {{'LPS','RPS'},{'LT','RT'},{'PS'},{'LPI2','LPS','LT','RPI2','RPS','RT'}};
+% allROIs = {{'LPS','RPS'},{'LT','RT'},{'PS'},{'LPI2','LPS','LT','RPI2','RPS','RT'}};
+allROIs = {{'LPS','RPS'},{'PS'}};
 
 % allLats = {[0.0 0.2; 0.2 0.4; 0.4 0.6; 0.6 0.8; 0.8 1.0; ...
 %   0.1 0.3; 0.3 0.5; 0.5 0.7; 0.7 0.9; ...
