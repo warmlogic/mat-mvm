@@ -11,8 +11,8 @@
 % hilbert (processed using space2_rsa_pca_tla_hilbert_classif_wrapper.m)
 % would average over time.
 
-%#rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/
-%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/RSA_PCA_tla*cluster.mat ~/data/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/
+%#rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/RSA_PCA*cluster.mat ~/data/SPACE/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla/
+%rsync -avzP matt@dreamio2.colorado.edu:/data/projects/curranlab/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/RSA_PCA*cluster.mat ~/data/SPACE2/EEG/Sessions/ftpp/ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla/
 
 expName = 'SPACE2';
 
