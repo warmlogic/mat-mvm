@@ -2,10 +2,10 @@
 
 %% load
 
-analysisDate = '22-Feb-2015';
+analysisDate = '28-Feb-2015';
 
-% data_str = 'word';
 data_str = 'img';
+% data_str = 'word';
 % data_str = 'img_word';
 
 % word
