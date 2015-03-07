@@ -417,7 +417,7 @@ else
   error('Data directory not found.');
 end
 
-loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
+loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow');
 % loadDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla');
 
 % load(fullfile(loadDir,'space_word_img_data_pow.mat'));
@@ -917,8 +917,9 @@ cfg_plot.is_ga = 1;
 % cfg_plot.condByROI = repmat({{'word_onePres', 'word_mass_p2', 'word_spac_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{'word_onePres', 'word_mass_p1', 'word_spac_p1', 'word_mass_p2', 'word_spac2_p2'}},size(cfg_plot.rois));
 % cfg_plot.condByROI = repmat({{{{'word_mass_p1', 'word_mass_p2', 'word_spac2_p1', 'word_spac2_p2'}}}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{{'word_rc_mass_p2', 'word_fo_mass_p2''word_rc_spac2_p2', 'word_fo_spac2_p2', 'word_rc_spac12_p2', 'word_fo_spac12_p2', 'word_rc_spac32_p2', 'word_fo_spac32_p2'}}}},size(cfg_plot.rois));
-cfg_plot.condByROI = repmat({{{{'img_rc_mass_p2', 'img_fo_mass_p2', 'img_rc_spac2_p2', 'img_fo_spac2_p2', 'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}}}},size(cfg_plot.rois));
+
+cfg_plot.condByROI = repmat({{{{'word_rc_mass_p2', 'word_fo_mass_p2', 'word_rc_spac2_p2', 'word_fo_spac2_p2', 'word_rc_spac12_p2', 'word_fo_spac12_p2', 'word_rc_spac32_p2', 'word_fo_spac32_p2'}}}},size(cfg_plot.rois));
+% cfg_plot.condByROI = repmat({{{{'img_rc_mass_p2', 'img_fo_mass_p2', 'img_rc_spac2_p2', 'img_fo_spac2_p2', 'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}}}},size(cfg_plot.rois));
 
 %%%%%%%%%%%%%%%
 % Type of plot
@@ -1189,9 +1190,9 @@ cfg_ana.avgTime = cfg_ft.avgovertime;
 
 cfg_ana.conditions = {...
   {'img_rc_mass_p2', 'img_fo_mass_p2'} ... % Mass P2 SME
-  {'img_rc_spac2_p2', 'img_fo2_spac_p2'} ... % Spac2 P2 SME
-  {'img_rc_spac12_p2', 'img_fo12_spac_p2'} ... % Spac12 P2 SME
-  {'img_rc_spac32_p2', 'img_fo32_spac_p2'} ... % Spac32 P2 SME
+  {'img_rc_spac2_p2', 'img_fo_spac2_p2'} ... % Spac2 P2 SME
+  {'img_rc_spac12_p2', 'img_fo_spac12_p2'} ... % Spac12 P2 SME
+  {'img_rc_spac32_p2', 'img_fo_spac32_p2'} ... % Spac32 P2 SME
   {'img_rc_spac2_p2', 'img_rc_mass_p2'} ... % P2 Rc Spac2
   {'img_fo_spac2_p2', 'img_fo_mass_p2'} ... % P2 Fo Spac2
   {'img_rc_spac12_p2', 'img_rc_mass_p2'} ... % P2 Rc Spac12
@@ -1221,9 +1222,9 @@ cfg_ana.conditions = {...
   {'img_fo_onePres', 'img_rc_spac32_p2'} ...
   {'img_fo_onePres', 'img_fo_spac32_p2'} ...
   {'word_rc_mass_p2', 'word_fo_mass_p2'} ... % Mass P2 SME
-  {'word_rc_spac2_p2', 'word_fo2_spac_p2'} ... % Spac2 P2 SME
-  {'word_rc_spac12_p2', 'word_fo12_spac_p2'} ... % Spac12 P2 SME
-  {'word_rc_spac32_p2', 'word_fo32_spac_p2'} ... % Spac32 P2 SME
+  {'word_rc_spac2_p2', 'word_fo_spac2_p2'} ... % Spac2 P2 SME
+  {'word_rc_spac12_p2', 'word_fo_spac12_p2'} ... % Spac12 P2 SME
+  {'word_rc_spac32_p2', 'word_fo_spac32_p2'} ... % Spac32 P2 SME
   {'word_rc_spac2_p2', 'word_rc_mass_p2'} ... % P2 Rc Spac2
   {'word_fo_spac2_p2', 'word_fo_mass_p2'} ... % P2 Fo Spac2
   {'word_rc_spac12_p2', 'word_rc_mass_p2'} ... % P2 Rc Spac12
@@ -1255,9 +1256,9 @@ cfg_ana.conditions = {...
 };
 
 %   {'img_rc_mass_p1', 'img_fo_mass_p1'} ... % Mass P1 SME
-%   {'img_rc_spac2_p1', 'img_fo2_spac_p1'} ... % Spac2 P1 SME
-%   {'img_rc_spac12_p1', 'img_fo12_spac_p1'} ... % Spac12 P1 SME
-%   {'img_rc_spac32_p1', 'img_fo32_spac_p1'} ... % Spac32 P1 SME
+%   {'img_rc_spac2_p1', 'img_fo_spac2_p1'} ... % Spac2 P1 SME
+%   {'img_rc_spac12_p1', 'img_fo_spac12_p1'} ... % Spac12 P1 SME
+%   {'img_rc_spac32_p1', 'img_fo_spac32_p1'} ... % Spac32 P1 SME
 
 %   {'img_rc_mass_p1', 'img_rc_mass_p2'} ... % Mass Rc Repetition
 %   {'img_fo_mass_p1', 'img_fo_mass_p2'} ... % Mass Fo Repetition
@@ -1296,9 +1297,9 @@ cfg_ana.conditions = {...
 %   {'img_fo_onePres', 'img_fo_spac32_p1'} ...
 
 %   {'word_rc_mass_p1', 'word_fo_mass_p1'} ... % Mass P1 SME
-%   {'word_rc_spac2_p1', 'word_fo2_spac_p1'} ... % Spac2 P1 SME
-%   {'word_rc_spac12_p1', 'word_fo12_spac_p1'} ... % Spac12 P1 SME
-%   {'word_rc_spac32_p1', 'word_fo32_spac_p1'} ... % Spac32 P1 SME
+%   {'word_rc_spac2_p1', 'word_fo_spac2_p1'} ... % Spac2 P1 SME
+%   {'word_rc_spac12_p1', 'word_fo_spac12_p1'} ... % Spac12 P1 SME
+%   {'word_rc_spac32_p1', 'word_fo_spac32_p1'} ... % Spac32 P1 SME
 
 %   {'word_rc_mass_p1', 'word_rc_mass_p2'} ... % Mass Rc Repetition
 %   {'word_fo_mass_p1', 'word_fo_mass_p2'} ... % Mass Fo Repetition
