@@ -116,10 +116,12 @@ if ~isfield(cfg,'limitlinewidth')
   cfg.limitlinewidth = 0.5;
 end
 if ~isfield(cfg,'graphcolor')
-  cfg.graphcolor = 'rbkgcmy';
+  %cfg.graphcolor = 'rbkgcmy';
+  cfg.graphcolor = 'rbkgcmyrbkgcmyrbkgcmy';
 end
 if ~isfield(cfg,'linestyle')
-  cfg.linestyle = {'-','--','-.','-','--','-.','-'};
+  %cfg.linestyle = {'-','--','-.','-','--','-.','-'};
+  cfg.linestyle = {'-','-','-','-','-','-','-','--','--','--','--','--','--','--','-.','-.','-.','-.','-.','-.','-.'};
 end
 
 % cluster significance stuff
