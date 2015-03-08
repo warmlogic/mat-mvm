@@ -264,7 +264,7 @@ if exist('tightfig','file')
   tightfig(gcf);
 end
 if files.saveFigs
-  cfg_plot.figfilename = sprintf('tla_avg_ga_%s%s%s%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,lat_str,cfg_plot.label_str);
+  cfg_plot.figfilename = sprintf('tla_avg_ga_%s%s%s%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,lat_str(2:end),cfg_plot.label_str);
   dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tla_avg');
   if ~exist(dirs.saveDirFigsLine,'dir')
     mkdir(dirs.saveDirFigsLine)
