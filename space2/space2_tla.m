@@ -1169,20 +1169,7 @@ cfg_plot.x_bounds = [n1Peak-0.05 n1Peak+0.05]; % time
 % lpcPeak = 0.536; % centered on E77
 % cfg_plot.x_bounds = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
-cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
-cfg_plot.rename_condByROI = repmat({{{'Space2 P1 Recalled','Space2 P1 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{{'word_rc_spac12_p1','word_fo_spac12_p1','word_rc_spac12_p2','word_fo_spac12_p2'}}},size(cfg_plot.rois));
-% cfg_plot.rename_condByROI = repmat({{{'Space12 P1 Recalled','Space12 P1 Forgot','Space12 P2 Recalled','Space12 P2 Forgot'}}},size(cfg_plot.rois));
-% cfg_plot.condByROI = repmat({{{'word_rc_spac32_p1','word_fo_spac32_p1','word_rc_spac32_p2','word_fo_spac32_p2'}}},size(cfg_plot.rois));
-% cfg_plot.rename_condByROI = repmat({{{'Space32 P1 Recalled','Space32 P1 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}},size(cfg_plot.rois));
-cfg_ft.graphcolor = 'kgrm';
-cfg_ft.linestyle = {'-','--','-','--'};
-
-% cfg_plot.condByROI = repmat({{{'word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'}}},size(cfg_plot.rois));
-% cfg_plot.rename_condByROI = repmat({{{'Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
-% cfg_ft.graphcolor = 'kgbc';
-% cfg_ft.linestyle = {'-','--','-','--'};
-
+% =====================================================================
 
 % cfg_plot.rois = {{'LPS2'},{'RPS2'}};
 % cfg_plot.ylims = [-1 6; -1 6];
@@ -1295,33 +1282,62 @@ sesNum = 1;
 % cfg_plot.labelFontSize = 24;
 cfg_plot.legendFontSize = 16;
 
-files.saveFigs = false;
+% cfg_ft.linewidth = 2;
+
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
-for r = 1:length(cfg_plot.rois)
-  cfg_plot.roi = cfg_plot.rois{r};
-  cfg_plot.conditions = cfg_plot.condByROI{r};
-  %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
-  %cfg_plot.types = cfg_plot.typesByROI{r};
-  cfg_plot.rename_conditions = cfg_plot.rename_condByROI{r};
-  cfg_ft.ylim = cfg_plot.ylims(r,:);
-  
-  if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
-    if isfield(cfg_plot,'x_bounds') && ~isempty(cfg_plot.x_bounds)
-      cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
-    else
-      cfg_plot.x_bound = [];
-    end
-    if cfg_plot.plotLegend
-      cfg_plot.legendloc = cfg_plot.legendlocs{r};
-    end
-    
-%     if exist('linspecer','file')
-%       cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions{1}));
-%     end
+theseColors = linspecer(8);
+cfg_ft.linestyle = {'-','--','-','--'};
+nplots = 4;
+
+for i = 1:nplots
+  if i == 1
+    cfg_plot.condByROI = repmat({{{'word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'}}},size(cfg_plot.rois));
+    cfg_plot.rename_condByROI = repmat({{{'Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+    cfg_ft.graphcolor = [[0 0 0]; [0 1 0]; theseColors([1,2],:)];
+  elseif i == 2
+    cfg_plot.condByROI = repmat({{{'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2'}}},size(cfg_plot.rois));
+    cfg_plot.rename_condByROI = repmat({{{'Space2 P1 Recalled','Space2 P1 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}}},size(cfg_plot.rois));
+    cfg_ft.graphcolor = [[0 0 0]; [0 1 0]; theseColors([3,4],:)];
+  elseif i == 3
+    cfg_plot.condByROI = repmat({{{'word_rc_spac12_p1','word_fo_spac12_p1','word_rc_spac12_p2','word_fo_spac12_p2'}}},size(cfg_plot.rois));
+    cfg_plot.rename_condByROI = repmat({{{'Space12 P1 Recalled','Space12 P1 Forgot','Space12 P2 Recalled','Space12 P2 Forgot'}}},size(cfg_plot.rois));
+    cfg_ft.graphcolor = [[0 0 0]; [0 1 0]; theseColors([5,6],:)];
+  elseif i == 4
+    cfg_plot.condByROI = repmat({{{'word_rc_spac32_p1','word_fo_spac32_p1','word_rc_spac32_p2','word_fo_spac32_p2'}}},size(cfg_plot.rois));
+    cfg_plot.rename_condByROI = repmat({{{'Space32 P1 Recalled','Space32 P1 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}},size(cfg_plot.rois));
+    cfg_ft.graphcolor = [[0 0 0]; [0 1 0]; theseColors([7,8],:)];
   end
   
-  mm_ft_plotER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
+  for r = 1:length(cfg_plot.rois)
+    cfg_plot.roi = cfg_plot.rois{r};
+    cfg_plot.conditions = cfg_plot.condByROI{r};
+    %cfg_plot.conditions = cfg_plot.condByTypeByROI{r};
+    %cfg_plot.types = cfg_plot.typesByROI{r};
+    cfg_plot.rename_conditions = cfg_plot.rename_condByROI{r};
+    cfg_ft.ylim = cfg_plot.ylims(r,:);
+    
+    if strcmp(cfg_plot.ftFxn,'ft_singleplotER')
+      if isfield(cfg_plot,'x_bounds') && ~isempty(cfg_plot.x_bounds)
+        cfg_plot.x_bound = cfg_plot.x_bounds(r,:);
+      else
+        cfg_plot.x_bound = [];
+      end
+      if cfg_plot.plotLegend
+        cfg_plot.legendloc = cfg_plot.legendlocs{r};
+      end
+      
+      %     if exist('linspecer','file')
+      %       cfg_ft.graphcolor = linspecer(length(cfg_plot.conditions{1}));
+      %     end
+    end
+    
+    mm_ft_plotER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
+  end
+  if files.saveFigs
+    close all
+  end
 end
 
 %% plot the contrasts
@@ -1433,7 +1449,7 @@ mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 
 %% average plots
 
-files.saveFigs = false;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
@@ -1443,7 +1459,7 @@ cfg_plot = [];
 
 cfg_plot.conditions = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
 cfg_plot.plot_order = cfg_plot.conditions;
-cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot','Space2 P12 Recalled','Space2 P12 Forgot','Space2 P32 Recalled','Space32 P2 Forgot'};
+cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot','Space12 P2 Recalled','Space12 P2 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'};
 
 cfg_plot.marker = {'o','x','s','^','o','x','d','v'};
 cfg_plot.markersize = 20;
@@ -1474,14 +1490,14 @@ cfg_plot.legendloc = 'NorthEast';
 % windowWidth = 0.1;
 % cfg_plot.latency = [n400Peak-(windowWidth/2), n400Peak+(windowWidth/2)]; % time
 % cfg_plot.ylim = [-2 2];
-% cfg_plot.legendloc = 'SouthWest';
+% cfg_plot.legendloc = 'NorthEast';
 
 % cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
 % lpcPeak = 0.536; % centered on E77
 % windowWidth = 0.2;
 % cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
 % cfg_plot.ylim = [1.5 5.5];
-% cfg_plot.legendloc = 'SouthWest';
+% cfg_plot.legendloc = 'NorthEast';
 
 
 % cfg_plot.roi = {'LPS2'};
