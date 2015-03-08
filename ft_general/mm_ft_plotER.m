@@ -306,6 +306,9 @@ for typ = 1:length(cfg_plot.conditions)
         end
         
         publishfig(gcf,~cfg_plot.plotTitle,cfg_plot.ticFontSize,cfg_plot.labelFontSize,files.figFontName,cfg_plot.legendFontSize);
+        if exist('tightfig','file')
+          tightfig(gcf);
+        end
         
       end % subplot
       set(gcf,'Name',sprintf('%s, %s, %.1f--%.1f s',strrep(cfg_plot.conditions{typ}{evVal},'_',''),strrep(cfg_plot.chan_str,'_',' '),cfg_ft.xlim(1),cfg_ft.xlim(2)));
@@ -423,6 +426,9 @@ for typ = 1:length(cfg_plot.conditions)
     end
     if ~cfg_plot.subplot
       publishfig(gcf,~cfg_plot.plotTitle,cfg_plot.ticFontSize,cfg_plot.labelFontSize,files.figFontName,cfg_plot.legendFontSize);
+    end
+    if exist('tightfig','file')
+      tightfig(gcf);
     end
     
     if cfg_plot.plotLegend

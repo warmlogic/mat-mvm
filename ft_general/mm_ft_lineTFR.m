@@ -676,6 +676,9 @@ for typ = 1:length(cfg.conditions)
     
     if ~files.saveFigs
       publishfig(gcf,~cfg.plotTitle,cfg.ticFontSize,cfg.labelFontSize,files.figFontName);
+      if exist('tightfig','file')
+        tightfig(gcf);
+      end
       
       % get the figure's current position and size
       cfg.pos = get(gcf, 'Position');

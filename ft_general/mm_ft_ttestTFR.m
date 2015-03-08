@@ -408,6 +408,9 @@ if cfg_plot.line_plots == 1
     files.figFontName = 'Helvetica';
   end
   publishfig(gcf,0,[],[],files.figFontName);
+  if exist('tightfig','file')
+    tightfig(gcf);
+  end
   if files.saveFigs
     cfg_plot.figfilename = sprintf('tfr_line_ga_%s%s%d_%d_%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,cfg_ft.frequency(1),cfg_ft.frequency(2),cfg_ft.latency(1)*1000,cfg_ft.latency(2)*1000,cfg_plot.label_str);
     dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_line');

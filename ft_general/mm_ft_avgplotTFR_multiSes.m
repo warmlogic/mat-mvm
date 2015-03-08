@@ -284,6 +284,9 @@ if ~isfield(files,'figFontName')
   files.figFontName = 'Helvetica';
 end
 publishfig(gcf,0,[],[],files.figFontName);
+if exist('tightfig','file')
+  tightfig(gcf);
+end
 if files.saveFigs
   cfg_plot.figfilename = sprintf('tfr_avg_ga_%s%s%s_%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,lat_str,round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),cfg_plot.label_str);
   dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_avg');

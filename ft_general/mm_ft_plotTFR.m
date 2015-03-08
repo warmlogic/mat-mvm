@@ -314,7 +314,10 @@ for typ = 1:length(cfg_plot.conditions{sesNum})
     if ~cfg_plot.subplot
       publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
     end
-      
+    if exist('tightfig','file')
+      tightfig(gcf);
+    end
+    
     if files.saveFigs
       if ~isempty(cfg_plot.types{typ})
         cfg_plot.figfilename = sprintf('tfr_%s_ga_%s_%s_%s%d_%d_%d_%d%s%s%s',cfg_plot.type,cfg_plot.types{typ},cfg_plot.conditions{sesNum}{typ}{evVal},chan_str,round(cfg_ft.ylim(1)),round(cfg_ft.ylim(2)),round(cfg_ft.xlim(1)*1000),round(cfg_ft.xlim(2)*1000),cfg_plot.colorbar_str,cfg_plot.subplot_str,cfg_plot.title_str);
