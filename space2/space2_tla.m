@@ -1431,7 +1431,7 @@ cfg_ft.xlim = (0:0.05:1.0); % time
 sesNum = 1;
 mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 
-%% line plots
+%% average plots
 
 files.saveFigs = false;
 files.figPrintFormat = 'png';
@@ -1445,11 +1445,22 @@ cfg_plot.conditions = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','w
 cfg_plot.plot_order = cfg_plot.conditions;
 cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot','Space2 P12 Recalled','Space2 P12 Forgot','Space2 P32 Recalled','Space32 P2 Forgot'};
 
+cfg_plot.marker = {'o','x','s','^','o','x','d','v'};
+cfg_plot.markersize = 20;
 
-cfg_plot.linespec = {'bo','cx','ro','mx','ro','mx','ro','mx'};
-% cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
-cfg_plot.markcolor = {'none','none','none','none','none','none','none','none'};
-cfg_plot.marksize = 20;
+% cfg_plot.markeredgecolor = {'b','c','r','m','r','m','r','m'};
+if exist('linspecer','file')
+  thisColor = linspecer(length(cfg_plot.conditions));
+  cfg_plot.markeredgecolor = cell(1,size(thisColor,1));
+  for i = 1:size(thisColor,1)
+    cfg_plot.markeredgecolor{i} = thisColor(i,:);
+  end
+else
+  cfg_plot.markeredgecolor = {'b','c','r','m','r','m','r','m'};
+end
+
+% cfg_plot.linecolor = repmat({'none'},1,length(cfg_plot.conditions));
+% cfg_plot.markerfacecolor = repmat({'none'},1,length(cfg_plot.conditions));
 
 cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
 n1Peak = 0.144; % E58
@@ -1458,22 +1469,22 @@ cfg_plot.latency = [n1Peak-(windowWidth/2), n1Peak+(windowWidth/2)]; % time
 cfg_plot.ylim = [-2 2];
 cfg_plot.legendloc = 'NorthEast';
 
-cfg_plot.roi = {'C'};
-n400Peak = 0.352; % C
-windowWidth = 0.1;
-cfg_plot.latency = [n400Peak-(windowWidth/2), n400Peak+(windowWidth/2)]; % time
-cfg_plot.ylim = [-2 2];
-cfg_plot.legendloc = 'SouthWest';
+% cfg_plot.roi = {'C'};
+% n400Peak = 0.352; % C
+% windowWidth = 0.1;
+% cfg_plot.latency = [n400Peak-(windowWidth/2), n400Peak+(windowWidth/2)]; % time
+% cfg_plot.ylim = [-2 2];
+% cfg_plot.legendloc = 'SouthWest';
 
-cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
-lpcPeak = 0.536; % centered on E77
-windowWidth = 0.2;
-cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
-cfg_plot.ylim = [1.5 5.5];
-cfg_plot.legendloc = 'SouthWest';
+% cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
+% lpcPeak = 0.536; % centered on E77
+% windowWidth = 0.2;
+% cfg_plot.latency = [lpcPeak-(windowWidth/2), lpcPeak+(windowWidth/2)]; % time
+% cfg_plot.ylim = [1.5 5.5];
+% cfg_plot.legendloc = 'SouthWest';
+
 
 % cfg_plot.roi = {'LPS2'};
-% 
 % % cfg_plot.latency = [0.4 0.8];
 % cfg_plot.latency = [0.5 0.8];
 % % cfg_plot.latency = [0.4 0.6];
@@ -1481,8 +1492,12 @@ cfg_plot.legendloc = 'SouthWest';
 % 
 % cfg_plot.ylim = [-1 4];
 
-cfg_plot.condNamesAtBottom = true;
-cfg_plot.plotLegend = false;
+cfg_plot.condNamesAtBottom = false;
+cfg_plot.plotLegend = true;
+
+% cfg_plot.condNamesAtBottom = true;
+% cfg_plot.plotLegend = false;
+
 % cfg_plot.legendloc = 'SouthEast';
 cfg_plot.xlabel = '';
 

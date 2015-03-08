@@ -37,21 +37,34 @@ if ~isfield(cfg_plot,'rename_conditions')
   cfg_plot.rename_conditions = cfg_plot.plot_order;
 end
 
-if ~isfield(cfg_plot,'linespec')
-  % cfg_plot.linespec = 'k--o';
-  cfg_plot.linespec = {'bo','cx','ro','mx','bs','c^','rs','m^'};
-end
-if ~isfield(cfg_plot,'markcolor')
-  %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
-  %cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
-  cfg_plot.markcolor = {'none','none','none','none','none','none','none','none','none'};
+if ~isfield(cfg_plot,'marker')
+  cfg_plot.marker = {'o','x','o','x','s','^','s','^'};
+  %cfg_plot.marker = {'o','x','s','^','o','x','d','v'};
 end
 
-if length(cfg_plot.linespec) < length(cfg_plot.conditions)
-  error('Not enough cfg_plot.linespec (%d) specified for the number of conditions (%d)',length(cfg_plot.linespec),length(cfg_plot.conditions));
+if ~isfield(cfg_plot,'markeredgecolor')
+  %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
+  %cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
+  cfg_plot.markeredgecolor = {'b','c','r','m','b','c','r','m'};
 end
-if length(cfg_plot.markcolor) < length(cfg_plot.conditions)
-  error('Not enough cfg_plot.markcolor (%d) specified for the number of conditions (%d)',length(cfg_plot.markcolor),length(cfg_plot.conditions));
+
+if ~isfield(cfg_plot,'markerfacecolor')
+  %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
+  %cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
+  cfg_plot.markerfacecolor = repmat({'none'},1,length(cfg_plot.conditions));
+end
+
+if ~isfield(cfg_plot,'linecolor')
+  %cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
+  %cfg_plot.markcolor = {'w','w','w','w','w','w','w','w'};
+  cfg_plot.linecolor = repmat({'none'},1,length(cfg_plot.conditions));
+end
+
+if length(cfg_plot.marker) < length(cfg_plot.conditions)
+  error('Not enough cfg_plot.marker (%d) specified for the number of conditions (%d)',length(cfg_plot.marker),length(cfg_plot.conditions));
+end
+if length(cfg_plot.markeredgecolor) < length(cfg_plot.conditions)
+  error('Not enough cfg_plot.markeredgecolor (%d) specified for the number of conditions (%d)',length(cfg_plot.markeredgecolor),length(cfg_plot.conditions));
 end
 
 if ~isfield(cfg_plot,'condNamesAtBottom')
@@ -192,7 +205,7 @@ for lat = 1:size(cfg_plot.latency,1)
     xIndCounter = xIndCounter + 1;
     
     % errorbars
-    h = errorbar(xIndCounter,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_ana.sem.(cfg_plot.plot_order{c}),cfg_plot.linespec{c},'LineWidth',cfg_plot.errwidth);
+    h = errorbar(xIndCounter,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_ana.sem.(cfg_plot.plot_order{c}),'Color',cfg_plot.markeredgecolor{c},'LineWidth',cfg_plot.errwidth);
     % remove errorbar ends
     if cfg_plot.removeErrBarEnds
       chil = get(h,'Children');
@@ -205,7 +218,7 @@ for lat = 1:size(cfg_plot.latency,1)
       set(h,'Children',chil);
     end
     % plot the markers
-    h_d(c) = plot(xIndCounter,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),cfg_plot.linespec{c},'LineWidth',cfg_plot.linewidth,'MarkerSize',cfg_plot.marksize,'MarkerFaceColor',cfg_plot.markcolor{c});
+    h_d(c) = plot(xIndCounter,mean(cfg_ana.values.(cfg_plot.plot_order{c}),1),'Marker',cfg_plot.marker{c},'MarkerSize',cfg_plot.markersize,'MarkerEdgeColor',cfg_plot.markeredgecolor{c},'MarkerFaceColor',cfg_plot.markerfacecolor{c},'LineWidth',cfg_plot.linewidth,'Color',cfg_plot.linecolor{c});
     
     if cfg_plot.condNamesAtBottom
       text(xIndCounter,cfg_plot.ylim(1)-.2, cfg_plot.rename_conditions{c}, 'Rotation', 15, 'FontSize', 18, 'HorizontalAlignment', 'center');
