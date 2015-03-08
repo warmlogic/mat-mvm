@@ -1090,10 +1090,22 @@ cfg_plot.rename_conditions = {'Mass P2 Recall','Mass P2 Forgot','Space2 P2 Recal
 
 cfg_plot.ylabel = 'Z-Transformed Power';
 
-cfg_plot.linespec = {'bo','cx','ro','mx'};
-% cfg_plot.markcolor = {'w','k','w','k','w','k','w','k'};
-cfg_plot.markcolor = {'none','none','none','none'};
-cfg_plot.marksize = 20;
+cfg_plot.marker = {'o','x','s','^','o','x','d','v'};
+cfg_plot.markersize = 20;
+
+% cfg_plot.markeredgecolor = {'b','c','r','m','r','m','r','m'};
+if exist('linspecer','file')
+  thisColor = linspecer(length(cfg_plot.conditions));
+  cfg_plot.markeredgecolor = cell(1,size(thisColor,1));
+  for i = 1:size(thisColor,1)
+    cfg_plot.markeredgecolor{i} = thisColor(i,:);
+  end
+else
+  cfg_plot.markeredgecolor = {'b','c','r','m','r','m','r','m'};
+end
+
+% cfg_plot.linecolor = repmat({'none'},1,length(cfg_plot.conditions));
+% cfg_plot.markerfacecolor = repmat({'none'},1,length(cfg_plot.conditions));
 
 % cfg_plot.freqs = ana.freq.theta;
 % cfg_plot.freqs = ana.freq.alpha_lower;
