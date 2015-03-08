@@ -106,7 +106,7 @@ for typ = 1:length(cfg_plot.conditions{ses})
       % go through each event value for this type
       for evVal = 1:length(cfg_plot.conditions{ses}{typ})
         if cfg_plot.titleTrialCount
-          evStr = cat(2,evStr,sprintf(' %s:%d',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),exper.nTrials.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal})(sub)));
+          evStr = cat(2,evStr,sprintf(' %s:%d',strrep(cfg_plot.conditions{ses}{typ}{evVal},'_','-'),exper.nTrials.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal})(sub)));
         end
         if isfield(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal}).sub(sub).data,cfg_plot.parameter)
           plot(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal}).sub(sub).data.time,mean(data.(exper.sesStr{ses}).(cfg_plot.conditions{ses}{typ}{evVal}).sub(sub).data.(cfg_plot.parameter)(cfg_plot.chansel,:),1),cfg_plot.graphcolor(evVal));
@@ -139,7 +139,7 @@ for typ = 1:length(cfg_plot.conditions{ses})
   text(0.5,ycoord,sprintf(repmat('%s ',1,length(cfg_plot.roi)),cfg_plot.roi{:}),'color','k');
   ycoord = ycoord - vertTextLoc;
   for evVal = 1:length(cfg_plot.conditions{ses}{typ})
-    text(0.5,ycoord,strrep(cfg_plot.conditions{ses}{typ}{evVal},'_',''),'color',cfg_plot.graphcolor(evVal));
+    text(0.5,ycoord,strrep(cfg_plot.conditions{ses}{typ}{evVal},'_','-'),'color',cfg_plot.graphcolor(evVal));
     ycoord = ycoord - vertTextLoc;
   end
   axis off
