@@ -450,6 +450,8 @@ for typ = 1:length(cfg.conditions)
             %fprintf('No stat_clus file found for %s. Checking reverse condition order.\n',vs_str);
             cond1 = cfg.conditions{typ}{condCombos(evVal,1)};
             cond2 = cfg.conditions{typ}{condCombos(evVal,2)};
+            cond1ind = condCombos(evVal,1);
+            cond2ind = condCombos(evVal,2);
           else
             % try the reverse order
             vs_str = sprintf('%svs%s',cfg.conditions{typ}{condCombos(evVal,2)},cfg.conditions{typ}{condCombos(evVal,1)});
@@ -459,6 +461,8 @@ for typ = 1:length(cfg.conditions)
               load(savedFile);
               cond1 = cfg.conditions{typ}{condCombos(evVal,2)};
               cond2 = cfg.conditions{typ}{condCombos(evVal,1)};
+              cond1ind = condCombos(evVal,2);
+              cond2ind = condCombos(evVal,1);
             else
               validComparisons{typ}(evVal) = false;
               warning([mfilename,':FileNotFound'],'No stat_clus file found for %s (or reverse order): %s. Going to next comparison.\n',vs_str,savedFile);
@@ -573,14 +577,14 @@ for typ = 1:length(cfg.conditions)
                   % debug
                   fprintf('%.1fto%.1fHz: %.2fto%.2f sec, %5s, %s: Pos clus #%d (%d chan), p=%.3f (found=%d)\n',...
                     cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.this_roi),vs_str,sigpos(iPos),...
-                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,1)}).label(sigposCLM(:,iPos) > 0))),...
+                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cond1).label(sigposCLM(:,iPos) > 0))),...
                     stat_clus.(vs_str).posclusters(iPos).prob,foundpos(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).posclusters(iPos).prob < cfg.clusSize,1,'first'));
                   if length(cond1) < 7 && length(cond2) < 7
                     clus_str = sprintf('%s>%s:%s',cond1,cond2,clus_symb);
                   else
-                    clus_str = sprintf('%d>%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
+                    clus_str = sprintf('%d>%d:%s',cond1ind,cond2ind,clus_symb);
                   end
                   h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),max(reshape(dataVec(:,r,t),[],1)) + (textSpaceVert * foundpos(r,t)),...
                     clus_str);
@@ -600,14 +604,14 @@ for typ = 1:length(cfg.conditions)
                   % debug
                   fprintf('%.1fto%.1fHz: %.2fto%.2f sec, %5s, %s: Neg clus #%d (%d chan), p=%.3f (found=%d)\n',...
                     cfg.freqs(f,1),cfg.freqs(f,2),cfg.clusTimes(t,1),cfg.clusTimes(t,2),cell2mat(cfg.this_roi),vs_str,signeg(iNeg),...
-                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cfg.conditions{typ}{condCombos(evVal,2)}).label(signegCLM(:,iNeg) > 0))),...
+                    sum(ismember(cfg.channel,data.(exper.sesStr{sesNum}).(cond2).label(signegCLM(:,iNeg) > 0))),...
                     stat_clus.(vs_str).negclusters(iNeg).prob,foundneg(r,t));
                   
                   clus_symb = cfg.clusSymb(find(stat_clus.(vs_str).negclusters(iNeg).prob < cfg.clusSize,1,'first'));
                   if length(cond1) < 7 && length(cond2) < 7
                     clus_str = sprintf('%s<%s:%s',cond1,cond2,clus_symb);
                   else
-                    clus_str = sprintf('%d<%d:%s',condCombos(evVal,1),condCombos(evVal,2),clus_symb);
+                    clus_str = sprintf('%d<%d:%s',cond1ind,cond2ind,clus_symb);
                   end
                   h_t = text(mean(cfg.clusTimes(t,:),2) - (textSpaceHorz * 2),min(reshape(dataVec(:,r,t),[],1)) - (textSpaceVert * foundneg(r,t)),...
                     clus_str);
