@@ -1002,11 +1002,16 @@ cfg.conditions = {...
 % cfg.conditions = {'word_onePres','word_rc_spac_p2','word_fo_spac_p2','word_rc_mass_p2','word_fo_mass_p2'};
 % cfg.conditions = {'word_rc_spac_p2','word_fo_spac_p2','word_rc_mass_p2','word_fo_mass_p2'};
 
-% spaced
-% cfg.conditions = {'word_rc_spac_p1','word_fo_spac_p1','word_rc_spac_p2','word_fo_spac_p2'};
+% % spaced
+% cfg.conditions = {...
+%   'word_rc_spac2_p1','word_fo_spac2_p1','word_rc_spac2_p2','word_fo_spac2_p2', ...
+%   'word_rc_spac12_p1','word_fo_spac12_p1','word_rc_spac12_p2','word_fo_spac12_p2', ...
+%   'word_rc_spac32_p1','word_fo_spac32_p1','word_rc_spac32_p2','word_fo_spac32_p2'};
+% % LPC: 544
 
 % % massed
 % cfg.conditions = {'word_rc_mass_p1','word_fo_mass_p1','word_rc_mass_p2','word_fo_mass_p2'};
+% % LPC: 572
 
 % % single presentation or first presentation
 % cfg.conditions = {'word_onePres','word_rc_spac_p1','word_fo_spac_p1','word_rc_mass_p1','word_fo_mass_p1'};
@@ -1027,15 +1032,16 @@ cfg.conditions = {...
 % cfg.order = 'descend'; % descend = positive peaks first
 % % LPC: electrode cluster around E84
 
-% % step 2: find peak time at peak electrode(s)
-% cfg.datadim = 'time';
-% cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (536ms)
-% % cfg.roi = {'E76','E77','E83','E84','E85','E90','E91'}; % Centered on E84 (516ms)
-% % cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
-% % cfg.roi = {'RPS'}; % Centered on E86 (ms)
-% % cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
+% step 2: find peak time at peak electrode(s)
+cfg.datadim = 'time';
+cfg.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % Centered on E77 (536ms)
+% cfg.roi = {'E76','E77','E83','E84','E85','E90','E91'}; % Centered on E84 (516ms)
+% cfg.roi = {'RPS2'}; % Centered on E85 (500ms)
+% cfg.roi = {'RPS'}; % Centered on E86 (ms)
+% cfg.roi = {'LPS2','RPS2'}; % Bilateral, centered on E60+E85 (576ms)
 % cfg.latency = [0.475 0.8]; % LPC
-% cfg.order = 'descend'; % descend = positive peaks first
+cfg.latency = [0.4 0.8]; % LPC
+cfg.order = 'descend'; % descend = positive peaks first
 
 % % step 3: select a window for analysis around peak; cfg.outputSubjects=true
 % lpcPeak = 0.536;
@@ -1145,10 +1151,18 @@ ana.n1Peak = 0.144; % E58
 ana.n400Peak = 0.352; % C
 ana.lpcPeak = 0.536; % E77
 
+ana.n1PeakWindow = 0.1; % E58
+ana.n400PeakWindow = 0.15; % C
+ana.lpcPeakWindow = 0.2; % E77
+
 % % SPACE1
 % ana.n1Peak = 0.172; % E58
 % ana.n400Peak = 0.372; % C
 % ana.lpcPeak = 0.596; % E77
+
+% ana.n1PeakWindow = 0.1; % E58
+% ana.n400PeakWindow = 0.1; % C
+% ana.lpcPeakWindow = 0.2; % E77
 
 %% subplots of each subject's ERPs
 
@@ -1347,8 +1361,7 @@ cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % Centered on E58
 cfg_plot.ylims = [-3 4; -3 4];
 cfg_plot.legendlocs = {'SouthEast','SouthEast'};
 % n1Peak = 0.144; % E58
-windowWidth = 0.1;
-cfg_plot.x_bounds = [ana.n1Peak-(windowWidth/2), ana.n1Peak+(windowWidth/2)]; % time
+cfg_plot.x_bounds = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 
 % % N400 @ C
 % % cfg_plot.rois = {{'FS'}};
@@ -1357,16 +1370,14 @@ cfg_plot.x_bounds = [ana.n1Peak-(windowWidth/2), ana.n1Peak+(windowWidth/2)]; % 
 % cfg_plot.ylims = [-3 4];
 % cfg_plot.legendlocs = {'NorthEast'};
 % % n400Peak = 0.352; % C
-% windowWidth = 0.1;
-% cfg_plot.x_bounds = [ana.n400Peak-(windowWidth/2), ana.n400Peak+(windowWidth/2)]; % time
+% cfg_plot.x_bounds = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 
 % % % LPC @ E77
 % cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
 % cfg_plot.ylims = [-1 6];
 % cfg_plot.legendlocs = {'NorthWest'};
 % % lpcPeak = 0.536; % centered on E77
-% windowWidth = 0.2;
-% cfg_plot.x_bounds = [ana.lpcPeak-(windowWidth/2), ana.lpcPeak+(windowWidth/2)]; % time
+% cfg_plot.x_bounds = [ana.lpcPeak-(ana.lpcPeakWindow/2), ana.lpcPeak+(ana.lpcPeakWindow/2)]; % time
 
 % =====================================================================
 
@@ -1660,18 +1671,15 @@ cfg_ft.shading = 'interp';
 
 % cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77, LPC
 % % lpcPeak = 0.596; % centered on E77
-% windowWidth = 0.2;
-% cfg_ft.xlim = [ana.lpcPeak-(windowWidth/2), ana.lpcPeak+(windowWidth/2)]; % time
+% cfg_ft.xlim = [ana.lpcPeak-(ana.lpcPeakWindow/2), ana.lpcPeak+(ana.lpcPeakWindow/2)]; % time
 
 % cfg_plot.roi = {'C'}; % N400
 % % n400Peak = 0.372; % C
-% windowWidth = 0.1;
-% cfg_ft.xlim = [ana.n400Peak-(windowWidth/2), ana.n400Peak+(windowWidth/2)]; % time
+% cfg_ft.xlim = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 
 % cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58, N1
 % % n1Peak = 0.172; % E58
-% windowWidth = 0.1;
-% cfg_ft.xlim = [ana.n1Peak-(windowWidth/2), ana.n1Peak+(windowWidth/2)]; % time
+% cfg_ft.xlim = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 
 
 % cfg_plot.roi = {'LPS','RPS'};
@@ -1753,25 +1761,23 @@ end
 
 % cfg_plot.linecolor = repmat({'none'},1,length(cfg_plot.conditions));
 % cfg_plot.markerfacecolor = repmat({'none'},1,length(cfg_plot.conditions));
-% cfg_plot.roi = {'E57','E58','E63','E64','E65','E68','E69'}; % E64
+
 cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
+% cfg_plot.roi = {'E57','E58','E63','E64','E65','E68','E69'}; % E64
 % n1Peak = 0.144; % E58
-windowWidth = 0.1;
-cfg_plot.latency = [ana.n1Peak-(windowWidth/2), ana.n1Peak+(windowWidth/2)]; % time
+cfg_plot.latency = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 cfg_plot.ylim = [-2 2];
 cfg_plot.legendloc = 'NorthEast';
 
 % cfg_plot.roi = {'C'};
 % % n400Peak = 0.352; % C
-% windowWidth = 0.1;
-% cfg_plot.latency = [ana.n400Peak-(windowWidth/2), ana.n400Peak+(windowWidth/2)]; % time
+% cfg_plot.latency = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 % cfg_plot.ylim = [-2 2];
 % cfg_plot.legendloc = 'NorthEast';
 
 % cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
 % % lpcPeak = 0.536; % centered on E77
-% windowWidth = 0.2;
-% cfg_plot.latency = [ana.lpcPeak-(windowWidth/2), ana.lpcPeak+(windowWidth/2)]; % time
+% cfg_plot.latency = [ana.lpcPeak-(ana.lpcPeakWindow/2), ana.lpcPeak+(ana.lpcPeakWindow/2)]; % time
 % cfg_plot.ylim = [1.5 5.5];
 % cfg_plot.legendloc = 'NorthEast';
 
@@ -1800,8 +1806,7 @@ mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
 
 stimType = 'word_';
 % stimType = 'img_';
-% memType = 'RgH_';
-memType = '';
+memType = ''; % not used for SPACE2
 
 % % spacings = {'mass', 'spac', 'onePres'};
 % spacings = {'mass', 'spac'};
@@ -1810,12 +1815,15 @@ memType = '';
 % oldnew = {'p1', 'p2'};
 % memConds = {'all'};
 
-% didn't test new words, so can't assess memory, but can use p1
 spacings = {'mass', 'spac2', 'spac12', 'spac32'};
-% spacings = {'spac'};
 oldnew = {'p1', 'p2'};
+
+% spacings = {'onePres', 'mass', 'spac2', 'spac12', 'spac32'};
 % oldnew = {'p1'};
 % oldnew = {'p2'};
+
+% spacings = {'spac'};
+
 memConds = {'rc','fo'};
 % memConds = {'rc'};
 
@@ -1833,25 +1841,26 @@ measure = 'avg';
 % latencies = [0.604 0.804];
 % latencies = [0.4 0.65; 0.55 0.8];
 
-% roi = {{'E57','E58','E63','E64','E65','E68','E69'}}; % E64
-roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
-% n1Peak = 0.144; % E58
-windowWidth = 0.1;
-latencies = [ana.n1Peak-(windowWidth/2), ana.n1Peak+(windowWidth/2)]; % time
+% % N1
+% % roi = {{'E57','E58','E63','E64','E65','E68','E69'}}; % E64
+% roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
+% % n1Peak = 0.144; % E58
+% latencies = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 
+% % N400
 % roi = {{'C'}};
 % % n400Peak = 0.352; % C
-% windowWidth = 0.1;
-% latencies = [ana.n400Peak-(windowWidth/2), ana.n400Peak+(windowWidth/2)]; % time
+% % ana.n400PeakWindow = 0.15;
+% latencies = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 
-% roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
-% % lpcPeak = 0.536; % centered on E77
-% windowWidth = 0.2;
-% latencies = [ana.lpcPeak-(windowWidth/2), ana.lpcPeak+(windowWidth/2)]; % time
+% LPC
+roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
+% lpcPeak = 0.536; % centered on E77
+latencies = [ana.lpcPeak-(ana.lpcPeakWindow/2), ana.lpcPeak+(ana.lpcPeakWindow/2)]; % time
 
 latency = cell(1,size(latencies,1));
 for i = 1:length(latency)
-  latency{i} = sprintf('%dto%d',latencies(i,1)*1000,latencies(i,2)*1000);
+  latency{i} = sprintf('%dto%d',round(latencies(i,1)*1000),round(latencies(i,2)*1000));
 end
 latStr = sprintf(repmat('_%s',1,length(latency)),latency{:});
 latStr = latStr(2:end);
@@ -1924,9 +1933,9 @@ for sub = 1:length(exper.subjects)
           cond_str_tmp = [];
           if strcmp(spacings{sp},'onePres')
             % single presentation or first presentation
+            cond_str = sprintf('%s%s%s_%s',stimType,memType,memConds{mc},spacings{sp});
             if strcmp(memConds{mc},'all')
-              %cond_str = sprintf('%s%s_%s',stimType,spacings{sp});
-              cond_str = sprintf('%s%s',stimType,spacings{sp});
+              cond_str_tmp = {sprintf('%s%s%s_%s',stimType,memType,'rc',spacings{sp}), sprintf('%s%s%s_%s',stimType,memType,'fo',spacings{sp})};
             end
           elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp}(1:4),'spac')
             cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
