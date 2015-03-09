@@ -1011,10 +1011,9 @@ cfg.times = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
 
 % cfg.freqs = ana.freq.alpha_lower;
 % cfg.rois = {{'C'}};
-% 
+
 % cfg.freqs = ana.freq.alpha_upper;
 % cfg.rois = {{}};
-
 
 % ses=1;
 % cfg.conditions = ana.eventValues{ses};
@@ -1030,7 +1029,7 @@ cfg.conditions = {{'word_rc_mass_p2', 'word_fo_mass_p2', 'word_rc_spac2_p2', 'wo
 cfg.rename_conditions = {{'Mass P2 Recall','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}};
 
 % cfg.conditions = {{'word_rc_spac12_p2', 'word_fo_spac12_p2', 'word_rc_spac32_p2', 'word_fo_spac32_p2'}};
-% % cfg.conditions = {{'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}};
+% cfg.conditions = {{'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}};
 % cfg.rename_conditions = {{'Space12 P2 Recalled','Space12 P2 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}};
 
 cfg.graphcolor = 'bcrm';
@@ -1040,7 +1039,8 @@ cfg.linestyle = {'-','--','-','--'};
 % cfg.freqs = ana.freq.alpha_lower;
 % cfg.freqs = ana.freq.alpha_upper;
 % cfg.freqs = ana.freq.beta_lower;
-cfg.rois = {sigElecs};
+
+% cfg.rois = {sigElecs};
 
 cfg.plotTitle = false;
 cfg.plotLegend = true;
@@ -1079,7 +1079,7 @@ mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
 %% average plots
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
@@ -1401,7 +1401,7 @@ end
 
 %% line plots
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 cfg = [];
