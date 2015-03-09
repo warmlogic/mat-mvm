@@ -1401,7 +1401,7 @@ end
 
 %% line plots
 
-files.saveFigs = false;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg = [];
@@ -1412,9 +1412,16 @@ cfg.parameter = 'powspctrm';
 % cfg.times = [-0.2:0.2:0.8; 0:0.2:1.0]';
 cfg.times = cfg_ana.latencies;
 
-% cfg.freqs = [4 8; 8 12; 12 28; 28 50; 50 100];
-%cfg.freqs = [4 8];
 cfg.freqs = cfg_ana.frequencies;
+% cfg.freqs = [ ...
+%   ana.freq.theta; ...
+%   ana.freq.alpha; ...
+%   ana.freq.alpha_lower; ...
+%   ana.freq.alpha_upper; ...
+%   ana.freq.beta_lower; ...
+%   ana.freq.beta_upper; ...
+%   ana.freq.gamma_lower; ...
+%   ana.freq.gamma_upper];
 
 % cfg.rois = {...
 %   {'LAS'},{'FS'},{'RAS'},...
@@ -1545,14 +1552,22 @@ sigElecsAcrossComparisons = mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
 % =====================================================================
 if size(sigElecsAcrossComparisons.pos{1},2) > 1
-  nSigComparisons = 2;
+  % nSigComparisons = 5;
   
-  % % significantly different in half of comparisons
-  % nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 2);
+  % significantly different in half of comparisons
+  nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 2);
+  
+  % % significantly different in one fourth of comparisons
+  % nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 4);
+  
+  % % significantly different in 5 of 28 of comparisons
+  % nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 5);
 else
   nSigComparisons = 1;
 end
-sigElecs = ga_pow.session_1.(ana.eventValues{1}{1}{1}).label(sum(sigElecsAcrossComparisons.pos{1} + sigElecsAcrossComparisons.neg{1},2) >= nSigComparisons);
+
+sesNum = 1;
+sigElecs = ga_pow.(exper.sesStr{sesNum}).(ana.eventValues{1}{1}{1}).label(sum(sigElecsAcrossComparisons.pos{1} + sigElecsAcrossComparisons.neg{1},2) >= nSigComparisons);
 % sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','periph20'})}))));
 sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','E49','E48','E43','E38','E32','E21','E17','E14','E1','E121','E120','E119','E113'})}))));
 close all
