@@ -315,7 +315,7 @@ for typ = 1:length(cfg_plot.conditions{sesNum})
       publishfig(gcf,~cfg_plot.plotTitle,[],[],files.figFontName);
     end
     if exist('tightfig','file')
-      tightfig(gcf);
+      %tightfig(gcf);
     end
     
     if files.saveFigs
