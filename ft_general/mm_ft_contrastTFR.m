@@ -284,37 +284,45 @@ for typ = 1:length(cfg_plot.conditions)
   cont_plot.(vs_str).(cfg_ft.parameter) = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).(cfg_ft.parameter) - data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{2}).(cfg_ft.parameter);
   
   % parameter
+  timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+  tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
+  tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
+  timesel(tbeg:tend) = true;
+  freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq));
+  fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
+  fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
+  freqsel(fbeg:fend) = true;
   if isfield(cfg_ft,'zlim')
     if strcmp(cfg_ft.zlim,'maxmin')
       usedMaxmin = 1;
-      %timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
-      timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
-      tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
-      tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
-      timesel(tbeg:tend) = true;
-      
-      %freqsel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
-      freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
-      fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
-      fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
-      freqsel(fbeg:fend) = true;
+%       %timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+%       timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+%       tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
+%       tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
+%       timesel(tbeg:tend) = true;
+%       
+%       %freqsel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+%       freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq));
+%       fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
+%       fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
+%       freqsel(fbeg:fend) = true;
       
       cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
     else
       usedMaxmin = 0;
     end
   else
-    %timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
-    timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
-    tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
-    tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
-    timesel(tbeg:tend) = true;
-    
-    %freqsel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
-    freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
-    fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
-    fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
-    freqsel(fbeg:fend) = true;
+%     %timesel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time >= cfg_ft.xlim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time <= cfg_ft.xlim(2);
+%     timesel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time));
+%     tbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(1));
+%     tend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).time,cfg_ft.xlim(2));
+%     timesel(tbeg:tend) = true;
+%     
+%     %freqsel = data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq >= cfg_ft.ylim(1) & data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq <= cfg_ft.ylim(2);
+%     freqsel = false(1,length(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq));
+%     fbeg = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(1));
+%     fend = nearest(data.(exper.sesStr{sesNum}).(cfg_plot.conditions{typ}{1}).freq,cfg_ft.ylim(2));
+%     freqsel(fbeg:fend) = true;
     
     cfg_ft.zlim = [min(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2)) max(mean(cont_plot.(vs_str).(cfg_ft.parameter)(:,freqsel,timesel),2))];
     usedMaxmin = 1;
