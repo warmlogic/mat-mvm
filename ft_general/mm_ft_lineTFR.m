@@ -297,9 +297,9 @@ for typ = 1:length(cfg.conditions)
     % get all the ROI names together
     if ischar(cfg.rois) || (iscell(cfg.rois) && length(cellflat(cfg.rois)) <= 10)
       chan_str_all = cellflat(cfg.rois);
-      chan_str_all = sprintf(repmat('%s_',1,length(chan_str_all)),chan_str_all{:});
+      chan_str_all = sprintf(repmat('_%s',1,length(chan_str_all)),chan_str_all{:});
     elseif iscell(cfg.rois) && length(cellflat(cfg.rois)) > 10
-      chan_str_all = sprintf('%dROIs_',length(cellflat(cfg.rois)));
+      chan_str_all = sprintf('_%dROIs',length(cellflat(cfg.rois)));
     else
       keyboard
     end
@@ -656,7 +656,7 @@ for typ = 1:length(cfg.conditions)
         alpha_str = '';
       end
       
-      cfg.figfilename = sprintf('tfr_%s_ga_%s%s%s%d_%d_%d_%d%s%s%s%s',cfg.type,type_str,cond_str,chan_str_all,round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),alpha_str,cfg.legend_str,cfg.title_str,cfg.eb_str);
+      cfg.figfilename = sprintf('tfr_%s_ga_%s%s_%d_%d_%d_%d%s%s%s%s%s',cfg.type,type_str,cond_str,round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),chan_str_all,alpha_str,cfg.legend_str,cfg.title_str,cfg.eb_str);
       
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')

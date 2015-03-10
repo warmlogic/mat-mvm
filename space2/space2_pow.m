@@ -1490,7 +1490,7 @@ linePlotLatencies = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
 if strcmp(stimType,'word_')
   linePlotConditions = {{{'word_rc_mass_p2', 'word_fo_mass_p2', 'word_rc_spac2_p2', 'word_fo_spac2_p2'}},{{'word_rc_spac12_p2', 'word_fo_spac12_p2', 'word_rc_spac32_p2', 'word_fo_spac32_p2'}}};
 elseif strcmp(stimType,'img_')
-  cfg.conditions = {{{'img_rc_mass_p2', 'img_fo_mass_p2', 'img_rc_spac2_p2', 'img_fo_spac2_p2'}},{{'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}}};
+  linePlotConditions = {{{'img_rc_mass_p2', 'img_fo_mass_p2', 'img_rc_spac2_p2', 'img_fo_spac2_p2'}},{{'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}}};
 end
 linePlotConditions_rename = {{{'Mass P2 Recall','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}},{{'Space12 P2 Recalled','Space12 P2 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}};
 

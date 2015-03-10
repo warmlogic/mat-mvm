@@ -184,17 +184,17 @@ for lat = 1:size(cfg_plot.latency,1)
           cfg_ana.channel = cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,cfg_plot.roi)});
           cfg_ana.chansel = ismember(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.label,cfg_ana.channel);
           if length(cfg_plot.roi) <= 10
-            cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_plot.roi)),cfg_plot.roi{:});
+            cfg_plot.chan_str = sprintf(repmat('_%s',1,length(cfg_plot.roi)),cfg_plot.roi{:});
           else
-            cfg_plot.chan_str = sprintf('%dROI',length(cfg_plot.roi));
+            cfg_plot.chan_str = sprintf('_%dROI',length(cfg_plot.roi));
           end
         else
           % find the channel indices for averaging
           cfg_ana.chansel = ismember(data.(exper.sesStr{sesNum}).(ev).sub(sub).data.label,cfg_plot.roi);
           if length(cfg_plot.roi) <= 10
-            cfg_plot.chan_str = sprintf(repmat('%s_',1,length(cfg_ft.channel)),cfg_ft.channel{:});
+            cfg_plot.chan_str = sprintf(repmat('_%s',1,length(cfg_ft.channel)),cfg_ft.channel{:});
           else
-            cfg_plot.chan_str = sprintf('%dROI',length(cfg_plot.roi));
+            cfg_plot.chan_str = sprintf('_%dROI',length(cfg_plot.roi));
           end
         end
         
@@ -304,7 +304,7 @@ figSize = [ceil(min(screenXY) * multiplier) ceil(min(screenXY) * multiplier * hw
 set(gcf, 'Units', 'pixels', 'Position', [ceil(pos(1) * 0.6), pos(2), figSize(2), figSize(1)]);
 
 if files.saveFigs
-  cfg_plot.figfilename = sprintf('tfr_avg_ga_%s%s%s_%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,lat_str(2:end),round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),cfg_plot.label_str);
+  cfg_plot.figfilename = sprintf('tfr_avg_ga_%s_%d_%d%s%s%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),lat_str(2:end),cfg_plot.chan_str,cfg_plot.label_str);
   dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_avg');
   if ~exist(dirs.saveDirFigsLine,'dir')
     mkdir(dirs.saveDirFigsLine)
