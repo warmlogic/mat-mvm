@@ -332,8 +332,13 @@ for typ = 1:length(cfg_plot.conditions)
   figure
   
   if strcmp(cfg_plot.type,'topo') && ~isempty(cfg_ft.maskparameter)
-    cont_plot.(vs_str).(cfg_ft.maskparameter) = ones(size(cont_plot.(vs_str).label,1),1);
-    cont_plot.(vs_str).(cfg_ft.maskparameter)(~ismember(cont_plot.(vs_str).label,cfg_ft.highlightchannel)) = cfg_plot.maskvalue;
+    % for some reason this 1-D version isn't working
+    %cont_plot.(vs_str).(cfg_ft.maskparameter) = ones(size(cont_plot.(vs_str).label,1),1);
+    %cont_plot.(vs_str).(cfg_ft.maskparameter)(~ismember(cont_plot.(vs_str).label,cfg_ft.highlightchannel)) = cfg_plot.maskvalue;
+    
+    % only 3-D is working
+    cont_plot.(vs_str).(cfg_ft.maskparameter) = ones(size(cont_plot.(vs_str).(cfg_ft.parameter)));
+    cont_plot.(vs_str).(cfg_ft.maskparameter)(~ismember(cont_plot.(vs_str).label,cfg_ft.highlightchannel),~freqsel,~timesel) = cfg_plot.maskvalue;
   end
   
   if cfg_plot.subplot
