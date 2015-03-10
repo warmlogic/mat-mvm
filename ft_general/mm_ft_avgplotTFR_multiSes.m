@@ -273,7 +273,7 @@ else
   set(gca,'XTickLabel',repmat({''},1,xIndCounter))
 end
 set(gca,'YTick',(cfg_plot.ylim(1):.5:cfg_plot.ylim(2)))
-axis square
+% axis square
 
 if cfg_plot.axisxy
   %axis xy;
@@ -287,6 +287,22 @@ publishfig(gcf,0,[],[],files.figFontName);
 if exist('tightfig','file')
   tightfig(gcf);
 end
+
+screenXY = get(0,'ScreenSize');
+screenXY = screenXY(3:4);
+% get the figure's current position and size
+pos = get(gcf, 'Position');
+% get the height x width ratio
+hwRatio = pos(3) / pos(4);
+% multiplier = 0.85;
+multiplier = 0.75;
+% % square figure
+% figSize = [ceil(min(screenXY) * multiplier) ceil(min(screenXY) * multiplier)];
+% maintain figure height x width ratio
+figSize = [ceil(min(screenXY) * multiplier) ceil(min(screenXY) * multiplier * hwRatio)];
+% resize the figure window
+set(gcf, 'Units', 'pixels', 'Position', [ceil(pos(1) * 0.6), pos(2), figSize(2), figSize(1)]);
+
 if files.saveFigs
   cfg_plot.figfilename = sprintf('tfr_avg_ga_%s%s%s_%d_%d%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),cfg_plot.chan_str,lat_str(2:end),round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),cfg_plot.label_str);
   dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_avg');
@@ -300,7 +316,8 @@ if files.saveFigs
   if ~isfield(files,'figPrintRes')
     files.figPrintRes = 150;
   end
-  print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename));
+  %print(gcf,sprintf('-d%s',files.figPrintFormat),sprintf('-r%d',files.figPrintRes),fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename));
+  screen2file(fullfile(dirs.saveDirFigsLine,cfg_plot.figfilename),files);
 end
 
 end
