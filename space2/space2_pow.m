@@ -1524,10 +1524,11 @@ cfg.nCol = 3;
 
 % =====================================================================
 % finding significantly different electrodes across the entire scalp
-files.saveFigs = false;
+files.saveFigs = true;
+% cfg.rois = {{'all'}};
 cfg.rois = {{'C'}};
 cfg.conditions = {{'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'}};
-% cfg.conditions = {{'img_rc_mass_p2','img_fo_mass_p2','img_rc_spac_p2','img_fo_spac_p2'}};
+% cfg.conditions = {{'img_rc_mass_p2','img_fo_mass_p2','img_rc_spac2_p2','img_fo_spac2_p2','img_rc_spac12_p2','img_fo_spac12_p2','img_rc_spac32_p2','img_fo_spac32_p2'}};
 
 % cfg.conditions = {{'word_rc_spac_p2','word_rc_mass_p2'}};
 % cfg.conditions = {{'img_rc_spac_p2','img_rc_mass_p2'}};
