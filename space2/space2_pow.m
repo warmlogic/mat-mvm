@@ -1079,7 +1079,7 @@ mm_ft_lineTFR(cfg,ana,exper,files,dirs,ga_pow);
 
 %% average plots
 
-files.saveFigs = false;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
@@ -1100,7 +1100,14 @@ cfg_plot.markersize = 20;
 
 % cfg_plot.markeredgecolor = {'b','c','r','m','r','m','r','m'};
 if exist('linspecer','file')
-  thisColor = linspecer(length(cfg_plot.conditions));
+  if length(cfg_plot.conditions) == 8
+    thisColor = linspecer(length(cfg_plot.conditions));
+  else
+    % add in OnePres
+    thisColor = linspecer(8);
+    thisColor = [[0 0 0]; [0 1 0]; thisColor];
+    cfg_plot.marker = cat(2,'o','x',cfg_plot.marker);
+  end
   cfg_plot.markeredgecolor = cell(1,size(thisColor,1));
   for i = 1:size(thisColor,1)
     cfg_plot.markeredgecolor{i} = thisColor(i,:);
@@ -1399,9 +1406,149 @@ for lat = 1:size(cfg_plot.latencies,1)
   end
 end
 
+%% run through everything we need from cluster statistics
+
+%%%%%%%%%%%%%%%%
+% GENERAL
+%%%%%%%%%%%%%%%%
+
+stimType = 'word_';
+% stimType = 'img_';
+
+% theseFreqs = cfg_ana.frequencies;
+theseFreqs = [ ...
+  ana.freq.theta; ...
+  %ana.freq.alpha; ...
+  %ana.freq.alpha_lower; ...
+  %ana.freq.alpha_upper; ...
+  %ana.freq.beta_lower; ...
+  %ana.freq.beta_upper; ...
+  %ana.freq.gamma_lower; ...
+  %ana.freq.gamma_upper; ...
+  ];
+
+files.figPrintFormat = 'png';
+
+%%%%%%%%%%%%%%%%
+% FIND SIGNIFICANT ELECTRODES
+%%%%%%%%%%%%%%%%
+
+if strcmp(stimType,'word_')
+  sigElecConditions = {{'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'}};
+elseif strcmp(stimType,'img_')
+  sigElecConditions = {{'img_rc_mass_p2','img_fo_mass_p2','img_rc_spac2_p2','img_fo_spac2_p2','img_rc_spac12_p2','img_fo_spac12_p2','img_rc_spac32_p2','img_fo_spac32_p2'}};
+end
+
+% significantly different in half of comparisons
+nSigComparisons = floor(size(nchoosek(sigElecConditions{1},2),1) / 2);
+% % significantly different in one fourth of comparisons
+% nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 4);
+% % significantly different in 5 of 28 of comparisons
+% nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 5);
+
+%%%%%%%%%%%%%%%%
+% CONTRAST TOPO
+%%%%%%%%%%%%%%%%
+
+if strcmp(stimType,'word_')
+  contrastConditions = {...
+    {'word_rc_mass_p2', 'word_rc_onePres'} ... % P2 Rc Spacing
+    {'word_rc_mass_p2', 'word_rc_spac2_p2'} ... % P2 Rc Spacing
+    {'word_rc_mass_p2', 'word_rc_spac12_p2'} ... % P2 Rc Spacing
+    {'word_rc_mass_p2', 'word_rc_spac32_p2'} ... % P2 Rc Spacing
+    {'word_fo_mass_p2', 'word_fo_onePres'} ... % P2 Fo Spacing
+    {'word_fo_mass_p2', 'word_fo_spac2_p2'} ... % P2 Fo Spacing
+    {'word_fo_mass_p2', 'word_fo_spac2_p2'} ... % P2 Fo Spacing
+    {'word_fo_mass_p2', 'word_fo_spac32_p2'} ... % P2 Fo Spacing
+    };
+elseif strcmp(stimType,'img_')
+  contrastConditions = {...
+    {'img_rc_mass_p2', 'img_rc_onePres'} ... % P2 Rc Spacing
+    {'img_rc_mass_p2', 'img_rc_spac2_p2'} ... % P2 Rc Spacing
+    {'img_rc_mass_p2', 'img_rc_spac12_p2'} ... % P2 Rc Spacing
+    {'img_rc_mass_p2', 'img_rc_spac32_p2'} ... % P2 Rc Spacing
+    {'img_fo_mass_p2', 'img_fo_onePres'} ... % P2 Fo Spacing
+    {'img_fo_mass_p2', 'img_fo_spac2_p2'} ... % P2 Fo Spacing
+    {'img_fo_mass_p2', 'img_fo_spac2_p2'} ... % P2 Fo Spacing
+    {'img_fo_mass_p2', 'img_fo_spac32_p2'} ... % P2 Fo Spacing
+    };
+end
+
+% topoLatencies = [0 0.5; 0.52 1.0]; % time
+
+%%%%%%%%%%%%%%%%
+% SMOOTH LINE PLOTS
+%%%%%%%%%%%%%%%%
+
+linePlotLatencies = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
+
+if strcmp(stimType,'word_')
+  linePlotConditions = {{{'word_rc_mass_p2', 'word_fo_mass_p2', 'word_rc_spac2_p2', 'word_fo_spac2_p2'}},{{'word_rc_spac12_p2', 'word_fo_spac12_p2', 'word_rc_spac32_p2', 'word_fo_spac32_p2'}}};
+elseif strcmp(stimType,'img_')
+  cfg.conditions = {{{'img_rc_mass_p2', 'img_fo_mass_p2', 'img_rc_spac2_p2', 'img_fo_spac2_p2'}},{{'img_rc_spac12_p2', 'img_fo_spac12_p2', 'img_rc_spac32_p2', 'img_fo_spac32_p2'}}};
+end
+linePlotConditions_rename = {{{'Mass P2 Recall','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}},{{'Space12 P2 Recalled','Space12 P2 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}};
+
+linePlotLinestyle = {{'-','--','-','--'},{'-','--','-','--'}};
+if exist('linspecer','file')
+  thisColor = linspecer(length(cellflat(linePlotConditions)));
+  linePlotColors = cell(1,2);
+  linePlotColors{1} = thisColor(1:4,:);
+  linePlotColors{2} = thisColor(5:8,:);
+else
+  linePlotColors = {'bcrm','bcrm'};
+end
+
+% onePres_colors = [[0 0 0]; [0 1 0]];
+
+%%%%%%%%%%%%%%%%
+% AVERAGE PLOTS
+%%%%%%%%%%%%%%%%
+
+avgPlotConds = sigElecConditions{1};
+avgPlotConds_rename = {'Mass P2 Recall','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot','Space12 P2 Recalled','Space12 P2 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'};
+
+%%%%%%%%%%%%%%%%
+% RUN IT
+%%%%%%%%%%%%%%%%
+
+for f = 1:size(theseFreqs,1)
+  % find the significant electodes
+  files.saveFigs = false;
+  sigElecs = space2_pow_sigElecs(sigElecConditions,theseFreqs(f,:),cfg_ana.latencies,cfg_ana.latencies,nSigComparisons,ana,exper,files,dirs,ga_pow);
+  
+  % make the smooth line plots
+  files.saveFigs = true;
+  for lpc = 1:size(linePlotConditions,2)
+    space2_pow_linePlot(linePlotConditions{lpc},linePlotConditions_rename{lpc},theseFreqs(f,:),linePlotLatencies,sigElecs,linePlotColors{lpc},linePlotLinestyle{lpc},ana,exper,files,dirs,ga_pow);
+  end
+  
+  % set latencies for average plots, topoplots, and ANOVA
+  if (theseFreqs(f,1) == 11 && theseFreqs(f,2) == 12) || (theseFreqs(f,1) == 13.1 && theseFreqs(f,2) == 20.5)
+    latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
+    avgPlotLatencies = [0 0.333; 0.333 0.666; 0.666 1.0];
+  else
+    latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
+    avgPlotLatencies = [0 0.5; 0.5 1.0];
+  end
+  
+  % make the average plots
+  files.saveFigs = true;
+  space2_pow_avgPlot(avgPlotConds,avgPlotConds_rename,theseFreqs(f,:),avgPlotLatencies,sigElecs,ana,exper,files,dirs,data_pow);
+  
+  % make the contrast topoplots
+  for t = 1:size(latencies,1)
+    files.saveFigs = true;
+    space2_pow_contrastTopo(contrastConditions,theseFreqs(f,:),latencies(t,:),sigElecs,ana,exper,files,dirs,ga_pow);
+  end
+  
+  % run the RM ANOVA
+  space2_pow_rmanova(theseFreqs(f,:),latencies,sigElecs,stimType,ana,exper,data_pow);
+end
+
 %% line plots
 
-files.saveFigs = true;
+% files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg = [];
@@ -1524,7 +1671,7 @@ cfg.nCol = 3;
 
 % =====================================================================
 % finding significantly different electrodes across the entire scalp
-files.saveFigs = true;
+files.saveFigs = false;
 % cfg.rois = {{'all'}};
 cfg.rois = {{'C'}};
 cfg.conditions = {{'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'}};
@@ -1609,6 +1756,8 @@ end
 
 %% plot the contrasts
 
+% TOO MANY CONDITONS TO COMPARE REASONABLY
+
 files.saveFigs = true;
 files.figPrintFormat = 'png';
 
@@ -1619,9 +1768,16 @@ cfg_plot.plotTitle = false;
 % cfg_plot.conditions = {'all'};
 
 cfg_plot.conditions = {...
-  {'word_rc_spac_p2', 'word_rc_mass_p2'} ... % P2 Rc Spacing
-  {'word_fo_spac_p2', 'word_fo_mass_p2'} ... % P2 Fo Spacing
+  {'word_rc_mass_p2', 'word_rc_onePres'} ... % P2 Rc Spacing
+  {'word_rc_mass_p2', 'word_rc_spac2_p2'} ... % P2 Rc Spacing
+  {'word_rc_mass_p2', 'word_rc_spac12_p2'} ... % P2 Rc Spacing
+  {'word_rc_mass_p2', 'word_rc_spac32_p2'} ... % P2 Rc Spacing
+  {'word_fo_mass_p2', 'word_fo_onePres'} ... % P2 Fo Spacing
+  {'word_fo_mass_p2', 'word_fo_spac2_p2'} ... % P2 Fo Spacing
+  {'word_fo_mass_p2', 'word_fo_spac2_p2'} ... % P2 Fo Spacing
+  {'word_fo_mass_p2', 'word_fo_spac32_p2'} ... % P2 Fo Spacing
 };
+
 % cfg_plot.conditions = {...
 %   {'img_rc_spac_p2', 'img_rc_mass_p2'} ... % P2 Rc Spacing
 %   {'img_fo_spac_p2', 'img_fo_mass_p2'} ... % P2 Fo Spacing
@@ -1740,15 +1896,14 @@ mm_ft_contrastTFR(cfg_ft,cfg_plot,ana,exper,files,dirs,ga_pow,ses);
 
 % stimType = 'word_';
 stimType = 'img_';
-memType = 'RgH_';
+memType = '';
 
 % spacings = {'mass', 'spac', 'onePres'};
 % % oldnew = {'p1'};
 % oldnew = {'p2'};
 % memConds = {'all'};
 
-% didn't test new words, so can't assess memory, but can use p1
-spacings = {'mass', 'spac'};
+spacings = {'mass', 'spac2', 'spac12', 'spac32'};
 % spacings = {'spac'};
 % oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
@@ -1967,10 +2122,11 @@ for sub = 1:length(exper.subjects)
           cond_str_tmp = [];
           if strcmp(spacings{sp},'onePres')
             % single presentation or first presentation
+            cond_str = sprintf('%s%s%s_%s',stimType,memType,memConds{mc},spacings{sp});
             if strcmp(memConds{mc},'all')
-              cond_str = sprintf('%s%s',stimType,spacings{sp});
+              cond_str_tmp = {sprintf('%s%s%s_%s',stimType,memType,'rc',spacings{sp}), sprintf('%s%s%s_%s',stimType,memType,'fo',spacings{sp})};
             end
-          elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp},'spac')
+          elseif strcmp(spacings{sp},'mass') || strcmp(spacings{sp}(1:4),'spac')
             cond_str = sprintf('%s%s%s_%s_%s',stimType,memType,memConds{mc},spacings{sp},oldnew{on});
             if strcmp(memConds{mc},'all')
               % manually input rc and fo
