@@ -81,6 +81,5 @@ sesNum = 1;
 sigElecs = ga_pow.(exper.sesStr{sesNum}).(ana.eventValues{1}{1}{1}).label(sum(sigElecsAcrossComparisons.pos{1} + sigElecsAcrossComparisons.neg{1},2) >= nSigComparisons);
 % sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','periph20'})}))));
 sigElecs = sigElecs(~ismember(sigElecs,unique(cat(2,ana.elecGroups{ismember(ana.elecGroupsStr,{'eyes_below','eyes_above','eyes_horiz','E49','E48','E43','E38','E32','E21','E17','E14','E1','E121','E120','E119','E113'})}))));
-close all
 
 end

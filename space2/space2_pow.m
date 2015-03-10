@@ -1412,20 +1412,25 @@ end
 % GENERAL
 %%%%%%%%%%%%%%%%
 
-stimType = 'word_';
-% stimType = 'img_';
-
 % theseFreqs = cfg_ana.frequencies;
 theseFreqs = [ ...
   ana.freq.theta; ...
-  %ana.freq.alpha; ...
-  %ana.freq.alpha_lower; ...
-  %ana.freq.alpha_upper; ...
-  %ana.freq.beta_lower; ...
-  %ana.freq.beta_upper; ...
-  %ana.freq.gamma_lower; ...
-  %ana.freq.gamma_upper; ...
+  ana.freq.alpha; ...
+  ana.freq.alpha_lower; ...
+  ana.freq.alpha_upper; ...
+  ana.freq.beta_lower; ...
+  ana.freq.beta_upper; ...
+  ana.freq.gamma_lower; ...
+  ana.freq.gamma_upper; ...
   ];
+
+
+stimTypes = {'word_', 'img_'};
+
+for st = 1:length(stimTypes)
+  stimType = stimTypes{st};
+% stimType = 'word_';
+% stimType = 'img_';
 
 files.figPrintFormat = 'png';
 
@@ -1516,12 +1521,14 @@ for f = 1:size(theseFreqs,1)
   % find the significant electodes
   files.saveFigs = false;
   sigElecs = space2_pow_sigElecs(sigElecConditions,theseFreqs(f,:),cfg_ana.latencies,cfg_ana.latencies,nSigComparisons,ana,exper,files,dirs,ga_pow);
+  close all
   
   % make the smooth line plots
   files.saveFigs = true;
   for lpc = 1:size(linePlotConditions,2)
     space2_pow_linePlot(linePlotConditions{lpc},linePlotConditions_rename{lpc},theseFreqs(f,:),linePlotLatencies,sigElecs,linePlotColors{lpc},linePlotLinestyle{lpc},ana,exper,files,dirs,ga_pow);
   end
+  close all
   
   % set latencies for average plots, topoplots, and ANOVA
   if (theseFreqs(f,1) == 11 && theseFreqs(f,2) == 12) || (theseFreqs(f,1) == 13.1 && theseFreqs(f,2) == 20.5)
@@ -1535,15 +1542,19 @@ for f = 1:size(theseFreqs,1)
   % make the average plots
   files.saveFigs = true;
   space2_pow_avgPlot(avgPlotConds,avgPlotConds_rename,theseFreqs(f,:),avgPlotLatencies,sigElecs,ana,exper,files,dirs,data_pow);
+  close all
   
   % make the contrast topoplots
   for t = 1:size(latencies,1)
     files.saveFigs = true;
     space2_pow_contrastTopo(contrastConditions,theseFreqs(f,:),latencies(t,:),sigElecs,ana,exper,files,dirs,ga_pow);
+    close all
   end
   
   % run the RM ANOVA
-  space2_pow_rmanova(theseFreqs(f,:),latencies,sigElecs,stimType,ana,exper,data_pow);
+  %space2_pow_rmanova(theseFreqs(f,:),latencies,sigElecs,stimType,ana,exper,data_pow);
+end
+
 end
 
 %% line plots
