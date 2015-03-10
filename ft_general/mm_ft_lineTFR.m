@@ -12,6 +12,14 @@ function sigElecsAcrossComparisons = mm_ft_lineTFR(cfg,ana,exper,files,dirs,data
 %
 % Also, expect to have similar significance patterns across adjacent ROIs
 %
+% NB: for the output sigElecsAcrossComparisons, this will be "true" for
+%     electrodes that are significantly different across a given comparison
+%     using the entire scalp, not just the electrodes defined in cfg.rois.
+%     You can use this to select subsets of electrodes across a bunch of
+%     comparisons under the assumption that they are relatively important
+%     if they are significantly different in a given number of comparisons
+%     (see space2_pow.m for an example).
+%
 % See also:
 %   MM_FT_CHECKCONDITIONS
 
