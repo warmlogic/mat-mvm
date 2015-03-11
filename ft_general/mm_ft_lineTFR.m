@@ -656,7 +656,7 @@ for typ = 1:length(cfg.conditions)
         alpha_str = '';
       end
       
-      cfg.figfilename = sprintf('tfr_%s_ga_%s%s_%d_%d_%d_%d%s%s%s%s%s',cfg.type,type_str,cond_str,round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),chan_str_all,alpha_str,cfg.legend_str,cfg.title_str,cfg.eb_str);
+      cfg.figfilename = sprintf('tfr_%s_ga_%s%s%d_%d_%d_%d%s%s%s%s%s',cfg.type,type_str,cond_str,round(cfg.freqs(f,1)),round(cfg.freqs(f,2)),round(cfg.xlim(1)*1000),round(cfg.xlim(2)*1000),chan_str_all,alpha_str,cfg.legend_str,cfg.title_str,cfg.eb_str);
       
       dirs.saveDirFigsTFR = fullfile(dirs.saveDirFigs,['tfr_',cfg.type]);
       if ~exist(dirs.saveDirFigsTFR,'dir')

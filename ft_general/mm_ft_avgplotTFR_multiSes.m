@@ -304,7 +304,7 @@ figSize = [ceil(min(screenXY) * multiplier) ceil(min(screenXY) * multiplier * hw
 set(gcf, 'Units', 'pixels', 'Position', [ceil(pos(1) * 0.6), pos(2), figSize(2), figSize(1)]);
 
 if files.saveFigs
-  cfg_plot.figfilename = sprintf('tfr_avg_ga_%s_%d_%d%s%s%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),lat_str(2:end),cfg_plot.chan_str,cfg_plot.label_str);
+  cfg_plot.figfilename = sprintf('tfr_avg_ga_%s%d_%d_%s%s%s',sprintf(repmat('%s_',1,length(cfg_plot.plot_order)),cfg_plot.plot_order{:}),round(cfg_plot.freqs(1)),round(cfg_plot.freqs(2)),lat_str(2:end),cfg_plot.chan_str,cfg_plot.label_str);
   dirs.saveDirFigsLine = fullfile(dirs.saveDirFigs,'tfr_avg');
   if ~exist(dirs.saveDirFigsLine,'dir')
     mkdir(dirs.saveDirFigsLine)
