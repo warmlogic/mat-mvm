@@ -1414,8 +1414,8 @@ end
 % GENERAL
 %%%%%%%%%%%%%%%%
 
-makePlots = false;
-% makePlots = true;
+% makePlots = false;
+makePlots = true;
 
 % theseFreqs = cfg_ana.frequencies;
 theseFreqs = [ ...
@@ -1565,8 +1565,6 @@ for f = 1:size(theseFreqs,1)
   
   % run the RM ANOVA
   space2_pow_rmanova(theseFreqs(f,:),latencies,sigElecs,stimType,ana,exper,data_pow);
-  
-  keyboard
 end
 
 end
