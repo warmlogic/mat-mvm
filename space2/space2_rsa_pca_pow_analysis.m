@@ -138,8 +138,8 @@ else
   error('Data directory not found.');
 end
 
-procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/tla');
-% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/tla');
+procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_nsClassic_ftAuto/pow');
+% procDir = fullfile(dataroot,dataDir,'ft_data/cued_recall_stim_multistudy_image_multistudy_word_art_continuousICA_ftAuto/pow');
 
 if ~isempty(data_str)
   rsaFile = fullfile(procDir,sprintf('RSA_PCA_%s_%s_%s_%s_%s_%s_%dlat_%s_%sAvgT_%sAvgF_%s_cluster.mat',origDataType,data_str,sim_method,classif_str,eig_criterion,roi_str,size(latencies,1),freq_str,avgovertime,avgoverfreq,analysisDate));
@@ -259,7 +259,7 @@ latInd = [1:5];
 
 % =================================================
 
-spacings = {'spac2','spac12','spac32','mass'};
+spacings = {'mass','spac2','spac12','spac32'};
 memConds = {'rc', 'fo'};
 latency = cell(1,length(latInd));
 latencySec = cell(1,length(latInd));
@@ -405,6 +405,28 @@ for i = 1:size(pairwiseComps,1)
   multcompare(rm,factorNames{pairwiseComps(i,1)},'By',factorNames{pairwiseComps(i,2)})
 end
 
+%% Colors
+
+if exist('linspecer','file')
+  theseColors = linspecer(length(fieldnames(mean_similarity)));
+end
+
+m_color = theseColors(1,:);
+s2_color = theseColors(2,:);
+s12_color = theseColors(3,:);
+s32_color = theseColors(4,:);
+
+m_rc_color = theseColors(1,:);
+s2_rc_color = theseColors(2,:);
+s12_rc_color = theseColors(3,:);
+s32_rc_color = theseColors(4,:);
+m_fo_color = theseColors(5,:);
+s2_fo_color = theseColors(6,:);
+s12_fo_color = theseColors(7,:);
+s32_fo_color = theseColors(8,:);
+
+print_it = true;
+
 %% plot RSA spacing x subsequent memory interaction
 
 theseSub = noNans & passTrlThresh;
@@ -431,26 +453,26 @@ rc_spac32_sub = mean(rc_spac32,2);
 fo_spac32_sub = mean(fo_spac32,2);
 
 plotMeanLine = false;
-plotSub = true;
+plotSub = false;
 
 if plotMeanLine
-  m_mark = 'bs--';
-  s2_mark = 'ro-';
-  s12_mark = 'rx-';
-  s32_mark = 'r^-';
+  m_mark = 's--';
+  s2_mark = 'o-';
+  s12_mark = 'x-';
+  s32_mark = '^-';
 else
-  m_mark = 'bs';
-  s2_mark = 'ro';
-  s12_mark = 'rx';
-  s32_mark = 'r^';
+  m_mark = 's';
+  s2_mark = 'o';
+  s12_mark = 'x';
+  s32_mark = '^';
 end
 
 if plotSub
   subSpacing = 0.1;
-  m_mark_sub = 'bs';
-  s2_mark_sub = 'ro';
-  s12_mark_sub = 'rx';
-  s32_mark_sub = 'r^';
+  m_mark_sub = 's';
+  s2_mark_sub = 'o';
+  s12_mark_sub = 'x';
+  s32_mark_sub = '^';
 end
 
 meanSizeR = 20;
@@ -461,39 +483,39 @@ hold on
 
 if plotSub
   % forgotten
-  plot((1+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_mass_sub,m_mark_sub,'LineWidth',1);
-  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac2_sub,s2_mark_sub,'LineWidth',1);
-  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac12_sub,s12_mark_sub,'LineWidth',1);
-  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac32_sub,s32_mark_sub,'LineWidth',1);
+  plot((1-subSpacing*2)*ones(sum(theseSub(:,ses)),1), fo_mass_sub,m_mark_sub,'Color',m_color,'LineWidth',1);
+  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac2_sub,s2_mark_sub,'Color',s2_color,'LineWidth',1);
+  plot((1+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac12_sub,s12_mark_sub,'Color',s12_color,'LineWidth',1);
+  plot((1+subSpacing*2)*ones(sum(theseSub(:,ses)),1), fo_spac32_sub,s32_mark_sub,'Color',s32_color,'LineWidth',1);
   
   % recalled
-  plot((2+subSpacing)*ones(sum(theseSub(:,ses)),1), rc_mass_sub,m_mark_sub,'LineWidth',1);
-  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac2_sub,s2_mark_sub,'LineWidth',1);
-  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac12_sub,s12_mark_sub,'LineWidth',1);
-  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac32_sub,s32_mark_sub,'LineWidth',1);
+  plot((2-subSpacing*2)*ones(sum(theseSub(:,ses)),1), rc_mass_sub,m_mark_sub,'Color',m_color,'LineWidth',1);
+  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac2_sub,s2_mark_sub,'Color',s2_color,'LineWidth',1);
+  plot((2+subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac12_sub,s12_mark_sub,'Color',s12_color,'LineWidth',1);
+  plot((2+subSpacing*2)*ones(sum(theseSub(:,ses)),1), rc_spac32_sub,s32_mark_sub,'Color',s32_color,'LineWidth',1);
 end
 
 if plotMeanLine
-  hm = plot([mean(fo_mass_sub,1) mean(rc_mass_sub,1)],m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  hs2 = plot([mean(fo_spac2_sub,1) mean(rc_spac2_sub,1)],s2_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  hs12 = plot([mean(fo_spac12_sub,1) mean(rc_spac12_sub,1)],s12_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  hs32 = plot([mean(fo_spac32_sub,1) mean(rc_spac32_sub,1)],s32_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  hm = plot([mean(fo_mass_sub,1) mean(rc_mass_sub,1)],m_mark,'Color',m_color,'LineWidth',3,'MarkerSize',meanSizeF);
+  hs2 = plot([mean(fo_spac2_sub,1) mean(rc_spac2_sub,1)],s2_mark,'Color',s2_color,'LineWidth',3,'MarkerSize',meanSizeF);
+  hs12 = plot([mean(fo_spac12_sub,1) mean(rc_spac12_sub,1)],s12_mark,'Color',s12_color,'LineWidth',3,'MarkerSize',meanSizeF);
+  hs32 = plot([mean(fo_spac32_sub,1) mean(rc_spac32_sub,1)],s32_mark,'Color',s32_color,'LineWidth',3,'MarkerSize',meanSizeF);
   
 %   % recalled
 %   plot(2, ,s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 %   plot(2, ,m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 else
   % forgotten
-  plot(1, mean(fo_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  plot(1, mean(fo_spac2_sub,1),s2_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  plot(1, mean(fo_spac12_sub,1),s12_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  plot(1, mean(fo_spac32_sub,1),s32_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_mass_sub,1),m_mark,'Color',m_color,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_spac2_sub,1),s2_mark,'Color',s2_color,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_spac12_sub,1),s12_mark,'Color',s12_color,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_spac32_sub,1),s32_mark,'Color',s32_color,'LineWidth',3,'MarkerSize',meanSizeF);
   
   % recalled
-  hm = plot(2, mean(rc_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-  hs2 = plot(2, mean(rc_spac2_sub,1),s2_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-  hs12 = plot(2, mean(rc_spac12_sub,1),s12_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-  hs32 = plot(2, mean(rc_spac32_sub,1),s32_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+  hm = plot(2, mean(rc_mass_sub,1),m_mark,'Color',m_color,'LineWidth',3,'MarkerSize',meanSizeR);
+  hs2 = plot(2, mean(rc_spac2_sub,1),s2_mark,'Color',s2_color,'LineWidth',3,'MarkerSize',meanSizeR);
+  hs12 = plot(2, mean(rc_spac12_sub,1),s12_mark,'Color',s12_color,'LineWidth',3,'MarkerSize',meanSizeR);
+  hs32 = plot(2, mean(rc_spac32_sub,1),s32_mark,'Color',s32_color,'LineWidth',3,'MarkerSize',meanSizeR);
 end
 
 % horiz
@@ -503,7 +525,8 @@ hold off
 axis square
 % axis([0.75 2.25 75 110]);
 xlim([0.75 2.25]);
-ylim([-0.61 0.61]);
+% ylim([-0.61 0.61]);
+ylim([0.21 0.79]);
 
 set(gca,'XTick', [1 2]);
 set(gca,'XTickLabel',{'Forgot','Recalled'});
@@ -516,9 +539,14 @@ legend([hm, hs2, hs12, hs32],{'Massed','Spaced 2','Spaced 12','Spaced 32'},'Loca
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
+if exist('tightfig','file')
+  tightfig(gcf);
+end
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
-% % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+if print_it
+%   print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+  print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmem_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+end
 
 %% plot RSA spacing x time interaction
 
@@ -542,19 +570,19 @@ spac12 = mean(cat(3,rc_spac12,fo_spac12),3);
 spac32 = mean(cat(3,rc_spac32,fo_spac32),3);
 
 plotMeanLines = true;
-plotSub = true;
+plotSub = false;
 plotSubLines = false;
 
 if plotMeanLines
-  m_mark = 'bs--';
-  s2_mark = 'ro-';
-  s12_mark = 'rx-';
-  s32_mark = 'r^-';
+  m_mark = 's--';
+  s2_mark = 'o-';
+  s12_mark = 'x-';
+  s32_mark = '^-';
 else
-  m_mark = 'bs';
-  s2_mark = 'ro';
-  s12_mark = 'rX';
-  s32_mark = 'r^';
+  m_mark = 's';
+  s2_mark = 'o';
+  s12_mark = 'X';
+  s32_mark = '^';
 end
 
 meanSize = 20;
@@ -562,15 +590,15 @@ meanSize = 20;
 if plotSub
   subSpacing = 0.1;
   if plotSubLines
-    m_mark_sub = 'bs--';
-    s2_mark_sub = 'ro-';
-    s12_mark_sub = 'rx-';
-    s32_mark_sub = 'r^-';
+    m_mark_sub = 's--';
+    s2_mark_sub = 'o-';
+    s12_mark_sub = 'x-';
+    s32_mark_sub = '^-';
   else
-    m_mark_sub = 'bs';
-    s2_mark_sub = 'ro';
-    s12_mark_sub = 'rx';
-    s32_mark_sub = 'r^';
+    m_mark_sub = 's';
+    s2_mark_sub = 'o';
+    s12_mark_sub = 'x';
+    s32_mark_sub = '^';
   end
 end
 
@@ -580,33 +608,33 @@ hold on
 if plotSub
   if plotSubLines
     for s = 1:sum(theseSub)
-      plot(mass(s,:),m_mark_sub,'LineWidth',1);
-      plot(spac2(s,:),s2_mark_sub,'LineWidth',1);
-      plot(spac12(s,:),s12_mark_sub,'LineWidth',1);
-      plot(spac32(s,:),s32_mark_sub,'LineWidth',1);
+      plot(mass(s,:),m_mark_sub,'Color',m_color,'LineWidth',1);
+      plot(spac2(s,:),s2_mark_sub,'Color',s2_color,'LineWidth',1);
+      plot(spac12(s,:),s12_mark_sub,'Color',s12_color,'LineWidth',1);
+      plot(spac32(s,:),s32_mark_sub,'Color',s32_color,'LineWidth',1);
     end
   else
     for t = 1:length(latInd)
       if plotSub
-        plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), mass(:,t),m_mark_sub,'LineWidth',1);
-        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac2(:,t),s2_mark_sub,'LineWidth',1);
-        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac12(:,t),s12_mark_sub,'LineWidth',1);
-        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac32(:,t),s32_mark_sub,'LineWidth',1);
+        plot((t-subSpacing*2)*ones(sum(theseSub(:,ses)),1), mass(:,t),m_mark_sub,'Color',m_color,'LineWidth',1);
+        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac2(:,t),s2_mark_sub,'Color',s2_color,'LineWidth',1);
+        plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), spac12(:,t),s12_mark_sub,'Color',s12_color,'LineWidth',1);
+        plot((t+subSpacing*2)*ones(sum(theseSub(:,ses)),1), spac32(:,t),s32_mark_sub,'Color',s32_color,'LineWidth',1);
       end
     end
   end
 end
 if plotMeanLines
-  hm = plot(mean(mass,1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
-  hs2 = plot(mean(spac2,1),s2_mark,'LineWidth',3,'MarkerSize',meanSize);
-  hs12 = plot(mean(spac12,1),s12_mark,'LineWidth',3,'MarkerSize',meanSize);
-  hs32 = plot(mean(spac32,1),s32_mark,'LineWidth',3,'MarkerSize',meanSize);
+  hm = plot(mean(mass,1),m_mark,'Color',m_color,'LineWidth',3,'MarkerSize',meanSize);
+  hs2 = plot(mean(spac2,1),s2_mark,'Color',s2_color,'LineWidth',3,'MarkerSize',meanSize);
+  hs12 = plot(mean(spac12,1),s12_mark,'Color',s12_color,'LineWidth',3,'MarkerSize',meanSize);
+  hs32 = plot(mean(spac32,1),s32_mark,'Color',s32_color,'LineWidth',3,'MarkerSize',meanSize);
 else
   for t = 1:length(latInd)
-    hm = plot(t, mean(mass(:,t),1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
-    hs2 = plot(t, mean(spac2(:,t),1),s2_mark,'LineWidth',3,'MarkerSize',meanSize);
-    hs12 = plot(t, mean(spac12(:,t),1),s12_mark,'LineWidth',3,'MarkerSize',meanSize);
-    hs32 = plot(t, mean(spac32(:,t),1),s32_mark,'LineWidth',3,'MarkerSize',meanSize);
+    hm = plot(t, mean(mass(:,t),1),m_mark,'Color',m_color,'LineWidth',3,'MarkerSize',meanSize);
+    hs2 = plot(t, mean(spac2(:,t),1),s2_mark,'Color',s2_color,'LineWidth',3,'MarkerSize',meanSize);
+    hs12 = plot(t, mean(spac12(:,t),1),s12_mark,'Color',s12_color,'LineWidth',3,'MarkerSize',meanSize);
+    hs32 = plot(t, mean(spac32(:,t),1),s32_mark,'Color',s32_color,'LineWidth',3,'MarkerSize',meanSize);
   end
 end
 
@@ -616,7 +644,9 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.65 0.65]);
+% ylim([-0.65 0.65]);
+% ylim([-0.4 0.4]);
+ylim([0.21 0.79]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -630,9 +660,14 @@ legend([hm, hs2, hs12, hs32],{'Massed','Spaced 2','Spaced 12','Spaced 32'},'Loca
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
+if exist('tightfig','file')
+  tightfig(gcf);
+end
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
-% % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+if print_it
+%   print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+  print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+end
 
 %% plot RSA spacing x memory x time interaction
 
@@ -654,23 +689,23 @@ plotSub = false;
 plotSubLines = false;
 
 if plotMeanLines
-  m_rc_mark = 'bo-';
-  m_fo_mark = 'cx--';
-  s2_rc_mark = 'ro-';
-  s2_fo_mark = 'mx--';
-  s12_rc_mark = 'ro-';
-  s12_fo_mark = 'mx--';
-  s32_rc_mark = 'ro-';
-  s32_fo_mark = 'mx--';
+  m_rc_mark = 'o-';
+  m_fo_mark = 'x--';
+  s2_rc_mark = 'o-';
+  s2_fo_mark = 'x--';
+  s12_rc_mark = 'o-';
+  s12_fo_mark = 'x--';
+  s32_rc_mark = 'o-';
+  s32_fo_mark = 'x--';
 else
-  m_rc_mark = 'bo';
-  m_fo_mark = 'cx';
-  s2_rc_mark = 'ro';
-  s2_fo_mark = 'mx';
-  s12_rc_mark = 'ro';
-  s12_fo_mark = 'mx';
-  s32_rc_mark = 'ro';
-  s32_fo_mark = 'mx';
+  m_rc_mark = 'o';
+  m_fo_mark = 'x';
+  s2_rc_mark = 'o';
+  s2_fo_mark = 'x';
+  s12_rc_mark = 'o';
+  s12_fo_mark = 'x';
+  s32_rc_mark = 'o';
+  s32_fo_mark = 'x';
 end
 
 meanSizeS = 20;
@@ -679,23 +714,23 @@ meanSizeM = 20;
 if plotSub
   subSpacing = 0.2;
   if plotSubLines
-    m_rc_mark_sub = 'bo-';
-    m_fo_mark_sub = 'cx--';
-    s2_rc_mark_sub = 'ro-';
-    s2_fo_mark_sub = 'mx--';
-    s12_rc_mark_sub = 'ro-';
-    s12_fo_mark_sub = 'mx--';
-    s32_rc_mark_sub = 'ro-';
-    s32_fo_mark_sub = 'mx--';
+    m_rc_mark_sub = 'o-';
+    m_fo_mark_sub = 'x--';
+    s2_rc_mark_sub = 'o-';
+    s2_fo_mark_sub = 'x--';
+    s12_rc_mark_sub = 'o-';
+    s12_fo_mark_sub = 'x--';
+    s32_rc_mark_sub = 'o-';
+    s32_fo_mark_sub = 'x--';
   else
-    m_rc_mark_sub = 'bo';
-    m_fo_mark_sub = 'cx';
-    s2_rc_mark_sub = 'ro';
-    s2_fo_mark_sub = 'mx';
-    s12_rc_mark_sub = 'ro';
-    s12_fo_mark_sub = 'mx';
-    s32_rc_mark_sub = 'ro';
-    s32_fo_mark_sub = 'mx';
+    m_rc_mark_sub = 'o';
+    m_fo_mark_sub = 'x';
+    s2_rc_mark_sub = 'o';
+    s2_fo_mark_sub = 'x';
+    s12_rc_mark_sub = 'o';
+    s12_fo_mark_sub = 'x';
+    s32_rc_mark_sub = 'o';
+    s32_fo_mark_sub = 'x';
   end
 end
 
@@ -703,62 +738,63 @@ figure
 hold on
 
 if plotSub
+  fprintf('You probably should not plot individual subjects.\n');
   if plotSubLines
     plotSub = false;
     for s = 1:sum(theseSub)
       % massed
-      plot(rc_mass(s,:),m_rc_mark_sub,'LineWidth',1);
-      plot(fo_mass(s,:),m_fo_mark_sub,'LineWidth',1);
+      plot(rc_mass(s,:),m_rc_mark_sub,'Color',m_rc_color,'LineWidth',1);
+      plot(fo_mass(s,:),m_fo_mark_sub,'Color',m_fo_color,'LineWidth',1);
       % spaced 2
-      plot(rc_spac2(s,:),s2_rc_mark_sub,'LineWidth',1);
-      plot(fo_spac2(s,:),s2_fo_mark_sub,'LineWidth',1);
+      plot(rc_spac2(s,:),s2_rc_mark_sub,'Color',s2_rc_color,'LineWidth',1);
+      plot(fo_spac2(s,:),s2_fo_mark_sub,'Color',s2_fo_color,'LineWidth',1);
       % spaced 12
-      plot(rc_spac12(s,:),s12_rc_mark_sub,'LineWidth',1);
-      plot(fo_spac12(s,:),s12_fo_mark_sub,'LineWidth',1);
+      plot(rc_spac12(s,:),s12_rc_mark_sub,'Color',s12_rc_color,'LineWidth',1);
+      plot(fo_spac12(s,:),s12_fo_mark_sub,'Color',s12_fo_color,'LineWidth',1);
       % spaced 32
-      plot(rc_spac32(s,:),s32_rc_mark_sub,'LineWidth',1);
-      plot(fo_spac32(s,:),s32_fo_mark_sub,'LineWidth',1);
+      plot(rc_spac32(s,:),s32_rc_mark_sub,'Color',s32_rc_color,'LineWidth',1);
+      plot(fo_spac32(s,:),s32_fo_mark_sub,'Color',s32_fo_color,'LineWidth',1);
     end
   else
     for t = 1:length(latInd)
       % massed
-      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_mass(:,t),m_rc_mark_sub,'LineWidth',1);
-      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_mass(:,t),m_fo_mark_sub,'LineWidth',1);
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_mass(:,t),m_rc_mark_sub,'Color',m_rc_color,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_mass(:,t),m_fo_mark_sub,'Color',m_fo_color,'LineWidth',1);
       % spaced 2
-      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac2(:,t),s2_rc_mark_sub,'LineWidth',1);
-      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac2(:,t),s2_fo_mark_sub,'LineWidth',1);
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac2(:,t),s2_rc_mark_sub,'Color',s2_rc_color,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac2(:,t),s2_fo_mark_sub,'Color',s2_fo_color,'LineWidth',1);
       % spaced 12
-      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac12(:,t),s2_rc_mark_sub,'LineWidth',1);
-      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac12(:,t),s2_fo_mark_sub,'LineWidth',1);
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac12(:,t),s12_rc_mark_sub,'Color',s12_rc_color,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac12(:,t),s12_fo_mark_sub,'Color',s12_fo_color,'LineWidth',1);
       % spaced 32
-      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac32(:,t),s2_rc_mark_sub,'LineWidth',1);
-      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac32(:,t),s2_fo_mark_sub,'LineWidth',1);
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac32(:,t),s32_rc_mark_sub,'Color',s32_rc_color,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac32(:,t),s32_fo_mark_sub,'Color',s32_fo_color,'LineWidth',1);
     end
   end
 end
 if plotMeanLines
   % massed
-  hmr = plot(mean(rc_mass,1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
-  hmf = plot(mean(fo_mass,1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  hmr = plot(mean(rc_mass,1),m_rc_mark,'Color',m_rc_color,'LineWidth',3,'MarkerSize',meanSizeM);
+  hmf = plot(mean(fo_mass,1),m_fo_mark,'Color',m_fo_color,'LineWidth',3,'MarkerSize',meanSizeM);
   % spaced
-  hsr2 = plot(mean(rc_spac2,1),s2_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-  hsf2 = plot(mean(fo_spac2,1),s2_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-  hsr12 = plot(mean(rc_spac12,1),s12_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-  hsf12 = plot(mean(fo_spac12,1),s12_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-  hsr32 = plot(mean(rc_spac32,1),s32_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-  hsf32 = plot(mean(fo_spac32,1),s32_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsr2 = plot(mean(rc_spac2,1),s2_rc_mark,'Color',s2_rc_color,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf2 = plot(mean(fo_spac2,1),s2_fo_mark,'Color',s2_fo_color,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsr12 = plot(mean(rc_spac12,1),s12_rc_mark,'Color',s12_rc_color,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf12 = plot(mean(fo_spac12,1),s12_fo_mark,'Color',s12_fo_color,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsr32 = plot(mean(rc_spac32,1),s32_rc_mark,'Color',s32_rc_color,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf32 = plot(mean(fo_spac32,1),s32_fo_mark,'Color',s32_fo_color,'LineWidth',3,'MarkerSize',meanSizeS);
 else
   for t = 1:length(latInd)
     % massed
-    hmr = plot(t,mean(rc_mass(:,t),1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
-    hmf = plot(t,mean(fo_mass(:,t),1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+    hmr = plot(t,mean(rc_mass(:,t),1),m_rc_mark,'Color',m_rc_color,'LineWidth',3,'MarkerSize',meanSizeM);
+    hmf = plot(t,mean(fo_mass(:,t),1),m_fo_mark,'Color',m_fo_color,'LineWidth',3,'MarkerSize',meanSizeM);
     % spaced
-    hsr2 = plot(t,mean(rc_spac2(:,t),1),s2_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-    hsf2 = plot(t,mean(fo_spac2(:,t),1),s2_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-    hsr12 = plot(t,mean(rc_spac12(:,t),1),s12_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-    hsf12 = plot(t,mean(fo_spac12(:,t),1),s12_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-    hsr32 = plot(t,mean(rc_spac32(:,t),1),s32_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-    hsf32 = plot(t,mean(fo_spac32(:,t),1),s32_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsr2 = plot(t,mean(rc_spac2(:,t),1),s2_rc_mark,'Color',s2_rc_color,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf2 = plot(t,mean(fo_spac2(:,t),1),s2_fo_mark,'Color',s2_fo_color,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsr12 = plot(t,mean(rc_spac12(:,t),1),s12_rc_mark,'Color',s12_rc_color,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf12 = plot(t,mean(fo_spac12(:,t),1),s12_fo_mark,'Color',s12_fo_color,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsr32 = plot(t,mean(rc_spac32(:,t),1),s32_rc_mark,'Color',s32_rc_color,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf32 = plot(t,mean(fo_spac32(:,t),1),s32_fo_mark,'Color',s32_fo_color,'LineWidth',3,'MarkerSize',meanSizeS);
   end
 end
 
@@ -768,7 +804,10 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-ylim([-0.35 0.35]);
+% ylim([-0.4 0.4]);
+% ylim([0.01 0.69]);
+% ylim([.1 1.0]);
+ylim([0.21 0.79]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -776,13 +815,21 @@ xlabel('Time (Sec)');
 
 ylabel('Neural Similarity');
 
+% legendLoc = 'North';
+legendLoc = 'SouthWest';
+
 title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
 % legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
-legend([hmr, hmf, hsr2, hsf2, hsr12, hsf12, hsr32, hsf32],{'Mass Recalled','Mass Forgot','Space 2 Recalled','Space 2 Forgot','Space 12 Recalled','Space 12 Forgot','Space 32 Recalled','Space 32 Forgot'},'Location','North');
+legend([hmr, hmf, hsr2, hsf2, hsr12, hsf12, hsr32, hsf32],{'Mass Recalled','Mass Forgot','Space 2 Recalled','Space 2 Forgot','Space 12 Recalled','Space 12 Forgot','Space 32 Recalled','Space 32 Forgot'},'Location',legendLoc);
 
 % ticFontSize = 20;
 ticFontSize = 18;
 publishfig(gcf,0,ticFontSize,[],[]);
+if exist('tightfig','file')
+  tightfig(gcf);
+end
 
-% print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
-% % print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+if print_it
+%   print(gcf,'-depsc2',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+  print(gcf,'-dpng',sprintf('~/Desktop/similarity_spacXmemXtime_%s_%s_%s_%s_%s_%s',data_str,origDataType,roi_str,latStr,eig_criterion,sim_method));
+end
