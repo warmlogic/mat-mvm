@@ -407,38 +407,50 @@ end
 
 %% plot RSA spacing x subsequent memory interaction
 
-% TODO: get rid of RgH
-
 theseSub = noNans & passTrlThresh;
 
 ses=1;
 
-RgH_rc_spac = squeeze(mean_similarity.(sprintf('%s_RgH_rc_spac',data_str))(theseSub,ses,latInd));
-RgH_fo_spac = squeeze(mean_similarity.(sprintf('%s_RgH_fo_spac',data_str))(theseSub,ses,latInd));
-RgH_rc_mass = squeeze(mean_similarity.(sprintf('%s_RgH_rc_mass',data_str))(theseSub,ses,latInd));
-RgH_fo_mass = squeeze(mean_similarity.(sprintf('%s_RgH_fo_mass',data_str))(theseSub,ses,latInd));
+rc_mass = squeeze(mean_similarity.(sprintf('%s_rc_mass',data_str))(theseSub,ses,latInd));
+fo_mass = squeeze(mean_similarity.(sprintf('%s_fo_mass',data_str))(theseSub,ses,latInd));
+rc_spac2 = squeeze(mean_similarity.(sprintf('%s_rc_spac2',data_str))(theseSub,ses,latInd));
+fo_spac2 = squeeze(mean_similarity.(sprintf('%s_fo_spac2',data_str))(theseSub,ses,latInd));
+rc_spac12 = squeeze(mean_similarity.(sprintf('%s_rc_spac12',data_str))(theseSub,ses,latInd));
+fo_spac12 = squeeze(mean_similarity.(sprintf('%s_fo_spac12',data_str))(theseSub,ses,latInd));
+rc_spac32 = squeeze(mean_similarity.(sprintf('%s_rc_spac32',data_str))(theseSub,ses,latInd));
+fo_spac32 = squeeze(mean_similarity.(sprintf('%s_fo_spac32',data_str))(theseSub,ses,latInd));
 
 % mean across time
-RgH_rc_spac_sub = mean(RgH_rc_spac,2);
-RgH_fo_spac_sub = mean(RgH_fo_spac,2);
-RgH_rc_mass_sub = mean(RgH_rc_mass,2);
-RgH_fo_mass_sub = mean(RgH_fo_mass,2);
+rc_mass_sub = mean(rc_mass,2);
+fo_mass_sub = mean(fo_mass,2);
+rc_spac2_sub = mean(rc_spac2,2);
+fo_spac2_sub = mean(fo_spac2,2);
+rc_spac12_sub = mean(rc_spac12,2);
+fo_spac12_sub = mean(fo_spac12,2);
+rc_spac32_sub = mean(rc_spac32,2);
+fo_spac32_sub = mean(fo_spac32,2);
 
 plotMeanLine = false;
 plotSub = true;
 
 if plotMeanLine
-  s_mark = 'ro-';
   m_mark = 'bs--';
+  s2_mark = 'ro-';
+  s12_mark = 'rx-';
+  s32_mark = 'r^-';
 else
-  s_mark = 'ro';
   m_mark = 'bs';
+  s2_mark = 'ro';
+  s12_mark = 'rx';
+  s32_mark = 'r^';
 end
 
 if plotSub
   subSpacing = 0.1;
-  s_mark_sub = 'ro';
   m_mark_sub = 'bs';
+  s2_mark_sub = 'ro';
+  s12_mark_sub = 'rx';
+  s32_mark_sub = 'r^';
 end
 
 meanSizeR = 20;
@@ -449,29 +461,39 @@ hold on
 
 if plotSub
   % forgotten
-  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_fo_spac_sub,s_mark_sub,'LineWidth',1);
-  plot((1+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_fo_mass_sub,m_mark_sub,'LineWidth',1);
+  plot((1+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_mass_sub,m_mark_sub,'LineWidth',1);
+  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac2_sub,s2_mark_sub,'LineWidth',1);
+  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac12_sub,s12_mark_sub,'LineWidth',1);
+  plot((1-subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac32_sub,s32_mark_sub,'LineWidth',1);
   
   % recalled
-  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_rc_spac_sub,s_mark_sub,'LineWidth',1);
-  plot((2+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_rc_mass_sub,m_mark_sub,'LineWidth',1);
+  plot((2+subSpacing)*ones(sum(theseSub(:,ses)),1), rc_mass_sub,m_mark_sub,'LineWidth',1);
+  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac2_sub,s2_mark_sub,'LineWidth',1);
+  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac12_sub,s12_mark_sub,'LineWidth',1);
+  plot((2-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac32_sub,s32_mark_sub,'LineWidth',1);
 end
 
 if plotMeanLine
-  hs = plot([mean(RgH_fo_spac_sub,1) mean(RgH_rc_spac_sub,1)],s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  hm = plot([mean(RgH_fo_mass_sub,1) mean(RgH_rc_mass_sub,1)],m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  hm = plot([mean(fo_mass_sub,1) mean(rc_mass_sub,1)],m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  hs2 = plot([mean(fo_spac2_sub,1) mean(rc_spac2_sub,1)],s2_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  hs12 = plot([mean(fo_spac12_sub,1) mean(rc_spac12_sub,1)],s12_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  hs32 = plot([mean(fo_spac32_sub,1) mean(rc_spac32_sub,1)],s32_mark,'LineWidth',3,'MarkerSize',meanSizeF);
   
 %   % recalled
 %   plot(2, ,s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 %   plot(2, ,m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 else
   % forgotten
-  plot(1, mean(RgH_fo_spac_sub,1),s_mark,'LineWidth',3,'MarkerSize',meanSizeF);
-  plot(1, mean(RgH_fo_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_spac2_sub,1),s2_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_spac12_sub,1),s12_mark,'LineWidth',3,'MarkerSize',meanSizeF);
+  plot(1, mean(fo_spac32_sub,1),s32_mark,'LineWidth',3,'MarkerSize',meanSizeF);
   
   % recalled
-  hs = plot(2, mean(RgH_rc_spac_sub,1),s_mark,'LineWidth',3,'MarkerSize',meanSizeR);
-  hm = plot(2, mean(RgH_rc_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+  hm = plot(2, mean(rc_mass_sub,1),m_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+  hs2 = plot(2, mean(rc_spac2_sub,1),s2_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+  hs12 = plot(2, mean(rc_spac12_sub,1),s12_mark,'LineWidth',3,'MarkerSize',meanSizeR);
+  hs32 = plot(2, mean(rc_spac32_sub,1),s32_mark,'LineWidth',3,'MarkerSize',meanSizeR);
 end
 
 % horiz
@@ -489,7 +511,7 @@ set(gca,'XTickLabel',{'Forgot','Recalled'});
 ylabel('Neural Similarity');
 
 title(sprintf('Spacing \\times Subsequent Memory: %s',data_str));
-legend([hm, hs],{'Massed','Spaced'},'Location','North');
+legend([hm, hs2, hs12, hs32],{'Massed','Spaced 2','Spaced 12','Spaced 32'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
@@ -504,25 +526,35 @@ theseSub = noNans & passTrlThresh;
 
 ses=1;
 
-RgH_rc_spac = squeeze(mean_similarity.(sprintf('%s_RgH_rc_spac',data_str))(theseSub,ses,latInd));
-RgH_fo_spac = squeeze(mean_similarity.(sprintf('%s_RgH_fo_spac',data_str))(theseSub,ses,latInd));
-RgH_rc_mass = squeeze(mean_similarity.(sprintf('%s_RgH_rc_mass',data_str))(theseSub,ses,latInd));
-RgH_fo_mass = squeeze(mean_similarity.(sprintf('%s_RgH_fo_mass',data_str))(theseSub,ses,latInd));
+rc_mass = squeeze(mean_similarity.(sprintf('%s_rc_mass',data_str))(theseSub,ses,latInd));
+fo_mass = squeeze(mean_similarity.(sprintf('%s_fo_mass',data_str))(theseSub,ses,latInd));
+rc_spac2 = squeeze(mean_similarity.(sprintf('%s_rc_spac2',data_str))(theseSub,ses,latInd));
+fo_spac2 = squeeze(mean_similarity.(sprintf('%s_fo_spac2',data_str))(theseSub,ses,latInd));
+rc_spac12 = squeeze(mean_similarity.(sprintf('%s_rc_spac12',data_str))(theseSub,ses,latInd));
+fo_spac12 = squeeze(mean_similarity.(sprintf('%s_fo_spac12',data_str))(theseSub,ses,latInd));
+rc_spac32 = squeeze(mean_similarity.(sprintf('%s_rc_spac32',data_str))(theseSub,ses,latInd));
+fo_spac32 = squeeze(mean_similarity.(sprintf('%s_fo_spac32',data_str))(theseSub,ses,latInd));
 
 % mean across rc/fo
-RgH_spac = mean(cat(3,RgH_rc_spac,RgH_fo_spac),3);
-RgH_mass = mean(cat(3,RgH_rc_mass,RgH_fo_mass),3);
+mass = mean(cat(3,rc_mass,fo_mass),3);
+spac2 = mean(cat(3,rc_spac2,fo_spac2),3);
+spac12 = mean(cat(3,rc_spac12,fo_spac12),3);
+spac32 = mean(cat(3,rc_spac32,fo_spac32),3);
 
 plotMeanLines = true;
 plotSub = true;
 plotSubLines = false;
 
 if plotMeanLines
-  s_mark = 'ro-';
   m_mark = 'bs--';
+  s2_mark = 'ro-';
+  s12_mark = 'rx-';
+  s32_mark = 'r^-';
 else
-  s_mark = 'ro';
   m_mark = 'bs';
+  s2_mark = 'ro';
+  s12_mark = 'rX';
+  s32_mark = 'r^';
 end
 
 meanSize = 20;
@@ -530,11 +562,15 @@ meanSize = 20;
 if plotSub
   subSpacing = 0.1;
   if plotSubLines
-    s_mark_sub = 'ro-';
     m_mark_sub = 'bs--';
+    s2_mark_sub = 'ro-';
+    s12_mark_sub = 'rx-';
+    s32_mark_sub = 'r^-';
   else
-    s_mark_sub = 'ro';
     m_mark_sub = 'bs';
+    s2_mark_sub = 'ro';
+    s12_mark_sub = 'rx';
+    s32_mark_sub = 'r^';
   end
 end
 
@@ -544,25 +580,33 @@ hold on
 if plotSub
   if plotSubLines
     for s = 1:sum(theseSub)
-      plot(RgH_spac(s,:),s_mark_sub,'LineWidth',1);
-      plot(RgH_mass(s,:),m_mark_sub,'LineWidth',1);
+      plot(mass(s,:),m_mark_sub,'LineWidth',1);
+      plot(spac2(s,:),s2_mark_sub,'LineWidth',1);
+      plot(spac12(s,:),s12_mark_sub,'LineWidth',1);
+      plot(spac32(s,:),s32_mark_sub,'LineWidth',1);
     end
   else
     for t = 1:length(latInd)
       if plotSub
-        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_spac(:,t),s_mark_sub,'LineWidth',1);
-        plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_mass(:,t),m_mark_sub,'LineWidth',1);
+        plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), mass(:,t),m_mark_sub,'LineWidth',1);
+        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac2(:,t),s2_mark_sub,'LineWidth',1);
+        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac12(:,t),s12_mark_sub,'LineWidth',1);
+        plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), spac32(:,t),s32_mark_sub,'LineWidth',1);
       end
     end
   end
 end
 if plotMeanLines
-  hs = plot(mean(RgH_spac,1),s_mark,'LineWidth',3,'MarkerSize',meanSize);
-  hm = plot(mean(RgH_mass,1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
+  hm = plot(mean(mass,1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
+  hs2 = plot(mean(spac2,1),s2_mark,'LineWidth',3,'MarkerSize',meanSize);
+  hs12 = plot(mean(spac12,1),s12_mark,'LineWidth',3,'MarkerSize',meanSize);
+  hs32 = plot(mean(spac32,1),s32_mark,'LineWidth',3,'MarkerSize',meanSize);
 else
   for t = 1:length(latInd)
-    hs = plot(t, mean(RgH_spac(:,t),1),s_mark,'LineWidth',3,'MarkerSize',meanSize);
-    hm = plot(t, mean(RgH_mass(:,t),1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
+    hm = plot(t, mean(mass(:,t),1),m_mark,'LineWidth',3,'MarkerSize',meanSize);
+    hs2 = plot(t, mean(spac2(:,t),1),s2_mark,'LineWidth',3,'MarkerSize',meanSize);
+    hs12 = plot(t, mean(spac12(:,t),1),s12_mark,'LineWidth',3,'MarkerSize',meanSize);
+    hs32 = plot(t, mean(spac32(:,t),1),s32_mark,'LineWidth',3,'MarkerSize',meanSize);
   end
 end
 
@@ -581,7 +625,7 @@ xlabel('Time (Sec)');
 ylabel('Neural Similarity');
 
 title(sprintf('Spacing \\times Time: %s',data_str));
-legend([hm, hs],{'Massed','Spaced'},'Location','North');
+legend([hm, hs2, hs12, hs32],{'Massed','Spaced 2','Spaced 12','Spaced 32'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
@@ -596,25 +640,37 @@ theseSub = noNans & passTrlThresh;
 
 ses=1;
 
-RgH_rc_spac = squeeze(mean_similarity.(sprintf('%s_RgH_rc_spac',data_str))(theseSub,ses,latInd));
-RgH_fo_spac = squeeze(mean_similarity.(sprintf('%s_RgH_fo_spac',data_str))(theseSub,ses,latInd));
-RgH_rc_mass = squeeze(mean_similarity.(sprintf('%s_RgH_rc_mass',data_str))(theseSub,ses,latInd));
-RgH_fo_mass = squeeze(mean_similarity.(sprintf('%s_RgH_fo_mass',data_str))(theseSub,ses,latInd));
+rc_mass = squeeze(mean_similarity.(sprintf('%s_rc_mass',data_str))(theseSub,ses,latInd));
+fo_mass = squeeze(mean_similarity.(sprintf('%s_fo_mass',data_str))(theseSub,ses,latInd));
+rc_spac2 = squeeze(mean_similarity.(sprintf('%s_rc_spac2',data_str))(theseSub,ses,latInd));
+fo_spac2 = squeeze(mean_similarity.(sprintf('%s_fo_spac2',data_str))(theseSub,ses,latInd));
+rc_spac12 = squeeze(mean_similarity.(sprintf('%s_rc_spac12',data_str))(theseSub,ses,latInd));
+fo_spac12 = squeeze(mean_similarity.(sprintf('%s_fo_spac12',data_str))(theseSub,ses,latInd));
+rc_spac32 = squeeze(mean_similarity.(sprintf('%s_rc_spac32',data_str))(theseSub,ses,latInd));
+fo_spac32 = squeeze(mean_similarity.(sprintf('%s_fo_spac32',data_str))(theseSub,ses,latInd));
 
 plotMeanLines = true;
 plotSub = false;
 plotSubLines = false;
 
 if plotMeanLines
-  s_rc_mark = 'ro-';
-  s_fo_mark = 'mx--';
   m_rc_mark = 'bo-';
   m_fo_mark = 'cx--';
+  s2_rc_mark = 'ro-';
+  s2_fo_mark = 'mx--';
+  s12_rc_mark = 'ro-';
+  s12_fo_mark = 'mx--';
+  s32_rc_mark = 'ro-';
+  s32_fo_mark = 'mx--';
 else
-  s_rc_mark = 'ro';
-  s_fo_mark = 'mx';
   m_rc_mark = 'bo';
   m_fo_mark = 'cx';
+  s2_rc_mark = 'ro';
+  s2_fo_mark = 'mx';
+  s12_rc_mark = 'ro';
+  s12_fo_mark = 'mx';
+  s32_rc_mark = 'ro';
+  s32_fo_mark = 'mx';
 end
 
 meanSizeS = 20;
@@ -623,15 +679,23 @@ meanSizeM = 20;
 if plotSub
   subSpacing = 0.2;
   if plotSubLines
-    s_rc_mark_sub = 'ro-';
-    s_fo_mark_sub = 'mx--';
     m_rc_mark_sub = 'bo-';
     m_fo_mark_sub = 'cx--';
+    s2_rc_mark_sub = 'ro-';
+    s2_fo_mark_sub = 'mx--';
+    s12_rc_mark_sub = 'ro-';
+    s12_fo_mark_sub = 'mx--';
+    s32_rc_mark_sub = 'ro-';
+    s32_fo_mark_sub = 'mx--';
   else
-    s_rc_mark_sub = 'ro';
-    s_fo_mark_sub = 'mx';
     m_rc_mark_sub = 'bo';
     m_fo_mark_sub = 'cx';
+    s2_rc_mark_sub = 'ro';
+    s2_fo_mark_sub = 'mx';
+    s12_rc_mark_sub = 'ro';
+    s12_fo_mark_sub = 'mx';
+    s32_rc_mark_sub = 'ro';
+    s32_fo_mark_sub = 'mx';
   end
 end
 
@@ -642,39 +706,59 @@ if plotSub
   if plotSubLines
     plotSub = false;
     for s = 1:sum(theseSub)
-      % spaced
-      plot(RgH_rc_spac(s,:),s_rc_mark_sub,'LineWidth',1);
-      plot(RgH_fo_spac(s,:),s_fo_mark_sub,'LineWidth',1);
       % massed
-      plot(RgH_rc_mass(s,:),m_rc_mark_sub,'LineWidth',1);
-      plot(RgH_fo_mass(s,:),m_fo_mark_sub,'LineWidth',1);
+      plot(rc_mass(s,:),m_rc_mark_sub,'LineWidth',1);
+      plot(fo_mass(s,:),m_fo_mark_sub,'LineWidth',1);
+      % spaced 2
+      plot(rc_spac2(s,:),s2_rc_mark_sub,'LineWidth',1);
+      plot(fo_spac2(s,:),s2_fo_mark_sub,'LineWidth',1);
+      % spaced 12
+      plot(rc_spac12(s,:),s12_rc_mark_sub,'LineWidth',1);
+      plot(fo_spac12(s,:),s12_fo_mark_sub,'LineWidth',1);
+      % spaced 32
+      plot(rc_spac32(s,:),s32_rc_mark_sub,'LineWidth',1);
+      plot(fo_spac32(s,:),s32_fo_mark_sub,'LineWidth',1);
     end
   else
     for t = 1:length(latInd)
-      % spaced
-      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_rc_spac(:,t),s_rc_mark_sub,'LineWidth',1);
-      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_fo_spac(:,t),s_fo_mark_sub,'LineWidth',1);
       % massed
-      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_rc_mass(:,t),m_rc_mark_sub,'LineWidth',1);
-      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), RgH_fo_mass(:,t),m_fo_mark_sub,'LineWidth',1);
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_mass(:,t),m_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_mass(:,t),m_fo_mark_sub,'LineWidth',1);
+      % spaced 2
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac2(:,t),s2_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac2(:,t),s2_fo_mark_sub,'LineWidth',1);
+      % spaced 12
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac12(:,t),s2_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac12(:,t),s2_fo_mark_sub,'LineWidth',1);
+      % spaced 32
+      plot((t-subSpacing)*ones(sum(theseSub(:,ses)),1), rc_spac32(:,t),s2_rc_mark_sub,'LineWidth',1);
+      plot((t+subSpacing)*ones(sum(theseSub(:,ses)),1), fo_spac32(:,t),s2_fo_mark_sub,'LineWidth',1);
     end
   end
 end
 if plotMeanLines
-  % spaced
-  hsr = plot(mean(RgH_rc_spac,1),s_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-  hsf = plot(mean(RgH_fo_spac,1),s_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
   % massed
-  hmr = plot(mean(RgH_rc_mass,1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
-  hmf = plot(mean(RgH_fo_mass,1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  hmr = plot(mean(rc_mass,1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  hmf = plot(mean(fo_mass,1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+  % spaced
+  hsr2 = plot(mean(rc_spac2,1),s2_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf2 = plot(mean(fo_spac2,1),s2_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsr12 = plot(mean(rc_spac12,1),s12_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf12 = plot(mean(fo_spac12,1),s12_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsr32 = plot(mean(rc_spac32,1),s32_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+  hsf32 = plot(mean(fo_spac32,1),s32_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
 else
   for t = 1:length(latInd)
-    % spaced
-    hsr = plot(t,mean(RgH_rc_spac(:,t),1),s_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
-    hsf = plot(t,mean(RgH_fo_spac(:,t),1),s_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
     % massed
-    hmr = plot(t,mean(RgH_rc_mass(:,t),1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
-    hmf = plot(t,mean(RgH_fo_mass(:,t),1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+    hmr = plot(t,mean(rc_mass(:,t),1),m_rc_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+    hmf = plot(t,mean(fo_mass(:,t),1),m_fo_mark,'LineWidth',3,'MarkerSize',meanSizeM);
+    % spaced
+    hsr2 = plot(t,mean(rc_spac2(:,t),1),s2_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf2 = plot(t,mean(fo_spac2(:,t),1),s2_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsr12 = plot(t,mean(rc_spac12(:,t),1),s12_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf12 = plot(t,mean(fo_spac12(:,t),1),s12_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsr32 = plot(t,mean(rc_spac32(:,t),1),s32_rc_mark,'LineWidth',3,'MarkerSize',meanSizeS);
+    hsf32 = plot(t,mean(fo_spac32(:,t),1),s32_fo_mark,'LineWidth',3,'MarkerSize',meanSizeS);
   end
 end
 
@@ -684,8 +768,7 @@ plot([-length(latInd)-1, length(latInd)+1], [0 0],'k--','LineWidth',2);
 hold off
 axis square
 xlim([0.75 length(latInd)+0.25]);
-% ylim([0.3 0.8]);
-ylim([0.05 0.65]);
+ylim([-0.35 0.35]);
 
 set(gca,'XTick', 1:length(latInd));
 set(gca,'XTickLabel',latencySec);
@@ -694,7 +777,8 @@ xlabel('Time (Sec)');
 ylabel('Neural Similarity');
 
 title(sprintf('Spacing \\times Memory \\times Time: %s',data_str));
-legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
+% legend([hmr, hmf, hsr, hsf],{'Mass Recalled','Mass Forgot','Space Recalled','Space Forgot'},'Location','North');
+legend([hmr, hmf, hsr2, hsf2, hsr12, hsf12, hsr32, hsf32],{'Mass Recalled','Mass Forgot','Space 2 Recalled','Space 2 Forgot','Space 12 Recalled','Space 12 Forgot','Space 32 Recalled','Space 32 Forgot'},'Location','North');
 
 % ticFontSize = 20;
 ticFontSize = 18;
