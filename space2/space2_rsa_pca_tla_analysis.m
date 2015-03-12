@@ -441,8 +441,6 @@ multcompare(rm2,'spacings_memConds_latency','ComparisonType','lsd')
 
 %% plot RSA spacing x subsequent memory interaction
 
-% TODO: get rid of RgH
-
 theseSub = noNans & passTrlThresh;
 
 ses=1;
