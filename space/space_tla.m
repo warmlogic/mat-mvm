@@ -1451,6 +1451,8 @@ mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
 
 %% RM ANOVA
 
+% also look at space_mass_ERP_ANOVA.m
+
 stimType = 'word_';
 % stimType = 'img_';
 memType = 'RgH_';

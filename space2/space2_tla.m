@@ -1803,6 +1803,8 @@ mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
 
 %% RM ANOVA
 
+% also look at space2_mass_ERP_ANOVA.m
+
 stimType = 'word_';
 % stimType = 'img_';
 memType = ''; % not used for SPACE2
@@ -1846,16 +1848,16 @@ measure = 'avg';
 % % n1Peak = 0.144; % E58
 % latencies = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 
-% % N400
-% roi = {{'C'}};
-% % n400Peak = 0.352; % C
-% % ana.n400PeakWindow = 0.15;
-% latencies = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
+% N400
+roi = {{'C'}};
+% n400Peak = 0.352; % C
+% ana.n400PeakWindow = 0.15;
+latencies = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 
-% LPC
-roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
-% lpcPeak = 0.536; % centered on E77
-latencies = [ana.lpcPeak-(ana.lpcPeakWindow/2), ana.lpcPeak+(ana.lpcPeakWindow/2)]; % time
+% % LPC
+% roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
+% % lpcPeak = 0.536; % centered on E77
+% latencies = [ana.lpcPeak-(ana.lpcPeakWindow/2), ana.lpcPeak+(ana.lpcPeakWindow/2)]; % time
 
 latency = cell(1,size(latencies,1));
 for i = 1:length(latency)
