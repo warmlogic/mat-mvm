@@ -118,7 +118,9 @@ if cfg.is_ga && cfg.outputSubjects
   cfg.outputSubejcts = false;
 end
 if cfg.outputSubjects
-  nPoints_sub = 5;
+  if ~isfield(cfg,'nPoints_sub')
+    cfg.nPoints_sub = 10;
+  end
 end
 
 if ~isfield(cfg,'plotit')
@@ -300,20 +302,20 @@ if strcmp(cfg.datadim,'elec')
   if ~cfg.is_ga && cfg.outputSubjects
     fprintf('Getting data for individual subjects...\n');
     
-    if length(cfg_ft.channel) < nPoints_sub
-      nPoints_sub = length(cfg_ft.channel);
+    if length(cfg_ft.channel) < cfg.nPoints_sub
+      cfg.nPoints_sub = length(cfg_ft.channel);
     end
     
-    peakInfo.subjects.channel = cell(length(ga_allSub),nPoints_sub);
-    peakInfo.subjects.voltage = nan(length(ga_allSub),nPoints_sub);
+    peakInfo.subjects.channel = cell(length(ga_allSub),cfg.nPoints_sub);
+    peakInfo.subjects.voltage = nan(length(ga_allSub),cfg.nPoints_sub);
     
     for gs = 1:length(ga_allSub)
       sub_data = ft_selectdata(cfg_ft,ga_allSub{gs});
       [y,i] = sort(mean(sub_data.avg,2),1,cfg.order);
       
       channels = sub_data.label(i);
-      peakInfo.subjects.channel(gs,:) = channels(1:nPoints_sub)';
-      peakInfo.subjects.voltage(gs,:) = y(1:nPoints_sub)';
+      peakInfo.subjects.channel(gs,:) = channels(1:cfg.nPoints_sub)';
+      peakInfo.subjects.voltage(gs,:) = y(1:cfg.nPoints_sub)';
     end
     fprintf('Done.\n');
   end
@@ -389,13 +391,13 @@ elseif strcmp(cfg.datadim,'time')
   if ~cfg.is_ga && cfg.outputSubjects
     fprintf('Getting data for individual subjects...\n');
     
-    if length(peakInfo.latency) < nPoints_sub
-      nPoints_sub = length(peakInfo.latency);
+    if length(peakInfo.latency) < cfg.nPoints_sub
+      cfg.nPoints_sub = length(peakInfo.latency);
     end
     
-    peakInfo.subjects.latency = nan(length(ga_allSub),nPoints_sub);
+    peakInfo.subjects.latency = nan(length(ga_allSub),cfg.nPoints_sub);
     if ~cfg.avgovertime
-      peakInfo.subjects.voltage = nan(length(ga_allSub),nPoints_sub);
+      peakInfo.subjects.voltage = nan(length(ga_allSub),cfg.nPoints_sub);
     else
       peakInfo.subjects.voltage = nan(length(ga_allSub),1);
     end
@@ -406,10 +408,10 @@ elseif strcmp(cfg.datadim,'time')
       
       % give the sorted latency even though voltage may be averaged
       sub_latency = sub_data.time(i);
-      peakInfo.subjects.latency(gs,:) = sub_latency(1:nPoints_sub)';
+      peakInfo.subjects.latency(gs,:) = sub_latency(1:cfg.nPoints_sub)';
       if ~cfg.avgovertime
         % only output voltage at the top n timepoints
-        peakInfo.subjects.voltage(gs,:) = y(1:nPoints_sub)';
+        peakInfo.subjects.voltage(gs,:) = y(1:cfg.nPoints_sub)';
       else
         % average over the entire latency (so reordering with sort doesn't
         % matter)
@@ -522,11 +524,11 @@ elseif strcmp(cfg.datadim,'peak2peak')
   if ~cfg.is_ga && cfg.outputSubjects
     fprintf('Getting data for individual subjects...\n');
     
-    if length(cfg_ft.channel) < nPoints_sub
-      nPoints_sub = length(cfg_ft.channel);
+    if length(cfg_ft.channel) < cfg.nPoints_sub
+      cfg.nPoints_sub = length(cfg_ft.channel);
     end
     
-    peakInfo.subjects.voltage = nan(length(ga_allSub),nPoints_sub);
+    peakInfo.subjects.voltage = nan(length(ga_allSub),cfg.nPoints_sub);
     
     for gs = 1:length(ga_allSub)
       cfg_p2p = [];
@@ -546,8 +548,8 @@ elseif strcmp(cfg.datadim,'peak2peak')
       [y,i] = sort(posnegdiff(theseChans,:),1,cfg.order);
       
       channels = cfg_ft.channel(i);
-      peakInfo.subjects.channel(gs,:) = channels(1:nPoints_sub)';
-      peakInfo.subjects.voltage(gs,:) = y(1:nPoints_sub)';
+      peakInfo.subjects.channel(gs,:) = channels(1:cfg.nPoints_sub)';
+      peakInfo.subjects.voltage(gs,:) = y(1:cfg.nPoints_sub)';
     end
     fprintf('Done.\n');
   end
