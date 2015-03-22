@@ -7,6 +7,8 @@ cfg = [];
 
 %% gather data
 
+nPoints_sub_latency = 10;
+
 % spacings = {'mass', 'spac', 'onePres'};
 % % oldnew = {'p1'};
 % oldnew = {'p2'};
@@ -58,6 +60,8 @@ lpcPeak = 0.596; % centered on E77
 n400Peak = 0.372; % C
 
 n1Peak = 0.172;
+
+cfg.nPoints_sub = nPoints_sub_latency;
 
 for sp = 1:length(spacings)
   
@@ -158,6 +162,14 @@ memConds = {'rc','fo'};
 % measure = 'latency';
 measure = 'voltage';
 
+if strcmp(measure,'latency')
+  %nPoints = cfg.nPoints_sub;
+  nPoints = 10;
+%   nPoints = 1;
+else
+  nPoints = 1;
+end
+
 % erpComp = 'N1';
 % roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
 
@@ -225,9 +237,10 @@ for sub = 1:sum(~exper.badSub)
             variableNames{vnCount} = sprintf('Y%d',vnCount);
           end
           
-          anovaData(sub,vnCount) = allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1);
+          subData = mean(allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,nPoints));
+          anovaData(sub,vnCount) = subData;
           
-          rmaov_data_teg = cat(1,rmaov_data_teg,[allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1) sp on mc r sub]);
+          rmaov_data_teg = cat(1,rmaov_data_teg,[subData, sp, on, mc, r, sub]);
         end
       end
     end
