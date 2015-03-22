@@ -7,19 +7,21 @@ cfg = [];
 
 %% gather data
 
+nPoints_sub_latency = 10;
+
 % spacings = {'mass', 'spac', 'onePres'};
 % % oldnew = {'p1'};
 % oldnew = {'p2'};
 % memConds = {'all'};
 
-spacings = {'mass', 'spac'};
-oldnew = {'p1', 'p2'};
-memConds = {'all'};
-
-% % didn't test new words, so can't assess memory, but can use p1
 % spacings = {'mass', 'spac'};
 % oldnew = {'p1', 'p2'};
-% memConds = {'rc','fo'};
+% memConds = {'all'};
+
+% didn't test new words, so can't assess memory, but can use p1
+spacings = {'mass', 'spac'};
+oldnew = {'p1', 'p2'};
+memConds = {'rc','fo'};
 
 erpComponents = {'LPC','N400','N1'};
 % erpComponents = {'N1'};
@@ -43,6 +45,8 @@ roi = { ...
 % roi = { ...
 %   {{'E62','E72','E76','E77','E78','E84','E85'}} ... % E77
 %   };
+
+cfg.nPoints_sub = nPoints_sub_latency;
 
 % make sure roi has the same length as erpComponents
 if length(erpComponents) ~= length(roi)
@@ -155,8 +159,15 @@ oldnew = {'p1', 'p2'};
 % oldnew = {'p2'};
 memConds = {'rc','fo'};
 
-% measure = 'latency';
-measure = 'voltage';
+measure = 'latency';
+% measure = 'voltage';
+
+if strcmp(measure,'latency')
+  %nPoints = cfg.nPoints_sub;
+  nPoints = 10;
+else
+  nPoints = 1;
+end
 
 % erpComp = 'N1';
 % roi = {'E50_E51_E57_E58_E59_E64_E65'}; % centered on E58/T5
@@ -225,7 +236,7 @@ for sub = 1:sum(~exper.badSub)
             variableNames{vnCount} = sprintf('Y%d',vnCount);
           end
           
-          anovaData(sub,vnCount) = allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1);
+          anovaData(sub,vnCount) = mean(allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,nPoints));
           
           rmaov_data_teg = cat(1,rmaov_data_teg,[allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1) sp on mc r sub]);
         end
