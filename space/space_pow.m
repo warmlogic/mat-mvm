@@ -1332,6 +1332,159 @@ for lat = 1:size(cfg_plot.latencies,1)
   end
 end
 
+%% RM ANOVA: run through everything we need from cluster statistics in one go
+
+% NB: need to run "cluster statistics" cell (without executing script)
+
+%%%%%%%%%%%%%%%%
+% GENERAL
+%%%%%%%%%%%%%%%%
+
+makePlots = false;
+% makePlots = true;
+
+% theseFreqs = cfg_ana.frequencies;
+% theseFreqs = [ ...
+%   ana.freq.theta; ...
+%   %ana.freq.alpha; ...
+%   ana.freq.alpha_lower; ...
+%   ana.freq.alpha_upper; ...
+%   ana.freq.beta_lower; ...
+%   %ana.freq.beta_upper; ...
+%   %ana.freq.gamma_lower; ...
+%   %ana.freq.gamma_upper; ...
+%   ];
+theseFreqs = [ana.freq.beta_lower];
+
+% stimTypes = {'word_', 'img_'};
+stimTypes = {'word_'};
+% stimTypes = {'img_'};
+
+for st = 1:length(stimTypes)
+  stimType = stimTypes{st};
+  
+  files.figPrintFormat = 'png';
+  
+  %%%%%%%%%%%%%%%%
+  % FIND SIGNIFICANT ELECTRODES
+  %%%%%%%%%%%%%%%%
+  
+  if strcmp(stimType,'word_')
+    sigElecConditions = {{'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}};
+  elseif strcmp(stimType,'img_')
+    sigElecConditions = {{'img_RgH_rc_mass_p2','img_RgH_fo_mass_p2','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}};
+  end
+
+  nSigComparisons = 2;
+  % % significantly different in half of comparisons
+  % nSigComparisons = floor(size(nchoosek(sigElecConditions{1},2),1) / 2);
+  % % significantly different in one fourth of comparisons
+  % nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 4);
+  % % significantly different in 5 of 28 of comparisons
+  % nSigComparisons = floor(size(sigElecsAcrossComparisons.pos{1},2) / 5);
+  
+  %%%%%%%%%%%%%%%%
+  % CONTRAST TOPO
+  %%%%%%%%%%%%%%%%
+  
+  % TODO: more condition comparisons, see cluster stats above
+  
+  if strcmp(stimType,'word_')
+    contrastConditions = {...
+      {'word_rc_mass_p2', 'word_rc_spac_p2'} ... % P2 Rc Spacing
+      {'word_fo_mass_p2', 'word_fo_spac_p2'} ... % P2 Fo Spacing
+      };
+  elseif strcmp(stimType,'img_')
+    contrastConditions = {...
+      {'img_rc_mass_p2', 'img_rc_spac_p2'} ... % P2 Rc Spacing
+      {'img_fo_mass_p2', 'img_fo_spac_p2'} ... % P2 Fo Spacing
+      };
+  end
+  
+  % topoLatencies = [0 0.5; 0.52 1.0]; % time
+  
+  %%%%%%%%%%%%%%%%
+  % SMOOTH LINE PLOTS
+  %%%%%%%%%%%%%%%%
+  
+  linePlotLatencies = [-0.1:0.02:0.98; -0.08:0.02:1.0]';
+  
+  if strcmp(stimType,'word_')
+    linePlotConditions = {{{'word_RgH_rc_mass_p2','word_RgH_fo_mass_p2','word_RgH_rc_spac_p2','word_RgH_fo_spac_p2'}}};
+  elseif strcmp(stimType,'img_')
+    linePlotConditions = {{{'img_RgH_rc_mass_p2','img_RgH_fo_mass_p2','img_RgH_rc_spac_p2','img_RgH_fo_spac_p2'}}};
+  end
+  linePlotConditions_rename = {{{'Mass P2 Recall','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'}}};
+  
+  linePlotLinestyle = {{'-','--','-','--'}};
+  if exist('linspecer','file')
+    thisColor = linspecer(length(cellflat(linePlotConditions)));
+    linePlotColors = cell(1,2);
+    linePlotColors{1} = thisColor(1:4,:);
+    linePlotColors{2} = thisColor(5:8,:);
+  else
+    linePlotColors = {'bcrm','bcrm'};
+  end
+  
+  % onePres_colors = [[0 0 0]; [0 1 0]];
+  
+  %%%%%%%%%%%%%%%%
+  % AVERAGE PLOTS
+  %%%%%%%%%%%%%%%%
+  
+  avgPlotConds = sigElecConditions{1};
+  avgPlotConds_rename = {'Mass P2 Recall','Mass P2 Forgot','Space P2 Recalled','Space P2 Forgot'};
+  
+  %%%%%%%%%%%%%%%%
+  % RUN IT
+  %%%%%%%%%%%%%%%%
+  
+  for f = 1:size(theseFreqs,1)
+    % find the significant electodes
+    files.saveFigs = false;
+    sigElecs = space2_pow_sigElecs(sigElecConditions,theseFreqs(f,:),cfg_ana.latencies,cfg_ana.latencies,nSigComparisons,ana,exper,files,dirs,ga_pow);
+    close all
+    
+    if makePlots
+      % make the smooth line plots
+      files.saveFigs = true;
+      for lpc = 1:size(linePlotConditions,2)
+        space2_pow_linePlot(linePlotConditions{lpc},linePlotConditions_rename{lpc},theseFreqs(f,:),linePlotLatencies,sigElecs,linePlotColors{lpc},linePlotLinestyle{lpc},ana,exper,files,dirs,ga_pow);
+      end
+      close all
+    end
+    
+    % set latencies for average plots, topoplots, and ANOVA
+    if (theseFreqs(f,1) == 11 && theseFreqs(f,2) == 12) || (theseFreqs(f,1) == 13.1 && theseFreqs(f,2) == 20.5)
+      latencies = [0.02:0.32:0.92; 0.32:0.32:1.0]'; % 300 no overlap
+      avgPlotLatencies = [0 0.333; 0.333 0.666; 0.666 1.0];
+    else
+      latencies = [0.02:0.5:0.92; 0.5:0.5:1.0]'; % 500 no overlap
+      avgPlotLatencies = [0 0.5; 0.5 1.0];
+    end
+    
+    if makePlots
+      % make the average plots
+      files.saveFigs = true;
+      space2_pow_avgPlot(avgPlotConds,avgPlotConds_rename,theseFreqs(f,:),avgPlotLatencies,sigElecs,ana,exper,files,dirs,data_pow);
+      close all
+    end
+    
+    % make the contrast topoplots
+    if makePlots
+      for t = 1:size(latencies,1)
+        files.saveFigs = true;
+        space2_pow_contrastTopo(contrastConditions,theseFreqs(f,:),latencies(t,:),sigElecs,ana,exper,files,dirs,ga_pow);
+        close all
+      end
+    end
+    
+    % run the RM ANOVA
+    space_pow_rmanova(theseFreqs(f,:),latencies,sigElecs,stimType,ana,exper,data_pow);
+  end
+
+end
+
 %% line plots
 
 files.saveFigs = true;
