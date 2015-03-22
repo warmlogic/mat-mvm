@@ -196,6 +196,7 @@ measure = 'latency';
 if strcmp(measure,'latency')
   %nPoints = cfg.nPoints_sub;
   nPoints = 10;
+  nPoints = 5;
 else
   nPoints = 1;
 end
@@ -260,9 +261,10 @@ for sub = 1:sum(~exper.badSub)
             variableNames{vnCount} = sprintf('Y%d',vnCount);
           end
           
-          anovaData(sub,vnCount) = mean(allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1:nPoints));
+          subData = mean(allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1:nPoints));
+          anovaData(sub,vnCount) = subData;
           
-          rmaov_data_teg = cat(1,rmaov_data_teg,[allPeakInfo.(cond_str).(roi_str).subjects.(measure)(sub,1) sp on mc r sub]);
+          rmaov_data_teg = cat(1,rmaov_data_teg,[subData, sp, on, mc, r, sub]);
         end
       end
     end

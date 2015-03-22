@@ -1607,7 +1607,7 @@ end
 
 %% plot the contrasts
 
-files.saveFigs = false;
+files.saveFigs = true;
 files.figPrintFormat = 'png';
 
 cfg_plot = [];
@@ -1633,18 +1633,26 @@ cfg_ft.colorbar = 'yes';
 
 % % cfg_plot.conditions = {{'word_rc_spac_p2','word_onePres'},{'word_rc_mass_p2','word_onePres'},{'word_fo_spac_p2','word_onePres'},{'word_fo_mass_p2','word_onePres'}};
 
-% spacing - word
-cfg_plot.conditions = {{'word_rc_mass_p2','word_rc_spac_p2'},{'word_fo_mass_p2','word_fo_spac_p2'}};
-cfg_plot.cond_rename = {{'Mass P2 Recalled','Space P2 Recalled'},{'Mass P2 Forgot','Space P2 Forgot'}};
 
+% old/new - word
+cfg_plot.conditions = {{'word_rc_mass_p1','word_rc_mass_p2'},{'word_rc_spac2_p1','word_rc_spac2_p2'},{'word_rc_spac12_p1','word_rc_spac12_p2'},{'word_rc_spac32_p1','word_rc_spac32_p2'}};
+cfg_plot.cond_rename = {{'Mass P1 Recalled','Mass P2 Recalled'},{'Space2 P1 Recalled','Space2 P2 Recalled'},{'Space12 P1 Recalled','Space12 P2 Recalled'},{'Space32 P1 Recalled','Space32 P2 Recalled'}};
+% cfg_plot.conditions = {{'word_rc_mass_p1','word_rc_mass_p2'},{'word_rc_spac2_p1','word_rc_spac2_p2'}};
+% cfg_plot.cond_rename = {{'Mass P1 Recalled','Mass P2 Recalled'},{'Space2 P1 Recalled','Space2 P2 Recalled'}};
+% cfg_plot.conditions = {{'word_rc_spac12_p1','word_rc_spac12_p2'},{'word_rc_spac32_p1','word_rc_spac32_p2'}};
+% cfg_plot.cond_rename = {{'Space12 P1 Recalled','Space12 P2 Recalled'},{'Space32 P1 Recalled','Space32 P2 Recalled'}};
+
+
+% % spacing - word
+% cfg_plot.conditions = {{'word_rc_mass_p2','word_rc_spac_p2'},{'word_fo_mass_p2','word_fo_spac_p2'}};
+% cfg_plot.cond_rename = {{'Mass P2 Recalled','Space P2 Recalled'},{'Mass P2 Forgot','Space P2 Forgot'}};
 % spacing - img
 % cfg_plot.conditions = {{'img_rc_mass_p2','img_rc_spac_p2'},{'img_fo_mass_p2','img_fo_spac_p2'}};
 % cfg_plot.cond_rename = {{'Mass P2 Recalled','Space P2 Recalled'},{'Mass P2 Forgot','Space P2 Forgot'}};
 
-% SME - word
-cfg_plot.conditions = {{'word_rc_mass_p2','word_fo_mass_p2'},{'word_rc_spac_p2','word_fo_spac_p2'}};
-cfg_plot.cond_rename = {{'Mass P2 Recalled','Mass P2 Forgot'},{'Space P2 Recalled','Space P2 Forgot'}};
-
+% % SME - word
+% cfg_plot.conditions = {{'word_rc_mass_p2','word_fo_mass_p2'},{'word_rc_spac_p2','word_fo_spac_p2'}};
+% cfg_plot.cond_rename = {{'Mass P2 Recalled','Mass P2 Forgot'},{'Space P2 Recalled','Space P2 Forgot'}};
 % % SME - img
 % cfg_plot.conditions = {{'img_rc_mass_p2','img_fo_mass_p2'},{'img_rc_spac_p2','img_fo_spac_p2'}};
 % cfg_plot.cond_rename = {{'Mass P2 Recalled','Mass P2 Forgot'},{'Space P2 Recalled','Space P2 Forgot'}};
@@ -1683,6 +1691,7 @@ cfg_ft.shading = 'interp';
 
 % cfg_plot.roi = {'LPS','RPS'};
 cfg_plot.roi = {'LPS2','RPS2'};
+cfg_plot.roi = {'Cz','E77'};
 % cfg_ft.xlim = [0.5 0.8]; % time
 
 %cfg_plot.roi = {'RAS'};
