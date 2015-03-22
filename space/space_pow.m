@@ -1336,6 +1336,8 @@ end
 
 % NB: need to run "cluster statistics" cell (without executing script)
 
+% NB: some scripts are titled "space2", can ignore this
+
 %%%%%%%%%%%%%%%%
 % GENERAL
 %%%%%%%%%%%%%%%%
@@ -1354,7 +1356,7 @@ makePlots = false;
 %   %ana.freq.gamma_lower; ...
 %   %ana.freq.gamma_upper; ...
 %   ];
-theseFreqs = [ana.freq.beta_lower];
+theseFreqs = [ana.freq.theta];
 
 % stimTypes = {'word_', 'img_'};
 stimTypes = {'word_'};
@@ -1419,9 +1421,9 @@ for st = 1:length(stimTypes)
   linePlotLinestyle = {{'-','--','-','--'}};
   if exist('linspecer','file')
     thisColor = linspecer(length(cellflat(linePlotConditions)));
-    linePlotColors = cell(1,2);
+    linePlotColors = cell(1,1);
     linePlotColors{1} = thisColor(1:4,:);
-    linePlotColors{2} = thisColor(5:8,:);
+    %linePlotColors{2} = thisColor(3:4,:);
   else
     linePlotColors = {'bcrm','bcrm'};
   end
