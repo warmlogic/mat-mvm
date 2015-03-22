@@ -1470,7 +1470,7 @@ for st = 1:length(stimTypes)
       {'word_rc_mass_p2', 'word_rc_spac32_p2'} ... % P2 Rc Spacing
       {'word_fo_mass_p2', 'word_fo_onePres'} ... % P2 Fo Spacing
       {'word_fo_mass_p2', 'word_fo_spac2_p2'} ... % P2 Fo Spacing
-      {'word_fo_mass_p2', 'word_fo_spac2_p2'} ... % P2 Fo Spacing
+      {'word_fo_mass_p2', 'word_fo_spac12_p2'} ... % P2 Fo Spacing
       {'word_fo_mass_p2', 'word_fo_spac32_p2'} ... % P2 Fo Spacing
       };
   elseif strcmp(stimType,'img_')
@@ -1481,7 +1481,7 @@ for st = 1:length(stimTypes)
       {'img_rc_mass_p2', 'img_rc_spac32_p2'} ... % P2 Rc Spacing
       {'img_fo_mass_p2', 'img_fo_onePres'} ... % P2 Fo Spacing
       {'img_fo_mass_p2', 'img_fo_spac2_p2'} ... % P2 Fo Spacing
-      {'img_fo_mass_p2', 'img_fo_spac2_p2'} ... % P2 Fo Spacing
+      {'img_fo_mass_p2', 'img_fo_spac12_p2'} ... % P2 Fo Spacing
       {'img_fo_mass_p2', 'img_fo_spac32_p2'} ... % P2 Fo Spacing
       };
   end
