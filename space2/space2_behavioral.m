@@ -82,6 +82,50 @@ subjects = {
   'SPACE2040';
   };
 
+% % for theta correlation
+% subjects = {
+%   'SPACE2001';
+%   %'SPACE2002'; % really noisy EEG, finished both sessions, incl in beh
+%   %'SPACE2003'; % DNF session 2, exclude
+%   'SPACE2004';
+%   'SPACE2005';
+%   'SPACE2006';
+%   %'SPACE2007'; % bad performance, low trial counts, EXCLUDE
+%   'SPACE2008';
+%   %'SPACE2009'; % DNF session 2, exclude
+%   'SPACE2010';
+%   'SPACE2011';
+%   'SPACE2012';
+%   %'SPACE2013'; % didn't record EEG, stopped session 1 in middle, exclude
+%   'SPACE2014';
+%   'SPACE2015';
+%   %'SPACE2016'; % really noisy EEG, EXCLUDE
+%   'SPACE2017'; % not great performance, still including
+%   'SPACE2018';
+%   'SPACE2019';
+%   %'SPACE2020'; % DNF session 2, exclude
+%   'SPACE2021';
+%   'SPACE2022';
+%   %'SPACE2023'; % DNF session 2, exclude
+%   %'SPACE2024'; % DNF session 2, exclude
+%   %'SPACE2025'; % bad performance, low trial counts, EXCLUDE
+%   'SPACE2026';
+%   %'SPACE2027'; % really noisy EEG, DNF session 2, exclude
+%   'SPACE2028';
+%   'SPACE2029';
+%   'SPACE2030';
+%   'SPACE2031';
+%   'SPACE2032';
+%   'SPACE2033';
+%   'SPACE2034'; % low trial counts, EXCLUDE via threshold
+%   'SPACE2035'; % not great performance, still including
+%   'SPACE2036';
+%   'SPACE2037';
+%   'SPACE2038';
+%   %'SPACE2039'; % DNF session 2, exclude
+%   'SPACE2040';
+%   };
+
 % subjects = {
 %   'SPACE2001'
 %   'SPACE2002'
@@ -297,6 +341,8 @@ stimCats = {'Faces', 'HouseInside'};
 
 anovaData = [];
 
+rmaov_data_teg = [];
+
 for sub = 1:length(subjects)
   if ~exper.badSub(sub,:)
     %for ses = 1:length(exper.sesStr)
@@ -305,8 +351,12 @@ for sub = 1:length(subjects)
     for ses = 1:length(sessions)
       for sp = 1:length(spacings)
         for st = 1:length(stimCats)
+          subData = results.(sessions{ses}).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub);
+          
           %theseData = cat(2,theseData,results.(ses).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
-          theseData = cat(2,theseData,results.(sessions{ses}).(phase).(spacings{sp}).(stimCats{st}).(test).(measure)(sub));
+          theseData = cat(2,theseData,subData);
+          
+          rmaov_data_teg = cat(1, rmaov_data_teg, [subData, ses, sp, st, sub]);
         end
       end
     end
@@ -325,7 +375,7 @@ end
 
 levelnames = {sessions, spacings, stimCats};
 varnames = {'session', 'spacing','img_cat'};
-O = teg_repeated_measures_ANOVA(anovaData, [length(sessions),length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames);
+O = teg_repeated_measures_ANOVA(anovaData, [length(sessions),length(spacings),length(stimCats)], varnames,[],[],[],[],[],[],levelnames,rmaov_data_teg);
 
 %% recall
 

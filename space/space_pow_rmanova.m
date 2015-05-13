@@ -11,9 +11,9 @@ memType = 'RgH_';
 
 spacings = {'mass', 'spac'};
 % spacings = {'spac'};
-oldnew = {'p1', 'p2'};
+% oldnew = {'p1', 'p2'};
 % oldnew = {'p1'};
-% oldnew = {'p2'};
+oldnew = {'p2'};
 memConds = {'rc','fo'};
 % memConds = {'rc'};
 

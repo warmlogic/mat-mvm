@@ -190,13 +190,13 @@ oldnew = {'p1', 'p2'};
 % oldnew = {'p2'};
 memConds = {'rc','fo'};
 
-measure = 'latency';
-% measure = 'voltage';
+% measure = 'latency';
+measure = 'voltage';
 
 if strcmp(measure,'latency')
   %nPoints = cfg.nPoints_sub;
   nPoints = 10;
-  nPoints = 5;
+%   nPoints = 1;
 else
   nPoints = 1;
 end

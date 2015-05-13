@@ -1353,23 +1353,23 @@ cfg_plot.excludeBadSub = 1;
 
 cfg_plot.ftFxn = 'ft_singleplotER';
 
-% N1 @ T5/T6
-% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
-cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % Centered on E58/T5 (144ms)
-% cfg_plot.rois = {{'E57','E58','E63','E64','E65','E68','E69'}}; % Centered on E64 (144ms)
-cfg_plot.ylims = [-3 4; -3 4];
-cfg_plot.legendlocs = {'SouthEast','SouthEast'};
-% n1Peak = 0.144; % E58
-cfg_plot.x_bounds = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
+% % N1 @ T5/T6
+% % cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'},{'E90','E91','E95','E96','E97','E100','E101'}};
+% cfg_plot.rois = {{'E50','E51','E57','E58','E59','E64','E65'}}; % Centered on E58/T5 (144ms)
+% % cfg_plot.rois = {{'E57','E58','E63','E64','E65','E68','E69'}}; % Centered on E64 (144ms)
+% cfg_plot.ylims = [-3 4; -3 4];
+% cfg_plot.legendlocs = {'SouthEast','SouthEast'};
+% % n1Peak = 0.144; % E58
+% cfg_plot.x_bounds = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 
-% % N400 @ C
-% % cfg_plot.rois = {{'FS'}};
-% % cfg_plot.rois = {{'LAS'}};
-% cfg_plot.rois = {{'C'}};
-% cfg_plot.ylims = [-3 4];
-% cfg_plot.legendlocs = {'NorthEast'};
-% % n400Peak = 0.352; % C
-% cfg_plot.x_bounds = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
+% N400 @ C
+% cfg_plot.rois = {{'FS'}};
+% cfg_plot.rois = {{'LAS'}};
+cfg_plot.rois = {{'C'}};
+cfg_plot.ylims = [-3 4];
+cfg_plot.legendlocs = {'NorthEast'};
+% n400Peak = 0.352; % C
+cfg_plot.x_bounds = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 
 % % % LPC @ E77
 % cfg_plot.rois = {{'E62','E72','E76','E77','E78','E84','E85'}};
@@ -1493,7 +1493,7 @@ cfg_plot.legendFontSize = 16;
 
 % cfg_ft.linewidth = 2;
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 theseColors = linspecer(8);
@@ -1526,6 +1526,27 @@ for i = thesePlots
     cfg_plot.rename_condByROI = repmat({{{'Space32 P1 Recalled','Space32 P1 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}},size(cfg_plot.rois));
     cfg_ft.graphcolor = [p1_colors; theseColors([7,8],:)];
   end
+%   if i == 1
+%     cfg_plot.condByROI = repmat({{{'img_rc_onePres','img_fo_onePres'}}},size(cfg_plot.rois));
+%     cfg_plot.rename_condByROI = repmat({{{'One Pres Recalled','One Pres Forgot'}}},size(cfg_plot.rois));
+%     cfg_ft.graphcolor = p1_colors;
+%   elseif i == 2
+%     cfg_plot.condByROI = repmat({{{'img_rc_mass_p1','img_fo_mass_p1','img_rc_mass_p2','img_fo_mass_p2'}}},size(cfg_plot.rois));
+%     cfg_plot.rename_condByROI = repmat({{{'Mass P1 Recalled','Mass P1 Forgot','Mass P2 Recalled','Mass P2 Forgot'}}},size(cfg_plot.rois));
+%     cfg_ft.graphcolor = [p1_colors; theseColors([1,2],:)];
+%   elseif i == 3
+%     cfg_plot.condByROI = repmat({{{'img_rc_spac2_p1','img_fo_spac2_p1','img_rc_spac2_p2','img_fo_spac2_p2'}}},size(cfg_plot.rois));
+%     cfg_plot.rename_condByROI = repmat({{{'Space2 P1 Recalled','Space2 P1 Forgot','Space2 P2 Recalled','Space2 P2 Forgot'}}},size(cfg_plot.rois));
+%     cfg_ft.graphcolor = [p1_colors; theseColors([3,4],:)];
+%   elseif i == 4
+%     cfg_plot.condByROI = repmat({{{'img_rc_spac12_p1','img_fo_spac12_p1','img_rc_spac12_p2','img_fo_spac12_p2'}}},size(cfg_plot.rois));
+%     cfg_plot.rename_condByROI = repmat({{{'Space12 P1 Recalled','Space12 P1 Forgot','Space12 P2 Recalled','Space12 P2 Forgot'}}},size(cfg_plot.rois));
+%     cfg_ft.graphcolor = [p1_colors; theseColors([5,6],:)];
+%   elseif i == 5
+%     cfg_plot.condByROI = repmat({{{'img_rc_spac32_p1','img_fo_spac32_p1','img_rc_spac32_p2','img_fo_spac32_p2'}}},size(cfg_plot.rois));
+%     cfg_plot.rename_condByROI = repmat({{{'Space32 P1 Recalled','Space32 P1 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'}}},size(cfg_plot.rois));
+%     cfg_ft.graphcolor = [p1_colors; theseColors([7,8],:)];
+%   end
   
 %   for ts = theseSes
 %     if ts == 1
@@ -1723,13 +1744,18 @@ mm_ft_contrastER(cfg_ft,cfg_plot,exper,ana,files,dirs,ga_tla,sesNum);
 
 %% average plots
 
-files.saveFigs = true;
+files.saveFigs = false;
 files.figPrintFormat = 'png';
 
 cfg_ft = [];
 cfg_ft.parameter = 'avg';
 
 cfg_plot = [];
+
+% % P2
+% cfg_plot.conditions = {'img_rc_mass_p2','img_fo_mass_p2','img_rc_spac2_p2','img_fo_spac2_p2','img_rc_spac12_p2','img_fo_spac12_p2','img_rc_spac32_p2','img_fo_spac32_p2'};
+% cfg_plot.plot_order = cfg_plot.conditions;
+% cfg_plot.rename_conditions = {'Mass P2 Recalled','Mass P2 Forgot','Space2 P2 Recalled','Space2 P2 Forgot','Space12 P2 Recalled','Space12 P2 Forgot','Space32 P2 Recalled','Space32 P2 Forgot'};
 
 % P2
 cfg_plot.conditions = {'word_rc_mass_p2','word_fo_mass_p2','word_rc_spac2_p2','word_fo_spac2_p2','word_rc_spac12_p2','word_fo_spac12_p2','word_rc_spac32_p2','word_fo_spac32_p2'};
@@ -1770,18 +1796,18 @@ end
 % cfg_plot.linecolor = repmat({'none'},1,length(cfg_plot.conditions));
 % cfg_plot.markerfacecolor = repmat({'none'},1,length(cfg_plot.conditions));
 
-cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
-% cfg_plot.roi = {'E57','E58','E63','E64','E65','E68','E69'}; % E64
-% n1Peak = 0.144; % E58
-cfg_plot.latency = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
-cfg_plot.ylim = [-2 2];
-cfg_plot.legendloc = 'NorthEast';
-
-% cfg_plot.roi = {'C'};
-% % n400Peak = 0.352; % C
-% cfg_plot.latency = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
+% cfg_plot.roi = {'E50','E51','E57','E58','E59','E64','E65'}; % E58
+% % cfg_plot.roi = {'E57','E58','E63','E64','E65','E68','E69'}; % E64
+% % n1Peak = 0.144; % E58
+% cfg_plot.latency = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 % cfg_plot.ylim = [-2 2];
 % cfg_plot.legendloc = 'NorthEast';
+
+cfg_plot.roi = {'C'};
+% n400Peak = 0.352; % C
+cfg_plot.latency = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
+cfg_plot.ylim = [-2 2];
+cfg_plot.legendloc = 'NorthEast';
 
 % cfg_plot.roi = {'E62','E72','E76','E77','E78','E84','E85'}; % E77
 % % lpcPeak = 0.536; % centered on E77
@@ -1812,7 +1838,8 @@ mm_ft_avgplotER_multiSes(cfg_ft,cfg_plot,ana,exper,files,dirs,sesNum,data_tla);
 
 %% RM ANOVA
 
-% also look at space2_mass_ERP_ANOVA.m
+% also look at space2_mass_ERP_ANOVA.m - this other script takes into
+% account the wider range of time windows
 
 stimType = 'word_';
 % stimType = 'img_';
@@ -1851,17 +1878,17 @@ measure = 'avg';
 % latencies = [0.604 0.804];
 % latencies = [0.4 0.65; 0.55 0.8];
 
-% % N1
-% % roi = {{'E57','E58','E63','E64','E65','E68','E69'}}; % E64
-% roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
-% % n1Peak = 0.144; % E58
-% latencies = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
+% N1
+% roi = {{'E57','E58','E63','E64','E65','E68','E69'}}; % E64
+roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
+% n1Peak = 0.144; % E58
+latencies = [ana.n1Peak-(ana.n1PeakWindow/2), ana.n1Peak+(ana.n1PeakWindow/2)]; % time
 
-% N400
-roi = {{'C'}};
-% n400Peak = 0.352; % C
-% ana.n400PeakWindow = 0.15;
-latencies = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
+% % N400
+% roi = {{'C'}};
+% % n400Peak = 0.352; % C
+% % ana.n400PeakWindow = 0.15;
+% latencies = [ana.n400Peak-(ana.n400PeakWindow/2), ana.n400Peak+(ana.n400PeakWindow/2)]; % time
 
 % % LPC
 % roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77

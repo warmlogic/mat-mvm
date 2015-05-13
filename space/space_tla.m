@@ -1487,13 +1487,13 @@ measure = 'avg';
 % latencies = [0.604 0.804];
 % latencies = [0.4 0.65; 0.55 0.8];
 
-% roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
-% lpcPeak = 0.596; % centered on E77
-% latencies = [lpcPeak-0.1 lpcPeak+0.1]; % time
+roi = {{'E62','E72','E76','E77','E78','E84','E85'}}; % E77
+lpcPeak = 0.596; % centered on E77
+latencies = [lpcPeak-0.1 lpcPeak+0.1]; % time
 
-roi = {{'C'}};
-n400Peak = 0.372; % C
-latencies = [n400Peak-0.05 n400Peak+0.05]; % time
+% roi = {{'C'}};
+% n400Peak = 0.372; % C
+% latencies = [n400Peak-0.05 n400Peak+0.05]; % time
 
 % roi = {{'E50','E51','E57','E58','E59','E64','E65'}}; % E58
 % n1Peak = 0.172; % E58

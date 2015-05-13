@@ -1428,6 +1428,9 @@ makePlots = false;
 %   %ana.freq.gamma_lower; ...
 %   %ana.freq.gamma_upper; ...
 %   ];
+% theseFreqs = [ana.freq.theta];
+% theseFreqs = [ana.freq.alpha_lower];
+% theseFreqs = [ana.freq.alpha_upper];
 theseFreqs = [ana.freq.beta_lower];
 
 % stimTypes = {'word_', 'img_'};
