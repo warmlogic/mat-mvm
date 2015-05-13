@@ -62,7 +62,7 @@ subjects = {
   'SPACE027';
   'SPACE029';
   'SPACE037';
-  %'SPACE039'; % noisy EEG; original EEG analyses stopped here
+  'SPACE039'; % noisy EEG; original EEG analyses stopped here
   'SPACE023';
   'SPACE024';
   'SPACE025';
@@ -137,7 +137,8 @@ fprintf('Done.\n');
 
 % Subjects with bad behavior
 % exper.badBehSub = {{}};
-exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+% exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030','SPACE039'}};
+exper.badBehSub = {{'SPACE001','SPACE008','SPACE017','SPACE019','SPACE030'}};
 
 % % exclude subjects with low event counts
 % [exper,ana] = mm_threshSubs_multiSes(exper,ana,5,[],'vert');
